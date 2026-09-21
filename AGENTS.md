@@ -10,3 +10,4 @@
 - Start with a small working result. Reference the old F411 workflow and sensor code; do not migrate its architecture or CI wholesale.
 - Do not batch-delete files or directories. Preserve incomplete downloads and existing user work.
 - Subagents are read-only researchers/reviewers. The primary agent makes edits and final decisions.
+- Follow CONTRIBUTING.md: use a focused codex/ branch, validate locally, open a PR, and wait for the latest Firmware / Build baselines check before merging. Do not push routine changes directly to main or force-push.

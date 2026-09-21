@@ -70,7 +70,7 @@ git -C vendor/SiFli-SDK rev-parse HEAD
 git -C vendor/SiFli-SDK submodule status --recursive
 ```
 
-当前项目尚未创建 Git 提交或远程仓库；新电脑的根项目分发仍需另行完成。初次获取 SDK 时本轮实际使用：
+项目现有私有仓库 `https://github.com/e-n-ye/wristflow` 和首次基线 `27ee4d1`；新电脑克隆方式见 [开发流程](../CONTRIBUTING.md)。初次获取 SDK 时本轮实际使用：
 
 ```powershell
 git -c http.lowSpeedLimit=1000 -c http.lowSpeedTime=30 clone --branch v2.5.1 --depth 1 https://gitee.com/SiFli/sifli-sdk.git vendor/SiFli-SDK
@@ -141,4 +141,4 @@ D:/MY_Desk/project/wristflow/vendor/SiFli-SDK/example/ble/peripheral/project/bui
 
 旧项目 `.github/workflows/ci.yml` 有 F411 固件、host CTest、模拟器 smoke、manifest 签名测试和汇总 Gate。它们依赖 STM32 链接布局、F411 产品目录和旧 LVGL，不复制到此项目。
 
-当前采用本地同一构建入口、版本校验、实际产物检查、配置/日志/哈希留档。没有远程仓库或已运行的 GitHub Actions，不能把本地构建称作 CI 已通过。建立远程仓库后可先让 CI 调用这两个构建入口；出现独立业务逻辑时再加入相应 host tests。
+当前采用本地同一构建入口、版本校验、实际产物检查、配置/日志/哈希留档。GitHub 工作流调用现有 Hello、BLE、Bringup 三个构建入口；云端结果以实际 Actions 记录为准，不能把本地构建称作 CI 已通过。出现独立业务逻辑时再加入相应 host tests。流程与套餐限制见 [开发流程](../CONTRIBUTING.md)。
