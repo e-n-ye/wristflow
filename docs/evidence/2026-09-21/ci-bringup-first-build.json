@@ -1,0 +1,130 @@
+{
+  "started_at": "2026-09-21T15:06:17.7599602+00:00",
+  "date": "2026-09-21T15:08:47.5020317+00:00",
+  "example": "bringup",
+  "command": "scons --board=sf32lb52-nano_n16r16 -j4",
+  "working_directory": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project",
+  "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+  "submodules": [
+    " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+    " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+  ],
+  "sdk_changes": [],
+  "python": "Python 3.13.14",
+  "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+  "scons": [
+    "SCons by Steven Knight et al.:",
+    "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+    "\tSCons path: ['D:\\\\a\\\\wristflow\\\\wristflow\\\\.tools\\\\sifli\\\\envs\\\\default\\\\b1ffa931b7485f8607540b6a2f6a9a53bbefe3696b9db68845be1c3c5cff1ab9\\\\python\\\\Lib\\\\site-packages\\\\SCons']",
+    "Copyright (c) 2001 - 2025 The SCons Foundation"
+  ],
+  "exit_code": 0,
+  "hardware_verified": false,
+  "project_sources": [
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project\\Kconfig",
+      "sha256": "273d83e8ae90b9044b1cccb0e6bf7986d278f7276e7a634bde6e6ce7b9f538ca"
+    },
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project\\Kconfig.proj",
+      "sha256": "f6dad2297294eeb37b8dabb529457149fb412ade19622d107f5d90f068e41039"
+    },
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project\\proj.conf",
+      "sha256": "59d4945de2136272e90521f62da17d4571e7385c9fabd6b14b5a74cfb3faeff1"
+    },
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project\\rtconfig.py",
+      "sha256": "1233166691a7fe9744cab4e10cb3a32a02dd17053a05506f58c403df03f5307a"
+    },
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project\\SConscript",
+      "sha256": "84da1f6db416c8915eb3341e7952edcf31016b579935ed5ea84e17214dcd4730"
+    },
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project\\SConstruct",
+      "sha256": "4379cef9973e5e112e7588077c454815d2f1cde5bc964388e6d1000047422e1f"
+    },
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\src\\main.c",
+      "sha256": "6f9764480bd979d677684f3de814983cdee0c52e4f2f0ac5e29891ebba659386"
+    },
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\src\\SConscript",
+      "sha256": "7a4a0495af41c126421aa51dfeea04ee0b8c0480c04ea14a9ac2db0132d242be"
+    }
+  ],
+  "build_directory": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu",
+  "artifacts": [
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\.config",
+      "bytes": 34820,
+      "sha256": "0833b52c2fb9f6dd275d605d9043b142fd64c337415d40c9754551ad7a42e54b"
+    },
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\ftab.bin",
+      "bytes": 11280,
+      "sha256": "1e381fdf7e4f11357183cd7d33a4dfb04b4acfc3bdd737639b51f02c0c4a1b1b"
+    },
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\main.elf",
+      "bytes": 6538840,
+      "sha256": "73354f6f144fcc73162e67b5f020b996d21c03b40cb9051266fc5ac73ae62200"
+    },
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\main.map",
+      "bytes": 4573359,
+      "sha256": "c0319658b4ba44a28cdd1ddeb3ac007f0ddbc3aca7d0503514b98eca093bc3a6"
+    },
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\rtconfig.h",
+      "bytes": 9717,
+      "sha256": "aea7e87ef3596dc6632df3a1195b408847d0f376b21ad399f46e8fe27b2db196"
+    },
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\sftool_param.json",
+      "bytes": 392,
+      "sha256": "8a4dfb8e18e1c25159a7cc8ad812e53f64e8f0049a516166669f20c623ae5a06"
+    },
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\bootloader\\.config",
+      "bytes": 14035,
+      "sha256": "582783e56dfeb08ea9b94854b3556512f78f9927fc99d6dc9e853cfad84997e4"
+    },
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\bootloader\\bootloader.elf",
+      "bytes": 801300,
+      "sha256": "6865bdc71bf95c1347a4bb4c0b1bf95cf40225de18e4ddc104b4ccdf9a90a519"
+    },
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\bootloader\\bootloader.map",
+      "bytes": 1163167,
+      "sha256": "7fc3f1daadd4be92f60b73fe9792116650c8f6de6556b10e34c1521b36f081eb"
+    },
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\bootloader\\rtconfig.h",
+      "bytes": 3126,
+      "sha256": "6d8c27ff7b9025b9dea672130c9bea170b23b9bbadf6c58d272df7e2e4e66ffa"
+    },
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\bootloader\\output\\bootloader.bin",
+      "bytes": 58312,
+      "sha256": "b193e0e8d49c32adf4bae97a1fe81b015120048d6a7138a2d3bbb65365259619"
+    },
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\bootloader\\output\\bootloader.hex",
+      "bytes": 164091,
+      "sha256": "48fface2fffc1b4ea90007e71303ea98bc5a1b0ffaa38335ff74143d07817eae"
+    },
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\output\\main.bin",
+      "bytes": 609976,
+      "sha256": "e090194fd15cb931789ba7830b5c68ca7eba721c8d7ff26c34cd6955b8839220"
+    },
+    {
+      "path": "D:\\a\\wristflow\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\output\\main.hex",
+      "bytes": 1715786,
+      "sha256": "7eb2a469c88d4eae12f7b56d25898148cdc9fc9df3f2a80470b670af6281c3e7"
+    }
+  ]
+}
