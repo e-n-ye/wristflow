@@ -26,8 +26,8 @@
 - `scripts/Install-Sdk.ps1`、`scripts/Build.ps1`：独立环境安装与 hello/ble/bringup 三个构建目标，均不烧录。
 - `WristFlow: Build Bringup` VS Code 任务及应用编译数据库索引。构建记录增加应用源文件哈希，SDK 保持零修改。
 - [到货验收](ACCEPTANCE.md)：通电前检查、显示触摸、BLE、功耗和扩展清单。
-- 首次基线提交 `27ee4d1` 已推送到私有仓库 `https://github.com/e-n-ye/wristflow`；SDK 保持固定子模块。工作流在独立分支验证，详情见 [开发流程](../CONTRIBUTING.md)。
-- 2026-09-21 用户确认先投入最多 2h 建立首次提交、私有托管、最小云端构建和分支/PR 流程；UI + BLE + PM 留为下一项实验。私有仓库分支保护 API 返回 403 套餐限制，未启用付费或改公开。
+- 首次基线提交 `27ee4d1` 已推送到仓库 `https://github.com/e-n-ye/wristflow`；SDK 保持固定子模块。工作流在独立分支验证，详情见 [开发流程](../CONTRIBUTING.md)。
+- 2026-09-21 用户确认先投入最多 2h 建立首次提交、托管、最小云端构建和分支/PR 流程；UI + BLE + PM 留为下一项实验。私有仓库分支保护 API 返回 403 套餐限制后，用户明确改为公开；现已公开并成功启用 main 的 PR 与构建保护，管理员同样受约束，未启用付费。
 - 本轮本地三个目标均复编译成功：`artifacts/hello/20260921-224638-539/`、`artifacts/ble/20260921-224703-590/`、`artifacts/bringup/20260921-224722-078/`。云端验证结果待实际运行后补充。
 
 ## 尚未验证
