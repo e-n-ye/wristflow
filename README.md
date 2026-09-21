@@ -10,7 +10,7 @@
 
 日常使用 VS Code 可直接运行生成任务，见 [VS Code 操作说明](docs/VSCODE.md)。
 
-项目托管于 [私有 GitHub 仓库](https://github.com/e-n-ye/wristflow)，分支、PR 和云端构建流程见 [贡献与开发流程](CONTRIBUTING.md)。
+项目托管于 [GitHub 仓库](https://github.com/e-n-ye/wristflow)，分支、PR 和云端构建流程见 [贡献与开发流程](CONTRIBUTING.md)。
 
 等待到货期间的独立应用为 `apps/bringup/`，显示、触摸与按键休眠实验见 [上板基础固件](docs/BRINGUP.md)。
 
