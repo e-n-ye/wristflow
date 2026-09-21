@@ -1,0 +1,49 @@
+name: Firmware
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: firmware-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build baselines
+    runs-on: windows-2022
+    timeout-minutes: 45
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.11.21'
+          enable-cache: false
+      - name: Install locked SDK environment
+        run: ./scripts/Install-Sdk.ps1
+      - name: Build Hello
+        run: ./scripts/Build.ps1 -Example hello -Jobs 4
+      - name: Build BLE peripheral
+        run: ./scripts/Build.ps1 -Example ble -Jobs 4
+      - name: Build Bringup
+        run: ./scripts/Build.ps1 -Example bringup -Jobs 4
+      - name: Preserve build evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14

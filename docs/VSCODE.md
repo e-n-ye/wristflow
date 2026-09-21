@@ -1,5 +1,7 @@
 # 使用 VS Code 编译
 
+版本提交、分支、GitHub PR 与云端检查见 [开发流程](../CONTRIBUTING.md)。本页任务和默认快捷键不变。
+
 SDK 和工具链已经装好，Hello World 与 BLE 外设示例已实际编译通过。VS Code 可以作为日常编辑和编译入口，不必每次手动输入命令。编译不需要开发板；烧录、断点调试和实际运行验证需要硬件。
 
 项目自有的上板基础工程也已编译通过：`F1` → `任务: 运行任务` → **WristFlow: Build Bringup**。成功标志是 `BUILD SUCCEEDED: bringup (...)`，行为和到货验证见 [Bringup 实验](BRINGUP.md)。原有默认快捷键 `Ctrl+Shift+B` 仍是 Hello。
