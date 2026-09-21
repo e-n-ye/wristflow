@@ -1,0 +1,90 @@
+{
+  "date": "2026-09-21T20:46:00.9447262+08:00",
+  "example": "hello",
+  "command": "scons --board=sf32lb52-nano_n16r16 -j4",
+  "working_directory": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project",
+  "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+  "submodules": [
+    " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+    " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+  ],
+  "sdk_changes": [],
+  "python": "Python 3.13.15",
+  "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+  "scons": "SCons by Steven Knight et al.:",
+  "exit_code": 0,
+  "hardware_verified": false,
+  "build_directory": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-nano_n16r16_hcpu",
+  "artifacts": [
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-nano_n16r16_hcpu\\.config",
+      "bytes": 20680,
+      "sha256": "1f7860093f9b5c3e68fc393b838c3d5726ced97610a0c959238edc62d5caeea0"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-nano_n16r16_hcpu\\ftab.bin",
+      "bytes": 11280,
+      "sha256": "1e381fdf7e4f11357183cd7d33a4dfb04b4acfc3bdd737639b51f02c0c4a1b1b"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-nano_n16r16_hcpu\\main.elf",
+      "bytes": 2787440,
+      "sha256": "94a3c760a11d72ef9a511a64433f61a544db37f646b2f9f23a9a9033e9ffea4b"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-nano_n16r16_hcpu\\main.map",
+      "bytes": 2198593,
+      "sha256": "228978e5ab03e65d56ec13550df0d50315afc139a8bb2717fd84a2db58b7f759"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-nano_n16r16_hcpu\\rtconfig.h",
+      "bytes": 5852,
+      "sha256": "998d5a7718e4c8133841dff941521c2aef5d9ad08e014cff5ebfd84ca01bde72"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-nano_n16r16_hcpu\\sftool_param.json",
+      "bytes": 392,
+      "sha256": "8a4dfb8e18e1c25159a7cc8ad812e53f64e8f0049a516166669f20c623ae5a06"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-nano_n16r16_hcpu\\bootloader\\.config",
+      "bytes": 14035,
+      "sha256": "582783e56dfeb08ea9b94854b3556512f78f9927fc99d6dc9e853cfad84997e4"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-nano_n16r16_hcpu\\bootloader\\bootloader.elf",
+      "bytes": 802448,
+      "sha256": "4988335f3fe90605900fcdc865729713d3d6a92a7a7e2faad83b1ebe1ceb927a"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-nano_n16r16_hcpu\\bootloader\\bootloader.map",
+      "bytes": 1167039,
+      "sha256": "0eddcc55dca8cb4eb00cc1b70c4b2a014775b639e2c2c1b47e8ba5e10e08bbdc"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-nano_n16r16_hcpu\\bootloader\\rtconfig.h",
+      "bytes": 3157,
+      "sha256": "ddf323504f60b62e325af6c68c0e202b36c33cbdf65c34775f463942c5abfa18"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-nano_n16r16_hcpu\\bootloader\\output\\bootloader.bin",
+      "bytes": 58312,
+      "sha256": "b193e0e8d49c32adf4bae97a1fe81b015120048d6a7138a2d3bbb65365259619"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-nano_n16r16_hcpu\\bootloader\\output\\bootloader.hex",
+      "bytes": 164091,
+      "sha256": "48fface2fffc1b4ea90007e71303ea98bc5a1b0ffaa38335ff74143d07817eae"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-nano_n16r16_hcpu\\output\\main.bin",
+      "bytes": 296832,
+      "sha256": "5d8e0fc8ce5e81fb2d4ab392786cd9176bd8855d2993d2e2b3d020732798ae7a"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-nano_n16r16_hcpu\\output\\main.hex",
+      "bytes": 834977,
+      "sha256": "98515e8809577a60a1d90d8283e6d1bb15280ffbc84fbbb3c3b69ad11fa97589"
+    }
+  ]
+}

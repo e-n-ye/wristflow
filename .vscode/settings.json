@@ -1,0 +1,14 @@
+{
+  "files.encoding": "utf8",
+  "cmake.configureOnOpen": false,
+  "files.exclude": {
+    ".tools": true,
+    "vendor/SiFli-SDK.github-partial": true
+  },
+  "search.exclude": {
+    "**/.tools/**": true,
+    "**/artifacts/**": true,
+    "**/vendor/SiFli-SDK.github-partial/**": true,
+    "**/build_sf32lb52-nano_n16r16_hcpu/**": true
+  }
+}

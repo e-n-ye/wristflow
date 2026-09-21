@@ -1,0 +1,14 @@
+{
+  "sdk": {
+    "url": "https://github.com/OpenSiFli/SiFli-SDK.git",
+    "mirror": "https://gitee.com/SiFli/sifli-sdk.git",
+    "tag": "v2.5.1",
+    "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65"
+  },
+  "submodules": {
+    "middleware/bluetooth": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c",
+    "tools/SiliconSchema": "304658c6edd5497211b7d152932327ce6e4450ff"
+  },
+  "board": "sf32lb52-nano_n16r16",
+  "tool_profile": "tools/locks/default/lock.json"
+}

@@ -1,0 +1,130 @@
+{
+  "started_at": "2026-09-21T22:07:06.6499183+08:00",
+  "date": "2026-09-21T22:08:46.6766479+08:00",
+  "example": "bringup",
+  "command": "scons --board=sf32lb52-nano_n16r16 -j4",
+  "working_directory": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project",
+  "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+  "submodules": [
+    " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+    " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+  ],
+  "sdk_changes": [],
+  "python": "Python 3.13.15",
+  "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+  "scons": [
+    "SCons by Steven Knight et al.:",
+    "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+    "\tSCons path: ['D:\\\\MY_Desk\\\\project\\\\wristflow\\\\.tools\\\\sifli\\\\envs\\\\default\\\\b1ffa931b7485f8607540b6a2f6a9a53bbefe3696b9db68845be1c3c5cff1ab9\\\\python\\\\Lib\\\\site-packages\\\\SCons']",
+    "Copyright (c) 2001 - 2025 The SCons Foundation"
+  ],
+  "exit_code": 0,
+  "hardware_verified": false,
+  "project_sources": [
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\Kconfig",
+      "sha256": "bbb4439f3cc52b586104846094f5aea6a70dd44af13b70fef6f913dc5f1a8b8b"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\Kconfig.proj",
+      "sha256": "88fb8b5d8ba04748590e01f21c4a58ee21c7e6d8433b56b50916bc3cca71c5d5"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\proj.conf",
+      "sha256": "d61d28509c24b2898582c335ec0dd02d5c8982985d61ce1aa2b0fe427ca087fd"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\rtconfig.py",
+      "sha256": "7e594d6e4864ee4d8a1d18d08f34abb0fef52d0887a9680b64469b58f566faf2"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\SConscript",
+      "sha256": "7a09a5012c17e0c37a8a309cdbc14887f0aac8c493f99d2df2a47578b4dad7d2"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\SConstruct",
+      "sha256": "8e8e024f48ad47e7a89689a22f7248d8e9c5d63009dcca5302f560afc45e587c"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\src\\main.c",
+      "sha256": "ce6ebbde9d47ad40b0b69602bb2ff58379b78163cb13b57a48a80c945ebbb773"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\src\\SConscript",
+      "sha256": "a8bc7a3c19444f301c06e2a1ff9f5a4bb836f1693511c2860381c6f0da2d3439"
+    }
+  ],
+  "build_directory": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu",
+  "artifacts": [
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\.config",
+      "bytes": 34820,
+      "sha256": "0833b52c2fb9f6dd275d605d9043b142fd64c337415d40c9754551ad7a42e54b"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\ftab.bin",
+      "bytes": 11280,
+      "sha256": "1e381fdf7e4f11357183cd7d33a4dfb04b4acfc3bdd737639b51f02c0c4a1b1b"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\main.elf",
+      "bytes": 6549288,
+      "sha256": "640c1dd752a62aef10bd46fefad85b6b4467d070feec206bb9ded17aae6f5fb1"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\main.map",
+      "bytes": 4582447,
+      "sha256": "3bbfc2747014b639e1fe5d02494573a0308ce353bee760e67f70482c73996bfb"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\rtconfig.h",
+      "bytes": 9717,
+      "sha256": "aea7e87ef3596dc6632df3a1195b408847d0f376b21ad399f46e8fe27b2db196"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\sftool_param.json",
+      "bytes": 392,
+      "sha256": "8a4dfb8e18e1c25159a7cc8ad812e53f64e8f0049a516166669f20c623ae5a06"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\bootloader\\.config",
+      "bytes": 14035,
+      "sha256": "582783e56dfeb08ea9b94854b3556512f78f9927fc99d6dc9e853cfad84997e4"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\bootloader\\bootloader.elf",
+      "bytes": 802408,
+      "sha256": "eb302e753b5409e537908469c850cd50b93965765a37cb8f27f43fd9de2a772d"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\bootloader\\bootloader.map",
+      "bytes": 1167039,
+      "sha256": "f9213aae4daee731b6adcd3ccd2cabecb298a548a6fbcfbad92093af2ce627b5"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\bootloader\\rtconfig.h",
+      "bytes": 3126,
+      "sha256": "6d8c27ff7b9025b9dea672130c9bea170b23b9bbadf6c58d272df7e2e4e66ffa"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\bootloader\\output\\bootloader.bin",
+      "bytes": 58312,
+      "sha256": "b193e0e8d49c32adf4bae97a1fe81b015120048d6a7138a2d3bbb65365259619"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\bootloader\\output\\bootloader.hex",
+      "bytes": 164091,
+      "sha256": "48fface2fffc1b4ea90007e71303ea98bc5a1b0ffaa38335ff74143d07817eae"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\output\\main.bin",
+      "bytes": 610096,
+      "sha256": "8a26366aaef4b8a0c3f1a7bddd2f4c844177cabefb400a052fbb7056a1094371"
+    },
+    {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-nano_n16r16_hcpu\\output\\main.hex",
+      "bytes": 1716117,
+      "sha256": "3055b51c31b1c9a5aeac588d3603cd0bf3b51bcf554dbe1ceef8c5a1b683bb84"
+    }
+  ]
+}

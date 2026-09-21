@@ -1,0 +1,7 @@
+.tools/
+vendor/*.github-partial/
+artifacts/
+*.log
+__pycache__/
+apps/**/build_*/
+apps/**/.sconsign.dblite

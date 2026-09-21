@@ -1,0 +1,62 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "WristFlow: Build Bringup",
+      "type": "process",
+      "command": "${env:USERPROFILE}/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell/pwsh.exe",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-File", "${workspaceFolder}/scripts/Build.ps1",
+        "-Example", "bringup", "-Jobs", "4"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PATH": "${env:LOCALAPPDATA}\\Programs\\Python\\Python312\\Scripts;D:\\Git\\cmd;${env:PATH}"
+        }
+      },
+      "group": "build",
+      "problemMatcher": "$gcc",
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true }
+    },
+    {
+      "label": "WristFlow: Build Hello World",
+      "type": "process",
+      "command": "${env:USERPROFILE}/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell/pwsh.exe",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-File", "${workspaceFolder}/scripts/Build.ps1",
+        "-Example", "hello", "-Jobs", "4"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PATH": "${env:LOCALAPPDATA}\\Programs\\Python\\Python312\\Scripts;D:\\Git\\cmd;${env:PATH}"
+        }
+      },
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": "$gcc",
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true }
+    },
+    {
+      "label": "WristFlow: Build BLE Peripheral",
+      "type": "process",
+      "command": "${env:USERPROFILE}/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell/pwsh.exe",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-File", "${workspaceFolder}/scripts/Build.ps1",
+        "-Example", "ble", "-Jobs", "4"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PATH": "${env:LOCALAPPDATA}\\Programs\\Python\\Python312\\Scripts;D:\\Git\\cmd;${env:PATH}"
+        }
+      },
+      "group": "build",
+      "problemMatcher": "$gcc",
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true }
+    }
+  ]
+}

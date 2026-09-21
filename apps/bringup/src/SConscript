@@ -1,0 +1,6 @@
+from building import *
+
+objs = DefineGroup('WristFlowBringup', Glob('*.c'), depend=[''],
+                   CPPPATH=[GetCurrentDir()],
+                   LOCAL_CCFLAGS=' -Wall -Wextra -Werror=implicit-function-declaration')
+Return('objs')
