@@ -1,5 +1,45 @@
 # 可复现构建基线
 
+## 当前黄山派基线（2026-09-22）
+
+用户已确认退 Nano 完成、黄山派已下单。`sdk.lock.json` 的默认板型已改为 `sf32lb52-lchspi-ulp`；SDK v2.5.1 及两个子模块提交与下方历史版本表一致，SDK 源码零修改。Hello、BLE、Bringup 在本机实际编译链接成功，包装器产物检查通过；没有硬件运行验证。
+
+项目根目录的 PowerShell 7 命令保持不变：
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -Example hello -Jobs 4
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -Example ble -Jobs 4
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -Example bringup -Jobs 4
+```
+
+底层均为官方 `scons --board=sf32lb52-lchspi-ulp -j4`。工作目录分别是 `vendor/SiFli-SDK/example/get-started/hello_world/rtt/project`、`vendor/SiFli-SDK/example/ble/peripheral/project`、`apps/bringup/project`。VS Code 三个任务及 CI 继续使用同一入口。
+
+黄山派沿用 SDK 自带的旧版 `ptab.json`。各工程产物在 `build_sf32lb52-lchspi-ulp_hcpu/`，主固件为 `main.bin`，分区表为 `ftab/ftab.bin`，bootloader 为 `bootloader/bootloader.bin`，并有 ELF、map、HEX、配置及编译数据库。脚本读取 SDK 生成的 `sftool_param.json` 定位并检查所有镜像，不执行其烧录指令。旧 Nano 的 `output/main.bin` 和根 `ftab.bin` 布局也可由同一检查识别。
+
+| 目标 | 本机记录目录 | main.bin 字节 | SHA-256 |
+|---|---|---:|---|
+| Hello | `artifacts/hello/20260922-124620-144/` | 300336 | `5d1e396f2e9cd6edd35f0586d2c30dbd7f3dd4cf0f42a5bcf17c9a976e4173c0` |
+| BLE | `artifacts/ble/20260922-124628-615/` | 490064 | `09d17264a1822a45731664091785dea1b0a0324f5be2af46f32c154500d396d2` |
+| Bringup | `artifacts/bringup/20260922-130142-290/` | 614176 | `deadadab94b802be43bbd3eeab9580de1828c28fafa679c9254b9334984895fb` |
+
+三项 SCons 退出码均为 0，`artifact_validation_passed=true`；记录现在把编译退出码与产物校验结果分开，并给出 `firmware_path`。版本为本机 Python 3.13.15、SCons 4.10.1、Arm GNU 14.2.Rel1/GCC 14.2.1。版本、完整产物哈希和生成配置摘录已归档到 [机器可读证据](evidence/2026-09-22/huangshan-baselines.json)。原始构建日志保留在上表各目录。
+
+包装器另外通过 PowerShell AST 解析并提取实际产物校验块执行：现有 Nano/黄山派两种清单均通过，缺失镜像与重复 `main.bin` 清单均被拒绝。负例保留在 `artifacts/manifest-validation-ef6a6da8179d4e5ebcaca9c1a571c9cc/`，未删除真实固件。JSON 配置、SDK 锁定提交及生成编译数据库路径另行检查。
+
+生成配置确认三项均为黄山派、MPI1 mode 3、CO5300/FT6146、390x450、AW32001 充电、KEY1=PA34/高电平有效及板级分区。Hello/BLE 的 PM 关闭；Bringup 的 PM/Deep Sleep/LVGL v9 开启且 BLE 关闭；三项触摸唤醒关闭。仍未实现同一固件 UI + BLE + PM 联合验证。
+
+本轮失败和处理：
+
+1. `artifacts/hello/20260922-123247-160/`：SCons 已成功，但旧包装器只检查 `output/main.bin` 而失败。该历史 JSON 的 `exit_code=0` 只代表编译器成功，不能当包装器成功。现改为读取官方镜像清单，检查必需镜像唯一且所有列出文件存在、非空。
+2. `artifacts/bringup/20260922-124728-694/`：链接报 `CODE_START_ADDR` 未定义。项目未启用官方 Hello 已使用的 `CUSTOM_MEM_MAP`，旧版分区头未进入链接预处理；现在 `Kconfig.proj` 按官方模式启用板级内存映射，不修改 SDK 分区。重编译通过。
+3. 保留 SDK 的 RWX LOAD segment 警告、LVGL `lv_obj_tree.c:274` 潜在空指针警告，以及旧版 ftab 子工程的 newlib syscall/`entry` 警告和 `img "dfu" not found`。本轮未启用 DFU，也未抑制警告；上板启动、地址布局和运行稳定性仍待验证。
+
+云端检查由本次分支 PR 的最新 `Firmware / Build baselines` 验证，不能用历史 Nano CI 或本机成功代替。没有烧录、触摸、BLE 连接、休眠电流或续航证据。
+
+## Nano 历史基线（2026-09-21）
+
+以下版本、直接 SCons 板名、目录与哈希是切换前的 Nano 记录；日常构建以上方黄山派入口为准，不把下方产物用于新板。
+
 验证日期：2026-09-21，Windows x64 / PowerShell 7。两项均实际完成编译和链接，SDK 源码工作树保持干净。没有连接、枚举或刷写设备。
 
 同日新增第三个目标 `bringup`，已实际完成编译和链接。它位于项目自有目录 `apps/bringup/`，开启显示/触摸与 PM，详情及独立证据见 [上板基础固件](BRINGUP.md)。本页的 Hello/BLE 配置和首次固件哈希仍作为原始基线。

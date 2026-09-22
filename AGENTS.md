@@ -4,7 +4,7 @@
 - Preserve prior decisions. Do not restart a requirements interview; ask only about new decisions with evidence.
 - Use UTF-8 for documents, comments, and Chinese strings. Check only changed Chinese files for encoding corruption.
 - Keep SiFli-SDK at the commit and submodule revisions in `sdk.lock.json`. Use its official installation and SCons conventions.
-- Build scripts must never flash a device. The user reported ordering hardware on 2026-09-21; it has not arrived and the actual board/screen revisions remain unverified. Do not purchase, contact sellers, or change unrelated projects.
+- Build scripts must never flash a device. On 2026-09-22 the user confirmed the Nano return is complete and Huangshan (sf32lb52-lchspi-ulp) has been ordered; arrival and actual board/screen revisions remain unverified. Read docs/HARDWARE.md for this decision. Do not purchase, contact sellers, or change unrelated projects.
 - Separate source inspection, successful compilation, and hardware verification in every result. No hardware means no claims about touch, BLE operation, sleep current, or battery life.
 - Record commands, versions, artifacts, failures, and the next bounded experiment in project documents.
 - Start with a small working result. Reference the old F411 workflow and sensor code; do not migrate its architecture or CI wholesale.

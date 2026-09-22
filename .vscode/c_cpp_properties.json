@@ -2,21 +2,21 @@
   "version": 4,
   "configurations": [
     {
-      "name": "Nano - Bringup",
+      "name": "Huangshan - Bringup",
       "compilerPath": "${workspaceFolder}/.tools/sifli/tools/arm-none-eabi-gcc/14.2.1/bin/arm-none-eabi-gcc.exe",
-      "compileCommands": "${workspaceFolder}/apps/bringup/project/build_sf32lb52-nano_n16r16_hcpu/compile_commands.json",
+      "compileCommands": "${workspaceFolder}/apps/bringup/project/build_sf32lb52-lchspi-ulp_hcpu/compile_commands.json",
       "intelliSenseMode": "windows-gcc-arm"
     },
     {
-      "name": "Nano - Hello World",
+      "name": "Huangshan - Hello World",
       "compilerPath": "${workspaceFolder}/.tools/sifli/tools/arm-none-eabi-gcc/14.2.1/bin/arm-none-eabi-gcc.exe",
-      "compileCommands": "${workspaceFolder}/vendor/SiFli-SDK/example/get-started/hello_world/rtt/project/build_sf32lb52-nano_n16r16_hcpu/compile_commands.json",
+      "compileCommands": "${workspaceFolder}/vendor/SiFli-SDK/example/get-started/hello_world/rtt/project/build_sf32lb52-lchspi-ulp_hcpu/compile_commands.json",
       "intelliSenseMode": "windows-gcc-arm"
     },
     {
-      "name": "Nano - BLE Peripheral",
+      "name": "Huangshan - BLE Peripheral",
       "compilerPath": "${workspaceFolder}/.tools/sifli/tools/arm-none-eabi-gcc/14.2.1/bin/arm-none-eabi-gcc.exe",
-      "compileCommands": "${workspaceFolder}/vendor/SiFli-SDK/example/ble/peripheral/project/build_sf32lb52-nano_n16r16_hcpu/compile_commands.json",
+      "compileCommands": "${workspaceFolder}/vendor/SiFli-SDK/example/ble/peripheral/project/build_sf32lb52-lchspi-ulp_hcpu/compile_commands.json",
       "intelliSenseMode": "windows-gcc-arm"
     }
   ]

@@ -9,6 +9,6 @@
     "middleware/bluetooth": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c",
     "tools/SiliconSchema": "304658c6edd5497211b7d152932327ce6e4450ff"
   },
-  "board": "sf32lb52-nano_n16r16",
+  "board": "sf32lb52-lchspi-ulp",
   "tool_profile": "tools/locks/default/lock.json"
 }

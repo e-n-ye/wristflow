@@ -1,6 +1,6 @@
 # 上板基础固件实验
 
-日期：2026-09-21。用户已下单，尚未到货；本实验先准备 Nano R16N16 可构建的独立应用。实际屏幕版本、排线、电源、触摸映射和按键丝印仍须按到货清单确认。
+更新：2026-09-22。用户确认 Nano 退货完成、黄山派已下单。本实验的默认目标已改为 `sf32lb52-lchspi-ulp`，在固定 SDK 下实际编译通过；应用 C 源码不变，项目 Kconfig 补齐官方板级内存映射选项。实际屏幕版本、排线、电源、触摸映射和按键丝印仍须按到货清单确认。下方 2026-09-21 的 Nano 哈希保留为历史记录。
 
 ## 范围与入口
 
@@ -14,7 +14,7 @@ VS Code：`F1` → `任务: 运行任务` → `WristFlow: Build Bringup`。`Ctrl
 pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -Example bringup -Jobs 4
 ```
 
-最终调用仍是官方 `scons --board=sf32lb52-nano_n16r16 -j4`，工作目录为 `apps/bringup/project`。版本和离线环境复用方式与 [构建基线](BUILD.md) 一致。任务不执行烧录。
+最终调用为官方 `scons --board=sf32lb52-lchspi-ulp -j4`，工作目录为 `apps/bringup/project`。版本和离线环境复用方式与 [构建基线](BUILD.md) 一致。任务不执行烧录。
 
 ## 预期行为，待真机验证
 
@@ -36,24 +36,26 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -Example bring
 - 工程骨架沿用官方 Hello 的 SCons 流程，使用 `PrepareEnv`、`AddBootLoader`、`PrepareBuilding`、`AddFTAB`，保留 board 自带分区。
 - 显示和输入通过官方 `littlevgl2rtt_init("lcd")` 与 LVGL v9；帧缓冲交给 SDK 管理，不复用 PM 示例中尺寸与全屏写入范围不一致的自建缓冲。
 - `example/pm/gui_pm` 的源文件分组依赖六轴传感器配置，其项目还带 LSM6DSL/CWM。当前应用不复制这些依赖，使用官方 AMOLED 示例中直接控制设备和申请/释放 IDLE 的方式，不启用 `GUI_APP_PM` 框架。
-- Nano `hcpu/board.conf` 指定 KEY1=PA34、高电平有效。应用使用官方 button 库消抖，通过 `HAL_HPAON_QueryWakeupPin` 查询索引，再启用双边沿 AON 唤醒，不硬编码唤醒索引。
+- 黄山派与历史 Nano 的 `hcpu/board.conf` 均指定 KEY1=PA34、高电平有效。应用使用官方 button 库消抖，通过 `HAL_HPAON_QueryWakeupPin` 查询索引，再启用双边沿 AON 唤醒，不硬编码唤醒索引。
 - 按键回调只发送 RT-Thread 事件。LVGL 操作与应用的 PM 请求都在主线程，避免从回调操作 GUI；关屏期间到来的事件保留在事件位中，等待时可以立即收到。
 - `drv_touch.c` 的 `RTGRAPHIC_CTRL_POWEROFF` 会启动临时线程，调用当前驱动 `deinit`；FT6146 的 `deinit` 停止并删除其 100ms 检查定时器。POWERON 再走 init。SDK 操作是异步的，返回成功只代表请求提交，实际完成时间和反复开关的稳定性待硬件验证。
-- Nano 的 `BSP_TP_PowerDown` 拉低 TP reset，不能据此声称触摸电源轨完全断电。LCD 板级 PowerDown 有 reset/VADD 控制，是否符合实际模组仍待核对。
+- 黄山派 `BSP_TP_PowerDown` 拉低 TP reset 并重配触控引脚，不能据此声称触摸电源轨完全断电。`BSP_LCD_PowerDown` 操作 reset/VADD、3.3V/音频和充电 I2C 引脚，PowerUp 会开启音频 PA；共享电源的影响必须实测，不能直接继承 Nano 的功耗假设。
 - 熄屏释放应用的 IDLE 请求只允许 SDK 在其他条件满足时选择更深睡眠，不证明已经进入 Deep Sleep。日志 `OFF requested` 也不是休眠或功耗通过的证据。
 - 本版没有 BLE，采用官方 PM 示例的 `HAL_LPAON_Sleep()`；后续加 BLE 时必须重新核对双核电源与唤醒流程，不能直接保留此假设。
 
 ## 构建核验
 
-已实际完成应用编译、链接和产物检查，退出码 0。生成配置已核对为 `BSP_USING_PM=y`、`RT_USING_PM=y`、`PM_DEEP_ENABLE=y`、`LVGL_V9=y`、CO5300/FT6146 和 390×450；`BLUETOOTH`、`GUI_APP_PM`、`TOUCH_WAKEUP_SUPPORT` 均关闭。源码已出现在生成的编译数据库中。产物目录为：
+黄山派已实际完成应用编译、链接和产物检查，退出码 0。生成配置已核对为 `BSP_USING_PM=y`、`RT_USING_PM=y`、`PM_DEEP_ENABLE=y`、`LVGL_V9=y`、CO5300/FT6146 和 390×450；`BLUETOOTH`、`GUI_APP_PM`、`TOUCH_WAKEUP_SUPPORT` 均关闭，板级 AW32001 充电驱动开启。源码已出现在生成的编译数据库中。当前产物目录为：
 
 ```text
-apps/bringup/project/build_sf32lb52-nano_n16r16_hcpu/
+apps/bringup/project/build_sf32lb52-lchspi-ulp_hcpu/
 ```
 
-该目录包含 `main.elf`、`output/main.bin`、`ftab.bin`、bootloader、`.config`、`rtconfig.h` 和 `compile_commands.json`。每次构建证据在 `artifacts/bringup/<时间>/`，`result.json` 额外记录应用源文件 SHA-256，避免仅凭 SDK 提交无法辨认可编辑应用的版本。
+该目录包含 `main.elf`、`main.bin`、`ftab/ftab.bin`、bootloader、`.config`、`rtconfig.h` 和 `compile_commands.json`。每次构建证据在 `artifacts/bringup/<时间>/`，`result.json` 记录应用源文件 SHA-256、实际固件路径及产物校验结果。
 
-本次成功记录：`artifacts/bringup/20260921-220706-642/`。`main.bin` 为 610096 B，SHA-256 为 `8a26366aaef4b8a0c3f1a7bddd2f4c844177cabefb400a052fbb7056a1094371`。首次成功的日志、配置、结果清单同时归档到 `docs/evidence/2026-09-21/bringup-*`。
+黄山派成功记录：`artifacts/bringup/20260922-130142-290/`，`main.bin` 为 614176 B，SHA-256 为 `deadadab94b802be43bbd3eeab9580de1828c28fafa679c9254b9334984895fb`。此前缺少 `CUSTOM_MEM_MAP` 的链接失败及修复见 [构建说明](BUILD.md)。
+
+Nano 历史记录：`artifacts/bringup/20260921-220706-642/`，`main.bin` 为 610096 B，SHA-256 为 `8a26366aaef4b8a0c3f1a7bddd2f4c844177cabefb400a052fbb7056a1094371`；归档 `docs/evidence/2026-09-21/bringup-*` 保留，不用于黄山派。
 
 应用代码编译无警告。SDK 的 `external/lvgl_v9/src/core/lv_obj_tree.c:274` 有潜在空指针解引用警告，main/bootloader 保留已有 RWX LOAD segment 链接警告；没有抑制或修改这些 SDK 代码，不能据此认为运行风险已排除。没有执行板端测试或模拟器运行，画面、消抖响应、异步驱动恢复和实际 Deep Sleep 都待实测。
 
