@@ -2,6 +2,8 @@
 
 版本提交、分支、GitHub PR 与云端检查见 [开发流程](../CONTRIBUTING.md)。本页任务和默认快捷键不变。
 
+2026-09-22 主板改为黄山派，任务统一读取 `sdk.lock.json` 中的 `sf32lb52-lchspi-ulp`；下面 2026-09-21 的日志和哈希仍属于 Nano 历史验证。黄山派构建结果见 [构建说明](BUILD.md)。
+
 SDK 和工具链已经装好，Hello World 与 BLE 外设示例已实际编译通过。VS Code 可以作为日常编辑和编译入口，不必每次手动输入命令。编译不需要开发板；烧录、断点调试和实际运行验证需要硬件。
 
 项目自有的上板基础工程也已编译通过：`F1` → `任务: 运行任务` → **WristFlow: Build Bringup**。成功标志是 `BUILD SUCCEEDED: bringup (...)`，行为和到货验证见 [Bringup 实验](BRINGUP.md)。原有默认快捷键 `Ctrl+Shift+B` 仍是 Hello。
@@ -38,13 +40,13 @@ SDK 和工具链已经装好，Hello World 与 BLE 外设示例已实际编译�
 - 基础程序入口：`vendor/SiFli-SDK/example/get-started/hello_world/rtt/src/main.c`。
 - BLE 示例源码：`vendor/SiFli-SDK/example/ble/peripheral/src/`。
 - 自有应用入口：`apps/bringup/src/main.c`，可修改测试超时和界面；配置在 `apps/bringup/project/proj.conf`。
-- `.vscode/c_cpp_properties.json` 使用实际生成的 `compile_commands.json`，供已安装的微软 C/C++ 扩展识别宏、头文件和编译参数。命令面板的 `C/C++: Select a Configuration` 可选择 `Nano - Bringup`、Hello 或 BLE 索引配置；此操作不改变编译任务目标。
+- `.vscode/c_cpp_properties.json` 使用实际生成的 `compile_commands.json`，供已安装的微软 C/C++ 扩展识别宏、头文件和编译参数。命令面板的 `C/C++: Select a Configuration` 可选择 `Huangshan - Bringup`、Hello 或 BLE 索引配置；此操作不改变编译任务目标。
 
 Hello/BLE 任务用于复编译固定版本的官方示例，Bringup 用于编译项目自有应用。SDK 有完整性保护，直接修改 `vendor/SiFli-SDK` 会使脚本拒绝构建；修改 `apps/bringup/` 不受此限制。
 
 ## 产物和限制
 
-固件位于各工程的 `project/build_sf32lb52-nano_n16r16_hcpu/`，日志和哈希位于 `artifacts/<hello|ble|bringup>/<时间>/`，具体见 [构建说明](BUILD.md)。没有硬件时，编译成功不会出现真实手表运行画面；当前尚未配置 PC 模拟器。
+当前固件位于各工程的 `project/build_sf32lb52-lchspi-ulp_hcpu/`，日志和哈希位于 `artifacts/<hello|ble|bringup>/<时间>/`，具体见 [构建说明](BUILD.md)。旧 Nano 构建目录保留但不用于黄山派烧录。没有硬件时，编译成功不会出现真实手表运行画面；当前尚未配置 PC 模拟器。
 
 本机已有 VS Code 与微软 C/C++ 扩展。思澈官方另有 [SiFli CodeKit](https://marketplace.visualstudio.com/items?itemName=SiFli.sifli-sdk-codekit)，可后续评估其工程和调试界面；本轮未安装，也未假设它会自动识别本项目的独立工具目录。
 

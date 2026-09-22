@@ -1,0 +1,627 @@
+{
+  "date": "2026-09-22",
+  "board": "sf32lb52-lchspi-ulp",
+  "hardware_verified": false,
+  "builds": [
+    {
+      "started_at": "2026-09-22T12:46:20.1530835+08:00",
+      "date": "2026-09-22T12:46:25.6639831+08:00",
+      "example": "hello",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "working_directory": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project",
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "sdk_changes": [],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": [
+        "SCons by Steven Knight et al.:",
+        "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+        "\tSCons path: ['D:\\\\MY_Desk\\\\project\\\\wristflow\\\\.tools\\\\sifli\\\\envs\\\\default\\\\b1ffa931b7485f8607540b6a2f6a9a53bbefe3696b9db68845be1c3c5cff1ab9\\\\python\\\\Lib\\\\site-packages\\\\SCons']",
+        "Copyright (c) 2001 - 2025 The SCons Foundation"
+      ],
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "artifact_validation_error": null,
+      "firmware_path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+      "hardware_verified": false,
+      "project_sources": [
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\Kconfig",
+          "sha256": "6e66a070c7f1992751f2d98c25f802776beae3b86380ade7b533ce00f831de48"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\Kconfig.proj",
+          "sha256": "9fe2663194183aa99b072f248c2b465bf191af796d89282ebf5e445ed27f357e"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\proj.conf",
+          "sha256": "dfa95511fb2f037e6466a5ae6ad2ea87d7f2f23c36b723afdefda2288457cb4c"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\rtconfig_project.h",
+          "sha256": "1cd403d1331305444ded511c849bd3300a3cfc6ebfdf77bc0ac710d5e17a9209"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\rtconfig.py",
+          "sha256": "a73371ade6f5f5869493a4183336bd3a8005791552aecd7b40c9bc7a19c20001"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\SConscript",
+          "sha256": "c0dcffa927b84456f4f4992b9c195a7b8e471f83a339ce4df049e3618e65c097"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\SConstruct",
+          "sha256": "1e05082e26dceff14aef09bfa1e3a018b80f49f076830967c9f7e453f5524c1e"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\src\\main.c",
+          "sha256": "02c1a6dc01560e20963952fa772c472dc3ba109cac5f0642771d126ad5e3ac3f"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\src\\SConscript",
+          "sha256": "4f7801ff80d4032b348d029f47bc46c3d69cfbd1203ffdd49b031c7ebb1de309"
+        }
+      ],
+      "build_directory": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu",
+      "artifacts": [
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\.config",
+          "bytes": 21558,
+          "sha256": "728503b550689e5ff5fce67a1eb63bc1475a1c8c19889a4349c04ea8ba43a670"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+          "bytes": 300336,
+          "sha256": "5d1e396f2e9cd6edd35f0586d2c30dbd7f3dd4cf0f42a5bcf17c9a976e4173c0"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.elf",
+          "bytes": 2834224,
+          "sha256": "b19b8b1ee467aa8746dde8c97fd34d6d8ad66b3abb85d8f37cc51ef35cefa596"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.elf.strip.elf",
+          "bytes": 311620,
+          "sha256": "f2560c1fe073e0d2795d0d276ed3ce369530a3ee31deae6786dfb2289e1a6421"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.hex",
+          "bytes": 844832,
+          "sha256": "7c1eed1fd144fa4bcbcbf34fc27bac9217d555a257b7443d3a7b837807fb6369"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.map",
+          "bytes": 2211262,
+          "sha256": "7a488c583e672d23c15e6d03de893539fb16dd04dccee5e2b7d343d0fa511a9f"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\rtconfig.h",
+          "bytes": 6316,
+          "sha256": "06f6ced6c6d141bc7d8feffca596a9262ed965cd5c2c4d09a36d3ee508907339"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\sftool_param.json",
+          "bytes": 382,
+          "sha256": "ac1fac7a2e52b46f7c96ddc7892cee7806c4233f16cbd155f7ee133c7de325f0"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\.config",
+          "bytes": 14914,
+          "sha256": "a3d1dec1c5f1ce61b91249a47f01cd4022adf0ecb30d7ab1f53b4434bb0dbddd"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.elf",
+          "bytes": 803636,
+          "sha256": "20900da942faf4d0c2028ff8b35201aee1d8c041e7fdd1a91a350085dcbd9229"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.elf.strip.elf",
+          "bytes": 65180,
+          "sha256": "155959a274a414a39aadf8a092cdc0b3a6509d6ceb44aaacd3e2c8982cbcc6ea"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.hex",
+          "bytes": 164615,
+          "sha256": "2f14cb6ae13c61ed97dbe7e1b5e4ed5b60f3b2d6c68abd45821ae1c0fdcc5e46"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.map",
+          "bytes": 1164449,
+          "sha256": "36d2a4da7381e8f0b2ce57071fe95720c29cd366d9a7493798d53de923c3137c"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\rtconfig.h",
+          "bytes": 3622,
+          "sha256": "e1c38a52628341f5c312fefe32505fc45c0a6731b64f607e12bcab0897cd3536"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\.config",
+          "bytes": 16235,
+          "sha256": "f77393400edfbd6e87452c550c78624607a4448cdfb27d8a187a221e37708041"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+          "bytes": 11288,
+          "sha256": "d9b4c05b871e9fdf44d774ce369c7ef4e717cf55835b761975532235a9a58aab"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.elf",
+          "bytes": 19040,
+          "sha256": "d0312999adef1c10b0808013d9fb9cfbb2dc411816113f7e29eceecbf914c19a"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.elf.strip.elf",
+          "bytes": 15844,
+          "sha256": "ab6040a08e6445c73d5de85ca4dcf063f556e4712673193893114013115cfc94"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.hex",
+          "bytes": 31818,
+          "sha256": "974203ecb56aa98caf1f134826d1a00efb5db612aef7d37c51d56a175353c5af"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.map",
+          "bytes": 92482,
+          "sha256": "39da294b703877053a595b47c80d9f752a409a4b552eae4f63d13b077dc906a9"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\rtconfig.h",
+          "bytes": 4438,
+          "sha256": "0d7e9fd6f5369c801acf0fd0364455cdbc8c7a786a57138857fdeaac396ba716"
+        }
+      ],
+      "verified_config": [
+        "# CONFIG_RT_USING_PM is not set",
+        "# CONFIG_BLUETOOTH is not set",
+        "CONFIG_USING_PARTITION_TABLE=y",
+        "# CONFIG_BSP_USING_PM is not set",
+        "CONFIG_BSP_MPI1_MODE_3=y",
+        "CONFIG_LCD_HOR_RES_MAX=390",
+        "CONFIG_LCD_VER_RES_MAX=450",
+        "CONFIG_TSC_USING_FT6146=y",
+        "CONFIG_LCD_USING_CO5300=y",
+        "CONFIG_BSP_USING_CHARGER=y",
+        "CONFIG_CHARGE_USING_AW32001=y",
+        "CONFIG_BSP_USING_CHARGER_DETECT=y",
+        "# CONFIG_TOUCH_WAKEUP_SUPPORT is not set",
+        "CONFIG_BSP_KEY1_PIN=34",
+        "CONFIG_BSP_KEY1_ACTIVE_HIGH=y",
+        "CONFIG_BSP_USING_BOARD_SF32LB52_LCHSPI_ULP=y",
+        "CONFIG_CUSTOM_MEM_MAP=y"
+      ],
+      "log_path": "artifacts\\hello\\20260922-124620-144\\build.log"
+    },
+    {
+      "started_at": "2026-09-22T12:46:28.6253812+08:00",
+      "date": "2026-09-22T12:47:25.9377034+08:00",
+      "example": "ble",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "working_directory": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project",
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "sdk_changes": [],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": [
+        "SCons by Steven Knight et al.:",
+        "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+        "\tSCons path: ['D:\\\\MY_Desk\\\\project\\\\wristflow\\\\.tools\\\\sifli\\\\envs\\\\default\\\\b1ffa931b7485f8607540b6a2f6a9a53bbefe3696b9db68845be1c3c5cff1ab9\\\\python\\\\Lib\\\\site-packages\\\\SCons']",
+        "Copyright (c) 2001 - 2025 The SCons Foundation"
+      ],
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "artifact_validation_error": null,
+      "firmware_path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+      "hardware_verified": false,
+      "project_sources": [
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\Kconfig",
+          "sha256": "dca343dc1555dfbc3222c5363463b742b3ebc1eb363564cb443ff3362babd57f"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\Kconfig.proj",
+          "sha256": "eb48b6cf5bffe4f58b1d338571d96eb8c644f3b4a2edafaa04cbb55746659a26"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\proj.conf",
+          "sha256": "c2b1ba5a4a6f9519813950c293fa0053ce8ac75bca50ee51e129181c33ec3243"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\rtconfig.py",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\SConscript",
+          "sha256": "499ae54d0ef5fa5571a2c8034b7645e6632376a1b24181a2f74ec8d7a1d94513"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\SConstruct",
+          "sha256": "132d43a4c7a8b162ea189afcf09bfda55214e0e244257129cc4dca0e2788c89e"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\src\\main.c",
+          "sha256": "7b2d2ae392d1431021ce75a24eee2251f501ad86d4aa50ede8dfe0d2fe767e09"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\src\\SConscript",
+          "sha256": "3ec36799d83bcc3ee3e9cc35bf13e715a68256a7dfcf301fc451e25d054193d2"
+        }
+      ],
+      "build_directory": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu",
+      "artifacts": [
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\.config",
+          "bytes": 25277,
+          "sha256": "9b4dfa2366562edd2ef891ef145074b2f919f4946a473ed6574c6c768e0a1dee"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+          "bytes": 490064,
+          "sha256": "09d17264a1822a45731664091785dea1b0a0324f5be2af46f32c154500d396d2"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.elf",
+          "bytes": 5666028,
+          "sha256": "c2b359abfaf83c88ba799735e6856b01e1360ccacae00ee2b138cc5c7f275c5a"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.elf.strip.elf",
+          "bytes": 501508,
+          "sha256": "bd74ad489728a51519ee05054dca11c7277d022127a84258b28bc312ed2cbbb6"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.hex",
+          "bytes": 1378506,
+          "sha256": "f332196cd903d2daf64365b5090d1a9326d6b91f46847d7b491a83a1dee54733"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.map",
+          "bytes": 5132840,
+          "sha256": "5b6e8e1379f0b5e31e7d6723b5eff1deee4b6bd2974dd521d233b484e7d0d090"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\rtconfig.h",
+          "bytes": 7661,
+          "sha256": "b89a34bcc6a2eaa3cf6e17d307e9a49f49ed71c0d5f98ef72256fec5eb2ee9d9"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\sftool_param.json",
+          "bytes": 382,
+          "sha256": "ac1fac7a2e52b46f7c96ddc7892cee7806c4233f16cbd155f7ee133c7de325f0"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\.config",
+          "bytes": 14914,
+          "sha256": "a3d1dec1c5f1ce61b91249a47f01cd4022adf0ecb30d7ab1f53b4434bb0dbddd"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.elf",
+          "bytes": 803624,
+          "sha256": "9421550da904212278f7a25dbc300f64afc02f73203fe1421d3b37ab5016b99d"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.elf.strip.elf",
+          "bytes": 65180,
+          "sha256": "155959a274a414a39aadf8a092cdc0b3a6509d6ceb44aaacd3e2c8982cbcc6ea"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.hex",
+          "bytes": 164615,
+          "sha256": "2f14cb6ae13c61ed97dbe7e1b5e4ed5b60f3b2d6c68abd45821ae1c0fdcc5e46"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.map",
+          "bytes": 1164449,
+          "sha256": "8b25ea613c476835d013a226aeb5114461b9c9e5a10fa4a30403c2e17a8945c2"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\rtconfig.h",
+          "bytes": 3591,
+          "sha256": "c87f5e10b0f52bc06d9f1ee76ab8140ac17c23c6bdd9e4401fe2c3a2974ee70d"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\.config",
+          "bytes": 16235,
+          "sha256": "f77393400edfbd6e87452c550c78624607a4448cdfb27d8a187a221e37708041"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+          "bytes": 11288,
+          "sha256": "4d1a4b40082f905baa2d7a01565b0b68d789f9de4aad5167103a668df25f8596"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.elf",
+          "bytes": 19028,
+          "sha256": "1bea434b727801d1dd00df3c3e23960e633f0499ad0891700264522246c62deb"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.elf.strip.elf",
+          "bytes": 15844,
+          "sha256": "88694d27823faf8bbf9cbe26b942afcbdd0e9bda8219ca0de965a30db54ac64b"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.hex",
+          "bytes": 31818,
+          "sha256": "be274b6a191c2d1e55cadc63ee8d7c87ad3749fd5bae62e81ff04caf005ddffd"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.map",
+          "bytes": 92482,
+          "sha256": "b65082b57dd245137486090a47668a0cfc9b4f07217d3330d1dc6bf4a89cff26"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\rtconfig.h",
+          "bytes": 4407,
+          "sha256": "47b82b2e63cd679d174d3c928069f0ecbc3bffc5d0d91d9dbca3413f15ba71fa"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\lcpu\\.config",
+          "bytes": 14724,
+          "sha256": "e7d52c8fd7a8033bfb357c3fb60d608f401f506f92d6c49fbaa5e5dd268bb372"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\lcpu\\lcpu.bin",
+          "bytes": 5444,
+          "sha256": "03c15186f14aced2ad2c1b7e76f11b29de65b76bc348c3d62b0ec139dedb1dad"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\lcpu\\lcpu.elf",
+          "bytes": 344048,
+          "sha256": "09f1f7cc7d312ec9a3f6ded0bfe5cf58d7261461aaf360653e7e96a1c3952107"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\lcpu\\lcpu.elf.strip.elf",
+          "bytes": 10240,
+          "sha256": "036cf1b1a5e755f6584336f03e460ca249f908e71dd8540a11a041376d94c43e"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\lcpu\\lcpu.hex",
+          "bytes": 15372,
+          "sha256": "723c7ec19990a4c8768d1a32fb7863920f4ace40e3ae0670a32adc1ab59ff4cd"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\lcpu\\lcpu.map",
+          "bytes": 1166696,
+          "sha256": "42edd8ed90210b6e86012463e889f709e3f9d41c31c2276efe154e8be0b4f28c"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\lcpu\\rtconfig.h",
+          "bytes": 2670,
+          "sha256": "84dfc4ae25052f1651a90782006da76be199845e1d1e2fbf07d0cb6d3b52ec4a"
+        }
+      ],
+      "verified_config": [
+        "# CONFIG_RT_USING_PM is not set",
+        "CONFIG_BLUETOOTH=y",
+        "CONFIG_USING_PARTITION_TABLE=y",
+        "# CONFIG_BSP_USING_PM is not set",
+        "CONFIG_BSP_MPI1_MODE_3=y",
+        "CONFIG_LCD_HOR_RES_MAX=390",
+        "CONFIG_LCD_VER_RES_MAX=450",
+        "CONFIG_TSC_USING_FT6146=y",
+        "CONFIG_LCD_USING_CO5300=y",
+        "CONFIG_BSP_USING_CHARGER=y",
+        "CONFIG_CHARGE_USING_AW32001=y",
+        "CONFIG_BSP_USING_CHARGER_DETECT=y",
+        "# CONFIG_TOUCH_WAKEUP_SUPPORT is not set",
+        "CONFIG_BSP_KEY1_PIN=34",
+        "CONFIG_BSP_KEY1_ACTIVE_HIGH=y",
+        "CONFIG_BSP_USING_BOARD_SF32LB52_LCHSPI_ULP=y",
+        "CONFIG_CUSTOM_MEM_MAP=y"
+      ],
+      "log_path": "artifacts\\ble\\20260922-124628-615\\build.log"
+    },
+    {
+      "started_at": "2026-09-22T13:01:42.3005650+08:00",
+      "date": "2026-09-22T13:03:10.3919437+08:00",
+      "example": "bringup",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "working_directory": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project",
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "sdk_changes": [],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": [
+        "SCons by Steven Knight et al.:",
+        "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+        "\tSCons path: ['D:\\\\MY_Desk\\\\project\\\\wristflow\\\\.tools\\\\sifli\\\\envs\\\\default\\\\b1ffa931b7485f8607540b6a2f6a9a53bbefe3696b9db68845be1c3c5cff1ab9\\\\python\\\\Lib\\\\site-packages\\\\SCons']",
+        "Copyright (c) 2001 - 2025 The SCons Foundation"
+      ],
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "artifact_validation_error": null,
+      "firmware_path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+      "hardware_verified": false,
+      "project_sources": [
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\Kconfig",
+          "sha256": "bbb4439f3cc52b586104846094f5aea6a70dd44af13b70fef6f913dc5f1a8b8b"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\Kconfig.proj",
+          "sha256": "d59d1846704e4017c41ad96f16261f12c06d1583f9bfde82990e51354da546e2"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\proj.conf",
+          "sha256": "d61d28509c24b2898582c335ec0dd02d5c8982985d61ce1aa2b0fe427ca087fd"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\rtconfig.py",
+          "sha256": "7e594d6e4864ee4d8a1d18d08f34abb0fef52d0887a9680b64469b58f566faf2"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\SConscript",
+          "sha256": "7a09a5012c17e0c37a8a309cdbc14887f0aac8c493f99d2df2a47578b4dad7d2"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\SConstruct",
+          "sha256": "8e8e024f48ad47e7a89689a22f7248d8e9c5d63009dcca5302f560afc45e587c"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\src\\main.c",
+          "sha256": "ce6ebbde9d47ad40b0b69602bb2ff58379b78163cb13b57a48a80c945ebbb773"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\src\\SConscript",
+          "sha256": "a8bc7a3c19444f301c06e2a1ff9f5a4bb836f1693511c2860381c6f0da2d3439"
+        }
+      ],
+      "build_directory": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu",
+      "artifacts": [
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\.config",
+          "bytes": 35723,
+          "sha256": "576fc98a19e1c5302be8bc1e81f7bfd6b30af5f4fd2d36b9c28e43d72c694a15"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+          "bytes": 614176,
+          "sha256": "deadadab94b802be43bbd3eeab9580de1828c28fafa679c9254b9334984895fb"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.elf",
+          "bytes": 6599260,
+          "sha256": "fc090dc62ca3e7d85668777768a801e4a1387ddab818ebeabb1db10f2ea68222"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.elf.strip.elf",
+          "bytes": 626892,
+          "sha256": "4084b7873596d5de86153258744b3de76270c091aa610ddfeb4f715a293b68a4"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.hex",
+          "bytes": 1727592,
+          "sha256": "71ad76609d4659b3531128c5b09a037573451833b635abdcf9b2e3eed6ba093b"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.map",
+          "bytes": 4580433,
+          "sha256": "23afbed75e5d5b9e910c747efc183d664ae06467ebf3b3936df6e69fc2894dd6"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\rtconfig.h",
+          "bytes": 10207,
+          "sha256": "2d88a2aa06af2fa193353493773a4d7fc63ce1f46e5780262cc7a328985ce375"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\sftool_param.json",
+          "bytes": 382,
+          "sha256": "ac1fac7a2e52b46f7c96ddc7892cee7806c4233f16cbd155f7ee133c7de325f0"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\.config",
+          "bytes": 14914,
+          "sha256": "a3d1dec1c5f1ce61b91249a47f01cd4022adf0ecb30d7ab1f53b4434bb0dbddd"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.elf",
+          "bytes": 803596,
+          "sha256": "3afd53ac9b04e056ed8c780136b213b7bf1ae6978282280f1783f7ecb1e8a208"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.elf.strip.elf",
+          "bytes": 65180,
+          "sha256": "155959a274a414a39aadf8a092cdc0b3a6509d6ceb44aaacd3e2c8982cbcc6ea"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.hex",
+          "bytes": 164615,
+          "sha256": "2f14cb6ae13c61ed97dbe7e1b5e4ed5b60f3b2d6c68abd45821ae1c0fdcc5e46"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.map",
+          "bytes": 1164449,
+          "sha256": "ffce68d7ff78a031e147d13eb20e186b87a8153f59daee2796e00a896aee30e3"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\rtconfig.h",
+          "bytes": 3591,
+          "sha256": "c87f5e10b0f52bc06d9f1ee76ab8140ac17c23c6bdd9e4401fe2c3a2974ee70d"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\.config",
+          "bytes": 16235,
+          "sha256": "f77393400edfbd6e87452c550c78624607a4448cdfb27d8a187a221e37708041"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+          "bytes": 11288,
+          "sha256": "b09869431d2774be22227f10d32a7865772ddfb1764d85cfaefca1b038e88064"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.elf",
+          "bytes": 19000,
+          "sha256": "12b22ef310c311993699a1e4e6b9e4466082d6beb05e3bf1ecfac87b9d2a2417"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.elf.strip.elf",
+          "bytes": 15844,
+          "sha256": "8b48e32964343b0ebd8144f2e94e6423ea5edb866449f9b874551f8c85368762"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.hex",
+          "bytes": 31818,
+          "sha256": "a24eca57b6fa9baafac61317f42c674f6a3e187e934542f384e45ab71860cee0"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.map",
+          "bytes": 92482,
+          "sha256": "a3e22309294c519993a8547e81d5c1ab1deb6bec64cc28c94f5a188441527ad1"
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\rtconfig.h",
+          "bytes": 4407,
+          "sha256": "47b82b2e63cd679d174d3c928069f0ecbc3bffc5d0d91d9dbca3413f15ba71fa"
+        }
+      ],
+      "verified_config": [
+        "CONFIG_RT_USING_PM=y",
+        "CONFIG_PM_DEEP_ENABLE=y",
+        "# CONFIG_BLUETOOTH is not set",
+        "CONFIG_USING_PARTITION_TABLE=y",
+        "CONFIG_BSP_USING_PM=y",
+        "CONFIG_LVGL_V9=y",
+        "CONFIG_BSP_MPI1_MODE_3=y",
+        "CONFIG_LCD_HOR_RES_MAX=390",
+        "CONFIG_LCD_VER_RES_MAX=450",
+        "CONFIG_TSC_USING_FT6146=y",
+        "CONFIG_LCD_USING_CO5300=y",
+        "CONFIG_BSP_USING_CHARGER=y",
+        "CONFIG_CHARGE_USING_AW32001=y",
+        "CONFIG_BSP_USING_CHARGER_DETECT=y",
+        "# CONFIG_TOUCH_WAKEUP_SUPPORT is not set",
+        "CONFIG_BSP_KEY1_PIN=34",
+        "CONFIG_BSP_KEY1_ACTIVE_HIGH=y",
+        "CONFIG_BSP_USING_BOARD_SF32LB52_LCHSPI_ULP=y",
+        "CONFIG_CUSTOM_MEM_MAP=y"
+      ],
+      "log_path": "artifacts\\bringup\\20260922-130142-290\\build.log"
+    }
+  ]
+}
