@@ -1,0 +1,9 @@
+import os
+from building import *
+
+cwd = GetCurrentDir()
+objs = DefineGroup('WristFlowUiDemo', Glob('*.c'), depend=[''],
+                   CPPPATH=[cwd, os.path.join(cwd, '../../../ui/xml')],
+                   CPPDEFINES=['LV_LVGL_H_INCLUDE_SIMPLE'],
+                   LOCAL_CCFLAGS=' -Wall -Wextra -Werror=implicit-function-declaration')
+Return('objs')

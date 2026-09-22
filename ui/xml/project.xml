@@ -1,4 +1,4 @@
-<project name="wristflow_ui" lvgl_version="9.2.0">
+<project name="wristflow_ui" lvgl_version="9.4.0" theme="simple">
 	<targets>
 		<target name="huangshan_390x450">
 			<display width="390" height="450" />

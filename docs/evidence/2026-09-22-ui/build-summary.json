@@ -1,0 +1,82 @@
+{
+  "editor": "2.0.1",
+  "preview_lvgl": "9.4.0",
+  "builds": [
+    {
+      "example": "hello",
+      "record": "artifacts/hello/20260922-205001-439/result.json",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "sdk_changes": [],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "firmware_bytes": 300336,
+      "firmware_sha256": "5d1e396f2e9cd6edd35f0586d2c30dbd7f3dd4cf0f42a5bcf17c9a976e4173c0",
+      "config_excerpt": [
+        "# CONFIG_BLUETOOTH is not set",
+        "# CONFIG_BSP_USING_PM is not set"
+      ],
+      "hardware_verified": false
+    },
+    {
+      "example": "ble",
+      "record": "artifacts/ble/20260922-205015-973/result.json",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "sdk_changes": [],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "firmware_bytes": 490064,
+      "firmware_sha256": "09d17264a1822a45731664091785dea1b0a0324f5be2af46f32c154500d396d2",
+      "config_excerpt": [
+        "CONFIG_BLUETOOTH=y",
+        "# CONFIG_BSP_USING_PM is not set"
+      ],
+      "hardware_verified": false
+    },
+    {
+      "example": "bringup",
+      "record": "artifacts/bringup/20260922-205038-627/result.json",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "sdk_changes": [],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "firmware_bytes": 614176,
+      "firmware_sha256": "deadadab94b802be43bbd3eeab9580de1828c28fafa679c9254b9334984895fb",
+      "config_excerpt": [
+        "# CONFIG_BLUETOOTH is not set",
+        "CONFIG_BSP_USING_PM=y",
+        "# CONFIG_LV_USE_OBJ_NAME is not set",
+        "# CONFIG_LV_USE_XML is not set"
+      ],
+      "hardware_verified": false
+    },
+    {
+      "example": "ui_demo",
+      "record": "artifacts/ui_demo/20260922-204528-753/result.json",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "sdk_changes": [],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "firmware_bytes": 1047772,
+      "firmware_sha256": "57c7b7faffd04f5d65d7aa16d7de07a227d13f75f48eef22c57060d9e454ac2d",
+      "config_excerpt": [
+        "# CONFIG_BLUETOOTH is not set",
+        "# CONFIG_BSP_USING_PM is not set",
+        "CONFIG_LV_USE_OBJ_NAME=y",
+        "# CONFIG_LV_USE_XML is not set"
+      ],
+      "hardware_verified": false
+    }
+  ]
+}

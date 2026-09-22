@@ -1,6 +1,6 @@
 #requires -Version 7.0
 param(
-    [ValidateSet('hello', 'ble', 'bringup')]
+    [ValidateSet('hello', 'ble', 'bringup', 'ui_demo')]
     [string]$Example = 'hello',
     [ValidateRange(1, 32)]
     [int]$Jobs = 4
@@ -13,6 +13,7 @@ $projects = @{
     hello = Join-Path $SdkRoot 'example/get-started/hello_world/rtt/project'
     ble = Join-Path $SdkRoot 'example/ble/peripheral/project'
     bringup = Join-Path $ProjectRoot 'apps/bringup/project'
+    ui_demo = Join-Path $ProjectRoot 'apps/ui_demo/project'
 }
 $projectPath = $projects[$Example]
 $board = $SdkLock.board
@@ -43,8 +44,14 @@ if (Test-Path $buildDir) {
 }
 $sourceFiles = @(Get-ChildItem -LiteralPath $projectPath -File)
 $sourceFiles += @(Get-ChildItem -LiteralPath (Join-Path $projectPath '../src') -Recurse -File)
+if ($Example -eq 'ui_demo') {
+    $uiRoot = Join-Path $ProjectRoot 'ui/xml'
+    foreach ($directory in '', 'components', 'screens', 'fonts', 'images') {
+        $sourceFiles += @(Get-ChildItem -LiteralPath (Join-Path $uiRoot $directory) -File)
+    }
+}
 $sourceHashes = @($sourceFiles | Where-Object {
-    $_.Name -match '^(SConstruct|SConscript|Kconfig.*|proj.conf|rtconfig.py)$' -or $_.Extension -in '.c', '.h'
+    $_.Name -match '^(SConstruct|SConscript|Kconfig.*|proj.conf|rtconfig.py)$' -or $_.Extension -in '.c', '.h', '.xml', '.ttf', '.png'
 } | ForEach-Object {
     [ordered]@{ path = $_.FullName; sha256 = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() }
 })

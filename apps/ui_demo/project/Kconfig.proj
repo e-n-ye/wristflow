@@ -1,0 +1,5 @@
+# Import the board partition map, including legacy JSON layouts.
+config CUSTOM_MEM_MAP
+    bool
+    select custom_mem_map
+    default y if !SOC_SIMULATOR

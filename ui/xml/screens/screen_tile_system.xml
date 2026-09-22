@@ -1,0 +1,9 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0">
+        <card_container name="battery_tile" x="24" y="28" card_title="电池" metric_val="53%" icon="&#xf240;" surface_color="0x67e1f7" accent_color="0x09272c" value_color="0x09272c" caption_color="0x234b54" />
+        <card_container name="connection_tile" x="201" y="28" card_title="蓝牙" metric_val="已连接" icon="&#xf293;" accent_color="0x67e1f7" />
+        <card_container name="uptime_tile" x="24" y="216" card_title="运行 / 小时" metric_val="12.4" icon="&#xf017;" accent_color="0xff648a" />
+        <card_container name="brightness_tile" x="201" y="216" card_title="亮度" metric_val="60%" icon="&#xf185;" surface_color="0xff648a" accent_color="0x24111b" value_color="0x24111b" caption_color="0x4c2435" />
+        <page_dots x="174" y="#pager_bottom_y" active_x="36" />
+    </view>
+</screen>
