@@ -1,0 +1,102 @@
+<component>
+	<api>
+		<prop name="card_title" type="string" default="CARD" />
+		<prop name="metric_val" type="string" default="--" />
+		<prop name="metric_unit" type="string" default="" />
+		<prop name="status_text" type="string" default="" />
+		<prop name="accent_color" type="color" default="#accent_blue" />
+		<prop name="card_width" type="px" default="#card_default_w" />
+		<prop name="card_height" type="px" default="#card_default_h" />
+	</api>
+
+	<styles>
+		<style
+			name="style_card_container"
+			width="$card_width"
+			height="$card_height"
+			bg_color="#bg_surface"
+			radius="#radius_md"
+			pad_all="#space_md"
+			clip_corner="true"
+		/>
+		<style name="style_title" text_color="#fg_secondary" />
+		<style name="style_metric" text_color="#fg_primary" />
+		<style name="style_status" text_color="#fg_muted" />
+	</styles>
+
+	<view extends="lv_obj" scrollable="false">
+		<remove_style_all />
+		<style name="style_card_container" />
+
+		<!-- Top Header: Title and Accent Bar -->
+		<lv_obj
+			x="0"
+			y="0"
+			width="100%"
+			height="24"
+			scrollable="false"
+			style_bg_opa="0%"
+		>
+			<remove_style_all />
+			<!-- Small Accent Indicator Bar -->
+			<lv_obj
+				x="0"
+				y="3"
+				width="4"
+				height="14"
+				scrollable="false"
+				style_bg_color="$accent_color"
+				style_radius="#radius_pill"
+			>
+				<remove_style_all />
+			</lv_obj>
+
+			<!-- Title Text -->
+			<lv_label
+				x="12"
+				y="0"
+				text="$card_title"
+			>
+				<style name="style_title" />
+			</lv_label>
+		</lv_obj>
+
+		<!-- Main Value and Unit Row -->
+		<lv_obj
+			x="0"
+			y="32"
+			width="100%"
+			height="44"
+			scrollable="false"
+			style_bg_opa="0%"
+		>
+			<remove_style_all />
+			<lv_label
+				x="0"
+				y="0"
+				text="$metric_val"
+				style_text_color="$accent_color"
+			>
+				<style name="style_metric" />
+			</lv_label>
+
+			<lv_label
+				x="80"
+				y="14"
+				text="$metric_unit"
+			>
+				<style name="style_title" />
+			</lv_label>
+		</lv_obj>
+
+		<!-- Bottom Sub-status Description -->
+		<lv_label
+			x="0"
+			y="82"
+			width="100%"
+			text="$status_text"
+		>
+			<style name="style_status" />
+		</lv_label>
+	</view>
+</component>

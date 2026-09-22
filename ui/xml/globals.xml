@@ -1,0 +1,78 @@
+<globals>
+	<api>
+		<!-- Add enumdefs here -->
+	</api>
+
+	<consts>
+		<!-- Display Dimensions -->
+		<px name="screen_width" value="390" help="Target AMOLED width" />
+		<px name="screen_height" value="450" help="Target AMOLED height" />
+
+		<!-- Safe Insets -->
+		<px name="safe_top" value="24" help="Top status bar safe inset" />
+		<px name="safe_bottom" value="20" help="Bottom indicator safe inset" />
+		<px name="safe_side" value="24" help="Left/right screen edge safe inset" />
+
+		<!-- Layout Spacing -->
+		<px name="space_2xs" value="4" help="Minimal spacing" />
+		<px name="space_xs" value="8" help="Compact element spacing" />
+		<px name="space_sm" value="12" help="Default element spacing" />
+		<px name="space_md" value="16" help="Component spacing" />
+		<px name="space_lg" value="24" help="Section separation" />
+
+		<!-- Radius -->
+		<px name="radius_sm" value="10" help="Small widget radius" />
+		<px name="radius_md" value="20" help="Primary card radius" />
+		<px name="radius_lg" value="28" help="Full screen sheet radius" />
+		<px name="radius_pill" value="999" help="Pill shape full radius" />
+
+		<!-- Card Layout -->
+		<px name="card_default_w" value="342" help="Full-width card (390 - 24*2)" />
+		<px name="card_default_h" value="130" help="Standard metric card height" />
+
+		<!-- Pager Dots -->
+		<px name="pager_dot_size" value="6" help="Pager indicator dot size" />
+		<px name="pager_dot_gap" value="8" help="Gap between indicator dots" />
+		<px name="pager_bottom_y" value="430" help="Vertical position of pager dots" />
+
+		<!-- AMOLED Colors (Pitch Black 0x000000 for zero power consumption) -->
+		<color name="bg_black" value="0x000000" help="AMOLED pitch black background" />
+		<color name="bg_surface" value="0x111827" help="Dark slate card container background" />
+		<color name="bg_surface_subtle" value="0x1e293b" help="Elevated secondary surface background" />
+
+		<!-- Typography Colors -->
+		<color name="fg_primary" value="0xffffff" help="High contrast white text" />
+		<color name="fg_secondary" value="0x94a3b8" help="Slate gray text for date and labels" />
+		<color name="fg_muted" value="0x64748b" help="Darker muted text for inactive elements" />
+
+		<!-- Accent Colors -->
+		<color name="accent_blue" value="0x38bdf8" help="Sky blue accent for battery and system" />
+		<color name="accent_red" value="0xf43f5e" help="Rose red accent for heart rate" />
+		<color name="accent_green" value="0x10b981" help="Emerald green accent for activity/steps" />
+		<color name="accent_orange" value="0xf97316" help="Orange accent for calories and warnings" />
+
+		<!-- Pager Indicator Colors -->
+		<color name="pager_active" value="0xffffff" help="Active page dot highlight" />
+		<color name="pager_inactive" value="0x334155" help="Inactive page dot" />
+	</consts>
+
+	<styles>
+		<style name="screen_base" bg_color="#bg_black" text_color="#fg_primary" />
+		<style name="card_base" bg_color="#bg_surface" radius="#radius_md" text_color="#fg_primary" />
+		<style name="text_title" text_color="#fg_primary" />
+		<style name="text_secondary" text_color="#fg_secondary" />
+		<style name="text_muted" text_color="#fg_muted" />
+	</styles>
+
+	<subjects>
+		<!-- Dynamic subjects will be bound via UI adapter -->
+	</subjects>
+
+	<images>
+		<!-- Image asset declarations -->
+	</images>
+
+	<fonts>
+		<!-- Font declarations -->
+	</fonts>
+</globals>
