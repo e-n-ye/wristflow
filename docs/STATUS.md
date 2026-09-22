@@ -1,13 +1,13 @@
 # 当前状态
 
-更新：2026-09-22。阶段：用户确认 Nano 退货完成、黄山派已下单，尚未确认到货；黄山派切换基线 PR #2 已通过云端构建并合入 main；等板期间已完成全局交互拓扑、手势与状态机契约固化（docs/UI-INTERACTION.md）。
+更新：2026-09-22。阶段：用户确认 Nano 退货完成、黄山派已下单，尚未确认到货；黄山派基线 PR #2 与交互规格 PR #3 已先后通过云端构建并合入 main；等板期间已完成首批 390×450 LVGL XML 视觉布局试点（ui/xml/）。
 
 ## 最新决定与结果
 
 - [黄山派选型复评](HARDWARE.md) 记录新货源、板载外围、8MB PSRAM/16MB Flash、设计尺寸及版本差异；预算、首版范围和三个月日历不变。
 - 默认板型改为 `sf32lb52-lchspi-ulp`；SDK v2.5.1 与两个子模块版本不变，SDK 源码零修改。VS Code 索引改为 Huangshan，三个任务名称与快捷键不变。
-- 本地 Hello、BLE、Bringup 编译链接及产物检查通过；PR #2 在全新 Windows Server 2022 runner 成功完成云端基线构建并 Rebase 合入 main（`ac475ff`）。
-- 等板期间对齐产品交互：对标 Redmi Watch 4 拓扑，确立 3 卡片环形循环、通知唤醒 5s 预览、控制中心网格、应用列表垂直单列与滚动记忆、变暗态防误触、息屏超时恢复、LVGL XML 视觉与 watch_core 纯 C 状态机解耦架构，输出 [交互规格与状态机契约](UI-INTERACTION.md)。
+- 本地 Hello、BLE、Bringup 编译链接及产物检查通过；基线与交互文档 PR 均通过全新 Windows runner 云端构建并合入 main（`2d01143`）。
+- 等板期间对齐产品交互，完成 [交互规格与状态机契约](UI-INTERACTION.md)；按纯黑极简单色大字表盘与通用卡片容器要求，在 `ui/xml/` 建立首批 390×450 LVGL XML 声明并完成语法校验。
 
 ## 已完成
 
