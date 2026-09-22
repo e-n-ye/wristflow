@@ -38,6 +38,8 @@ jobs:
         run: ./scripts/Build.ps1 -Example ble -Jobs 4
       - name: Build Bringup
         run: ./scripts/Build.ps1 -Example bringup -Jobs 4
+      - name: Build generated XML UI demo
+        run: ./scripts/Build.ps1 -Example ui_demo -Jobs 4
       - name: Preserve build evidence
         if: always()
         uses: actions/upload-artifact@v4

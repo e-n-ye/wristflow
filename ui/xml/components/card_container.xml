@@ -2,21 +2,21 @@
 	<api>
 		<prop name="card_title" type="string" default="CARD" />
 		<prop name="metric_val" type="string" default="--" />
-		<prop name="metric_unit" type="string" default="" />
-		<prop name="status_text" type="string" default="" />
+		<prop name="icon" type="string" default="" />
+		<prop name="surface_color" type="color" default="#bg_surface" />
+		<prop name="value_color" type="color" default="#fg_primary" />
+		<prop name="caption_color" type="color" default="#fg_secondary" />
 		<prop name="accent_color" type="color" default="#accent_blue" />
-		<prop name="card_width" type="px" default="#card_default_w" />
-		<prop name="card_height" type="px" default="#card_default_h" />
+		<prop name="card_width" type="px" default="165" />
+		<prop name="card_height" type="px" default="174" />
 	</api>
 
 	<styles>
 		<style
 			name="style_card_container"
-			width="$card_width"
-			height="$card_height"
 			bg_color="#bg_surface"
-			radius="#radius_md"
-			pad_all="#space_md"
+			radius="28"
+			pad_all="0"
 			clip_corner="true"
 		/>
 		<style name="style_title" text_color="#fg_secondary" />
@@ -24,79 +24,9 @@
 		<style name="style_status" text_color="#fg_muted" />
 	</styles>
 
-	<view extends="lv_obj" scrollable="false">
-		<remove_style_all />
-		<style name="style_card_container" />
-
-		<!-- Top Header: Title and Accent Bar -->
-		<lv_obj
-			x="0"
-			y="0"
-			width="100%"
-			height="24"
-			scrollable="false"
-			style_bg_opa="0%"
-		>
-			<remove_style_all />
-			<!-- Small Accent Indicator Bar -->
-			<lv_obj
-				x="0"
-				y="3"
-				width="4"
-				height="14"
-				scrollable="false"
-				style_bg_color="$accent_color"
-				style_radius="#radius_pill"
-			>
-				<remove_style_all />
-			</lv_obj>
-
-			<!-- Title Text -->
-			<lv_label
-				x="12"
-				y="0"
-				text="$card_title"
-			>
-				<style name="style_title" />
-			</lv_label>
-		</lv_obj>
-
-		<!-- Main Value and Unit Row -->
-		<lv_obj
-			x="0"
-			y="32"
-			width="100%"
-			height="44"
-			scrollable="false"
-			style_bg_opa="0%"
-		>
-			<remove_style_all />
-			<lv_label
-				x="0"
-				y="0"
-				text="$metric_val"
-				style_text_color="$accent_color"
-			>
-				<style name="style_metric" />
-			</lv_label>
-
-			<lv_label
-				x="80"
-				y="14"
-				text="$metric_unit"
-			>
-				<style name="style_title" />
-			</lv_label>
-		</lv_obj>
-
-		<!-- Bottom Sub-status Description -->
-		<lv_label
-			x="0"
-			y="82"
-			width="100%"
-			text="$status_text"
-		>
-			<style name="style_status" />
-		</lv_label>
+	<view extends="lv_obj" width="$card_width" height="$card_height" scrollable="false" style_bg_color="$surface_color" style_bg_opa="100%" style_radius="28" style_border_width="0" style_pad_all="0">
+		<lv_label name="icon_label" x="20" y="20" text="$icon" style_text_font="icons_44" style_text_color="$accent_color" />
+		<lv_label name="value_label" x="20" y="84" width="145" text="$metric_val" style_text_font="value_36" style_text_color="$value_color" />
+		<lv_label name="caption_label" x="20" y="136" width="145" text="$card_title" style_text_font="body_20" style_text_color="$caption_color" />
 	</view>
 </component>

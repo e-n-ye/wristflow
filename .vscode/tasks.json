@@ -2,6 +2,25 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "WristFlow: Build UI Demo",
+      "type": "process",
+      "command": "${env:USERPROFILE}/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell/pwsh.exe",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-File", "${workspaceFolder}/scripts/Build.ps1",
+        "-Example", "ui_demo", "-Jobs", "4"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PATH": "${env:LOCALAPPDATA}\\Programs\\Python\\Python312\\Scripts;D:\\Git\\cmd;${env:PATH}"
+        }
+      },
+      "group": "build",
+      "problemMatcher": "$gcc",
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true }
+    },
+    {
       "label": "WristFlow: Build Bringup",
       "type": "process",
       "command": "${env:USERPROFILE}/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell/pwsh.exe",

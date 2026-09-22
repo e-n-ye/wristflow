@@ -1,0 +1,8 @@
+from building import *
+
+sources = Glob('*.c') + Glob('screens/*.c') + Glob('components/*.c')
+sources += Glob('fonts/*_data.c') + Glob('images/*_data.c')
+objs = DefineGroup('WristFlowGeneratedUi', sources, depend=[''],
+                   CPPPATH=[GetCurrentDir()],
+                   CPPDEFINES=['LV_LVGL_H_INCLUDE_SIMPLE'])
+Return('objs')

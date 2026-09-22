@@ -36,6 +36,12 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -Example bring
 
 云端检查由本次分支 PR 的最新 `Firmware / Build baselines` 验证，不能用历史 Nano CI 或本机成功代替。没有烧录、触摸、BLE 连接、休眠电流或续航证据。
 
+## XML UI Demo（2026-09-22）
+
+新增独立 `apps/ui_demo/`，用于编译官方 Editor 2.0.1 导出的 LVGL 9.4.0 页面。运行 `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -Example ui_demo -Jobs 4`，或 VS Code 的 `WristFlow: Build UI Demo`。构建生成 C、字体和图片，不需要运行时 XML 或 Pro CLI；XML 修改后须先 GUI 导出。
+
+本机四目标编译与产物检查均通过；UI Demo 主固件 1047772 字节，PM/BLE 关闭、`LV_USE_XML=0`、`LV_USE_OBJ_NAME=1`。生成源/资源哈希纳入构建记录。原三个目标哈希不变；CI 增加第四项生成 UI 编译，Bringup 验收代码没有改动。截图、失败处理、原始日志位置和哈希见 [UI 演示证据](UI-DEMO.md)。
+
 ## Nano 历史基线（2026-09-21）
 
 以下版本、直接 SCons 板名、目录与哈希是切换前的 Nano 记录；日常构建以上方黄山派入口为准，不把下方产物用于新板。
@@ -143,7 +149,7 @@ D:/MY_Desk/project/wristflow/vendor/SiFli-SDK/example/ble/peripheral/project/bui
 
 初次完整构建证据保存在 [evidence/2026-09-21](evidence/2026-09-21)：两个 `*-first-build.json` 记录版本、命令、产物大小与哈希，`*.config` 为配置快照，`*-build.txt` 为实际完整 SCons 日志。最初记录器的 SCons 字段仅捕获了横幅，版本由官方 Python 锁文件与后续增量记录核实为 4.10.1；现已保存完整版本输出。
 
-每次新构建还会生成 `artifacts/<hello|ble|bringup>/<时间>/build.log`、`result.json` 和配置副本；这些本机产物被 Git 忽略。`exit_code` 是 SCons 退出码，脚本还检查主 ELF、主 BIN、分区表和配置存在且非空，元数据命令失败会报错。记录中的 `project_sources` 保存工程入口和应用源文件哈希。增量构建复用未变文件是正常行为，不要求产物时间一定等于本次执行时间。
+每次新构建还会生成 `artifacts/<hello|ble|bringup|ui_demo>/<时间>/build.log`、`result.json` 和配置副本；这些本机产物被 Git 忽略。`exit_code` 是 SCons 退出码，脚本还检查主 ELF、主 BIN、分区表和配置存在且非空，元数据命令失败会报错。记录中的 `project_sources` 保存工程入口和应用源文件哈希，UI Demo 还记录 XML 与字体/图片资源。增量构建复用未变文件是正常行为，不要求产物时间一定等于本次执行时间。
 
 ## 配置核验
 
@@ -181,6 +187,6 @@ D:/MY_Desk/project/wristflow/vendor/SiFli-SDK/example/ble/peripheral/project/bui
 
 旧项目 `.github/workflows/ci.yml` 有 F411 固件、host CTest、模拟器 smoke、manifest 签名测试和汇总 Gate。它们依赖 STM32 链接布局、F411 产品目录和旧 LVGL，不复制到此项目。
 
-当前采用本地同一构建入口、版本校验、实际产物检查、配置/日志/哈希留档。GitHub 工作流调用现有 Hello、BLE、Bringup 三个构建入口；云端结果以实际 Actions 记录为准，不能把本地构建称作 CI 已通过。出现独立业务逻辑时再加入相应 host tests。流程与套餐限制见 [开发流程](../CONTRIBUTING.md)。
+当前采用本地同一构建入口、版本校验、实际产物检查、配置/日志/哈希留档。GitHub 工作流调用 Hello、BLE、Bringup 和 UI Demo 四个构建入口；云端结果以实际 Actions 记录为准，不能把本地构建称作 CI 已通过。出现独立业务逻辑时再加入相应 host tests。流程与套餐限制见 [开发流程](../CONTRIBUTING.md)。
 
 2026-09-21 首次全新 Windows runner 已实际完成官方安装和三项编译，全部通过。云端配置与基线一致，BIN 哈希存在跨机器差异；详细版本、产物与运行链接见 [工作流首轮验证](WORKFLOW-EVIDENCE.md)。

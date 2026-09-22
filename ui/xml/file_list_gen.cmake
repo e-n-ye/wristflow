@@ -1,0 +1,19 @@
+list(
+  APPEND
+  LV_EDITOR_PROJECT_SOURCES
+  ${CMAKE_CURRENT_LIST_DIR}/components/card_container_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/page_dots_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/fonts/body_20_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/fonts/icons_20_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/fonts/icons_44_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/fonts/metric_56_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/fonts/title_24_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/fonts/value_36_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/images/hour_seven_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_control_center_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_tile_activity_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_tile_heart_rate_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_tile_system_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_watchface_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/wristflow_ui_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/wristflow_ui.c)

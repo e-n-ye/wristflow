@@ -33,16 +33,16 @@
 		<!-- Pager Dots -->
 		<px name="pager_dot_size" value="6" help="Pager indicator dot size" />
 		<px name="pager_dot_gap" value="8" help="Gap between indicator dots" />
-		<px name="pager_bottom_y" value="430" help="Vertical position of pager dots" />
+		<px name="pager_bottom_y" value="423" help="Vertical position of pager dots" />
 
-		<!-- AMOLED Colors (Pitch Black 0x000000 for zero power consumption) -->
+		<!-- Black pixels reduce emission; this does not imply zero panel power. -->
 		<color name="bg_black" value="0x000000" help="AMOLED pitch black background" />
-		<color name="bg_surface" value="0x111827" help="Dark slate card container background" />
-		<color name="bg_surface_subtle" value="0x1e293b" help="Elevated secondary surface background" />
+		<color name="bg_surface" value="0x191c20" help="Neutral card background" />
+		<color name="bg_surface_subtle" value="0x25292e" help="Secondary surface background" />
 
 		<!-- Typography Colors -->
 		<color name="fg_primary" value="0xffffff" help="High contrast white text" />
-		<color name="fg_secondary" value="0x94a3b8" help="Slate gray text for date and labels" />
+		<color name="fg_secondary" value="0xa7adb5" help="Secondary text" />
 		<color name="fg_muted" value="0x64748b" help="Darker muted text for inactive elements" />
 
 		<!-- Accent Colors -->
@@ -69,10 +69,15 @@
 	</subjects>
 
 	<images>
-		<!-- Image asset declarations -->
+		<data name="hour_seven" src_path="images/hour_seven.png" color_format="argb8888" />
 	</images>
 
 	<fonts>
-		<!-- Font declarations -->
+		<bin name="body_20" src_path="fonts/WristFlowSans-Regular.ttf" size="20" bpp="4" as_file="false" range="0x20-0x7e" symbols="月日周二步心率次分最近测量今日活动距离目标千米系统状态电池蓝牙已连接未充电运行时间控制中心勿扰手筒常亮设置小时钟关闭开启分钟数完成度" />
+		<bin name="title_24" src_path="fonts/WristFlowSans-Regular.ttf" size="24" bpp="4" as_file="false" range="0x20-0x7e" symbols="心率今日活动系统状态控制中心勿扰手电筒常亮设置" />
+		<bin name="metric_56" src_path="fonts/WristFlowSans-Regular.ttf" size="56" bpp="4" as_file="false" range="0x30-0x39" />
+		<bin name="value_36" src_path="fonts/WristFlowSans-Regular.ttf" size="36" bpp="4" as_file="false" range="0x20-0x7e" symbols="已连接" />
+		<bin name="icons_44" src_path="fonts/WristFlowIcons.ttf" size="44" bpp="4" as_file="false" range="0xf004-0xf54b" />
+		<bin name="icons_20" src_path="fonts/WristFlowIcons.ttf" size="20" bpp="4" as_file="false" range="0xf185-0xf240" />
 	</fonts>
 </globals>
