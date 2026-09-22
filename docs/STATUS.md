@@ -1,13 +1,13 @@
 # 当前状态
 
-更新：2026-09-22。阶段：用户确认 Nano 退货完成、黄山派已下单，尚未确认到货；黄山派本地 Hello/BLE/Bringup 三目标已编译通过，当前分支云端检查以 PR 最新结果为准。2026-09-21 的 Nano 构建/CI 保留为历史证据。
+更新：2026-09-22。阶段：用户确认 Nano 退货完成、黄山派已下单，尚未确认到货；黄山派切换基线 PR #2 已通过云端构建并合入 main；等板期间已完成全局交互拓扑、手势与状态机契约固化（docs/UI-INTERACTION.md）。
 
 ## 最新决定与结果
 
 - [黄山派选型复评](HARDWARE.md) 记录新货源、板载外围、8MB PSRAM/16MB Flash、设计尺寸及版本差异；预算、首版范围和三个月日历不变。
 - 默认板型改为 `sf32lb52-lchspi-ulp`；SDK v2.5.1 与两个子模块版本不变，SDK 源码零修改。VS Code 索引改为 Huangshan，三个任务名称与快捷键不变。
-- 本地 Hello、BLE、Bringup 编译链接及产物检查通过，记录分别为 `artifacts/hello/20260922-124620-144/`、`artifacts/ble/20260922-124628-615/`、`artifacts/bringup/20260922-130142-290/`，版本、哈希及失败原因见 [构建说明](BUILD.md)。
-- 包装器改为读取 SDK 镜像清单，兼容旧版分区布局；Bringup 按官方示例启用 `CUSTOM_MEM_MAP`。本轮未扩展 UI 或传感器功能，未执行烧录。
+- 本地 Hello、BLE、Bringup 编译链接及产物检查通过；PR #2 在全新 Windows Server 2022 runner 成功完成云端基线构建并 Rebase 合入 main（`ac475ff`）。
+- 等板期间对齐产品交互：对标 Redmi Watch 4 拓扑，确立 3 卡片环形循环、通知唤醒 5s 预览、控制中心网格、应用列表垂直单列与滚动记忆、变暗态防误触、息屏超时恢复、LVGL XML 视觉与 watch_core 纯 C 状态机解耦架构，输出 [交互规格与状态机契约](UI-INTERACTION.md)。
 
 ## 已完成
 
