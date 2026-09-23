@@ -1,0 +1,24 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0">
+        <picker_header x="24" y="20" title="新增页面" />
+        <layout_option name="quarters" x="24" y="80">
+            <layout_block x="12" y="12" width="66" height="66" />
+            <layout_block x="87" y="12" width="66" height="66" />
+            <layout_block x="12" y="86" width="66" height="66" />
+            <layout_block x="87" y="86" width="66" height="66" />
+        </layout_option>
+        <layout_option name="bottom_half" x="201" y="80">
+            <layout_block x="12" y="12" width="66" height="66" />
+            <layout_block x="87" y="12" width="66" height="66" />
+            <layout_block x="12" y="86" width="141" height="66" />
+        </layout_option>
+        <layout_option name="top_half" x="24" y="258">
+            <layout_block x="12" y="12" width="141" height="66" />
+            <layout_block x="12" y="86" width="66" height="66" />
+            <layout_block x="87" y="86" width="66" height="66" />
+        </layout_option>
+        <layout_option name="full" x="201" y="258">
+            <layout_block x="12" y="12" width="141" height="140" />
+        </layout_option>
+    </view>
+</screen>

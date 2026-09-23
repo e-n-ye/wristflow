@@ -41,7 +41,7 @@ lv_obj_t * page_dots_create(lv_obj_t * parent, lv_coord_t active_x)
     if (wristflow_ui_check_target(WRISTFLOW_UI_TARGET_ALL)) {
         lv_obj_t * lv_obj_0 = lv_obj_create(parent);
         lv_obj_set_name_static(lv_obj_0, "page_dots_#");
-        lv_obj_set_width(lv_obj_0, 42);
+        lv_obj_set_width(lv_obj_0, 60);
         lv_obj_set_height(lv_obj_0, 6);
         lv_obj_set_flag(lv_obj_0, LV_OBJ_FLAG_SCROLLABLE, false);
         lv_obj_set_style_bg_opa(lv_obj_0, (255 * 0 / 100), 0);
@@ -86,16 +86,28 @@ lv_obj_t * page_dots_create(lv_obj_t * parent, lv_coord_t active_x)
         lv_obj_set_style_pad_all(lv_obj_3, 0, 0);
 
         lv_obj_t * lv_obj_4 = lv_obj_create(lv_obj_0);
-        lv_obj_set_x(lv_obj_4, active_x);
+        lv_obj_set_x(lv_obj_4, 54);
         lv_obj_set_y(lv_obj_4, 0);
         lv_obj_set_width(lv_obj_4, 6);
         lv_obj_set_height(lv_obj_4, 6);
         lv_obj_set_flag(lv_obj_4, LV_OBJ_FLAG_SCROLLABLE, false);
-        lv_obj_set_style_bg_color(lv_obj_4, PAGER_ACTIVE, 0);
+        lv_obj_set_style_bg_color(lv_obj_4, PAGER_INACTIVE, 0);
         lv_obj_set_style_bg_opa(lv_obj_4, (255 * 100 / 100), 0);
         lv_obj_set_style_border_width(lv_obj_4, 0, 0);
         lv_obj_set_style_radius(lv_obj_4, 3, 0);
         lv_obj_set_style_pad_all(lv_obj_4, 0, 0);
+
+        lv_obj_t * lv_obj_5 = lv_obj_create(lv_obj_0);
+        lv_obj_set_x(lv_obj_5, active_x);
+        lv_obj_set_y(lv_obj_5, 0);
+        lv_obj_set_width(lv_obj_5, 6);
+        lv_obj_set_height(lv_obj_5, 6);
+        lv_obj_set_flag(lv_obj_5, LV_OBJ_FLAG_SCROLLABLE, false);
+        lv_obj_set_style_bg_color(lv_obj_5, PAGER_ACTIVE, 0);
+        lv_obj_set_style_bg_opa(lv_obj_5, (255 * 100 / 100), 0);
+        lv_obj_set_style_border_width(lv_obj_5, 0, 0);
+        lv_obj_set_style_radius(lv_obj_5, 3, 0);
+        lv_obj_set_style_pad_all(lv_obj_5, 0, 0);
 
         the_root = lv_obj_0;
     }

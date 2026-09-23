@@ -33,7 +33,7 @@ extern "C" {
  * GLOBAL PROTOTYPES
  **********************/
 
-lv_obj_t * card_container_create(lv_obj_t * parent, const char * card_title, const char * metric_val, const char * icon, lv_color_t surface_color, lv_color_t value_color, lv_color_t caption_color, lv_color_t accent_color, lv_coord_t card_width, lv_coord_t card_height);
+lv_obj_t * card_container_create(lv_obj_t * parent, const char * card_title, const char * metric_val, const char * icon, lv_color_t surface_color, lv_color_t value_color, lv_color_t caption_color, lv_color_t accent_color);
 
 /**********************
  *      MACROS

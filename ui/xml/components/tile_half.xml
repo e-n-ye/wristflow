@@ -1,0 +1,4 @@
+<component>
+    <api><prop name="surface_color" type="color" default="#bg_surface" /></api>
+    <view extends="lv_obj" width="#tile_area_w" height="#tile_row_h" scrollable="false" style_bg_color="$surface_color" style_bg_opa="100%" style_radius="#radius_lg" style_border_width="0" style_pad_all="0" style_grid_cell_column_span="2" style_grid_cell_row_span="1" />
+</component>

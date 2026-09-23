@@ -1,9 +1,10 @@
 <screen>
     <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0">
-        <card_container name="steps_tile" x="24" y="28" card_title="今日步数" metric_val="6,280" icon="&#xf54b;" surface_color="0xff648a" accent_color="0x24111b" value_color="0x24111b" caption_color="0x4c2435" />
-        <card_container name="distance_tile" x="201" y="28" card_title="距离 / 千米" metric_val="4.2" icon="&#xf012;" accent_color="0x67e1f7" />
-        <card_container name="goal_tile" x="24" y="216" card_title="目标步数" metric_val="8,000" icon="&#xf54b;" accent_color="0xff648a" />
-        <card_container name="progress_tile" x="201" y="216" card_title="目标完成" metric_val="78%" icon="&#xf017;" surface_color="0x67e1f7" accent_color="0x09272c" value_color="0x09272c" caption_color="0x234b54" />
-        <page_dots x="174" y="#pager_bottom_y" active_x="18" />
+        <tile_grid name="tile_slots" x="#tile_area_x" y="#tile_area_y">
+            <metric_half name="slot_0" style_grid_cell_column_pos="0" style_grid_cell_row_pos="0" />
+            <card_container name="slot_1" style_grid_cell_column_pos="0" style_grid_cell_row_pos="1" card_title="距离 / 千米" metric_val="4.2" icon="&#xf012;" accent_color="0x67e1f7" />
+            <card_container name="slot_2" style_grid_cell_column_pos="1" style_grid_cell_row_pos="1" card_title="目标完成" metric_val="78%" icon="&#xf017;" surface_color="0x67e1f7" accent_color="0x09272c" value_color="0x09272c" caption_color="0x234b54" />
+        </tile_grid>
+        <page_dots x="165" y="#pager_bottom_y" active_x="18" />
     </view>
 </screen>

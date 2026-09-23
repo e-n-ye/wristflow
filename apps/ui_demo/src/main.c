@@ -2,9 +2,11 @@
 #include <rtdevice.h>
 #include "littlevgl2rtt.h"
 #include "wristflow_ui.h"
+#include "watchface_presenter.h"
 
 /* A visual carousel only. Product navigation and power policy belong to watch_core. */
-static lv_obj_t *pages[4];
+#define PAGE_COUNT 5U
+static lv_obj_t *pages[PAGE_COUNT];
 static lv_obj_t *control_center;
 static unsigned int page_index;
 
@@ -23,7 +25,7 @@ static void gesture(lv_event_t *event)
     }
     else if (direction == LV_DIR_LEFT || direction == LV_DIR_RIGHT)
     {
-        page_index = (page_index + (direction == LV_DIR_LEFT ? 1U : 3U)) % 4U;
+        page_index = (page_index + (direction == LV_DIR_LEFT ? 1U : PAGE_COUNT - 1U)) % PAGE_COUNT;
         lv_screen_load(pages[page_index]);
     }
     else if (page_index == 0U && direction == LV_DIR_TOP)
@@ -41,8 +43,10 @@ int main(void)
     pages[1] = screen_tile_heart_rate_create();
     pages[2] = screen_tile_activity_create();
     pages[3] = screen_tile_system_create();
+    pages[4] = screen_tile_full_create();
+    RT_ASSERT(wristflow_watchface_set_time(pages[0], 22, 48));
     control_center = screen_control_center_create();
-    for (unsigned int i = 0; i < 4; i++)
+    for (unsigned int i = 0; i < PAGE_COUNT; i++)
         lv_obj_add_event_cb(pages[i], gesture, LV_EVENT_GESTURE, NULL);
     lv_obj_add_event_cb(control_center, gesture, LV_EVENT_GESTURE, NULL);
     lv_obj_t *initial = lv_screen_active();

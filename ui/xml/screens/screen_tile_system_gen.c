@@ -50,28 +50,27 @@ lv_obj_t * screen_tile_system_create(void)
         lv_obj_set_style_pad_all(lv_obj_0, 0, 0);
         lv_obj_set_style_radius(lv_obj_0, 0, 0);
 
-        lv_obj_t * battery_tile = card_container_create(lv_obj_0, "电池", "53%", "", lv_color_hex(0x67e1f7), lv_color_hex(0x09272c), lv_color_hex(0x234b54), lv_color_hex(0x09272c), 165, 174);
-        lv_obj_set_name(battery_tile, "battery_tile");
-        lv_obj_set_x(battery_tile, 24);
-        lv_obj_set_y(battery_tile, 28);
+        lv_obj_t * tile_slots = tile_grid_create(lv_obj_0);
+        lv_obj_set_name(tile_slots, "tile_slots");
+        lv_obj_set_x(tile_slots, TILE_AREA_X);
+        lv_obj_set_y(tile_slots, TILE_AREA_Y);
+        lv_obj_t * slot_0 = card_container_create(tile_slots, "电池", "53%", "", lv_color_hex(0x67e1f7), lv_color_hex(0x09272c), lv_color_hex(0x234b54), lv_color_hex(0x09272c));
+        lv_obj_set_name(slot_0, "slot_0");
+        lv_obj_set_style_grid_cell_column_pos(slot_0, 0, 0);
+        lv_obj_set_style_grid_cell_row_pos(slot_0, 0, 0);
 
-        lv_obj_t * connection_tile = card_container_create(lv_obj_0, "蓝牙", "已连接", "", BG_SURFACE, FG_PRIMARY, FG_SECONDARY, lv_color_hex(0x67e1f7), 165, 174);
-        lv_obj_set_name(connection_tile, "connection_tile");
-        lv_obj_set_x(connection_tile, 201);
-        lv_obj_set_y(connection_tile, 28);
+        lv_obj_t * slot_1 = card_container_create(tile_slots, "蓝牙", "已连接", "", BG_SURFACE, FG_PRIMARY, FG_SECONDARY, lv_color_hex(0x67e1f7));
+        lv_obj_set_name(slot_1, "slot_1");
+        lv_obj_set_style_grid_cell_column_pos(slot_1, 1, 0);
+        lv_obj_set_style_grid_cell_row_pos(slot_1, 0, 0);
 
-        lv_obj_t * uptime_tile = card_container_create(lv_obj_0, "运行 / 小时", "12.4", "", BG_SURFACE, FG_PRIMARY, FG_SECONDARY, lv_color_hex(0xff648a), 165, 174);
-        lv_obj_set_name(uptime_tile, "uptime_tile");
-        lv_obj_set_x(uptime_tile, 24);
-        lv_obj_set_y(uptime_tile, 216);
-
-        lv_obj_t * brightness_tile = card_container_create(lv_obj_0, "亮度", "60%", "", lv_color_hex(0xff648a), lv_color_hex(0x24111b), lv_color_hex(0x4c2435), lv_color_hex(0x24111b), 165, 174);
-        lv_obj_set_name(brightness_tile, "brightness_tile");
-        lv_obj_set_x(brightness_tile, 201);
-        lv_obj_set_y(brightness_tile, 216);
+        lv_obj_t * slot_2 = metric_half_create(tile_slots, "运行时间", "12.4", "小时", "", BG_SURFACE, FG_PRIMARY, lv_color_hex(0xff648a));
+        lv_obj_set_name(slot_2, "slot_2");
+        lv_obj_set_style_grid_cell_column_pos(slot_2, 0, 0);
+        lv_obj_set_style_grid_cell_row_pos(slot_2, 1, 0);
 
         lv_obj_t * page_dots_0 = page_dots_create(lv_obj_0, 36);
-        lv_obj_set_x(page_dots_0, 174);
+        lv_obj_set_x(page_dots_0, 165);
         lv_obj_set_y(page_dots_0, PAGER_BOTTOM_Y);
 
         the_root = lv_obj_0;

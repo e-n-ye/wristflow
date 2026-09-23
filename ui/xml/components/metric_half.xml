@@ -1,0 +1,17 @@
+<component>
+    <api>
+        <prop name="title" type="string" default="今日活动" />
+        <prop name="value" type="string" default="6,280" />
+        <prop name="detail" type="string" default="目标 8,000 步" />
+        <prop name="icon" type="string" default="&#xf54b;" />
+        <prop name="surface_color" type="color" default="#bg_surface" />
+        <prop name="text_color" type="color" default="#fg_primary" />
+        <prop name="accent_color" type="color" default="#accent_green" />
+    </api>
+    <view extends="tile_half" surface_color="$surface_color">
+        <lv_label name="caption_label" x="20" y="18" width="240" long_mode="dots" text="$title" style_text_font="body_20" style_text_color="$text_color" />
+        <lv_label name="value_label" x="20" y="56" width="230" long_mode="dots" text="$value" style_text_font="metric_56" style_text_color="$text_color" />
+        <lv_label name="detail_label" x="20" y="133" width="280" long_mode="dots" text="$detail" style_text_font="body_20" style_text_color="$text_color" />
+        <lv_label name="icon_label" x="270" y="64" text="$icon" style_text_font="icons_44" style_text_color="$accent_color" />
+    </view>
+</component>
