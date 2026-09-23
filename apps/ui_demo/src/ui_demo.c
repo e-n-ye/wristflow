@@ -8,6 +8,7 @@
 static lv_obj_t *home;
 static lv_obj_t *carousel;
 static lv_obj_t *control_center;
+static lv_obj_t *indicators[PAGE_COUNT];
 static unsigned int page_index;
 static bool recentering;
 
@@ -28,6 +29,9 @@ static void scroll_finished(lv_event_t *event)
         recentering = false;
     }
     page_index = slot - 1;
+    for (unsigned int i = 0; i < PAGE_COUNT; ++i)
+        if (indicators[i])
+            lv_obj_set_flag(indicators[i], LV_OBJ_FLAG_HIDDEN, i != page_index);
 }
 
 static void gesture(lv_event_t *event)
@@ -48,7 +52,7 @@ static void gesture(lv_event_t *event)
     lv_indev_wait_release(input);
 }
 
-static void mount_page(lv_obj_t *screen, unsigned int slot)
+static void mount_page(lv_obj_t *screen, unsigned int slot, unsigned int index)
 {
     /* LVGL screens cannot be reparented. Mount their generated child tree instead. */
     lv_obj_t *panel = lv_obj_create(carousel);
@@ -61,6 +65,22 @@ static void mount_page(lv_obj_t *screen, unsigned int slot)
     lv_obj_set_style_bg_opa(panel, lv_obj_get_style_bg_opa(screen, LV_PART_MAIN), 0);
     lv_obj_set_style_text_color(panel, lv_obj_get_style_text_color(screen, LV_PART_MAIN), 0);
     lv_obj_set_style_text_font(panel, lv_obj_get_style_text_font(screen, LV_PART_MAIN), 0);
+    /* Keep XML-defined indicators on the stationary home layer, outside the carousel. */
+    lv_obj_t *indicator = lv_obj_find_by_name(screen, "page_dots_0");
+    if (indicator)
+    {
+        if (indicators[index])
+            lv_obj_delete(indicator);
+        else
+        {
+            indicators[index] = indicator;
+            lv_obj_set_parent(indicator, home);
+            lv_obj_add_flag(indicator, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_remove_flag(indicator, LV_OBJ_FLAG_CLICKABLE);
+            for (uint32_t i = 0; i < lv_obj_get_child_count(indicator); ++i)
+                lv_obj_remove_flag(lv_obj_get_child(indicator, i), LV_OBJ_FLAG_CLICKABLE);
+        }
+    }
     while (lv_obj_get_child_count(screen))
         lv_obj_set_parent(lv_obj_get_child(screen, 0), panel);
     lv_obj_delete(screen);
@@ -98,7 +118,7 @@ void wristflow_demo_start(void)
             bool time_set = wristflow_watchface_set_time(page, 22, 48);
             LV_ASSERT(time_set);
         }
-        mount_page(page, slot);
+        mount_page(page, slot, index);
     }
     control_center = screen_control_center_create();
     lv_obj_add_event_cb(home, gesture, LV_EVENT_GESTURE, NULL);

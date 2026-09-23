@@ -25,6 +25,16 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Simulate.ps1
 
 上图来自 `ui_navigation` 的真实 LVGL 像素快照，顺序为启动、拖动中、取消后、控制中心。不是手绘 HTML，也不代表硬件显示证据。控制中心的进出采用短过渡动画，尚未实现纵向跟手或纵向取消回弹。无长按替换、配置保存、KEY1、RTC、通知、BLE、传感器或电源策略。
 
+### 分页点固定修复
+
+2026-09-23 用户发现信息页底部的点随内容横移。适配层现将 XML 生成的分页组件挂到固定的 home 层，保留原有四个信息演示页的点样式和映射；拖动中位置与高亮不变，吸附完成后切换高亮。表盘仍不显示分页点。镜像页复用同一份指示器，指示器不截获鼠标拖动，XML 与生成 C 均未修改。
+
+![真实 LVGL：拖动前、拖动中、切页后，分页点保持固定](evidence/2026-09-23-simulator/fixed-indicator.png)
+
+`scripts/Simulate.ps1 -BuildOnly` 通过，三项 CTest 全通过；`ui_navigation` 新增拖动中坐标、短拖回弹、高亮更新、双向循环及从点上起拖的断言。日志为 `artifacts/fixed-indicator-host.log`。`scripts/Build.ps1 -Example ui_demo -Jobs 4` 编译链接与产物检查通过，记录在 `artifacts/ui_demo/20260923-223941-323/` 和 `artifacts/fixed-indicator-firmware.log`：main.bin 为 3,026,700 字节，SHA-256 `300cf45ababe9aff5931dcd6c1c230ce740899c3b0c5476aacb9064af345f1dc`。云端结果以修复 PR 的最新检查为准；尚无硬件验证。
+
+下一项有界检查：在 PC 窗口横拖、短拖取消和首尾循环时，确认底部仅有一组固定指示点；主观拖拽验收后再继续长按替换与保存。
+
 ## XML 与 C 的分工
 
 LVGL Pro 确实提供桌面模拟器路径：[Built-in Simulator](https://lvgl.io/docs/pro/integration/simulator)、[VS Code project](https://lvgl.io/docs/pro/integration/vscode)。本机 Editor 2.0.1 的创建页也提供 VSCode 模板。现有 `ui/xml` 是 UI-only 项目，没有自带 `sim/`；当前官方模板默认获取 LVGL 9.5.0，不适合直接覆盖固定 SDK。
