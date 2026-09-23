@@ -7,26 +7,11 @@
 		<prop name="value_color" type="color" default="#fg_primary" />
 		<prop name="caption_color" type="color" default="#fg_secondary" />
 		<prop name="accent_color" type="color" default="#accent_blue" />
-		<prop name="card_width" type="px" default="165" />
-		<prop name="card_height" type="px" default="174" />
 	</api>
 
-	<styles>
-		<style
-			name="style_card_container"
-			bg_color="#bg_surface"
-			radius="28"
-			pad_all="0"
-			clip_corner="true"
-		/>
-		<style name="style_title" text_color="#fg_secondary" />
-		<style name="style_metric" text_color="#fg_primary" />
-		<style name="style_status" text_color="#fg_muted" />
-	</styles>
-
-	<view extends="lv_obj" width="$card_width" height="$card_height" scrollable="false" style_bg_color="$surface_color" style_bg_opa="100%" style_radius="28" style_border_width="0" style_pad_all="0">
+	<view extends="tile_quarter" surface_color="$surface_color">
 		<lv_label name="icon_label" x="20" y="20" text="$icon" style_text_font="icons_44" style_text_color="$accent_color" />
-		<lv_label name="value_label" x="20" y="84" width="145" text="$metric_val" style_text_font="value_36" style_text_color="$value_color" />
-		<lv_label name="caption_label" x="20" y="136" width="145" text="$card_title" style_text_font="body_20" style_text_color="$caption_color" />
+		<lv_label name="value_label" x="20" y="84" width="125" long_mode="dots" text="$metric_val" style_text_font="value_36" style_text_color="$value_color" />
+		<lv_label name="caption_label" x="20" y="136" width="125" long_mode="dots" text="$card_title" style_text_font="body_20" style_text_color="$caption_color" />
 	</view>
 </component>

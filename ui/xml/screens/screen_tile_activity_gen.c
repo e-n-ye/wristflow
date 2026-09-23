@@ -50,28 +50,27 @@ lv_obj_t * screen_tile_activity_create(void)
         lv_obj_set_style_pad_all(lv_obj_0, 0, 0);
         lv_obj_set_style_radius(lv_obj_0, 0, 0);
 
-        lv_obj_t * steps_tile = card_container_create(lv_obj_0, "今日步数", "6,280", "", lv_color_hex(0xff648a), lv_color_hex(0x24111b), lv_color_hex(0x4c2435), lv_color_hex(0x24111b), 165, 174);
-        lv_obj_set_name(steps_tile, "steps_tile");
-        lv_obj_set_x(steps_tile, 24);
-        lv_obj_set_y(steps_tile, 28);
+        lv_obj_t * tile_slots = tile_grid_create(lv_obj_0);
+        lv_obj_set_name(tile_slots, "tile_slots");
+        lv_obj_set_x(tile_slots, TILE_AREA_X);
+        lv_obj_set_y(tile_slots, TILE_AREA_Y);
+        lv_obj_t * slot_0 = metric_half_create(tile_slots, "今日活动", "6,280", "目标 8,000 步", "", BG_SURFACE, FG_PRIMARY, ACCENT_GREEN);
+        lv_obj_set_name(slot_0, "slot_0");
+        lv_obj_set_style_grid_cell_column_pos(slot_0, 0, 0);
+        lv_obj_set_style_grid_cell_row_pos(slot_0, 0, 0);
 
-        lv_obj_t * distance_tile = card_container_create(lv_obj_0, "距离 / 千米", "4.2", "", BG_SURFACE, FG_PRIMARY, FG_SECONDARY, lv_color_hex(0x67e1f7), 165, 174);
-        lv_obj_set_name(distance_tile, "distance_tile");
-        lv_obj_set_x(distance_tile, 201);
-        lv_obj_set_y(distance_tile, 28);
+        lv_obj_t * slot_1 = card_container_create(tile_slots, "距离 / 千米", "4.2", "", BG_SURFACE, FG_PRIMARY, FG_SECONDARY, lv_color_hex(0x67e1f7));
+        lv_obj_set_name(slot_1, "slot_1");
+        lv_obj_set_style_grid_cell_column_pos(slot_1, 0, 0);
+        lv_obj_set_style_grid_cell_row_pos(slot_1, 1, 0);
 
-        lv_obj_t * goal_tile = card_container_create(lv_obj_0, "目标步数", "8,000", "", BG_SURFACE, FG_PRIMARY, FG_SECONDARY, lv_color_hex(0xff648a), 165, 174);
-        lv_obj_set_name(goal_tile, "goal_tile");
-        lv_obj_set_x(goal_tile, 24);
-        lv_obj_set_y(goal_tile, 216);
-
-        lv_obj_t * progress_tile = card_container_create(lv_obj_0, "目标完成", "78%", "", lv_color_hex(0x67e1f7), lv_color_hex(0x09272c), lv_color_hex(0x234b54), lv_color_hex(0x09272c), 165, 174);
-        lv_obj_set_name(progress_tile, "progress_tile");
-        lv_obj_set_x(progress_tile, 201);
-        lv_obj_set_y(progress_tile, 216);
+        lv_obj_t * slot_2 = card_container_create(tile_slots, "目标完成", "78%", "", lv_color_hex(0x67e1f7), lv_color_hex(0x09272c), lv_color_hex(0x234b54), lv_color_hex(0x09272c));
+        lv_obj_set_name(slot_2, "slot_2");
+        lv_obj_set_style_grid_cell_column_pos(slot_2, 1, 0);
+        lv_obj_set_style_grid_cell_row_pos(slot_2, 1, 0);
 
         lv_obj_t * page_dots_0 = page_dots_create(lv_obj_0, 18);
-        lv_obj_set_x(page_dots_0, 174);
+        lv_obj_set_x(page_dots_0, 165);
         lv_obj_set_y(page_dots_0, PAGER_BOTTOM_Y);
 
         the_root = lv_obj_0;

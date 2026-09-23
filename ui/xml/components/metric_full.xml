@@ -1,0 +1,15 @@
+<component>
+    <api>
+        <prop name="title" type="string" default="今日步数" />
+        <prop name="value" type="string" default="6,280" />
+        <prop name="detail" type="string" default="目标 8,000 步" />
+        <prop name="icon" type="string" default="&#xf54b;" />
+        <prop name="accent_color" type="color" default="#accent_green" />
+    </api>
+    <view extends="tile_full">
+        <lv_label name="caption_label" x="0" y="20" width="342" long_mode="dots" text="$title" style_text_align="center" style_text_font="title_24" style_text_color="#fg_primary" />
+        <lv_label name="icon_label" x="0" y="96" width="342" text="$icon" style_text_align="center" style_text_font="icons_44" style_text_color="$accent_color" />
+        <lv_label name="value_label" x="0" y="166" width="342" long_mode="dots" text="$value" style_text_align="center" style_text_font="metric_56" style_text_color="#fg_primary" />
+        <lv_label name="detail_label" x="16" y="274" width="310" long_mode="dots" text="$detail" style_text_align="center" style_text_font="body_20" style_text_color="#fg_secondary" />
+    </view>
+</component>

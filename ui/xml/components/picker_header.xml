@@ -1,0 +1,8 @@
+<component>
+    <api><prop name="title" type="string" default="选择组件" /></api>
+    <view extends="lv_obj" width="342" height="44" scrollable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0">
+        <lv_label name="back_icon" x="0" y="5" text="&#xf053;" style_text_font="icons_20" style_text_color="#fg_primary" />
+        <lv_label name="title_label" x="26" y="0" width="210" long_mode="dots" text="$title" style_text_font="title_24" style_text_color="#fg_primary" />
+        <lv_label name="clock_label" x="268" y="3" width="74" text="10:48" style_text_font="body_20" style_text_color="#fg_secondary" style_text_align="right" />
+    </view>
+</component>

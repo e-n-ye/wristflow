@@ -104,14 +104,12 @@ bool wristflow_ui_check_target(uint32_t target);
  * Pill shape full radius
  */
 #define RADIUS_PILL 999
-/**
- * Full-width card (390 - 24*2)
- */
-#define CARD_DEFAULT_W 342
-/**
- * Standard metric card height
- */
-#define CARD_DEFAULT_H 130
+#define TILE_QUARTER_W 165
+#define TILE_ROW_H 174
+#define TILE_AREA_W 342
+#define TILE_AREA_H 362
+#define TILE_AREA_X 24
+#define TILE_AREA_Y 28
 /**
  * Pager indicator dot size
  */
@@ -218,7 +216,18 @@ extern lv_font_t * icons_20;
  *----------------*/
 
 /* Targets: any */
-extern const void * hour_seven;
+extern const void * hour_1;
+extern const void * hour_2;
+extern const void * hour_3;
+extern const void * hour_4;
+extern const void * hour_5;
+extern const void * hour_6;
+extern const void * hour_7;
+extern const void * hour_8;
+extern const void * hour_9;
+extern const void * hour_10;
+extern const void * hour_11;
+extern const void * hour_12;
 
 /*----------------
  * Subjects
@@ -248,9 +257,24 @@ void wristflow_ui_init_gen(const char * asset_path);
 
 /*Include all the widgets, components and screens of this library*/
 #include "components/card_container_gen.h"
+#include "components/layout_block_gen.h"
+#include "components/layout_option_gen.h"
+#include "components/metric_full_gen.h"
+#include "components/metric_half_gen.h"
 #include "components/page_dots_gen.h"
+#include "components/picker_header_gen.h"
+#include "components/picker_list_gen.h"
+#include "components/tile_full_gen.h"
+#include "components/tile_grid_gen.h"
+#include "components/tile_half_gen.h"
+#include "components/tile_quarter_gen.h"
 #include "screens/screen_control_center_gen.h"
+#include "screens/screen_layout_picker_gen.h"
+#include "screens/screen_picker_full_gen.h"
+#include "screens/screen_picker_half_gen.h"
+#include "screens/screen_picker_quarter_gen.h"
 #include "screens/screen_tile_activity_gen.h"
+#include "screens/screen_tile_full_gen.h"
 #include "screens/screen_tile_heart_rate_gen.h"
 #include "screens/screen_tile_system_gen.h"
 #include "screens/screen_watchface_gen.h"

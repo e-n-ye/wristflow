@@ -1,0 +1,23 @@
+cmake_minimum_required(VERSION 3.20)
+project(wristflow_ui_checks C)
+enable_testing()
+set(CMAKE_C_STANDARD 11)
+get_filename_component(REPO "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
+set(UI "${REPO}/ui/xml")
+set(LVGL "${REPO}/vendor/SiFli-SDK/external/lvgl_v9")
+
+add_executable(clock_format test_clock_format.c "${UI}/clock_format.c")
+target_include_directories(clock_format PRIVATE "${UI}")
+add_test(NAME clock_format COMMAND clock_format)
+
+file(GLOB_RECURSE LVGL_SOURCES CONFIGURE_DEPENDS "${LVGL}/src/*.c")
+add_library(lvgl_host STATIC ${LVGL_SOURCES})
+target_include_directories(lvgl_host PUBLIC "${LVGL}")
+target_compile_definitions(lvgl_host PUBLIC LV_CONF_PATH="${CMAKE_CURRENT_LIST_DIR}/lv_conf.h" LV_LVGL_H_INCLUDE_SIMPLE)
+include("${UI}/file_list_gen.cmake")
+add_executable(ui_preview ui_preview.c ${LV_EDITOR_PROJECT_SOURCES}
+    "${UI}/clock_format.c" "${UI}/watchface_presenter.c")
+target_include_directories(ui_preview PRIVATE "${UI}")
+target_link_libraries(ui_preview PRIVATE lvgl_host)
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/renders")
+add_test(NAME ui_preview COMMAND ui_preview "${CMAKE_CURRENT_BINARY_DIR}/renders")

@@ -1,9 +1,10 @@
 <component>
     <api><prop name="active_x" type="px" default="0" /></api>
-    <view extends="lv_obj" width="42" height="6" scrollable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0">
+    <view extends="lv_obj" width="60" height="6" scrollable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0">
         <lv_obj x="0" y="0" width="6" height="6" scrollable="false" style_bg_color="#pager_inactive" style_bg_opa="100%" style_border_width="0" style_radius="3" style_pad_all="0" />
         <lv_obj x="18" y="0" width="6" height="6" scrollable="false" style_bg_color="#pager_inactive" style_bg_opa="100%" style_border_width="0" style_radius="3" style_pad_all="0" />
         <lv_obj x="36" y="0" width="6" height="6" scrollable="false" style_bg_color="#pager_inactive" style_bg_opa="100%" style_border_width="0" style_radius="3" style_pad_all="0" />
+        <lv_obj x="54" y="0" width="6" height="6" scrollable="false" style_bg_color="#pager_inactive" style_bg_opa="100%" style_border_width="0" style_radius="3" style_pad_all="0" />
         <lv_obj x="$active_x" y="0" width="6" height="6" scrollable="false" style_bg_color="#pager_active" style_bg_opa="100%" style_border_width="0" style_radius="3" style_pad_all="0" />
     </view>
 </component>

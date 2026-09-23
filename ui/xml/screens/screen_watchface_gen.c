@@ -70,14 +70,14 @@ lv_obj_t * screen_watchface_create(void)
         lv_obj_set_name(hour_artwork, "hour_artwork");
         lv_obj_set_x(hour_artwork, 24);
         lv_obj_set_y(hour_artwork, 66);
-        lv_image_set_src(hour_artwork, hour_seven);
+        lv_image_set_src(hour_artwork, hour_10);
 
         lv_obj_t * minute_label = lv_label_create(lv_obj_0);
         lv_obj_set_name(minute_label, "minute_label");
         lv_obj_set_x(minute_label, 0);
         lv_obj_set_y(minute_label, 365);
         lv_obj_set_width(minute_label, 390);
-        lv_label_set_text(minute_label, "42");
+        lv_label_set_text(minute_label, "48");
         lv_obj_set_style_text_align(minute_label, LV_TEXT_ALIGN_CENTER, 0);
         lv_obj_set_style_text_font(minute_label, metric_56, 0);
 

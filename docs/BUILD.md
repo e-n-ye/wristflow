@@ -36,11 +36,11 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -Example bring
 
 云端检查由本次分支 PR 的最新 `Firmware / Build baselines` 验证，不能用历史 Nano CI 或本机成功代替。没有烧录、触摸、BLE 连接、休眠电流或续航证据。
 
-## XML UI Demo（2026-09-22）
+## XML UI Demo（2026-09-23）
 
 新增独立 `apps/ui_demo/`，用于编译官方 Editor 2.0.1 导出的 LVGL 9.4.0 页面。运行 `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -Example ui_demo -Jobs 4`，或 VS Code 的 `WristFlow: Build UI Demo`。构建生成 C、字体和图片，不需要运行时 XML 或 Pro CLI；XML 修改后须先 GUI 导出。
 
-本机四目标编译与产物检查均通过；UI Demo 主固件 1047772 字节，PM/BLE 关闭、`LV_USE_XML=0`、`LV_USE_OBJ_NAME=1`。生成源/资源哈希纳入构建记录。原三个目标哈希不变；CI 增加第四项生成 UI 编译，Bringup 验收代码没有改动。截图、失败处理、原始日志位置和哈希见 [UI 演示证据](UI-DEMO.md)。
+本机四目标编译与产物检查均通过；最新 UI Demo 主固件 3,025,908 字节，PM/BLE 关闭、`LV_USE_XML=0`、`LV_USE_OBJ_NAME=1`。生成源/资源哈希纳入 `artifacts/ui_demo/20260923-092758-687/result.json`。12 张 342×282 RGB565 小时图的未压缩像素数据约 2.21 MiB；旧的无引用 `hour_seven_data.c` 已从 SCons 图片源收集中排除。原三个目标哈希不变；CI 增加第四项生成 UI 编译，Bringup 验收代码没有改动。截图、失败处理、原始日志位置和哈希见 [UI 演示证据](UI-DEMO.md)。
 
 ## Nano 历史基线（2026-09-21）
 

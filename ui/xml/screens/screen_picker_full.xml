@@ -1,0 +1,9 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0">
+        <picker_header x="24" y="20" />
+        <picker_list name="choices" x="24" y="74">
+            <metric_full name="activity_full" x="0" y="0" />
+            <metric_full name="battery_full" x="0" y="384" title="电池" value="53%" detail="未充电" icon="&#xf240;" accent_color="0x67e1f7" />
+        </picker_list>
+    </view>
+</screen>

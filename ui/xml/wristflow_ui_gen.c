@@ -65,8 +65,30 @@ extern lv_font_t icons_20_data;
  *----------------*/
 
 /* Targets: any */
-const void * hour_seven = NULL;
-extern const void * hour_seven_data;
+const void * hour_1 = NULL;
+extern const void * hour_1_data;
+const void * hour_2 = NULL;
+extern const void * hour_2_data;
+const void * hour_3 = NULL;
+extern const void * hour_3_data;
+const void * hour_4 = NULL;
+extern const void * hour_4_data;
+const void * hour_5 = NULL;
+extern const void * hour_5_data;
+const void * hour_6 = NULL;
+extern const void * hour_6_data;
+const void * hour_7 = NULL;
+extern const void * hour_7_data;
+const void * hour_8 = NULL;
+extern const void * hour_8_data;
+const void * hour_9 = NULL;
+extern const void * hour_9_data;
+const void * hour_10 = NULL;
+extern const void * hour_10_data;
+const void * hour_11 = NULL;
+extern const void * hour_11_data;
+const void * hour_12 = NULL;
+extern const void * hour_12_data;
 
 /*----------------
  * Global styles
@@ -158,9 +180,53 @@ void wristflow_ui_init_gen(const char * asset_path)
     /* Targets: any */
     #if WRISTFLOW_UI_CHECK_COMPILE_TARGET(WRISTFLOW_UI_TARGET_ALL)
     if (wristflow_ui_check_target(WRISTFLOW_UI_TARGET_ALL)) {
-        /* hour_seven */
-        if (!hour_seven) {
-            hour_seven = &hour_seven_data;
+        /* hour_1 */
+        if (!hour_1) {
+            hour_1 = &hour_1_data;
+        }
+        /* hour_2 */
+        if (!hour_2) {
+            hour_2 = &hour_2_data;
+        }
+        /* hour_3 */
+        if (!hour_3) {
+            hour_3 = &hour_3_data;
+        }
+        /* hour_4 */
+        if (!hour_4) {
+            hour_4 = &hour_4_data;
+        }
+        /* hour_5 */
+        if (!hour_5) {
+            hour_5 = &hour_5_data;
+        }
+        /* hour_6 */
+        if (!hour_6) {
+            hour_6 = &hour_6_data;
+        }
+        /* hour_7 */
+        if (!hour_7) {
+            hour_7 = &hour_7_data;
+        }
+        /* hour_8 */
+        if (!hour_8) {
+            hour_8 = &hour_8_data;
+        }
+        /* hour_9 */
+        if (!hour_9) {
+            hour_9 = &hour_9_data;
+        }
+        /* hour_10 */
+        if (!hour_10) {
+            hour_10 = &hour_10_data;
+        }
+        /* hour_11 */
+        if (!hour_11) {
+            hour_11 = &hour_11_data;
+        }
+        /* hour_12 */
+        if (!hour_12) {
+            hour_12 = &hour_12_data;
         }
     }
     #endif
@@ -227,7 +293,18 @@ void wristflow_ui_init_gen(const char * asset_path)
      * While running in the editor skip this step to update the preview when the XML changes */
 #if defined(LV_USE_XML) && LV_USE_XML && !defined(LV_EDITOR_PREVIEW)
     /* Register images */
-    lv_xml_register_image(NULL, "hour_seven", hour_seven);
+    lv_xml_register_image(NULL, "hour_1", hour_1);
+    lv_xml_register_image(NULL, "hour_2", hour_2);
+    lv_xml_register_image(NULL, "hour_3", hour_3);
+    lv_xml_register_image(NULL, "hour_4", hour_4);
+    lv_xml_register_image(NULL, "hour_5", hour_5);
+    lv_xml_register_image(NULL, "hour_6", hour_6);
+    lv_xml_register_image(NULL, "hour_7", hour_7);
+    lv_xml_register_image(NULL, "hour_8", hour_8);
+    lv_xml_register_image(NULL, "hour_9", hour_9);
+    lv_xml_register_image(NULL, "hour_10", hour_10);
+    lv_xml_register_image(NULL, "hour_11", hour_11);
+    lv_xml_register_image(NULL, "hour_12", hour_12);
 #endif
 
 #if defined(LV_USE_XML) && LV_USE_XML == 0
