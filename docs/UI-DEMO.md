@@ -14,7 +14,7 @@
 - `screen_control_center.xml`：勿扰、手电筒、常亮、设置和亮度滑块外观。按钮未连接业务，滑块仅改变控件值，不改变硬件亮度。
 - `tile_grid.xml`、`tile_quarter.xml`、`tile_half.xml`、`tile_full.xml`、`metric_half.xml`、`metric_full.xml` 和 picker 组件承担可复用的几何骨架；具体页面只替换图标、文字、颜色和示例数据。字体、图标和图片实际参与官方导出及固件编译。
 
-XML 只负责视觉。`apps/ui_demo/` 的少量 C 适配代码提供表盘、三页信息环、整页组件和选择页的静态加载；尚未在 PC 或真机执行完整设备手势，不把静态编辑器切页截图当成手势通过。长按后的同尺寸替换和配置保存尚未接入 `watch_core`。该演示不包含 KEY1、电源策略、BLE 或传感器实现，不代替 `watch_core` 或到货 Bringup 验收。
+XML 只负责视觉。`apps/ui_demo/` 的 C 适配代码现由黄山派与 [PC 交互模拟器](SIMULATOR.md) 共用；PC 已加入横向跟手、吸附回弹、首尾循环及控制中心进出动画。下方保留首轮静态视觉证据，新增交互证据以 SIMULATOR 为准。长按后的同尺寸替换和配置保存尚未接入 `watch_core`。该演示不包含 KEY1、电源策略、BLE 或传感器实现，不代替 `watch_core` 或到货 Bringup 验收。
 
 ## 本机免费版操作
 
