@@ -42,6 +42,10 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -Example bring
 
 本机四目标编译与产物检查均通过；最新 UI Demo 主固件 3,025,908 字节，PM/BLE 关闭、`LV_USE_XML=0`、`LV_USE_OBJ_NAME=1`。生成源/资源哈希纳入 `artifacts/ui_demo/20260923-092758-687/result.json`。12 张 342×282 RGB565 小时图的未压缩像素数据约 2.21 MiB；旧的无引用 `hour_seven_data.c` 已从 SCons 图片源收集中排除。原三个目标哈希不变；CI 增加第四项生成 UI 编译，Bringup 验收代码没有改动。截图、失败处理、原始日志位置和哈希见 [UI 演示证据](UI-DEMO.md)。
 
+## PC 交互模拟器（2026-09-23）
+
+运行 `pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Simulate.ps1`，或任务 `WristFlow: Run PC Simulator`。主机使用固定 SDK 内的 LVGL 9.4.0 官方 Win32 驱动，与黄山派 UI Demo 共用 C 适配层；XML 仍只负责外观。`-BuildOnly` 仅构建并执行三项主机测试，不打开窗口，不烧录。依赖、操作与最终四项固件构建记录见 [PC 交互验收](SIMULATOR.md)。本轮 CI 增加 MSVC 主机编译与 CTest，结果以最新 PR 检查为准。
+
 ## Nano 历史基线（2026-09-21）
 
 以下版本、直接 SCons 板名、目录与哈希是切换前的 Nano 记录；日常构建以上方黄山派入口为准，不把下方产物用于新板。
