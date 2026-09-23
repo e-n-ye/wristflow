@@ -21,6 +21,27 @@
 
 新电脑使用 `git clone --recurse-submodules https://github.com/e-n-ye/wristflow.git`，安装 Git、PowerShell 7、uv 后执行 `scripts/Install-Sdk.ps1`。本机已有环境不重装。VS Code 当前任务的 PowerShell、Git、uv 路径是本机配置，迁移时按 `docs/VSCODE.md` 调整。
 
+## 本机 GitHub CLI
+
+2026-09-23 核验：Bash 的 `gh` 不在 PATH，但项目内 `.tools/github-cli-2.101.0/bin/gh.exe` 可用，`--version` 返回 2.101.0，`auth status` 确认认证有效。此前任务已使用该路径，后续却因 `gh: command not found` 转到浏览器；命令不在 PATH 不等于未安装。
+
+从仓库根目录执行以下 Bash 命令，优先复用项目工具，再检查 PATH；两处均无可用工具才评估安装。变量仅作用于当前 shell，新 shell 需重新解析，不改全局 PATH。
+
+```bash
+gh_bin='./.tools/github-cli-2.101.0/bin/gh.exe'
+if [ ! -x "$gh_bin" ]; then gh_bin="$(command -v gh)"; fi
+if [ -z "$gh_bin" ]; then
+    printf '%s\n' 'GitHub CLI not found in the recorded location or PATH' >&2
+    exit 1
+fi
+"$gh_bin" --version
+"$gh_bin" auth status
+```
+
+认证失败应处理登录，不重复安装。PR 使用 `"$gh_bin" pr create --base main --head <branch> --title '<title>' --body-file <UTF-8文件>`；正文通过文件传递，避免多层 shell 转义。创建后使用 `pr view <编号> --json url,headRefOid,statusCheckRollup` 和 `pr checks <编号> --required` 查询，确认检查对应最新提交且必需构建成功，再按上述流程 Rebase 合入。不要输出或保存认证令牌。
+
+本节变更只做文档检查和 CLI 只读核验，不新增本机固件编译或硬件证据。下一次 PR 沿用解析后的路径，验证创建及最新提交检查查询；`.tools/` 二进制不提交，其他机器不假设拥有此版本目录。
+
 ## 最小云端检查
 
 `.github/workflows/build.yml` 在 PR、main 推送和手动触发时使用 Windows Server 2022 runner，递归取得固定 SDK，安装 uv 0.11.21，调用官方 SDK 安装包装器，再顺序编译三个基线。
