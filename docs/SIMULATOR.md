@@ -10,7 +10,7 @@
 pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Simulate.ps1
 ```
 
-脚本检查 SDK 锁定状态，配置并构建主机程序、运行三项 CTest，然后打开 **WristFlow - LVGL Simulator**。只编译与测试可加 `-BuildOnly`。再次构建前关闭已有模拟器窗口；脚本不会结束用户正在操作的窗口，也不会烧录。
+脚本检查 SDK 锁定状态，配置并构建主机程序、运行五项 CTest，然后打开 **WristFlow - LVGL Simulator**。只编译与测试可加 `-BuildOnly`。再次构建前关闭已有模拟器窗口；脚本不会结束用户正在操作的窗口，也不会烧录。2026-09-24 新增的框架边界和验证见 [UI 运行框架](UI-RUNTIME.md)，下文 2026-09-23 验证记录保留为历史证据。
 
 本机依赖为 PowerShell 7、CMake 3.31.4、Ninja、MSYS2 UCRT64 GCC 15.2.0；默认主机工具目录 `D:/msys64/ucrt64/bin`，其他安装位置用 `-HostTools` 指定。沿用项目已有任务中的 PowerShell/Git 路径，其他机器须按实际安装调整。程序逻辑分辨率为 390×450，Windows 的显示缩放会改变窗口的物理像素大小。
 
@@ -42,9 +42,9 @@ LVGL Pro 确实提供桌面模拟器路径：[Built-in Simulator](https://lvgl.i
 本项目复用同一官方 **Win32 显示与鼠标驱动**，在 `apps/simulator/main.c` 建立轻量主机入口，并复用已有 `tests/CMakeLists.txt`、官方导出源清单及内嵌图片/字体。不另取 LVGL，不复制新的 XML 项目，不依赖付费 CLI。
 
 - `ui/xml`：布局、样式、资源及官方生成 C；本次未修改 XML 或生成 C。
-- `apps/ui_demo/src/ui_demo.c`：演示适配层，由 PC 与黄山派 UI Demo 共用，负责挂载页面、滚动吸附与控制中心导航。
+- `apps/ui_demo/src/ui_demo.c`：PC 与黄山派 UI Demo 共用的组装入口；挂载、滚动和屏幕生命周期位于 `ui/runtime`。
 - `apps/simulator/main.c`：仅负责 Windows 窗口、输入和 LVGL 主循环。
-- 后续 `watch_core`：产品状态、长按意图、同尺寸替换与保存，不放入 XML 或生成文件。
+- `core/watch_core`：当前维护提交后的页索引和主页/控制中心状态；长按意图、同尺寸替换与保存继续逐项实现，不放入 XML 或生成文件。
 
 LVGL 顶层 screen 不允许重设 parent。适配层创建无边框的等尺寸容器，继承现有页面根的背景/文字样式，将生成的子控件树挂入容器。横向手感使用 LVGL 原生 `SCROLL_ONE`、居中吸附和动量；首尾两个镜像页在吸附完成后无动画复位，图片和字体仍共享静态资源。未来增加页面根样式时须复核挂载后的外观。
 

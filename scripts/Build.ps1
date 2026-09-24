@@ -49,6 +49,9 @@ if ($Example -eq 'ui_demo') {
     foreach ($directory in '', 'components', 'screens', 'fonts', 'images') {
         $sourceFiles += @(Get-ChildItem -LiteralPath (Join-Path $uiRoot $directory) -File)
     }
+    foreach ($directory in 'core', 'ui/runtime') {
+        $sourceFiles += @(Get-ChildItem -LiteralPath (Join-Path $ProjectRoot $directory) -Recurse -File)
+    }
 }
 $sourceHashes = @($sourceFiles | Where-Object {
     $_.Name -match '^(SConstruct|SConscript|Kconfig.*|proj.conf|rtconfig.py)$' -or $_.Extension -in '.c', '.h', '.xml', '.ttf', '.png'

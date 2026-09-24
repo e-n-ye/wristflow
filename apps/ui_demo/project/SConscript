@@ -9,4 +9,8 @@ objs += SConscript(os.path.join(cwd, '../src/SConscript'),
                   variant_dir='src', duplicate=0)
 objs += SConscript(os.path.join(cwd, '../../../ui/xml/SConscript'),
                   variant_dir='ui', duplicate=0)
+objs += SConscript(os.path.join(cwd, '../../../core/SConscript'),
+                  variant_dir='core', duplicate=0)
+objs += SConscript(os.path.join(cwd, '../../../ui/runtime/SConscript'),
+                  variant_dir='ui_runtime', duplicate=0)
 Return('objs')
