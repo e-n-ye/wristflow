@@ -2,7 +2,7 @@
 
 版本提交、分支、GitHub PR 与云端检查见 [开发流程](../CONTRIBUTING.md)。本页任务和默认快捷键不变。
 
-2026-09-22 主板改为黄山派，任务统一读取 `sdk.lock.json` 中的 `sf32lb52-lchspi-ulp`；下面 2026-09-21 的日志和哈希仍属于 Nano 历史验证。黄山派构建结果见 [构建说明](BUILD.md)。
+2026-09-22 主板改为黄山派，任务统一读取 `sdk.lock.json` 中的 `sf32lb52-lchspi-ulp`；下面 2026-09-21 的日志和哈希仍属于 Nano 历史验证。2026-09-24 已完成首次 Hello / Bringup 真机下载与启动，日常编译、下载和串口步骤见 [编译与下载](FLASHING.md)。
 
 SDK 和工具链已经装好，Hello World 与 BLE 外设示例已实际编译通过。VS Code 可以作为日常编辑和编译入口，不必每次手动输入命令。编译不需要开发板；烧录、断点调试和实际运行验证需要硬件。
 
@@ -46,7 +46,7 @@ Hello/BLE 任务用于复编译固定版本的官方示例，Bringup 用于编�
 
 ## 产物和限制
 
-当前固件位于各工程的 `project/build_sf32lb52-lchspi-ulp_hcpu/`，日志和哈希位于 `artifacts/<hello|ble|bringup>/<时间>/`，具体见 [构建说明](BUILD.md)。旧 Nano 构建目录保留但不用于黄山派烧录。没有硬件时，编译成功不会出现真实手表运行画面；当前尚未配置 PC 模拟器。
+当前固件位于各工程的 `project/build_sf32lb52-lchspi-ulp_hcpu/`，日志和哈希位于 `artifacts/<hello|ble|bringup>/<时间>/`，具体见 [构建说明](BUILD.md)。旧 Nano 构建目录保留但不用于黄山派烧录。编译成功不能代替真机验收；Hello / Bringup 已完成首轮上板，PC 模拟器已有独立入口。
 
 本机已有 VS Code 与微软 C/C++ 扩展。思澈官方另有 [SiFli CodeKit](https://marketplace.visualstudio.com/items?itemName=SiFli.sifli-sdk-codekit)，可后续评估其工程和调试界面；本轮未安装，也未假设它会自动识别本项目的独立工具目录。
 
