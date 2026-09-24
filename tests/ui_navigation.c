@@ -230,6 +230,7 @@ int main(int argc, char **argv)
         assert(lv_screen_active() == face);
     }
     puts("PASS: fixed indicators, live drag, short-drag cancellation, half-page commit, fling, both loop boundaries, control center and slider");
+    wristflow_demo_stop();
     lv_deinit();
     return 0;
 }
