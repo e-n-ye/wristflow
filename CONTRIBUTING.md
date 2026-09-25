@@ -44,7 +44,7 @@ fi
 
 ## 最小云端检查
 
-`.github/workflows/build.yml` 只响应 `workflow_dispatch`，在 Windows Server 2022 runner 上递归取得固定 SDK，安装 uv 0.11.21，调用官方 SDK 安装包装器，再编译 Hello、BLE、Bringup、UI Demo 四个目标及执行 PC UI 主机测试。
+`.github/workflows/build.yml` 只响应 `workflow_dispatch`，在 Windows Server 2022 runner 上递归取得固定 SDK，安装 uv 0.11.21，调用官方 SDK 安装包装器，再编译 Hello、BLE、Bringup、UI Demo、Product 五个目标及执行 PC UI 主机测试。
 
 `Build baselines` 是按需的完整基线，不是 PR 的必需状态检查。它用于 SDK、工具链、公共构建入口变更和阶段验收；日常文档与 UI 迭代不因没有云端运行而阻塞。文档内容是否与实现同步仍需主代理审阅。
 

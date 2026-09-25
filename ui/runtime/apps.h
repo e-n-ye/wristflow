@@ -4,7 +4,9 @@
 
 typedef struct wristflow_apps wristflow_apps_t;
 wristflow_apps_t *wristflow_apps_create(wristflow_ui_shell_t *shell, lv_obj_t *controls,
-                                      wristflow_brightness_cb_t brightness, void *context);
+                                      wristflow_brightness_cb_t brightness, void *context,
+                                      uint8_t initial_brightness);
+uint8_t wristflow_apps_brightness(const wristflow_apps_t *apps);
 /* Apps is the sole owner of app screens. The shell binds navigation events only
  * when created is true; callers must not retain a screen after it leaves the path. */
 lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surface, bool *created);

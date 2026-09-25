@@ -293,7 +293,10 @@ static void sync_brightness(wristflow_apps_t *apps)
     if (settings) {
         lv_slider_set_value(named(settings, "settings_brightness"), apps->brightness, LV_ANIM_OFF);
         lv_label_set_text_fmt(named(settings, "settings_brightness_value"), "%u%%", (unsigned)apps->brightness);
-        lv_label_set_text_fmt(named(settings, "settings_battery"), "%u%%", (unsigned)apps->snapshot.battery_percent);
+        lv_obj_set_style_text_font(named(settings, "settings_battery"),
+            apps->snapshot.battery_unavailable ? LV_FONT_DEFAULT : body_20, 0);
+        if (apps->snapshot.battery_unavailable) lv_label_set_text(named(settings, "settings_battery"), "USB");
+        else lv_label_set_text_fmt(named(settings, "settings_battery"), "%u%%", (unsigned)apps->snapshot.battery_percent);
     }
 }
 
@@ -325,13 +328,14 @@ static void bind_click(lv_obj_t *screen, const char *name, lv_event_cb_t callbac
 }
 
 wristflow_apps_t *wristflow_apps_create(wristflow_ui_shell_t *shell, lv_obj_t *controls,
-                                      wristflow_brightness_cb_t brightness, void *context)
+                                      wristflow_brightness_cb_t brightness, void *context,
+                                      uint8_t initial_brightness)
 {
     wristflow_apps_t *apps = lv_malloc_zeroed(sizeof(*apps));
     LV_ASSERT_MALLOC(apps);
     apps->shell = shell;
     apps->controls = controls;
-    apps->brightness = 60;
+    apps->brightness = initial_brightness;
     apps->brightness_cb = brightness;
     apps->context = context;
     apps->timer = lv_timer_create(tick, 40, apps);
@@ -346,6 +350,11 @@ wristflow_apps_t *wristflow_apps_create(wristflow_ui_shell_t *shell, lv_obj_t *c
     lv_obj_add_state(named(controls, "keep_awake_button"), LV_STATE_DISABLED);
     if (brightness) brightness(apps->brightness, context);
     return apps;
+}
+
+uint8_t wristflow_apps_brightness(const wristflow_apps_t *apps)
+{
+    return apps ? apps->brightness : 60;
 }
 
 lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surface, bool *created)
@@ -415,6 +424,11 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
                            surface == WRISTFLOW_SURFACE_HEART ? "\xef\x80\x84" : "\xef\x89\x80";
         lv_label_set_text(named(root, "app_title"), title);
         lv_label_set_text(named(root, "placeholder_icon"), icon);
+        if (apps->snapshot.metrics_unavailable) {
+            lv_obj_t *status = named(root, "placeholder_label");
+            lv_obj_set_style_text_font(status, LV_FONT_DEFAULT, 0);
+            lv_label_set_text(status, surface == WRISTFLOW_SURFACE_SYSTEM ? "USB / No battery" : "--");
+        }
     }
     return root;
 }

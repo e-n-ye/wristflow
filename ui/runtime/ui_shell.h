@@ -2,10 +2,13 @@
 #define WRISTFLOW_UI_SHELL_H
 
 #include "watchface.h"
+#include "product_state.h"
 
 typedef struct wristflow_ui_shell wristflow_ui_shell_t;
 typedef lv_obj_t *(*wristflow_screen_factory_t)(void);
 typedef void (*wristflow_brightness_cb_t)(uint8_t percent, void *context);
+typedef void (*wristflow_card_update_cb_t)(lv_obj_t *root, unsigned index,
+                                          const wristflow_watch_snapshot_t *snapshot);
 
 typedef struct {
     const wristflow_watchface_t *watchface;
@@ -16,6 +19,9 @@ typedef struct {
     bool enable_apps;
     wristflow_brightness_cb_t set_brightness;
     void *platform_context;
+    /* NULL keeps deterministic demo defaults. Read only during create. */
+    const wristflow_settings_t *initial_settings;
+    wristflow_card_update_cb_t update_card;
 } wristflow_ui_shell_config_t;
 
 /* One 390x450 default display, called on the LVGL thread after UI resource init.
@@ -41,5 +47,7 @@ bool wristflow_ui_shell_key(wristflow_ui_shell_t *shell);
 bool wristflow_ui_shell_home(wristflow_ui_shell_t *shell);
 const wristflow_navigation_t *wristflow_ui_shell_navigation(const wristflow_ui_shell_t *shell);
 const char *wristflow_ui_shell_watchface_id(const wristflow_ui_shell_t *shell);
+/* User preference, not temporary flashlight or power-policy brightness. */
+bool wristflow_ui_shell_get_settings(const wristflow_ui_shell_t *shell, wristflow_settings_t *settings);
 
 #endif

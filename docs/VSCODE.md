@@ -8,12 +8,16 @@ SDK 和工具链已经装好，Hello World 与 BLE 外设示例已实际编译�
 
 项目自有的上板基础工程也已编译通过：`F1` → `任务: 运行任务` → **WristFlow: Build Bringup**。成功标志是 `BUILD SUCCEEDED: bringup (...)`，行为和到货验证见 [Bringup 实验](BRINGUP.md)。原有默认快捷键 `Ctrl+Shift+B` 仍是 Hello。
 
+产品固件使用同一入口：`F1` → `任务: 运行任务` → **WristFlow: Build Product**。它复用 UI Demo 的页面栈并接入 RTC/设置状态；当前仍是 USB 阶段，编译通过不代表已烧录或真机功能通过，范围见 [产品固件框架](PRODUCT-RUNTIME.md)。
+
 ## 打开与编译
 
 1. 在 VS Code 选择“文件 → 打开文件夹”，打开 `D:\MY_Desk\project\wristflow`，不要只打开其中一个 C 文件。
 2. 选择“终端 → 运行生成任务”（英文界面为 Terminal → Run Build Task）。默认任务是 `WristFlow: Build Hello World`；也可按 `Ctrl+Shift+B`。
 3. 编译 BLE 时，按 **F1** 打开命令面板，输入“运行任务”，选择 **任务: 运行任务**（英文为 `Tasks: Run Task`），然后输入 `WristFlow` 并选择 **WristFlow: Build BLE Peripheral**。它是任务列表中的名称，不是一直显示的按钮。菜单方式是“终端 → 运行任务”；顶部菜单空间不足时，“终端”可能收在 `…` 内。
 4. 查看窗口下半部分选中“终端”的黑色区域；这就是任务输出，不需要再打开一个窗口。成功时末尾会出现 `BUILD SUCCEEDED: hello (...)` 或 `BUILD SUCCEEDED: ble (...)`、固件路径，且任务进程正常结束。编译错误会显示在终端，符合 GCC 格式的诊断也会出现在“问题”面板。
+
+产品任务成功时末尾为 `BUILD SUCCEEDED: product (...)`；它与 UI Demo、Bringup 一样只构建，不执行烧录。
 
 任务自动激活项目的官方 SDK 环境，并调用 `scripts/Build.ps1`。无需重新安装工具链，也不用每次先运行 export。编译任务不包含烧录动作。VS Code 顶部的“运行当前 C 文件”和 CMake 扩展的 Build 入口不是本项目的构建入口。
 
@@ -46,7 +50,7 @@ Hello/BLE 任务用于复编译固定版本的官方示例，Bringup 用于编�
 
 ## 产物和限制
 
-当前固件位于各工程的 `project/build_sf32lb52-lchspi-ulp_hcpu/`，日志和哈希位于 `artifacts/<hello|ble|bringup>/<时间>/`，具体见 [构建说明](BUILD.md)。旧 Nano 构建目录保留但不用于黄山派烧录。没有硬件时，编译成功不会出现真实手表运行画面；当前尚未配置 PC 模拟器。
+当前固件位于各工程的 `project/build_sf32lb52-lchspi-ulp_hcpu/`，日志和哈希位于 `artifacts/<hello|ble|bringup|ui_demo|product>/<时间>/`，具体见 [构建说明](BUILD.md)。旧 Nano 构建目录保留但不用于黄山派烧录。PC 模拟器入口与范围见 [模拟器说明](SIMULATOR.md)，不能代替硬件运行验证。
 
 本机已有 VS Code 与微软 C/C++ 扩展。思澈官方另有 [SiFli CodeKit](https://marketplace.visualstudio.com/items?itemName=SiFli.sifli-sdk-codekit)，可后续评估其工程和调试界面；本轮未安装，也未假设它会自动识别本项目的独立工具目录。
 

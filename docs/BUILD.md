@@ -4,9 +4,21 @@
 
 ## 手动 CI 基线（2026-09-25）
 
-工作流只响应手动 `workflow_dispatch`，执行完整 SDK 安装、Hello/BLE/Bringup/UI Demo 和 PC UI 测试。PR 与 push 不触发云端构建，也不要求 `Build baselines` 状态检查；日常使用本地命令和真机证据。完整运行约 11 分钟，需在 SDK、工具链、公共构建入口变更或阶段验收时手动启动，并记录运行对应的 HEAD、命令、产物和失败位置。本次仅修改 CI 触发策略与文档，未新增固件或硬件证据。
+工作流只响应手动 `workflow_dispatch`，执行完整 SDK 安装、Hello/BLE/Bringup/UI Demo/Product 和 PC UI 测试。PR 与 push 不触发云端构建，也不要求 `Build baselines` 状态检查；日常使用本地命令和真机证据。历史四目标完整运行约 11 分钟，新增 Product 后的总耗时未测量。在 SDK、工具链、公共构建入口变更或阶段验收需要干净环境证据时手动启动，并记录运行对应的 HEAD、命令、产物和失败位置。
 
-在 `C:/Users/13984/.codex/worktrees/product-runtime/wristflow` 核对唯一事件为 `workflow_dispatch`，Windows 完整构建步骤与 `40e7658` 完全一致；变更 Markdown 的 UTF-8/相对文件链接和 `git diff --check` 通过。GitHub API 删除 main 的 `required_status_checks` 后读回为 null，PR 要求、管理员约束和禁止强推/删除仍保留。没有为此次触发策略调整再次执行完整构建。
+PR #18 调整触发策略时，在 `C:/Users/13984/.codex/worktrees/product-runtime/wristflow` 核对唯一事件为 `workflow_dispatch`，当时 Windows 完整构建步骤与 `40e7658` 一致；变更 Markdown 的 UTF-8/相对文件链接和 `git diff --check` 通过。GitHub API 删除 main 的 `required_status_checks` 后读回为 null，PR 要求、管理员约束和禁止强推/删除仍保留。没有为该次触发策略调整再次执行完整构建；下面的产品增量随后增加了手动 Product 构建步骤，尚未执行云端验证。
+
+## USB 产品目标（2026-09-25）
+
+产品目标使用与其他黄山派目标相同的 SDK 和工具链，入口为：
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -Example product -Jobs 4
+```
+
+本机最新构建在隔离工作树 `C:/Users/13984/.codex/worktrees/product-runtime/wristflow` 完成，实际 SCons 命令为 `scons --board=sf32lb52-lchspi-ulp -j6`。记录位于 `artifacts/product/20260925-193809-281/`，`exit_code=0`、`artifact_validation_passed=true`，`main.bin` 为 3,081,600 字节，SHA-256 为 `2f0ea7e583f5d8efe265d8c305c7623ba057cc45a32b9f319d58e4e05c5f0a17`。配置打开板载 RTC 和 FlashDB FAL；BLE/PM 仍关闭。产品分区在 `apps/product/project/sf32lb52-lchspi-ulp_hcpu/ptab.json` 增加 `settings`（`0x12DA8000`/`0x4000`），DFU、BLE、文件系统和代码区保持原值。
+
+产品主机测试与行为说明见 [产品固件框架](PRODUCT-RUNTIME.md)。这次只完成源码检查、8 项主机测试和交叉编译；没有烧录，不能把构建成功扩大为 RTC、FlashDB 断电恢复、BLE、熄屏、电流、续航或传感器通过。
 
 ## 触摸修正增量（2026-09-25）
 
@@ -30,6 +42,7 @@
 pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -Example hello -Jobs 4
 pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -Example ble -Jobs 4
 pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -Example bringup -Jobs 4
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -Example product -Jobs 4
 ```
 
 底层均为官方 `scons --board=sf32lb52-lchspi-ulp -j4`。工作目录分别是 `vendor/SiFli-SDK/example/get-started/hello_world/rtt/project`、`vendor/SiFli-SDK/example/ble/peripheral/project`、`apps/bringup/project`。VS Code 三个任务及 CI 继续使用同一入口。
@@ -173,7 +186,7 @@ D:/MY_Desk/project/wristflow/vendor/SiFli-SDK/example/ble/peripheral/project/bui
 
 初次完整构建证据保存在 [evidence/2026-09-21](evidence/2026-09-21)：两个 `*-first-build.json` 记录版本、命令、产物大小与哈希，`*.config` 为配置快照，`*-build.txt` 为实际完整 SCons 日志。最初记录器的 SCons 字段仅捕获了横幅，版本由官方 Python 锁文件与后续增量记录核实为 4.10.1；现已保存完整版本输出。
 
-每次新构建还会生成 `artifacts/<hello|ble|bringup|ui_demo>/<时间>/build.log`、`result.json` 和配置副本；这些本机产物被 Git 忽略。`exit_code` 是 SCons 退出码，脚本还检查主 ELF、主 BIN、分区表和配置存在且非空，元数据命令失败会报错。记录中的 `project_sources` 保存工程入口和应用源文件哈希，UI Demo 还记录 XML 与字体/图片资源。增量构建复用未变文件是正常行为，不要求产物时间一定等于本次执行时间。
+每次新构建还会生成 `artifacts/<hello|ble|bringup|ui_demo|product>/<时间>/build.log`、`result.json` 和配置副本；这些本机产物被 Git 忽略。`exit_code` 是 SCons 退出码，脚本还检查主 ELF、主 BIN、分区表和配置存在且非空，元数据命令失败会报错。记录中的 `project_sources` 保存工程入口和应用源文件哈希，UI Demo/Product 还记录 XML、字体/图片、共享核心与 UI 源码，产品目标另记录分区覆盖文件。增量构建复用未变文件是正常行为，不要求产物时间一定等于本次执行时间。
 
 ## 配置核验
 

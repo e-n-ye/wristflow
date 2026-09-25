@@ -36,6 +36,8 @@ jobs:
         run: ./scripts/Build.ps1 -Example bringup -Jobs 4
       - name: Build generated XML UI demo
         run: ./scripts/Build.ps1 -Example ui_demo -Jobs 4
+      - name: Build USB product firmware
+        run: ./scripts/Build.ps1 -Example product -Jobs 4
       - name: Build and test PC UI simulator
         run: |
           cmake -S tests -B artifacts/host-ui -G "Visual Studio 17 2022" -A x64 -DWRISTFLOW_BUILD_SIMULATOR=ON

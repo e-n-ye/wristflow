@@ -8,6 +8,11 @@ typedef struct {
     uint8_t hour_24;
     uint8_t minute;
     uint8_t battery_percent;
+    /* Zero preserves existing demo snapshots. Missing product data is explicit. */
+    bool time_unavailable;
+    bool battery_unavailable;
+    bool metrics_unavailable;
+    uint32_t uptime_seconds;
 } wristflow_watch_snapshot_t;
 
 typedef enum {
