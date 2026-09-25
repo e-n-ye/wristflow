@@ -18,7 +18,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -Example produ
 
 本机最新构建在隔离工作树 `C:/Users/13984/.codex/worktrees/product-runtime/wristflow` 完成，实际 SCons 命令为 `scons --board=sf32lb52-lchspi-ulp -j6`。记录位于 `artifacts/product/20260925-193809-281/`，`exit_code=0`、`artifact_validation_passed=true`，`main.bin` 为 3,081,600 字节，SHA-256 为 `2f0ea7e583f5d8efe265d8c305c7623ba057cc45a32b9f319d58e4e05c5f0a17`。配置打开板载 RTC 和 FlashDB FAL；BLE/PM 仍关闭。产品分区在 `apps/product/project/sf32lb52-lchspi-ulp_hcpu/ptab.json` 增加 `settings`（`0x12DA8000`/`0x4000`），DFU、BLE、文件系统和代码区保持原值。
 
-产品主机测试与行为说明见 [产品固件框架](PRODUCT-RUNTIME.md)。这次只完成源码检查、8 项主机测试和交叉编译；没有烧录，不能把构建成功扩大为 RTC、FlashDB 断电恢复、BLE、熄屏、电流、续航或传感器通过。
+产品主机测试与行为说明见 [产品固件框架](PRODUCT-RUNTIME.md)。构建阶段完成源码检查、8 项主机测试和交叉编译；随后在用户授权下完成 COM5 写入/校验、启动和 RTC 即时校时，亮度 27/简洁表盘跨 RTS 复位恢复已有日志与用户确认。RTS 复位后时间回到未校时，需单独核查。完整真机范围和剩余项目见该文档的 USB 真机首轮，不把构建成功扩大为全部功能通过。
 
 ## 触摸修正增量（2026-09-25）
 

@@ -1,0 +1,50 @@
+{
+  "date": "2026-09-25",
+  "firmware_source_commit": "2885f00a34a39f9a3daa90d140aaf18e441ae961",
+  "firmware_build_banner": "2.5.1 build 690009c1",
+  "build_banner_note": "Built before the source commit; all 173 recorded source hashes matched the committed source. The main image hash is the firmware identity.",
+  "worktree": "C:/Users/13984/.codex/worktrees/product-runtime/wristflow",
+  "board": "sf32lb52-lchspi-ulp",
+  "power": "USB, no battery",
+  "port": "COM5",
+  "usb_id": "1A86:7523",
+  "tool": "sftool 0.2.5",
+  "flash_exit_code": 0,
+  "flash_verify_requested": true,
+  "whole_chip_erase": false,
+  "images": [
+    {"name":"bootloader.bin","address":"0x12010000","bytes":58496,"sha256":"e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"},
+    {"name":"main.bin","address":"0x12020000","bytes":3081600,"sha256":"2f0ea7e583f5d8efe265d8c305c7623ba057cc45a32b9f319d58e4e05c5f0a17"},
+    {"name":"ftab.bin","address":"0x12000000","bytes":11288,"sha256":"da340fc921cb0224d6e2f3b743b302785496a0c170ae507f9c770200b2c6a53f"}
+  ],
+  "uart": {"baudrate":1000000,"format":"8N1","flow_control":false,"rts_reset_seconds":0.15},
+  "observations": {
+    "initial_boot": "[product] storage=ready restore=defaults brightness=60 face=diffusion rtc=available",
+    "first_time_sync": "[product] RTC synchronized: UTC=1790338564; display UTC+8",
+    "settings_after_rts_reset": "[product] storage=ready restore=yes brightness=27 face=simple rtc=available",
+    "rtc_same_session_before": "Fri Sep 25 12:34:46 2026",
+    "rtc_same_session_progress": "Fri Sep 25 12:34:53 2026",
+    "rtc_same_session_after_rts": "Sat Jan  1 00:00:02 2000",
+    "rtc_final_sync": "[product] RTC synchronized: UTC=1790339700; display UTC+8",
+    "rtc_final_read": "Fri Sep 25 12:35:02 2026"
+  },
+  "user_confirmed": {
+    "simple_watchface_brightness_27_after_rts_reset": true,
+    "unsynchronized_time_placeholder": true,
+    "flashlight_brightness_restore": true,
+    "navigation_back_and_key1_10_cycles": true,
+    "stopwatch_background_10_seconds_pause_reset": true,
+    "usb_and_missing_sensor_states_ble_off": true,
+    "simple_watchface_brightness_27_after_usb_power_cycle": true
+  },
+  "rtc_retention_after_rts_reset": "failed; returned to year 2000 with USB continuously connected; root cause unconfirmed",
+  "not_covered": ["RTC retention across software-only reset", "precise RTC drift", "30-60 minute uninterrupted joint run", "screen-off/KEY1 wake", "BLE connection and notifications", "sleep current", "battery life", "sensor measurements"],
+  "local_evidence": [
+    "artifacts/product-preflash-check.json",
+    "artifacts/flash/product/20260925-product-01/",
+    "artifacts/hardware/product-20260925-01/",
+    "artifacts/hardware/product-20260925-settings-reboot/",
+    "artifacts/hardware/product-20260925-after-power-cycle-date/",
+    "artifacts/hardware/product-20260925-rtc-reset-experiment/"
+  ]
+}
