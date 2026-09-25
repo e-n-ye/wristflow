@@ -1,0 +1,21 @@
+<component>
+    <styles>
+        <style name="empty_indicator" arc_opa="0%" />
+        <style name="hidden_knob" bg_opa="0%" pad_all="0" />
+    </styles>
+    <view extends="tile_half">
+        <lv_label name="caption_label" x="20" y="12" width="250" text="活力指标" style_text_font="body_20" style_text_color="#fg_secondary" />
+        <lv_label name="value_label" x="20" y="38" text="--" style_text_font="value_36" style_text_color="#accent_orange" />
+        <lv_label name="activity_value_1" x="20" y="78" text="--" style_text_font="value_36" style_text_color="0xe2db48" />
+        <lv_label name="activity_value_2" x="20" y="118" text="--" style_text_font="value_36" style_text_color="#accent_blue" />
+        <lv_arc name="activity_ring_0" x="160" y="46" width="156" height="156" clickable="false" value="0" bg_start_angle="180" bg_end_angle="360" style_arc_width="12" style_arc_color="0x593820">
+            <style name="empty_indicator" selector="indicator" /><style name="hidden_knob" selector="knob" />
+        </lv_arc>
+        <lv_arc name="activity_ring_1" x="182" y="68" width="112" height="112" clickable="false" value="0" bg_start_angle="180" bg_end_angle="360" style_arc_width="12" style_arc_color="0x4c491f">
+            <style name="empty_indicator" selector="indicator" /><style name="hidden_knob" selector="knob" />
+        </lv_arc>
+        <lv_arc name="activity_ring_2" x="204" y="90" width="68" height="68" clickable="false" value="0" bg_start_angle="180" bg_end_angle="360" style_arc_width="12" style_arc_color="0x183f50">
+            <style name="empty_indicator" selector="indicator" /><style name="hidden_knob" selector="knob" />
+        </lv_arc>
+    </view>
+</component>

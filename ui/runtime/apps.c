@@ -1,5 +1,6 @@
 #include "apps.h"
 #include "stopwatch.h"
+#include "app_registry.h"
 #include "wristflow_ui.h"
 #include <stdint.h>
 #include <string.h>
@@ -16,8 +17,11 @@ struct wristflow_apps {
     uint8_t brightness;
     unsigned int face_index;
     wristflow_surface_t active;
-    lv_obj_t *menu_icons[7];
-    lv_point_t menu_centers[7];
+    lv_obj_t *menu_icons[WRISTFLOW_SURFACE_COUNT];
+    lv_point_t menu_centers[WRISTFLOW_SURFACE_COUNT];
+    const wristflow_app_descriptor_t *menu_entries[WRISTFLOW_SURFACE_COUNT];
+    unsigned menu_count;
+    bool product_mode;
     lv_point_t menu_press, menu_origin, menu_start, menu_end;
     bool menu_dragged;
     unsigned int menu_nearest;
@@ -33,19 +37,6 @@ static const wristflow_watchface_t *const faces[] = {
 };
 static const char *const face_names[] = {"扩散", "简洁"};
 static const char *const picker_slots[] = {"face_slot_0", "face_slot_1", "face_slot_2", "face_slot_3"};
-static const struct {
-    const char *name;
-    const char *title;
-    wristflow_surface_t surface;
-} launchers[] = {
-    {"launch_stopwatch", "秒表", WRISTFLOW_SURFACE_STOPWATCH},
-    {"launch_activity", "今日活动", WRISTFLOW_SURFACE_ACTIVITY},
-    {"launch_heart", "心率", WRISTFLOW_SURFACE_HEART},
-    {"launch_faces", "表盘", WRISTFLOW_SURFACE_FACE_PICKER},
-    {"launch_system", "电池", WRISTFLOW_SURFACE_SYSTEM},
-    {"launch_flashlight", "手电筒", WRISTFLOW_SURFACE_FLASHLIGHT},
-    {"launch_settings", "设置", WRISTFLOW_SURFACE_SETTINGS}
-};
 
 static lv_obj_t *named(lv_obj_t *root, const char *name)
 {
@@ -65,10 +56,10 @@ static void launch(lv_event_t *event)
     wristflow_apps_t *apps = lv_event_get_user_data(event);
     if (apps->menu_dragged) return;
     lv_obj_t *target = lv_event_get_current_target_obj(event);
-    for (unsigned i = 0; i < sizeof(launchers) / sizeof(launchers[0]); ++i) {
-        if (target != named(apps->screens[WRISTFLOW_SURFACE_LAUNCHER], launchers[i].name))
+    for (unsigned i = 0; i < apps->menu_count; ++i) {
+        if (target != apps->menu_icons[i])
             continue;
-        wristflow_ui_shell_open(apps->shell, launchers[i].surface);
+        wristflow_ui_shell_open(apps->shell, apps->menu_entries[i]->surface);
         return;
     }
 }
@@ -79,7 +70,7 @@ static void menu_position(wristflow_apps_t *apps, int x, int y)
     lv_obj_set_pos(named(root, "launcher_canvas"), x, y);
     unsigned nearest = 0;
     int32_t nearest_distance = INT32_MAX;
-    for (unsigned i = 0; i < sizeof(launchers) / sizeof(launchers[0]); ++i) {
+    for (unsigned i = 0; i < apps->menu_count; ++i) {
         lv_obj_t *icon = apps->menu_icons[i];
         int dx = apps->menu_centers[i].x + x - 195;
         int dy = apps->menu_centers[i].y + y - 201;
@@ -98,7 +89,7 @@ static void menu_position(wristflow_apps_t *apps, int x, int y)
     }
     if (apps->menu_nearest != nearest) {
         apps->menu_nearest = nearest;
-        lv_label_set_text(named(root, "launcher_caption"), launchers[nearest].title);
+        lv_label_set_text(named(root, "launcher_caption"), apps->menu_entries[nearest]->title);
     }
 }
 
@@ -329,7 +320,7 @@ static void bind_click(lv_obj_t *screen, const char *name, lv_event_cb_t callbac
 
 wristflow_apps_t *wristflow_apps_create(wristflow_ui_shell_t *shell, lv_obj_t *controls,
                                       wristflow_brightness_cb_t brightness, void *context,
-                                      uint8_t initial_brightness)
+                                      uint8_t initial_brightness, bool product_mode)
 {
     wristflow_apps_t *apps = lv_malloc_zeroed(sizeof(*apps));
     LV_ASSERT_MALLOC(apps);
@@ -338,6 +329,7 @@ wristflow_apps_t *wristflow_apps_create(wristflow_ui_shell_t *shell, lv_obj_t *c
     apps->brightness = initial_brightness;
     apps->brightness_cb = brightness;
     apps->context = context;
+    apps->product_mode = product_mode;
     apps->timer = lv_timer_create(tick, 40, apps);
     lv_timer_pause(apps->timer);
     bind_click(controls, "flashlight_button", control_action, apps);
@@ -364,17 +356,12 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         return NULL;
     if (apps->screens[surface]) return apps->screens[surface];
     lv_obj_t *root = NULL;
-    switch (surface) {
-    case WRISTFLOW_SURFACE_LAUNCHER: root = screen_launcher_create(); break;
-    case WRISTFLOW_SURFACE_STOPWATCH: root = screen_stopwatch_create(); break;
-    case WRISTFLOW_SURFACE_FACE_PICKER: root = screen_face_picker_create(); break;
-    case WRISTFLOW_SURFACE_FLASHLIGHT: root = screen_flashlight_create(); break;
-    case WRISTFLOW_SURFACE_SETTINGS: root = screen_settings_create(); break;
-    case WRISTFLOW_SURFACE_ACTIVITY: root = screen_app_placeholder_create(); break;
-    case WRISTFLOW_SURFACE_HEART: root = screen_app_placeholder_create(); break;
-    case WRISTFLOW_SURFACE_SYSTEM: root = screen_app_placeholder_create(); break;
-    default: return NULL;
-    }
+    const wristflow_app_descriptor_t *app = wristflow_app_for_surface(surface);
+    if (surface == WRISTFLOW_SURFACE_LAUNCHER)
+        root = apps->product_mode ? screen_product_launcher_create() : screen_launcher_create();
+    else if (app)
+        root = apps->product_mode && app->capability != WRISTFLOW_CAPABILITY_READY
+            ? screen_product_placeholder_create() : app->create();
     if (!root) return NULL;
     apps->screens[surface] = root;
     if (created) *created = true;
@@ -382,12 +369,20 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
     if (header) lv_obj_add_event_cb(header, back, LV_EVENT_SHORT_CLICKED, apps);
     if (surface == WRISTFLOW_SURFACE_LAUNCHER) {
         lv_obj_update_layout(root);
-        for (unsigned i = 0; i < sizeof(launchers) / sizeof(launchers[0]); ++i) {
-            lv_obj_t *icon = named(root, launchers[i].name);
-            apps->menu_icons[i] = icon;
-            apps->menu_centers[i] = (lv_point_t){lv_obj_get_x(icon) + 50, lv_obj_get_y(icon) + 50};
+        apps->menu_count = 0;
+        for (size_t i = 0; i < wristflow_app_count(); ++i) {
+            const wristflow_app_descriptor_t *entry = wristflow_app_at(i);
+            lv_obj_t *icon = lv_obj_find_by_name(root, entry->launcher_name);
+            if (!icon) continue; /* Demo retains its seven-entry composition. */
+            unsigned index = apps->menu_count++;
+            LV_ASSERT(index < WRISTFLOW_SURFACE_COUNT);
+            apps->menu_entries[index] = entry;
+            apps->menu_icons[index] = icon;
+            apps->menu_centers[index] = (lv_point_t){lv_obj_get_x(icon) + 50, lv_obj_get_y(icon) + 50};
+            lv_label_set_text(named(icon, "launcher_icon_label"), entry->icon);
+            lv_obj_set_style_bg_color(icon, lv_color_hex(entry->color), 0);
             lv_obj_add_flag(icon, LV_OBJ_FLAG_PRESS_LOCK);
-            bind_click(root, launchers[i].name, launch, apps);
+            bind_click(root, entry->launcher_name, launch, apps);
         }
         lv_obj_t *scroll = named(root, "launcher_scroll");
         lv_obj_remove_flag(scroll, LV_OBJ_FLAG_SCROLLABLE);
@@ -418,13 +413,12 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         lv_obj_add_flag(named(root, "settings_battery"), LV_OBJ_FLAG_CLICKABLE);
         bind_click(root, "settings_battery", open_battery, apps);
     } else {
-        const char *title = surface == WRISTFLOW_SURFACE_ACTIVITY ? "今日活动" :
-                            surface == WRISTFLOW_SURFACE_HEART ? "心率" : "电池";
-        const char *icon = surface == WRISTFLOW_SURFACE_ACTIVITY ? "\xef\x95\x8b" :
-                           surface == WRISTFLOW_SURFACE_HEART ? "\xef\x80\x84" : "\xef\x89\x80";
-        lv_label_set_text(named(root, "app_title"), title);
-        lv_label_set_text(named(root, "placeholder_icon"), icon);
-        if (apps->snapshot.metrics_unavailable) {
+        lv_label_set_text(named(root, "app_title"), app->title);
+        lv_label_set_text(named(root, "placeholder_icon"), app->icon);
+        if (apps->product_mode) {
+            lv_obj_set_style_text_color(named(root, "placeholder_icon"), lv_color_hex(app->color), 0);
+            lv_label_set_text(named(root, "placeholder_label"), app->reason);
+        } else if (apps->snapshot.metrics_unavailable) {
             lv_obj_t *status = named(root, "placeholder_label");
             lv_obj_set_style_text_font(status, LV_FONT_DEFAULT, 0);
             lv_label_set_text(status, surface == WRISTFLOW_SURFACE_SYSTEM ? "USB / No battery" : "--");

@@ -1,0 +1,93 @@
+{
+  "date": "2026-09-26",
+  "base_head": "145cc4c3ba99dd6c18c99bdabd0e382cd241ee4e",
+  "branch": "codex/product-runtime",
+  "scope": "Three default component pages, ten placeholder destinations, registry and shared routing",
+  "editor": "LVGL Pro Editor 2.0.1 Community GUI export; preview LVGL 9.4.0",
+  "host": {
+    "command": "ctest --test-dir artifacts/host-product --output-on-failure",
+    "passed": 8,
+    "total": 8,
+    "log": "artifacts/product-entry-host-test.log",
+    "sha256": "0acf89356fcbcadb5b2dd5ee681de45aa318398efe66d033d957d91fb256a9d9"
+  },
+  "builds": [
+    {
+      "target": "product",
+      "result": "artifacts/product/20260926-002648-588/result.json",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+      "source_records_verified": 193,
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "sdk_changes": [],
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "python": "Python 3.13.15",
+      "main_bin_bytes": 3108080,
+      "main_bin_sha256": "2e62676a5d3951ab689822690cf29a6c85cb2d3260c3a16052042c3aa76e506a",
+      "exit_code": 0,
+      "hardware_verified": false
+    },
+    {
+      "target": "ui_demo",
+      "result": "artifacts/ui_demo/20260926-003100-175/result.json",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+      "source_records_verified": 189,
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "sdk_changes": [],
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "python": "Python 3.13.15",
+      "main_bin_bytes": 3098052,
+      "main_bin_sha256": "da209de67b9f94db39379734aea1995542daa00299859abbad321fd3dc1ddb27",
+      "exit_code": 0,
+      "hardware_verified": false
+    }
+  ],
+  "hardware_verified": false,
+  "cloud_ci_run": false,
+  "preview": {
+    "path": "artifacts/product-entry-preview.png",
+    "sha256": "02c8f30610200019b106cb39fcfc73f09424baf09b0790dc6dcfbe4afe6f1658"
+  },
+  "source_snapshot": {
+    "core/product_state.c": "64fcb0890b8bcd967192594f9db7aacddb5c6444de0213a5d6cc730f49930002",
+    "core/product_state.h": "6f3836bd0267cf846187a3fca012cec3dc9c2ee2f7075dc5cb710113c0b311bd",
+    "core/stopwatch.c": "1106a0accbf10146538d1eb784e42047132e3e7e9c036d3c3ba58724fde27fa3",
+    "core/stopwatch.h": "bcafeec397fab1cb80521c526fbfff862ff66985a6c38c0a8b4486393d44e670",
+    "core/watch_core.c": "af7ad7d9d36336ea626c4614a6c85efa17781cff03eb0b89a051497e789858b5",
+    "core/watch_core.h": "588857fa21e6b2c5513675423930cc4d48286df424e1cba566070112e04ad8c6",
+    "ui/runtime/apps.c": "53e5ca1c55890fd55c8e7efa055510f446823af26afe94b172c2bded54d190b5",
+    "ui/runtime/apps.h": "1b9ebfb4ad5191997b8ba535dfac4bc89bca9241d25a4a629791c048b779a047",
+    "ui/runtime/app_registry.c": "5a070264dcf887a150c01cee87d0b0a31cd2cea7740ab7b1b7b6cdf3a9c85037",
+    "ui/runtime/app_registry.h": "e56cdcbb6adc6ce51c9a41f85b4251244d560d71693db87137264baa91be143e",
+    "ui/runtime/default_watchface.c": "9f634dc144e6bd281a84f7db02ae928531d5a98a7328793b7324a4d086fedb90",
+    "ui/runtime/mount_screen.c": "d31717dacb7f3eeb4811de0f045790fd8d2ea54aee9d3ee4d082956758777abe",
+    "ui/runtime/mount_screen.h": "3d752b379dab43807efced2ac047e4fee775d8d68c771b7313577f85cf19c317",
+    "ui/runtime/simple_watchface.c": "2ca9ab0b9317020d9144b54f7fbf212be30b9a754ead7dcbb57b4ee9626b30b9",
+    "ui/runtime/ui_shell.c": "b23b58749569acc7cb6de5fa4852f048e83d29454021112def3cd8ad06b86f0b",
+    "ui/runtime/ui_shell.h": "622f2cf8790cb3d5ee368eda426e6b9d9ae162a80f4bbb9a42a603b58ebc6455",
+    "ui/runtime/watchface.h": "1c3c1429b25db784d2f37894c1a5caf81fa6f7136812eae292ab1331430b9606",
+    "tests/CMakeLists.txt": "7a6bc35e0e1afe60161aad9b2ee93c6917cbd1610aa7eb5a83d30c6894615339",
+    "tests/core_navigation.c": "f2bef87e8118323939978864361223eb7240dcf66d8f14256c939e84643b1d4f",
+    "tests/lv_conf.h": "0353c4daad86fe3f69074ac210fa537a9451d4aca72db22a515c43e5230f77c2",
+    "tests/product_state.c": "8ebfdc5cd84ba7110eb7c2259a3ca3f983a13befb7f1fe018d6c1121dcc50e4e",
+    "tests/product_ui.c": "6ddf47935c1a96d2cf8dc2640ecc17ea6fcb4cf80f4fd064e197563cc5b04ce5",
+    "tests/test_clock_format.c": "86efa1b279dd33280c2905e9e8c7f672e5cc4856e534968f09e3414b13a2786e",
+    "tests/ui_apps.c": "0f2e1aa849c8d695869861ee558372be872b2ef9b5383c28d6caf128679ab8f9",
+    "tests/ui_navigation.c": "c18ca14ead4b138de082a65856971e5f06526a3fd5ee5b6a7b3f5db0a0014ad2",
+    "tests/ui_preview.c": "037d53e5cd85f0cb9c689beee7216348d4476aa919e860b869235a06eaf35a2c",
+    "tests/ui_shell_lifecycle.c": "244415c4e0b6f2c25cf5c8d0d627ce2edcc5120c807d78ee004d83418e51392f",
+    "apps/product/src/main.c": "662edac415701de6c4e9baafc110f9e60ee09e30fb955ff12e0a1099f30c906d",
+    "apps/product/src/product_services.c": "8c6ae6a99d1b8891c561c45341cfcb7a00a3ede61e7308b094a83a748e5469ce",
+    "apps/product/src/product_services.h": "7ff720e7b1b6db1bd0a6f55e9c116eb5120ac8c293ef2c1a588a8872ad488ef3",
+    "apps/product/src/product_ui.c": "12ed571ffe7d35696d0ca42d7054db559d4028e71f6793b0bb433939cae606f3",
+    "apps/product/src/product_ui.h": "6b7dabf79809ed38f237d2689e94643dd3ae752e0ccdad349df89931bc520174"
+  },
+  "next_experiment": "Versioned component layout persistence and editor; hardware entry validation pending"
+}

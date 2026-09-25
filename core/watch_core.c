@@ -85,8 +85,9 @@ bool wristflow_navigation_open(wristflow_navigation_t *navigation, wristflow_sur
                          (surface == WRISTFLOW_SURFACE_SETTINGS || surface == WRISTFLOW_SURFACE_FLASHLIGHT);
     bool from_face = navigation->surface == WRISTFLOW_SURFACE_HOME && navigation->page_index == 0 &&
                      surface == WRISTFLOW_SURFACE_FACE_PICKER;
+    bool from_card = navigation->surface == WRISTFLOW_SURFACE_HOME && navigation->page_index > 0;
     if (surface < WRISTFLOW_SURFACE_STOPWATCH || surface >= WRISTFLOW_SURFACE_COUNT ||
-        !(from_launcher || from_controls || from_face || from_app))
+        !(from_launcher || from_controls || from_face || from_card || from_app))
         return false;
     return push(navigation, surface);
 }

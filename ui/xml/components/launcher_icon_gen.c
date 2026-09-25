@@ -52,10 +52,11 @@ lv_obj_t * launcher_icon_create(lv_obj_t * parent, const char * icon, lv_color_t
         lv_obj_set_style_shadow_width(lv_button_0, 0, 0);
         lv_obj_set_style_text_color(lv_button_0, lv_color_hex(0xffffff), 0);
 
-        lv_obj_t * lv_label_0 = lv_label_create(lv_button_0);
-        lv_obj_set_align(lv_label_0, LV_ALIGN_CENTER);
-        lv_label_set_text(lv_label_0, icon);
-        lv_obj_set_style_text_font(lv_label_0, icons_44, 0);
+        lv_obj_t * launcher_icon_label = lv_label_create(lv_button_0);
+        lv_obj_set_name(launcher_icon_label, "launcher_icon_label");
+        lv_obj_set_align(launcher_icon_label, LV_ALIGN_CENTER);
+        lv_label_set_text(launcher_icon_label, icon);
+        lv_obj_set_style_text_font(launcher_icon_label, icons_44, 0);
 
         the_root = lv_button_0;
     }

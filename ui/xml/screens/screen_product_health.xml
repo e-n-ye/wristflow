@@ -1,0 +1,11 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0">
+        <tile_grid name="tile_slots" x="#tile_area_x" y="#tile_area_y">
+            <card_container name="slot_0" style_grid_cell_column_pos="0" style_grid_cell_row_pos="0" card_title="心率" metric_val="--" icon="&#xf004;" surface_color="0xef4770" accent_color="0xffffff" caption_color="0xffffff" />
+            <card_container name="slot_1" style_grid_cell_column_pos="1" style_grid_cell_row_pos="0" card_title="血氧" metric_val="--" icon="&#xf043;" accent_color="0xef4770" />
+            <card_container name="slot_2" style_grid_cell_column_pos="0" style_grid_cell_row_pos="1" card_title="电量" metric_val="USB" icon="&#xf240;" accent_color="0x10b981" />
+            <card_container name="slot_3" style_grid_cell_column_pos="1" style_grid_cell_row_pos="1" card_title="压力" metric_val="--" icon="&#xf118;" surface_color="0x38bdf8" accent_color="0xffffff" caption_color="0xffffff" />
+        </tile_grid>
+        <page_dots x="165" y="#pager_bottom_y" active_x="0" />
+    </view>
+</screen>

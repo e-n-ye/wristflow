@@ -1,6 +1,7 @@
 list(
   APPEND
   LV_EDITOR_PROJECT_SOURCES
+  ${CMAKE_CURRENT_LIST_DIR}/components/activity_summary_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/app_header_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/card_container_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/face_thumbnail_gen.c
@@ -44,6 +45,11 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_picker_full_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_picker_half_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_picker_quarter_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_product_activity_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_product_daily_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_product_health_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_product_launcher_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_product_placeholder_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_settings_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_stopwatch_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_tile_activity_gen.c
