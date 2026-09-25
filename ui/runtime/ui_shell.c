@@ -1,6 +1,7 @@
 #include "ui_shell.h"
 #include "mount_screen.h"
 #include "apps.h"
+#include <string.h>
 
 #define PAGE_WIDTH 390
 #define PAGE_HEIGHT 450
@@ -23,6 +24,7 @@ struct wristflow_ui_shell {
     const wristflow_watchface_t *watchface;
     wristflow_navigation_t navigation;
     wristflow_watch_snapshot_t snapshot;
+    wristflow_card_update_cb_t update_card;
     bool recentering;
     bool transitioning;
     bool ready;
@@ -317,9 +319,14 @@ bool wristflow_ui_shell_update(wristflow_ui_shell_t *shell,
         return false;
     shell->snapshot = *snapshot;
     wristflow_apps_update(shell->apps, snapshot);
-    for (unsigned int i = 0; i < slot_count(shell); ++i)
+    for (unsigned int i = 0; i < slot_count(shell); ++i) {
         if (shell->slots[i].face)
             shell->watchface->update(shell->slots[i].face, &shell->snapshot);
+        else if (shell->update_card) {
+            unsigned index = (i + shell->navigation.page_count - 1) % shell->navigation.page_count;
+            shell->update_card(shell->slots[i].panel, index - 1, &shell->snapshot);
+        }
+    }
     return true;
 }
 
@@ -340,6 +347,7 @@ static void mount_card(wristflow_ui_shell_t *shell, lv_obj_t *screen,
         }
     }
     wristflow_mount_screen(shell->slots[slot].panel, screen);
+    if (shell->update_card) shell->update_card(shell->slots[slot].panel, index - 1, &shell->snapshot);
 }
 
 wristflow_ui_shell_t *wristflow_ui_shell_create(const wristflow_ui_shell_config_t *config)
@@ -350,10 +358,12 @@ wristflow_ui_shell_t *wristflow_ui_shell_create(const wristflow_ui_shell_config_
     for (unsigned int i = 0; i < config->card_count; ++i)
         if (!config->cards[i])
             return NULL;
+    if (config->initial_settings && !wristflow_settings_valid(config->initial_settings)) return NULL;
     wristflow_ui_shell_t *shell = lv_malloc_zeroed(sizeof(*shell));
     LV_ASSERT_MALLOC(shell);
     wristflow_navigation_init(&shell->navigation, (unsigned int)config->card_count + 1);
     shell->snapshot = config->initial_snapshot;
+    shell->update_card = config->update_card;
     shell->slots = lv_malloc_zeroed(slot_count(shell) * sizeof(*shell->slots));
     shell->indicators = lv_malloc_zeroed(shell->navigation.page_count * sizeof(*shell->indicators));
     LV_ASSERT_MALLOC(shell->slots);
@@ -394,7 +404,8 @@ wristflow_ui_shell_t *wristflow_ui_shell_create(const wristflow_ui_shell_config_
     }
     shell->controls = config->controls();
     if (config->enable_apps) {
-        shell->apps = wristflow_apps_create(shell, shell->controls, config->set_brightness, config->platform_context);
+        shell->apps = wristflow_apps_create(shell, shell->controls, config->set_brightness, config->platform_context,
+            config->initial_settings ? config->initial_settings->brightness : 60);
         wristflow_apps_update(shell->apps, &shell->snapshot);
     }
     lv_obj_add_event_cb(shell->home, gesture, LV_EVENT_GESTURE, shell);
@@ -441,4 +452,16 @@ const wristflow_navigation_t *wristflow_ui_shell_navigation(const wristflow_ui_s
 const char *wristflow_ui_shell_watchface_id(const wristflow_ui_shell_t *shell)
 {
     return shell ? shell->watchface->id : NULL;
+}
+
+bool wristflow_ui_shell_get_settings(const wristflow_ui_shell_t *shell, wristflow_settings_t *settings)
+{
+    if (!shell || !shell->apps || !settings || strlen(shell->watchface->id) >= sizeof settings->face_id)
+        return false;
+    wristflow_settings_t current = {0};
+    current.brightness = wristflow_apps_brightness(shell->apps);
+    strcpy(current.face_id, shell->watchface->id);
+    if (!wristflow_settings_valid(&current)) return false;
+    *settings = current;
+    return true;
 }

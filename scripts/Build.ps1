@@ -1,6 +1,6 @@
 #requires -Version 7.0
 param(
-    [ValidateSet('hello', 'ble', 'bringup', 'ui_demo')]
+    [ValidateSet('hello', 'ble', 'bringup', 'ui_demo', 'product')]
     [string]$Example = 'hello',
     [ValidateRange(1, 32)]
     [int]$Jobs = 4
@@ -14,6 +14,7 @@ $projects = @{
     ble = Join-Path $SdkRoot 'example/ble/peripheral/project'
     bringup = Join-Path $ProjectRoot 'apps/bringup/project'
     ui_demo = Join-Path $ProjectRoot 'apps/ui_demo/project'
+    product = Join-Path $ProjectRoot 'apps/product/project'
 }
 $projectPath = $projects[$Example]
 $board = $SdkLock.board
@@ -44,7 +45,11 @@ if (Test-Path $buildDir) {
 }
 $sourceFiles = @(Get-ChildItem -LiteralPath $projectPath -File)
 $sourceFiles += @(Get-ChildItem -LiteralPath (Join-Path $projectPath '../src') -Recurse -File)
-if ($Example -eq 'ui_demo') {
+$boardOverrides = Join-Path $projectPath "${board}_hcpu"
+if (Test-Path -LiteralPath $boardOverrides) {
+    $sourceFiles += @(Get-ChildItem -LiteralPath $boardOverrides -Recurse -File)
+}
+if ($Example -in 'ui_demo', 'product') {
     $uiRoot = Join-Path $ProjectRoot 'ui/xml'
     foreach ($directory in '', 'components', 'screens', 'fonts', 'images') {
         $sourceFiles += @(Get-ChildItem -LiteralPath (Join-Path $uiRoot $directory) -File)
@@ -54,7 +59,7 @@ if ($Example -eq 'ui_demo') {
     }
 }
 $sourceHashes = @($sourceFiles | Where-Object {
-    $_.Name -match '^(SConstruct|SConscript|Kconfig.*|proj.conf|rtconfig.py)$' -or $_.Extension -in '.c', '.h', '.xml', '.ttf', '.png'
+    $_.Name -match '^(SConstruct|SConscript|Kconfig.*|proj.conf|rtconfig.py|ptab.json)$' -or $_.Extension -in '.c', '.h', '.xml', '.ttf', '.png'
 } | ForEach-Object {
     [ordered]@{ path = $_.FullName; sha256 = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() }
 })

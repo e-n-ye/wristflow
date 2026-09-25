@@ -2,6 +2,23 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "WristFlow: Build Product",
+      "type": "process",
+      "command": "${env:USERPROFILE}/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell/pwsh.exe",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-File", "${workspaceFolder}/scripts/Build.ps1",
+        "-Example", "product", "-Jobs", "4"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": { "PATH": "D:\\Git\\cmd;${env:PATH}" }
+      },
+      "group": "build",
+      "problemMatcher": "$gcc",
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true }
+    },
+    {
       "label": "WristFlow: Run PC Simulator",
       "type": "process",
       "command": "${env:USERPROFILE}/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/powershell/pwsh.exe",
