@@ -67,13 +67,14 @@ lv_obj_t * app_header_create(lv_obj_t * parent, const char * title)
         lv_obj_set_style_text_font(lv_label_0, icons_20, 0);
         lv_obj_set_style_text_color(lv_label_0, FG_PRIMARY, 0);
 
-        lv_obj_t * lv_label_1 = lv_label_create(lv_obj_0);
-        lv_obj_set_x(lv_label_1, 58);
-        lv_obj_set_y(lv_label_1, 7);
-        lv_obj_set_width(lv_label_1, 280);
-        lv_label_set_text(lv_label_1, title);
-        lv_obj_set_style_text_font(lv_label_1, title_24, 0);
-        lv_obj_set_style_text_color(lv_label_1, FG_PRIMARY, 0);
+        lv_obj_t * app_title = lv_label_create(lv_obj_0);
+        lv_obj_set_name(app_title, "app_title");
+        lv_obj_set_x(app_title, 58);
+        lv_obj_set_y(app_title, 7);
+        lv_obj_set_width(app_title, 280);
+        lv_label_set_text(app_title, title);
+        lv_obj_set_style_text_font(app_title, title_24, 0);
+        lv_obj_set_style_text_color(app_title, FG_PRIMARY, 0);
 
         the_root = lv_obj_0;
     }

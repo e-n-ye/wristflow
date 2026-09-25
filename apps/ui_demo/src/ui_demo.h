@@ -8,6 +8,7 @@ void wristflow_demo_stop(void);
 void wristflow_demo_set_platform(wristflow_brightness_cb_t brightness, void *context);
 void wristflow_demo_key(void);
 void wristflow_demo_back(void);
+unsigned wristflow_demo_surface(void);
 void wristflow_demo_keyboard(lv_event_t *event);
 
 #endif

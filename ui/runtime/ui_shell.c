@@ -215,14 +215,20 @@ static void gesture(lv_event_t *event)
     if (!input)
         return;
     lv_dir_t direction = lv_indev_get_gesture_dir(input);
+    /* Browsers own their drag. Unhandled gestures must not suppress a slider
+       or menu pointer until release. */
+    if (shell->navigation.surface == WRISTFLOW_SURFACE_LAUNCHER ||
+        shell->navigation.surface == WRISTFLOW_SURFACE_FACE_PICKER)
+        return;
+    bool handled = false;
     if (shell->navigation.surface >= WRISTFLOW_SURFACE_STOPWATCH) {
         if (direction == LV_DIR_RIGHT && shell->edge_press)
-            wristflow_ui_shell_back(shell);
+            handled = wristflow_ui_shell_back(shell);
     } else if (direction == LV_DIR_BOTTOM)
-        wristflow_ui_shell_close_controls(shell);
+        handled = wristflow_ui_shell_close_controls(shell);
     else if (direction == LV_DIR_TOP)
-        wristflow_ui_shell_open_controls(shell);
-    lv_indev_wait_release(input);
+        handled = wristflow_ui_shell_open_controls(shell);
+    if (handled) lv_indev_wait_release(input);
 }
 
 static void destroy_face(const wristflow_watchface_t *watchface, lv_obj_t *root)

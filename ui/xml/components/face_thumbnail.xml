@@ -1,0 +1,8 @@
+<component>
+    <api><prop name="simple" type="bool" default="false" /></api>
+    <view extends="lv_obj" y="12" width="234" height="280" clickable="true" scrollable="false" style_bg_color="#bg_black" style_border_width="1" style_border_color="0x454a50" style_radius="24" style_pad_all="0">
+        <lv_image name="thumb_hour" x="31" y="26" width="171" height="141" src="hour_10" inner_align="stretch" hidden="$simple" />
+        <lv_label name="thumb_minute" x="0" y="216" width="234" text="48" style_text_font="value_36" style_text_align="center" hidden="$simple" />
+        <lv_label name="thumb_simple" x="0" y="111" width="234" text="22:48" style_text_font="value_36" style_text_align="center" hidden="true" />
+    </view>
+</component>

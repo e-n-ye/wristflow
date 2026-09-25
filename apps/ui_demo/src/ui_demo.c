@@ -15,6 +15,11 @@ void wristflow_demo_set_platform(wristflow_brightness_cb_t brightness, void *con
 
 void wristflow_demo_key(void) { wristflow_ui_shell_key(shell); }
 void wristflow_demo_back(void) { wristflow_ui_shell_back(shell); }
+unsigned wristflow_demo_surface(void)
+{
+    const wristflow_navigation_t *navigation = wristflow_ui_shell_navigation(shell);
+    return navigation ? (unsigned)navigation->surface : 0;
+}
 
 void wristflow_demo_keyboard(lv_event_t *event)
 {
