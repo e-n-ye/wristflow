@@ -1,15 +1,13 @@
 <screen>
     <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="body_20" style_text_color="#fg_primary">
-        <app_header title="选择表盘" />
-        <lv_obj name="face_preview" x="78" y="82" width="234" height="270" scrollable="false" style_bg_color="#bg_black" style_border_width="1" style_border_color="0x454a50" style_radius="8" style_pad_all="0">
-            <lv_image name="face_preview_hour" x="31" y="21" width="171" height="141" src="hour_10" inner_align="stretch" />
-            <lv_label name="face_preview_minute" x="0" y="206" width="234" text="48" style_text_font="value_36" style_text_align="center" />
-            <lv_label name="face_preview_simple" x="0" y="102" width="234" text="22:48" style_text_font="value_36" style_text_align="center" hidden="true" />
+        <lv_label name="face_name" x="24" y="28" width="342" text="扩散" style_text_font="title_24" style_text_align="center" />
+        <lv_obj name="face_carousel" x="0" y="80" width="390" height="304" scrollbar_mode="off" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0">
+            <face_thumbnail name="face_slot_0" x="78" simple="true" />
+            <face_thumbnail name="face_slot_1" x="344" />
+            <face_thumbnail name="face_slot_2" x="610" simple="true" />
+            <face_thumbnail name="face_slot_3" x="876" />
+            <lv_obj x="1110" y="0" width="78" height="1" clickable="false" scrollable="false" style_bg_opa="0%" style_border_width="0" />
         </lv_obj>
-        <lv_button name="face_previous" x="12" y="181" width="54" height="64" style_bg_opa="0%" style_shadow_width="0" style_pad_all="0"><lv_label align="center" text="&#xf053;" style_text_font="icons_20" /></lv_button>
-        <lv_button name="face_next" x="324" y="181" width="54" height="64" style_bg_opa="0%" style_shadow_width="0" style_pad_all="0"><lv_label align="center" text="&#xf054;" style_text_font="icons_20" /></lv_button>
-        <lv_label name="face_name" x="24" y="365" width="240" text="扩散" style_text_font="title_24" />
-        <lv_label name="face_selected" x="24" y="401" width="240" text="已选" style_text_color="#fg_secondary" />
-        <lv_button name="face_apply" x="288" y="365" width="72" height="64" style_radius="32" style_bg_color="0xffffff" style_text_color="0x000000" style_shadow_width="0" style_pad_all="0"><lv_label align="center" text="&#xf00c;" style_text_font="icons_20" /></lv_button>
+        <lv_label name="face_selected" x="24" y="407" width="342" text="已选" style_text_color="#fg_secondary" style_text_align="center" />
     </view>
 </screen>

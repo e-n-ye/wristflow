@@ -259,6 +259,7 @@ void wristflow_ui_init_gen(const char * asset_path);
 /*Include all the widgets, components and screens of this library*/
 #include "components/app_header_gen.h"
 #include "components/card_container_gen.h"
+#include "components/face_thumbnail_gen.h"
 #include "components/launcher_icon_gen.h"
 #include "components/layout_block_gen.h"
 #include "components/layout_option_gen.h"
@@ -271,6 +272,7 @@ void wristflow_ui_init_gen(const char * asset_path);
 #include "components/tile_grid_gen.h"
 #include "components/tile_half_gen.h"
 #include "components/tile_quarter_gen.h"
+#include "screens/screen_app_placeholder_gen.h"
 #include "screens/screen_control_center_gen.h"
 #include "screens/screen_face_picker_gen.h"
 #include "screens/screen_flashlight_gen.h"

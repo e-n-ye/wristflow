@@ -1,0 +1,7 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="body_20" style_text_color="#fg_primary">
+        <app_header title="应用" />
+        <lv_label name="placeholder_icon" x="24" y="162" width="342" text="&#xf004;" style_text_font="icons_44" style_text_align="center" style_text_color="#fg_secondary" />
+        <lv_label name="placeholder_label" x="24" y="238" width="342" text="即将推出" style_text_font="title_24" style_text_align="center" style_text_color="#fg_secondary" />
+    </view>
+</screen>

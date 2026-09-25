@@ -95,6 +95,12 @@ int main(int argc, char **argv)
         assert(lv_font_get_glyph_dsc(body_20, &glyph, caption_glyphs[i], 0));
         assert(!glyph.is_placeholder);
     }
+    const uint32_t placeholder_glyphs[] = {0x5373, 0x5c06, 0x63a8, 0x51fa};
+    for (unsigned i = 0; i < sizeof(placeholder_glyphs) / sizeof(placeholder_glyphs[0]); ++i) {
+        lv_font_glyph_dsc_t glyph;
+        assert(lv_font_get_glyph_dsc(title_24, &glyph, placeholder_glyphs[i], 0));
+        assert(!glyph.is_placeholder);
+    }
     lv_indev_t *input = lv_indev_create();
     lv_indev_set_type(input, LV_INDEV_TYPE_POINTER);
     lv_indev_set_display(input, display);
@@ -113,10 +119,18 @@ int main(int argc, char **argv)
     surface(shell, WRISTFLOW_SURFACE_LAUNCHER);
     snapshot("apps_launcher");
     lv_obj_t *launcher = lv_screen_active();
-    lv_obj_t *scroll = named("launcher_scroll");
-    swipe(195, 201, 230, 225);
+    lv_obj_t *scroll = named("launcher_canvas");
+    sample(195, 201, true);
+    sample(230, 225, true);
+    assert(lv_obj_get_x(scroll) == -95 && lv_obj_get_y(scroll) == -100);
+    /* Change direction without lifting: both axes must keep following. */
+    sample(195, 260, true);
+    assert(lv_obj_get_x(scroll) == -130 && lv_obj_get_y(scroll) == -65);
+    sample(195, 201, true);
+    sample(195, 201, false);
+    advance(400);
     surface(shell, WRISTFLOW_SURFACE_LAUNCHER);
-    int32_t scroll_x = lv_obj_get_scroll_x(scroll), scroll_y = lv_obj_get_scroll_y(scroll);
+    int32_t scroll_x = lv_obj_get_x(scroll), scroll_y = lv_obj_get_y(scroll);
     click("launch_stopwatch");
     surface(shell, WRISTFLOW_SURFACE_STOPWATCH);
     assert(strcmp(lv_label_get_text(named("stopwatch_time")), "00:00") == 0);
@@ -125,7 +139,7 @@ int main(int argc, char **argv)
     snapshot("apps_stopwatch");
     click("app_back");
     assert(lv_screen_active() == launcher);
-    assert(lv_obj_get_scroll_x(scroll) == scroll_x && lv_obj_get_scroll_y(scroll) == scroll_y);
+    assert(lv_obj_get_x(scroll) == scroll_x && lv_obj_get_y(scroll) == scroll_y);
     advance(2000);
     click("launch_stopwatch");
     click("stopwatch_toggle");
@@ -148,16 +162,40 @@ int main(int argc, char **argv)
     advance(400);
     surface(shell, WRISTFLOW_SURFACE_FACE_PICKER);
     snapshot("apps_picker_diffusion");
-    click("face_next");
-    snapshot("apps_picker_simple");
-    click("app_back");
+    sample(300, 220, true);
+    sample(220, 220, true);
+    assert(lv_obj_get_scroll_x(named("face_carousel")) > 266);
+    sample(90, 220, true);
+    sample(90, 220, false);
+    /* Interrupt a snap with a stationary press: never apply a moving face. */
+    sample(195, 220, true);
+    sample(195, 220, false);
+    advance(400);
+    surface(shell, WRISTFLOW_SURFACE_FACE_PICKER);
     assert(strcmp(wristflow_ui_shell_watchface_id(shell), "diffusion") == 0);
+    assert(lv_obj_get_scroll_x(named("face_carousel")) == 532);
+    swipe(300, 220, 90, 220);
+    assert(lv_obj_get_scroll_x(named("face_carousel")) == 266);
+    /* Left-edge dragging belongs to the picker, not the app Back gesture. */
+    swipe(10, 220, 280, 220);
+    surface(shell, WRISTFLOW_SURFACE_FACE_PICKER);
+    assert(lv_obj_get_scroll_x(named("face_carousel")) == 532);
+    swipe(90, 220, 300, 220);
+    swipe(300, 220, 90, 220);
+    snapshot("apps_picker_simple");
+    assert(lv_obj_find_by_name(lv_screen_active(), "face_previous") == NULL);
+    assert(lv_obj_find_by_name(lv_screen_active(), "face_next") == NULL);
+    assert(lv_obj_find_by_name(lv_screen_active(), "face_apply") == NULL);
+    assert(lv_obj_get_scroll_x(named("face_carousel")) == 532);
+    wristflow_ui_shell_back(shell);
+    assert(strcmp(wristflow_ui_shell_watchface_id(shell), "diffusion") == 0);
+    advance(400);
     sample(195, 170, true);
     advance(600);
     sample(195, 170, false);
     advance(400);
-    click("face_next");
-    click("face_apply");
+    swipe(300, 220, 90, 220);
+    click("face_slot_2");
     surface(shell, WRISTFLOW_SURFACE_HOME);
     assert(strcmp(wristflow_ui_shell_watchface_id(shell), "simple") == 0);
     assert(strcmp(lv_label_get_text(named("simple_time")), "22:48") == 0);
@@ -167,7 +205,15 @@ int main(int argc, char **argv)
     surface(shell, WRISTFLOW_SURFACE_CONTROLS);
     click("settings_button");
     surface(shell, WRISTFLOW_SURFACE_SETTINGS);
-    swipe(80, 191, 255, 191);
+    sample(80, 191, true);
+    sample(160, 191, true);
+    unsigned midway = brightness;
+    sample(250, 191, true);
+    assert(brightness > midway + 10);
+    sample(342, 191, true);
+    assert(brightness >= 98);
+    sample(342, 191, false);
+    advance(400);
     unsigned chosen = brightness;
     assert(chosen != 60 && chosen >= 10 && chosen <= 100);
     snapshot("apps_settings");
@@ -196,8 +242,22 @@ int main(int argc, char **argv)
         advance(240);
         assert(wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_HEART));
         advance(240);
+        assert(strcmp(lv_label_get_text(named("placeholder_label")), "即将推出") == 0);
+        assert(lv_obj_find_by_name(lv_screen_active(), "tile_slots") == NULL);
+        if (i == 0) snapshot("apps_heart_placeholder");
         assert(wristflow_ui_shell_back(shell));
         advance(240);
+        assert(wristflow_ui_shell_key(shell));
+        advance(240);
+    }
+    const wristflow_surface_t placeholders[] = {WRISTFLOW_SURFACE_ACTIVITY, WRISTFLOW_SURFACE_SYSTEM};
+    for (unsigned i = 0; i < 2; ++i) {
+        assert(wristflow_ui_shell_key(shell));
+        advance(240);
+        assert(wristflow_ui_shell_open(shell, placeholders[i]));
+        advance(240);
+        assert(lv_obj_find_by_name(lv_screen_active(), "tile_slots") == NULL);
+        snapshot(i == 0 ? "apps_activity_placeholder" : "apps_battery_placeholder");
         assert(wristflow_ui_shell_key(shell));
         advance(240);
     }
