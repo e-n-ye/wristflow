@@ -1,0 +1,288 @@
+{
+  "date": "2026-09-25",
+  "source": "User-provided Redmi Watch 4 reference photos in this task",
+  "worktree": "C:/Users/13984/.codex/worktrees/product-runtime/wristflow",
+  "scope": "Reference UI only; images are local ignored artifacts, not committed or WristFlow hardware evidence. Confirmed text is in docs/PRODUCT-UI-SCOPE.md.",
+  "images": [
+    {
+      "group": "settings",
+      "index": 1,
+      "source_filename": "codex-clipboard-e4d5d50f-e0cb-48b5-b110-a53acd569777.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-01.jpg",
+      "bytes": 2856350,
+      "sha256": "af3341401c8bf09788307758470cfb52e19506d246d54d7a3f7886c4763477f4"
+    },
+    {
+      "group": "settings",
+      "index": 2,
+      "source_filename": "codex-clipboard-8ec438d3-2216-43ab-be1b-c88b97b836bc.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-02.jpg",
+      "bytes": 3403827,
+      "sha256": "744673e8003a9ce0243db6773ef1f9ed6d96673d59cd5945412b321594a7840f"
+    },
+    {
+      "group": "settings",
+      "index": 3,
+      "source_filename": "codex-clipboard-056619e7-91ed-4d88-9549-2dd7695f7a20.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-03.jpg",
+      "bytes": 3547247,
+      "sha256": "f30865ac35ff1f3d05004c5522125d39211367b480e250e03f0d3318badf3c87"
+    },
+    {
+      "group": "settings",
+      "index": 4,
+      "source_filename": "codex-clipboard-37666977-8fb9-4631-bff5-100211cb4a9e.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-04.jpg",
+      "bytes": 3145289,
+      "sha256": "e447b90ea613d7c5bc7f187ef1203d8b93e28e0c4739c5279be6998d9be0dcf7"
+    },
+    {
+      "group": "settings",
+      "index": 5,
+      "source_filename": "codex-clipboard-26a0937f-69a8-465e-babb-fb6ce7fb182e.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-05.jpg",
+      "bytes": 3189324,
+      "sha256": "fe94a473e2b5022d0f199a78fe8716eecdf7338f5f4e7d0e650751ab402f6eda"
+    },
+    {
+      "group": "settings",
+      "index": 6,
+      "source_filename": "codex-clipboard-8c973852-ec3c-49f8-a013-48315395c126.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-06.jpg",
+      "bytes": 3110512,
+      "sha256": "8d3ae31c6e6fc25d6007c21a0072da01d93b438e2618b15201c276a2655f0fd2"
+    },
+    {
+      "group": "settings",
+      "index": 7,
+      "source_filename": "codex-clipboard-09f07123-4fd8-4493-9609-6abff9dbcdfd.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-07.jpg",
+      "bytes": 3151109,
+      "sha256": "c4a83ea2a1449eb1339d09b434f28abd45763fb6bba168c77711a5f098367f16"
+    },
+    {
+      "group": "settings",
+      "index": 8,
+      "source_filename": "codex-clipboard-45c0a96e-7c46-4776-ab09-416407534455.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-08.jpg",
+      "bytes": 3203864,
+      "sha256": "6f1813ad0f96c551e0da3f027dfdc87e80df7fb3bd0888bbd441b5a499caa88b"
+    },
+    {
+      "group": "settings",
+      "index": 9,
+      "source_filename": "codex-clipboard-1a0628ea-7c57-472c-86b3-3bb3c6fb23cb.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-09.jpg",
+      "bytes": 3736798,
+      "sha256": "4a5fc272b682400fa4646b111aabab6fd3fd6fd115ec5bacfb251c14327b4827"
+    },
+    {
+      "group": "settings",
+      "index": 10,
+      "source_filename": "codex-clipboard-54ccdaef-d5ce-4648-a604-a72e6497a3ae.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-10.jpg",
+      "bytes": 3196620,
+      "sha256": "daa8cad42e6ab30fc8f39cee7d28c20e76fcb141ec31bf00bdb8e74355090e44"
+    },
+    {
+      "group": "settings",
+      "index": 11,
+      "source_filename": "codex-clipboard-6151cc47-27f8-4612-98f9-63b0180bb4d5.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-11.jpg",
+      "bytes": 3346385,
+      "sha256": "c09c0715b3d47fbbb7044972e51acef26f42548f803e8097edcc1d78ad09b450"
+    },
+    {
+      "group": "settings",
+      "index": 12,
+      "source_filename": "codex-clipboard-0219d4cd-f803-4192-8cdd-ab8b06c853f8.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-12.jpg",
+      "bytes": 2936687,
+      "sha256": "cf2ba5e45d8008f6b7b2c9e62b2ac9a5a3dfdbfe366540b1a20b27ed9a6b203c"
+    },
+    {
+      "group": "settings",
+      "index": 13,
+      "source_filename": "codex-clipboard-3a66c489-af7f-417e-bb9a-b8b8bef41fca.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-13.jpg",
+      "bytes": 3335083,
+      "sha256": "74bd99d479ad5e566acf46c727b76f08488bdf36a69c8e2557f76a4827a26a82"
+    },
+    {
+      "group": "settings",
+      "index": 14,
+      "source_filename": "codex-clipboard-e95d6265-8018-4800-88ec-08e5ebe5f07b.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-14.jpg",
+      "bytes": 3253602,
+      "sha256": "5f65e497b447b1fae6adca8a057214a681061e545fbd9107c250f75034d79c5a"
+    },
+    {
+      "group": "settings",
+      "index": 15,
+      "source_filename": "codex-clipboard-175f2fbf-1944-4eb2-8f7c-b502d488e0b0.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-15.jpg",
+      "bytes": 3082714,
+      "sha256": "50eeefcda60e94b72fbb5366a52d6fcae20c99254da517a0b86fb1cd2295fad2"
+    },
+    {
+      "group": "settings",
+      "index": 16,
+      "source_filename": "codex-clipboard-185a840f-278f-4d23-b8dd-429ea5cbab17.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-16.jpg",
+      "bytes": 3313228,
+      "sha256": "cf9ac08598076d99b99bc14ef9ba8d99bfbb0c11c69d72db8c146d933b5682cc"
+    },
+    {
+      "group": "settings",
+      "index": 17,
+      "source_filename": "codex-clipboard-6552e4a1-1c1a-4b31-866e-47422740ad8a.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-17.jpg",
+      "bytes": 3329411,
+      "sha256": "8d9e735a16cc9e2b144b3e7a92e56e6a8d86e4dffeeacb0acb9bda8bf6717627"
+    },
+    {
+      "group": "settings",
+      "index": 18,
+      "source_filename": "codex-clipboard-324a0f9c-ea4b-4756-91d6-f9ff8b7d12a6.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-18.jpg",
+      "bytes": 2820311,
+      "sha256": "9fc5af52e92c410ea2045e3cc1f162115d3478511937ba8541a15239cd5e6669"
+    },
+    {
+      "group": "settings",
+      "index": 19,
+      "source_filename": "codex-clipboard-06f8a960-76ba-4453-8482-d45ad69abda2.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-19.jpg",
+      "bytes": 3230167,
+      "sha256": "6dcc7756467dd1fc4157b9e2195a238fd1278e769ed4ce8eb7e1dbfa46df8b23"
+    },
+    {
+      "group": "settings",
+      "index": 20,
+      "source_filename": "codex-clipboard-c70ccdbd-79c2-4815-a8cc-8350612e5f48.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-20.jpg",
+      "bytes": 3214945,
+      "sha256": "3db8924838482ba366ccd2dff9b051140b73f2943eca9e9dc09c4e63c51c904b"
+    },
+    {
+      "group": "settings",
+      "index": 21,
+      "source_filename": "codex-clipboard-7a7cc7c8-f02b-4b87-9cdc-586463975824.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-21.jpg",
+      "bytes": 3327596,
+      "sha256": "3e27fee19bf4cebf3f483f8a365d250b0684b279c23fafc4b2f9a32f85cf79ba"
+    },
+    {
+      "group": "settings",
+      "index": 22,
+      "source_filename": "codex-clipboard-20eaac81-1bd2-4c20-a514-982df44bf8db.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-22.jpg",
+      "bytes": 3663635,
+      "sha256": "e80f5de002136d92dea342ce9c906ff1e15415a2e002b4e7eddcd5b0ebfefa50"
+    },
+    {
+      "group": "settings",
+      "index": 23,
+      "source_filename": "codex-clipboard-636a4b64-f57e-48dc-906b-3e2eb2522870.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-23.jpg",
+      "bytes": 2356480,
+      "sha256": "d15a1c2f0f66b5ecd30baafff3292da83c65a0174cc61c1f46543136677387b6"
+    },
+    {
+      "group": "settings",
+      "index": 24,
+      "source_filename": "codex-clipboard-da37eec9-75c3-4667-9e90-252e8261c3d1.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/settings-24.jpg",
+      "bytes": 140468,
+      "sha256": "aafbaa5a313d39da46c727572dd293a4eeee42f4f84c70f409ea2c94e4dca09b"
+    },
+    {
+      "group": "component-editor",
+      "index": 1,
+      "source_filename": "codex-clipboard-5ea5d39b-c000-43a7-a0a7-b057e405ab4f.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/component-editor-01.jpg",
+      "bytes": 154790,
+      "sha256": "04ae8962b6fda3c5acf80fb1aa45ec98fbb3accb8b00bbf3f165b7f4a22d32ba"
+    },
+    {
+      "group": "component-editor",
+      "index": 2,
+      "source_filename": "codex-clipboard-765b08f9-8ce8-4d96-9e4d-eb27952015ed.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/component-editor-02.jpg",
+      "bytes": 2987974,
+      "sha256": "37a88297a61108a1c757911b13ab84699ce4590c5c4d536e50b38d47751190a9"
+    },
+    {
+      "group": "component-editor",
+      "index": 3,
+      "source_filename": "codex-clipboard-066ad7c7-aa7e-48db-8a8f-fbcce7bf9582.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/component-editor-03.jpg",
+      "bytes": 3329243,
+      "sha256": "e24ee31a988b63e9b87d1f63f6658ea962fa675623d2580da9a6cf2fcbb443b2"
+    },
+    {
+      "group": "component-editor",
+      "index": 4,
+      "source_filename": "codex-clipboard-26c5e984-d4e5-4e11-b3c5-15df40e1fa34.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/component-editor-04.jpg",
+      "bytes": 2399027,
+      "sha256": "7ea3f620ebce1aa8109601ee6d706250822ca45990be35009a345f5d56f3907a"
+    },
+    {
+      "group": "component-editor",
+      "index": 5,
+      "source_filename": "codex-clipboard-7e0b42c7-fe7b-4ec7-9cee-222fac81d3d4.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/component-editor-05.jpg",
+      "bytes": 462257,
+      "sha256": "fee8ab80ec673e03996f36838fbb67f34bfdef8f32786059b10b8f8c30b18964"
+    },
+    {
+      "group": "component-editor",
+      "index": 6,
+      "source_filename": "codex-clipboard-d24f76d1-6abb-4f03-a2a6-62626d9f086e.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/component-editor-06.jpg",
+      "bytes": 810873,
+      "sha256": "d4dbe206082cbe01e09a892766c0f060957207b724e51d01a6c32518e04f814b"
+    },
+    {
+      "group": "component-editor",
+      "index": 7,
+      "source_filename": "codex-clipboard-266dbaae-25f8-424f-83c9-cfb543d2e6b5.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/component-editor-07.jpg",
+      "bytes": 462257,
+      "sha256": "fee8ab80ec673e03996f36838fbb67f34bfdef8f32786059b10b8f8c30b18964"
+    },
+    {
+      "group": "component-colors",
+      "index": 1,
+      "source_filename": "codex-clipboard-2a9b073f-b791-4c0b-a352-01360a51504d.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/component-colors-01.jpg",
+      "bytes": 183417,
+      "sha256": "d999f5ddbf6472b1f03f1b13eab16a73814324eb9473673edbea800089f379e9"
+    },
+    {
+      "group": "default-pages",
+      "index": 1,
+      "source_filename": "codex-clipboard-0e6153a3-6063-421c-8297-62db56cf73a4.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/default-pages-01.jpg",
+      "bytes": 3349308,
+      "sha256": "01d5caf09ccff668da2cae88744fde8487643af847fde7f599dde8c29f1fe3d2"
+    },
+    {
+      "group": "default-pages",
+      "index": 2,
+      "source_filename": "codex-clipboard-08e66c6a-f7df-405b-a96e-daf1cd0ce191.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/default-pages-02.jpg",
+      "bytes": 2997409,
+      "sha256": "02f16be4ef218833669c75e6a8cfe2acbf3cb15d6ec620af0794aceb510c3ac0"
+    },
+    {
+      "group": "default-pages",
+      "index": 3,
+      "source_filename": "codex-clipboard-c6342c58-07b6-4ed8-817e-5a033d0d3caa.jpg",
+      "local_archive": "artifacts/reference/redmi-watch4-20260925/default-pages-03.jpg",
+      "bytes": 769845,
+      "sha256": "363218dcce2960db5bfd27a571a723ae8b99af949370fd6625950f03dcddf526"
+    }
+  ]
+}

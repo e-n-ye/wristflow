@@ -38,7 +38,7 @@ include("${UI}/file_list_gen.cmake")
 add_library(wristflow_ui_host STATIC ${LV_EDITOR_PROJECT_SOURCES}
     "${UI}/clock_format.c" "${UI}/watchface_presenter.c" "${DEMO}/ui_demo.c"
     "${RUNTIME}/mount_screen.c" "${RUNTIME}/default_watchface.c" "${RUNTIME}/ui_shell.c"
-    "${RUNTIME}/simple_watchface.c" "${RUNTIME}/apps.c")
+    "${RUNTIME}/simple_watchface.c" "${RUNTIME}/apps.c" "${RUNTIME}/app_registry.c")
 target_include_directories(wristflow_ui_host PUBLIC "${UI}" "${DEMO}" "${RUNTIME}")
 target_link_libraries(wristflow_ui_host PUBLIC lvgl_host watch_core)
 add_executable(ui_preview ui_preview.c)

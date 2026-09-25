@@ -9,6 +9,8 @@ typedef lv_obj_t *(*wristflow_screen_factory_t)(void);
 typedef void (*wristflow_brightness_cb_t)(uint8_t percent, void *context);
 typedef void (*wristflow_card_update_cb_t)(lv_obj_t *root, unsigned index,
                                           const wristflow_watch_snapshot_t *snapshot);
+/* Maps named slot_0..slot_3 to apps. COUNT leaves a slot non-interactive. */
+typedef wristflow_surface_t (*wristflow_card_target_cb_t)(unsigned page, unsigned slot);
 
 typedef struct {
     const wristflow_watchface_t *watchface;
@@ -22,6 +24,8 @@ typedef struct {
     /* NULL keeps deterministic demo defaults. Read only during create. */
     const wristflow_settings_t *initial_settings;
     wristflow_card_update_cb_t update_card;
+    wristflow_card_target_cb_t card_target;
+    bool product_apps;
 } wristflow_ui_shell_config_t;
 
 /* One 390x450 default display, called on the LVGL thread after UI resource init.

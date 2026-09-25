@@ -1,0 +1,23 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="body_20" style_text_color="#fg_primary">
+        <lv_obj name="launcher_scroll" x="0" y="0" width="390" height="402" scrollbar_mode="off" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0">
+            <lv_obj name="launcher_canvas" width="650" height="650" scrollable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0">
+                <launcher_icon name="launch_stopwatch" x="275" y="275" icon="&#xf2f2;" tint="0xf2a33b" />
+                <launcher_icon name="launch_activity" x="155" y="275" icon="&#xf201;" tint="0xf97316" />
+                <launcher_icon name="launch_heart" x="395" y="275" icon="&#xf004;" tint="0xef4770" />
+                <launcher_icon name="launch_faces" x="215" y="171" icon="&#xf017;" tint="0x616c77" />
+                <launcher_icon name="launch_system" x="335" y="171" icon="&#xf240;" tint="0x10b981" />
+                <launcher_icon name="launch_flashlight" x="215" y="379" icon="&#xf0eb;" tint="0x8b71bf" />
+                <launcher_icon name="launch_settings" x="335" y="379" icon="&#xf013;" tint="0x647783" />
+                <launcher_icon name="launch_blood_oxygen" x="455" y="171" icon="&#xf043;" tint="0xef4770" />
+                <launcher_icon name="launch_stress" x="455" y="379" icon="&#xf118;" tint="0x38bdf8" />
+                <launcher_icon name="launch_steps" x="155" y="483" icon="&#xf70c;" tint="0xe2db48" />
+                <launcher_icon name="launch_standing" x="275" y="483" icon="&#xf183;" tint="0x10d6b0" />
+                <launcher_icon name="launch_weather" x="395" y="483" icon="&#xf0c2;" tint="0x38bdf8" />
+                <launcher_icon name="launch_sleep" x="95" y="379" icon="&#xf236;" tint="0x388bfa" />
+                <launcher_icon name="launch_alarm" x="95" y="171" icon="&#xf0f3;" tint="0x38bdf8" />
+            </lv_obj>
+        </lv_obj>
+        <lv_label name="launcher_caption" x="24" y="404" width="342" text="应用" style_text_align="center" style_text_color="#fg_secondary" />
+    </view>
+</screen>

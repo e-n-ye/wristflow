@@ -257,6 +257,7 @@ void wristflow_ui_init_gen(const char * asset_path);
  **********************/
 
 /*Include all the widgets, components and screens of this library*/
+#include "components/activity_summary_gen.h"
 #include "components/app_header_gen.h"
 #include "components/card_container_gen.h"
 #include "components/face_thumbnail_gen.h"
@@ -281,6 +282,11 @@ void wristflow_ui_init_gen(const char * asset_path);
 #include "screens/screen_picker_full_gen.h"
 #include "screens/screen_picker_half_gen.h"
 #include "screens/screen_picker_quarter_gen.h"
+#include "screens/screen_product_activity_gen.h"
+#include "screens/screen_product_daily_gen.h"
+#include "screens/screen_product_health_gen.h"
+#include "screens/screen_product_launcher_gen.h"
+#include "screens/screen_product_placeholder_gen.h"
 #include "screens/screen_settings_gen.h"
 #include "screens/screen_stopwatch_gen.h"
 #include "screens/screen_tile_activity_gen.h"

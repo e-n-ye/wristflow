@@ -53,6 +53,10 @@ int main(void)
         assert(wristflow_navigation_commit_page(&navigation, page));
         assert(!wristflow_navigation_open_controls(&navigation));
         assert(navigation.page_index == page && navigation.surface == WRISTFLOW_SURFACE_HOME);
+        assert(wristflow_navigation_open(&navigation, WRISTFLOW_SURFACE_ALARM));
+        assert(!wristflow_navigation_commit_page(&navigation, 0));
+        assert(wristflow_navigation_back(&navigation));
+        assert(navigation.page_index == page && navigation.surface == WRISTFLOW_SURFACE_HOME);
     }
     assert(!wristflow_navigation_commit_page(&navigation, 4));
     assert(navigation.page_index == 3);
