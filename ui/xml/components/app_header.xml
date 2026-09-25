@@ -1,0 +1,9 @@
+<component>
+    <api><prop name="title" type="string" default="应用" /></api>
+    <view extends="lv_obj" x="24" y="18" width="342" height="48" scrollable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0">
+        <lv_button name="app_back" x="0" y="0" width="48" height="48" style_bg_opa="0%" style_border_width="0" style_shadow_width="0" style_pad_all="0">
+            <lv_label align="center" text="&#xf053;" style_text_font="icons_20" style_text_color="#fg_primary" />
+        </lv_button>
+        <lv_label x="58" y="7" width="280" text="$title" style_text_font="title_24" style_text_color="#fg_primary" />
+    </view>
+</component>

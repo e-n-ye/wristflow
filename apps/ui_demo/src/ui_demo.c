@@ -3,6 +3,28 @@
 #include "ui_shell.h"
 
 static wristflow_ui_shell_t *shell;
+static wristflow_brightness_cb_t brightness_cb;
+static void *platform_context;
+
+void wristflow_demo_set_platform(wristflow_brightness_cb_t brightness, void *context)
+{
+    LV_ASSERT(!shell);
+    brightness_cb = brightness;
+    platform_context = context;
+}
+
+void wristflow_demo_key(void) { wristflow_ui_shell_key(shell); }
+void wristflow_demo_back(void) { wristflow_ui_shell_back(shell); }
+
+void wristflow_demo_keyboard(lv_event_t *event)
+{
+    uint32_t key = lv_event_get_key(event);
+    if (key == LV_KEY_ENTER) wristflow_demo_key();
+    else if (key == LV_KEY_ESC) wristflow_demo_back();
+    else return;
+    lv_indev_t *input = lv_indev_active();
+    if (input) lv_indev_wait_release(input);
+}
 
 void wristflow_demo_start(void)
 {
@@ -15,7 +37,7 @@ void wristflow_demo_start(void)
     };
     const wristflow_ui_shell_config_t config = {
         &wristflow_default_watchface, cards, sizeof(cards) / sizeof(cards[0]),
-        screen_control_center_create, {22, 48, 53}
+        screen_control_center_create, {22, 48, 53}, true, brightness_cb, platform_context
     };
     lv_obj_t *initial = lv_screen_active();
     shell = wristflow_ui_shell_create(&config);

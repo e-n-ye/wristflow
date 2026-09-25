@@ -1,7 +1,9 @@
 list(
   APPEND
   LV_EDITOR_PROJECT_SOURCES
+  ${CMAKE_CURRENT_LIST_DIR}/components/app_header_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/card_container_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/launcher_icon_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/layout_block_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/layout_option_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/metric_full_gen.c
@@ -14,6 +16,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_half_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_quarter_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/body_20_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/fonts/clock_80_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/icons_20_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/icons_44_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/metric_56_data.c
@@ -32,14 +35,20 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/images/hour_11_data.c
   ${CMAKE_CURRENT_LIST_DIR}/images/hour_12_data.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_control_center_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_face_picker_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_flashlight_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_launcher_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_layout_picker_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_picker_full_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_picker_half_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_picker_quarter_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_settings_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_stopwatch_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_tile_activity_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_tile_full_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_tile_heart_rate_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_tile_system_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_watchface_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_watchface_simple_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/wristflow_ui_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/wristflow_ui.c)

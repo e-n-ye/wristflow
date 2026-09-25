@@ -30,6 +30,15 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command, int sh
     }
     wristflow_ui_init("");
     wristflow_demo_start();
+    lv_indev_t *keypad = lv_windows_acquire_keypad_indev(display);
+    lv_group_t *keys = lv_group_create();
+    lv_obj_t *key_target = lv_obj_create(lv_layer_top());
+    lv_obj_set_size(key_target, 1, 1);
+    lv_obj_set_style_opa(key_target, LV_OPA_TRANSP, 0);
+    lv_obj_remove_flag(key_target, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_event_cb(key_target, wristflow_demo_keyboard, LV_EVENT_KEY, NULL);
+    lv_group_add_obj(keys, key_target);
+    lv_indev_set_group(keypad, keys);
     lv_unlock();
 
     for (;;)

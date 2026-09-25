@@ -1,5 +1,5 @@
 <screen>
-    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_color="0xc0f4ff" style_text_font="body_20">
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_color="0xffffff" style_text_font="body_20">
         <lv_label name="battery_icon" x="151" y="25" text="&#xf240;" style_text_font="icons_20" />
         <lv_label name="battery_label" x="181" y="20" width="65" text="53%" />
         <lv_image name="hour_artwork" x="24" y="66" src="hour_10" />

@@ -1,0 +1,7 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="body_20" style_text_color="#fg_primary">
+        <lv_label x="24" y="45" width="342" text="WRISTFLOW" style_text_align="center" style_text_color="#fg_secondary" />
+        <lv_label name="simple_time" x="24" y="160" width="342" text="22:48" style_text_font="clock_80" style_text_align="center" />
+        <lv_label name="simple_battery" x="24" y="339" width="342" text="53%" style_text_align="center" style_text_color="#fg_secondary" />
+    </view>
+</screen>

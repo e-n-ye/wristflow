@@ -1,0 +1,13 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="body_20" style_text_color="#fg_primary">
+        <app_header title="秒表" />
+        <lv_label name="stopwatch_time" x="24" y="131" width="342" text="00:00" style_text_font="metric_56" style_text_align="center" />
+        <lv_label name="stopwatch_fraction" x="24" y="211" width="342" text=".00" style_text_font="value_36" style_text_align="center" style_text_color="#fg_secondary" />
+        <lv_button name="stopwatch_reset" x="69" y="313" width="112" height="96" style_radius="48" style_bg_color="#bg_surface" style_shadow_width="0" style_pad_all="0">
+            <lv_label align="center" text="&#xf2f1;" style_text_font="icons_44" />
+        </lv_button>
+        <lv_button name="stopwatch_toggle" x="209" y="313" width="112" height="96" style_radius="48" style_bg_color="0x31d49a" style_shadow_width="0" style_pad_all="0" style_text_color="0x05271c">
+            <lv_label name="stopwatch_toggle_icon" align="center" text="&#xf04b;" style_text_font="icons_44" />
+        </lv_button>
+    </view>
+</screen>
