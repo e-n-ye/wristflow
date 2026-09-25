@@ -10,6 +10,35 @@ static unsigned brightness;
 static uint8_t pixels[390 * 40 * 4];
 static const char *directory;
 
+typedef struct { unsigned unloaded, deleted; } lifetime_t;
+static void lifetime_event(lv_event_t *event)
+{
+    lifetime_t *lifetime = lv_event_get_user_data(event);
+    if (lv_event_get_code(event) == LV_EVENT_SCREEN_UNLOADED) ++lifetime->unloaded;
+    if (lv_event_get_code(event) == LV_EVENT_DELETE) {
+        assert(lifetime->unloaded > 0);
+        assert(lv_display_get_screen_prev(NULL) == NULL);
+        assert(lv_event_get_target_obj(event) != lv_screen_active());
+        ++lifetime->deleted;
+    }
+}
+static void track_view(lifetime_t *lifetime)
+{
+    lv_obj_add_event_cb(lv_screen_active(), lifetime_event, LV_EVENT_SCREEN_UNLOADED, lifetime);
+    lv_obj_add_event_cb(lv_screen_active(), lifetime_event, LV_EVENT_DELETE, lifetime);
+}
+static void mark_loaded(lv_event_t *event)
+{
+    bool *loaded = lv_event_get_user_data(event);
+    *loaded = true;
+}
+static unsigned timer_count(void)
+{
+    unsigned count = 0;
+    for (lv_timer_t *timer = lv_timer_get_next(NULL); timer; timer = lv_timer_get_next(timer)) ++count;
+    return count;
+}
+
 static uint32_t tick(void) { return ticks; }
 static void read_pointer(lv_indev_t *input, lv_indev_data_t *data) { (void)input; *data = pointer; }
 static void flush(lv_display_t *display, const lv_area_t *area, uint8_t *data)
@@ -129,29 +158,48 @@ int main(int argc, char **argv)
     sample(195, 201, true);
     sample(195, 201, false);
     advance(400);
+    unsigned live_timers = timer_count();
     surface(shell, WRISTFLOW_SURFACE_LAUNCHER);
     int32_t scroll_x = lv_obj_get_x(scroll), scroll_y = lv_obj_get_y(scroll);
     click("launch_stopwatch");
     surface(shell, WRISTFLOW_SURFACE_STOPWATCH);
+    lifetime_t stopwatch_lifetime = {0};
+    track_view(&stopwatch_lifetime);
     assert(strcmp(lv_label_get_text(named("stopwatch_time")), "00:00") == 0);
     click("stopwatch_toggle");
     advance(1200);
     snapshot("apps_stopwatch");
     click("app_back");
+    assert(stopwatch_lifetime.deleted == 1);
     assert(lv_screen_active() == launcher);
     assert(lv_obj_get_x(scroll) == scroll_x && lv_obj_get_y(scroll) == scroll_y);
     advance(2000);
     click("launch_stopwatch");
+    track_view(&stopwatch_lifetime);
+    unsigned minutes, seconds;
+    assert(sscanf(lv_label_get_text(named("stopwatch_time")), "%u:%u", &minutes, &seconds) == 2);
+    assert(minutes * 60 + seconds >= 3 && minutes * 60 + seconds <= 5);
     click("stopwatch_toggle");
     char paused[32];
+    char paused_fraction[8];
     snprintf(paused, sizeof paused, "%s", lv_label_get_text(named("stopwatch_time")));
+    snprintf(paused_fraction, sizeof paused_fraction, "%s", lv_label_get_text(named("stopwatch_fraction")));
     assert(strcmp(paused, "00:00") != 0);
     advance(2200);
     assert(strcmp(paused, lv_label_get_text(named("stopwatch_time"))) == 0);
+    assert(strcmp(paused_fraction, lv_label_get_text(named("stopwatch_fraction"))) == 0);
+    click("app_back");
+    assert(stopwatch_lifetime.deleted == 2);
+    advance(1200);
+    click("launch_stopwatch");
+    track_view(&stopwatch_lifetime);
+    assert(strcmp(paused, lv_label_get_text(named("stopwatch_time"))) == 0);
+    assert(strcmp(paused_fraction, lv_label_get_text(named("stopwatch_fraction"))) == 0);
     click("stopwatch_reset");
     assert(strcmp(lv_label_get_text(named("stopwatch_time")), "00:00") == 0);
     swipe(10, 220, 290, 220);
     surface(shell, WRISTFLOW_SURFACE_LAUNCHER);
+    assert(stopwatch_lifetime.deleted == 3);
 
     assert(wristflow_ui_shell_home(shell));
     advance(400);
@@ -173,6 +221,12 @@ int main(int argc, char **argv)
     advance(400);
     surface(shell, WRISTFLOW_SURFACE_FACE_PICKER);
     assert(strcmp(wristflow_ui_shell_watchface_id(shell), "diffusion") == 0);
+    assert(lv_obj_get_scroll_x(named("face_carousel")) == 532);
+    /* A retained browser parent resumes at its pending selection. */
+    assert(wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_SETTINGS));
+    advance(240);
+    assert(wristflow_ui_shell_back(shell));
+    advance(240);
     assert(lv_obj_get_scroll_x(named("face_carousel")) == 532);
     swipe(300, 220, 90, 220);
     assert(lv_obj_get_scroll_x(named("face_carousel")) == 266);
@@ -217,7 +271,23 @@ int main(int argc, char **argv)
     unsigned chosen = brightness;
     assert(chosen != 60 && chosen >= 10 && chosen <= 100);
     snapshot("apps_settings");
+    lv_obj_t *settings = lv_screen_active();
+    lifetime_t settings_lifetime = {0}, battery_lifetime = {0};
+    track_view(&settings_lifetime);
+    click("settings_battery");
+    surface(shell, WRISTFLOW_SURFACE_SYSTEM);
+    track_view(&battery_lifetime);
+    assert(settings_lifetime.unloaded == 1 && settings_lifetime.deleted == 0);
+    assert(wristflow_ui_shell_navigation(shell)->history_count == 3);
+    assert(wristflow_ui_shell_back(shell));
+    assert(battery_lifetime.deleted == 0);
+    assert(!wristflow_ui_shell_back(shell));
+    advance(400);
+    assert(battery_lifetime.deleted == 1);
+    assert(lv_screen_active() == settings);
+    assert(lv_slider_get_value(named("settings_brightness")) == (int)chosen);
     click("app_back");
+    assert(settings_lifetime.deleted == 1);
     surface(shell, WRISTFLOW_SURFACE_CONTROLS);
     assert(lv_slider_get_value(named("brightness_slider")) == (int)chosen);
     click("flashlight_button");
@@ -237,18 +307,38 @@ int main(int argc, char **argv)
     surface(shell, WRISTFLOW_SURFACE_HOME);
     assert(strcmp(wristflow_ui_shell_watchface_id(shell), "simple") == 0);
 
-    for (unsigned i = 0; i < 8; ++i) {
+    /* KEY1 from a child retires both the current view and its retained parent. */
+    assert(wristflow_ui_shell_key(shell));
+    advance(240);
+    assert(lv_screen_active() == launcher);
+    assert(lv_obj_get_x(scroll) == scroll_x && lv_obj_get_y(scroll) == scroll_y);
+    assert(wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_SETTINGS));
+    advance(240);
+    track_view(&settings_lifetime);
+    click("settings_battery");
+    track_view(&battery_lifetime);
+    assert(wristflow_ui_shell_key(shell));
+    assert(settings_lifetime.deleted == 1 && battery_lifetime.deleted == 1);
+    advance(240);
+    assert(settings_lifetime.deleted == 2 && battery_lifetime.deleted == 2);
+    assert(!wristflow_ui_shell_back(shell));
+
+    lifetime_t heart_lifetime = {0};
+    for (unsigned i = 0; i < 16; ++i) {
         assert(wristflow_ui_shell_key(shell));
         advance(240);
         assert(wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_HEART));
         advance(240);
+        track_view(&heart_lifetime);
         assert(strcmp(lv_label_get_text(named("placeholder_label")), "即将推出") == 0);
         assert(lv_obj_find_by_name(lv_screen_active(), "tile_slots") == NULL);
         if (i == 0) snapshot("apps_heart_placeholder");
         assert(wristflow_ui_shell_back(shell));
         advance(240);
+        assert(heart_lifetime.deleted == i + 1);
         assert(wristflow_ui_shell_key(shell));
         advance(240);
+        assert(timer_count() == live_timers);
     }
     const wristflow_surface_t placeholders[] = {WRISTFLOW_SURFACE_ACTIVITY, WRISTFLOW_SURFACE_SYSTEM};
     for (unsigned i = 0; i < 2; ++i) {
@@ -261,13 +351,38 @@ int main(int argc, char **argv)
         assert(wristflow_ui_shell_key(shell));
         advance(240);
     }
+    /* Destroy with an app transition pending: cleanup must not outlive shell. */
+    assert(wristflow_ui_shell_key(shell));
+    advance(240);
+    assert(wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_FACE_PICKER));
     wristflow_ui_shell_destroy(shell);
     advance(400);
+    unsigned timers_without_shell = timer_count();
+    lv_obj_t *blank = lv_screen_active();
     shell = wristflow_ui_shell_create(&config);
     assert(shell && brightness == 60);
+    lv_obj_delete(blank);
     assert(strcmp(wristflow_ui_shell_watchface_id(shell), "diffusion") == 0);
+    assert(wristflow_ui_shell_key(shell));
+    advance(240);
+    assert(wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_SETTINGS));
+    advance(240);
+    lifetime_t final_settings = {0}, final_child = {0};
+    track_view(&final_settings);
+    settings = lv_screen_active();
+    bool parent_loaded = false;
+    lv_obj_add_event_cb(settings, mark_loaded, LV_EVENT_SCREEN_LOADED, &parent_loaded);
+    click("settings_battery");
+    track_view(&final_child);
+    assert(wristflow_ui_shell_back(shell));
+    for (unsigned i = 0; !parent_loaded && i < 30; ++i) advance(16);
+    assert(parent_loaded && final_child.deleted == 0);
+    /* The load callback has armed cleanup, but the deferred timer has not run. */
     wristflow_ui_shell_destroy(shell);
+    assert(final_settings.deleted == 1 && final_child.deleted == 1);
+    advance(400);
+    assert(timer_count() == timers_without_shell);
     lv_deinit();
-    puts("PASS: pointer launcher, drag guard, retained position, stopwatch background/pause/reset, long press, picker cancel/apply, brightness and flashlight restore, key/back, recreation");
+    puts("PASS: app view release/recreation, nested back, key path clearing, stable timer count, transition teardown, pointer menu/picker, stopwatch background, brightness and flashlight restore");
     return 0;
 }

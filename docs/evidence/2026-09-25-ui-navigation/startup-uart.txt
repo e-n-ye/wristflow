@@ -1,0 +1,124 @@
+SFBL
+Serial:c2,Chip:4,Package:3,Rev:3  Reason:00000000
+
+
+
+
+ \ | /
+
+- SiFli Corporation
+
+ / | \     build on Sep 25 2026, 2.5.1 build 8f1cf1b8
+
+ 2020 - 2022 Copyright by SiFli team
+
+aw32001_init ok,  time consum: 0.00 ms.
+
+mount /dev sucess
+
+[I/drv.rtc] PSCLR=0x80000100 DivAI=128 DivAF=0 B=256
+
+[I/drv.rtc] RTC use LXT RTC_CR=00000001
+
+
+
+[I/drv.rtc] Init RTC, wake = 0
+
+
+
+[I/drv.audprc] init 00 ADC_PATH_CFG0 0x606
+
+
+
+[I/drv.audprc] HAL_AUDPRC_Init res 0
+
+
+
+[I/drv.audcodec] HAL_AUDCODEC_Init res 0
+
+
+
+[32m[I/TOUCH] Regist touch screen driver, probe=12027419 [0m
+
+[32;22m[I/FAL] Flash Abstraction Layer (V0.5.99) initialize success.[0m
+
+[32;22m[I/FAL] The FAL MTD NOR device (dfu) created successfully[0m
+
+[32;22m[I/FAL] The FAL MTD NOR device (ble) created successfully[0m
+
+LV_MEM_RT: using rt_malloc path (psram private heap build condition not met)
+
+[I/DBG] drv_gpu opened.
+
+call par CFG1(3313)
+
+
+fc 9, xtal 2000, pll 2110
+
+
+call par CFG1(3313)
+
+
+fc 7, xtal 2000, pll 1689
+
+
+[I/DBG] [NONE] -> [OPENING]
+
+[I/DBG] open
+
+[I/DBG] HW open
+
+[I/DBG] Try registered LCD driver...
+
+msh />
+
+CO5300_ReadID 0x331100 
+
+[I/co5300] LCD module use CO5300 IC 
+
+
+
+
+
+CO5300_ReadID 0x331100 
+
+[I/co5300] LCD module use CO5300 IC 
+
+
+
+[I/DBG] Found lcd co5300 id:331100h
+
+[I/DBG] HW open done.
+
+[I/DBG] [OPENING] -> [INITIALIZED]
+
+[I/DBG] open done.
+
+[I/DBG] drv_lcd_fb_init
+
+[I/DBG] drv_lcd_fb_init done.
+
+[32m[I/TOUCH] Open[0m
+
+[32m[I/TOUCH] Find touch screen driver...[0m
+
+[32m[I/TOUCH] Probe 12027419[0m
+
+[32m[I/TOUCH] touch screen found driver  2001e300, ft6146[0m
+
+[32m[I/TOUCH] Opened.[0m
+
+[I/DBG] set brightness 60
+
+[I/DBG] display on
+
+[I/DBG] [INITIALIZED] -> [ON]
+
+[E/drv.ft6146] ft6146 id_H=64
+
+[E/drv.ft6146] ft6146 id_L=56
+
+[ui_demo] Static sample data; no sensors, BLE or power-policy validation
+
+[ui_perf] window=2007 surface=0 frames=1 handler=0/18 render=18/18 flush=0/0 brightness=1/1 n=1 (avg/max ms)
+

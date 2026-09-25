@@ -1,0 +1,99 @@
+{
+  "date": "2026-09-25T15:35:11.121467+08:00",
+  "branch": "codex/page-stack-lifecycle",
+  "base_commit": "8f1cf1b88efc584e8120bd7e13520c11a7f5ac3a",
+  "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+  "sdk_submodules": [
+    " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+    " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+  ],
+  "sdk_changes": [],
+  "versions": {
+    "host_gcc": "15.2.0",
+    "lvgl": "9.4.0",
+    "python": "Python 3.13.15",
+    "arm_gcc": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+    "scons": "4.10.1",
+    "sftool": "0.2.5"
+  },
+  "local_tests": {
+    "command": "ctest --test-dir artifacts/acceptance-build --output-on-failure",
+    "passed": 6,
+    "total": 6,
+    "seconds": 2.0
+  },
+  "build": {
+    "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+    "exit_code": 0,
+    "artifact_validation_passed": true,
+    "record": "artifacts/ui_demo/20260925-153021-450/result.json"
+  },
+  "runtime_and_core_source_hashes": {
+    "core/SConscript": "0c675c9b81b211f2ac60397083047f7be3b74710b5bc3d8f79d54cab8e86f24d",
+    "core/stopwatch.c": "1106a0accbf10146538d1eb784e42047132e3e7e9c036d3c3ba58724fde27fa3",
+    "core/stopwatch.h": "bcafeec397fab1cb80521c526fbfff862ff66985a6c38c0a8b4486393d44e670",
+    "core/watch_core.c": "29cf13bec6e4d0b4179f9d5dd5ac69881580d551d064bf5b788e88637e38f001",
+    "core/watch_core.h": "a7d356dd87b52d6d5b1504fec807eb31d93ad66b2ea4e53e67847818920b9875",
+    "ui/runtime/apps.c": "0c0407804bc780ca16e3df2873a03204f33507a9abc5299259aadefe71cdc986",
+    "ui/runtime/apps.h": "d164330295bf1be2f6c5017903b08d29864b4e37afd94b9a31d733642653db66",
+    "ui/runtime/default_watchface.c": "2d1e93d64561a06172ef5cb8e2e5d641bb97cff49100db2ffc015151d022fb4c",
+    "ui/runtime/mount_screen.c": "816f6c8ea74d47712600114488eb9c4458868ea5f39cc4d06dfc61ce490d0e72",
+    "ui/runtime/mount_screen.h": "a0cc649404e2e6016245d49f4ba4a8027bd8e60e1ccea5fddbbf6b6a10ba01f4",
+    "ui/runtime/SConscript": "1a4b37f4d4f4ad48a414cdb81812b8742d2e6b62e5dd5b8432ffa00976faec9e",
+    "ui/runtime/simple_watchface.c": "31c89f9a82a5c0c1add9b5d360ce45e8879cea3d78d0b2cac43f455241ac85fd",
+    "ui/runtime/ui_shell.c": "444af70bcd8abe2fb155168c67115b0fbeedbc8a07ce25b2ae658cc750bb563b",
+    "ui/runtime/ui_shell.h": "ae738bb87fe65bcf88a7595bcbc5fc4cde35115b78cae0bf2f0997266404efe2",
+    "ui/runtime/watchface.h": "1c3c1429b25db784d2f37894c1a5caf81fa6f7136812eae292ab1331430b9606"
+  },
+  "flash": {
+    "board": "sf32lb52-lchspi-ulp",
+    "port": "COM5",
+    "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+    "baudrate": 500000,
+    "exit_code": 0,
+    "verified": true,
+    "source_hashes_checked": 168,
+    "images": [
+      {
+        "file": "bootloader.bin",
+        "address": "0x12010000",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "file": "main.bin",
+        "address": "0x12020000",
+        "bytes": 3072252,
+        "sha256": "e841ab797bb80c8c088134f0eac06a9c88c133a16e4e5617503ddb12d32a4c71"
+      },
+      {
+        "file": "ftab.bin",
+        "address": "0x12000000",
+        "bytes": 11288,
+        "sha256": "bac173fd249938a232fd2198cc89f6762db0e364a90aa80095caebc6ceade1af"
+      }
+    ]
+  },
+  "startup_uart": {
+    "port": "COM5",
+    "baudrate": 1000000,
+    "format": "8N1",
+    "rts_pulse_seconds": 0.15,
+    "transmitted_bytes": 0,
+    "received_bytes": 1920
+  },
+  "user_hardware_feedback": {
+    "timing_and_display_state": "计时和电量数据都会延续",
+    "reconfirmed_navigation_and_fluency": "都试过了，正常，流畅度与上一版相近",
+    "scope": "逐级返回、深层 KEY1 回主页、秒表重入及主观流畅度；电量为演示快照"
+  },
+  "not_verified": [
+    "quantitative drag FPS",
+    "maximum-depth target memory usage",
+    "long-duration stress",
+    "real battery sampling",
+    "persistence across reboot",
+    "BLE",
+    "sleep current"
+  ]
+}

@@ -206,3 +206,9 @@ D:/MY_Desk/project/wristflow/vendor/SiFli-SDK/example/ble/peripheral/project/bui
 当前采用本地同一构建入口、版本校验、实际产物检查、配置/日志/哈希留档。GitHub 工作流调用 Hello、BLE、Bringup 和 UI Demo 四个构建入口；云端结果以实际 Actions 记录为准，不能把本地构建称作 CI 已通过。出现独立业务逻辑时再加入相应 host tests。流程与套餐限制见 [开发流程](../CONTRIBUTING.md)。
 
 2026-09-21 首次全新 Windows runner 已实际完成官方安装和三项编译，全部通过。云端配置与基线一致，BIN 哈希存在跨机器差异；详细版本、产物与运行链接见 [工作流首轮验证](WORKFLOW-EVIDENCE.md)。
+
+## 2026-09-25 页面栈增量
+
+隔离工作区 `C:/Users/13984/.codex/worktrees/ui-shell/wristflow` 的 `codex/page-stack-lifecycle` 使用现有主机构建：`cmake --build artifacts/acceptance-build --parallel 6`、`ctest --test-dir artifacts/acceptance-build --output-on-failure`，最终 6/6 通过。`pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/build-isolated.ps1 -Example ui_demo` 完成官方 SCons UI Demo 编译，记录 `artifacts/ui_demo/20260925-153021-450/result.json`，主 BIN 为 3,072,252 字节、SHA-256 `e841ab797bb80c8c088134f0eac06a9c88c133a16e4e5617503ddb12d32a4c71`。未改构建入口、SDK 锁或公共配置；Hello/BLE/Bringup 沿用基线并由本次 PR 云端工作流复编译。
+
+构建与烧录仍分开。独立助手先校验源文件、镜像、地址和 COM5 CH340 身份，再按此前上板授权写入并 verify；上板证据与用户反馈边界见 [页面栈验证](UI-NAVIGATION.md)。编译和自动启动采样不代替真机交互验收。

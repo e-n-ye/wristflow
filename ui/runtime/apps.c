@@ -112,6 +112,7 @@ static void menu_snap(void *context, int32_t value)
 static void menu_touch(lv_event_t *event)
 {
     wristflow_apps_t *apps = lv_event_get_user_data(event);
+    if (apps->active != WRISTFLOW_SURFACE_LAUNCHER) return;
     lv_indev_t *input = lv_indev_active();
     if (!input) return;
     lv_obj_t *canvas = named(apps->screens[WRISTFLOW_SURFACE_LAUNCHER], "launcher_canvas");
@@ -232,6 +233,7 @@ static void picker_snap_ready(lv_anim_t *animation)
 static void picker_touch(lv_event_t *event)
 {
     wristflow_apps_t *apps = lv_event_get_user_data(event);
+    if (apps->active != WRISTFLOW_SURFACE_FACE_PICKER) return;
     lv_event_code_t code = lv_event_get_code(event);
     if (code != LV_EVENT_PRESSED && code != LV_EVENT_PRESSING &&
         code != LV_EVENT_RELEASED && code != LV_EVENT_PRESS_LOST) return;
@@ -311,6 +313,12 @@ static void control_action(lv_event_t *event)
     wristflow_ui_shell_open(apps->shell, destination);
 }
 
+static void open_battery(lv_event_t *event)
+{
+    wristflow_apps_t *apps = lv_event_get_user_data(event);
+    wristflow_ui_shell_open(apps->shell, WRISTFLOW_SURFACE_SYSTEM);
+}
+
 static void bind_click(lv_obj_t *screen, const char *name, lv_event_cb_t callback, wristflow_apps_t *apps)
 {
     lv_obj_add_event_cb(named(screen, name), callback, LV_EVENT_SHORT_CLICKED, apps);
@@ -340,8 +348,9 @@ wristflow_apps_t *wristflow_apps_create(wristflow_ui_shell_t *shell, lv_obj_t *c
     return apps;
 }
 
-lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surface)
+lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surface, bool *created)
 {
+    if (created) *created = false;
     if (!apps || surface < WRISTFLOW_SURFACE_LAUNCHER || surface >= WRISTFLOW_SURFACE_COUNT)
         return NULL;
     if (apps->screens[surface]) return apps->screens[surface];
@@ -357,7 +366,9 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
     case WRISTFLOW_SURFACE_SYSTEM: root = screen_app_placeholder_create(); break;
     default: return NULL;
     }
+    if (!root) return NULL;
     apps->screens[surface] = root;
+    if (created) *created = true;
     lv_obj_t *header = lv_obj_find_by_name(root, "app_back");
     if (header) lv_obj_add_event_cb(header, back, LV_EVENT_SHORT_CLICKED, apps);
     if (surface == WRISTFLOW_SURFACE_LAUNCHER) {
@@ -389,10 +400,14 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
                             !picker_slot_simple(i));
         }
         lv_obj_add_event_cb(carousel, picker_touch, LV_EVENT_ALL, apps);
+        apps->face_index = strcmp(wristflow_ui_shell_watchface_id(apps->shell), "simple") == 0 ? 1 : 0;
+        apps->picker_slot = apps->face_index == 1 ? 2 : 1;
     } else if (surface == WRISTFLOW_SURFACE_FLASHLIGHT) {
         lv_obj_add_event_cb(root, back, LV_EVENT_SHORT_CLICKED, apps);
     } else if (surface == WRISTFLOW_SURFACE_SETTINGS) {
         lv_obj_add_event_cb(named(root, "settings_brightness"), brightness_changed, LV_EVENT_VALUE_CHANGED, apps);
+        lv_obj_add_flag(named(root, "settings_battery"), LV_OBJ_FLAG_CLICKABLE);
+        bind_click(root, "settings_battery", open_battery, apps);
     } else {
         const char *title = surface == WRISTFLOW_SURFACE_ACTIVITY ? "今日活动" :
                             surface == WRISTFLOW_SURFACE_HEART ? "心率" : "电池";
@@ -404,14 +419,19 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
     return root;
 }
 
-void wristflow_apps_activate(wristflow_apps_t *apps, wristflow_surface_t surface)
+static void stop_view_effects(wristflow_apps_t *apps, wristflow_surface_t surface)
 {
-    if (!apps) return;
-    if (surface != WRISTFLOW_SURFACE_LAUNCHER) lv_anim_delete(apps, menu_snap);
-    if (surface != WRISTFLOW_SURFACE_FACE_PICKER) {
+    if (surface == WRISTFLOW_SURFACE_LAUNCHER) lv_anim_delete(apps, menu_snap);
+    if (surface == WRISTFLOW_SURFACE_FACE_PICKER) {
         lv_anim_delete(apps, picker_snap);
         apps->picker_settling = false;
     }
+}
+
+void wristflow_apps_activate(wristflow_apps_t *apps, wristflow_surface_t surface)
+{
+    if (!apps || apps->active == surface) return;
+    stop_view_effects(apps, apps->active);
     if (apps->brightness_cb && (surface == WRISTFLOW_SURFACE_FLASHLIGHT || apps->active == WRISTFLOW_SURFACE_FLASHLIGHT))
         apps->brightness_cb(surface == WRISTFLOW_SURFACE_FLASHLIGHT ? 100 : apps->brightness, apps->context);
     apps->active = surface;
@@ -430,8 +450,10 @@ void wristflow_apps_activate(wristflow_apps_t *apps, wristflow_surface_t surface
     }
     if (surface == WRISTFLOW_SURFACE_SETTINGS) sync_brightness(apps);
     if (surface == WRISTFLOW_SURFACE_FACE_PICKER) {
-        apps->face_index = strcmp(wristflow_ui_shell_watchface_id(apps->shell), "simple") == 0 ? 1 : 0;
-        apps->picker_slot = apps->face_index == 1 ? 2 : 1;
+        /* Resume a retained parent at the selected slot; a new view starts at
+           the current face. A cancelled snap must not leave it between cards. */
+        if (apps->picker_slot == 0 || apps->picker_slot == 3)
+            apps->picker_slot = apps->picker_slot == 0 ? 2 : 1;
         apps->picker_settling = false;
         lv_obj_scroll_to_x(named(apps->screens[surface], "face_carousel"),
                            (int32_t)apps->picker_slot * 266, LV_ANIM_OFF);
@@ -446,15 +468,32 @@ void wristflow_apps_update(wristflow_apps_t *apps, const wristflow_watch_snapsho
     sync_brightness(apps);
 }
 
+static void release_screen(wristflow_apps_t *apps, wristflow_surface_t surface)
+{
+    lv_obj_t *root = apps->screens[surface];
+    if (!root) return;
+    stop_view_effects(apps, surface);
+    apps->screens[surface] = NULL;
+    if (surface == WRISTFLOW_SURFACE_LAUNCHER)
+        memset(apps->menu_icons, 0, sizeof apps->menu_icons);
+    lv_obj_delete(root);
+}
+
+void wristflow_apps_collect(wristflow_apps_t *apps, const wristflow_navigation_t *navigation)
+{
+    if (!apps) return;
+    for (unsigned int i = WRISTFLOW_SURFACE_STOPWATCH; i < WRISTFLOW_SURFACE_COUNT; ++i)
+        if (!wristflow_navigation_contains(navigation, (wristflow_surface_t)i))
+            release_screen(apps, (wristflow_surface_t)i);
+}
+
 void wristflow_apps_destroy(wristflow_apps_t *apps)
 {
     if (!apps) return;
     if (apps->active == WRISTFLOW_SURFACE_FLASHLIGHT && apps->brightness_cb)
         apps->brightness_cb(apps->brightness, apps->context);
     lv_timer_delete(apps->timer);
-    lv_anim_delete(apps, menu_snap);
-    lv_anim_delete(apps, picker_snap);
     for (unsigned i = 0; i < WRISTFLOW_SURFACE_COUNT; ++i)
-        if (apps->screens[i]) lv_obj_delete(apps->screens[i]);
+        release_screen(apps, (wristflow_surface_t)i);
     lv_free(apps);
 }

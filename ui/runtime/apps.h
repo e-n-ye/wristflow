@@ -5,9 +5,14 @@
 typedef struct wristflow_apps wristflow_apps_t;
 wristflow_apps_t *wristflow_apps_create(wristflow_ui_shell_t *shell, lv_obj_t *controls,
                                       wristflow_brightness_cb_t brightness, void *context);
-/* Screens are lazily created and owned by apps until destroy. */
-lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surface);
+/* Apps is the sole owner of app screens. The shell binds navigation events only
+ * when created is true; callers must not retain a screen after it leaves the path. */
+lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surface, bool *created);
+/* Leave the old view, then enter the new one as its transition starts. */
 void wristflow_apps_activate(wristflow_apps_t *apps, wristflow_surface_t surface);
+/* After LVGL finishes the transition, release views absent from navigation.
+ * Launcher is resident to preserve its browse position; models outlive views. */
+void wristflow_apps_collect(wristflow_apps_t *apps, const wristflow_navigation_t *navigation);
 /* Internal adapter boundary: snapshot is validated and owned by ui_shell. */
 void wristflow_apps_update(wristflow_apps_t *apps, const wristflow_watch_snapshot_t *snapshot);
 void wristflow_apps_destroy(wristflow_apps_t *apps);

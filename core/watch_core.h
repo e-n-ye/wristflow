@@ -24,11 +24,15 @@ typedef enum {
     WRISTFLOW_SURFACE_COUNT
 } wristflow_surface_t;
 
+/* Includes the home root. One instance of each surface may be on the path. */
+#define WRISTFLOW_NAVIGATION_MAX_DEPTH 8U
+
 typedef struct {
     unsigned int page_count;
     unsigned int page_index;
     wristflow_surface_t surface;
-    wristflow_surface_t return_surface;
+    wristflow_surface_t history[WRISTFLOW_NAVIGATION_MAX_DEPTH - 1];
+    unsigned int history_count;
 } wristflow_navigation_t;
 
 bool wristflow_snapshot_valid(const wristflow_watch_snapshot_t *snapshot);
@@ -41,5 +45,6 @@ bool wristflow_navigation_open(wristflow_navigation_t *navigation, wristflow_sur
 void wristflow_navigation_home(wristflow_navigation_t *navigation);
 void wristflow_navigation_key(wristflow_navigation_t *navigation);
 bool wristflow_navigation_back(wristflow_navigation_t *navigation);
+bool wristflow_navigation_contains(const wristflow_navigation_t *navigation, wristflow_surface_t surface);
 
 #endif
