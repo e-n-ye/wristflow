@@ -2,9 +2,11 @@
 
 本页各节结果仅适用于注明的日期与源码版本。最新已记录的 UI 固件为 [页面栈增量](UI-NAVIGATION.md)；当前硬件状态与下一项产品目标见 [STATUS](STATUS.md)。下方早期“没有硬件”“尚未烧录”不是当前全部项目的状态。
 
-## CI 文档快速路径（2026-09-25）
+## 手动 CI 基线（2026-09-25）
 
-纯文档不再安装 SDK 或执行固件/主机测试，`Build baselines` 汇总门禁继续用于分支保护。实现与实测时间对比见 [工作流](DOCUMENTATION-WORKFLOW.md#ci-路径与等待时间)。在 `C:/Users/13984/.codex/worktrees/documentation-sync/wristflow` 运行 `python -m unittest discover -s tests -p test_ci_scope.py -v`，7/7 通过，退出码 0；路由用临时 Git 仓库覆盖文档、图片、删除、源码重命名、PR 分叉、手动触发和无效文本。`git diff --check`、变更 Markdown 的 UTF-8/相对文件链接及 Bash 门禁的代表性成功/失败分支检查通过；原文档提交 `1841d73` 相对 `87c81c3` 被识别为纯文档。本次未改构建脚本/SDK 配置，不重复本地固件构建；工作流变更由 PR 最新 HEAD 的完整云端基线验证，状态以实际 Actions 为准。没有新增硬件运行证据。
+工作流只响应手动 `workflow_dispatch`，执行完整 SDK 安装、Hello/BLE/Bringup/UI Demo 和 PC UI 测试。PR 与 push 不触发云端构建，也不要求 `Build baselines` 状态检查；日常使用本地命令和真机证据。完整运行约 11 分钟，需在 SDK、工具链、公共构建入口变更或阶段验收时手动启动，并记录运行对应的 HEAD、命令、产物和失败位置。本次仅修改 CI 触发策略与文档，未新增固件或硬件证据。
+
+在 `C:/Users/13984/.codex/worktrees/product-runtime/wristflow` 核对唯一事件为 `workflow_dispatch`，Windows 完整构建步骤与 `40e7658` 完全一致；变更 Markdown 的 UTF-8/相对文件链接和 `git diff --check` 通过。GitHub API 删除 main 的 `required_status_checks` 后读回为 null，PR 要求、管理员约束和禁止强推/删除仍保留。没有为此次触发策略调整再次执行完整构建。
 
 ## 触摸修正增量（2026-09-25）
 

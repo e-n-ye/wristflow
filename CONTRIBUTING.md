@@ -8,10 +8,10 @@
 2. 在 VS Code 修改项目文件，运行对应的 `WristFlow: Build ...` 任务；修改构建入口、SDK 锁或公共配置时验证 Hello、BLE、Bringup 三项。
 3. 按 [文档同步工作流](docs/DOCUMENTATION-WORKFLOW.md) 检查本次行为、决策和验证证据的记录；短小更新由主代理直接完成。审阅代码与文档差异后，提交明确范围的文件并推送分支。不要提交 `.tools/`、日常 `artifacts/`、构建目录或凭据。
 4. 创建面向 `main` 的 PR，按模板记录源码检查、编译证据、硬件验证及剩余风险。
-5. CI 异步运行；推送后可在独立工作树推进下一项有界工作，无需停止开发等构建。待检查提交保持不变；若修改它，旧结果不能验收新 HEAD。合并前核对最新提交的 `Firmware / Build baselines` 成功，检查差异后使用 Rebase and merge；失败先修复，不把本地通过替代云端结果。
+5. CI 不随 PR 或 push 自动运行。日常检查最终差异和与当前源码对应的本地编译、主机测试及必要的真机证据，再使用 Rebase and merge。需要干净环境证据时，在 Actions 的 `Firmware` 工作流中选择分支手动运行 `Build baselines`，并把对应提交和结果写入 PR。不要为了等待手动 CI 停止开发。
 6. 合并后核对 PR 和最新提交状态，按文档同步工作流保留交接记录，再同步 `main`、另开下一项分支。存在未提交改动时保留原工作树并在隔离工作树继续。不直接向 `main` 推送日常修改，不强推。
 
-首次基线初始化是上述分支流程的唯一初始例外。main 已启用服务端保护：必须通过 PR，要求最新基线上的 `Build baselines` 成功；管理员也受约束，禁止强推和删除。个人项目不要求额外审批人数，但合并前仍须检查差异。
+首次基线初始化是上述分支流程的唯一初始例外。main 仍要求通过 PR，禁止强推和删除；不再要求自动 CI 状态，因为工作流只响应手动触发。个人项目不要求额外审批人数，但合并前仍须检查差异。
 
 2026-09-21 最初私有仓库分支保护请求返回 HTTP 403 套餐限制；用户随后明确选择公开，已切换并成功启用保护，未升级套餐。
 
@@ -38,17 +38,17 @@ fi
 "$gh_bin" auth status
 ```
 
-认证失败应处理登录，不重复安装。PR 使用 `"$gh_bin" pr create --base main --head <branch> --title '<title>' --body-file <UTF-8文件>`；正文通过文件传递，避免多层 shell 转义。创建后使用 `pr view <编号> --json url,headRefOid,statusCheckRollup` 和 `pr checks <编号> --required` 查询，确认检查对应最新提交且必需构建成功，再按上述流程 Rebase 合入。不要输出或保存认证令牌。
+认证失败应处理登录，不重复安装。PR 使用 `"$gh_bin" pr create --base main --head <branch> --title '<title>' --body-file <UTF-8文件>`；正文通过文件传递，避免多层 shell 转义。创建后使用 `pr view <编号> --json url,headRefOid,statusCheckRollup` 查询；需要云端证据时手动 dispatch 工作流并确认结果对应最新提交，再按上述流程 Rebase 合入。不要输出或保存认证令牌。
 
 本节变更只做文档检查和 CLI 只读核验，不新增本机固件编译或硬件证据。下一次 PR 沿用解析后的路径，验证创建及最新提交检查查询；`.tools/` 二进制不提交，其他机器不假设拥有此版本目录。
 
 ## 最小云端检查
 
-`.github/workflows/build.yml` 在 PR、main 推送和手动触发时先比较变更范围。纯文档变更只在 Ubuntu runner 上分类并检查变更 Markdown 的编码/冲突标记，跳过全部固件与主机测试；源码、构建入口、SDK 锁、公共配置或工作流变更，以及手动触发，才使用 Windows Server 2022 runner，递归取得固定 SDK，安装 uv 0.11.21，调用官方 SDK 安装包装器，再编译 Hello、BLE、Bringup、UI Demo 四个目标及执行 PC UI 主机测试。
+`.github/workflows/build.yml` 只响应 `workflow_dispatch`，在 Windows Server 2022 runner 上递归取得固定 SDK，安装 uv 0.11.21，调用官方 SDK 安装包装器，再编译 Hello、BLE、Bringup、UI Demo 四个目标及执行 PC UI 主机测试。
 
-必需的 `Build baselines` 现在是汇总门禁：分类必须成功；纯文档时固件作业应为 skipped，其他情况必须成功。分类失败、完整构建失败或取消不能因跳过作业而通过。纯文档白名单、比较语义与实测耗时见 [文档同步工作流](docs/DOCUMENTATION-WORKFLOW.md#ci-路径与等待时间)。文档内容是否与实现同步仍需主代理审阅，编码检查不能代替语义核对。
+`Build baselines` 是按需的完整基线，不是 PR 的必需状态检查。它用于 SDK、工具链、公共构建入口变更和阶段验收；日常文档与 UI 迭代不因没有云端运行而阻塞。文档内容是否与实现同步仍需主代理审阅。
 
-新 runner 首次安装需要网络；日常构建沿用已安装 Python 的离线检查与环境导出。暂不缓存整个 SDK 环境，避免依赖安装路径的状态文件跨机器复用。完整基线单次作业限时 45 分钟，证据 artifact 保留 14 天，失败也尝试上传安装和构建记录；纯文档路径不安装 SDK。固件本体不自动发布；记录包含固件哈希、配置及版本。
+新 runner 每次安装需要网络；安装后的构建步骤沿用已安装 Python 的离线检查与环境导出，本机日常构建复用现有环境。暂不缓存整个 SDK 环境，避免依赖安装路径的状态文件跨机器复用。完整基线单次作业限时 45 分钟，证据 artifact 保留 14 天；固件本体不自动发布，记录包含固件哈希、配置及版本。
 
 这只验证安装与编译链接，不执行烧录，也不证明显示、BLE、休眠或续航。本轮使用 GitHub 托管标准 runner，不启用付费或修改账单。
 

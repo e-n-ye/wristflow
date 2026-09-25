@@ -6,7 +6,7 @@ Describe the problem and resulting behavior.
 
 - Source inspection:
 - Local build commands and results:
-- GitHub Actions run:
+- Manual GitHub Actions run (when needed; otherwise not run):
 - Hardware verification: not performed unless explicitly recorded.
 - Documentation sync: affected documents and evidence links, or why no update is needed (see docs/DOCUMENTATION-WORKFLOW.md).
 
