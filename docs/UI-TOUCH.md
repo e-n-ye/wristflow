@@ -67,4 +67,6 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/build-isolated.ps1 -Exam
 
 随后接收 COM5 三分钟，不复位、不发送 UART 数据；`artifacts/hardware/20260925-145650-ui-perf/` 未收到新输出，不能给出菜单持续拖动帧率或亮度拖动耗时。修正版已留在板上。下一次有用户操作时接收同一 `[ui_perf]` 日志即可，无需为了采样再次烧录。
 
-精简 [构建与烧录记录](evidence/2026-09-25-ui-touch/build-and-flash.json) 和 [启动 UART](evidence/2026-09-25-ui-touch/startup-uart.txt) 随源码保存。板上主观交互未验收，PR 保留这一限制。
+精简 [构建与烧录记录](evidence/2026-09-25-ui-touch/build-and-flash.json) 和 [启动 UART](evidence/2026-09-25-ui-touch/startup-uart.txt) 随源码保存。
+
+后续用户反馈：“明显改善，但是现在app还太少，界面显得单薄，和apple那种效果无法比较”。记录为本轮修正版整体跟手体验的主观改善，不扩大为所有交互逐项通过或达到特定 FPS。当前保留蜂窝，不触发三列回退；本轮性能专项仍已结束。只有七个入口会限制视觉密度，当前仅改变圆背景大小也不同于完整图标缩放；增加真实应用和后续布局/动效打磨共同影响最终效果。这条反馈不视为授权为凑数量新增产品功能。
