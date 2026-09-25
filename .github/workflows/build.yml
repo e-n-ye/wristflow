@@ -15,8 +15,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: Build baselines
+  change-scope:
+    name: Change scope
+    runs-on: ubuntu-latest
+    outputs:
+      docs_only: ${{ steps.scope.outputs.docs_only }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Classify changes and check Markdown encoding
+        id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: python3 scripts/check_documentation.py
+      - name: Test CI routing
+        if: steps.scope.outputs.docs_only == 'false'
+        run: python3 -m unittest discover -s tests -p test_ci_scope.py
+
+  firmware:
+    name: Firmware and host tests
+    needs: change-scope
+    if: needs.change-scope.outputs.docs_only == 'false'
     runs-on: windows-2022
     timeout-minutes: 45
     defaults:
@@ -57,3 +79,23 @@ jobs:
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 14
+
+  build:
+    name: Build baselines
+    if: always()
+    needs: [change-scope, firmware]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify required results
+        env:
+          SCOPE_RESULT: ${{ needs.change-scope.result }}
+          DOCS_ONLY: ${{ needs.change-scope.outputs.docs_only }}
+          FIRMWARE_RESULT: ${{ needs.firmware.result }}
+        run: |
+          test "$SCOPE_RESULT" = success
+          if [ "$DOCS_ONLY" = true ]; then
+            test "$FIRMWARE_RESULT" = skipped
+            echo "Documentation only; no firmware or host tests required."
+          else
+            test "$FIRMWARE_RESULT" = success
+          fi
