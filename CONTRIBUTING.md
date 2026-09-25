@@ -6,10 +6,10 @@
 
 1. 从最新 `main` 建立 `codex/<主题>` 小分支，每个 PR 只处理一个实验或修复。
 2. 在 VS Code 修改项目文件，运行对应的 `WristFlow: Build ...` 任务；修改构建入口、SDK 锁或公共配置时验证 Hello、BLE、Bringup 三项。
-3. 检查差异，提交明确范围的文件并推送分支。不要提交 `.tools/`、日常 `artifacts/`、构建目录或凭据。
+3. 按 [文档同步工作流](docs/DOCUMENTATION-WORKFLOW.md) 检查本次行为、决策和验证证据的记录；短小更新由主代理直接完成。审阅代码与文档差异后，提交明确范围的文件并推送分支。不要提交 `.tools/`、日常 `artifacts/`、构建目录或凭据。
 4. 创建面向 `main` 的 PR，按模板记录源码检查、编译证据、硬件验证及剩余风险。
 5. 等待最新提交的 `Firmware / Build baselines` 成功，检查差异后使用 Rebase and merge。失败先修复，不把本地通过替代云端结果。
-6. 合并后同步 `main`，下一项实验另开分支。不直接向 `main` 推送日常修改，不强推。
+6. 合并后核对 PR 和最新提交状态，按文档同步工作流保留交接记录，再同步 `main`、另开下一项分支。存在未提交改动时保留原工作树并在隔离工作树继续。不直接向 `main` 推送日常修改，不强推。
 
 首次基线初始化是上述分支流程的唯一初始例外。main 已启用服务端保护：必须通过 PR，要求最新基线上的 `Build baselines` 成功；管理员也受约束，禁止强推和删除。个人项目不要求额外审批人数，但合并前仍须检查差异。
 
@@ -44,7 +44,7 @@ fi
 
 ## 最小云端检查
 
-`.github/workflows/build.yml` 在 PR、main 推送和手动触发时使用 Windows Server 2022 runner，递归取得固定 SDK，安装 uv 0.11.21，调用官方 SDK 安装包装器，再顺序编译三个基线。
+`.github/workflows/build.yml` 在 PR、main 推送和手动触发时使用 Windows Server 2022 runner，递归取得固定 SDK，安装 uv 0.11.21，调用官方 SDK 安装包装器，再编译 Hello、BLE、Bringup、UI Demo 四个目标及执行 PC UI 主机测试。
 
 新 runner 首次安装需要网络；日常构建沿用已安装 Python 的离线检查与环境导出。暂不缓存整个 SDK 环境，避免依赖安装路径的状态文件跨机器复用。单次作业限时 45 分钟，证据 artifact 保留 14 天，失败也尝试上传安装和构建记录。固件本体不自动发布；记录包含固件哈希、配置及版本。
 
