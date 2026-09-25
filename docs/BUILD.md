@@ -2,6 +2,10 @@
 
 本页各节结果仅适用于注明的日期与源码版本。最新已记录的 UI 固件为 [页面栈增量](UI-NAVIGATION.md)；当前硬件状态与下一项产品目标见 [STATUS](STATUS.md)。下方早期“没有硬件”“尚未烧录”不是当前全部项目的状态。
 
+## CI 文档快速路径（2026-09-25）
+
+纯文档不再安装 SDK 或执行固件/主机测试，`Build baselines` 汇总门禁继续用于分支保护。实现与实测时间对比见 [工作流](DOCUMENTATION-WORKFLOW.md#ci-路径与等待时间)。在 `C:/Users/13984/.codex/worktrees/documentation-sync/wristflow` 运行 `python -m unittest discover -s tests -p test_ci_scope.py -v`，7/7 通过，退出码 0；路由用临时 Git 仓库覆盖文档、图片、删除、源码重命名、PR 分叉、手动触发和无效文本。`git diff --check`、变更 Markdown 的 UTF-8/相对文件链接及 Bash 门禁的代表性成功/失败分支检查通过；原文档提交 `1841d73` 相对 `87c81c3` 被识别为纯文档。本次未改构建脚本/SDK 配置，不重复本地固件构建；工作流变更由 PR 最新 HEAD 的完整云端基线验证，状态以实际 Actions 为准。没有新增硬件运行证据。
+
 ## 触摸修正增量（2026-09-25）
 
 6/6 主机测试、官方 XML GUI 导出及 UI Demo 本机 SCons 编译通过。14:55 使用独立烧录助手向已确认的 COM5 写入并校验成功，启动串口已有 UI 耗时样本；构建脚本未增加烧录。命令、固件哈希、调度证据、测量限制及剩余验收见 [触摸修正与调度核验](UI-TOUCH.md)。下方菜单/应用与早期记录按各自版本理解。
