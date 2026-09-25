@@ -19,5 +19,6 @@ typedef struct {
 } wristflow_watchface_t;
 
 extern const wristflow_watchface_t wristflow_default_watchface;
+extern const wristflow_watchface_t wristflow_simple_watchface;
 
 #endif

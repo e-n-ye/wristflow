@@ -1,6 +1,6 @@
 # PC 交互验收
 
-日期：2026-09-23。本机 Windows，固定 SDK 内的 LVGL 9.4.0。硬件尚未验证。
+更新：2026-09-25。本机 Windows，固定 SDK 内的 LVGL 9.4.0。本版硬件尚未验证。最新菜单、秒表、长按换表盘和亮度操作见 [菜单与应用验收](UI-APPS.md)；下方原轮播验证保留为 2026-09-23 历史记录。
 
 ## 启动
 
@@ -10,7 +10,7 @@
 pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Simulate.ps1
 ```
 
-脚本检查 SDK 锁定状态，配置并构建主机程序、运行五项 CTest，然后打开 **WristFlow - LVGL Simulator**。只编译与测试可加 `-BuildOnly`。再次构建前关闭已有模拟器窗口；脚本不会结束用户正在操作的窗口，也不会烧录。2026-09-24 新增的框架边界和验证见 [UI 运行框架](UI-RUNTIME.md)，下文 2026-09-23 验证记录保留为历史证据。
+脚本检查 SDK 锁定状态，配置并构建主机程序、运行六项 CTest，然后打开 **WristFlow - LVGL Simulator**。只编译与测试可加 `-BuildOnly`。再次构建前关闭已有模拟器窗口；脚本不会结束用户正在操作的窗口，也不会烧录。2026-09-24 新增的框架边界和验证见 [UI 运行框架](UI-RUNTIME.md)，下文 2026-09-23 验证记录保留为历史证据。
 
 本机依赖为 PowerShell 7、CMake 3.31.4、Ninja、MSYS2 UCRT64 GCC 15.2.0；默认主机工具目录 `D:/msys64/ucrt64/bin`，其他安装位置用 `-HostTools` 指定。沿用项目已有任务中的 PowerShell/Git 路径，其他机器须按实际安装调整。程序逻辑分辨率为 390×450，Windows 的显示缩放会改变窗口的物理像素大小。
 

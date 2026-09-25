@@ -12,13 +12,23 @@ typedef struct {
 
 typedef enum {
     WRISTFLOW_SURFACE_HOME,
-    WRISTFLOW_SURFACE_CONTROLS
+    WRISTFLOW_SURFACE_CONTROLS,
+    WRISTFLOW_SURFACE_LAUNCHER,
+    WRISTFLOW_SURFACE_STOPWATCH,
+    WRISTFLOW_SURFACE_FACE_PICKER,
+    WRISTFLOW_SURFACE_FLASHLIGHT,
+    WRISTFLOW_SURFACE_SETTINGS,
+    WRISTFLOW_SURFACE_ACTIVITY,
+    WRISTFLOW_SURFACE_HEART,
+    WRISTFLOW_SURFACE_SYSTEM,
+    WRISTFLOW_SURFACE_COUNT
 } wristflow_surface_t;
 
 typedef struct {
     unsigned int page_count;
     unsigned int page_index;
     wristflow_surface_t surface;
+    wristflow_surface_t return_surface;
 } wristflow_navigation_t;
 
 bool wristflow_snapshot_valid(const wristflow_watch_snapshot_t *snapshot);
@@ -27,5 +37,9 @@ bool wristflow_navigation_init(wristflow_navigation_t *navigation, unsigned int 
 bool wristflow_navigation_commit_page(wristflow_navigation_t *navigation, unsigned int page);
 bool wristflow_navigation_open_controls(wristflow_navigation_t *navigation);
 bool wristflow_navigation_close_controls(wristflow_navigation_t *navigation);
+bool wristflow_navigation_open(wristflow_navigation_t *navigation, wristflow_surface_t surface);
+void wristflow_navigation_home(wristflow_navigation_t *navigation);
+void wristflow_navigation_key(wristflow_navigation_t *navigation);
+bool wristflow_navigation_back(wristflow_navigation_t *navigation);
 
 #endif

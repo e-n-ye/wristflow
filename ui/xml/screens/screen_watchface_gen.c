@@ -49,7 +49,7 @@ lv_obj_t * screen_watchface_create(void)
         lv_obj_set_style_border_width(lv_obj_0, 0, 0);
         lv_obj_set_style_pad_all(lv_obj_0, 0, 0);
         lv_obj_set_style_radius(lv_obj_0, 0, 0);
-        lv_obj_set_style_text_color(lv_obj_0, lv_color_hex(0xc0f4ff), 0);
+        lv_obj_set_style_text_color(lv_obj_0, lv_color_hex(0xffffff), 0);
         lv_obj_set_style_text_font(lv_obj_0, body_20, 0);
 
         lv_obj_t * battery_icon = lv_label_create(lv_obj_0);

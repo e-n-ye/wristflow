@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 static lv_indev_data_t pointer_data;
+static lv_indev_data_t key_data;
 static uint32_t ticks;
 static lv_obj_t *carousel;
 static uint8_t draw_buffer[390 * 40 * 4];
@@ -39,6 +40,11 @@ static void flush(lv_display_t *display, const lv_area_t *area, uint8_t *pixels)
 }
 
 static uint32_t tick(void) { return ticks; }
+static void read_key(lv_indev_t *input, lv_indev_data_t *data)
+{
+    (void)input;
+    *data = key_data;
+}
 static void read_pointer(lv_indev_t *input, lv_indev_data_t *data)
 {
     (void)input;
@@ -229,7 +235,39 @@ int main(int argc, char **argv)
         swipe(input, 100, 140, 100, 340);
         assert(lv_screen_active() == face);
     }
-    puts("PASS: fixed indicators, live drag, short-drag cancellation, half-page commit, fling, both loop boundaries, control center and slider");
+    lv_indev_t *keypad = lv_indev_create();
+    lv_indev_set_type(keypad, LV_INDEV_TYPE_KEYPAD);
+    lv_indev_set_read_cb(keypad, read_key);
+    lv_group_t *group = lv_group_create();
+    lv_obj_t *target = lv_obj_create(lv_layer_top());
+    lv_obj_set_size(target, 1, 1);
+    lv_obj_set_style_opa(target, LV_OPA_TRANSP, 0);
+    lv_obj_add_event_cb(target, wristflow_demo_keyboard, LV_EVENT_KEY, NULL);
+    lv_group_add_obj(group, target);
+    lv_indev_set_group(keypad, group);
+    key_data.key = LV_KEY_ENTER;
+    key_data.state = LV_INDEV_STATE_PRESSED;
+    settle();
+    lv_obj_t *launcher = lv_screen_active();
+    assert(lv_obj_find_by_name(launcher, "launcher_scroll"));
+    settle();
+    assert(lv_screen_active() == launcher);
+    key_data.state = LV_INDEV_STATE_RELEASED;
+    settle();
+    key_data.key = LV_KEY_ESC;
+    key_data.state = LV_INDEV_STATE_PRESSED;
+    settle();
+    assert(lv_screen_active() == face);
+    key_data.state = LV_INDEV_STATE_RELEASED;
+    settle();
+    key_data.key = LV_KEY_ENTER;
+    key_data.state = LV_INDEV_STATE_PRESSED;
+    settle();
+    assert(lv_screen_active() == launcher);
+    lv_indev_delete(keypad);
+    lv_group_delete(group);
+    lv_obj_delete(target);
+    puts("PASS: carousel gestures, indicators, controls, keyboard menu/back and held-key suppression");
     wristflow_demo_stop();
     lv_deinit();
     return 0;

@@ -1,5 +1,6 @@
 #include "ui_shell.h"
 #include "mount_screen.h"
+#include "apps.h"
 
 #define PAGE_WIDTH 390
 #define PAGE_HEIGHT 450
@@ -15,6 +16,8 @@ struct wristflow_ui_shell {
     lv_obj_t *home;
     lv_obj_t *carousel;
     lv_obj_t *controls;
+    lv_obj_t *screens[WRISTFLOW_SURFACE_COUNT];
+    wristflow_apps_t *apps;
     lv_obj_t **indicators;
     page_slot_t *slots;
     const wristflow_watchface_t *watchface;
@@ -23,7 +26,18 @@ struct wristflow_ui_shell {
     bool recentering;
     bool transitioning;
     bool ready;
+    bool edge_press;
 };
+
+static void gesture(lv_event_t *event);
+static void face_long_press(lv_event_t *event);
+
+static void bubble_events(lv_obj_t *obj)
+{
+    lv_obj_add_flag(obj, LV_OBJ_FLAG_EVENT_BUBBLE);
+    for (uint32_t i = 0; i < lv_obj_get_child_count(obj); ++i)
+        bubble_events(lv_obj_get_child(obj, i));
+}
 
 static unsigned int slot_count(const wristflow_ui_shell_t *shell)
 {
@@ -88,9 +102,92 @@ static void screen_loaded(lv_event_t *event)
 
 static void transition(wristflow_ui_shell_t *shell, lv_obj_t *screen, lv_screen_load_anim_t animation)
 {
+    wristflow_apps_activate(shell->apps, shell->navigation.surface);
     shell->transitioning = true;
     sync_visibility(shell);
     lv_screen_load_anim(screen, animation, 180, 0, false);
+}
+
+static void app_pressed(lv_event_t *event)
+{
+    wristflow_ui_shell_t *shell = lv_event_get_user_data(event);
+    lv_indev_t *input = lv_indev_active();
+    lv_point_t point;
+    if (input) {
+        lv_indev_get_point(input, &point);
+        shell->edge_press = point.x <= 40;
+    }
+}
+
+static bool load_surface(wristflow_ui_shell_t *shell)
+{
+    wristflow_surface_t surface = shell->navigation.surface;
+    if (!shell->screens[surface]) {
+        lv_obj_t *screen = wristflow_apps_screen(shell->apps, surface);
+        if (!screen) return false;
+        shell->screens[surface] = screen;
+        bubble_events(screen);
+        lv_obj_add_event_cb(screen, screen_loaded, LV_EVENT_SCREEN_LOADED, shell);
+        lv_obj_add_event_cb(screen, app_pressed, LV_EVENT_PRESSED, shell);
+        lv_obj_add_event_cb(screen, gesture, LV_EVENT_GESTURE, shell);
+    }
+    if (surface == WRISTFLOW_SURFACE_HOME) {
+        shell->recentering = true;
+        lv_obj_scroll_to_x(shell->carousel, PAGE_WIDTH, LV_ANIM_OFF);
+        shell->recentering = false;
+        for (unsigned i = 0; i < shell->navigation.page_count; ++i)
+            if (shell->indicators[i]) lv_obj_add_flag(shell->indicators[i], LV_OBJ_FLAG_HIDDEN);
+    }
+    shell->edge_press = false;
+    if (lv_screen_active() == shell->screens[surface]) {
+        wristflow_apps_activate(shell->apps, surface);
+        sync_visibility(shell);
+    } else {
+        transition(shell, shell->screens[surface], LV_SCR_LOAD_ANIM_FADE_IN);
+    }
+    return true;
+}
+
+bool wristflow_ui_shell_open(wristflow_ui_shell_t *shell, wristflow_surface_t surface)
+{
+    if (!shell || !shell->apps || shell->transitioning) return false;
+    if (shell->navigation.surface == WRISTFLOW_SURFACE_HOME &&
+        (lv_obj_is_scrolling(shell->carousel) || lv_obj_get_scroll_x(shell->carousel) != PAGE_WIDTH))
+        return false;
+    wristflow_navigation_t previous = shell->navigation;
+    if (!wristflow_navigation_open(&shell->navigation, surface)) return false;
+    if (load_surface(shell)) return true;
+    shell->navigation = previous;
+    return false;
+}
+
+bool wristflow_ui_shell_home(wristflow_ui_shell_t *shell)
+{
+    if (!shell || shell->transitioning) return false;
+    wristflow_navigation_home(&shell->navigation);
+    return load_surface(shell);
+}
+
+bool wristflow_ui_shell_key(wristflow_ui_shell_t *shell)
+{
+    if (!shell || !shell->apps || shell->transitioning || lv_obj_is_scrolling(shell->carousel)) return false;
+    wristflow_navigation_key(&shell->navigation);
+    return load_surface(shell);
+}
+
+bool wristflow_ui_shell_back(wristflow_ui_shell_t *shell)
+{
+    if (!shell || shell->transitioning || !wristflow_navigation_back(&shell->navigation)) return false;
+    return load_surface(shell);
+}
+
+static void face_long_press(lv_event_t *event)
+{
+    wristflow_ui_shell_t *shell = lv_event_get_user_data(event);
+    if (wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_FACE_PICKER)) {
+        lv_indev_t *input = lv_indev_active();
+        if (input) lv_indev_wait_release(input);
+    }
 }
 
 bool wristflow_ui_shell_open_controls(wristflow_ui_shell_t *shell)
@@ -118,7 +215,10 @@ static void gesture(lv_event_t *event)
     if (!input)
         return;
     lv_dir_t direction = lv_indev_get_gesture_dir(input);
-    if (direction == LV_DIR_BOTTOM)
+    if (shell->navigation.surface >= WRISTFLOW_SURFACE_STOPWATCH) {
+        if (direction == LV_DIR_RIGHT && shell->edge_press)
+            wristflow_ui_shell_back(shell);
+    } else if (direction == LV_DIR_BOTTOM)
         wristflow_ui_shell_close_controls(shell);
     else if (direction == LV_DIR_TOP)
         wristflow_ui_shell_open_controls(shell);
@@ -154,6 +254,8 @@ bool wristflow_ui_shell_set_watchface(wristflow_ui_shell_t *shell,
             return false;
         }
         watchface->update(slot->pending_face, &shell->snapshot);
+        bubble_events(slot->pending_face);
+        lv_obj_add_event_cb(slot->pending_face, face_long_press, LV_EVENT_LONG_PRESSED, shell);
         if (watchface->set_visible)
             watchface->set_visible(slot->pending_face, false);
     }
@@ -179,6 +281,7 @@ bool wristflow_ui_shell_update(wristflow_ui_shell_t *shell,
     if (!shell || !wristflow_snapshot_valid(snapshot))
         return false;
     shell->snapshot = *snapshot;
+    wristflow_apps_update(shell->apps, snapshot);
     for (unsigned int i = 0; i < slot_count(shell); ++i)
         if (shell->slots[i].face)
             shell->watchface->update(shell->slots[i].face, &shell->snapshot);
@@ -255,6 +358,12 @@ wristflow_ui_shell_t *wristflow_ui_shell_create(const wristflow_ui_shell_config_
         return NULL;
     }
     shell->controls = config->controls();
+    shell->screens[WRISTFLOW_SURFACE_HOME] = shell->home;
+    shell->screens[WRISTFLOW_SURFACE_CONTROLS] = shell->controls;
+    if (config->enable_apps) {
+        shell->apps = wristflow_apps_create(shell, shell->controls, config->set_brightness, config->platform_context);
+        wristflow_apps_update(shell->apps, &shell->snapshot);
+    }
     lv_obj_add_event_cb(shell->home, gesture, LV_EVENT_GESTURE, shell);
     lv_obj_add_event_cb(shell->controls, gesture, LV_EVENT_GESTURE, shell);
     lv_obj_add_event_cb(shell->home, screen_loaded, LV_EVENT_SCREEN_LOADED, shell);
@@ -277,6 +386,7 @@ void wristflow_ui_shell_destroy(wristflow_ui_shell_t *shell)
     sync_visibility(shell);
     /* Loading without animation completes/cancels any pending LVGL screen load. */
     lv_screen_load(lv_obj_create(NULL));
+    wristflow_apps_destroy(shell->apps);
     for (unsigned int i = 0; i < slot_count(shell); ++i)
         if (shell->slots[i].face)
             destroy_face(shell->watchface, shell->slots[i].face);

@@ -1,0 +1,10 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="body_20" style_text_color="#fg_primary">
+        <app_header title="显示" />
+        <lv_label x="30" y="100" text="亮度" style_text_font="title_24" />
+        <lv_label name="settings_brightness_value" x="244" y="95" width="116" text="60%" style_text_font="value_36" style_text_align="right" />
+        <lv_slider name="settings_brightness" x="42" y="181" width="306" height="20" value="60" min_value="10" max_value="100" style_bg_color="#bg_surface_subtle" />
+        <lv_label x="30" y="270" text="电池" style_text_font="title_24" />
+        <lv_label name="settings_battery" x="244" y="264" width="116" text="53%" style_text_font="value_36" style_text_align="right" />
+    </view>
+</screen>
