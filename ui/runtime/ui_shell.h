@@ -32,6 +32,9 @@ bool wristflow_ui_shell_set_watchface(wristflow_ui_shell_t *shell,
                                     const wristflow_watchface_t *watchface);
 bool wristflow_ui_shell_open_controls(wristflow_ui_shell_t *shell);
 bool wristflow_ui_shell_close_controls(wristflow_ui_shell_t *shell);
+/* Push a distinct application on the bounded navigation path. Back pops one;
+ * home/key clears the path. Nonresident views are freed after the transition,
+ * while parent views and app models survive. Calls during a transition fail. */
 bool wristflow_ui_shell_open(wristflow_ui_shell_t *shell, wristflow_surface_t surface);
 bool wristflow_ui_shell_back(wristflow_ui_shell_t *shell);
 bool wristflow_ui_shell_key(wristflow_ui_shell_t *shell);

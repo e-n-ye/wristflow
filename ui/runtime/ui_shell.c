@@ -16,7 +16,7 @@ struct wristflow_ui_shell {
     lv_obj_t *home;
     lv_obj_t *carousel;
     lv_obj_t *controls;
-    lv_obj_t *screens[WRISTFLOW_SURFACE_COUNT];
+    lv_timer_t *cleanup_timer;
     wristflow_apps_t *apps;
     lv_obj_t **indicators;
     page_slot_t *slots;
@@ -93,11 +93,28 @@ static void scroll_event(lv_event_t *event)
     sync_visibility(shell);
 }
 
+static void finish_transition(lv_timer_t *timer)
+{
+    wristflow_ui_shell_t *shell = lv_timer_get_user_data(timer);
+    /* SCREEN_LOADED runs before LVGL clears prev_scr. Wait until that entire
+       callback has returned before releasing any outgoing view. */
+    if (lv_display_get_screen_prev(NULL)) return;
+    lv_timer_pause(timer);
+    wristflow_apps_collect(shell->apps, &shell->navigation);
+    shell->transitioning = false;
+    sync_visibility(shell);
+}
+
 static void screen_loaded(lv_event_t *event)
 {
     wristflow_ui_shell_t *shell = lv_event_get_user_data(event);
-    shell->transitioning = false;
-    sync_visibility(shell);
+    if (!shell->ready) return;
+    if (shell->transitioning) {
+        lv_timer_reset(shell->cleanup_timer);
+        lv_timer_resume(shell->cleanup_timer);
+    } else {
+        sync_visibility(shell);
+    }
 }
 
 static void transition(wristflow_ui_shell_t *shell, lv_obj_t *screen, lv_screen_load_anim_t animation)
@@ -122,14 +139,18 @@ static void app_pressed(lv_event_t *event)
 static bool load_surface(wristflow_ui_shell_t *shell)
 {
     wristflow_surface_t surface = shell->navigation.surface;
-    if (!shell->screens[surface]) {
-        lv_obj_t *screen = wristflow_apps_screen(shell->apps, surface);
+    lv_obj_t *screen = surface == WRISTFLOW_SURFACE_HOME ? shell->home :
+                       surface == WRISTFLOW_SURFACE_CONTROLS ? shell->controls : NULL;
+    if (!screen) {
+        bool created;
+        screen = wristflow_apps_screen(shell->apps, surface, &created);
         if (!screen) return false;
-        shell->screens[surface] = screen;
-        bubble_events(screen);
-        lv_obj_add_event_cb(screen, screen_loaded, LV_EVENT_SCREEN_LOADED, shell);
-        lv_obj_add_event_cb(screen, app_pressed, LV_EVENT_PRESSED, shell);
-        lv_obj_add_event_cb(screen, gesture, LV_EVENT_GESTURE, shell);
+        if (created) {
+            bubble_events(screen);
+            lv_obj_add_event_cb(screen, screen_loaded, LV_EVENT_SCREEN_LOADED, shell);
+            lv_obj_add_event_cb(screen, app_pressed, LV_EVENT_PRESSED, shell);
+            lv_obj_add_event_cb(screen, gesture, LV_EVENT_GESTURE, shell);
+        }
     }
     if (surface == WRISTFLOW_SURFACE_HOME) {
         shell->recentering = true;
@@ -139,11 +160,12 @@ static bool load_surface(wristflow_ui_shell_t *shell)
             if (shell->indicators[i]) lv_obj_add_flag(shell->indicators[i], LV_OBJ_FLAG_HIDDEN);
     }
     shell->edge_press = false;
-    if (lv_screen_active() == shell->screens[surface]) {
+    if (lv_screen_active() == screen) {
         wristflow_apps_activate(shell->apps, surface);
+        wristflow_apps_collect(shell->apps, &shell->navigation);
         sync_visibility(shell);
     } else {
-        transition(shell, shell->screens[surface], LV_SCR_LOAD_ANIM_FADE_IN);
+        transition(shell, screen, LV_SCR_LOAD_ANIM_FADE_IN);
     }
     return true;
 }
@@ -171,14 +193,21 @@ bool wristflow_ui_shell_home(wristflow_ui_shell_t *shell)
 bool wristflow_ui_shell_key(wristflow_ui_shell_t *shell)
 {
     if (!shell || !shell->apps || shell->transitioning || lv_obj_is_scrolling(shell->carousel)) return false;
+    wristflow_navigation_t previous = shell->navigation;
     wristflow_navigation_key(&shell->navigation);
-    return load_surface(shell);
+    if (load_surface(shell)) return true;
+    shell->navigation = previous;
+    return false;
 }
 
 bool wristflow_ui_shell_back(wristflow_ui_shell_t *shell)
 {
-    if (!shell || shell->transitioning || !wristflow_navigation_back(&shell->navigation)) return false;
-    return load_surface(shell);
+    if (!shell || shell->transitioning) return false;
+    wristflow_navigation_t previous = shell->navigation;
+    if (!wristflow_navigation_back(&shell->navigation)) return false;
+    if (load_surface(shell)) return true;
+    shell->navigation = previous;
+    return false;
 }
 
 static void face_long_press(lv_event_t *event)
@@ -364,8 +393,6 @@ wristflow_ui_shell_t *wristflow_ui_shell_create(const wristflow_ui_shell_config_
         return NULL;
     }
     shell->controls = config->controls();
-    shell->screens[WRISTFLOW_SURFACE_HOME] = shell->home;
-    shell->screens[WRISTFLOW_SURFACE_CONTROLS] = shell->controls;
     if (config->enable_apps) {
         shell->apps = wristflow_apps_create(shell, shell->controls, config->set_brightness, config->platform_context);
         wristflow_apps_update(shell->apps, &shell->snapshot);
@@ -378,6 +405,8 @@ wristflow_ui_shell_t *wristflow_ui_shell_create(const wristflow_ui_shell_config_
     lv_obj_scroll_to_x(shell->carousel, PAGE_WIDTH, LV_ANIM_OFF);
     lv_obj_add_event_cb(shell->carousel, scroll_event, LV_EVENT_SCROLL, shell);
     lv_obj_add_event_cb(shell->carousel, scroll_event, LV_EVENT_SCROLL_END, shell);
+    shell->cleanup_timer = lv_timer_create(finish_transition, 1, shell);
+    lv_timer_pause(shell->cleanup_timer);
     shell->ready = true;
     lv_screen_load(shell->home);
     sync_visibility(shell);
@@ -390,6 +419,7 @@ void wristflow_ui_shell_destroy(wristflow_ui_shell_t *shell)
         return;
     shell->ready = false;
     sync_visibility(shell);
+    lv_timer_delete(shell->cleanup_timer);
     /* Loading without animation completes/cancels any pending LVGL screen load. */
     lv_screen_load(lv_obj_create(NULL));
     wristflow_apps_destroy(shell->apps);
