@@ -47,9 +47,39 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Build.ps1 -Example produ
 
 最终检查逐项比对五个目标 `result.json` 的源文件与主 BIN 哈希，均匹配当前文件；主机测试输入自最后 8/8 通过后未修改。结构化比较产品与锁定板级分区表，除新增 16 KiB 设置区外完全一致。曾发现较早 UI Demo 记录中的共享 `apps.c` 哈希已过期，已增量重编并以上表最新结果替换；保留旧记录，不沿用过期证据。
 
-## 未覆盖和下一步
+## 2026-09-25 USB 真机首轮
 
-当前产品版本没有烧录或硬件运行证据，因此不能据此声称 RTC 真机读写、FlashDB 断电恢复、BLE 连接/通知、PM/熄屏、电流、续航或传感器功能已通过。下一次有界实验按下面步骤进行：
+用户本轮授权烧录、复位及验收。目标仍为上述 Product 产物（源码 `2885f00`），USB 供电、无电池；当前 Windows 识别 `USB-SERIAL CH340 (COM5)` / VID `1A86`、PID `7523`。离线复核 173 个源文件、三镜像哈希及地址均与构建记录一致，结果在 `artifacts/product-preflash-check.json`。
+
+用 sftool 0.2.5 执行 `-p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify`，写入同一构建目录中的 bootloader/main/ftab，地址依次为 `0x12010000`、`0x12020000`、`0x12000000`；退出码 0。没有整片擦除，没有向设置区发送镜像。烧录日志及镜像清单在 `artifacts/flash/product/20260925-product-01/`。
+
+启动采样为 1000000 baud、8N1、无流控，RTS 脉冲 0.15 秒复位后只收 12 秒。`artifacts/hardware/product-20260925-01/uart.txt` 记录：
+
+```text
+[I/FAL] The FAL MTD NOR device (settings) created successfully
+[product] storage=ready restore=defaults brightness=60 face=diffusion rtc=available
+[product] USB stage: RTC=not synchronized, battery absent, BLE/PM pending
+```
+
+CO5300/FT6146 初始化完成。串口发送 `wf_time 1790338564` 后返回 `[product] RTC synchronized: UTC=1790338564; display UTC+8`，证明该次校时写入与即时读回通过；证据为同目录 `time-sync-uart.txt` / `time-sync.json`。用户将亮度改为 27、选择简洁表盘并等待保存，随后 RTS 复位：
+
+```text
+[product] storage=ready restore=yes brightness=27 face=simple rtc=available
+[I/DBG] set brightness 27
+[product] USB stage: RTC=not synchronized, battery absent, BLE/PM pending
+```
+
+复位采样在 `artifacts/hardware/product-20260925-settings-reboot/`。用户确认简洁表盘、约 27% 亮度及 `--:--` 与屏幕一致；手电筒打开变亮、退出恢复，以及 10 轮导航/逐级返回/KEY1 均正常。随后用户确认秒表离开页面约 10 秒仍继续计时、暂停/清零正常，电池显示 USB、传感器不显示虚构值、蓝牙显示 OFF；等待保存后拔插 USB，简洁表盘和约 27% 亮度仍保留。设置跨 RTS 复位有日志及屏幕证据，跨 USB 断电有用户观察证据，后续启动日志仍为 `restore=yes brightness=27 face=simple`。
+
+**未通过：RTC 跨 RTS 复位保时。** 为排除串口开关干扰，在同一次串口连接、USB 持续供电下，用 `wf_time` 校时后通过 SDK 的无参数 `show_date` 只读查询，得到 `2026-09-25 12:34:46`、`12:34:53`（UTC），确认 RTC 正常走时；RTS 复位后返回 `2000-01-01 00:00:02`，产品正确显示 `--:--`。末尾重新校时到 UTC `1790339700`，读到 `2026-09-25 12:35:02`。证据位于 `artifacts/hardware/product-20260925-rtc-reset-experiment/`，脚本退出 0；没有修改固件。
+
+这不是单纯的 UI 显示错误，也不能只归因于没有电池。SDK `drv_rtc.c` 在冷启动且备份标志为 0 时走 NORMAL 初始化；现有 `wake=0` 日志与该路径一致，但不能据此确定备份域复位、板级供电或启动初始化哪个是根因。下一项有界排查是在同一 UART 连接比较软件复位与 RTS 复位，必要时增加启动模式、备份标志和原始 RTC 秒数的只读诊断。尚未加入替代保时策略，不把 Flash 中的上次时间当作当前正确时间。
+
+证据摘要已提交为 [product-usb.json](evidence/2026-09-25/product-usb.json)。启动横幅仍显示构建时的 `690009c1`，这是提交前构建的版本字符串；173 个源码哈希与提交 `2885f00` 一致，以主固件 SHA-256 识别此次实际固件。初次探测只列出蓝牙 COM3/4，用户接线后出现 COM5；普通 Python 缺少 pyserial，改用现有 SDK Python 3.13.15/pyserial 3.5。早期 `date` 查询没有得到日期、且捕获了启动输出，不计为读时证据；查明 SDK 导出名为 `show_date` 后用同一连接的受控实验取代。
+
+## 后续验收
+
+首轮烧录、启动、RTC 校时/走时及亮度/表盘保存已有上述证据。RTS 复位保时失败；软件复位保时、长时间 RTC 漂移、连续 30–60 分钟联合运行、BLE 连接/通知、PM/熄屏、电流、续航和传感器仍未覆盖。原计划的验收步骤保留如下，后续按已有证据补齐剩余项：
 
 1. 核对黄山派、USB 供电、串口身份与上述产品固件哈希，再用独立烧录流程写入，保留启动日志；首次应看到存储状态及 RTC 状态。
 2. 电脑用 `[DateTimeOffset]::UtcNow.ToUnixTimeSeconds()` 获取 UTC 秒数，通过串口发送 `wf_time <秒数>`。核对读回成功、UTC+8 显示以及跨分钟更新；未校时时必须显示缺失状态。
