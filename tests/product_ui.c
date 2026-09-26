@@ -96,7 +96,7 @@ int main(int argc, char **argv)
     lv_indev_set_display(input, display);
     lv_indev_set_read_cb(input, read_pointer);
     lv_timer_set_period(lv_indev_get_read_timer(input), 16);
-    wristflow_settings_t settings = {37, "simple"}, chosen;
+    wristflow_settings_t settings = {37, "simple", WRISTFLOW_MENU_LIST, true, 10}, chosen;
     wristflow_watch_snapshot_t state = wristflow_product_snapshot(false, 0);
     wristflow_ui_shell_t *shell = wristflow_product_ui_create(&state, &settings, set_brightness, &brightness);
     assert(shell && brightness == 37);
@@ -203,10 +203,12 @@ int main(int argc, char **argv)
     for (unsigned layout = 0; layout < 2; ++layout) {
       lv_obj_t *menu = named(launcher, layout ? "launcher_grid" : "launcher_list");
       assert(!lv_obj_has_flag(menu, LV_OBJ_FLAG_HIDDEN));
-      assert(lv_obj_get_child_count(menu) == wristflow_app_count());
+      assert(lv_obj_get_child_count(menu) == wristflow_app_count() - 1);
+      assert(!lv_obj_find_by_name(menu, wristflow_app_for_surface(WRISTFLOW_SURFACE_FACE_PICKER)->launcher_name));
       snapshot(argv[1], layout ? "product_grid" : "product_list");
       for (size_t i = 0; i < wristflow_app_count(); ++i) {
         const wristflow_app_descriptor_t *app = wristflow_app_at(i);
+        if (app->surface == WRISTFLOW_SURFACE_FACE_PICKER) continue;
         lv_obj_t *icon = named(menu, app->launcher_name);
         int initial_width = lv_obj_get_width(icon);
         for (unsigned tries = 0; tries < 12; ++tries) {
@@ -234,13 +236,14 @@ int main(int argc, char **argv)
       }
       if (!layout) {
         assert(wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_SETTINGS)); advance();
+        lv_obj_scroll_to_view(named(lv_screen_active(), "settings_layout"), LV_ANIM_OFF); advance();
         click(named(lv_screen_active(), "settings_layout"));
         assert(wristflow_ui_shell_navigation(shell)->surface == WRISTFLOW_SURFACE_MENU_LAYOUT);
         click(named(lv_screen_active(), "layout_grid"));
         assert(wristflow_ui_shell_get_settings(shell, &chosen) && chosen.menu_layout == WRISTFLOW_MENU_GRID);
         snapshot(argv[1], "product_menu_layout");
         click(named(lv_screen_active(), "app_back"));
-        text(lv_screen_active(), "settings_layout_value", "多列");
+        assert(wristflow_ui_shell_navigation(shell)->surface == WRISTFLOW_SURFACE_SETTINGS);
         click(named(lv_screen_active(), "app_back"));
         assert(lv_screen_active() == launcher);
       }
@@ -251,12 +254,13 @@ int main(int argc, char **argv)
     assert(lv_slider_get_value(named(lv_screen_active(), "brightness_slider")) == 37);
     assert(wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_SETTINGS));
     advance();
-    text(lv_screen_active(), "settings_battery", "USB");
+    assert(lv_obj_get_child_count(named(lv_screen_active(), "settings_scroll")) == 10);
     assert(wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_SYSTEM));
     advance();
     text(lv_screen_active(), "placeholder_label", "USB 供电，未接入电池");
     assert(wristflow_ui_shell_back(shell));
     advance();
+    assert(wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_BRIGHTNESS_ADJUST)); advance();
     lv_obj_t *slider = named(lv_screen_active(), "settings_brightness");
     lv_slider_set_value(slider, 72, LV_ANIM_OFF);
     lv_obj_send_event(slider, LV_EVENT_VALUE_CHANGED, NULL);

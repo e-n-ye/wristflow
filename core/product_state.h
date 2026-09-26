@@ -18,7 +18,11 @@ typedef struct {
     uint8_t brightness;
     char face_id[16];
     wristflow_menu_layout_t menu_layout;
+    bool face_long_press;
+    uint8_t screen_timeout;
 } wristflow_settings_t;
+
+bool wristflow_screen_timeout_valid(unsigned seconds);
 
 wristflow_settings_t wristflow_settings_default(void);
 bool wristflow_settings_valid(const wristflow_settings_t *settings);

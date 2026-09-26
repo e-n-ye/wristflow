@@ -1,6 +1,14 @@
 # 可复现构建基线
 
-本页各节结果仅适用于注明的日期与源码版本。当前 [反馈修复](PRODUCT-UI-FEEDBACK.md) 与 [组件编辑](COMPONENT-EDITOR.md) 已通过 10/10 主机测试和 Product/UI Demo 编译；Product 修正版已烧录、校验和启动，真机交互范围见 [烧录证据](evidence/2026-09-26/product-ui-flash.json)。旧版完整上板证据分别见 [入口记录](PRODUCT-APP-ENTRY.md)、[产品运行记录](PRODUCT-RUNTIME.md)。当前状态见 [STATUS](STATUS.md)，下方历史记录不代表最新源码验收。
+本页各节结果仅适用于注明的日期与源码版本。当前 [设置与显示状态](PRODUCT-SETTINGS.md) 已通过 12/12 主机测试、官方 XML 导出和 Product/UI Demo 编译，尚未烧录；前一版 [反馈修复](PRODUCT-UI-FEEDBACK.md) 与 [组件编辑](COMPONENT-EDITOR.md) 的真机范围见 [历史烧录证据](evidence/2026-09-26/product-ui-flash.json)。当前状态见 [STATUS](STATUS.md)，历史记录不代表最新源码验收。
+
+## 设置与显示增量（2026-09-26）
+
+工作树 `C:/Users/13984/.codex/worktrees/product-settings/wristflow`，分支 `codex/product-settings`，基于 `0edf7cc`。复用锁定 SDK junction 和原已注册环境；本机 `pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/build-isolated.ps1 -Example product` / `ui_demo` 调用本工作树实际包装器，最终均执行 `scons --board=sf32lb52-lchspi-ulp -j6`。本机辅助脚本留在忽略的 artifacts；普通检出仍用公共 `scripts/Build.ps1`。
+
+主机命令为 `cmake -S tests -B artifacts/host-settings -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe`、`cmake --build artifacts/host-settings -j6`、`ctest --test-dir artifacts/host-settings --output-on-failure`；12/12 通过。实际 LVGL 指针测试和 26 张 390×450 快照在 `artifacts/host-settings/`；图片与导出日志在本工作树 `artifacts/settings-evidence/`。Editor 2.0.1 Community GUI 导出成功，预览、主机及固件 LVGL 均 9.4.0。
+
+Product 记录为 `artifacts/product/20260926-164447-048/result.json`，主 BIN 3,388,888 B；UI Demo 记录为 `artifacts/ui_demo/20260926-164732-999/result.json`，主 BIN 3,380,564 B；退出 0 且产物验证通过。源码哈希、产物哈希和版本见 [精简证据](evidence/2026-09-26/product-settings.json)。SDK/子模块、分区和公共构建入口未改，无烧录或手动云端运行。修复过 XML flex 属性、字体缺字和无对应字形的图标；既有 SDK 编译/链接警告保留，详见专题记录。
 
 ## 反馈修复与组件编辑（2026-09-26）
 

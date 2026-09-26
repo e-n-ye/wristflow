@@ -1,0 +1,179 @@
+{
+  "date": "2026-09-26",
+  "worktree": "C:\\Users\\13984\\.codex\\worktrees\\product-settings\\wristflow",
+  "branch": "codex/product-settings",
+  "base_commit": "0edf7cc9ceb0a76db2abed944222d4eb74e51a02",
+  "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+  "submodules": [
+    " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+    " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+  ],
+  "sdk_changes": [],
+  "xml": {
+    "editor": "2.0.1 Community",
+    "export": "Official GUI Ctrl+B",
+    "preview_lvgl": "9.4.0",
+    "firmware_lvgl": "9.4.0",
+    "format_checked": 59,
+    "generated_sources": 79,
+    "scons_matches_export_plus_adapters": true,
+    "manifest": "artifacts/settings-evidence/export-manifest.json",
+    "manifest_sha256": "7bb46c38cb3e0ea62e0b6e1c9cf0626a5a1c93dc44fc3f6001f91f6fa80bc248"
+  },
+  "host": {
+    "compiler": "GCC 15.2.0",
+    "tests_passed": 12,
+    "tests_total": 12,
+    "log": "artifacts/host-settings/final-tests.log",
+    "log_sha256": "534d4edd792d7e25c242934cba82218bdf12a3a89aa8c5aa89fc7fbf2716085a",
+    "snapshots": 26,
+    "snapshot_size": [
+      390,
+      450
+    ],
+    "snapshot_directory": "artifacts/settings-evidence",
+    "covered": [
+      "v1/v2 settings migration and v3 integrity",
+      "timeout boundaries and tick wrap",
+      "actual pointer settings navigation and glyphs",
+      "confirmation accept/cancel and retained control prompt cleanup",
+      "fixed keep-awake expiry",
+      "dim contact swallowing and KEY1 consumption",
+      "short/long sleep navigation",
+      "flashlight restore",
+      "running/paused stopwatch retention",
+      "uncommitted component draft retention"
+    ]
+  },
+  "builds": [
+    {
+      "target": "product",
+      "record": "artifacts/product/20260926-164447-048/result.json",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "current_source_hashes_match": true,
+      "source_files": 260,
+      "source_manifest_sha256": "59c278465333eaa1b3efaa98a31ffcdfb1f7a46d0894b06d9e90bca4e8e42436",
+      "firmware": [
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+          "bytes": 3388888,
+          "sha256": "8bb1b12416c4f74a995a8db38d136a6b3939be6d1621807fb5dcc0445441417e"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.elf",
+          "bytes": 10174888,
+          "sha256": "90465cf730c9d7a5c585d15a311d83bfb0a4c7968bd66dcf059e728b54d2d36a"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.elf.strip.elf",
+          "bytes": 3400284,
+          "sha256": "6e335ab69bd05e970ed55ccdeceaf5a0e3ecf082e53b83b6021ecdda389d3aaf"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.elf",
+          "bytes": 803628,
+          "sha256": "69c1a86060968799d4ec08144287b9c236521b79c751c71a101b03112a4edede"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.elf.strip.elf",
+          "bytes": 65180,
+          "sha256": "155959a274a414a39aadf8a092cdc0b3a6509d6ceb44aaacd3e2c8982cbcc6ea"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+          "bytes": 11288,
+          "sha256": "e03576c0408d46d9a84a03e69f7b866b0505c64f8bc7d362aad267083645afe1"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.elf",
+          "bytes": 19028,
+          "sha256": "fae746d15b6d010790d2f249647c5ddedec59646649e0c1c73445b43ffc01c63"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.elf.strip.elf",
+          "bytes": 15844,
+          "sha256": "c3dfee3f1c8e3f14e0998d23d4ccf6c6f89f2b090c7e0be218424929ab0adc02"
+        }
+      ],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": "4.10.1"
+    },
+    {
+      "target": "ui_demo",
+      "record": "artifacts/ui_demo/20260926-164732-999/result.json",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "current_source_hashes_match": true,
+      "source_files": 256,
+      "source_manifest_sha256": "04479e3a1c5fa45708cf54500c65838cfc99199eccf5fb0898dbb4440c08ee8d",
+      "firmware": [
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+          "bytes": 3380564,
+          "sha256": "1affa0d574a3de6436b641e490627553e9dc72425b8d2c434934b95893f0a445"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/main.elf",
+          "bytes": 10124548,
+          "sha256": "c70eef76d2ceb46aff7fa6eb6dcc3311edb952a7d2066d2f71d0b667af37c69e"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/main.elf.strip.elf",
+          "bytes": 3392092,
+          "sha256": "27430cc1b757e0c3f84055d5719aff43f31aaa80eb71a5abbd788b327ce63342"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.elf",
+          "bytes": 803628,
+          "sha256": "861db4a1a219b1b286dcb45f10c4d3b348c0a88b4b9b3f506e91216f15e0c8d4"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.elf.strip.elf",
+          "bytes": 65180,
+          "sha256": "155959a274a414a39aadf8a092cdc0b3a6509d6ceb44aaacd3e2c8982cbcc6ea"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+          "bytes": 11288,
+          "sha256": "92d5cf5442e938a9a94080644d80bad7487ac8bad1533a2e0c78945b56e12510"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.elf",
+          "bytes": 19028,
+          "sha256": "58449d2d5e7095fe2b88359f63c2c3ec0f4b1e0e96dcfc83337d9bd49e24132c"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.elf.strip.elf",
+          "bytes": 15844,
+          "sha256": "bc2fbf54e68c62d96472a4eb84c298a6096cc549d08e05ad3fb92e9e43aadf1b"
+        }
+      ],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": "4.10.1"
+    }
+  ],
+  "hardware_verified": false,
+  "flashed": false,
+  "automatic_ci_run": false,
+  "limitations": [
+    "Product PM remains disabled",
+    "Touch power transitions are asynchronous; rapid off/on and stale contact need board validation",
+    "Single tap wake hidden until low-power interrupt wake is proven",
+    "New flash settings persistence not hardware tested"
+  ]
+}

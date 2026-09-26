@@ -20,6 +20,10 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/components/picker_header_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/picker_list_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/product_metric_full_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/settings_choice_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/settings_entry_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/settings_note_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/settings_row_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_full_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_grid_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_half_gen.c
@@ -45,6 +49,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/images/hour_12_data.c
   ${CMAKE_CURRENT_LIST_DIR}/images/hour_unknown_data.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_app_placeholder_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_brightness_adjust_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_component_editor_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_component_page_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_component_picker_gen.c
@@ -63,7 +68,9 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_product_health_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_product_launcher_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_product_placeholder_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_product_settings_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_settings_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_settings_list_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_stopwatch_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_tile_activity_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_tile_full_gen.c

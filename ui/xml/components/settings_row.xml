@@ -1,0 +1,23 @@
+<component>
+    <api>
+        <prop name="title" type="string" default="屏幕亮度" />
+        <prop name="detail" type="string" default="自定义" />
+    </api>
+    <styles>
+        <style name="switch_track" bg_color="#fg_muted" bg_opa="100%" radius="18" border_width="0" pad_all="4" />
+        <style name="switch_on" bg_color="#accent_blue" bg_opa="100%" radius="18" />
+        <style name="switch_knob" bg_color="#fg_primary" bg_opa="100%" radius="14" pad_all="0" />
+    </styles>
+    <view extends="lv_button" width="342" height="96" scrollable="false" style_bg_color="#bg_surface" style_border_width="0" style_radius="22" style_pad_all="0" style_shadow_width="0" style_text_color="#fg_primary">
+        <lv_label name="row_title" x="20" y="17" width="234" text="$title" style_text_font="title_24" />
+        <lv_label name="row_detail" x="20" y="55" width="280" text="$detail" style_text_font="body_20" style_text_color="#fg_secondary" />
+        <lv_obj name="row_check" x="-20" align="right_mid" width="42" height="42" hidden="true" clickable="false" scrollable="false" style_bg_color="#accent_blue" style_bg_opa="100%" style_border_width="0" style_radius="21" style_pad_all="0">
+            <lv_obj align="center" width="18" height="18" clickable="false" scrollable="false" style_bg_color="#fg_primary" style_bg_opa="100%" style_border_width="0" style_radius="9" style_pad_all="0" />
+        </lv_obj>
+        <lv_switch name="row_switch" x="-20" align="right_mid" width="64" height="36" hidden="true">
+            <style name="switch_track" />
+            <style name="switch_on" selector="indicator|checked" />
+            <style name="switch_knob" selector="knob" />
+        </lv_switch>
+    </view>
+</component>
