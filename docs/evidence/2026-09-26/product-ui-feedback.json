@@ -4,7 +4,7 @@
   "parent": "feabc1d268b63b92e14bc4f097c0f32f1e9370b8",
   "builds": {
     "product": {
-      "date": "2026-09-26T14:50:51.4860979+08:00",
+      "date": "2026-09-26T15:21:32.4773402+08:00",
       "command": "scons --board=sf32lb52-lchspi-ulp -j6",
       "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
       "submodules": [
@@ -16,15 +16,15 @@
       "exit_code": 0,
       "artifact_validation_passed": true,
       "hardware_verified": false,
-      "result": "artifacts/product/20260926-145032-062/result.json",
+      "result": "artifacts/product/20260926-151911-153/result.json",
       "source_count": 235,
-      "source_manifest_sha256": "2235d09174d93c18964bb8c4e8955b9122cac8b9147637f9576ac86b60d76f4a",
+      "source_manifest_sha256": "31fd3785f25ab42204ea569b1fafa90b0ead9eef6c205e80ac5ce71682ebe253",
       "main_bin": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
-      "bytes": 3329904,
-      "sha256": "91ccaf7f9453f707ecfe42426e743e8256a1c2cf5077d9e7f203349782c380d5"
+      "bytes": 3330088,
+      "sha256": "dd0fde3c9892d284f64b7b10f51cd7486d787be1d9d0ed8da7ed713e8a7c35be"
     },
     "ui_demo": {
-      "date": "2026-09-26T14:51:22.0643773+08:00",
+      "date": "2026-09-26T15:24:12.1897380+08:00",
       "command": "scons --board=sf32lb52-lchspi-ulp -j6",
       "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
       "submodules": [
@@ -36,20 +36,20 @@
       "exit_code": 0,
       "artifact_validation_passed": true,
       "hardware_verified": false,
-      "result": "artifacts/ui_demo/20260926-145104-666/result.json",
+      "result": "artifacts/ui_demo/20260926-152137-458/result.json",
       "source_count": 231,
-      "source_manifest_sha256": "2f78c76ae9e10dc6947fc540921f09824abbb10d5c3bf4f2e303ed0181152ffb",
+      "source_manifest_sha256": "30db433932e1d66118e852ceb086c3fe524d334ac20327482b88a18d83f43ee4",
       "main_bin": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
-      "bytes": 3322724,
-      "sha256": "a0c7d30023ac946b36aaf4fce9b1327fabc1f11b067596987f60d93feb761b98"
+      "bytes": 3322908,
+      "sha256": "6a24011b90454de5fcbcd0e4832adc79def818ef3316c968d9350a2066794840"
     }
   },
   "host_tests": {
     "passed": 10,
     "total": 10,
     "command": "ctest --test-dir artifacts/host-feedback --output-on-failure",
-    "log": "artifacts/final-host-test.log",
-    "log_sha256": "7eefa882acd4545891c1561a4c1873ab5178b5d9a5bed843021dff1501793e2d"
+    "log": "artifacts/edge-target-host-test.log",
+    "log_sha256": "725260b2e3afe76f8cca55f81c61f918655be8868c567d746718b161a6b32060"
   },
   "editor": {
     "version": "2.0.1 Community",
@@ -58,7 +58,7 @@
     "outcome": "Project compiled successfully",
     "xml_count": 52
   },
-  "changed_text_utf8": 84,
+  "changed_text_utf8": 9,
   "hardware_verified": false,
   "limitations": [
     "No flashing or new hardware measurements in this task.",

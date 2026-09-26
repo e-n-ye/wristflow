@@ -34,4 +34,6 @@
 
 反馈阶段先通过 8/8 和两目标构建；随后同分支继续完成 [组件编辑保存](COMPONENT-EDITOR.md)，最终为 10/10，Product/UI Demo 产物与当前源码哈希一致。最新构建版本、完整 BIN 哈希、命令及原始日志目录见 [精简证据](evidence/2026-09-26/product-ui-feedback.json) 和 [构建入口](BUILD.md)。本机实际渲染位于当前工作树 `artifacts/host-feedback/renders/`，合图为 `artifacts/feedback-preview.png`，不是网页重画。
 
-本轮未烧录。下一有界实验为板上列表/三列连续拖动、菜单开关与返回、缺时间表盘和 1–6 页编辑；记录最大 handler/render 时间、内存及布局 `write_ms`。设置记录迁移和布局字节截断的主机结果不能替代 FlashDB 擦除/GC 或物理断电实验。
+`2dbc782` 已在同一黄山派烧录、校验并启动；串口确认旧设置恢复、默认三页布局及显示/触摸驱动打开，见 [烧录证据](evidence/2026-09-26/product-ui-flash.json)。下一有界实验为板上列表/三列连续拖动、菜单开关与返回、缺时间表盘和 1–6 页编辑；记录最大 handler/render 时间、内存及布局 `write_ms`。这些交互尚未因启动成功而视为通过。设置记录迁移和布局字节截断的主机结果不能替代 FlashDB 擦除/GC 或物理断电实验。
+
+用户对首次上板的菜单默认列表、滚动、布局选择点、三列切换及未校时扩散外观反馈正常，编辑也可进入。新问题是编辑页左右 `+` 和垃圾桶难以命中，容易误作空白退出；修复、边缘指针测试及第二次烧录记录见 [组件编辑](COMPONENT-EDITOR.md) 和 [烧录证据](evidence/2026-09-26/product-ui-flash.json)。用户确认修正版按钮边缘、邻近与真正空白的点击行为，以及增删后的页数和分页点正常。第二次启动实际恢复 `generation=11 pages=3`；完成新一轮保存并触发 FlashDB GC 后，复位又恢复有效的 `generation=15 pages=3`。页面内容/配色未逐项核对。
