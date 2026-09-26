@@ -1,6 +1,6 @@
 # 组件编辑与异步保存
 
-2026-09-26，续接 `codex/product-runtime` 的 `feabc1d`，实施位于 `C:/Users/13984/.codex/worktrees/product-ui-feedback/wristflow` / `codex/product-ui-feedback`。已完成源码、官方 XML 导出、10/10 主机测试和 Product/UI Demo 编译，尚未烧录；具体规则仍以 [产品 UI 共识](PRODUCT-UI-SCOPE.md) 为准。
+2026-09-26，续接 `codex/product-runtime` 的 `feabc1d`，实施位于 `C:/Users/13984/.codex/worktrees/product-ui-feedback/wristflow` / `codex/product-ui-feedback`。`2dbc782` 已完成源码、官方 XML 导出、10/10 主机测试和 Product/UI Demo 编译，并完成 Product 烧录、校验和启动；编辑交互及实际 FlashDB 恢复仍待板上验证，见 [烧录证据](evidence/2026-09-26/product-ui-flash.json)。具体规则仍以 [产品 UI 共识](PRODUCT-UI-SCOPE.md) 为准。
 
 ## 行为与结构
 
@@ -27,3 +27,5 @@ UI 选择/确认时立即复制完整布局并取得请求 ID，不沿用亮度 
 实际渲染位于当前工作树忽略的 `artifacts/host-feedback/renders/component_*.ppm`；合图 `artifacts/component-preview.png`。初次官方导出发现新组件与旧 `metric_full` 同名，恢复旧组件并将产品组件独立命名；主机指针测试发现编辑页短拖动会触发槽位选择，加入累计移动取消后通过。两项固件编译与源清单、UTF-8/XML 和生成来源核验见 [证据清单](evidence/2026-09-26/product-ui-feedback.json)。保留已知 `watch_core.c` 枚举比较、SDK finsh/newlib/RWX 等编译警告，未隐藏或更改 SDK。
 
 下一有界实验：在黄山派验证编辑手势、列表流畅度，等待 `layout saved` 后软件重启/USB 重上电核对页序与颜色；记录实际保存耗时、失败重试及内存，再安排受控写入中断。此轮不声称 BLE、PM、RTC 复位保时或电池续航已完成。
+
+同日首次上板反馈：扩散表盘和编辑入口正常，但编辑页左右 `+` 与垃圾桶的可点区域太小，手指稍偏便触发空白退出。运行层将两侧透明按钮扩至 62×104 px，保留原图标中心；垃圾桶通过 LVGL 扩展点击区域 18 px，不改变视觉尺寸。空白退出在三个按钮附近 8 px 内忽略落空点击，真正空白仍直接退出；未提交草稿沿用原放弃确认规则。真实指针测试覆盖左、右、删除边缘和邻近空白，修正版主机 10/10、两目标固件编译通过并再次烧录；用户确认板上按钮边缘、邻近/真正空白、增删后的页数和分页点正常。串口记录新增至四页 `write_ms=5`，删除回三页时 FlashDB GC 后 `write_ms=198`，随后复位恢复有效的第 15 代三页布局；页内容及颜色尚未逐项核对。

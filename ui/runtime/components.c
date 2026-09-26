@@ -336,8 +336,18 @@ static void blank(lv_event_t *event)
     wristflow_components_t *c = lv_event_get_user_data(event);
     if (c->dragged) return;
     lv_obj_t *target = lv_event_get_target_obj(event);
-    if (target == c->screens[0] || target == named(c->screens[0], "edit_canvas"))
-        wristflow_ui_shell_back(c->shell);
+    if (target != c->screens[0] && target != named(c->screens[0], "edit_canvas")) return;
+    lv_indev_t *input = lv_indev_active();
+    if (input) {
+        lv_point_t point; lv_indev_get_point(input, &point);
+        static const char *const controls[] = {"edit_left", "edit_right", "edit_action"};
+        for (unsigned i = 0; i < 3; ++i) {
+            lv_area_t area; lv_obj_get_click_area(named(c->screens[0], controls[i]), &area);
+            if (point.x >= area.x1 - 8 && point.x <= area.x2 + 8 &&
+                point.y >= area.y1 - 8 && point.y <= area.y2 + 8) return;
+        }
+    }
+    wristflow_ui_shell_back(c->shell);
 }
 
 lv_obj_t *wristflow_components_screen(wristflow_components_t *c, wristflow_surface_t surface, bool *created)
@@ -351,6 +361,11 @@ lv_obj_t *wristflow_components_screen(wristflow_components_t *c, wristflow_surfa
     c->screens[index] = root; *created = true;
     lv_obj_add_event_cb(root, touch, LV_EVENT_ALL, c);
     if (!index) {
+        lv_obj_set_pos(named(root, "edit_left"), 1, 170);
+        lv_obj_set_size(named(root, "edit_left"), 62, 104);
+        lv_obj_set_pos(named(root, "edit_right"), 327, 170);
+        lv_obj_set_size(named(root, "edit_right"), 62, 104);
+        lv_obj_set_ext_click_area(named(root, "edit_action"), 18);
         lv_obj_set_style_opa(named(root, "edit_left"), LV_OPA_30, LV_STATE_DISABLED);
         lv_obj_set_style_opa(named(root, "edit_right"), LV_OPA_30, LV_STATE_DISABLED);
         lv_obj_set_style_opa(named(root, "edit_action"), LV_OPA_30, LV_STATE_DISABLED);
