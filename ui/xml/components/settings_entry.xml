@@ -1,0 +1,13 @@
+<component>
+    <api>
+        <prop name="title" type="string" default="表盘管理" />
+        <prop name="icon" type="string" default="&#xf017;" />
+        <prop name="tint" type="color" default="0x388bfa" />
+    </api>
+    <view extends="lv_button" width="342" height="92" scrollable="false" style_bg_color="#bg_surface" style_border_width="0" style_radius="22" style_pad_all="0" style_shadow_width="0">
+        <lv_obj x="18" align="left_mid" width="48" height="48" clickable="false" scrollable="false" style_bg_color="$tint" style_bg_opa="100%" style_border_width="0" style_radius="24" style_pad_all="0">
+            <lv_label align="center" text="$icon" style_text_font="icons_20" style_text_color="#fg_primary" />
+        </lv_obj>
+        <lv_label x="82" align="left_mid" width="242" text="$title" style_text_font="title_24" style_text_color="#fg_primary" />
+    </view>
+</component>

@@ -20,6 +20,7 @@ TEXT = (
     "运行时间控制中心勿扰手筒常亮设置小时钟关闭开启分钟数完成度选择组件新增页面"
     "秒表应用简洁扩散返回暂停继续开始重置已选显示盘即将推出"
     "血氧压力活力指标计步站立天气睡眠闹钟供未接入传感器功能等待手机同步暂无数据，布局列表三多组件编辑保存中失败稍后重试是否删除当前小完成退出将不再确认新增选择页面？"
+    "管理与声音振动模式消息通知按键关于屏幕自定义熄屏抬腕暂开放允许更换进入过长会减少续航确定使用本仅生效到恢复尚硬件提醒可短打开或首次唤助手以下操作机出厂固版本设备黄山派校实际容量核实识别变持暗。/"
 )
 
 
@@ -47,7 +48,8 @@ subset_font(LVGL / "scripts/built_in_font/FontAwesome5-Solid+Brands+Regular.woff
             OUTPUT / "fonts/WristFlowIcons.ttf", "WristFlow Icons",
             [0xf004, 0xf012, 0xf013, 0xf017, 0xf053, 0xf054, 0xf0eb, 0xf185, 0xf186,
              0xf240, 0xf293, 0xf54b, 0xf04b, 0xf04c, 0xf2f1, 0xf00c, 0xf390, 0xf2f2,
-             0xf043, 0xf118, 0xf70c, 0xf183, 0xf0c2, 0xf236, 0xf0f3, 0xf201, 0xf1f8, 0xf00d])
+             0xf043, 0xf118, 0xf70c, 0xf183, 0xf0c2, 0xf236, 0xf0f3, 0xf201, 0xf1f8, 0xf00d,
+             0xf028, 0xf00a, 0xf0ad, 0xf05a, 0xf192])
 
 if not args.fonts_only:
     sys.argv = [str(ROOT / "scripts/Generate-Diffusion.py")]

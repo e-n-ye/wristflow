@@ -1,0 +1,17 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="body_20" style_text_color="#fg_primary">
+        <app_header title="设置" />
+        <lv_obj name="settings_scroll" x="24" y="82" width="342" height="348" style_layout="flex" style_flex_flow="column" scrollbar_mode="off" style_bg_opa="0%" style_border_width="0" style_radius="0" style_pad_all="0" style_pad_row="12" style_pad_bottom="20">
+            <settings_entry name="settings_faces" title="表盘管理" icon="&#xf017;" tint="0x388bfa" />
+            <settings_entry name="settings_display" title="显示与亮度" icon="&#xf185;" tint="0xd4b641" />
+            <settings_entry name="settings_sound" title="声音与振动" icon="&#xf028;" tint="0x10b981" />
+            <settings_entry name="settings_dnd" title="勿扰模式" icon="&#xf186;" tint="0x388bfa" />
+            <settings_entry name="settings_notifications" title="消息通知" icon="&#xf0f3;" tint="0x388bfa" />
+            <settings_entry name="settings_keys" title="按键设置" icon="&#xf192;" tint="0x388bfa" />
+            <settings_entry name="settings_layout" title="应用布局" icon="&#xf00a;" tint="0x388bfa" />
+            <settings_entry name="settings_battery" title="电池" icon="&#xf240;" tint="0xd4b641" />
+            <settings_entry name="settings_system" title="系统操作" icon="&#xf0ad;" tint="0x388bfa" />
+            <settings_entry name="settings_about" title="关于" icon="&#xf05a;" tint="0x388bfa" />
+        </lv_obj>
+    </view>
+</screen>

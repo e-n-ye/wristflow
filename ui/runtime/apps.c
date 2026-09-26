@@ -1,6 +1,7 @@
 #include "apps.h"
 #include "stopwatch.h"
 #include "app_registry.h"
+#include "settings_view.h"
 #include "wristflow_ui.h"
 #include <stdint.h>
 #include <string.h>
@@ -283,7 +284,7 @@ static void sync_brightness(wristflow_apps_t *apps)
 {
     lv_slider_set_value(named(apps->controls, "brightness_slider"), apps->brightness, LV_ANIM_OFF);
     lv_obj_t *settings = apps->screens[WRISTFLOW_SURFACE_SETTINGS];
-    if (settings) {
+    if (settings && !apps->product_mode) {
         lv_slider_set_value(named(settings, "settings_brightness"), apps->brightness, LV_ANIM_OFF);
         lv_label_set_text_fmt(named(settings, "settings_brightness_value"), "%u%%", (unsigned)apps->brightness);
         lv_obj_set_style_text_font(named(settings, "settings_battery"),
@@ -291,19 +292,37 @@ static void sync_brightness(wristflow_apps_t *apps)
         if (apps->snapshot.battery_unavailable) lv_label_set_text(named(settings, "settings_battery"), "USB");
         else lv_label_set_text_fmt(named(settings, "settings_battery"), "%u%%", (unsigned)apps->snapshot.battery_percent);
     }
+    lv_obj_t *adjust = apps->screens[WRISTFLOW_SURFACE_BRIGHTNESS_ADJUST];
+    if (adjust) {
+        lv_slider_set_value(named(adjust, "settings_brightness"), apps->brightness, LV_ANIM_OFF);
+        lv_label_set_text_fmt(named(adjust, "settings_brightness_value"), "%u%%", (unsigned)apps->brightness);
+    }
 }
+
+void wristflow_apps_set_brightness(wristflow_apps_t *apps, uint8_t brightness)
+{
+    if (!apps || brightness < 10 || brightness > 100) return;
+    apps->brightness = brightness;
+    sync_brightness(apps);
+    if (apps->brightness_cb) apps->brightness_cb(brightness, apps->context);
+}
+
+bool wristflow_apps_timer_running(const wristflow_apps_t *apps)
+{ return apps && apps->active == WRISTFLOW_SURFACE_STOPWATCH && apps->stopwatch.running; }
 
 static void brightness_changed(lv_event_t *event)
 {
     wristflow_apps_t *apps = lv_event_get_user_data(event);
-    apps->brightness = (uint8_t)lv_slider_get_value(lv_event_get_current_target_obj(event));
-    sync_brightness(apps);
-    if (apps->brightness_cb) apps->brightness_cb(apps->brightness, apps->context);
+    wristflow_apps_set_brightness(apps, (uint8_t)lv_slider_get_value(lv_event_get_current_target_obj(event)));
 }
 
 static void control_action(lv_event_t *event)
 {
     wristflow_apps_t *apps = lv_event_get_user_data(event);
+    if (lv_event_get_current_target_obj(event) == named(apps->controls, "keep_awake_button")) {
+        wristflow_settings_keep_prompt(apps->controls, apps->shell);
+        return;
+    }
     wristflow_surface_t destination = lv_event_get_current_target_obj(event) == named(apps->controls, "settings_button")
         ? WRISTFLOW_SURFACE_SETTINGS : WRISTFLOW_SURFACE_FLASHLIGHT;
     wristflow_ui_shell_open(apps->shell, destination);
@@ -329,7 +348,7 @@ static void sync_menu_layout(wristflow_apps_t *apps)
         lv_obj_set_flag(named(menu, "launcher_grid"), LV_OBJ_FLAG_HIDDEN, !grid);
     }
     lv_obj_t *settings = apps->screens[WRISTFLOW_SURFACE_SETTINGS];
-    if (settings) lv_label_set_text(named(settings, "settings_layout_value"), grid ? "多列" : "列表");
+    if (settings && !apps->product_mode) lv_label_set_text(named(settings, "settings_layout_value"), grid ? "多列" : "列表");
     lv_obj_t *selection = apps->screens[WRISTFLOW_SURFACE_MENU_LAYOUT];
     if (selection) {
         lv_obj_set_flag(named(selection, "layout_list_check"), LV_OBJ_FLAG_HIDDEN, grid);
@@ -359,6 +378,7 @@ static void create_product_menu(wristflow_apps_t *apps, lv_obj_t *root)
     apps->menu_count = 0;
     for (size_t i = 0; i < wristflow_app_count(); ++i) {
         const wristflow_app_descriptor_t *entry = wristflow_app_at(i);
+        if (entry->surface == WRISTFLOW_SURFACE_FACE_PICKER) continue;
         unsigned index = apps->menu_count++;
         LV_ASSERT(index < WRISTFLOW_SURFACE_COUNT);
         apps->menu_entries[index] = entry;
@@ -401,7 +421,8 @@ wristflow_apps_t *wristflow_apps_create(wristflow_ui_shell_t *shell, lv_obj_t *c
     lv_obj_add_event_cb(slider, brightness_changed, LV_EVENT_VALUE_CHANGED, apps);
     /* These two policies require the future notification/power services. */
     lv_obj_add_state(named(controls, "dnd_button"), LV_STATE_DISABLED);
-    lv_obj_add_state(named(controls, "keep_awake_button"), LV_STATE_DISABLED);
+    if (product_mode) bind_click(controls, "keep_awake_button", control_action, apps);
+    else lv_obj_add_state(named(controls, "keep_awake_button"), LV_STATE_DISABLED);
     if (brightness) brightness(apps->brightness, context);
     return apps;
 }
@@ -424,7 +445,9 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
     if (apps->screens[surface]) return apps->screens[surface];
     lv_obj_t *root = NULL;
     const wristflow_app_descriptor_t *app = wristflow_app_for_surface(surface);
-    if (surface == WRISTFLOW_SURFACE_LAUNCHER)
+    if (apps->product_mode) root = wristflow_settings_screen(apps->shell, surface);
+    if (root) { /* XML settings factories own their bindings. */ }
+    else if (surface == WRISTFLOW_SURFACE_LAUNCHER)
         root = apps->product_mode ? screen_product_launcher_create() : screen_launcher_create();
     else if (surface == WRISTFLOW_SURFACE_MENU_LAYOUT && apps->product_mode)
         root = screen_menu_layout_create();
@@ -479,6 +502,12 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         apps->picker_slot = apps->face_index == 1 ? 2 : 1;
     } else if (surface == WRISTFLOW_SURFACE_FLASHLIGHT) {
         lv_obj_add_event_cb(root, back, LV_EVENT_SHORT_CLICKED, apps);
+    } else if (surface == WRISTFLOW_SURFACE_BRIGHTNESS_ADJUST) {
+        lv_obj_add_event_cb(named(root, "settings_brightness"), brightness_changed, LV_EVENT_VALUE_CHANGED, apps);
+        sync_brightness(apps);
+    } else if (apps->product_mode && (surface == WRISTFLOW_SURFACE_SETTINGS ||
+        (surface >= WRISTFLOW_SURFACE_FACE_MANAGEMENT && surface <= WRISTFLOW_SURFACE_WAKE_SETTINGS))) {
+        wristflow_settings_refresh(root, surface, apps->shell);
     } else if (surface == WRISTFLOW_SURFACE_SETTINGS) {
         lv_obj_add_event_cb(named(root, "settings_brightness"), brightness_changed, LV_EVENT_VALUE_CHANGED, apps);
         lv_obj_add_flag(named(root, "settings_battery"), LV_OBJ_FLAG_CLICKABLE);
@@ -535,6 +564,7 @@ void wristflow_apps_activate(wristflow_apps_t *apps, wristflow_surface_t surface
         else lv_timer_pause(apps->timer);
     }
     if (surface == WRISTFLOW_SURFACE_SETTINGS) sync_brightness(apps);
+    if (apps->product_mode) wristflow_settings_refresh(apps->screens[surface], surface, apps->shell);
     if (surface == WRISTFLOW_SURFACE_FACE_PICKER) {
         /* Resume a retained parent at the selected slot; a new view starts at
            the current face. A cancelled snap must not leave it between cards. */
@@ -552,6 +582,13 @@ void wristflow_apps_update(wristflow_apps_t *apps, const wristflow_watch_snapsho
     if (!apps) return;
     apps->snapshot = *snapshot;
     sync_brightness(apps);
+    if (apps->product_mode) {
+        wristflow_settings_refresh(apps->screens[apps->active], apps->active, apps->shell);
+        bool awake = wristflow_ui_shell_keep_minutes(apps->shell) != 0;
+        lv_obj_t *button = named(apps->controls, "keep_awake_button");
+        lv_obj_set_style_bg_color(button, lv_color_hex(awake ? 0x38bdf8 : 0x191c20), 0);
+        lv_obj_set_style_text_color(button, lv_color_white(), 0);
+    }
 }
 
 static void release_screen(wristflow_apps_t *apps, wristflow_surface_t surface)

@@ -4,6 +4,7 @@
 #include "watchface.h"
 #include "product_state.h"
 #include "component_layout.h"
+#include "display_policy.h"
 
 typedef struct wristflow_ui_shell wristflow_ui_shell_t;
 typedef lv_obj_t *(*wristflow_screen_factory_t)(void);
@@ -65,5 +66,13 @@ const wristflow_layout_t *wristflow_ui_shell_layout(const wristflow_ui_shell_t *
 void wristflow_ui_shell_rebuild_components(wristflow_ui_shell_t *shell, unsigned selected);
 bool wristflow_ui_shell_finish_edit(wristflow_ui_shell_t *shell, unsigned selected);
 const wristflow_watch_snapshot_t *wristflow_ui_shell_snapshot(const wristflow_ui_shell_t *shell);
+bool wristflow_ui_shell_configure(wristflow_ui_shell_t *shell, const wristflow_settings_t *settings);
+void wristflow_ui_shell_enable_display_policy(wristflow_ui_shell_t *shell);
+/* Called by the platform's raw pointer read wrapper, before LVGL dispatch. */
+bool wristflow_ui_shell_filter_touch(wristflow_ui_shell_t *shell, bool pressed);
+wristflow_display_phase_t wristflow_ui_shell_display_phase(const wristflow_ui_shell_t *shell);
+bool wristflow_ui_shell_keep_awake(wristflow_ui_shell_t *shell, unsigned minutes);
+unsigned wristflow_ui_shell_keep_minutes(const wristflow_ui_shell_t *shell);
+void wristflow_ui_shell_display_retry(wristflow_ui_shell_t *shell);
 
 #endif
