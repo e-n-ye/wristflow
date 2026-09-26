@@ -12,6 +12,8 @@ static wristflow_ui_shell_t *product_shell;
 static lv_indev_read_cb_t original_pointer_read;
 static volatile bool waiting_for_wake;
 static volatile bool suppress_wake_click;
+static bool defer_brightness;
+static uint8_t wake_brightness;
 
 static void read_pointer(lv_indev_t *input, lv_indev_data_t *data)
 {
@@ -35,6 +37,7 @@ static void button_callback(int32_t pin, button_action_t action)
 
 static void set_brightness(uint8_t brightness, void *context)
 {
+    if (defer_brightness) { wake_brightness = brightness; return; }
     RT_ASSERT(rt_device_control((rt_device_t)context, RTGRAPHIC_CTRL_SET_BRIGHTNESS, &brightness) == RT_EOK);
 }
 
@@ -62,13 +65,28 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
         RT_WAITING_FOREVER, &events) == RT_EOK);
     waiting_for_wake = false;
     rt_kprintf("[product] KEY1 wake event received\n");
+    /* Select the wake destination while dark; expose only its completed frame. */
+    defer_brightness = true;
+    wristflow_ui_shell_key(product_shell);
+    wristflow_watch_snapshot_t wake_snapshot = wristflow_product_services_snapshot();
+    wristflow_ui_shell_update(product_shell, &wake_snapshot);
     RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_POWERON, NULL) == RT_EOK);
     RT_ASSERT(rt_device_control(touch, RTGRAPHIC_CTRL_POWERON, NULL) == RT_EOK);
     lv_indev_reset(pointer, NULL);
     lv_indev_wait_release(pointer);
-    wristflow_ui_shell_key(product_shell); /* Consume the completed wake key. */
     lv_timer_enable(true);
     lv_obj_invalidate(lv_screen_active());
+    lv_refr_now(NULL);
+    started = rt_tick_get();
+    do {
+        RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_GET_BUSY, &busy) == RT_EOK);
+        if (busy) rt_thread_mdelay(5);
+    } while (busy && rt_tick_get() - started < rt_tick_from_millisecond(1000));
+    if (busy) rt_kprintf("[product] wake frame incomplete: LCD busy after %lu ticks; brightness held at zero\n",
+        (unsigned long)(rt_tick_get() - started));
+    RT_ASSERT(!busy);
+    defer_brightness = false;
+    set_brightness(wake_brightness, lcd);
     rt_kprintf("[product] screen on\n");
 }
 

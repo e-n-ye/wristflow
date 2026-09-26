@@ -310,6 +310,17 @@ void wristflow_apps_set_brightness(wristflow_apps_t *apps, uint8_t brightness)
 bool wristflow_apps_timer_running(const wristflow_apps_t *apps)
 { return apps && apps->active == WRISTFLOW_SURFACE_STOPWATCH && apps->stopwatch.running; }
 
+bool wristflow_apps_timer_has_data(const wristflow_apps_t *apps)
+{ return apps && apps->active == WRISTFLOW_SURFACE_STOPWATCH &&
+    (apps->stopwatch.running || apps->stopwatch.elapsed_ms != 0); }
+
+void wristflow_apps_timer_clear(wristflow_apps_t *apps)
+{
+    wristflow_stopwatch_reset(&apps->stopwatch, lv_tick_get());
+    lv_timer_pause(apps->timer);
+    if (apps->screens[WRISTFLOW_SURFACE_STOPWATCH]) render_stopwatch(apps);
+}
+
 static void brightness_changed(lv_event_t *event)
 {
     wristflow_apps_t *apps = lv_event_get_user_data(event);
@@ -557,10 +568,8 @@ void wristflow_apps_activate(wristflow_apps_t *apps, wristflow_surface_t surface
         else lv_timer_pause(apps->timer);
         render_stopwatch(apps);
     } else {
-        /* Keep the stopwatch model ticking once per second while hidden.  It
-         * does not render outside its screen, and this keeps its last tick
-         * current across long periods away from the app. */
-        if (apps->stopwatch.running) lv_timer_resume(apps->timer);
+        /* Product exits clear the model; only the historical demo runs hidden. */
+        if (!apps->product_mode && apps->stopwatch.running) lv_timer_resume(apps->timer);
         else lv_timer_pause(apps->timer);
     }
     if (surface == WRISTFLOW_SURFACE_SETTINGS) sync_brightness(apps);
@@ -581,6 +590,10 @@ void wristflow_apps_update(wristflow_apps_t *apps, const wristflow_watch_snapsho
 {
     if (!apps) return;
     apps->snapshot = *snapshot;
+    if (apps->active == WRISTFLOW_SURFACE_STOPWATCH && apps->stopwatch.running) {
+        wristflow_stopwatch_update(&apps->stopwatch, lv_tick_get());
+        render_stopwatch(apps);
+    }
     sync_brightness(apps);
     if (apps->product_mode) {
         wristflow_settings_refresh(apps->screens[apps->active], apps->active, apps->shell);

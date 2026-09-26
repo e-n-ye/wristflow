@@ -1,8 +1,8 @@
 # 设置固件上板记录（2026-09-26）
 
-板型 `sf32lb52-lchspi-ulp`；当前端口 `USB-SERIAL CH340 (COM5)`，设备 ID `USB\VID_1A86&PID_7523\6&A8355E6&3&1`。使用固定 SDK v2.5.1（`421126d9`）及 sftool 0.2.5。两次均仅向 `0x12010000` 写 bootloader、`0x12020000` 写 main、`0x12000000` 写 ftab，命令带 `write_flash --verify`，退出码 0；没有整片擦除或写设置区。主机串口 1000000 baud、8N1、无流控。原始烧录、启动和交互输出保存在当前工作树的忽略目录 `artifacts/hardware/product-settings-20260926/`；其中 `initial-*.log` 属首版，`fix-*.log` 属修复版。
+板型 `sf32lb52-lchspi-ulp`；当前端口 `USB-SERIAL CH340 (COM5)`，设备 ID `USB\VID_1A86&PID_7523\6&A8355E6&3&1`。使用固定 SDK v2.5.1（`421126d9`）及 sftool 0.2.5。三次均仅向 `0x12010000` 写 bootloader、`0x12020000` 写 main、`0x12000000` 写 ftab，命令带 `write_flash --verify`，退出码 0；没有整片擦除或写设置区。主机串口 1000000 baud、8N1、无流控。前两版原始烧录、启动和交互输出保存在当前工作树的忽略目录 `artifacts/hardware/product-settings-20260926/`；其中 `initial-*.log` 属首版，`fix-*.log` 属修复版。第三版日志路径见文末。
 
-在 `apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/` 中执行的两次命令相同，仅镜像内容不同：
+在 `apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/` 中执行的三次命令相同，仅镜像内容不同：
 
 ```text
 D:/MY_Desk/project/wristflow/.tools/sifli/tools/sftool/0.2.5/sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify bootloader/bootloader.bin@0x12010000 main.bin@0x12020000 ftab/ftab.bin@0x12000000
@@ -19,3 +19,7 @@ D:/MY_Desk/project/wristflow/.tools/sifli/tools/sftool/0.2.5/sftool.exe -p COM5 
 同轮发现 Product 应用列表左边缘右滑不能回表盘。源码原因是导航层将所有 launcher 手势排除；改为仅演示版蜂窝 launcher 排除，产品列表/网格接受左缘右滑。针对两种布局补真实指针回归，12/12 主机测试通过。黑屏路径另改为 KEY1 按下即触发唤醒、吞掉该次随后产生的点击；原版仅等待 `BUTTON_CLICKED`，长按不会产生该事件。此改动不能单独证明上述短按失效的根因。
 
 修复版直接用已安装的官方 SDK 环境执行 `scons --board=sf32lb52-lchspi-ulp -j6`，退出码 0。隔离工作树内运行公共 `Build.ps1` 曾因没有本地 `.tools/sifli/sifli-sdk-env.json` 在进入 SCons 前退出 1；随后加载原项目锁定环境完成构建。修复版三镜像已再烧录并校验；受控 RTS 复位后的启动日志显示构建标识 `2a0bd8b9`、设置恢复、显示/触摸初始化和按 5 秒配置关屏。用户随后确认修复版应用列表左缘右滑回表盘、黑屏后 KEY1 可唤醒，持续亮屏 5 分钟测试通过。未分别核对列表/网格两种布局，也没有故障前后连续串口记录；旧版无法唤醒的具体根因仍不能确定。手电筒退出、编辑草稿及秒表长睡恢复尚待验证。PM/BLE 仍关闭；黑屏不代表低功耗通过。单击亮屏继续隐藏，需低功耗触摸中断证据后再开放。
+
+后续用户确认手电筒打开期间亮屏且退出后亮度与普通超时恢复；普通页黑屏超过两分钟唤醒能回表盘，但可见从旧页切换的过程；组件编辑未提交新页长睡后草稿保留，前台运行秒表长睡后仍计时。用户随后要求秒表不支持后台运行，运行或有非零数据退出须确认，确认后停止并清零，取消保持原状态。参考图片不增加分圈功能。
+
+第三版已按上述修订，官方 GUI 导出、12/12 主机测试、Product/UI Demo 构建通过。烧录前核对端口仍为同一 `USB\VID_1A86&PID_7523\6&A8355E6&3&1` CH340 COM5，Product 记录的 260 个工程源哈希均匹配，`sftool_param.json` 地址仍为 `0x12010000`/`0x12020000`/`0x12000000`。执行第 8 行同一 sftool 0.2.5 命令，三镜像 `write_flash --verify` 退出 0；日志 `C:/Users/13984/.fastctx/jobs/j-yk0nit/output.log`。bootloader SHA-256 `e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21`，main 3,390,952 B、`8a763b749fc9d3eaebc497d2051fbe3bf2fa7eba66b69f41e6168c8475ee78c7`，ftab `70deb5e7cf1c1ed588f5b2d9152bf7a6c74c8f369c9f899fa27109e712ef0be8`。未整片擦除、未写设置区。用户复测普通页长睡后 KEY1 直接显示表盘；运行或暂停且有非零数据的秒表从返回、左缘手势和 KEY1 退出均弹确认，取消保留状态，确认后重进为 00:00。面板初始化在新帧刷新前有 DISPLAY_ON 指令，瞬时闪屏没有单独视频证据；PM/BLE 和休眠功耗仍未验证。
