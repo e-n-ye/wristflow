@@ -206,6 +206,12 @@ int main(int argc, char **argv)
       assert(lv_obj_get_child_count(menu) == wristflow_app_count() - 1);
       assert(!lv_obj_find_by_name(menu, wristflow_app_for_surface(WRISTFLOW_SURFACE_FACE_PICKER)->launcher_name));
       snapshot(argv[1], layout ? "product_grid" : "product_list");
+      swipe(90, 10, 300, 10);
+      assert(wristflow_ui_shell_navigation(shell)->surface == WRISTFLOW_SURFACE_LAUNCHER);
+      swipe(30, 220, 280, 220);
+      assert(wristflow_ui_shell_navigation(shell)->surface == WRISTFLOW_SURFACE_HOME);
+      assert(wristflow_ui_shell_key(shell)); advance();
+      assert(lv_screen_active() == launcher);
       for (size_t i = 0; i < wristflow_app_count(); ++i) {
         const wristflow_app_descriptor_t *app = wristflow_app_at(i);
         if (app->surface == WRISTFLOW_SURFACE_FACE_PICKER) continue;

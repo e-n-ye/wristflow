@@ -1,6 +1,6 @@
 # 可复现构建基线
 
-本页各节结果仅适用于注明的日期与源码版本。当前 [设置与显示状态](PRODUCT-SETTINGS.md) 已通过 12/12 主机测试、官方 XML 导出和 Product/UI Demo 编译，尚未烧录；前一版 [反馈修复](PRODUCT-UI-FEEDBACK.md) 与 [组件编辑](COMPONENT-EDITOR.md) 的真机范围见 [历史烧录证据](evidence/2026-09-26/product-ui-flash.json)。当前状态见 [STATUS](STATUS.md)，历史记录不代表最新源码验收。
+本页各节结果仅适用于注明的日期与源码版本。当前 [设置与显示状态](PRODUCT-SETTINGS.md) 已通过 12/12 主机测试、官方 XML 导出和 Product/UI Demo 编译；Product 后续两次烧录与真机发现见 [上板记录](evidence/2026-09-26/product-settings-hardware.md)。前一版 [反馈修复](PRODUCT-UI-FEEDBACK.md) 与 [组件编辑](COMPONENT-EDITOR.md) 的真机范围见 [历史烧录证据](evidence/2026-09-26/product-ui-flash.json)。当前状态见 [STATUS](STATUS.md)，历史记录不代表最新源码验收。
 
 ## 设置与显示增量（2026-09-26）
 
@@ -9,6 +9,8 @@
 主机命令为 `cmake -S tests -B artifacts/host-settings -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe`、`cmake --build artifacts/host-settings -j6`、`ctest --test-dir artifacts/host-settings --output-on-failure`；12/12 通过。实际 LVGL 指针测试和 26 张 390×450 快照在 `artifacts/host-settings/`；图片与导出日志在本工作树 `artifacts/settings-evidence/`。Editor 2.0.1 Community GUI 导出成功，预览、主机及固件 LVGL 均 9.4.0。
 
 Product 记录为 `artifacts/product/20260926-164447-048/result.json`，主 BIN 3,388,888 B；UI Demo 记录为 `artifacts/ui_demo/20260926-164732-999/result.json`，主 BIN 3,380,564 B；退出 0 且产物验证通过。源码哈希、产物哈希和版本见 [精简证据](evidence/2026-09-26/product-settings.json)。SDK/子模块、分区和公共构建入口未改，无烧录或手动云端运行。修复过 XML flex 属性、字体缺字和无对应字形的图标；既有 SDK 编译/链接警告保留，详见专题记录。
+
+上板发现应用列表左缘返回和持续亮屏后 KEY1 唤醒问题后，Product 修复版通过原项目已安装的 SDK v2.5.1 环境直接执行官方 `scons --board=sf32lb52-lchspi-ulp -j6`，退出 0，主 BIN 3,388,992 B（SHA-256 `5b9b00eea16dd20fb47600b564bee633042fa10382e426aa63a7c586ae9f2d11`）。工作树缺本地 `.tools`，直接运行公共 `Build.ps1` 在环境加载前退出 1；未改公共脚本。修复版已烧录及校验，用户确认左缘返回、KEY1 黑屏唤醒和持续亮屏 5 分钟通过；其余交互未验。命令、原始日志、三镜像哈希和未覆盖项见 [上板记录](evidence/2026-09-26/product-settings-hardware.md)。
 
 ## 反馈修复与组件编辑（2026-09-26）
 
