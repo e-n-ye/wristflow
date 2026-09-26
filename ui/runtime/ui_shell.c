@@ -1,6 +1,8 @@
 #include "ui_shell.h"
 #include "mount_screen.h"
 #include "apps.h"
+#include "components.h"
+#include "wristflow_ui.h"
 #include <string.h>
 
 #define PAGE_WIDTH 390
@@ -10,6 +12,7 @@ typedef struct {
     wristflow_ui_shell_t *shell;
     wristflow_surface_t target;
     unsigned page;
+    unsigned slot;
 } card_link_t;
 
 typedef struct {
@@ -26,6 +29,11 @@ struct wristflow_ui_shell {
     lv_obj_t *controls;
     lv_timer_t *cleanup_timer;
     wristflow_apps_t *apps;
+    wristflow_components_t *components;
+    lv_timer_t *card_hold;
+    card_link_t *pressed_card;
+    lv_point_t card_press;
+    lv_indev_t *card_input;
     lv_obj_t **indicators;
     page_slot_t *slots;
     const wristflow_watchface_t *watchface;
@@ -111,6 +119,7 @@ static void finish_transition(lv_timer_t *timer)
     if (lv_display_get_screen_prev(NULL)) return;
     lv_timer_pause(timer);
     wristflow_apps_collect(shell->apps, &shell->navigation);
+    wristflow_components_collect(shell->components, &shell->navigation);
     shell->transitioning = false;
     sync_visibility(shell);
 }
@@ -146,6 +155,9 @@ static void app_pressed(lv_event_t *event)
     }
 }
 
+static void editor_back(lv_event_t *event)
+{ wristflow_ui_shell_back(lv_event_get_user_data(event)); }
+
 static bool load_surface(wristflow_ui_shell_t *shell)
 {
     wristflow_surface_t surface = shell->navigation.surface;
@@ -153,9 +165,13 @@ static bool load_surface(wristflow_ui_shell_t *shell)
                        surface == WRISTFLOW_SURFACE_CONTROLS ? shell->controls : NULL;
     if (!screen) {
         bool created;
-        screen = wristflow_apps_screen(shell->apps, surface, &created);
+        screen = surface >= WRISTFLOW_SURFACE_COMPONENT_EDITOR
+            ? wristflow_components_screen(shell->components, surface, &created)
+            : wristflow_apps_screen(shell->apps, surface, &created);
         if (!screen) return false;
         if (created) {
+            if (surface >= WRISTFLOW_SURFACE_COMPONENT_EDITOR)
+                lv_obj_add_event_cb(lv_obj_find_by_name(screen, "app_back"), editor_back, LV_EVENT_SHORT_CLICKED, shell);
             bubble_events(screen);
             lv_obj_add_event_cb(screen, screen_loaded, LV_EVENT_SCREEN_LOADED, shell);
             lv_obj_add_event_cb(screen, app_pressed, LV_EVENT_PRESSED, shell);
@@ -174,6 +190,7 @@ static bool load_surface(wristflow_ui_shell_t *shell)
     if (lv_screen_active() == screen) {
         wristflow_apps_activate(shell->apps, surface);
         wristflow_apps_collect(shell->apps, &shell->navigation);
+        wristflow_components_collect(shell->components, &shell->navigation);
         sync_visibility(shell);
     } else {
         transition(shell, screen, LV_SCR_LOAD_ANIM_FADE_IN);
@@ -198,6 +215,7 @@ bool wristflow_ui_shell_open(wristflow_ui_shell_t *shell, wristflow_surface_t su
 bool wristflow_ui_shell_home(wristflow_ui_shell_t *shell)
 {
     if (!shell || shell->transitioning) return false;
+    if (wristflow_components_back(shell->components, true)) return true;
     wristflow_navigation_home(&shell->navigation);
     return load_surface(shell);
 }
@@ -205,6 +223,7 @@ bool wristflow_ui_shell_home(wristflow_ui_shell_t *shell)
 bool wristflow_ui_shell_key(wristflow_ui_shell_t *shell)
 {
     if (!shell || !shell->apps || shell->transitioning || lv_obj_is_scrolling(shell->carousel)) return false;
+    if (wristflow_components_back(shell->components, true)) return true;
     wristflow_navigation_t previous = shell->navigation;
     wristflow_navigation_key(&shell->navigation);
     if (load_surface(shell)) return true;
@@ -215,6 +234,7 @@ bool wristflow_ui_shell_key(wristflow_ui_shell_t *shell)
 bool wristflow_ui_shell_back(wristflow_ui_shell_t *shell)
 {
     if (!shell || shell->transitioning) return false;
+    if (wristflow_components_back(shell->components, false)) return true;
     wristflow_navigation_t previous = shell->navigation;
     if (!wristflow_navigation_back(&shell->navigation)) return false;
     if (load_surface(shell)) return true;
@@ -332,9 +352,10 @@ bool wristflow_ui_shell_update(wristflow_ui_shell_t *shell,
     for (unsigned int i = 0; i < slot_count(shell); ++i) {
         if (shell->slots[i].face)
             shell->watchface->update(shell->slots[i].face, &shell->snapshot);
-        else if (shell->update_card) {
+        else if (shell->components || shell->update_card) {
             unsigned index = (i + shell->navigation.page_count - 1) % shell->navigation.page_count;
-            shell->update_card(shell->slots[i].panel, index - 1, &shell->snapshot);
+            if (shell->components) wristflow_components_update(shell->components, shell->slots[i].panel, index - 1, &shell->snapshot);
+            else shell->update_card(shell->slots[i].panel, index - 1, &shell->snapshot);
         }
     }
     return true;
@@ -348,6 +369,40 @@ static void card_clicked(lv_event_t *event)
     if (wristflow_ui_shell_open(link->shell, link->target)) lv_event_stop_bubbling(event);
 }
 
+static void card_hold_ready(lv_timer_t *timer)
+{
+    wristflow_ui_shell_t *shell = lv_timer_get_user_data(timer);
+    lv_timer_pause(timer);
+    card_link_t *link = shell->pressed_card;
+    shell->pressed_card = NULL;
+    if (!link || shell->transitioning || shell->navigation.surface != WRISTFLOW_SURFACE_HOME ||
+        shell->navigation.page_index != link->page || lv_obj_is_scrolling(shell->carousel)) return;
+    if (wristflow_components_enter(shell->components, link->page - 1)) {
+        if (shell->card_input) lv_indev_wait_release(shell->card_input);
+    }
+}
+
+static void card_touch(lv_event_t *event)
+{
+    card_link_t *link = lv_event_get_user_data(event);
+    wristflow_ui_shell_t *shell = link->shell;
+    lv_indev_t *input = lv_indev_active();
+    if (!input || !shell->components) return;
+    lv_event_code_t code = lv_event_get_code(event);
+    lv_point_t point; lv_indev_get_point(input, &point);
+    if (code == LV_EVENT_PRESSED) {
+        shell->pressed_card = link; shell->card_press = point; shell->card_input = input;
+        lv_timer_reset(shell->card_hold); lv_timer_resume(shell->card_hold);
+    } else if (code == LV_EVENT_PRESSING) {
+        int dx = point.x - shell->card_press.x, dy = point.y - shell->card_press.y;
+        if (dx * dx + dy * dy > 100) {
+            shell->pressed_card = NULL; lv_timer_pause(shell->card_hold);
+        }
+    } else if (code == LV_EVENT_RELEASED || code == LV_EVENT_PRESS_LOST) {
+        shell->pressed_card = NULL; lv_timer_pause(shell->card_hold);
+    }
+}
+
 static void mount_card(wristflow_ui_shell_t *shell, lv_obj_t *screen,
                        unsigned int slot, unsigned int index)
 {
@@ -357,6 +412,17 @@ static void mount_card(wristflow_ui_shell_t *shell, lv_obj_t *screen,
             lv_obj_delete(indicator);
         else {
             shell->indicators[index] = indicator;
+            /* The carousel includes the face; the dots describe only card pages. */
+            unsigned count = shell->navigation.page_count - 1;
+            lv_obj_clean(indicator);
+            int width = (int)(count - 1) * 18 + 6;
+            lv_obj_set_width(indicator, width);
+            lv_obj_set_x(indicator, (PAGE_WIDTH - width) / 2);
+            for (unsigned i = 0; i < count; ++i) {
+                lv_obj_t *dot = page_dot_create(indicator);
+                lv_obj_set_x(dot, (int)i * 18);
+                lv_obj_set_style_bg_color(dot, lv_color_hex(i == index - 1 ? 0xffffff : 0x334155), 0);
+            }
             lv_obj_set_parent(indicator, shell->home);
             lv_obj_add_flag(indicator, LV_OBJ_FLAG_HIDDEN);
             lv_obj_remove_flag(indicator, LV_OBJ_FLAG_CLICKABLE);
@@ -365,19 +431,23 @@ static void mount_card(wristflow_ui_shell_t *shell, lv_obj_t *screen,
         }
     }
     wristflow_mount_screen(shell->slots[slot].panel, screen);
-    if (shell->update_card) shell->update_card(shell->slots[slot].panel, index - 1, &shell->snapshot);
-    if (shell->card_target) {
+    if (shell->components) wristflow_components_update(shell->components, shell->slots[slot].panel, index - 1, &shell->snapshot);
+    else if (shell->update_card) shell->update_card(shell->slots[slot].panel, index - 1, &shell->snapshot);
+    if (shell->components || shell->card_target) {
         static const char *const names[] = {"slot_0", "slot_1", "slot_2", "slot_3"};
         for (unsigned i = 0; i < 4; ++i) {
-            wristflow_surface_t target = shell->card_target(index - 1, i);
+            wristflow_surface_t target = shell->components
+                ? wristflow_components_target(shell->components, index - 1, i)
+                : shell->card_target(index - 1, i);
             if (target < WRISTFLOW_SURFACE_STOPWATCH || target >= WRISTFLOW_SURFACE_COUNT) continue;
             lv_obj_t *component = lv_obj_find_by_name(shell->slots[slot].panel, names[i]);
             LV_ASSERT(component);
             card_link_t *link = &shell->slots[slot].links[i];
-            *link = (card_link_t){shell, target, index};
+            *link = (card_link_t){shell, target, index, i};
             lv_obj_add_flag(component, LV_OBJ_FLAG_CLICKABLE);
             bubble_events(component);
             lv_obj_add_event_cb(component, card_clicked, LV_EVENT_SHORT_CLICKED, link);
+            if (shell->components) lv_obj_add_event_cb(component, card_touch, LV_EVENT_ALL, link);
         }
     }
 }
@@ -395,6 +465,13 @@ wristflow_ui_shell_t *wristflow_ui_shell_create(const wristflow_ui_shell_config_
     LV_ASSERT_MALLOC(shell);
     wristflow_navigation_init(&shell->navigation, (unsigned int)config->card_count + 1);
     shell->snapshot = config->initial_snapshot;
+    if (config->product_apps) {
+        shell->components = wristflow_components_create(shell, config->initial_layout,
+            config->save_layout, config->layout_status, config->layout_context);
+        shell->navigation.page_count = wristflow_components_layout(shell->components)->count + 1;
+    }
+    shell->card_hold = lv_timer_create(card_hold_ready, 700, shell);
+    lv_timer_pause(shell->card_hold);
     shell->update_card = config->update_card;
     shell->card_target = config->card_target;
     shell->slots = lv_malloc_zeroed(slot_count(shell) * sizeof(*shell->slots));
@@ -426,9 +503,12 @@ wristflow_ui_shell_t *wristflow_ui_shell_create(const wristflow_ui_shell_config_
         lv_obj_add_flag(panel, LV_OBJ_FLAG_SNAPPABLE);
         unsigned int index = (slot + shell->navigation.page_count - 1) % shell->navigation.page_count;
         if (index)
-            mount_card(shell, config->cards[index - 1](), slot, index);
+            mount_card(shell, shell->components ? wristflow_components_page(shell->components, index - 1)
+                : config->cards[index - 1](), slot, index);
     }
     if (!wristflow_ui_shell_set_watchface(shell, config->watchface)) {
+        wristflow_components_destroy(shell->components);
+        lv_timer_delete(shell->card_hold);
         lv_obj_delete(shell->home);
         lv_free(shell->slots);
         lv_free(shell->indicators);
@@ -438,7 +518,8 @@ wristflow_ui_shell_t *wristflow_ui_shell_create(const wristflow_ui_shell_config_
     shell->controls = config->controls();
     if (config->enable_apps) {
         shell->apps = wristflow_apps_create(shell, shell->controls, config->set_brightness, config->platform_context,
-            config->initial_settings ? config->initial_settings->brightness : 60, config->product_apps);
+            config->initial_settings ? config->initial_settings->brightness : 60, config->product_apps,
+            config->initial_settings ? config->initial_settings->menu_layout : WRISTFLOW_MENU_LIST);
         wristflow_apps_update(shell->apps, &shell->snapshot);
     }
     lv_obj_add_event_cb(shell->home, gesture, LV_EVENT_GESTURE, shell);
@@ -464,9 +545,11 @@ void wristflow_ui_shell_destroy(wristflow_ui_shell_t *shell)
     shell->ready = false;
     sync_visibility(shell);
     lv_timer_delete(shell->cleanup_timer);
+    lv_timer_delete(shell->card_hold);
     /* Loading without animation completes/cancels any pending LVGL screen load. */
     lv_screen_load(lv_obj_create(NULL));
     wristflow_apps_destroy(shell->apps);
+    wristflow_components_destroy(shell->components);
     for (unsigned int i = 0; i < slot_count(shell); ++i)
         if (shell->slots[i].face)
             destroy_face(shell->watchface, shell->slots[i].face);
@@ -493,8 +576,53 @@ bool wristflow_ui_shell_get_settings(const wristflow_ui_shell_t *shell, wristflo
         return false;
     wristflow_settings_t current = {0};
     current.brightness = wristflow_apps_brightness(shell->apps);
+    current.menu_layout = wristflow_apps_menu_layout(shell->apps);
     strcpy(current.face_id, shell->watchface->id);
     if (!wristflow_settings_valid(&current)) return false;
     *settings = current;
     return true;
+}
+
+const wristflow_layout_t *wristflow_ui_shell_layout(const wristflow_ui_shell_t *shell)
+{ return shell ? wristflow_components_layout(shell->components) : NULL; }
+
+const wristflow_watch_snapshot_t *wristflow_ui_shell_snapshot(const wristflow_ui_shell_t *shell)
+{ return &shell->snapshot; }
+
+void wristflow_ui_shell_rebuild_components(wristflow_ui_shell_t *shell, unsigned selected)
+{
+    shell->ready = false; shell->recentering = true;
+    shell->pressed_card = NULL; lv_timer_pause(shell->card_hold);
+    sync_visibility(shell);
+    for (unsigned i = 0; i < slot_count(shell); ++i)
+        if (shell->slots[i].face) destroy_face(shell->watchface, shell->slots[i].face);
+    lv_obj_clean(shell->carousel);
+    for (unsigned i = 0; i < shell->navigation.page_count; ++i)
+        if (shell->indicators[i]) lv_obj_delete(shell->indicators[i]);
+    lv_free(shell->slots); lv_free(shell->indicators);
+    shell->navigation.page_count = wristflow_components_layout(shell->components)->count + 1;
+    shell->navigation.page_index = selected;
+    shell->slots = lv_malloc_zeroed(slot_count(shell) * sizeof(*shell->slots));
+    shell->indicators = lv_malloc_zeroed(shell->navigation.page_count * sizeof(*shell->indicators));
+    LV_ASSERT_MALLOC(shell->slots); LV_ASSERT_MALLOC(shell->indicators);
+    for (unsigned i = 0; i < slot_count(shell); ++i) {
+        lv_obj_t *panel = lv_obj_create(shell->carousel); shell->slots[i].panel = panel;
+        lv_obj_remove_style_all(panel); lv_obj_set_pos(panel, (int32_t)i * PAGE_WIDTH, 0);
+        lv_obj_set_size(panel, PAGE_WIDTH, PAGE_HEIGHT);
+        lv_obj_remove_flag(panel, LV_OBJ_FLAG_SCROLLABLE); lv_obj_add_flag(panel, LV_OBJ_FLAG_SNAPPABLE);
+        unsigned index = (i + shell->navigation.page_count - 1) % shell->navigation.page_count;
+        if (index) mount_card(shell, wristflow_components_page(shell->components, index - 1), i, index);
+    }
+    wristflow_ui_shell_set_watchface(shell, shell->watchface);
+    lv_obj_update_layout(shell->home);
+    lv_obj_scroll_to_x(shell->carousel, (int32_t)(selected + 1) * PAGE_WIDTH, LV_ANIM_OFF);
+    shell->recentering = false; shell->ready = true;
+}
+
+bool wristflow_ui_shell_finish_edit(wristflow_ui_shell_t *shell, unsigned selected)
+{
+    if (shell->transitioning || selected >= shell->navigation.page_count) return false;
+    wristflow_navigation_home(&shell->navigation);
+    shell->navigation.page_index = selected;
+    return load_surface(shell);
 }

@@ -52,7 +52,7 @@ lv_obj_t * screen_settings_create(void)
         lv_obj_set_style_text_font(lv_obj_0, body_20, 0);
         lv_obj_set_style_text_color(lv_obj_0, FG_PRIMARY, 0);
 
-        app_header_create(lv_obj_0, "显示");
+        app_header_create(lv_obj_0, "设置");
 
         lv_obj_t * lv_label_0 = lv_label_create(lv_obj_0);
         lv_obj_set_x(lv_label_0, 30);
@@ -94,6 +94,32 @@ lv_obj_t * screen_settings_create(void)
         lv_label_set_text(settings_battery, "53%");
         lv_obj_set_style_text_font(settings_battery, value_36, 0);
         lv_obj_set_style_text_align(settings_battery, LV_TEXT_ALIGN_RIGHT, 0);
+
+        lv_obj_t * settings_layout = lv_button_create(lv_obj_0);
+        lv_obj_set_name(settings_layout, "settings_layout");
+        lv_obj_set_x(settings_layout, 24);
+        lv_obj_set_y(settings_layout, 348);
+        lv_obj_set_width(settings_layout, 342);
+        lv_obj_set_height(settings_layout, 70);
+        lv_obj_set_style_bg_color(settings_layout, BG_SURFACE, 0);
+        lv_obj_set_style_border_width(settings_layout, 0, 0);
+        lv_obj_set_style_radius(settings_layout, 20, 0);
+        lv_obj_set_style_pad_all(settings_layout, 0, 0);
+        lv_obj_set_style_shadow_width(settings_layout, 0, 0);
+        lv_obj_t * lv_label_2 = lv_label_create(settings_layout);
+        lv_obj_set_x(lv_label_2, 18);
+        lv_obj_set_align(lv_label_2, LV_ALIGN_LEFT_MID);
+        lv_label_set_text(lv_label_2, "应用布局");
+        lv_obj_set_style_text_font(lv_label_2, title_24, 0);
+        lv_obj_set_style_text_color(lv_label_2, FG_PRIMARY, 0);
+
+        lv_obj_t * settings_layout_value = lv_label_create(settings_layout);
+        lv_obj_set_name(settings_layout_value, "settings_layout_value");
+        lv_obj_set_x(settings_layout_value, -18);
+        lv_obj_set_align(settings_layout_value, LV_ALIGN_RIGHT_MID);
+        lv_label_set_text(settings_layout_value, "列表");
+        lv_obj_set_style_text_font(settings_layout_value, body_20, 0);
+        lv_obj_set_style_text_color(settings_layout_value, FG_SECONDARY, 0);
 
         the_root = lv_obj_0;
     }

@@ -3,6 +3,7 @@
 
 #include "watchface.h"
 #include "product_state.h"
+#include "component_layout.h"
 
 typedef struct wristflow_ui_shell wristflow_ui_shell_t;
 typedef lv_obj_t *(*wristflow_screen_factory_t)(void);
@@ -11,6 +12,8 @@ typedef void (*wristflow_card_update_cb_t)(lv_obj_t *root, unsigned index,
                                           const wristflow_watch_snapshot_t *snapshot);
 /* Maps named slot_0..slot_3 to apps. COUNT leaves a slot non-interactive. */
 typedef wristflow_surface_t (*wristflow_card_target_cb_t)(unsigned page, unsigned slot);
+typedef uint32_t (*wristflow_layout_request_cb_t)(const wristflow_layout_t *, void *);
+typedef wristflow_save_state_t (*wristflow_layout_status_cb_t)(uint32_t request, void *);
 
 typedef struct {
     const wristflow_watchface_t *watchface;
@@ -26,6 +29,10 @@ typedef struct {
     wristflow_card_update_cb_t update_card;
     wristflow_card_target_cb_t card_target;
     bool product_apps;
+    const wristflow_layout_t *initial_layout;
+    wristflow_layout_request_cb_t save_layout;
+    wristflow_layout_status_cb_t layout_status;
+    void *layout_context;
 } wristflow_ui_shell_config_t;
 
 /* One 390x450 default display, called on the LVGL thread after UI resource init.
@@ -53,5 +60,10 @@ const wristflow_navigation_t *wristflow_ui_shell_navigation(const wristflow_ui_s
 const char *wristflow_ui_shell_watchface_id(const wristflow_ui_shell_t *shell);
 /* User preference, not temporary flashlight or power-policy brightness. */
 bool wristflow_ui_shell_get_settings(const wristflow_ui_shell_t *shell, wristflow_settings_t *settings);
+const wristflow_layout_t *wristflow_ui_shell_layout(const wristflow_ui_shell_t *shell);
+/* Editor commits rebuild the ring outside pointer dispatch on its old cards. */
+void wristflow_ui_shell_rebuild_components(wristflow_ui_shell_t *shell, unsigned selected);
+bool wristflow_ui_shell_finish_edit(wristflow_ui_shell_t *shell, unsigned selected);
+const wristflow_watch_snapshot_t *wristflow_ui_shell_snapshot(const wristflow_ui_shell_t *shell);
 
 #endif

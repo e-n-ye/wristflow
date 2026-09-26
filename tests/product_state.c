@@ -6,7 +6,8 @@ int main(void)
 {
     wristflow_settings_t defaults = wristflow_settings_default();
     assert(defaults.brightness == 60 && strcmp(defaults.face_id, "diffusion") == 0);
-    const wristflow_settings_t chosen = {37, "simple"};
+    assert(defaults.menu_layout == WRISTFLOW_MENU_LIST);
+    const wristflow_settings_t chosen = {37, "simple", WRISTFLOW_MENU_GRID};
     uint8_t record[WRISTFLOW_SETTINGS_BYTES];
     assert(wristflow_settings_encode(&chosen, record));
     wristflow_settings_t restored = defaults;
@@ -24,6 +25,14 @@ int main(void)
     for (unsigned size = 0; size < sizeof record; ++size)
         assert(!wristflow_settings_decode(&restored, record, size));
     assert(!wristflow_settings_decode(&restored, record, sizeof record + 1));
+    /* A deployed v1 record must retain brightness/face and acquire the new default. */
+    const uint8_t legacy[] = {0x57,0x46,0x01,0x1b,0x73,0x69,0x6d,0x70,0x6c,0x65,
+        0,0,0,0,0,0,0,0,0,0,0xd2,0xe0,0x68,0x9d};
+    assert(wristflow_settings_decode(&restored, legacy, sizeof legacy));
+    assert(restored.brightness == 27 && strcmp(restored.face_id, "simple") == 0 &&
+           restored.menu_layout == WRISTFLOW_MENU_LIST);
+    restored.menu_layout = WRISTFLOW_MENU_COUNT;
+    assert(!wristflow_settings_encode(&restored, record));
     restored = chosen;
     restored.brightness = 0;
     assert(!wristflow_settings_encode(&restored, record));

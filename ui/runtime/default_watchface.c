@@ -11,10 +11,12 @@ static void update(lv_obj_t *root, const wristflow_watch_snapshot_t *snapshot)
 {
     lv_obj_t *hour = lv_obj_find_by_name(root, "hour_artwork");
     lv_obj_t *minutes = lv_obj_find_by_name(root, "minute_label");
-    lv_obj_set_flag(hour, LV_OBJ_FLAG_HIDDEN, snapshot->time_unavailable);
-    lv_obj_set_style_text_font(minutes, snapshot->time_unavailable ? LV_FONT_DEFAULT : metric_56, 0);
-    if (snapshot->time_unavailable)
-        lv_label_set_text(minutes, "--:--");
+    lv_obj_remove_flag(hour, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_set_style_text_font(minutes, metric_56, 0);
+    if (snapshot->time_unavailable) {
+        lv_image_set_src(hour, hour_unknown);
+        lv_label_set_text(minutes, "--");
+    }
     else {
         bool updated = wristflow_watchface_set_time(root, snapshot->hour_24, snapshot->minute);
         LV_ASSERT(updated);

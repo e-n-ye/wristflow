@@ -49,107 +49,40 @@ lv_obj_t * screen_product_launcher_create(void)
         lv_obj_set_style_border_width(lv_obj_0, 0, 0);
         lv_obj_set_style_pad_all(lv_obj_0, 0, 0);
         lv_obj_set_style_radius(lv_obj_0, 0, 0);
-        lv_obj_set_style_text_font(lv_obj_0, body_20, 0);
-        lv_obj_set_style_text_color(lv_obj_0, FG_PRIMARY, 0);
 
-        lv_obj_t * launcher_scroll = lv_obj_create(lv_obj_0);
-        lv_obj_set_name(launcher_scroll, "launcher_scroll");
-        lv_obj_set_x(launcher_scroll, 0);
-        lv_obj_set_y(launcher_scroll, 0);
-        lv_obj_set_width(launcher_scroll, 390);
-        lv_obj_set_height(launcher_scroll, 402);
-        lv_obj_set_scrollbar_mode(launcher_scroll, LV_SCROLLBAR_MODE_OFF);
-        lv_obj_set_style_bg_opa(launcher_scroll, (255 * 0 / 100), 0);
-        lv_obj_set_style_border_width(launcher_scroll, 0, 0);
-        lv_obj_set_style_pad_all(launcher_scroll, 0, 0);
-        lv_obj_set_style_radius(launcher_scroll, 0, 0);
-        lv_obj_t * launcher_canvas = lv_obj_create(launcher_scroll);
-        lv_obj_set_name(launcher_canvas, "launcher_canvas");
-        lv_obj_set_width(launcher_canvas, 650);
-        lv_obj_set_height(launcher_canvas, 650);
-        lv_obj_set_flag(launcher_canvas, LV_OBJ_FLAG_SCROLLABLE, false);
-        lv_obj_set_style_bg_opa(launcher_canvas, (255 * 0 / 100), 0);
-        lv_obj_set_style_border_width(launcher_canvas, 0, 0);
-        lv_obj_set_style_pad_all(launcher_canvas, 0, 0);
-        lv_obj_set_style_radius(launcher_canvas, 0, 0);
-        lv_obj_t * launch_stopwatch = launcher_icon_create(launcher_canvas, "", lv_color_hex(0xf2a33b));
-        lv_obj_set_name(launch_stopwatch, "launch_stopwatch");
-        lv_obj_set_x(launch_stopwatch, 275);
-        lv_obj_set_y(launch_stopwatch, 275);
+        lv_obj_t * launcher_list = lv_obj_create(lv_obj_0);
+        lv_obj_set_name(launcher_list, "launcher_list");
+        lv_obj_set_width(launcher_list, 390);
+        lv_obj_set_height(launcher_list, 450);
+        lv_obj_set_scrollbar_mode(launcher_list, LV_SCROLLBAR_MODE_OFF);
+        lv_obj_set_style_bg_opa(launcher_list, (255 * 0 / 100), 0);
+        lv_obj_set_style_border_width(launcher_list, 0, 0);
+        lv_obj_set_style_pad_left(launcher_list, 24, 0);
+        lv_obj_set_style_pad_right(launcher_list, 24, 0);
+        lv_obj_set_style_pad_top(launcher_list, 24, 0);
+        lv_obj_set_style_pad_bottom(launcher_list, 24, 0);
+        lv_obj_set_style_radius(launcher_list, 0, 0);
+        lv_obj_set_style_layout(launcher_list, LV_LAYOUT_FLEX, 0);
+        lv_obj_set_style_flex_flow(launcher_list, LV_FLEX_FLOW_COLUMN, 0);
+        lv_obj_set_style_pad_row(launcher_list, 12, 0);
 
-        lv_obj_t * launch_activity = launcher_icon_create(launcher_canvas, "", lv_color_hex(0xf97316));
-        lv_obj_set_name(launch_activity, "launch_activity");
-        lv_obj_set_x(launch_activity, 155);
-        lv_obj_set_y(launch_activity, 275);
-
-        lv_obj_t * launch_heart = launcher_icon_create(launcher_canvas, "", lv_color_hex(0xef4770));
-        lv_obj_set_name(launch_heart, "launch_heart");
-        lv_obj_set_x(launch_heart, 395);
-        lv_obj_set_y(launch_heart, 275);
-
-        lv_obj_t * launch_faces = launcher_icon_create(launcher_canvas, "", lv_color_hex(0x616c77));
-        lv_obj_set_name(launch_faces, "launch_faces");
-        lv_obj_set_x(launch_faces, 215);
-        lv_obj_set_y(launch_faces, 171);
-
-        lv_obj_t * launch_system = launcher_icon_create(launcher_canvas, "", lv_color_hex(0x10b981));
-        lv_obj_set_name(launch_system, "launch_system");
-        lv_obj_set_x(launch_system, 335);
-        lv_obj_set_y(launch_system, 171);
-
-        lv_obj_t * launch_flashlight = launcher_icon_create(launcher_canvas, "", lv_color_hex(0x8b71bf));
-        lv_obj_set_name(launch_flashlight, "launch_flashlight");
-        lv_obj_set_x(launch_flashlight, 215);
-        lv_obj_set_y(launch_flashlight, 379);
-
-        lv_obj_t * launch_settings = launcher_icon_create(launcher_canvas, "", lv_color_hex(0x647783));
-        lv_obj_set_name(launch_settings, "launch_settings");
-        lv_obj_set_x(launch_settings, 335);
-        lv_obj_set_y(launch_settings, 379);
-
-        lv_obj_t * launch_blood_oxygen = launcher_icon_create(launcher_canvas, "", lv_color_hex(0xef4770));
-        lv_obj_set_name(launch_blood_oxygen, "launch_blood_oxygen");
-        lv_obj_set_x(launch_blood_oxygen, 455);
-        lv_obj_set_y(launch_blood_oxygen, 171);
-
-        lv_obj_t * launch_stress = launcher_icon_create(launcher_canvas, "", lv_color_hex(0x38bdf8));
-        lv_obj_set_name(launch_stress, "launch_stress");
-        lv_obj_set_x(launch_stress, 455);
-        lv_obj_set_y(launch_stress, 379);
-
-        lv_obj_t * launch_steps = launcher_icon_create(launcher_canvas, "", lv_color_hex(0xe2db48));
-        lv_obj_set_name(launch_steps, "launch_steps");
-        lv_obj_set_x(launch_steps, 155);
-        lv_obj_set_y(launch_steps, 483);
-
-        lv_obj_t * launch_standing = launcher_icon_create(launcher_canvas, "", lv_color_hex(0x10d6b0));
-        lv_obj_set_name(launch_standing, "launch_standing");
-        lv_obj_set_x(launch_standing, 275);
-        lv_obj_set_y(launch_standing, 483);
-
-        lv_obj_t * launch_weather = launcher_icon_create(launcher_canvas, "", lv_color_hex(0x38bdf8));
-        lv_obj_set_name(launch_weather, "launch_weather");
-        lv_obj_set_x(launch_weather, 395);
-        lv_obj_set_y(launch_weather, 483);
-
-        lv_obj_t * launch_sleep = launcher_icon_create(launcher_canvas, "", lv_color_hex(0x388bfa));
-        lv_obj_set_name(launch_sleep, "launch_sleep");
-        lv_obj_set_x(launch_sleep, 95);
-        lv_obj_set_y(launch_sleep, 379);
-
-        lv_obj_t * launch_alarm = launcher_icon_create(launcher_canvas, "", lv_color_hex(0x38bdf8));
-        lv_obj_set_name(launch_alarm, "launch_alarm");
-        lv_obj_set_x(launch_alarm, 95);
-        lv_obj_set_y(launch_alarm, 171);
-
-        lv_obj_t * launcher_caption = lv_label_create(lv_obj_0);
-        lv_obj_set_name(launcher_caption, "launcher_caption");
-        lv_obj_set_x(launcher_caption, 24);
-        lv_obj_set_y(launcher_caption, 404);
-        lv_obj_set_width(launcher_caption, 342);
-        lv_label_set_text(launcher_caption, "应用");
-        lv_obj_set_style_text_align(launcher_caption, LV_TEXT_ALIGN_CENTER, 0);
-        lv_obj_set_style_text_color(launcher_caption, FG_SECONDARY, 0);
+        lv_obj_t * launcher_grid = lv_obj_create(lv_obj_0);
+        lv_obj_set_name(launcher_grid, "launcher_grid");
+        lv_obj_set_width(launcher_grid, 390);
+        lv_obj_set_height(launcher_grid, 450);
+        lv_obj_set_flag(launcher_grid, LV_OBJ_FLAG_HIDDEN, true);
+        lv_obj_set_scrollbar_mode(launcher_grid, LV_SCROLLBAR_MODE_OFF);
+        lv_obj_set_style_bg_opa(launcher_grid, (255 * 0 / 100), 0);
+        lv_obj_set_style_border_width(launcher_grid, 0, 0);
+        lv_obj_set_style_pad_left(launcher_grid, 24, 0);
+        lv_obj_set_style_pad_right(launcher_grid, 24, 0);
+        lv_obj_set_style_pad_top(launcher_grid, 24, 0);
+        lv_obj_set_style_pad_bottom(launcher_grid, 24, 0);
+        lv_obj_set_style_radius(launcher_grid, 0, 0);
+        lv_obj_set_style_layout(launcher_grid, LV_LAYOUT_FLEX, 0);
+        lv_obj_set_style_flex_flow(launcher_grid, LV_FLEX_FLOW_ROW_WRAP, 0);
+        lv_obj_set_style_pad_column(launcher_grid, 21, 0);
+        lv_obj_set_style_pad_row(launcher_grid, 20, 0);
 
         the_root = lv_obj_0;
     }

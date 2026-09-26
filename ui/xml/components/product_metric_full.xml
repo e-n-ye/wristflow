@@ -1,0 +1,8 @@
+<component>
+    <view extends="tile_full" style_bg_color="#bg_surface" style_bg_opa="100%" style_radius="#radius_lg">
+        <lv_label name="icon_label" x="24" y="24" text="&#xf0c2;" style_text_font="icons_44" style_text_color="#accent_blue" />
+        <lv_label name="caption_label" x="24" y="92" width="294" text="天气" style_text_font="title_24" style_text_color="#fg_secondary" />
+        <lv_label name="value_label" x="24" y="145" width="294" text="--" style_text_font="metric_56" style_text_color="#fg_primary" />
+        <lv_label name="detail_label" x="24" y="286" width="294" text="等待手机同步天气" style_text_font="body_20" style_text_color="#fg_secondary" />
+    </view>
+</component>

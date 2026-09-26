@@ -3,16 +3,23 @@ list(
   LV_EDITOR_PROJECT_SOURCES
   ${CMAKE_CURRENT_LIST_DIR}/components/activity_summary_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/app_header_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/app_list_item_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/card_container_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/component_confirm_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/component_group_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/editor_card_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/face_thumbnail_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/launcher_icon_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/layout_block_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/layout_option_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/layout_save_status_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/metric_full_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/metric_half_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/page_dot_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/page_dots_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/picker_header_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/picker_list_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/product_metric_full_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_full_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_grid_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_half_gen.c
@@ -36,12 +43,18 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/images/hour_10_data.c
   ${CMAKE_CURRENT_LIST_DIR}/images/hour_11_data.c
   ${CMAKE_CURRENT_LIST_DIR}/images/hour_12_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/images/hour_unknown_data.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_app_placeholder_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_component_editor_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_component_page_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_component_picker_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_component_templates_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_control_center_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_face_picker_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_flashlight_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_launcher_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_layout_picker_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_menu_layout_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_picker_full_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_picker_half_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_picker_quarter_gen.c

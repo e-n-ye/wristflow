@@ -20,7 +20,7 @@ static const wristflow_app_descriptor_t apps[] = {
     {"stopwatch", "秒表", "\xef\x8b\xb2", "launch_stopwatch", WRISTFLOW_SURFACE_STOPWATCH,
         WRISTFLOW_CAPABILITY_READY, 0, 0xf2a33b, "", screen_stopwatch_create, NULL},
     {"activity", "活力指标", "\xef\x88\x81", "launch_activity", WRISTFLOW_SURFACE_ACTIVITY,
-        WRISTFLOW_CAPABILITY_PLACEHOLDER, WRISTFLOW_CARD_HALF, 0xf97316,
+        WRISTFLOW_CAPABILITY_PLACEHOLDER, WRISTFLOW_CARD_HALF | WRISTFLOW_CARD_FULL, 0xf97316,
         "活力指标功能待接入", screen_app_placeholder_create, missing},
     {"heart_rate", "心率", "\xef\x80\x84", "launch_heart", WRISTFLOW_SURFACE_HEART,
         WRISTFLOW_CAPABILITY_PLACEHOLDER, WRISTFLOW_CARD_QUARTER, 0xef4770,
@@ -47,7 +47,7 @@ static const wristflow_app_descriptor_t apps[] = {
         WRISTFLOW_CAPABILITY_PLACEHOLDER, WRISTFLOW_CARD_QUARTER, 0x10d6b0,
         "站立功能待接入", screen_app_placeholder_create, missing},
     {"weather", "天气", "\xef\x83\x82", "launch_weather", WRISTFLOW_SURFACE_WEATHER,
-        WRISTFLOW_CAPABILITY_PLACEHOLDER, WRISTFLOW_CARD_HALF, 0x38bdf8,
+        WRISTFLOW_CAPABILITY_PLACEHOLDER, WRISTFLOW_CARD_HALF | WRISTFLOW_CARD_FULL, 0x38bdf8,
         "等待手机同步天气", screen_app_placeholder_create, missing},
     {"sleep", "睡眠", "\xef\x88\xb6", "launch_sleep", WRISTFLOW_SURFACE_SLEEP,
         WRISTFLOW_CAPABILITY_PLACEHOLDER, WRISTFLOW_CARD_QUARTER, 0x388bfa,
@@ -55,22 +55,6 @@ static const wristflow_app_descriptor_t apps[] = {
     {"alarm", "闹钟", "\xef\x83\xb3", "launch_alarm", WRISTFLOW_SURFACE_ALARM,
         WRISTFLOW_CAPABILITY_PLACEHOLDER, WRISTFLOW_CARD_QUARTER, 0x38bdf8,
         "闹钟功能待接入", screen_app_placeholder_create, missing}
-};
-
-static const wristflow_card_page_t pages[] = {
-    {screen_product_health_create, 4, {
-        {"heart_rate", 1, WRISTFLOW_CARD_QUARTER, 1},
-        {"blood_oxygen", 2, WRISTFLOW_CARD_QUARTER, 0},
-        {"battery", 3, WRISTFLOW_CARD_QUARTER, 0},
-        {"stress", 4, WRISTFLOW_CARD_QUARTER, 1}}},
-    {screen_product_activity_create, 3, {
-        {"activity", 5, WRISTFLOW_CARD_HALF, 0},
-        {"steps", 6, WRISTFLOW_CARD_QUARTER, 0},
-        {"standing", 7, WRISTFLOW_CARD_QUARTER, 0}}},
-    {screen_product_daily_create, 3, {
-        {"weather", 8, WRISTFLOW_CARD_HALF, 0},
-        {"sleep", 9, WRISTFLOW_CARD_QUARTER, 1},
-        {"alarm", 10, WRISTFLOW_CARD_QUARTER, 0}}}
 };
 
 size_t wristflow_app_count(void) { return sizeof apps / sizeof apps[0]; }
@@ -98,4 +82,15 @@ bool wristflow_app_read(const wristflow_app_descriptor_t *app,
     return true;
 }
 const wristflow_card_page_t *wristflow_product_default_page(unsigned index)
-{ return index < WRISTFLOW_PRODUCT_DEFAULT_PAGES ? &pages[index] : NULL; }
+{
+    /* Retained XML preview factories share the actual persisted default model. */
+    static wristflow_card_page_t pages[WRISTFLOW_PRODUCT_DEFAULT_PAGES];
+    static lv_obj_t *(*const factories[])(void) = {
+        screen_product_health_create, screen_product_activity_create, screen_product_daily_create};
+    if (index >= WRISTFLOW_PRODUCT_DEFAULT_PAGES) return NULL;
+    wristflow_layout_t layout = wristflow_layout_default();
+    pages[index].create = factories[index];
+    pages[index].count = wristflow_template_slots(layout.pages[index].template_id);
+    memcpy(pages[index].slots, layout.pages[index].slots, sizeof pages[index].slots);
+    return &pages[index];
+}

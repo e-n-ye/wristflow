@@ -2,6 +2,7 @@
 #define WRISTFLOW_APP_REGISTRY_H
 
 #include "watch_core.h"
+#include "component_layout.h"
 #include "lvgl.h"
 #include <stddef.h>
 
@@ -10,12 +11,6 @@ typedef enum {
     WRISTFLOW_CAPABILITY_PLACEHOLDER,
     WRISTFLOW_CAPABILITY_UNAVAILABLE
 } wristflow_capability_t;
-
-typedef enum {
-    WRISTFLOW_CARD_QUARTER = 1,
-    WRISTFLOW_CARD_HALF = 2,
-    WRISTFLOW_CARD_FULL = 4
-} wristflow_card_size_t;
 
 typedef struct {
     char value[24];
@@ -35,13 +30,6 @@ typedef struct wristflow_app_descriptor {
     lv_obj_t *(*create)(void);
     void (*read)(const wristflow_watch_snapshot_t *, wristflow_app_data_t *);
 } wristflow_app_descriptor_t;
-
-typedef struct {
-    const char *app_id;
-    uint16_t instance_id;
-    wristflow_card_size_t size;
-    uint8_t variant; /* 0: dark background; 1: application color background. */
-} wristflow_component_t;
 
 typedef struct {
     lv_obj_t *(*create)(void);
