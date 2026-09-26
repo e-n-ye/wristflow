@@ -10,6 +10,8 @@
 static struct rt_event key_events;
 static wristflow_ui_shell_t *product_shell;
 static lv_indev_read_cb_t original_pointer_read;
+static volatile bool waiting_for_wake;
+static volatile bool suppress_wake_click;
 
 static void read_pointer(lv_indev_t *input, lv_indev_data_t *data)
 {
@@ -21,7 +23,14 @@ static void read_pointer(lv_indev_t *input, lv_indev_data_t *data)
 static void button_callback(int32_t pin, button_action_t action)
 {
     (void)pin;
-    if (action == BUTTON_CLICKED) rt_event_send(&key_events, 1);
+    if (action == BUTTON_PRESSED && waiting_for_wake) {
+        suppress_wake_click = true;
+        rt_event_send(&key_events, 1);
+    } else if (action == BUTTON_CLICKED && !suppress_wake_click) {
+        rt_event_send(&key_events, 1);
+    } else if (action == BUTTON_RELEASED) {
+        suppress_wake_click = false;
+    }
 }
 
 static void set_brightness(uint8_t brightness, void *context)
@@ -48,8 +57,11 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_POWEROFF, NULL) == RT_EOK);
     rt_kprintf("[product] screen off; KEY1 wake (PM unchanged)\n");
     rt_uint32_t events;
+    waiting_for_wake = true;
     RT_ASSERT(rt_event_recv(&key_events, 1, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
         RT_WAITING_FOREVER, &events) == RT_EOK);
+    waiting_for_wake = false;
+    rt_kprintf("[product] KEY1 wake event received\n");
     RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_POWERON, NULL) == RT_EOK);
     RT_ASSERT(rt_device_control(touch, RTGRAPHIC_CTRL_POWERON, NULL) == RT_EOK);
     lv_indev_reset(pointer, NULL);

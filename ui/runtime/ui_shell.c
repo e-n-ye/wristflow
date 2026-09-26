@@ -325,13 +325,14 @@ static void gesture(lv_event_t *event)
     if (!input)
         return;
     lv_dir_t direction = lv_indev_get_gesture_dir(input);
-    /* Browsers own their drag. Unhandled gestures must not suppress a slider
-       or menu pointer until release. */
-    if (shell->navigation.surface == WRISTFLOW_SURFACE_LAUNCHER ||
+    /* The demo launcher and face picker own horizontal drags. The product
+       launcher's list/grid only scroll vertically, leaving edge Back available. */
+    if ((shell->navigation.surface == WRISTFLOW_SURFACE_LAUNCHER && !shell->components) ||
         shell->navigation.surface == WRISTFLOW_SURFACE_FACE_PICKER)
         return;
     bool handled = false;
-    if (shell->navigation.surface >= WRISTFLOW_SURFACE_STOPWATCH) {
+    if (shell->navigation.surface == WRISTFLOW_SURFACE_LAUNCHER ||
+        shell->navigation.surface >= WRISTFLOW_SURFACE_STOPWATCH) {
         if (direction == LV_DIR_RIGHT && shell->edge_press)
             handled = wristflow_ui_shell_back(shell);
     } else if (direction == LV_DIR_BOTTOM)
