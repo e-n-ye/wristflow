@@ -52,6 +52,8 @@ struct wristflow_ui_shell {
     wristflow_brightness_cb_t brightness_cb;
     void *platform_context;
     uint8_t applied_brightness;
+    unsigned stopwatch_exit;
+    wristflow_surface_t stopwatch_destination;
 };
 
 static void gesture(lv_event_t *event);
@@ -174,6 +176,14 @@ static void transition(wristflow_ui_shell_t *shell, lv_obj_t *screen, lv_screen_
     /* Controls are retained outside the navigation stack; discard pending prompts on exit. */
     wristflow_settings_dismiss(lv_screen_active());
     wristflow_apps_activate(shell->apps, shell->navigation.surface);
+    if (shell->display.phase == WRISTFLOW_DISPLAY_OFF) {
+        shell->transitioning = false;
+        lv_screen_load(screen);
+        wristflow_apps_collect(shell->apps, &shell->navigation);
+        wristflow_components_collect(shell->components, &shell->navigation);
+        sync_visibility(shell);
+        return;
+    }
     shell->transitioning = true;
     sync_visibility(shell);
     lv_screen_load_anim(screen, animation, 180, 0, false);
@@ -233,9 +243,49 @@ static bool load_surface(wristflow_ui_shell_t *shell)
     return true;
 }
 
+enum { STOPWATCH_EXIT_BACK = 1, STOPWATCH_EXIT_HOME, STOPWATCH_EXIT_OPEN };
+
+static bool dismiss_stopwatch_exit(void)
+{
+    lv_obj_t *dialog = lv_obj_find_by_name(lv_screen_active(), "stopwatch_exit_confirm");
+    if (!dialog) return false;
+    lv_obj_delete(dialog);
+    return true;
+}
+
+static void stopwatch_exit_cancel(lv_event_t *event)
+{ (void)event; dismiss_stopwatch_exit(); }
+
+static void stopwatch_exit_accept(lv_event_t *event)
+{
+    wristflow_ui_shell_t *shell = lv_event_get_user_data(event);
+    dismiss_stopwatch_exit();
+    wristflow_apps_timer_clear(shell->apps);
+    if (shell->stopwatch_exit == STOPWATCH_EXIT_BACK) wristflow_ui_shell_back(shell);
+    else if (shell->stopwatch_exit == STOPWATCH_EXIT_HOME) wristflow_ui_shell_home(shell);
+    else wristflow_ui_shell_open(shell, shell->stopwatch_destination);
+}
+
+static bool confirm_stopwatch_exit(wristflow_ui_shell_t *shell, unsigned action, wristflow_surface_t target)
+{
+    if (!shell->components || !wristflow_apps_timer_has_data(shell->apps)) return false;
+    if (lv_obj_find_by_name(lv_screen_active(), "stopwatch_exit_confirm")) return true;
+    shell->stopwatch_exit = action;
+    shell->stopwatch_destination = target;
+    lv_obj_t *dialog = component_confirm_create(lv_screen_active());
+    lv_obj_set_name(dialog, "stopwatch_exit_confirm");
+    lv_label_set_text(lv_obj_find_by_name(dialog, "confirm_text"), "秒表不支持后台运行，确认退出？");
+    lv_obj_add_event_cb(lv_obj_find_by_name(dialog, "confirm_cancel"), stopwatch_exit_cancel, LV_EVENT_SHORT_CLICKED, shell);
+    lv_obj_add_event_cb(lv_obj_find_by_name(dialog, "confirm_accept"), stopwatch_exit_accept, LV_EVENT_SHORT_CLICKED, shell);
+    lv_obj_remove_flag(dialog, LV_OBJ_FLAG_EVENT_BUBBLE | LV_OBJ_FLAG_GESTURE_BUBBLE);
+    return true;
+}
+
 bool wristflow_ui_shell_open(wristflow_ui_shell_t *shell, wristflow_surface_t surface)
 {
     if (!shell || !shell->apps || shell->transitioning) return false;
+    if (surface != shell->navigation.surface &&
+        confirm_stopwatch_exit(shell, STOPWATCH_EXIT_OPEN, surface)) return true;
     if (shell->navigation.surface == WRISTFLOW_SURFACE_HOME &&
         (lv_obj_is_scrolling(shell->carousel) || lv_obj_get_scroll_x(shell->carousel) !=
             (int32_t)(shell->navigation.page_index + 1) * PAGE_WIDTH))
@@ -250,6 +300,7 @@ bool wristflow_ui_shell_open(wristflow_ui_shell_t *shell, wristflow_surface_t su
 bool wristflow_ui_shell_home(wristflow_ui_shell_t *shell)
 {
     if (!shell || shell->transitioning) return false;
+    if (confirm_stopwatch_exit(shell, STOPWATCH_EXIT_HOME, WRISTFLOW_SURFACE_HOME)) return true;
     if (wristflow_components_back(shell->components, true)) return true;
     wristflow_navigation_home(&shell->navigation);
     return load_surface(shell);
@@ -260,16 +311,17 @@ bool wristflow_ui_shell_key(wristflow_ui_shell_t *shell)
     if (shell && shell->display_timer) {
         bool was_off = shell->display.phase == WRISTFLOW_DISPLAY_OFF;
         uint32_t elapsed = lv_tick_get() - shell->display.off_at;
+        if (was_off && elapsed >= 120000U &&
+            shell->navigation.surface < WRISTFLOW_SURFACE_COMPONENT_EDITOR &&
+            !(shell->components ? wristflow_apps_timer_has_data(shell->apps) : wristflow_apps_timer_running(shell->apps)))
+            wristflow_ui_shell_home(shell);
         bool pass = wristflow_display_key(&shell->display, lv_tick_get());
         display_tick(shell->display_timer);
-        if (!pass) {
-            if (was_off && elapsed >= 120000U &&
-                shell->navigation.surface < WRISTFLOW_SURFACE_COMPONENT_EDITOR &&
-                !wristflow_apps_timer_running(shell->apps)) wristflow_ui_shell_home(shell);
-            return true;
-        }
+        if (!pass) return true;
     }
     if (!shell || !shell->apps || shell->transitioning || lv_obj_is_scrolling(shell->carousel)) return false;
+    if (dismiss_stopwatch_exit()) return true;
+    if (confirm_stopwatch_exit(shell, STOPWATCH_EXIT_HOME, WRISTFLOW_SURFACE_HOME)) return true;
     if (wristflow_components_back(shell->components, true)) return true;
     wristflow_navigation_t previous = shell->navigation;
     wristflow_navigation_key(&shell->navigation);
@@ -281,7 +333,9 @@ bool wristflow_ui_shell_key(wristflow_ui_shell_t *shell)
 bool wristflow_ui_shell_back(wristflow_ui_shell_t *shell)
 {
     if (!shell || shell->transitioning) return false;
+    if (dismiss_stopwatch_exit()) return true;
     if (wristflow_settings_dismiss(lv_screen_active())) return true;
+    if (confirm_stopwatch_exit(shell, STOPWATCH_EXIT_BACK, WRISTFLOW_SURFACE_HOME)) return true;
     if (wristflow_components_back(shell->components, false)) return true;
     wristflow_navigation_t previous = shell->navigation;
     if (!wristflow_navigation_back(&shell->navigation)) return false;

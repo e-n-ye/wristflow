@@ -4,6 +4,8 @@
 
 ## 设置与显示增量（2026-09-26）
 
+长睡唤醒与秒表退出修订版在同一工作树执行 `cmake --build artifacts/host-settings --parallel 6`、`ctest --test-dir artifacts/host-settings --output-on-failure`，12/12 通过。Editor 2.0.1 Community GUI 的 Export Code and Recompile 成功，预览 LVGL 9.4.0；确认文案新增字形并检查 390×450 实际 LVGL 快照。`pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/build-isolated.ps1 -Example product` 和 `-Example ui_demo` 均退出 0、产物校验通过，记录分别为 `artifacts/product/20260926-194625-304/result.json` 与 `artifacts/ui_demo/20260926-194945-740/result.json`；260/256 个工程源哈希与构建记录逐项一致。Product 主 BIN 3,390,952 B（SHA-256 `8a763b749fc9d3eaebc497d2051fbe3bf2fa7eba66b69f41e6168c8475ee78c7`），UI Demo 主 BIN 3,382,116 B（SHA-256 `948be5b2d3d06c79df593f378216eefdc43b3fe5d87e023c7fe151477e0bfef1`）。SDK/子模块仍锁定，构建脚本不烧录；Product 已另行写入/verify，真机交互结果见 [上板记录](evidence/2026-09-26/product-settings-hardware.md)。
+
 工作树 `C:/Users/13984/.codex/worktrees/product-settings/wristflow`，分支 `codex/product-settings`，基于 `0edf7cc`。复用锁定 SDK junction 和原已注册环境；本机 `pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/build-isolated.ps1 -Example product` / `ui_demo` 调用本工作树实际包装器，最终均执行 `scons --board=sf32lb52-lchspi-ulp -j6`。本机辅助脚本留在忽略的 artifacts；普通检出仍用公共 `scripts/Build.ps1`。
 
 主机命令为 `cmake -S tests -B artifacts/host-settings -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe`、`cmake --build artifacts/host-settings -j6`、`ctest --test-dir artifacts/host-settings --output-on-failure`；12/12 通过。实际 LVGL 指针测试和 26 张 390×450 快照在 `artifacts/host-settings/`；图片与导出日志在本工作树 `artifacts/settings-evidence/`。Editor 2.0.1 Community GUI 导出成功，预览、主机及固件 LVGL 均 9.4.0。

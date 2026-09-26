@@ -10,6 +10,7 @@ static unsigned brightness;
 static lv_indev_data_t pointer;
 static wristflow_ui_shell_t *shell;
 static const char *renders;
+static bool check_wake_home;
 static uint32_t tick(void) { return ticks; }
 static void flush(lv_display_t *d, const lv_area_t *a, uint8_t *p) { (void)a; (void)p; lv_display_flush_ready(d); }
 static void read_pointer(lv_indev_t *i, lv_indev_data_t *d)
@@ -17,7 +18,15 @@ static void read_pointer(lv_indev_t *i, lv_indev_data_t *d)
     (void)i; *d = pointer;
     if (!wristflow_ui_shell_filter_touch(shell, d->state == LV_INDEV_STATE_PRESSED)) d->state = LV_INDEV_STATE_RELEASED;
 }
-static void set_brightness(uint8_t value, void *context) { (void)context; brightness = value; }
+static void set_brightness(uint8_t value, void *context)
+{
+    (void)context;
+    if (check_wake_home && value) {
+        assert(wristflow_ui_shell_navigation(shell)->surface == WRISTFLOW_SURFACE_HOME);
+        assert(lv_display_get_screen_prev(NULL) == NULL);
+    }
+    brightness = value;
+}
 static void advance(unsigned ms)
 { for (unsigned i = 0; i < ms; i += 16) { ticks += 16; lv_timer_handler(); } lv_obj_update_layout(lv_screen_active()); }
 static void jump(unsigned ms) { ticks += ms; lv_timer_handler(); lv_obj_update_layout(lv_screen_active()); }
@@ -143,12 +152,32 @@ int main(int argc,char **argv)
     jump(5050); assert(wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_OFF); tap(195,125);
     assert(wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_OFF);
     jump(119000); key(); surface(WRISTFLOW_SURFACE_FACE_MANAGEMENT);
-    jump(5050); jump(120000); key(); surface(WRISTFLOW_SURFACE_HOME);
+    jump(5050); jump(120000); check_wake_home=true; key(); check_wake_home=false; surface(WRISTFLOW_SURFACE_HOME);
     key(); open(WRISTFLOW_SURFACE_FLASHLIGHT); jump(600000); assert(brightness==100 && wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_ACTIVE);
     key(); assert(brightness==27); jump(3000); assert(wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_ACTIVE);
     key(); open(WRISTFLOW_SURFACE_STOPWATCH); press("stopwatch_toggle"); jump(5050); jump(120000); key(); surface(WRISTFLOW_SURFACE_STOPWATCH);
     assert(strcmp(lv_label_get_text(named(lv_screen_active(),"stopwatch_time")),"00:00")); snapshot("stopwatch_wake");
-    press("stopwatch_toggle"); jump(5050); jump(120000); key(); surface(WRISTFLOW_SURFACE_HOME);
+    press("stopwatch_toggle");
+    char paused[32]; snprintf(paused,sizeof paused,"%s",lv_label_get_text(named(lv_screen_active(),"stopwatch_time")));
+    jump(5050); jump(120000); key(); surface(WRISTFLOW_SURFACE_STOPWATCH);
+    assert(!strcmp(paused,lv_label_get_text(named(lv_screen_active(),"stopwatch_time"))));
+    /* Paused data, running data, and all exits obey the same confirmation. */
+    press("app_back"); snapshot("stopwatch_exit"); surface(WRISTFLOW_SURFACE_STOPWATCH);
+    press("confirm_cancel"); surface(WRISTFLOW_SURFACE_STOPWATCH);
+    swipe(10,220,280,220); assert(lv_obj_find_by_name(lv_screen_active(),"stopwatch_exit_confirm"));
+    key(); assert(!lv_obj_find_by_name(lv_screen_active(),"stopwatch_exit_confirm")); surface(WRISTFLOW_SURFACE_STOPWATCH);
+    key(); press("confirm_accept"); surface(WRISTFLOW_SURFACE_HOME);
+    key(); open(WRISTFLOW_SURFACE_STOPWATCH);
+    assert(!strcmp(lv_label_get_text(named(lv_screen_active(),"stopwatch_time")),"00:00"));
+    press("stopwatch_toggle"); advance(1200);
+    press("app_back"); press("confirm_cancel"); advance(1200);
+    assert(strcmp(lv_label_get_text(named(lv_screen_active(),"stopwatch_time")),"00:00"));
+    press("app_back"); press("confirm_accept"); surface(WRISTFLOW_SURFACE_LAUNCHER);
+    open(WRISTFLOW_SURFACE_STOPWATCH);
+    assert(!strcmp(lv_label_get_text(named(lv_screen_active(),"stopwatch_time")),"00:00"));
+    press("stopwatch_toggle");
+    open(WRISTFLOW_SURFACE_SETTINGS); surface(WRISTFLOW_SURFACE_STOPWATCH); press("confirm_accept"); surface(WRISTFLOW_SURFACE_SETTINGS);
+    home();
     /* A populated but uncommitted page survives arbitrary sleep without requesting save. */
     swipe(320,125,60,125); sample(100,110,true); advance(736); sample(100,110,false); advance(240); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
     press("edit_right"); press("full"); press("slot_0"); press("choose_activity_0"); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
