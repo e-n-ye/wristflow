@@ -1,0 +1,7 @@
+<component>
+    <view extends="lv_obj" width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0">
+        <lv_label name="confirm_text" x="40" y="110" width="310" text="是否删除当前小组件？" style_text_align="center" style_text_font="title_24" style_text_color="#fg_primary" />
+        <lv_button name="confirm_cancel" x="54" y="308" width="126" height="68" style_bg_color="#bg_surface" style_radius="34" style_shadow_width="0" style_pad_all="0"><lv_label align="center" text="&#xf00d;" style_text_font="icons_20" /></lv_button>
+        <lv_button name="confirm_accept" x="210" y="308" width="126" height="68" style_bg_color="#accent_blue" style_radius="34" style_shadow_width="0" style_pad_all="0"><lv_label align="center" text="&#xf00c;" style_text_font="icons_20" /></lv_button>
+    </view>
+</component>

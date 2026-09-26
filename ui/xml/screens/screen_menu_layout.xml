@@ -1,0 +1,17 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="title_24" style_text_color="#fg_primary">
+        <app_header title="应用布局" />
+        <lv_button name="layout_grid" x="24" y="104" width="342" height="100" style_bg_color="#bg_surface" style_border_width="0" style_radius="24" style_pad_all="0" style_shadow_width="0">
+            <lv_label x="24" align="left_mid" text="多列布局" />
+            <lv_obj name="layout_grid_check" x="-24" align="right_mid" width="42" height="42" hidden="true" clickable="false" scrollable="false" style_bg_color="#accent_blue" style_bg_opa="100%" style_border_width="0" style_radius="21" style_pad_all="0">
+                <lv_obj align="center" width="18" height="18" clickable="false" scrollable="false" style_bg_color="#fg_primary" style_bg_opa="100%" style_border_width="0" style_radius="9" style_pad_all="0" />
+            </lv_obj>
+        </lv_button>
+        <lv_button name="layout_list" x="24" y="216" width="342" height="100" style_bg_color="#bg_surface" style_border_width="0" style_radius="24" style_pad_all="0" style_shadow_width="0">
+            <lv_label x="24" align="left_mid" text="列表布局" />
+            <lv_obj name="layout_list_check" x="-24" align="right_mid" width="42" height="42" clickable="false" scrollable="false" style_bg_color="#accent_blue" style_bg_opa="100%" style_border_width="0" style_radius="21" style_pad_all="0">
+                <lv_obj align="center" width="18" height="18" clickable="false" scrollable="false" style_bg_color="#fg_primary" style_bg_opa="100%" style_border_width="0" style_radius="9" style_pad_all="0" />
+            </lv_obj>
+        </lv_button>
+    </view>
+</screen>

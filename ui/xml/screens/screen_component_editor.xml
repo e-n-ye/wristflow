@@ -1,0 +1,10 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0">
+        <app_header title="编辑组件" />
+        <lv_obj name="edit_canvas" x="63" y="88" width="264" height="266" scrollable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0" style_layout="grid" style_grid_column_dsc_array="126 126" style_grid_row_dsc_array="126 126" style_pad_column="12" style_pad_row="14" />
+        <lv_button name="edit_left" x="8" y="198" width="48" height="48" style_bg_opa="0%" style_shadow_width="0" style_pad_all="0"><lv_label align="center" text="+" style_text_font="value_36" style_text_color="#fg_primary" /></lv_button>
+        <lv_button name="edit_right" x="334" y="198" width="48" height="48" style_bg_opa="0%" style_shadow_width="0" style_pad_all="0"><lv_label align="center" text="+" style_text_font="value_36" style_text_color="#fg_primary" /></lv_button>
+        <lv_button name="edit_action" x="159" y="366" width="72" height="48" style_bg_color="#bg_surface" style_radius="24" style_shadow_width="0" style_pad_all="0"><lv_label name="edit_action_icon" align="center" text="&#xf1f8;" style_text_font="icons_20" style_text_color="#fg_primary" /></lv_button>
+        <lv_label name="edit_save" x="24" y="420" width="342" text="" style_text_align="center" style_text_font="body_20" style_text_color="#fg_secondary" />
+    </view>
+</screen>

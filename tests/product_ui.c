@@ -198,24 +198,52 @@ int main(int argc, char **argv)
     assert(wristflow_ui_shell_key(shell)); advance();
     snapshot(argv[1], "product_launcher");
     lv_obj_t *launcher = lv_screen_active();
-    for (size_t i = 0; i < wristflow_app_count(); ++i) {
+    assert(!lv_obj_find_by_name(launcher, "launcher_caption"));
+    assert(lv_obj_get_height(named(launcher, "launcher_list")) == 450);
+    for (unsigned layout = 0; layout < 2; ++layout) {
+      lv_obj_t *menu = named(launcher, layout ? "launcher_grid" : "launcher_list");
+      assert(!lv_obj_has_flag(menu, LV_OBJ_FLAG_HIDDEN));
+      assert(lv_obj_get_child_count(menu) == wristflow_app_count());
+      snapshot(argv[1], layout ? "product_grid" : "product_list");
+      for (size_t i = 0; i < wristflow_app_count(); ++i) {
         const wristflow_app_descriptor_t *app = wristflow_app_at(i);
-        lv_obj_t *icon = named(launcher, app->launcher_name);
-        for (unsigned tries = 0; tries < 8; ++tries) {
+        lv_obj_t *icon = named(menu, app->launcher_name);
+        int initial_width = lv_obj_get_width(icon);
+        for (unsigned tries = 0; tries < 12; ++tries) {
             lv_area_t a; lv_obj_get_coords(icon, &a);
             int x = (a.x1 + a.x2) / 2, y = (a.y1 + a.y2) / 2;
-            if (x >= 45 && x <= 345 && y >= 45 && y <= 350) break;
-            assert(tries < 7);
-            int dx = x < 45 ? 150 : x > 345 ? -150 : 0;
-            int dy = y < 45 ? 150 : y > 350 ? -150 : 0;
-            swipe(195, 200, 195 + dx, 200 + dy);
+            if (x >= 45 && x <= 345 && y >= 60 && y <= 390) break;
+            if (tries == 11) {
+                fprintf(stderr, "menu layout=%u app=%s center=%d,%d scroll=%d\n",
+                    layout, app->id, x, y, lv_obj_get_scroll_y(menu));
+                snapshot(argv[1], "menu_scroll_failure");
+            }
+            assert(tries < 11);
+            if (y < 60) swipe(195, 200, 195, 260);
+            else swipe(195, 260, 195, 200);
             assert(wristflow_ui_shell_navigation(shell)->surface == WRISTFLOW_SURFACE_LAUNCHER);
         }
+        assert(lv_obj_get_width(icon) == initial_width);
+        int saved_scroll = lv_obj_get_scroll_y(menu);
         click(icon);
         assert(wristflow_ui_shell_navigation(shell)->surface == app->surface);
         if (app->capability == WRISTFLOW_CAPABILITY_PLACEHOLDER) text(lv_screen_active(), "app_title", app->title);
         assert(wristflow_ui_shell_back(shell)); advance();
         assert(lv_screen_active() == launcher);
+        assert(lv_obj_get_scroll_y(menu) == saved_scroll);
+      }
+      if (!layout) {
+        assert(wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_SETTINGS)); advance();
+        click(named(lv_screen_active(), "settings_layout"));
+        assert(wristflow_ui_shell_navigation(shell)->surface == WRISTFLOW_SURFACE_MENU_LAYOUT);
+        click(named(lv_screen_active(), "layout_grid"));
+        assert(wristflow_ui_shell_get_settings(shell, &chosen) && chosen.menu_layout == WRISTFLOW_MENU_GRID);
+        snapshot(argv[1], "product_menu_layout");
+        click(named(lv_screen_active(), "app_back"));
+        text(lv_screen_active(), "settings_layout_value", "多列");
+        click(named(lv_screen_active(), "app_back"));
+        assert(lv_screen_active() == launcher);
+      }
     }
     assert(wristflow_ui_shell_key(shell)); advance();
     assert(wristflow_ui_shell_open_controls(shell));
@@ -256,14 +284,47 @@ int main(int argc, char **argv)
     shell = wristflow_product_ui_create(&state, &settings, set_brightness, &brightness);
     advance();
     assert(shell && brightness == 72 && strcmp(wristflow_ui_shell_watchface_id(shell), "diffusion") == 0);
+    assert(wristflow_ui_shell_key(shell)); advance();
+    assert(!lv_obj_has_flag(named(lv_screen_active(), "launcher_grid"), LV_OBJ_FLAG_HIDDEN));
+    assert(wristflow_ui_shell_key(shell)); advance();
     text(lv_screen_active(), "battery_label", "USB");
     assert(!lv_obj_has_flag(named(lv_screen_active(), "hour_artwork"), LV_OBJ_FLAG_HIDDEN));
     snapshot(argv[1], "product_diffusion");
     state = wristflow_product_snapshot(false, 0);
     wristflow_ui_shell_update(shell, &state);
-    assert(lv_obj_has_flag(named(lv_screen_active(), "hour_artwork"), LV_OBJ_FLAG_HIDDEN));
-    text(lv_screen_active(), "minute_label", "--:--");
+    assert(!lv_obj_has_flag(named(lv_screen_active(), "hour_artwork"), LV_OBJ_FLAG_HIDDEN));
+    assert(lv_image_get_src(named(lv_screen_active(), "hour_artwork")) == hour_unknown);
+    text(lv_screen_active(), "minute_label", "--");
+    assert(lv_obj_get_style_text_font(named(lv_screen_active(), "minute_label"), 0) == metric_56);
+    snapshot(argv[1], "product_diffusion_unsynced");
     wristflow_ui_shell_destroy(shell);
+    /* The visible indicators follow any supported card count, independently of XML samples. */
+    wristflow_screen_factory_t factories[6];
+    for (unsigned i = 0; i < 6; ++i) factories[i] = screen_product_health_create;
+    for (unsigned count = 1; count <= 6; ++count) {
+        wristflow_ui_shell_config_t config = {
+            .watchface = &wristflow_default_watchface, .cards = factories, .card_count = count,
+            .controls = screen_control_center_create, .initial_snapshot = state};
+        shell = wristflow_ui_shell_create(&config); advance();
+        for (unsigned page = 0; page < count; ++page) {
+            swipe(320, 125, 60, 125);
+            lv_obj_t *root = lv_screen_active();
+            unsigned visible = 0;
+            for (unsigned i = 0; i < lv_obj_get_child_count(root); ++i) {
+                lv_obj_t *dots = lv_obj_get_child(root, i);
+                if (dots == named(root, "demo_carousel") || lv_obj_has_flag(dots, LV_OBJ_FLAG_HIDDEN)) continue;
+                ++visible;
+                assert(lv_obj_get_child_count(dots) == count);
+                lv_area_t a; lv_obj_get_coords(dots, &a);
+                assert(a.x1 + a.x2 == 389 && a.y1 == 423);
+                for (unsigned j = 0; j < count; ++j)
+                    assert(lv_color_eq(lv_obj_get_style_bg_color(lv_obj_get_child(dots, j), 0),
+                        lv_color_hex(j == page ? 0xffffff : 0x334155)));
+            }
+            assert(visible == 1);
+        }
+        wristflow_ui_shell_destroy(shell);
+    }
     /* The same binary's demo composition still has deterministic sample data. */
     wristflow_demo_start();
     advance();

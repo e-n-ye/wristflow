@@ -8,9 +8,16 @@
 #define WRISTFLOW_TIME_MIN 1767225600U /* 2026-01-01 UTC */
 #define WRISTFLOW_TIME_MAX 4102444799U /* 2099-12-31 UTC */
 
+typedef enum {
+    WRISTFLOW_MENU_LIST,
+    WRISTFLOW_MENU_GRID,
+    WRISTFLOW_MENU_COUNT
+} wristflow_menu_layout_t;
+
 typedef struct {
     uint8_t brightness;
     char face_id[16];
+    wristflow_menu_layout_t menu_layout;
 } wristflow_settings_t;
 
 wristflow_settings_t wristflow_settings_default(void);
