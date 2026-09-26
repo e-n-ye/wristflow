@@ -2,6 +2,7 @@
 from pathlib import Path
 import argparse
 import runpy
+import sys
 
 from fontTools import subset
 from fontTools.ttLib import TTFont
@@ -18,7 +19,7 @@ TEXT = (
     "月日周二步心率次分最近测量今日活动距离目标千米系统状态电池蓝牙已连接未充电"
     "运行时间控制中心勿扰手筒常亮设置小时钟关闭开启分钟数完成度选择组件新增页面"
     "秒表应用简洁扩散返回暂停继续开始重置已选显示盘即将推出"
-    "血氧压力活力指标计步站立天气睡眠闹钟供未接入传感器功能等待手机同步暂无数据，"
+    "血氧压力活力指标计步站立天气睡眠闹钟供未接入传感器功能等待手机同步暂无数据，布局列表三多组件编辑保存中失败稍后重试是否删除当前小完成退出将不再确认新增选择页面？"
 )
 
 
@@ -46,7 +47,8 @@ subset_font(LVGL / "scripts/built_in_font/FontAwesome5-Solid+Brands+Regular.woff
             OUTPUT / "fonts/WristFlowIcons.ttf", "WristFlow Icons",
             [0xf004, 0xf012, 0xf013, 0xf017, 0xf053, 0xf054, 0xf0eb, 0xf185, 0xf186,
              0xf240, 0xf293, 0xf54b, 0xf04b, 0xf04c, 0xf2f1, 0xf00c, 0xf390, 0xf2f2,
-             0xf043, 0xf118, 0xf70c, 0xf183, 0xf0c2, 0xf236, 0xf0f3, 0xf201])
+             0xf043, 0xf118, 0xf70c, 0xf183, 0xf0c2, 0xf236, 0xf0f3, 0xf201, 0xf1f8, 0xf00d])
 
 if not args.fonts_only:
+    sys.argv = [str(ROOT / "scripts/Generate-Diffusion.py")]
     runpy.run_path(str(ROOT / "scripts/Generate-Diffusion.py"), run_name="__main__")

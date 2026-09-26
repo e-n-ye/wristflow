@@ -1,5 +1,6 @@
 """Whole-hour white/gray artwork. Bitmap generation only; C is exported by LVGL Editor."""
 from pathlib import Path
+import argparse
 import math
 import random
 from PIL import Image, ImageChops, ImageDraw, ImageFilter
@@ -136,10 +137,20 @@ def hour_mask(hour):
 
 
 def hour_art(hour):
-    mask = hour_mask(hour)
+    return diffusion_art(hour_mask(hour), .18 if hour >= 10 else .27)
+
+
+def unknown_art():
+    mask = Image.new("L", (SIZE[0]*SCALE, SIZE[1]*SCALE))
+    draw = ImageDraw.Draw(mask)
+    for bounds in ((30, 112, 146, 170), (196, 112, 312, 170)):
+        draw.rectangle(tuple(v*SCALE for v in bounds), fill=255)
+    return diffusion_art(mask, .27)
+
+
+def diffusion_art(mask, side):
     left, _, right, _ = mask.getbbox()
     width = right-left
-    side = .18 if hour >= 10 else .27
     # Whole-hour coverage; each outer pane is half the width of the inner pane.
     cuts = [left+round(width*f) for f in (0, side/3, side, 1-side, 1-side/3, 1)]
     result = ImageChops.multiply(mask, material(2))
@@ -155,7 +166,14 @@ def hour_art(hour):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--missing-only", action="store_true")
+    args = parser.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
+    unknown_art().save(OUT / "hour_unknown.png")
+    if args.missing_only:
+        print("Generated missing-time diffusion bitmap")
+        raise SystemExit(0)
     sheet = Image.new("RGB", (342*4, 282*3))
     for hour in range(1, 13):
         art = hour_art(hour)

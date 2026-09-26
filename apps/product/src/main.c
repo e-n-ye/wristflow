@@ -23,7 +23,8 @@ static void set_brightness(uint8_t brightness, void *context)
 int main(void)
 {
     wristflow_settings_t settings;
-    wristflow_product_services_start(&settings);
+    wristflow_layout_t layout;
+    wristflow_product_services_start(&settings, &layout);
     wristflow_watch_snapshot_t snapshot = wristflow_product_services_snapshot();
     RT_ASSERT(littlevgl2rtt_init("lcd") == RT_EOK);
     RT_ASSERT(lv_display_get_horizontal_resolution(NULL) == 390);
@@ -32,7 +33,8 @@ int main(void)
     rt_device_t lcd = rt_device_find("lcd");
     RT_ASSERT(lcd);
     lv_obj_t *initial = lv_screen_active();
-    wristflow_ui_shell_t *shell = wristflow_product_ui_create(&snapshot, &settings, set_brightness, lcd);
+    wristflow_ui_shell_t *shell = wristflow_product_ui_create_with_layout(&snapshot, &settings, set_brightness, lcd,
+        &layout, wristflow_product_services_layout, wristflow_product_services_layout_status, NULL);
     RT_ASSERT(shell);
     lv_obj_delete(initial);
     RT_ASSERT(rt_event_init(&key_events, "wf_key", RT_IPC_FLAG_FIFO) == RT_EOK);

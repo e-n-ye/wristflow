@@ -217,6 +217,7 @@ extern lv_font_t * icons_20;
  *----------------*/
 
 /* Targets: any */
+extern const void * hour_unknown;
 extern const void * hour_1;
 extern const void * hour_2;
 extern const void * hour_3;
@@ -259,26 +260,38 @@ void wristflow_ui_init_gen(const char * asset_path);
 /*Include all the widgets, components and screens of this library*/
 #include "components/activity_summary_gen.h"
 #include "components/app_header_gen.h"
+#include "components/app_list_item_gen.h"
 #include "components/card_container_gen.h"
+#include "components/component_confirm_gen.h"
+#include "components/component_group_gen.h"
+#include "components/editor_card_gen.h"
 #include "components/face_thumbnail_gen.h"
 #include "components/launcher_icon_gen.h"
 #include "components/layout_block_gen.h"
 #include "components/layout_option_gen.h"
+#include "components/layout_save_status_gen.h"
 #include "components/metric_full_gen.h"
 #include "components/metric_half_gen.h"
+#include "components/page_dot_gen.h"
 #include "components/page_dots_gen.h"
 #include "components/picker_header_gen.h"
 #include "components/picker_list_gen.h"
+#include "components/product_metric_full_gen.h"
 #include "components/tile_full_gen.h"
 #include "components/tile_grid_gen.h"
 #include "components/tile_half_gen.h"
 #include "components/tile_quarter_gen.h"
 #include "screens/screen_app_placeholder_gen.h"
+#include "screens/screen_component_editor_gen.h"
+#include "screens/screen_component_page_gen.h"
+#include "screens/screen_component_picker_gen.h"
+#include "screens/screen_component_templates_gen.h"
 #include "screens/screen_control_center_gen.h"
 #include "screens/screen_face_picker_gen.h"
 #include "screens/screen_flashlight_gen.h"
 #include "screens/screen_launcher_gen.h"
 #include "screens/screen_layout_picker_gen.h"
+#include "screens/screen_menu_layout_gen.h"
 #include "screens/screen_picker_full_gen.h"
 #include "screens/screen_picker_half_gen.h"
 #include "screens/screen_picker_quarter_gen.h"

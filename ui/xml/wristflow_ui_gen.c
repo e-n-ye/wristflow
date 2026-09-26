@@ -67,6 +67,8 @@ extern lv_font_t icons_20_data;
  *----------------*/
 
 /* Targets: any */
+const void * hour_unknown = NULL;
+extern const void * hour_unknown_data;
 const void * hour_1 = NULL;
 extern const void * hour_1_data;
 const void * hour_2 = NULL;
@@ -188,6 +190,10 @@ void wristflow_ui_init_gen(const char * asset_path)
     /* Targets: any */
     #if WRISTFLOW_UI_CHECK_COMPILE_TARGET(WRISTFLOW_UI_TARGET_ALL)
     if (wristflow_ui_check_target(WRISTFLOW_UI_TARGET_ALL)) {
+        /* hour_unknown */
+        if (!hour_unknown) {
+            hour_unknown = &hour_unknown_data;
+        }
         /* hour_1 */
         if (!hour_1) {
             hour_1 = &hour_1_data;
@@ -303,6 +309,7 @@ void wristflow_ui_init_gen(const char * asset_path)
      * While running in the editor skip this step to update the preview when the XML changes */
 #if defined(LV_USE_XML) && LV_USE_XML && !defined(LV_EDITOR_PREVIEW)
     /* Register images */
+    lv_xml_register_image(NULL, "hour_unknown", hour_unknown);
     lv_xml_register_image(NULL, "hour_1", hour_1);
     lv_xml_register_image(NULL, "hour_2", hour_2);
     lv_xml_register_image(NULL, "hour_3", hour_3);

@@ -8,6 +8,9 @@
 static struct fdb_kvdb settings_db;
 static struct rt_mutex settings_lock, database_lock, rtc_lock;
 static wristflow_settings_t requested, boot_settings;
+static wristflow_layout_t requested_layout;
+static wristflow_layout_store_t layout_store;
+static uint32_t layout_requested, layout_completed, layout_failed;
 static uint32_t requested_at;
 static bool storage_ready, service_ready;
 static rt_device_t rtc;
@@ -30,19 +33,52 @@ static void unlock_database(fdb_db_t db)
     rt_mutex_release(&database_lock);
 }
 
+static const char *const layout_keys[] = {"layout_a", "layout_b"};
+static bool read_layout(unsigned key, uint8_t *record, void *context)
+{
+    (void)context;
+    struct fdb_blob blob;
+    size_t size = fdb_kv_get_blob(&settings_db, layout_keys[key], fdb_blob_make(&blob, record, WRISTFLOW_LAYOUT_BYTES));
+    return size == WRISTFLOW_LAYOUT_BYTES && blob.saved.len == WRISTFLOW_LAYOUT_BYTES;
+}
+
+static bool write_layout(unsigned key, const uint8_t *record, void *context)
+{
+    (void)context;
+    struct fdb_blob blob;
+    fdb_err_t result = fdb_kv_set_blob(&settings_db, layout_keys[key], fdb_blob_make(&blob, record, WRISTFLOW_LAYOUT_BYTES));
+    if (result != FDB_NO_ERR) rt_kprintf("[product] layout FlashDB result=%d\n", result);
+    return result == FDB_NO_ERR;
+}
+
 static void storage_thread(void *context)
 {
     (void)context;
     wristflow_settings_t saved = boot_settings;
     uint32_t last_attempt = 0;
     bool retry = false;
+    uint32_t layout_attempt = 0, layout_attempt_at = 0;
     for (;;) {
         rt_thread_mdelay(100);
         rt_mutex_take(&settings_lock, RT_WAITING_FOREVER);
         wristflow_settings_t next = requested;
         uint32_t changed = requested_at;
+        wristflow_layout_t next_layout = requested_layout;
+        uint32_t layout_id = layout_requested, completed = layout_completed;
         rt_mutex_release(&settings_lock);
         uint32_t now = milliseconds();
+        if (layout_id != completed && (layout_id != layout_attempt || now - layout_attempt_at >= 5000)) {
+            layout_attempt = layout_id; layout_attempt_at = now;
+            uint32_t started = milliseconds();
+            bool success = wristflow_layout_commit(&layout_store, &next_layout, read_layout, write_layout, NULL);
+            rt_mutex_take(&settings_lock, RT_WAITING_FOREVER);
+            if (success) layout_completed = layout_id;
+            else layout_failed = layout_id;
+            rt_mutex_release(&settings_lock);
+            rt_kprintf("[product] layout %s request=%u generation=%u pages=%u write_ms=%u\n",
+                success ? "saved" : "save failed", layout_id, layout_store.generation, next_layout.count,
+                milliseconds() - started);
+        }
         if (wristflow_settings_equal(&saved, &next) || now - changed < 1500 ||
             (retry && now - last_attempt < 5000)) continue;
         uint8_t data[WRISTFLOW_SETTINGS_BYTES];
@@ -57,9 +93,11 @@ static void storage_thread(void *context)
     }
 }
 
-void wristflow_product_services_start(wristflow_settings_t *settings)
+void wristflow_product_services_start(wristflow_settings_t *settings, wristflow_layout_t *layout)
 {
     *settings = wristflow_settings_default();
+    *layout = wristflow_layout_default();
+    layout_store.active = -1;
     RT_ASSERT(rt_mutex_init(&settings_lock, "wf_cfg", RT_IPC_FLAG_PRIO) == RT_EOK);
     RT_ASSERT(rt_mutex_init(&database_lock, "wf_db", RT_IPC_FLAG_PRIO) == RT_EOK);
     RT_ASSERT(rt_mutex_init(&rtc_lock, "wf_rtc", RT_IPC_FLAG_PRIO) == RT_EOK);
@@ -75,11 +113,15 @@ void wristflow_product_services_start(wristflow_settings_t *settings)
         size_t length = fdb_kv_get_blob(&settings_db, "preferences", fdb_blob_make(&blob, data, sizeof data));
         if (blob.saved.len == sizeof data)
             restored = wristflow_settings_decode(settings, data, length);
+        bool layout_restored = wristflow_layout_restore(&layout_store, layout, read_layout, NULL);
+        rt_kprintf("[product] layout restore=%s generation=%u pages=%u\n",
+            layout_restored ? "yes" : "defaults", layout_store.generation, layout->count);
     }
     requested = *settings;
     boot_settings = *settings;
+    requested_layout = *layout;
     if (storage_ready) {
-        rt_thread_t worker = rt_thread_create("wf_store", storage_thread, NULL, 4096, 25, 10);
+        rt_thread_t worker = rt_thread_create("wf_store", storage_thread, NULL, 6144, 25, 10);
         if (!worker || rt_thread_startup(worker) != RT_EOK) storage_ready = false;
     }
     service_ready = true;
@@ -97,6 +139,29 @@ void wristflow_product_services_settings(const wristflow_settings_t *settings)
         requested_at = milliseconds();
     }
     rt_mutex_release(&settings_lock);
+}
+
+uint32_t wristflow_product_services_layout(const wristflow_layout_t *layout, void *context)
+{
+    (void)context;
+    if (!storage_ready || !wristflow_layout_valid(layout)) return 0;
+    rt_mutex_take(&settings_lock, RT_WAITING_FOREVER);
+    requested_layout = *layout;
+    if (++layout_requested == 0) ++layout_requested;
+    uint32_t id = layout_requested;
+    rt_mutex_release(&settings_lock);
+    return id;
+}
+
+wristflow_save_state_t wristflow_product_services_layout_status(uint32_t request, void *context)
+{
+    (void)context;
+    if (!storage_ready || !request) return WRISTFLOW_SAVE_FAILED;
+    rt_mutex_take(&settings_lock, RT_WAITING_FOREVER);
+    wristflow_save_state_t state = layout_completed == request ? WRISTFLOW_SAVE_DONE :
+        layout_failed == request ? WRISTFLOW_SAVE_FAILED : WRISTFLOW_SAVE_PENDING;
+    rt_mutex_release(&settings_lock);
+    return state;
 }
 
 wristflow_watch_snapshot_t wristflow_product_services_snapshot(void)

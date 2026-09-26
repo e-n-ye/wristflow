@@ -1,0 +1,3 @@
+<component>
+    <view extends="lv_label" x="24" y="395" width="342" hidden="true" text="保存失败，稍后重试" style_text_align="center" style_text_font="body_20" style_text_color="#fg_primary" style_bg_color="#bg_surface" style_bg_opa="100%" style_radius="12" style_pad_all="8" />
+</component>

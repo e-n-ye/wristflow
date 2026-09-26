@@ -18,6 +18,8 @@ struct wristflow_apps {
     unsigned int face_index;
     wristflow_surface_t active;
     lv_obj_t *menu_icons[WRISTFLOW_SURFACE_COUNT];
+    lv_obj_t *menu_grid_icons[WRISTFLOW_SURFACE_COUNT];
+    wristflow_menu_layout_t menu_layout;
     lv_point_t menu_centers[WRISTFLOW_SURFACE_COUNT];
     const wristflow_app_descriptor_t *menu_entries[WRISTFLOW_SURFACE_COUNT];
     unsigned menu_count;
@@ -54,10 +56,10 @@ static void back(lv_event_t *event)
 static void launch(lv_event_t *event)
 {
     wristflow_apps_t *apps = lv_event_get_user_data(event);
-    if (apps->menu_dragged) return;
+    if (!apps->product_mode && apps->menu_dragged) return;
     lv_obj_t *target = lv_event_get_current_target_obj(event);
     for (unsigned i = 0; i < apps->menu_count; ++i) {
-        if (target != apps->menu_icons[i])
+        if (target != apps->menu_icons[i] && target != apps->menu_grid_icons[i])
             continue;
         wristflow_ui_shell_open(apps->shell, apps->menu_entries[i]->surface);
         return;
@@ -318,9 +320,68 @@ static void bind_click(lv_obj_t *screen, const char *name, lv_event_cb_t callbac
     lv_obj_add_event_cb(named(screen, name), callback, LV_EVENT_SHORT_CLICKED, apps);
 }
 
+static void sync_menu_layout(wristflow_apps_t *apps)
+{
+    bool grid = apps->menu_layout == WRISTFLOW_MENU_GRID;
+    lv_obj_t *menu = apps->screens[WRISTFLOW_SURFACE_LAUNCHER];
+    if (menu && apps->product_mode) {
+        lv_obj_set_flag(named(menu, "launcher_list"), LV_OBJ_FLAG_HIDDEN, grid);
+        lv_obj_set_flag(named(menu, "launcher_grid"), LV_OBJ_FLAG_HIDDEN, !grid);
+    }
+    lv_obj_t *settings = apps->screens[WRISTFLOW_SURFACE_SETTINGS];
+    if (settings) lv_label_set_text(named(settings, "settings_layout_value"), grid ? "多列" : "列表");
+    lv_obj_t *selection = apps->screens[WRISTFLOW_SURFACE_MENU_LAYOUT];
+    if (selection) {
+        lv_obj_set_flag(named(selection, "layout_list_check"), LV_OBJ_FLAG_HIDDEN, grid);
+        lv_obj_set_flag(named(selection, "layout_grid_check"), LV_OBJ_FLAG_HIDDEN, !grid);
+    }
+}
+
+static void choose_menu_layout(lv_event_t *event)
+{
+    wristflow_apps_t *apps = lv_event_get_user_data(event);
+    apps->menu_layout = lv_event_get_current_target_obj(event) ==
+        named(apps->screens[WRISTFLOW_SURFACE_MENU_LAYOUT], "layout_grid")
+        ? WRISTFLOW_MENU_GRID : WRISTFLOW_MENU_LIST;
+    sync_menu_layout(apps);
+}
+
+static void open_menu_layout(lv_event_t *event)
+{
+    wristflow_apps_t *apps = lv_event_get_user_data(event);
+    wristflow_ui_shell_open(apps->shell, WRISTFLOW_SURFACE_MENU_LAYOUT);
+}
+
+static void create_product_menu(wristflow_apps_t *apps, lv_obj_t *root)
+{
+    lv_obj_t *list = named(root, "launcher_list");
+    lv_obj_t *grid = named(root, "launcher_grid");
+    apps->menu_count = 0;
+    for (size_t i = 0; i < wristflow_app_count(); ++i) {
+        const wristflow_app_descriptor_t *entry = wristflow_app_at(i);
+        unsigned index = apps->menu_count++;
+        LV_ASSERT(index < WRISTFLOW_SURFACE_COUNT);
+        apps->menu_entries[index] = entry;
+        lv_obj_t *row = app_list_item_create(list, entry->title, entry->icon, lv_color_hex(entry->color));
+        lv_obj_t *icon = launcher_icon_create(grid, entry->icon, lv_color_hex(entry->color));
+        lv_obj_set_name(row, entry->launcher_name);
+        lv_obj_set_name(icon, entry->launcher_name);
+        apps->menu_icons[index] = row;
+        apps->menu_grid_icons[index] = icon;
+        lv_obj_add_event_cb(row, launch, LV_EVENT_SHORT_CLICKED, apps);
+        lv_obj_add_event_cb(icon, launch, LV_EVENT_SHORT_CLICKED, apps);
+    }
+    lv_obj_remove_flag(list, LV_OBJ_FLAG_SCROLL_CHAIN);
+    lv_obj_remove_flag(grid, LV_OBJ_FLAG_SCROLL_CHAIN);
+    lv_obj_set_scroll_dir(list, LV_DIR_VER);
+    lv_obj_set_scroll_dir(grid, LV_DIR_VER);
+    sync_menu_layout(apps);
+}
+
 wristflow_apps_t *wristflow_apps_create(wristflow_ui_shell_t *shell, lv_obj_t *controls,
                                       wristflow_brightness_cb_t brightness, void *context,
-                                      uint8_t initial_brightness, bool product_mode)
+                                      uint8_t initial_brightness, bool product_mode,
+                                      wristflow_menu_layout_t menu_layout)
 {
     wristflow_apps_t *apps = lv_malloc_zeroed(sizeof(*apps));
     LV_ASSERT_MALLOC(apps);
@@ -330,6 +391,7 @@ wristflow_apps_t *wristflow_apps_create(wristflow_ui_shell_t *shell, lv_obj_t *c
     apps->brightness_cb = brightness;
     apps->context = context;
     apps->product_mode = product_mode;
+    apps->menu_layout = menu_layout;
     apps->timer = lv_timer_create(tick, 40, apps);
     lv_timer_pause(apps->timer);
     bind_click(controls, "flashlight_button", control_action, apps);
@@ -349,6 +411,11 @@ uint8_t wristflow_apps_brightness(const wristflow_apps_t *apps)
     return apps ? apps->brightness : 60;
 }
 
+wristflow_menu_layout_t wristflow_apps_menu_layout(const wristflow_apps_t *apps)
+{
+    return apps ? apps->menu_layout : WRISTFLOW_MENU_LIST;
+}
+
 lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surface, bool *created)
 {
     if (created) *created = false;
@@ -359,6 +426,8 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
     const wristflow_app_descriptor_t *app = wristflow_app_for_surface(surface);
     if (surface == WRISTFLOW_SURFACE_LAUNCHER)
         root = apps->product_mode ? screen_product_launcher_create() : screen_launcher_create();
+    else if (surface == WRISTFLOW_SURFACE_MENU_LAYOUT && apps->product_mode)
+        root = screen_menu_layout_create();
     else if (app)
         root = apps->product_mode && app->capability != WRISTFLOW_CAPABILITY_READY
             ? screen_product_placeholder_create() : app->create();
@@ -367,7 +436,9 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
     if (created) *created = true;
     lv_obj_t *header = lv_obj_find_by_name(root, "app_back");
     if (header) lv_obj_add_event_cb(header, back, LV_EVENT_SHORT_CLICKED, apps);
-    if (surface == WRISTFLOW_SURFACE_LAUNCHER) {
+    if (surface == WRISTFLOW_SURFACE_LAUNCHER && apps->product_mode) {
+        create_product_menu(apps, root);
+    } else if (surface == WRISTFLOW_SURFACE_LAUNCHER) {
         lv_obj_update_layout(root);
         apps->menu_count = 0;
         for (size_t i = 0; i < wristflow_app_count(); ++i) {
@@ -412,6 +483,13 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         lv_obj_add_event_cb(named(root, "settings_brightness"), brightness_changed, LV_EVENT_VALUE_CHANGED, apps);
         lv_obj_add_flag(named(root, "settings_battery"), LV_OBJ_FLAG_CLICKABLE);
         bind_click(root, "settings_battery", open_battery, apps);
+        lv_obj_set_flag(named(root, "settings_layout"), LV_OBJ_FLAG_HIDDEN, !apps->product_mode);
+        if (apps->product_mode) bind_click(root, "settings_layout", open_menu_layout, apps);
+        sync_menu_layout(apps);
+    } else if (surface == WRISTFLOW_SURFACE_MENU_LAYOUT) {
+        bind_click(root, "layout_list", choose_menu_layout, apps);
+        bind_click(root, "layout_grid", choose_menu_layout, apps);
+        sync_menu_layout(apps);
     } else {
         lv_label_set_text(named(root, "app_title"), app->title);
         lv_label_set_text(named(root, "placeholder_icon"), app->icon);

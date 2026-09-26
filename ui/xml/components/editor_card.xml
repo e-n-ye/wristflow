@@ -1,0 +1,7 @@
+<component>
+    <view extends="lv_button" width="126" height="126" scrollable="false" style_bg_color="#bg_surface" style_bg_opa="100%" style_border_width="2" style_border_color="#fg_muted" style_radius="20" style_pad_all="0" style_shadow_width="0">
+        <lv_label name="icon_label" x="14" y="12" text="+" style_text_font="icons_20" style_text_color="#accent_blue" />
+        <lv_label name="value_label" x="14" y="44" text="--" style_text_font="value_36" style_text_color="#fg_primary" />
+        <lv_label name="caption_label" x="14" y="-12" align="bottom_left" text="选择组件" style_text_font="body_20" style_text_color="#fg_primary" />
+    </view>
+</component>

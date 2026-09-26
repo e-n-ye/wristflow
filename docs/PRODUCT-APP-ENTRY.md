@@ -1,6 +1,6 @@
 # 默认组件页与统一应用入口
 
-更新：2026-09-26。本增量落实用户最后确认的三页内容及点击跳转。源码、主机输入测试和固件构建已完成；本轮没有烧录、重启或新增硬件验收。完整组件编辑/设置契约见 [产品 UI 共识](PRODUCT-UI-SCOPE.md)。
+更新：2026-09-26。本增量落实用户最后确认的三页内容及点击跳转。源码、主机输入测试和固件构建已完成；之后按用户要求完成新版烧录、校验和启动采样，屏幕交互等待用户验收。完整组件编辑/设置契约见 [产品 UI 共识](PRODUCT-UI-SCOPE.md)。
 
 ## 行为与实现边界
 
@@ -43,4 +43,12 @@
 
 变更文本的 UTF-8、JSON/XML、Markdown 本地链接检查通过。原始 `git diff --cached --check` 仅提示六个新增官方生成 C 文件的 EOF 空行；保留官方输出，用 `git -c core.whitespace=-blank-at-eof diff --cached --check` 验证其余空白规则，退出 0，不修改仓库或全局 Git 配置。
 
-下一有界增量：建立组件页持久配置及写入完成/失败模型，再接长按编辑、同尺寸两色选择、左右插页、填满点勾、单次确认删除和 1–6 页边界。随后合并做本轮入口及编辑功能的真机交互检查；RTC 复位问题独立排查，功耗与长测继续后置。
+## 2026-09-26 新版烧录
+
+用户要求先烧录新版供真机验收。工作树 `codex/product-runtime` 的 `feabc1d268b63b92e14bc4f097c0f32f1e9370b8` 无未提交改动；烧录前重新核对三镜像及 `sftool_param.json` 的 SHA-256，均与上述 Product 构建记录一致。Windows 当前在线设备为 `USB-SERIAL CH340 (COM5)`，VID/PID `1A86:7523`，实例 ID 与上次黄山派一致。
+
+使用已安装 SiFli `sftool 0.2.5`，参数 `-p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify`。按构建参数写入 bootloader `0x12010000`、main `0x12020000`、ftab `0x12000000`；未整片擦除，未向 settings 分区写入。工具退出码 0。镜像哈希分别为 `e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21`、`2e62676a5d3951ab689822690cf29a6c85cb2d3260c3a16052042c3aa76e506a`、`80e7647f47c008720f1bed83397bdb407295a27fe217fcf7e9d00dc9fd71fc5b`。命令输出与清单位于 `artifacts/flash/product/20260926-product-01/`。
+
+在 1000000 baud、8N1 下 RTS 脉冲复位并读取启动串口：`settings` 分区创建成功，`[product] storage=ready restore=yes brightness=27 face=simple rtc=available`，CO5300 显示及 FT6146 触摸驱动打开，报告 `RTC=not synchronized, battery absent, BLE/PM pending`。这证明固件启动和旧设置读取，不代表新版十个组件的屏幕触摸交互已通过；后者等待用户反馈。RTC 复位后需重新校时，属于此前已知行为。
+
+下一有界增量：建立组件页持久配置及写入完成/失败模型，再接长按编辑、同尺寸两色选择、左右插页、填满点勾、单次确认删除和 1–6 页边界。RTC 复位问题独立排查，功耗与长测继续后置。

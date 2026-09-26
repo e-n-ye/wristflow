@@ -41,8 +41,9 @@ void wristflow_demo_start(void)
         screen_tile_system_create, screen_tile_full_create
     };
     const wristflow_ui_shell_config_t config = {
-        &wristflow_default_watchface, cards, sizeof(cards) / sizeof(cards[0]),
-        screen_control_center_create, {22, 48, 53}, true, brightness_cb, platform_context
+        .watchface = &wristflow_default_watchface, .cards = cards, .card_count = sizeof(cards) / sizeof(cards[0]),
+        .controls = screen_control_center_create, .initial_snapshot = {.hour_24 = 22, .minute = 48, .battery_percent = 53},
+        .enable_apps = true, .set_brightness = brightness_cb, .platform_context = platform_context
     };
     lv_obj_t *initial = lv_screen_active();
     shell = wristflow_ui_shell_create(&config);
