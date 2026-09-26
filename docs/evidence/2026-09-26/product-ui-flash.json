@@ -1,0 +1,73 @@
+{
+  "date": "2026-09-26",
+  "branch": "codex/product-ui-feedback",
+  "commit": "2dbc78216690ef5f8db8f265aeebe0795fbf0fa5",
+  "board": "sf32lb52-lchspi-ulp",
+  "port": "COM5",
+  "port_identity": "USB\\VID_1A86&PID_7523\\6&A8355E6&3&1",
+  "tool": "D:/MY_Desk/project/wristflow/.tools/sifli/tools/sftool/0.2.5/sftool.exe",
+  "arguments": "-p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify bootloader/bootloader.bin@0x12010000 main.bin@0x12020000 ftab/ftab.bin@0x12000000",
+  "images": [
+    {
+      "name": "bootloader.bin",
+      "address": "0x12010000",
+      "bytes": 58496,
+      "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+    },
+    {
+      "name": "main.bin",
+      "address": "0x12020000",
+      "bytes": 3329904,
+      "sha256": "91ccaf7f9453f707ecfe42426e743e8256a1c2cf5077d9e7f203349782c380d5"
+    },
+    {
+      "name": "ftab.bin",
+      "address": "0x12000000",
+      "bytes": 11288,
+      "sha256": "59050fbc444e3f949ae957882ea1a169658efe98c87e439263281fe685e5635b"
+    }
+  ],
+  "source_hashes_verified": 235,
+  "flash_exit_code": 0,
+  "flash_verified": true,
+  "flash_log": "artifacts/flash/product/20260926-feedback-01/command-output.log",
+  "startup_uart": "artifacts/hardware/product-20260926-feedback-startup/uart.txt",
+  "startup": "layout restore=defaults generation=0 pages=3; storage=ready restore=yes brightness=26 face=simple rtc=available; CO5300 and FT6146 opened; RTC not synchronized",
+  "first_flash_user_feedback": {
+    "menu_default_list_and_scroll": "normal",
+    "layout_selector_dot_and_grid_switch": "normal",
+    "unsynced_diffusion": "normal",
+    "editor_entry": "normal",
+    "editor_buttons": "plus and delete were hard to hit; near misses exited the editor"
+  },
+  "edge_target_fix": {
+    "product_result": "artifacts/product/20260926-151911-153/result.json",
+    "ui_demo_result": "artifacts/ui_demo/20260926-152137-458/result.json",
+    "product_main_bytes": 3330088,
+    "product_main_sha256": "dd0fde3c9892d284f64b7b10f51cd7486d787be1d9d0ed8da7ed713e8a7c35be",
+    "ui_demo_main_bytes": 3322908,
+    "ui_demo_main_sha256": "6a24011b90454de5fcbcd0e4832adc79def818ef3316c968d9350a2066794840",
+    "ftab_sha256": "c07734bc7875ffb46cf6316b38ee3a475bc997f869e88d3e442cebaa8e4218db",
+    "source_hashes_verified": {
+      "product": 235,
+      "ui_demo": 231
+    },
+    "host_tests_passed": 10,
+    "flash_exit_code": 0,
+    "flash_verified": true,
+    "flash_log": "artifacts/flash/product/20260926-feedback-edge-02.log",
+    "startup_uart": "artifacts/hardware/product-20260926-feedback-edge-02/uart.txt",
+    "startup": "build banner 2dbc7821; layout restore=yes generation=11 pages=3; storage=ready restore=yes brightness=32 face=diffusion; CO5300 and FT6146 opened",
+    "interaction_uart": "artifacts/hardware/product-20260926-feedback-edge-02/interaction-uart.txt",
+    "observed_saves": [
+      "layout saved request=1 generation=12 pages=4 write_ms=5",
+      "layout saved request=2 generation=13 pages=3 write_ms=198; FlashDB GC reported 145 ms"
+    ],
+    "post_gc_reboot_uart": "artifacts/hardware/product-20260926-feedback-edge-02-gc-reboot/uart.txt",
+    "post_gc_reboot": "layout restore=yes generation=15 pages=3",
+    "user_feedback": "plus and delete edges, near-control and true blank taps, page counts and dots normal",
+    "interactive_hardware_verified": true,
+    "remaining_hardware_checks": "card identities/colors after reboot, interrupted write, measured menu frame time and memory"
+  },
+  "interactive_hardware_verified": true
+}

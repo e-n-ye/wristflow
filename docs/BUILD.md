@@ -1,14 +1,14 @@
 # 可复现构建基线
 
-本页各节结果仅适用于注明的日期与源码版本。最新已编译为 [反馈修复](PRODUCT-UI-FEEDBACK.md) 与 [组件编辑](COMPONENT-EDITOR.md)，10/10 主机测试和 Product/UI Demo 编译通过，尚未烧录。已上板的 `feabc1d` 应用入口与旧版完整上板证据分别见 [入口记录](PRODUCT-APP-ENTRY.md)、[产品运行记录](PRODUCT-RUNTIME.md)。当前状态见 [STATUS](STATUS.md)，下方历史记录不代表最新源码验收。
+本页各节结果仅适用于注明的日期与源码版本。当前 [反馈修复](PRODUCT-UI-FEEDBACK.md) 与 [组件编辑](COMPONENT-EDITOR.md) 已通过 10/10 主机测试和 Product/UI Demo 编译；Product 修正版已烧录、校验和启动，真机交互范围见 [烧录证据](evidence/2026-09-26/product-ui-flash.json)。旧版完整上板证据分别见 [入口记录](PRODUCT-APP-ENTRY.md)、[产品运行记录](PRODUCT-RUNTIME.md)。当前状态见 [STATUS](STATUS.md)，下方历史记录不代表最新源码验收。
 
 ## 反馈修复与组件编辑（2026-09-26）
 
 工作树 `C:/Users/13984/.codex/worktrees/product-ui-feedback/wristflow`，分支 `codex/product-ui-feedback`，基于未合入的产品入口提交 `feabc1d`。本机使用相同锁定 SDK 的只读 junction 与已注册环境，`artifacts/build-isolated.ps1 -Example product` / `ui_demo` 调用当前工作树的 `scripts/Build.ps1`，最终仍为官方 `scons --board=sf32lb52-lchspi-ulp -j6`；不烧录。
 
-Product 记录 `artifacts/product/20260926-145032-062/result.json`，UI Demo 记录 `artifacts/ui_demo/20260926-145104-666/result.json`；两项退出 0、产物校验通过、SDK 无改动。对应主 BIN 为 3,329,904 B 和 3,322,724 B，完整哈希、源清单摘要、版本与本机日志位置见 [精简证据](evidence/2026-09-26/product-ui-feedback.json)。最终源文件逐项与两份构建记录哈希一致。
+修复真机编辑页边缘触控后，Product 记录为 `artifacts/product/20260926-151911-153/result.json`，UI Demo 为 `artifacts/ui_demo/20260926-152137-458/result.json`；两项退出 0、产物校验通过、SDK 无改动。对应主 BIN 为 3,330,088 B 和 3,322,908 B，完整哈希、源清单摘要、版本与本机日志位置见 [精简证据](evidence/2026-09-26/product-ui-feedback.json)。最终源文件逐项与两份构建记录哈希一致；Product 修正版已再次烧录、校验和启动。
 
-主机用 `cmake -S tests -B artifacts/host-feedback -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe`、`cmake --build artifacts/host-feedback -j6`、`ctest --test-dir artifacts/host-feedback --output-on-failure`；10/10 通过。Editor 2.0.1 Community 的 GUI `Ctrl+B` 导出成功，预览/主机/固件均为 LVGL 9.4.0。XML 格式、变更中文 UTF-8、生成清单及实际 SCons 编译来源已核对。SDK、分区与公共构建入口未改，未重跑手动云端基线。
+主机用 `cmake -S tests -B artifacts/host-feedback -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe`、`cmake --build artifacts/host-feedback -j6`、`ctest --test-dir artifacts/host-feedback --output-on-failure`；修正版 10/10 通过，额外覆盖左右 `+` 与垃圾桶的边缘坐标和靠近按钮的空白防误退。Editor 2.0.1 Community 的 GUI `Ctrl+B` 导出成功，预览/主机/固件均为 LVGL 9.4.0；本次触控修复未修改 XML 或生成 C。XML 格式、变更中文 UTF-8、生成清单及实际 SCons 编译来源已核对。SDK、分区与公共构建入口未改，未重跑手动云端基线。
 
 ## 手动 CI 基线（2026-09-25）
 

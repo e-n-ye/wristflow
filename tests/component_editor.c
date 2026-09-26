@@ -24,6 +24,8 @@ static void advance(unsigned ms)
 { for (unsigned i = 0; i < ms; i += 16) { ticks += 16; lv_timer_handler(); } lv_obj_update_layout(lv_screen_active()); }
 static void sample(int x, int y, bool down)
 { pointer.point = (lv_point_t){x,y}; pointer.state = down ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED; advance(16); }
+static void tap(int x, int y)
+{ sample(x,y,true); sample(x,y,false); advance(480); }
 static lv_obj_t *named(lv_obj_t *root, const char *name)
 { lv_obj_t *obj = lv_obj_find_by_name(root, name); assert(obj); return obj; }
 static void click(lv_obj_t *obj)
@@ -40,7 +42,12 @@ static void swipe(int x1, int y1, int x2, int y2)
     sample(x2,y2,false); advance(800);
 }
 static void surface(wristflow_surface_t value)
-{ assert(wristflow_ui_shell_navigation(shell)->surface == value); }
+{
+    wristflow_surface_t actual = wristflow_ui_shell_navigation(shell)->surface;
+    if (actual != value) fprintf(stderr, "surface expected=%d actual=%d pointer=%d,%d\n",
+        value, actual, pointer.point.x, pointer.point.y);
+    assert(actual == value);
+}
 static void dots(void)
 {
     lv_obj_t *root=lv_screen_active();
@@ -119,6 +126,7 @@ int main(int argc,char **argv)
     sample(100,110,true); sample(100,122,true); advance(800); sample(100,122,false); advance(480); surface(WRISTFLOW_SURFACE_HOME);
     sample(100,110,true); advance(608); surface(WRISTFLOW_SURFACE_HOME); sample(100,110,false); advance(480);
     enter(); snapshot("component_editor");
+    tap(5,164); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
     swipe(320,140,60,140); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
     assert(wristflow_ui_shell_navigation(shell)->page_index==1);
     press("slot_1"); surface(WRISTFLOW_SURFACE_COMPONENT_PICKER); snapshot("component_quarter_picker");
@@ -134,11 +142,13 @@ int main(int argc,char **argv)
     save_state=WRISTFLOW_SAVE_DONE; advance(240);
     assert(!strcmp(lv_label_get_text(named(lv_screen_active(),"edit_save")),"已保存"));
     /* Existing edits exit without a dialog; a tap routes the replacement. */
-    press("app_back"); surface(WRISTFLOW_SURFACE_HOME);
+    tap(195,75); surface(WRISTFLOW_SURFACE_HOME);
     sample(280,110,true); sample(280,110,false); advance(480); surface(WRISTFLOW_SURFACE_HEART);
     assert(wristflow_ui_shell_back(shell)); advance(480); enter();
     /* Incomplete and complete new pages remain drafts until the check mark. */
-    begin("edit_left","full"); assert(lv_obj_has_state(named(lv_screen_active(),"edit_action"),LV_STATE_DISABLED));
+    tap(4,175); surface(WRISTFLOW_SURFACE_COMPONENT_TEMPLATES);
+    press("full"); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
+    assert(lv_obj_has_state(named(lv_screen_active(),"edit_action"),LV_STATE_DISABLED));
     assert(!strcmp(lv_label_get_text(named(lv_screen_active(),"edit_save")),""));
     snapshot("component_new_empty");
     sample(195,75,true); sample(195,75,false); advance(480);
@@ -150,12 +160,15 @@ int main(int argc,char **argv)
     assert(wristflow_ui_shell_key(shell)); advance(480); confirm(false); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
     assert(wristflow_ui_shell_key(shell)); advance(480); confirm(true); surface(WRISTFLOW_SURFACE_HOME);
     assert(wristflow_ui_shell_navigation(shell)->page_index==0 && layout->count==3 && requests==1);
-    swipe(320,125,60,125); enter(); begin("edit_right","full"); fill(WRISTFLOW_LAYOUT_FULL);
+    swipe(320,125,60,125); enter();
+    tap(385,269); surface(WRISTFLOW_SURFACE_COMPONENT_TEMPLATES);
+    press("full"); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
+    fill(WRISTFLOW_LAYOUT_FULL);
     press("edit_action"); surface(WRISTFLOW_SURFACE_HOME);
     assert(layout->count==4 && requests==2 && wristflow_ui_shell_navigation(shell)->page_index==2);
     dots();
     assert(layout->pages[1].template_id==WRISTFLOW_LAYOUT_FULL); snapshot("component_full_page");
-    enter(); press("edit_action"); confirm(false); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
+    enter(); tap(246,418); confirm(false); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
     assert(layout->count==4 && requests==2);
     press("edit_action"); confirm(true); surface(WRISTFLOW_SURFACE_HOME);
     assert(layout->count==3 && requests==3 && wristflow_ui_shell_navigation(shell)->page_index==1);
