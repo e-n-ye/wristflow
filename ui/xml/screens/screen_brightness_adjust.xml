@@ -1,0 +1,14 @@
+<screen>
+    <styles>
+        <style name="brightness_fill" bg_color="#accent_blue" radius="32" />
+        <style name="brightness_knob" bg_opa="0%" pad_all="0" />
+    </styles>
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="body_20" style_text_color="#fg_primary">
+        <app_header title="自定义亮度" />
+        <lv_label name="settings_brightness_value" x="100" y="84" width="190" text="60%" style_text_font="value_36" style_text_align="center" />
+        <lv_slider name="settings_brightness" x="163" y="152" width="64" height="248" min_value="10" max_value="100" value="60" style_radius="32" style_bg_color="#bg_surface_subtle" style_bg_opa="100%">
+            <style name="brightness_fill" selector="indicator" />
+            <style name="brightness_knob" selector="knob" />
+        </lv_slider>
+    </view>
+</screen>

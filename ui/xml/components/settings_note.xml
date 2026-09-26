@@ -1,0 +1,4 @@
+<component>
+    <api><prop name="text" type="string" default="开启后，长按表盘可更换表盘。" /></api>
+    <view extends="lv_label" width="318" text="$text" style_text_font="body_20" style_text_color="#fg_secondary" style_pad_left="8" style_pad_bottom="8" />
+</component>

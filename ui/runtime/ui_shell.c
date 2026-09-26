@@ -2,6 +2,7 @@
 #include "mount_screen.h"
 #include "apps.h"
 #include "components.h"
+#include "settings_view.h"
 #include "wristflow_ui.h"
 #include <string.h>
 
@@ -45,10 +46,42 @@ struct wristflow_ui_shell {
     bool transitioning;
     bool ready;
     bool edge_press;
+    wristflow_settings_t preferences;
+    wristflow_display_policy_t display;
+    lv_timer_t *display_timer;
+    wristflow_brightness_cb_t brightness_cb;
+    void *platform_context;
+    uint8_t applied_brightness;
 };
 
 static void gesture(lv_event_t *event);
 static void face_long_press(lv_event_t *event);
+
+static void apply_brightness(wristflow_ui_shell_t *shell, uint8_t value)
+{
+    if (shell->applied_brightness == value) return;
+    shell->applied_brightness = value;
+    if (shell->brightness_cb) shell->brightness_cb(value, shell->platform_context);
+}
+
+static void display_tick(lv_timer_t *timer)
+{
+    wristflow_ui_shell_t *shell = lv_timer_get_user_data(timer);
+    uint32_t keep_before = shell->display.keep_ms;
+    wristflow_display_tick(&shell->display, lv_tick_get(), shell->preferences.screen_timeout,
+        shell->navigation.surface == WRISTFLOW_SURFACE_FLASHLIGHT);
+    apply_brightness(shell, wristflow_display_brightness(&shell->display, wristflow_apps_brightness(shell->apps)));
+    if (keep_before != shell->display.keep_ms) wristflow_apps_update(shell->apps, &shell->snapshot);
+}
+
+static void brightness_changed(uint8_t value, void *context)
+{
+    wristflow_ui_shell_t *shell = context;
+    if (shell->display_timer) {
+        wristflow_display_activity(&shell->display, lv_tick_get());
+        display_tick(shell->display_timer);
+    } else apply_brightness(shell, value);
+}
 
 static void bubble_events(lv_obj_t *obj)
 {
@@ -138,6 +171,8 @@ static void screen_loaded(lv_event_t *event)
 
 static void transition(wristflow_ui_shell_t *shell, lv_obj_t *screen, lv_screen_load_anim_t animation)
 {
+    /* Controls are retained outside the navigation stack; discard pending prompts on exit. */
+    wristflow_settings_dismiss(lv_screen_active());
     wristflow_apps_activate(shell->apps, shell->navigation.surface);
     shell->transitioning = true;
     sync_visibility(shell);
@@ -222,6 +257,18 @@ bool wristflow_ui_shell_home(wristflow_ui_shell_t *shell)
 
 bool wristflow_ui_shell_key(wristflow_ui_shell_t *shell)
 {
+    if (shell && shell->display_timer) {
+        bool was_off = shell->display.phase == WRISTFLOW_DISPLAY_OFF;
+        uint32_t elapsed = lv_tick_get() - shell->display.off_at;
+        bool pass = wristflow_display_key(&shell->display, lv_tick_get());
+        display_tick(shell->display_timer);
+        if (!pass) {
+            if (was_off && elapsed >= 120000U &&
+                shell->navigation.surface < WRISTFLOW_SURFACE_COMPONENT_EDITOR &&
+                !wristflow_apps_timer_running(shell->apps)) wristflow_ui_shell_home(shell);
+            return true;
+        }
+    }
     if (!shell || !shell->apps || shell->transitioning || lv_obj_is_scrolling(shell->carousel)) return false;
     if (wristflow_components_back(shell->components, true)) return true;
     wristflow_navigation_t previous = shell->navigation;
@@ -234,6 +281,7 @@ bool wristflow_ui_shell_key(wristflow_ui_shell_t *shell)
 bool wristflow_ui_shell_back(wristflow_ui_shell_t *shell)
 {
     if (!shell || shell->transitioning) return false;
+    if (wristflow_settings_dismiss(lv_screen_active())) return true;
     if (wristflow_components_back(shell->components, false)) return true;
     wristflow_navigation_t previous = shell->navigation;
     if (!wristflow_navigation_back(&shell->navigation)) return false;
@@ -245,6 +293,7 @@ bool wristflow_ui_shell_back(wristflow_ui_shell_t *shell)
 static void face_long_press(lv_event_t *event)
 {
     wristflow_ui_shell_t *shell = lv_event_get_user_data(event);
+    if (!shell->preferences.face_long_press) return;
     if (wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_FACE_PICKER)) {
         lv_indev_t *input = lv_indev_active();
         if (input) lv_indev_wait_release(input);
@@ -465,6 +514,11 @@ wristflow_ui_shell_t *wristflow_ui_shell_create(const wristflow_ui_shell_config_
     LV_ASSERT_MALLOC(shell);
     wristflow_navigation_init(&shell->navigation, (unsigned int)config->card_count + 1);
     shell->snapshot = config->initial_snapshot;
+    shell->preferences = config->initial_settings ? *config->initial_settings : wristflow_settings_default();
+    shell->brightness_cb = config->set_brightness;
+    shell->platform_context = config->platform_context;
+    shell->applied_brightness = 255;
+    wristflow_display_init(&shell->display, lv_tick_get());
     if (config->product_apps) {
         shell->components = wristflow_components_create(shell, config->initial_layout,
             config->save_layout, config->layout_status, config->layout_context);
@@ -517,7 +571,7 @@ wristflow_ui_shell_t *wristflow_ui_shell_create(const wristflow_ui_shell_config_
     }
     shell->controls = config->controls();
     if (config->enable_apps) {
-        shell->apps = wristflow_apps_create(shell, shell->controls, config->set_brightness, config->platform_context,
+        shell->apps = wristflow_apps_create(shell, shell->controls, brightness_changed, shell,
             config->initial_settings ? config->initial_settings->brightness : 60, config->product_apps,
             config->initial_settings ? config->initial_settings->menu_layout : WRISTFLOW_MENU_LIST);
         wristflow_apps_update(shell->apps, &shell->snapshot);
@@ -546,6 +600,8 @@ void wristflow_ui_shell_destroy(wristflow_ui_shell_t *shell)
     sync_visibility(shell);
     lv_timer_delete(shell->cleanup_timer);
     lv_timer_delete(shell->card_hold);
+    if (shell->display_timer) lv_timer_delete(shell->display_timer);
+    shell->display_timer = NULL;
     /* Loading without animation completes/cancels any pending LVGL screen load. */
     lv_screen_load(lv_obj_create(NULL));
     wristflow_apps_destroy(shell->apps);
@@ -574,7 +630,7 @@ bool wristflow_ui_shell_get_settings(const wristflow_ui_shell_t *shell, wristflo
 {
     if (!shell || !shell->apps || !settings || strlen(shell->watchface->id) >= sizeof settings->face_id)
         return false;
-    wristflow_settings_t current = {0};
+    wristflow_settings_t current = shell->preferences;
     current.brightness = wristflow_apps_brightness(shell->apps);
     current.menu_layout = wristflow_apps_menu_layout(shell->apps);
     strcpy(current.face_id, shell->watchface->id);
@@ -588,6 +644,50 @@ const wristflow_layout_t *wristflow_ui_shell_layout(const wristflow_ui_shell_t *
 
 const wristflow_watch_snapshot_t *wristflow_ui_shell_snapshot(const wristflow_ui_shell_t *shell)
 { return &shell->snapshot; }
+
+bool wristflow_ui_shell_configure(wristflow_ui_shell_t *shell, const wristflow_settings_t *settings)
+{
+    if (!shell || !wristflow_settings_valid(settings)) return false;
+    shell->preferences = *settings;
+    wristflow_apps_set_brightness(shell->apps, settings->brightness);
+    wristflow_display_activity(&shell->display, lv_tick_get());
+    return true;
+}
+
+void wristflow_ui_shell_enable_display_policy(wristflow_ui_shell_t *shell)
+{
+    if (!shell || shell->display_timer) return;
+    wristflow_display_init(&shell->display, lv_tick_get());
+    shell->display_timer = lv_timer_create(display_tick, 50, shell);
+}
+
+bool wristflow_ui_shell_filter_touch(wristflow_ui_shell_t *shell, bool pressed)
+{
+    if (!shell || !shell->display_timer) return true;
+    bool pass = wristflow_display_touch(&shell->display, lv_tick_get(), pressed);
+    display_tick(shell->display_timer);
+    return pass;
+}
+
+wristflow_display_phase_t wristflow_ui_shell_display_phase(const wristflow_ui_shell_t *shell)
+{ return shell ? shell->display.phase : WRISTFLOW_DISPLAY_ACTIVE; }
+
+bool wristflow_ui_shell_keep_awake(wristflow_ui_shell_t *shell, unsigned minutes)
+{
+    if (!shell || !wristflow_display_keep(&shell->display, lv_tick_get(), minutes)) return false;
+    wristflow_apps_update(shell->apps, &shell->snapshot);
+    if (shell->display_timer) display_tick(shell->display_timer);
+    return true;
+}
+
+unsigned wristflow_ui_shell_keep_minutes(const wristflow_ui_shell_t *shell)
+{ return shell ? shell->display.keep_ms / 60000U : 0; }
+
+void wristflow_ui_shell_display_retry(wristflow_ui_shell_t *shell)
+{
+    wristflow_display_activity(&shell->display, lv_tick_get());
+    if (shell->display_timer) display_tick(shell->display_timer);
+}
 
 void wristflow_ui_shell_rebuild_components(wristflow_ui_shell_t *shell, unsigned selected)
 {

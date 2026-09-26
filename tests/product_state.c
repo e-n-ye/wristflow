@@ -7,7 +7,8 @@ int main(void)
     wristflow_settings_t defaults = wristflow_settings_default();
     assert(defaults.brightness == 60 && strcmp(defaults.face_id, "diffusion") == 0);
     assert(defaults.menu_layout == WRISTFLOW_MENU_LIST);
-    const wristflow_settings_t chosen = {37, "simple", WRISTFLOW_MENU_GRID};
+    assert(defaults.face_long_press && defaults.screen_timeout == 10);
+    const wristflow_settings_t chosen = {37, "simple", WRISTFLOW_MENU_GRID, false, 60};
     uint8_t record[WRISTFLOW_SETTINGS_BYTES];
     assert(wristflow_settings_encode(&chosen, record));
     wristflow_settings_t restored = defaults;
@@ -30,7 +31,19 @@ int main(void)
         0,0,0,0,0,0,0,0,0,0,0xd2,0xe0,0x68,0x9d};
     assert(wristflow_settings_decode(&restored, legacy, sizeof legacy));
     assert(restored.brightness == 27 && strcmp(restored.face_id, "simple") == 0 &&
-           restored.menu_layout == WRISTFLOW_MENU_LIST);
+           restored.menu_layout == WRISTFLOW_MENU_LIST && restored.face_long_press && restored.screen_timeout == 10);
+    /* Deployed v2 adds layout but has no display preferences. */
+    uint8_t v2[WRISTFLOW_SETTINGS_BYTES];
+    memcpy(v2, legacy, sizeof v2); v2[2] = 2; v2[19] = WRISTFLOW_MENU_GRID;
+    uint32_t hash = 2166136261U;
+    for (unsigned i = 0; i < 20; ++i) hash = (hash ^ v2[i]) * 16777619U;
+    for (unsigned i = 0; i < 4; ++i) v2[20+i] = (uint8_t)(hash >> (i*8));
+    assert(wristflow_settings_decode(&restored, v2, sizeof v2));
+    assert(restored.brightness == 27 && !strcmp(restored.face_id, "simple") &&
+        restored.menu_layout == WRISTFLOW_MENU_GRID && restored.face_long_press && restored.screen_timeout == 10);
+    restored.screen_timeout = 6;
+    assert(!wristflow_settings_encode(&restored, record));
+    restored = chosen;
     restored.menu_layout = WRISTFLOW_MENU_COUNT;
     assert(!wristflow_settings_encode(&restored, record));
     restored = chosen;
