@@ -58,6 +58,16 @@ lv_obj_t * screen_control_center_create(void)
         lv_label_set_text(lv_label_0, "控制中心");
         lv_obj_set_style_text_font(lv_label_0, title_24, 0);
 
+        lv_obj_t * connection_status = lv_label_create(lv_obj_0);
+        lv_obj_set_name(connection_status, "connection_status");
+        lv_obj_set_x(connection_status, 210);
+        lv_obj_set_y(connection_status, 29);
+        lv_obj_set_width(connection_status, 156);
+        lv_label_set_text(connection_status, "USB · 未连接");
+        lv_obj_set_style_text_align(connection_status, LV_TEXT_ALIGN_RIGHT, 0);
+        lv_obj_set_style_text_font(connection_status, body_20, 0);
+        lv_obj_set_style_text_color(connection_status, FG_SECONDARY, 0);
+
         lv_obj_t * dnd_button = lv_button_create(lv_obj_0);
         lv_obj_set_name(dnd_button, "dnd_button");
         lv_obj_set_x(dnd_button, 24);

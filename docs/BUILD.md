@@ -1,5 +1,7 @@
 # 可复现构建基线
 
+2026-09-27 通知 UI B1 的主机 15/15、Product/UI Demo 编译和资源校验通过；新增中文字库要求 Product/UI Demo/主机使用 `LV_FONT_FMT_TXT_LARGE`。XML 对比度修正完成官方 GUI 完整导出、3/3 相关测试和两目标增量编译；随后按用户参考图改为列表内左滑删除，官方再导出、新增指针用例和两目标再编译通过。最终 286/276 个工程源哈希及全部产物逐项匹配，Product 主 BIN 7,427,628 B；修正版三镜像已独立写入/verify。命令、失败、最终镜像与硬件证据边界见 [通知 UI](NOTIFICATION-UI.md)。
+
 2026-09-27 Product PM P1：同一 Product 开启 PM/Deep Sleep 并保留 BLE，新增运行时可回退 gate、AON KEY1 与后台事件入口；14/14 主机测试和 Product SCons 编译／产物校验通过。266 个源哈希匹配，SDK 锁与源码不变。版本、命令、镜像及硬件验证边界见 [P1 记录](PM-EVENT-WAKE.md)。
 
 2026-09-27 Product BLE A1：13/13 主机测试通过，开启 BLE/CJSON 并加入官方 LCPU 后，Product SCons 编译与产物校验通过；本次未改 UI 资源、公共构建入口或 SDK。版本、命令、首次缺宏失败、最终镜像和硬件联调进度见 [BLE 首轮记录](BLE-FIRST-LINK.md)。下方早期记录只适用于其注明版本。

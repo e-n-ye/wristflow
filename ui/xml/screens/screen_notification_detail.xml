@@ -1,0 +1,10 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="notification_22" style_text_color="#fg_primary">
+        <app_header title="消息通知" />
+        <lv_obj name="notification_scroll" x="24" y="82" width="342" height="348" style_layout="flex" style_flex_flow="column" scrollbar_mode="off" style_bg_opa="0%" style_border_width="0" style_radius="0" style_pad_all="0" style_pad_row="18" style_pad_bottom="20" style_text_font="notification_22" style_text_color="#fg_primary">
+            <lv_label name="message_source" width="342" text="QQ" style_text_color="#accent_blue" />
+            <lv_label name="message_title" width="342" text="中文通知" />
+            <lv_label name="message_body" width="342" text="这是一条多行中文消息。向上滚动查看完整正文。" style_text_color="#fg_secondary" />
+        </lv_obj>
+    </view>
+</screen>

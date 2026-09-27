@@ -1,0 +1,156 @@
+{
+  "worktree": "C:/Users/13984/.codex/worktrees/ble-first-link/wristflow",
+  "branch": "codex/notification-ui",
+  "head_before_after": "abebc850e2a337c0f0496420fd3ea18402837ab8",
+  "source_snapshot": {
+    "before": "artifacts/notification-validation/swipe-source-before.sha256",
+    "after": "artifacts/notification-validation/swipe-source-after.sha256",
+    "modified_and_untracked_hashes_identical": true,
+    "git_status_before_after_identical": true
+  },
+  "builds": [
+    {
+      "example": "product",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/build-isolated.ps1 -Example product",
+      "job_id": "j-jucdos",
+      "exit_code": 0,
+      "log": "artifacts/notification-validation/swipe-product-build.log",
+      "result": "artifacts/product/20260927-192846-133/result.json",
+      "result_exit_code": 0,
+      "artifact_validation_passed": true,
+      "project_sources_checked": 286,
+      "artifacts_checked": 29,
+      "hash_or_size_mismatches": 0,
+      "main_bin": {
+        "bytes": 7427628,
+        "sha256": "4467ed89773aecb7584e660a20a3b310246c26df1925b9874e4cebe99611ca75"
+      },
+      "flash_images": [
+        {
+          "name": "bootloader.bin",
+          "address": "0x12010000",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "name": "main.bin",
+          "address": "0x12020000",
+          "bytes": 7427628,
+          "sha256": "4467ed89773aecb7584e660a20a3b310246c26df1925b9874e4cebe99611ca75"
+        },
+        {
+          "name": "ftab.bin",
+          "address": "0x12000000",
+          "bytes": 11288,
+          "sha256": "1a9ddd467e6eb133981139534a602ed25ac416df572201a25a0b5fc43e3939ae"
+        }
+      ]
+    },
+    {
+      "example": "ui_demo",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/build-isolated.ps1 -Example ui_demo",
+      "job_id": "j-akpwv9",
+      "exit_code": 0,
+      "log": "artifacts/notification-validation/swipe-demo-build.log",
+      "result": "artifacts/ui_demo/20260927-192941-334/result.json",
+      "result_exit_code": 0,
+      "artifact_validation_passed": true,
+      "project_sources_checked": 276,
+      "artifacts_checked": 22,
+      "hash_or_size_mismatches": 0,
+      "main_bin": {
+        "bytes": 7237096,
+        "sha256": "e5a042c2837c477b0b2f5eb9fb43dd0496ae569f4bd27562f90439f7c891b331"
+      }
+    }
+  ],
+  "sdk": {
+    "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "bluetooth_submodule": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c",
+    "silicon_schema_submodule": "304658c6edd5497211b7d152932327ce6e4450ff",
+    "matches_sdk_lock": true,
+    "working_tree_clean": true
+  },
+  "xml_generation": {
+    "component": "ui/xml/components/notification_row.xml",
+    "generated": "ui/xml/components/notification_row_gen.c",
+    "key_structure_matches": true,
+    "evidence": "342x142 flex row; 342x142 body; 130x142 delete button; named children and label positions agree"
+  },
+  "not_covered": [
+    "30-60 minute joint acceptance matrix",
+    "10 navigation cycles / 10 wake cycles / 5 reconnects on this exact version",
+    "sleep current or precise residency",
+    "battery life",
+    "arbitrary Unicode/emoji",
+    "offline notification replay",
+    "all Gadgetbridge protocol message types"
+  ],
+  "change": "List row swipe-to-reveal delete action; detail view no longer contains delete control.",
+  "host_test": {
+    "command": "ctest --test-dir artifacts/host-pm -R notifications_ui --output-on-failure",
+    "exit_code": 0,
+    "passed": 1,
+    "log": "artifacts/notification-validation/swipe-host-test-2.log",
+    "cases": [
+      "left reveal",
+      "right close",
+      "in-list delete",
+      "vertical scroll without deletion",
+      "only one row exposed",
+      "ID reorder during press cancels deletion"
+    ]
+  },
+  "editor": {
+    "version": "2.0.1 Community",
+    "lvgl": "9.4.0",
+    "action": "Ctrl+Shift+B Export Code and Full Recompile",
+    "observed_output": "Project compiled successfully; Initializing custom C code using LVGL v9.4.0",
+    "xml_modified_local": "2026-09-27T19:19:49",
+    "generated_modified_local": "2026-09-27T19:20:58",
+    "preview_runtime_modified_local": "2026-09-27T19:21:26",
+    "actual_lvgl_render": "artifacts/notification-validation/notify_swipe_delete.png"
+  },
+  "hardware": {
+    "status": "Bounded functional checks completed; long-run matrix and electrical measurements remain deferred",
+    "flash": {
+      "exit_code": 0,
+      "verify": true,
+      "port": "COM5 CH340 VID:PID=1A86:7523 LOCATION=1-1.1",
+      "log": "artifacts/notification-validation/flash-notify-swipe.log",
+      "settings_partition_written": false
+    },
+    "boot_local": "2026-09-27T19:39:34+08:00",
+    "user_confirmed": [
+      "DND remains enabled after firmware update and controlled reset",
+      "left swipe exposes delete; right swipe closes it",
+      "delete stays in notification list",
+      "other message and phone notification remain",
+      "swipe interaction feels normal"
+    ],
+    "connection": {
+      "connected_at": "2026-09-27T19:40:42.295+08:00",
+      "mtu": 131,
+      "time_sync_result": 0
+    },
+    "dnd_notifications": {
+      "screen_off": "2026-09-27T19:40:50.918+08:00",
+      "incoming": [
+        "2026-09-27T19:40:55.441+08:00",
+        "2026-09-27T19:40:56.641+08:00"
+      ],
+      "wake_only_on_key": "2026-09-27T19:41:05.282+08:00"
+    },
+    "preview_regression": {
+      "user_confirmed": "preview, return to screen-off, KEY1 and touch normal",
+      "dnd_disabled_save_at": "2026-09-27T19:42:58.269+08:00",
+      "notification_wake_at": "2026-09-27T19:43:13.566+08:00",
+      "screen_on_at": "2026-09-27T19:43:13.875+08:00",
+      "screen_off_at": "2026-09-27T19:43:18.641+08:00",
+      "next_key_wake_at": "2026-09-27T19:43:21.024+08:00",
+      "pm_enter_exit_at_notification": 1503,
+      "pm_enter_exit_at_next_key": 1537,
+      "interpretation": "SDK sleep path resumed after preview; no electrical current measurement"
+    }
+  }
+}

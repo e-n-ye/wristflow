@@ -3,6 +3,7 @@
 #include "apps.h"
 #include "components.h"
 #include "settings_view.h"
+#include "notification_view.h"
 #include "wristflow_ui.h"
 #include <string.h>
 
@@ -54,10 +55,18 @@ struct wristflow_ui_shell {
     uint8_t applied_brightness;
     unsigned stopwatch_exit;
     wristflow_surface_t stopwatch_destination;
+    wristflow_notification_view_t *notifications;
+    wristflow_notification_delete_cb_t delete_notification;
+    void *notification_context;
+    uint32_t notification_revision, alert_sequence, preview_off_at;
+    bool phone_connected, notification_initialized;
+    bool notification_detail;
+    int32_t notification_id;
 };
 
 static void gesture(lv_event_t *event);
 static void face_long_press(lv_event_t *event);
+static void commit_notification(void *context);
 
 static void apply_brightness(wristflow_ui_shell_t *shell, uint8_t value)
 {
@@ -69,9 +78,14 @@ static void apply_brightness(wristflow_ui_shell_t *shell, uint8_t value)
 static void display_tick(lv_timer_t *timer)
 {
     wristflow_ui_shell_t *shell = lv_timer_get_user_data(timer);
+    if (wristflow_notification_view_alert(shell->notifications) == WF_ALERT_PREVIEW) {
+        apply_brightness(shell, wristflow_apps_brightness(shell->apps));
+        return;
+    }
     uint32_t keep_before = shell->display.keep_ms;
     wristflow_display_tick(&shell->display, lv_tick_get(), shell->preferences.screen_timeout,
         shell->navigation.surface == WRISTFLOW_SURFACE_FLASHLIGHT);
+    if (shell->display.phase == WRISTFLOW_DISPLAY_OFF) wristflow_notification_view_hide(shell->notifications);
     apply_brightness(shell, wristflow_display_brightness(&shell->display, wristflow_apps_brightness(shell->apps)));
     if (keep_before != shell->display.keep_ms) wristflow_apps_update(shell->apps, &shell->snapshot);
 }
@@ -210,12 +224,15 @@ static bool load_surface(wristflow_ui_shell_t *shell)
                        surface == WRISTFLOW_SURFACE_CONTROLS ? shell->controls : NULL;
     if (!screen) {
         bool created;
-        screen = surface >= WRISTFLOW_SURFACE_COMPONENT_EDITOR
+        screen = (surface == WRISTFLOW_SURFACE_NOTIFICATIONS || surface == WRISTFLOW_SURFACE_NOTIFICATION_DETAIL)
+            ? (shell->notifications ? wristflow_notification_view_screen(shell->notifications, surface, &created) : NULL)
+            : surface >= WRISTFLOW_SURFACE_COMPONENT_EDITOR
             ? wristflow_components_screen(shell->components, surface, &created)
             : wristflow_apps_screen(shell->apps, surface, &created);
         if (!screen) return false;
         if (created) {
-            if (surface >= WRISTFLOW_SURFACE_COMPONENT_EDITOR)
+            if (surface >= WRISTFLOW_SURFACE_COMPONENT_EDITOR || surface == WRISTFLOW_SURFACE_NOTIFICATIONS ||
+                surface == WRISTFLOW_SURFACE_NOTIFICATION_DETAIL)
                 lv_obj_add_event_cb(lv_obj_find_by_name(screen, "app_back"), editor_back, LV_EVENT_SHORT_CLICKED, shell);
             bubble_events(screen);
             lv_obj_add_event_cb(screen, screen_loaded, LV_EVENT_SCREEN_LOADED, shell);
@@ -243,7 +260,7 @@ static bool load_surface(wristflow_ui_shell_t *shell)
     return true;
 }
 
-enum { STOPWATCH_EXIT_BACK = 1, STOPWATCH_EXIT_HOME, STOPWATCH_EXIT_OPEN };
+enum { STOPWATCH_EXIT_BACK = 1, STOPWATCH_EXIT_HOME, STOPWATCH_EXIT_OPEN, STOPWATCH_EXIT_NOTIFICATION };
 
 static bool dismiss_stopwatch_exit(void)
 {
@@ -261,6 +278,7 @@ static void stopwatch_exit_accept(lv_event_t *event)
     wristflow_ui_shell_t *shell = lv_event_get_user_data(event);
     dismiss_stopwatch_exit();
     wristflow_apps_timer_clear(shell->apps);
+    if (shell->stopwatch_exit == STOPWATCH_EXIT_NOTIFICATION) { commit_notification(shell); return; }
     if (shell->stopwatch_exit == STOPWATCH_EXIT_BACK) wristflow_ui_shell_back(shell);
     else if (shell->stopwatch_exit == STOPWATCH_EXIT_HOME) wristflow_ui_shell_home(shell);
     else wristflow_ui_shell_open(shell, shell->stopwatch_destination);
@@ -306,15 +324,24 @@ bool wristflow_ui_shell_home(wristflow_ui_shell_t *shell)
     return load_surface(shell);
 }
 
+static void restore_after_long_sleep(wristflow_ui_shell_t *shell, uint32_t off_at)
+{
+    if (lv_tick_get() - off_at >= 120000U &&
+        shell->navigation.surface < WRISTFLOW_SURFACE_COMPONENT_EDITOR &&
+        !(shell->components ? wristflow_apps_timer_has_data(shell->apps) : wristflow_apps_timer_running(shell->apps)))
+        wristflow_ui_shell_home(shell);
+}
+
 bool wristflow_ui_shell_key(wristflow_ui_shell_t *shell)
 {
+    if (shell && wristflow_notification_view_alert(shell->notifications) == WF_ALERT_PREVIEW) {
+        wristflow_ui_shell_notification_dismiss(shell, false);
+        return true;
+    }
+    if (shell) wristflow_notification_view_hide(shell->notifications);
     if (shell && shell->display_timer) {
         bool was_off = shell->display.phase == WRISTFLOW_DISPLAY_OFF;
-        uint32_t elapsed = lv_tick_get() - shell->display.off_at;
-        if (was_off && elapsed >= 120000U &&
-            shell->navigation.surface < WRISTFLOW_SURFACE_COMPONENT_EDITOR &&
-            !(shell->components ? wristflow_apps_timer_has_data(shell->apps) : wristflow_apps_timer_running(shell->apps)))
-            wristflow_ui_shell_home(shell);
+        if (was_off) restore_after_long_sleep(shell, shell->display.off_at);
         bool pass = wristflow_display_key(&shell->display, lv_tick_get());
         display_tick(shell->display_timer);
         if (!pass) return true;
@@ -385,12 +412,18 @@ static void gesture(lv_event_t *event)
         shell->navigation.surface == WRISTFLOW_SURFACE_FACE_PICKER)
         return;
     bool handled = false;
-    if (shell->navigation.surface == WRISTFLOW_SURFACE_LAUNCHER ||
+    if (shell->navigation.surface == WRISTFLOW_SURFACE_NOTIFICATIONS && direction == LV_DIR_TOP &&
+        lv_obj_get_scroll_y(lv_obj_find_by_name(lv_screen_active(), "notification_list")) == 0)
+        handled = wristflow_ui_shell_home(shell);
+    else if (shell->navigation.surface == WRISTFLOW_SURFACE_LAUNCHER ||
         shell->navigation.surface >= WRISTFLOW_SURFACE_STOPWATCH) {
         if (direction == LV_DIR_RIGHT && shell->edge_press)
             handled = wristflow_ui_shell_back(shell);
-    } else if (direction == LV_DIR_BOTTOM)
-        handled = wristflow_ui_shell_close_controls(shell);
+    } else if (direction == LV_DIR_BOTTOM) {
+        if (shell->navigation.surface == WRISTFLOW_SURFACE_HOME && shell->navigation.page_index == 0 && shell->notifications)
+            handled = wristflow_ui_shell_open_notification(shell, false, 0);
+        else handled = wristflow_ui_shell_close_controls(shell);
+    }
     else if (direction == LV_DIR_TOP)
         handled = wristflow_ui_shell_open_controls(shell);
     if (handled) lv_indev_wait_release(input);
@@ -625,6 +658,7 @@ wristflow_ui_shell_t *wristflow_ui_shell_create(const wristflow_ui_shell_config_
         return NULL;
     }
     shell->controls = config->controls();
+    if (config->product_apps) shell->notifications = wristflow_notification_view_create(shell);
     if (config->enable_apps) {
         shell->apps = wristflow_apps_create(shell, shell->controls, brightness_changed, shell,
             config->initial_settings ? config->initial_settings->brightness : 60, config->product_apps,
@@ -659,6 +693,7 @@ void wristflow_ui_shell_destroy(wristflow_ui_shell_t *shell)
     shell->display_timer = NULL;
     /* Loading without animation completes/cancels any pending LVGL screen load. */
     lv_screen_load(lv_obj_create(NULL));
+    wristflow_notification_view_destroy(shell->notifications);
     wristflow_apps_destroy(shell->apps);
     wristflow_components_destroy(shell->components);
     for (unsigned int i = 0; i < slot_count(shell); ++i)
@@ -704,6 +739,8 @@ bool wristflow_ui_shell_configure(wristflow_ui_shell_t *shell, const wristflow_s
 {
     if (!shell || !wristflow_settings_valid(settings)) return false;
     shell->preferences = *settings;
+    if (settings->do_not_disturb && wristflow_notification_view_alert(shell->notifications) != WF_ALERT_NONE)
+        wristflow_ui_shell_notification_dismiss(shell, true);
     wristflow_apps_set_brightness(shell->apps, settings->brightness);
     wristflow_display_activity(&shell->display, lv_tick_get());
     return true;
@@ -720,6 +757,7 @@ bool wristflow_ui_shell_filter_touch(wristflow_ui_shell_t *shell, bool pressed)
 {
     if (!shell || !shell->display_timer) return true;
     bool pass = wristflow_display_touch(&shell->display, lv_tick_get(), pressed);
+    if (pressed && pass) wristflow_notification_view_activity(shell->notifications);
     display_tick(shell->display_timer);
     return pass;
 }
@@ -780,4 +818,111 @@ bool wristflow_ui_shell_finish_edit(wristflow_ui_shell_t *shell, unsigned select
     wristflow_navigation_home(&shell->navigation);
     shell->navigation.page_index = selected;
     return load_surface(shell);
+}
+
+void wristflow_ui_shell_bind_notification_delete(wristflow_ui_shell_t *shell,
+    wristflow_notification_delete_cb_t callback, void *context)
+{ shell->delete_notification = callback; shell->notification_context = context; }
+
+void wristflow_ui_shell_delete_notification(wristflow_ui_shell_t *shell, bool all, int32_t id)
+{ if (shell->delete_notification) shell->delete_notification(all, id, shell->notification_context); }
+
+bool wristflow_ui_shell_phone_connected(const wristflow_ui_shell_t *shell)
+{ return shell && shell->phone_connected; }
+bool wristflow_ui_shell_dnd(const wristflow_ui_shell_t *shell)
+{ return shell && shell->preferences.do_not_disturb; }
+void wristflow_ui_shell_set_dnd(wristflow_ui_shell_t *shell, bool enabled)
+{
+    shell->preferences.do_not_disturb = enabled;
+    if (enabled && wristflow_notification_view_alert(shell->notifications) != WF_ALERT_NONE)
+        wristflow_ui_shell_notification_dismiss(shell, true);
+    wristflow_apps_update(shell->apps, &shell->snapshot);
+}
+
+bool wristflow_ui_shell_notifications(wristflow_ui_shell_t *shell, const wristflow_notifications_snapshot_t *snapshot)
+{
+    if (!shell || !shell->notifications || !snapshot || snapshot->count > WF_PHONE_MESSAGES) return false;
+    bool connected = snapshot->connected && snapshot->subscribed;
+    if (shell->notification_initialized && shell->notification_revision == snapshot->revision &&
+        shell->phone_connected == connected) return false;
+    bool alert = shell->alert_sequence != snapshot->alert_sequence;
+    shell->notification_initialized = true;
+    shell->notification_revision = snapshot->revision;
+    shell->alert_sequence = snapshot->alert_sequence;
+    shell->phone_connected = connected;
+    wristflow_notification_view_update(shell->notifications, snapshot);
+    wristflow_apps_update(shell->apps, &shell->snapshot);
+    if (!alert || shell->preferences.do_not_disturb ||
+        !wristflow_notification_view_contains(shell->notifications, snapshot->alert_id)) return false;
+    bool off = shell->display.phase == WRISTFLOW_DISPLAY_OFF;
+    bool preview = off || wristflow_notification_view_alert(shell->notifications) == WF_ALERT_PREVIEW;
+    if (off) {
+        shell->preview_off_at = shell->display.off_at;
+    }
+    /* A new alert gets its full visible duration even when normal dim/off was
+     * imminent. DND and non-notification events never refresh activity. */
+    wristflow_display_activity(&shell->display, lv_tick_get());
+    wristflow_notification_view_show(shell->notifications, preview ? WF_ALERT_PREVIEW : WF_ALERT_BANNER,
+        snapshot->alert_id);
+    if (shell->display_timer) display_tick(shell->display_timer);
+    return off;
+}
+
+void wristflow_ui_shell_notification_dismiss(wristflow_ui_shell_t *shell, bool timeout)
+{
+    wristflow_alert_t kind = wristflow_notification_view_alert(shell->notifications);
+    if (kind == WF_ALERT_NONE) return;
+    if (kind == WF_ALERT_PREVIEW && timeout) {
+        /* Keep the original sleep timestamp: previews do not restart the
+         * two-minute page-retention clock and never approve a draft exit. */
+        shell->display.phase = WRISTFLOW_DISPLAY_OFF;
+        shell->display.off_at = shell->preview_off_at;
+        apply_brightness(shell, 0);
+    } else if (kind == WF_ALERT_PREVIEW) {
+        restore_after_long_sleep(shell, shell->preview_off_at);
+        wristflow_display_activity(&shell->display, lv_tick_get());
+    }
+    wristflow_notification_view_hide(shell->notifications);
+    if (!timeout && shell->display_timer) display_tick(shell->display_timer);
+}
+
+static void commit_notification(void *context)
+{
+    wristflow_ui_shell_t *shell = context;
+    wristflow_navigation_t previous = shell->navigation;
+    /* Accepted draft exits release the editor. Other explicit entries retain
+     * their Back path (for example Settings -> Notifications -> Center). */
+    if (shell->navigation.surface >= WRISTFLOW_SURFACE_COMPONENT_EDITOR)
+        wristflow_navigation_home(&shell->navigation);
+    if (wristflow_navigation_contains(&shell->navigation, WRISTFLOW_SURFACE_NOTIFICATIONS)) {
+        while (shell->navigation.surface != WRISTFLOW_SURFACE_NOTIFICATIONS)
+            wristflow_navigation_back(&shell->navigation);
+    } else if (!wristflow_navigation_open(&shell->navigation, WRISTFLOW_SURFACE_NOTIFICATIONS)) {
+        shell->navigation = previous; return;
+    }
+    if (shell->notification_detail &&
+        wristflow_notification_view_contains(shell->notifications, shell->notification_id)) {
+        wristflow_notification_view_select(shell->notifications, shell->notification_id);
+        if (!wristflow_navigation_open(&shell->navigation, WRISTFLOW_SURFACE_NOTIFICATION_DETAIL)) {
+            shell->navigation = previous; return;
+        }
+    }
+    load_surface(shell);
+}
+
+bool wristflow_ui_shell_open_notification(wristflow_ui_shell_t *shell, bool detail, int32_t id)
+{
+    if (!shell || !shell->notifications || shell->transitioning) return false;
+    if (detail && !wristflow_notification_view_contains(shell->notifications, id)) return false;
+    if (lv_obj_find_by_name(lv_screen_active(), "stopwatch_exit_confirm")) return false;
+    /* An explicit tap ends the temporary presentation before showing the same
+     * exit confirmations used by KEY1/Back. Cancel leaves the original view. */
+    wristflow_notification_view_hide(shell->notifications);
+    wristflow_display_activity(&shell->display, lv_tick_get());
+    if (shell->display_timer) display_tick(shell->display_timer);
+    shell->notification_detail = detail; shell->notification_id = id;
+    if (confirm_stopwatch_exit(shell, STOPWATCH_EXIT_NOTIFICATION, WRISTFLOW_SURFACE_NOTIFICATIONS)) return true;
+    if (wristflow_components_confirm_leave(shell->components, commit_notification, shell)) return true;
+    commit_notification(shell);
+    return true;
 }

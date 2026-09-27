@@ -33,6 +33,8 @@ static volatile uint8_t connection = 0xff, subscribed;
 static volatile uint32_t generation, sequence, dropped;
 static uint8_t cccd[2];
 static bool ready, gps_reply;
+static uint32_t revision, alert_sequence;
+static int32_t alert_id;
 static uint8_t nus_uuid[16] = NUS_UUID(1);
 SIBLES_ADVERTISING_CONTEXT_DECLAR(advertising);
 BLE_GATT_SERVICE_DEFINE_128(attributes) {
@@ -143,6 +145,8 @@ static void transmit(const char *text, uint32_t peer)
 static void phone_event(wf_phone_event_t e, int32_t id, void *context)
 {
     (void)context;
+    if (e == WF_PHONE_NOTIFY) { ++revision; ++alert_sequence; alert_id = id; }
+    else if (e == WF_PHONE_REMOVE) ++revision;
     if (e == WF_PHONE_TIME) {
         int result = wristflow_product_services_set_time(phone.utc);
         rt_kprintf("[ble] phone time UTC=%u result=%d\n", phone.utc, result);
@@ -163,11 +167,13 @@ static void worker(void *context)
         else if (p.sequence != last_sequence + 1) wf_phone_gap(&phone);
         last_sequence = p.sequence;
         if (p.generation == generation && p.kind == PACKET_RX) wf_phone_feed(&phone, p.data, p.size);
+        if (p.kind == PACKET_LINK || p.kind == PACKET_SUBSCRIBE) ++revision;
         bool reply = gps_reply; gps_reply = false;
         rt_mutex_release(&phone_lock);
+        if (p.kind == PACKET_LINK || p.kind == PACKET_SUBSCRIBE) wristflow_product_event_send(WF_EVENT_PHONE);
         if (p.generation != generation) continue;
         if (p.kind == PACKET_SUBSCRIBE && subscribed)
-            transmit("\n{\"t\":\"ver\",\"fw\":\"WristFlow PM P1\",\"hw\":\"Huangshan\"}\n", peer);
+            transmit("\n{\"t\":\"ver\",\"fw\":\"WristFlow Notify B1\",\"hw\":\"Huangshan\"}\n", peer);
         if (reply) transmit("\n{\"t\":\"gps_power\",\"status\":false}\n", peer);
     }
 }
@@ -206,6 +212,31 @@ void wristflow_product_ble_start(void)
     ready = true;
     sifli_ble_enable();
 }
+void wristflow_product_ble_snapshot(wristflow_notifications_snapshot_t *snapshot)
+{
+    rt_mutex_take(&phone_lock, RT_WAITING_FOREVER);
+    snapshot->count = phone.count;
+    memcpy(snapshot->messages, phone.messages, phone.count * sizeof phone.messages[0]);
+    snapshot->revision = revision;
+    snapshot->alert_sequence = alert_sequence;
+    snapshot->alert_id = alert_id;
+    snapshot->connected = connection != 0xff;
+    snapshot->subscribed = subscribed != 0;
+    rt_mutex_release(&phone_lock);
+}
+
+void wristflow_product_ble_delete(bool all, int32_t id, void *context)
+{
+    (void)context;
+    rt_mutex_take(&phone_lock, RT_WAITING_FOREVER);
+    if (all) wf_phone_clear(&phone);
+    else wf_phone_remove(&phone, id);
+    ++revision;
+    rt_mutex_release(&phone_lock);
+    /* Deliberately no NUS transmit: watch deletions are local only. */
+    wristflow_product_event_send(WF_EVENT_PHONE);
+}
+
 /* Serial diagnostics are deliberate: routine logs never include notification bodies. */
 static int wf_ble(int argc, char **argv)
 {
@@ -221,13 +252,14 @@ static int wf_ble(int argc, char **argv)
         for (unsigned i = 0; i < phone.count; ++i)
             rt_kprintf("[ble] id=%ld src=%s title=%s body=%s\n", (long)phone.messages[i].id,
                 phone.messages[i].source, phone.messages[i].title, phone.messages[i].body);
-    } else if (!strcmp(argv[1], "clear")) wf_phone_clear(&phone);
+    } else if (!strcmp(argv[1], "clear")) { wf_phone_clear(&phone); ++revision; }
     else if (!strcmp(argv[1], "remove") && argc == 3) {
         char *end; errno = 0; long id = strtol(argv[2], &end, 10);
         if (errno || *end || end == argv[2] || id < INT32_MIN || id > INT32_MAX) result = -RT_EINVAL;
-        else wf_phone_remove(&phone, (int32_t)id);
+        else { wf_phone_remove(&phone, (int32_t)id); ++revision; }
     } else result = -RT_EINVAL;
     rt_mutex_release(&phone_lock);
+    wristflow_product_event_send(WF_EVENT_PHONE);
     return result;
 }
 MSH_CMD_EXPORT(wf_ble, Product phone link diagnostics);

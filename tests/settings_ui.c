@@ -109,11 +109,13 @@ int main(int argc,char **argv)
     press("settings_about"); snapshot("about");
     lv_obj_scroll_to_y(named(lv_screen_active(),"settings_scroll"),1000,LV_ANIM_OFF); advance(32); snapshot("about_bottom");
     back(); snapshot("root_bottom");
-    const char *entries[]={"settings_sound","settings_dnd","settings_notifications","settings_keys","settings_system"};
-    const char *disabled[]={"vibration_disabled","dnd_disabled","notifications_disabled","assistant_disabled","reset_disabled"};
-    for(unsigned i=0;i<5;++i) {
+    const char *entries[]={"settings_sound","settings_keys","settings_system"};
+    const char *disabled[]={"vibration_disabled","assistant_disabled","reset_disabled"};
+    for(unsigned i=0;i<3;++i) {
         press(entries[i]); assert(lv_obj_has_state(named(lv_screen_active(),disabled[i]),LV_STATE_DISABLED)); snapshot(entries[i]); back();
     }
+    press("settings_dnd"); press("row_switch"); assert(settings().do_not_disturb); snapshot("dnd_on"); back();
+    press("settings_notifications"); snapshot("notifications"); back();
     press("settings_display"); snapshot("display");
     assert(!lv_obj_find_by_name(lv_screen_active(),"display_tap"));
     press("display_wrist"); snapshot("wrist"); back();

@@ -15,6 +15,9 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/components/layout_save_status_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/metric_full_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/metric_half_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/notification_banner_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/notification_preview_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/notification_row_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/page_dot_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/page_dots_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/picker_header_gen.c
@@ -33,6 +36,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/fonts/icons_20_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/icons_44_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/metric_56_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/fonts/notification_22_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/title_24_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/value_36_data.c
   ${CMAKE_CURRENT_LIST_DIR}/images/hour_1_data.c
@@ -60,6 +64,8 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_launcher_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_layout_picker_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_menu_layout_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_notification_detail_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_notifications_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_picker_full_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_picker_half_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_picker_quarter_gen.c

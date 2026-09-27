@@ -1,0 +1,140 @@
+{
+  "worktree": "C:/Users/13984/.codex/worktrees/ble-first-link/wristflow",
+  "branch": "codex/notification-ui",
+  "head": "abebc850e2a337c0f0496420fd3ea18402837ab8",
+  "working_tree": "dirty before verification; existing source and document modifications were preserved",
+  "method": "read-only SHA-256 and byte-size checks against each result.json; no build, flash, serial access, or test rerun",
+  "builds": {
+    "product": {
+      "result": "artifacts/product/20260927-185359-910/result.json",
+      "recorded_scons_exit_code": 0,
+      "recorded_artifact_validation_passed": true,
+      "project_sources_checked": 286,
+      "artifacts_checked": 29,
+      "mismatches": [],
+      "images": {
+        "bootloader/bootloader.bin": {
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21",
+          "address": "0x12010000"
+        },
+        "main.bin": {
+          "bytes": 7427492,
+          "sha256": "a82054629fdd649d18ae953d04ee660b8c91dbda87da159bb37b22d025b4cc14",
+          "address": "0x12020000"
+        },
+        "ftab/ftab.bin": {
+          "bytes": 11288,
+          "sha256": "20f692713d73a7d356132a4a8412b1641e004b0f51aeb780270fdb9661b8ceef",
+          "address": "0x12000000"
+        }
+      },
+      "sftool_param": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/sftool_param.json",
+      "write_flash_files_exactly_three_expected_image_address_pairs": true
+    },
+    "ui_demo": {
+      "result": "artifacts/ui_demo/20260927-185521-800/result.json",
+      "recorded_scons_exit_code": 0,
+      "recorded_artifact_validation_passed": true,
+      "project_sources_checked": 276,
+      "artifacts_checked": 22,
+      "mismatches": [],
+      "images": {
+        "bootloader/bootloader.bin": {
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        "main.bin": {
+          "bytes": 7236968,
+          "sha256": "ee8ef81085bff8a6d4fb23f7a44979e694f0253d4e15fc2df8578f617f330724"
+        },
+        "ftab/ftab.bin": {
+          "bytes": 11288,
+          "sha256": "03301b193e1fcee0da6c4fd34112f23694455b9c04bb460a67e5531572751e1f"
+        }
+      }
+    }
+  },
+  "existing_logs": {
+    "host_test_release": {
+      "path": "artifacts/notification-validation/host-test-release.log",
+      "reported": "3/3 passed, 0 failed",
+      "process_exit_code_not_recorded_in_log": true
+    },
+    "editor_final": {
+      "path": "artifacts/notification-validation/editor-final.txt",
+      "reported": "LVGL Pro Editor 2.0.1 Community GUI full rebuild: compile completed; Project compiled successfully",
+      "process_exit_code_not_recorded_in_log": true
+    }
+  },
+  "hardware": {
+    "scope": "USB-powered B1 on confirmed Huangshan CH340 COM5; interaction validation in progress; no current measurement",
+    "flash": {
+      "tool": "sftool 0.2.5",
+      "baud": 500000,
+      "verify": true,
+      "exit_code": 0,
+      "settings_partition_written": false,
+      "log": "artifacts/notification-validation/flash-notify-b1.log"
+    },
+    "boot": {
+      "time_local": "2026-09-27T19:08:22+08:00",
+      "marker": "Notify B1",
+      "restored_layout_generation": 26,
+      "restored_pages": 3,
+      "restored_brightness": 47,
+      "restored_face": "diffusion",
+      "pm_allow": 1
+    },
+    "notification_preview": {
+      "user_confirmed": "Chinese preview automatically appeared and screen went off about 5 seconds later",
+      "wake_event_local": "2026-09-27T19:10:30.778+08:00",
+      "screen_on_local": "2026-09-27T19:10:31.081+08:00",
+      "screen_off_local": "2026-09-27T19:10:35.825+08:00",
+      "pm_enter_exit_before_preview": 2027,
+      "pm_enter_exit_next_key_wake": 2530,
+      "next_key_wake_local": "2026-09-27T19:11:10.546+08:00"
+    },
+    "not_verified": [
+      "electrical sleep residency",
+      "sleep current",
+      "battery life",
+      "complete B1 interaction matrix",
+      "30-60 minute joint acceptance"
+    ],
+    "complete": false,
+    "details_and_delete": {
+      "user_confirmed": [
+        "Chinese title/body and touch normal",
+        "watch message removed after local delete",
+        "original QQ notification remains on phone"
+      ],
+      "ble_status_at": "2026-09-27T19:11:57+08:00",
+      "connected": 1,
+      "subscribed": 1,
+      "messages": 0,
+      "added": 1,
+      "rejected": 0,
+      "unknown": 0,
+      "dropped": 0
+    },
+    "banner": {
+      "user_confirmed": "3 second banner and tap-to-open notification center normal"
+    },
+    "dnd": {
+      "user_confirmed": "screen remained off while notification was stored and visible after KEY1",
+      "settings_save_result": 0,
+      "save_at": "2026-09-27T19:14:38+08:00",
+      "screen_off_at": "2026-09-27T19:15:00.774+08:00",
+      "notify_at": "2026-09-27T19:15:04.466+08:00",
+      "key_wake_at": "2026-09-27T19:15:09.394+08:00",
+      "notification_wake_between_off_and_key": false
+    },
+    "later_observation": "One unsupported protocol event (event=5) at 19:35:21; no claim that all Gadgetbridge message types are implemented. No fault reported by the filtered serial collector during this capture."
+  },
+  "source_manifest_sha256": {
+    "product": "753b64e4e92be89d505eea3cc13a10d621f360bd36fa93108e97467a9548e646",
+    "ui_demo": "2149ea429c94f109da45c20c622b3f5c1f6fb6bcad13cfbaab2e6eb8231fec5c"
+  },
+  "version_note": "Initial B1, before list swipe deletion; each hardware statement applies only to main.bin a82054629fdd649d18ae953d04ee660b8c91dbda87da159bb37b22d025b4cc14"
+}

@@ -15,5 +15,8 @@ wristflow_surface_t wristflow_components_target(wristflow_components_t *componen
 bool wristflow_components_enter(wristflow_components_t *components, unsigned page);
 lv_obj_t *wristflow_components_screen(wristflow_components_t *components, wristflow_surface_t surface, bool *created);
 bool wristflow_components_back(wristflow_components_t *components, bool home);
+/* Reuse the draft-discard prompt for a user-requested external destination. */
+bool wristflow_components_confirm_leave(wristflow_components_t *components,
+    void (*accepted)(void *), void *context);
 void wristflow_components_collect(wristflow_components_t *components, const wristflow_navigation_t *navigation);
 #endif

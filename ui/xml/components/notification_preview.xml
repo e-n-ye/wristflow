@@ -1,0 +1,11 @@
+<component>
+    <view width="390" height="450" clickable="true" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="notification_22" style_text_color="#fg_primary">
+        <lv_label x="24" y="26" text="新消息" style_text_color="#fg_secondary" />
+        <lv_button name="preview_open" x="24" y="86" width="342" height="248" scrollable="false" style_bg_color="#bg_surface" style_bg_opa="100%" style_border_width="0" style_radius="28" style_pad_all="0" style_shadow_width="0" style_text_color="#fg_primary" style_text_font="notification_22">
+            <lv_label name="message_source" x="20" y="18" width="302" height="34" long_mode="dots" text="QQ" style_text_color="#accent_blue" />
+            <lv_label name="message_title" x="20" y="68" width="302" height="68" long_mode="dots" text="中文通知" />
+            <lv_label name="message_body" x="20" y="148" width="302" height="72" long_mode="dots" text="下午一起去图书馆。" style_text_color="#fg_secondary" />
+        </lv_button>
+        <lv_label align="bottom_mid" y="-48" text="轻点查看 · 上滑收起" style_text_color="#fg_secondary" />
+    </view>
+</component>
