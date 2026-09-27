@@ -19,6 +19,48 @@ static bool write_record(unsigned key, const uint8_t *record, void *context)
     return limit == WRISTFLOW_LAYOUT_BYTES;
 }
 
+static bool same_layout(const wristflow_layout_t *a, const wristflow_layout_t *b)
+{
+    if (a->count != b->count) return false;
+    for (unsigned p = 0; p < WRISTFLOW_LAYOUT_MAX_PAGES; ++p) {
+        if (a->pages[p].template_id != b->pages[p].template_id) return false;
+        for (unsigned s = 0; s < 4; ++s) {
+            const wristflow_component_t *x = &a->pages[p].slots[s];
+            const wristflow_component_t *y = &b->pages[p].slots[s];
+            if (memcmp(x->app_id, y->app_id, sizeof x->app_id) ||
+                x->instance_id != y->instance_id || x->size != y->size ||
+                x->variant != y->variant) return false;
+        }
+    }
+    return true;
+}
+
+static void padding_round_trip(const wristflow_layout_t *layout)
+{
+    wristflow_layout_t padded, decoded;
+    /* Copy every member while leaving compiler padding deliberately nonzero. */
+    memset(&padded, 0xa5, sizeof padded);
+    padded.count = layout->count;
+    for (unsigned p = 0; p < WRISTFLOW_LAYOUT_MAX_PAGES; ++p) {
+        padded.pages[p].template_id = layout->pages[p].template_id;
+        for (unsigned s = 0; s < 4; ++s) {
+            wristflow_component_t *out = &padded.pages[p].slots[s];
+            const wristflow_component_t *in = &layout->pages[p].slots[s];
+            memcpy(out->app_id, in->app_id, sizeof out->app_id);
+            out->instance_id = in->instance_id;
+            out->size = in->size;
+            out->variant = in->variant;
+        }
+    }
+    uint8_t expected[WRISTFLOW_LAYOUT_BYTES], actual[WRISTFLOW_LAYOUT_BYTES];
+    uint32_t generation;
+    assert(wristflow_layout_encode(layout, 123, expected));
+    assert(wristflow_layout_encode(&padded, 123, actual));
+    assert(!memcmp(expected, actual, sizeof expected));
+    assert(wristflow_layout_decode(&decoded, &generation, actual, sizeof actual));
+    assert(generation == 123 && same_layout(&padded, &decoded));
+}
+
 int main(void)
 {
     wristflow_layout_t layout = wristflow_layout_default(), next, restored;
@@ -40,14 +82,15 @@ int main(void)
         assert(wristflow_layout_insert(&next, next.count, &page));
         assert(wristflow_layout_insert(&next, 2, &page));
         wristflow_layout_t six = next;
-        assert(!wristflow_layout_insert(&next, 0, &page) && !memcmp(&next, &six, sizeof next));
+        assert(!wristflow_layout_insert(&next, 0, &page) && same_layout(&next, &six));
         while (next.count > 1) assert(wristflow_layout_delete(&next, 0));
         assert(!wristflow_layout_delete(&next, 0));
     }
     uint8_t record[WRISTFLOW_LAYOUT_BYTES]; uint32_t generation;
     assert(wristflow_layout_encode(&layout, 123, record));
     assert(wristflow_layout_decode(&next, &generation, record, sizeof record));
-    assert(generation == 123 && !memcmp(&layout, &next, sizeof layout));
+    assert(generation == 123 && same_layout(&layout, &next));
+    padding_round_trip(&layout);
     for (unsigned i = 0; i < sizeof record; ++i) {
         record[i] ^= 1;
         assert(!wristflow_layout_decode(&next, &generation, record, sizeof record));
@@ -71,13 +114,13 @@ int main(void)
         assert(!wristflow_layout_commit(&store, &next, read_record, write_record, NULL));
         assert(last_key == 1 && !memcmp(disk[0], baseline, WRISTFLOW_LAYOUT_BYTES));
         assert(wristflow_layout_restore(&store, &restored, read_record, NULL));
-        assert(!memcmp(&restored, &layout, sizeof layout) || !memcmp(&restored, &next, sizeof next));
+        assert(same_layout(&restored, &layout) || same_layout(&restored, &next));
     }
     limit = WRISTFLOW_LAYOUT_BYTES;
     assert(wristflow_layout_restore(&store, &restored, read_record, NULL));
     assert(wristflow_layout_commit(&store, &next, read_record, write_record, NULL));
     assert(wristflow_layout_restore(&store, &restored, read_record, NULL));
-    assert(!memcmp(&next, &restored, sizeof next));
+    assert(same_layout(&next, &restored));
     readable = false;
     unsigned active = store.active;
     assert(!wristflow_layout_commit(&store, &layout, read_record, write_record, NULL));
@@ -87,6 +130,6 @@ int main(void)
     assert(wristflow_layout_encode(&layout, UINT32_MAX, disk[0]));
     assert(wristflow_layout_encode(&next, 0, disk[1]));
     assert(wristflow_layout_restore(&store, &restored, read_record, NULL));
-    assert(store.active == 1 && !memcmp(&restored, &next, sizeof next));
+    assert(store.active == 1 && same_layout(&restored, &next));
     return 0;
 }

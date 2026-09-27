@@ -4,7 +4,11 @@
 
 第三次基线 [36320503029](https://github.com/e-n-ye/wristflow/actions/runs/36320503029) 对应 `04aacd64838f39c72eca54d8983307666062fdb5`。五个固件目标已通过，主机已编译完成，但 CTest 停在第六项 `component_layout`；本轮接手后取消该运行，不能把等待描述为仍在编译。原始日志保留于 `C:/Users/13984/.codex/worktrees/ble-first-link/wristflow/artifacts/ci-hang/original-cloud.log`。
 
-诊断修正先保留全部测试断言：MSVC 测试启动时将 CRT 断言报告送到 stderr 并关闭交互式错误报告；每项 CTest 限时 60 秒。工作流把主机配置、编译和测试分开并提前，测试步骤限时 5 分钟，避免固件长编译掩盖主机失败。本机 GCC 15.2.0／Ninja 的 `cmake --build artifacts/host-pr-cleanup-win32 --parallel 6` 和 `ctest --test-dir artifacts/host-pr-cleanup-win32 --output-on-failure --timeout 60` 退出 0、15/15 通过；这不覆盖 MSVC 的 CRT 启动代码。下一有界实验为云端相同 Debug 配置取得确切断言位置；本轮不烧录。
+诊断版 `92df443` 的 [36323218734](https://github.com/e-n-ye/wristflow/actions/runs/36323218734) 保留全部原断言，只把 MSVC 的 CRT 错误报告送到 stderr 并关闭交互式错误报告。MSVC 19.44.35229.0／Debug 编译成功，`component_layout` 在 0.01 秒内明确报出第 50 行 `generation == 123 && !memcmp(&layout, &next, sizeof layout)` 失败，其余 14 项通过，总测试时间 12.91 秒。原运行从 13:06:40Z 停留到 13:35:57Z 取消；诊断后不再挂起，证据上传成功。诊断日志为同工作树 `artifacts/ci-hang/diagnostic-cloud.log`。
+
+根因是测试比较了 C 结构体的填充字节：字段相同不保证整个对象内存相同，MSVC Debug 下暴露该问题。最终测试逐一比较全部页面/槽位的声明字段，保留真实记录的逐字节校验、全部 512 个断电边界和代次回绕检查；新增 `0xa5` 填充的编解码回归，要求序列化记录与原记录完全一致。将比较临时退回 `memcmp` 的本机负例稳定在新回归处失败（退出码 3221226505），原源码不被负例改写；证据为 `artifacts/ci-hang/padding-negative.log`。未修改产品存储实现、SDK 或固件配置。
+
+每项 CTest 现限时 60 秒，工作流把主机配置、编译和测试分开并放在五目标固件构建之前，测试步骤限时 5 分钟。修正后的 GCC 15.2.0／Ninja 本机命令 `cmake --build artifacts/host-pr-cleanup-win32 --parallel 6`、`ctest --test-dir artifacts/host-pr-cleanup-win32 --output-on-failure --timeout 60` 均退出 0、15/15 通过，日志为同目录 `local-build.log`／`local-ctest.log`。最终完整云端运行与对应提交由 [PR #28](https://github.com/e-n-ye/wristflow/pull/28) 记录，必须核对成功后再收尾；本轮不烧录，历史真机证据不扩展到新版本。
 
 手动完整基线 [36317904582](https://github.com/e-n-ye/wristflow/actions/runs/36317904582) 对应 `91d85aea237a60a845d55bf9220b0c0c3ed27497`：锁定 SDK 安装与 Hello／BLE／Bringup／UI Demo／Product 五目标成功，MSVC 主机构建在 `ui/runtime/settings_view.c:42` 报 C2371，内部 `accept` 回调与 Windows SDK 的 Winsock `accept()` 声明冲突，尚未执行 CTest，不能记为基线通过。失败日志位于本工作树 `artifacts/pr-cleanup-ci-failure.log`，云端产物 `build-evidence-36317904582-1`。
 
