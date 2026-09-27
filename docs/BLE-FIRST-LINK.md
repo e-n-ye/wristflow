@@ -6,7 +6,7 @@
 
 源码已接入标准 Nordic UART Service，广播名 `Bangle.js WristFlow`。Product 的 UI、RTC、设置持久化与 BLE 共存；PM 仍关闭。本轮先通过串口诊断验证数据，不显示通知浮窗或息屏预览，也未实现勿扰、通知亮屏和振动。
 
-主机 13/13 测试通过，Product 官方 SCons 编译与产物校验通过。手机首次扫描未发现；Windows 主动扫描实际收到正确名称和 NUS UUID，随后发现 SDK 默认不可发现模式，改为通用可发现并重新编译、烧录校验。14:16 修正版日志确认地址 `5C:FD:52:80:0F:D1`、`discoverable=general`、广播 status=0；用户 14:18 截图确认正确发现并显示已绑定，板端收到连接事件。随后诊断为 connected=1、subscribed=0，**GATT 订阅、手机校时与通知仍待验证**。历史 UI 真机结果不自动覆盖本固件；精简证据见 [ble-a1.json](evidence/2026-09-27/ble-a1.json)。
+主机 13/13 测试通过，Product 官方 SCons 编译与产物校验通过。手机发现问题通过改为通用可发现广播解决；Android 陪伴关联/添加流程曾失败，清除本设备绑定、强行停止并重新打开 Gadgetbridge 后选择“不配对”，14:32 主界面出现已连接设备卡片。板端确认 **connected=1、subscribed=1、MTU=131，手机校时写入/读回 result=0**。随后真实 QQ 中文通知、手机撤回、本地删除不清手机通知、六次手动重连及一次蓝牙开关后的自动恢复均取得证据，用户确认 KEY1 唤醒后界面正常。最终解析拒绝、未知帧和队列丢包均为零。同 ID 替换已通过主机测试，尚无手机同 ID 更新样本；远离返回与后台长期重连未验。历史 UI 真机结果不自动覆盖本固件；见 [机器可读记录](evidence/2026-09-27/ble-a1.json) 和 [脱敏硬件摘录](evidence/2026-09-27/ble-a1-hardware.txt)。
 
 ## 协议与实现
 
@@ -37,7 +37,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/build-isolated.ps1 -Exam
 
 前三项退出 0，13/13 通过，包括所有双分片位置、逐字节分片、中文与代理对、更新/撤回/本地删除、时间边界、畸形/超限/丢包恢复、十条淘汰及既有 UI 回归。日志 `artifacts/ble-validation/host-ble.txt`。本机辅助 PowerShell 只加载已安装环境并调用本工作树公共 `scripts/Build.ps1`；普通检出直接使用公共入口，均不烧录。
 
-首轮 Product 构建因 GATT 属性表缺 `SERIAL_UUID_16` 宏失败，记录 `artifacts/product/20260927-133727-242/result.json`。补宏后重编译成功，记录 `artifacts/product/20260927-134512-469/result.json`，264 个工程源哈希与当前源码逐项一致。保留 SDK 既有 RWX、newlib/finsh 告警；源码检查与编译不能替代运行验证。
+首轮 Product 构建因 GATT 属性表缺 `SERIAL_UUID_16` 宏失败，记录 `artifacts/product/20260927-133727-242/result.json`。补宏后重编译成功，记录 `artifacts/product/20260927-134512-469/result.json`；这是广播修正前的历史产物。下方最终修正版记录为 `artifacts/product/20260927-141319-544/result.json`，264 个工程源哈希与最终源码逐项一致。保留 SDK 既有 RWX、newlib/finsh 告警；源码检查与编译不能替代运行验证。
 
 | 镜像 | 字节 | SHA-256 |
 |---|---:|---|
@@ -59,12 +59,34 @@ D:/MY_Desk/project/wristflow/.tools/sifli/tools/sftool/0.2.5/sftool.exe -p COM5 
 
 上述修正版构建记录 `artifacts/product/20260927-141319-544/result.json`，退出 0、264 个源哈希一致、SDK 无改动；上表为修正版镜像。使用同一端口/地址/命令重新写入与 verify 退出 0，日志 `C:/Users/13984/.fastctx/jobs/j-qvpsuf/output.log`。新串口会话 `C:/Users/13984/.fastctx/jobs/j-jf0x8c/output.log` 捕获受控复位和通用可发现广播启动。解析器与主机测试源码未改，13/13 结果仍适用其对应模块；GATT 适配层修正用目标重新编译和真机广播核验。
 
-## 下一次有界联调
+手机端随后出现“陪伴设备”关联，选择后报 `discovery_timeout`，选择否也未完成添加；取消系统中本设备绑定后，选择“不配对”返回空主界面。官方 0.94.0 `BondingUtil.java:485` 的 companion 回调直接显示该超时错误，这个报错本身不能证明 NUS 服务发现失败。板端手机连接仍停在 subscribed=0。
 
-1. 核对 CH340 端口，烧录并 verify，确认无复位循环、广播启动，保留单次串口连接，避免重新开串口引起复位和 RTC 丢时。
-2. 手机安装官方 0.94.0，允许所需蓝牙/附近设备权限，从 Gadgetbridge 扫描并添加 `Bangle.js WristFlow`。开启通知访问，关闭 Text as Bitmaps；先确认 connected/subscribed、MTU 和 RTC 写入读回结果。
-3. 用不含私人信息的实际 Android 中文通知，核对来源、标题、正文；同 ID 更新不重复，手机撤回同步移除，本地删除不清手机通知。
-4. 重连五次、每次记录重新订阅与校时；普通息屏期间继续收消息，KEY1 唤醒后 UI 保持可操作。这里息屏不等于 PM 或低功耗通过。
-5. 留下成功/失败的实际时间、计数和原因；先解决链路阻断，再进入通知 UI 或 PM，不以安装、编译或模拟数据代替首轮手机验收。
+用户临时关闭手机蓝牙后，电脑用 Bleak 独立连接并强制不使用服务缓存：实际枚举 NUS 服务、002 写入特征、003 通知特征及 2902 CCCD，MTU=527；订阅成功收到版本 JSON，再写入 `is_gps_active` 收到 `gps_power/status=false`。日志 `C:/Users/13984/.fastctx/jobs/j-80dppy/output.log`，命令为 SDK Python 执行本地 `artifacts/ble-validation/gatt_probe.py`，退出 0 并断连。这证明板端 GATT 双向通信可用，**不是 Gadgetbridge 初始化、真实中文通知或手机校时通过**。已提示手机恢复蓝牙并强行停止/重启 Gadgetbridge 后再试。
 
-Gadgetbridge 总投入上限仍是累计 8 小时，包括此前协议研究。历史用时未精确登记，不能按零计算；本次会话从北京时间约 12:57 起，包含采购与 BLE，暂用全会话墙钟时间作为本次投入上界。历史另预留 2 小时预算（这是预算预留，不是声称已测量历史工时）；继续联调前更新本次累计时间，遇到需扩展完整脚本/位图协议的阻断先停在有界结论。
+随后手机按上述步骤完成添加，用户截图显示已连接；同一串口连续记录 generation=7、MTU=131、`RTC synchronized: UTC=1790490758`、`phone time ... result=0`，诊断 subscribed=1、rejected=0、dropped=0。generation=5 的连接属于电脑独立检查，不能计作手机重连次数。此时消息数仍为零，后续要单独验证通知权限、中文内容及增删改。
+
+用户随后提供微信通知栏“中文测试123”的截图，但板端仍 messages=0/rejected=0/dropped=0。Gadgetbridge `notifications_preferences.xml:18` 和 `NotificationListener.java:1338` 表明默认不转发亮屏时的一般通知；应用内路径为“设置→通知和来电→通知使用权”，联调可开启“即使屏幕开启时也通知”，或在手机锁屏后产生新通知。设备特殊设置截图已确认“发送通知”开启、“作为位图的文本”关闭、“允许高 MTU”开启。手机能显示 Gadgetbridge 自身通知不代表它已获得读取其他应用通知的使用权。
+
+用户确认通知使用权允许、开启亮屏转发，并在后续确认手机勿扰已关闭。板端收到六条调试 NotificationSpec（正文“通知链路456”）和真实 QQ 通知 `1790491687`（正文 `QQ:中文测试456`）。后续 `1790491688` 正文为 `QQ:中文测试789`，UTF-8 原始串口字节与用户截图一致。对前者执行 `wf_ble remove 1790491687` 后，用户确认手机通知仍在；随后手机发出这两个 ID 的 `notify-`，后者从板端移除，已本地删除的前者重复移除无副作用。QQ 这两条使用不同 ID，不能拿它们证明同 ID 更新去重。未采集 Android 过滤日志，不能把早期未转发唯一归因于勿扰；权限、亮屏选项和勿扰均在实验中变化。
+
+常规日志不显示正文；`wf_ble list` 仅在本次受控测试时主动使用。原始 SDK 串口还含绑定调试信息，仅保留本机忽略目录；公开证据不包含绑定密钥、联系人或完整通知截图。
+
+## 重连与收尾结果
+
+手机关闭/开启蓝牙后，用户手动连接共六轮。板端 generation 为 9、11、13、15、17、19；对应 UTC 校时秒为 1790492285、1790492296、1790492311、1790492323、1790492334、1790492346，每轮 MTU=131、校时 result=0。第六轮后收到 ID `1790491689`、正文 `QQ:中文重连终测`，原始 UTF-8 字节确认完整。generation=19 的状态为 connected=1、subscribed=1、rejected=0、unknown=0、dropped=0。这些不能称为六次自动重连。
+
+设备级“自动重新连接到设备”此前已开启但未解决手机蓝牙开关后的自动恢复。官方 0.94.0 的 `BluetoothStateChangeReceiver.java:57–79` 在蓝牙关闭时主动断开，开启时另检查全局 `general_autoconnectonbluetooth`（默认关闭）。用户在主界面菜单的全局设置开启“当蓝牙打开时连接到 Gadgetbridge 设备”后，再关闭/开启一次蓝牙、不点击卡片，确认自动恢复。板端 generation=21、MTU=131、UTC=1790492657、校时 result=0，最终状态 connected=1、subscribed=1、messages=4、added=14、updated=0、removed=7、rejected=0、unknown=0、dropped=0；总计数含调试消息和后续通知，不等于独立测试案例数量。
+
+用户确认 KEY1 唤醒后界面正常。本轮没有逐条通知与屏幕状态的时间对齐测量，也未完成 30–60 分钟联合压力验收。BLE 线程 8192 B 栈峰值的一次采样为 40%；当时系统堆已用 120780/329508 B、峰值 158976 B，只记作该次样本。PM 未启用，无休眠状态、电流或续航结论。
+
+15:11 通过 stop 文件正常结束串口助手，日志确认 `CLOSED COM5`，后台作业退出 0；未重新打开串口或复位板卡。公开摘录仅保留连接/计数、测试正文和用户确认，隐藏联系人标题并排除 SDK 绑定材料。
+
+收尾只修改文档与精简证据，固件源码仍为 `df97360b43e45b66b492786315bded1c7e6d5694`。264 个构建源哈希、12 个增量源码/测试快照及三个镜像哈希重新核对一致；SDK 无修改。变更文件 UTF-8、JSON、相对链接及 `git diff --check` 通过，本机检查记录为 `artifacts/ble-validation/closeout-check.json`。本轮未再编译相同源码，也未运行云端完整基线；PR #25 保持 draft，未合并。
+
+## 下一次有界实验与预算
+
+首轮连接与真实通知链路已有工作结果，继续沿用 A → 尽早 P → 完整通知 UI B 的顺序。下一实验在同一 Product 中先核对官方黄山派 PM、BLE 与显示/触摸电源流程，设置可回退配置；分别采集空闲、熄屏、BLE 事件到达与 KEY1 唤醒的实际状态，再决定启用方式。取得实际状态证据前，不声称低功耗已通过；完整通知 UI 和振动不在 A1 中追加。
+
+剩余 BLE 样本为手机同 ID 更新去重、远离返回和长期后台恢复；后续按对应场景采样，不重复本次已完成的安装/添加访谈。安全绑定与隐私验证仍属产品化未完成项。
+
+Gadgetbridge 总投入上限仍是累计 8 小时，包括此前协议研究。历史用时未精确登记，不能按零计算。本次会话约北京时间 12:57 起，至 15:11 停止硬件采集约 2 小时 14 分钟，包含采购；本轮暂按 2.5 小时预算记账，包含文档收尾余量。历史另预留 2 小时（预算预留，不是已测量历史工时），目前按 4.5 小时占用、3.5 小时剩余管理。后续若核实历史超出预留或本轮超出记账，应继续扣减，不能重置；遇到完整脚本/位图兼容需求先停在有界结论。

@@ -3,6 +3,7 @@
   "worktree": "C:/Users/13984/.codex/worktrees/ble-first-link/wristflow",
   "branch": "codex/ble-first-link",
   "base_head": "e5cdd7b4cef531e6bb59313f66eb0d2f9489c91a",
+  "firmware_source_commit": "df97360b43e45b66b492786315bded1c7e6d5694",
   "build_record": "artifacts/product/20260927-141319-544/result.json",
   "build_record_sha256": "4509ce5f4110858696a6e5b2ff379495ae9d02a17bdd9bcc84f1d970c55ba141",
   "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
@@ -45,13 +46,13 @@
     "flash_log": "C:/Users/13984/.fastctx/jobs/j-qvpsuf/output.log",
     "serial_log": "C:/Users/13984/.fastctx/jobs/j-8jmpmj/output.log",
     "startup_evidence": "wf_ble status responds: connected=0 subscribed=0 generation=0 dropped=0",
-    "phone_link_verified": false,
+    "phone_link_verified": true,
     "pm_verified": false,
     "serial_reset_log": "C:/Users/13984/.fastctx/jobs/j-jf0x8c/output.log",
     "controlled_rts_reset_ms": 150,
     "advertising_start_status": 0,
     "advertising_name": "Bangle.js WristFlow",
-    "initial_phone_scan": "not found; cause unresolved",
+    "initial_phone_scan": "not found with SDK non-discoverable default; found after general-discoverable extension-point override",
     "advertising_mode": "general discoverable",
     "board_address": "5C:FD:52:80:0F:D1",
     "windows_scan_before_fix": {
@@ -62,7 +63,106 @@
       "log": "C:/Users/13984/.fastctx/jobs/j-a3l2c5/output.log"
     },
     "phone_scan_after_fix": "user screenshot confirms name/address; board connected event generation=1",
-    "cccd_subscribed": false
+    "cccd_subscribed": true,
+    "windows_gatt_probe": {
+      "exit_code": 0,
+      "mtu": 527,
+      "service_and_characteristics_enumerated": true,
+      "notification_subscription": true,
+      "version_received": true,
+      "gps_query_response_received": true,
+      "log": "C:/Users/13984/.fastctx/jobs/j-80dppy/output.log"
+    },
+    "phone_add_flow": "success after forget only WristFlow bond, force-stop/restart app, choose do not pair",
+    "phone_mtu": 131,
+    "phone_time_utc": 1790490758,
+    "phone_time_result": 0,
+    "phone_generation": 7,
+    "dropped_at_initialization": 0,
+    "real_phone_notifications_verified": true,
+    "five_phone_reconnects_verified": true,
+    "reconnect_method": "six manual reconnects, then one automatic recovery after enabling global Bluetooth-on autoconnect",
+    "manual_phone_reconnects": {
+      "count": 6,
+      "generations": [9, 11, 13, 15, 17, 19],
+      "time_utc": [1790492285, 1790492296, 1790492311, 1790492323, 1790492334, 1790492346],
+      "all_mtu": 131,
+      "all_time_results": 0,
+      "final_subscription_verified": true
+    },
+    "bluetooth_toggle_autoreconnect": {
+      "count": 1,
+      "global_preference": "general_autoconnectonbluetooth",
+      "global_preference_enabled": true,
+      "user_confirmed_no_manual_card_tap": true,
+      "generation": 21,
+      "mtu": 131,
+      "time_utc": 1790492657,
+      "time_result": 0,
+      "cccd_subscribed": true,
+      "out_of_range_return_tested": false,
+      "long_background_tested": false
+    },
+    "real_source": "QQ",
+    "real_test_ids": [
+      1790491687,
+      1790491688,
+      1790491689
+    ],
+    "real_test_bodies": [
+      "QQ:中文测试456",
+      "QQ:中文测试789",
+      "QQ:中文重连终测"
+    ],
+    "local_remove_phone_notification_preserved": "user confirmed",
+    "phone_withdrawal_ids": [
+      1790491687,
+      1790491688
+    ],
+    "same_id_update_hardware_verified": false,
+    "notification_rejected": 0,
+    "notification_dropped": 0,
+    "phone_dnd": "user confirmed off when real notifications received; multiple settings changed so no single-cause attribution",
+    "key1_wake_ui": "user confirmed normal after the automatic reconnect",
+    "final_status": {
+      "connected": 1,
+      "subscribed": 1,
+      "generation": 21,
+      "messages": 4,
+      "added": 14,
+      "updated": 0,
+      "removed": 7,
+      "rejected": 0,
+      "unknown": 0,
+      "dropped": 0
+    },
+    "final_counter_scope": "includes debug and later notification traffic; not a count of independent test cases",
+    "memory_sample": {
+      "system_heap_total_bytes": 329508,
+      "system_heap_used_bytes": 120780,
+      "system_heap_peak_bytes": 158976,
+      "ble_thread_stack_bytes": 8192,
+      "ble_thread_stack_peak_percent": 40,
+      "scope": "single sample, not a long-duration or stress-test bound"
+    },
+    "sanitized_evidence": "docs/evidence/2026-09-27/ble-a1-hardware.txt",
+    "serial_capture_stopped_at": "2026-09-27T15:11:27+08:00",
+    "serial_capture_exit_code": 0,
+    "serial_port_closed": true,
+    "notification_ui_integrated": false,
+    "screen_state_per_notification_time_aligned": false,
+    "joint_30_to_60_minute_stress_acceptance": false
+  },
+  "budget": {
+    "gadgetbridge_cumulative_limit_hours": 8,
+    "historical_elapsed_hours_known": false,
+    "historical_reserve_hours": 2,
+    "session_started_approx": "2026-09-27T12:57:00+08:00",
+    "hardware_capture_end_elapsed_minutes_approx": 134,
+    "session_budget_charge_hours": 2.5,
+    "session_charge_includes": "purchase review, BLE work and documentation closeout allowance",
+    "managed_remaining_hours": 3.5,
+    "scope": "budget accounting only; deduct any verified historical or session overrun, never reset previous research time"
   },
   "previous_build_record": "artifacts/product/20260927-134512-469/result.json",
   "images": {

@@ -1,0 +1,93 @@
+# Sanitized A1 hardware transcript (2026-09-27)
+# Source: local j-jf0x8c/output.log; line numbers refer to the original local log.
+# Selected link/status/time events and controlled test messages only.
+# SDK pairing material, contact titles, non-test notification payloads and screenshots excluded.
+L90: [ble] A1 connected=0 subscribed=0 generation=0 messages=0 added=0 updated=0 removed=0 rejected=0 unknown=0 dropped=0
+L194: [ble] connected index=0 generation=1
+L265: [ble] A1 connected=1 subscribed=0 generation=1 messages=0 added=0 updated=0 removed=0 rejected=0 unknown=0 dropped=0
+L275: [ble] disconnected reason=19
+L279: [ble] connected index=0 generation=3
+L302: [ble] disconnected reason=19
+L306: [ble] connected index=0 generation=5
+L308: [ble] MTU=527
+L310: [ble] disconnected reason=19
+L314: [ble] connected index=0 generation=7
+L316: [ble] MTU=131
+L320: [ble] phone time UTC=1790490758 result=0
+L324: [ble] A1 connected=1 subscribed=1 generation=7 messages=0 added=0 updated=0 removed=0 rejected=0 unknown=0 dropped=0
+L334: [ble] A1 connected=1 subscribed=1 generation=7 messages=0 added=0 updated=0 removed=0 rejected=0 unknown=0 dropped=0
+L366: [ble] A1 connected=1 subscribed=1 generation=7 messages=0 added=0 updated=0 removed=0 rejected=0 unknown=0 dropped=0
+L372: [ble] A1 connected=1 subscribed=1 generation=7 messages=0 added=0 updated=0 removed=0 rejected=0 unknown=0 dropped=0
+L428: [ble] event=0 id=1790491681 count=1 rejected=0
+L430: [ble] event=0 id=1790491682 count=2 rejected=0
+L432: [ble] event=0 id=1790491683 count=3 rejected=0
+L434: [ble] event=0 id=1790491684 count=4 rejected=0
+L436: [ble] event=0 id=1790491685 count=5 rejected=0
+L438: [ble] event=0 id=1790491686 count=6 rejected=0
+L440: [ble] event=0 id=1790491687 count=7 rejected=0
+L446: [ble] A1 connected=1 subscribed=1 generation=7 messages=7 added=7 updated=0 removed=0 rejected=0 unknown=0 dropped=0
+L450: [ble] id=1790491686 src=Gadgetbridge title=[REDACTED] body=通知链路456
+L452: [ble] id=1790491685 src=Gadgetbridge title=[REDACTED] body=通知链路456
+L454: [ble] id=1790491684 src=Gadgetbridge title=[REDACTED] body=通知链路456
+L456: [ble] id=1790491683 src=Gadgetbridge title=[REDACTED] body=通知链路456
+L460: [ble] id=1790491681 src=Gadgetbridge title=[REDACTED] body=通知链路456
+L462: [ble] event=0 id=1790491688 count=8 rejected=0
+L468: [ble] A1 connected=1 subscribed=1 generation=7 messages=7 added=8 updated=0 removed=0 rejected=0 unknown=0 dropped=0
+L474: [ble] A1 connected=1 subscribed=1 generation=7 messages=7 added=8 updated=0 removed=0 rejected=0 unknown=0 dropped=0
+L476: [ble] id=1790491688 src=QQ title=[REDACTED] body=QQ:中文测试789
+L480: [ble] id=1790491685 src=Gadgetbridge title=[REDACTED] body=通知链路456
+L482: [ble] id=1790491684 src=Gadgetbridge title=[REDACTED] body=通知链路456
+L486: [ble] id=1790491682 src=Gadgetbridge title=[REDACTED] body=通知链路456
+L490: [ble] event=1 id=1790491687 count=7 rejected=0
+L492: [ble] event=1 id=1790491688 count=6 rejected=0
+L500: [ble] A1 connected=1 subscribed=1 generation=7 messages=6 added=8 updated=0 removed=1 rejected=0 unknown=0 dropped=0
+L530: [ble] disconnected reason=19
+L534: [ble] connected index=0 generation=9
+L536: [ble] MTU=131
+L540: [ble] phone time UTC=1790492285 result=0
+L542: [ble] disconnected reason=19
+L546: [ble] connected index=0 generation=11
+L548: [ble] MTU=131
+L552: [ble] phone time UTC=1790492296 result=0
+L554: [ble] disconnected reason=19
+L558: [ble] connected index=0 generation=13
+L560: [ble] MTU=131
+L564: [ble] phone time UTC=1790492311 result=0
+L566: [ble] disconnected reason=19
+L574: [ble] connected index=0 generation=15
+L576: [ble] MTU=131
+L580: [ble] phone time UTC=1790492323 result=0
+L606: [ble] disconnected reason=19
+L610: [ble] connected index=0 generation=17
+L612: [ble] MTU=131
+L616: [ble] phone time UTC=1790492334 result=0
+L618: [ble] disconnected reason=19
+L622: [ble] connected index=0 generation=19
+L624: [ble] MTU=131
+L628: [ble] phone time UTC=1790492346 result=0
+L630: [ble] event=0 id=1790491689 count=7 rejected=0
+L636: [ble] A1 connected=1 subscribed=1 generation=19 messages=7 added=9 updated=0 removed=1 rejected=0 unknown=0 dropped=0
+L640: [ble] id=1790491686 src=Gadgetbridge title=[REDACTED] body=通知链路456
+L644: [ble] id=1790491684 src=Gadgetbridge title=[REDACTED] body=通知链路456
+L646: [ble] id=1790491683 src=Gadgetbridge title=[REDACTED] body=通知链路456
+L648: [ble] id=1790491682 src=Gadgetbridge title=[REDACTED] body=通知链路456
+L650: [ble] id=1790491681 src=Gadgetbridge title=[REDACTED] body=通知链路456
+L658: [ble] event=1 id=1790491689 count=9 rejected=0
+L674: [ble] disconnected reason=19
+L678: [ble] connected index=0 generation=21
+L680: [ble] MTU=131
+L684: [ble] phone time UTC=1790492657 result=0
+L750: [ble] A1 connected=1 subscribed=1 generation=21 messages=4 added=14 updated=0 removed=7 rejected=0 unknown=0 dropped=0
+L754: [ble] A1 connected=1 subscribed=1 generation=21 messages=4 added=14 updated=0 removed=7 rejected=0 unknown=0 dropped=0
+L786: [ble] A1 connected=1 subscribed=1 generation=21 messages=4 added=14 updated=0 removed=7 rejected=0 unknown=0 dropped=0
+
+# UTF-8 raw serial byte verification (serial-general-reset.bin), test payloads only:
+RAW-L222: [ble] id=1790491687 src=QQ title=[REDACTED] body=QQ:中文测试456
+RAW-L232: [ble] id=1790491688 src=QQ title=[REDACTED] body=QQ:中文测试789
+RAW-L308: [ble] id=1790491689 src=QQ title=[REDACTED] body=QQ:中文重连终测
+
+# User confirmations:
+# Local remove left the corresponding QQ notification on the phone.
+# Reconnects generation=9/11/13/15/17/19 required manual connection.
+# After enabling general_autoconnectonbluetooth, generation=21 recovered without tapping the device card.
+# KEY1 wake left the UI working normally.
