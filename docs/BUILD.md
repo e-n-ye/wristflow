@@ -1,5 +1,13 @@
 # 可复现构建基线
 
+## 2026-09-27 合入版本 Product 烧录复验
+
+用户授权后，从合入 #28 的 `main 5c0b82c02cf8f80168b076b0f76e2514a1867042` 重新构建 Product。`pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/build-isolated.ps1 -Example product` 调用锁定环境的官方 `scons --board=sf32lb52-lchspi-ulp -j6`，退出 0、产物校验通过。记录为本工作树 `artifacts/product/20260927-225145-164/result.json`；286 个源文件及全部记录产物的哈希复核一致，SDK/子模块符合锁且无修改。主 BIN 为 7,427,780 B，SHA-256 `e3d78d1737c27bb1ca1110f40a2d438060c308efc26d3d88882493fdf097ebaa`。
+
+确认 COM5 的 CH340、VID:PID `1A86:7523` 和位置 `1-1.1` 后，使用 sftool 0.2.5 按官方镜像清单独立写入三个镜像并 `--verify`，退出 0；不写 settings 分区。受控 RTS 复位采集确认布局 generation=26/pages=3、brightness=47、face=diffusion 恢复，BLE 广播启动、约十秒息屏及一次 KEY1 恢复。用户反馈其他区域似乎正常，但尚无逐项菜单手势矩阵。命令、镜像与日志位置见 [精简证据](evidence/2026-09-27/pr-merge-flash.json)。本次主机验证沿用同内容版本的 [成功完整基线](https://github.com/e-n-ye/wristflow/actions/runs/36323967702)，不重复计算为新的主机运行。
+
+用户随后报告手机通知暂时收不到，Gadgetbridge 显示已连接；在未改源码、未再次烧录或请求复位的串口观察中自行恢复，用户确认收到 QQ、微信真实消息。日志捕获六次通知入库以及通知唤醒/再次息屏；23:18:38 完整状态采样为 connected=1、subscribed=1、generation=1、added=5、rejected=0、unknown=1、dropped=0，之后还有一条通知及两个未支持协议事件，不能将该采样称为最终计数。PM 路径计数继续增长。短暂中断未取得手机/设备同步故障日志，根因未确认，不归因于 PM 或认定代码缺陷已修复。串口于 23:19:42 正常关闭。若再现，先同步采集连接/订阅/计数和 Gadgetbridge 转发日志，再发送一条带时间标记的测试消息；本轮不扩展到长测、电流和续航验收。
+
 ## 2026-09-27 PR 收尾与 Windows 模拟器
 
 第三次基线 [36320503029](https://github.com/e-n-ye/wristflow/actions/runs/36320503029) 对应 `04aacd64838f39c72eca54d8983307666062fdb5`。五个固件目标已通过，主机已编译完成，但 CTest 停在第六项 `component_layout`；本轮接手后取消该运行，不能把等待描述为仍在编译。原始日志保留于 `C:/Users/13984/.codex/worktrees/ble-first-link/wristflow/artifacts/ci-hang/original-cloud.log`。
