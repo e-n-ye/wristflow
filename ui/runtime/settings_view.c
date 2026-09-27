@@ -39,7 +39,7 @@ bool wristflow_settings_dismiss(lv_obj_t *root)
 static void cancel(lv_event_t *event)
 { (void)event; wristflow_settings_dismiss(lv_screen_active()); }
 
-static void accept(lv_event_t *event)
+static void accept_settings_confirmation(lv_event_t *event)
 {
     wristflow_ui_shell_t *shell = lv_event_get_user_data(event);
     lv_obj_t *root = lv_screen_active();
@@ -67,7 +67,7 @@ static void confirm(lv_obj_t *root, wristflow_ui_shell_t *shell, unsigned value)
     else snprintf(message, sizeof message, "亮屏时间过长，会减少续航时间，确定使用？");
     lv_label_set_text(named(dialog, "confirm_text"), message);
     lv_obj_add_event_cb(named(dialog, "confirm_cancel"), cancel, LV_EVENT_SHORT_CLICKED, shell);
-    lv_obj_add_event_cb(named(dialog, "confirm_accept"), accept, LV_EVENT_SHORT_CLICKED, shell);
+    lv_obj_add_event_cb(named(dialog, "confirm_accept"), accept_settings_confirmation, LV_EVENT_SHORT_CLICKED, shell);
     /* Modal stops gestures reaching the underlying settings list. KEY1 remains Home. */
     lv_obj_remove_flag(dialog, LV_OBJ_FLAG_EVENT_BUBBLE | LV_OBJ_FLAG_GESTURE_BUBBLE);
 }
