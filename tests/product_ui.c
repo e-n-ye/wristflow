@@ -208,6 +208,9 @@ int main(int argc, char **argv)
       snapshot(argv[1], layout ? "product_grid" : "product_list");
       swipe(90, 10, 300, 10);
       assert(wristflow_ui_shell_navigation(shell)->surface == WRISTFLOW_SURFACE_LAUNCHER);
+      sample(100, 60, true); sample(140, 60, true); sample(100, 60, true);
+      sample(100, 60, false); advance();
+      assert(wristflow_ui_shell_navigation(shell)->surface == WRISTFLOW_SURFACE_LAUNCHER);
       swipe(30, 220, 280, 220);
       assert(wristflow_ui_shell_navigation(shell)->surface == WRISTFLOW_SURFACE_HOME);
       assert(wristflow_ui_shell_key(shell)); advance();
