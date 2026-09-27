@@ -1,0 +1,159 @@
+{
+  "date": "2026-09-27",
+  "worktree": "C:/Users/13984/.codex/worktrees/ble-first-link/wristflow",
+  "branch": "codex/product-pm-wake",
+  "base_head": "8df22c32ff972d616698ec8bec846c0edc19810d",
+  "source_snapshot": {
+    "apps/product/src/product_pm.c": "2b5eb818e2d52a2eff78fa363b3bb4273743b58777e764e0b3390e84ba07e055",
+    "apps/product/src/product_pm.h": "9619e27cf30b6ef739dfdb9f0b925d98fbe377688d90709df2922ca9615c2845",
+    "apps/product/src/main.c": "33d63b8557e3834b94efa350fc2e41108dbfbab4c68adb7e8764f663938087bd",
+    "apps/product/src/product_ble.c": "2f392acf14169a91cfb1b988ae77c6168e5b64fb672c9fdfeaf65cef7cb9ca20",
+    "apps/product/project/proj.conf": "2e914c02c20b7ac9e62f28c25389eb32658ab85d5fa663430eeda64c9a814cdb",
+    "tests/product_pm.c": "fcbd99ada650e8b2c806527df54f08d9843e6af757368e52331e1d28a5b47a6f",
+    "tests/CMakeLists.txt": "d61305db7e95680911bc3a8dae22bb10bf0b67384a616800d7e57f4c0c4fb36a",
+    "tests/support/pm/bf0_pm.h": "f31451acf948780ab1a8994f9d3901f493658097134810375332f60786b6140f",
+    "tests/support/pm/board.h": "5bfc7d6a7bf5d11fbab3e2d411b06c35102709530acc3ce813be06eade6e51b5",
+    "tests/support/pm/drv_gpio.h": "a974024d99a1e6d9350146c5ddb8fcc5c834d5d0873c19ef855c2e011023d579",
+    "tests/support/pm/rtdevice.h": "748541ced73253554847bb68e780a1da83c14da2374acdb44917595d1d60e9be",
+    "tests/support/pm/rtthread.h": "aa756708922a72c9fe1ac513fc8b7df79a066a9715a166916bb692ab5ee5f523"
+  },
+  "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+  "submodules": [
+    " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+    " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+  ],
+  "sdk_changes": [],
+  "build_record": "artifacts/product/20260927-161624-537/result.json",
+  "build_record_sha256": "646c42c6cfbd1c5a11f07e936fbc3b7fc7a3036f7bb16d4c817d1c19a17a2dc6",
+  "build_exit_code": 0,
+  "artifact_validation_passed": true,
+  "source_files_verified": 266,
+  "versions": {
+    "python": "Python 3.13.15",
+    "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+    "scons": "4.10.1"
+  },
+  "images": {
+    "main.bin": {
+      "bytes": 3571648,
+      "sha256": "60d2ad2d050ff19c909af307bdd10406f6c5a4eb0172ba27870ca770e9dc72e4"
+    },
+    "bootloader/bootloader.bin": {
+      "bytes": 58496,
+      "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+    },
+    "ftab/ftab.bin": {
+      "bytes": 11288,
+      "sha256": "7aa8fe564a0adf3025c718f28319a64d7b1e933cc9e5a5365e7fe5fc5c22bec0"
+    }
+  },
+  "host_tests": {
+    "passed": 14,
+    "total": 14,
+    "exit_code": 0,
+    "log": "artifacts/ble-validation/pm-host-final.txt",
+    "scope": "actual PM adapter with RTOS/PM mocks; existing protocol/UI regressions"
+  },
+  "hardware": {
+    "phone": "iQOO Neo9S Pro+",
+    "gadgetbridge": "0.94.0",
+    "power": "USB; no battery",
+    "port": "COM5 CH340 1A86:7523",
+    "flash_job": "j-2bs3v5",
+    "flash_exit_code": 0,
+    "flash_verify": true,
+    "serial_job": "j-y5nyta",
+    "serial_exit_code": 0,
+    "serial_closed_at": "2026-09-27T16:27:57.663+08:00",
+    "controlled_reset_ms": 150,
+    "mtu": 131,
+    "phone_time_utc": 1790497249,
+    "phone_time_result": 0,
+    "connected_screen_off_sample": {
+      "duration_seconds": 5,
+      "before": {
+        "allow": 0,
+        "off": 1,
+        "enter": 0,
+        "exit": 0,
+        "own_idle": 1,
+        "sdk_idle": 1
+      },
+      "after": {
+        "allow": 1,
+        "off": 1,
+        "enter": 67,
+        "exit": 67,
+        "deep_elapsed": 48,
+        "deep_ticks": 4956,
+        "max_ticks": 118,
+        "wake_source": "0x4",
+        "own_idle": 0,
+        "sdk_idle": 0
+      }
+    },
+    "test_notification_ids": [
+      1790491718,
+      1790491719
+    ],
+    "test_marker": "PM中文测试456",
+    "user_confirmed_board_remained_dark": true,
+    "phone_off_before": 2,
+    "phone_off_after": 4,
+    "background_before": 2,
+    "background_after": 4,
+    "user_confirmed_normal_wake_rounds": 5,
+    "logged_key_wakes_while_allowed": 7,
+    "logged_extra_key_wakes_while_held": 1,
+    "key_wake_sources": [
+      "0x40002",
+      "0x40006"
+    ],
+    "key_aon_index": 10,
+    "key_aon_wsr_mask": "0x40000",
+    "rollback": {
+      "allow": 0,
+      "off": 1,
+      "own_idle": 1,
+      "sdk_idle": 1,
+      "enter_at_hold": 1947,
+      "enter_later": 1947,
+      "deep_elapsed_at_hold": 1261,
+      "deep_elapsed_later": 1261,
+      "later_tick": 393378
+    },
+    "final_ble": {
+      "connected": 1,
+      "subscribed": 1,
+      "generation": 1,
+      "messages": 2,
+      "added": 2,
+      "updated": 0,
+      "removed": 0,
+      "rejected": 0,
+      "unknown": 0,
+      "dropped": 0
+    },
+    "sanitized_evidence": "docs/evidence/2026-09-27/pm-p1-hardware.txt"
+  },
+  "limitations": [
+    "PM notify attempts and compensated ticks are not exact hardware residency or power measurements.",
+    "No battery, rail current, energy integration, standby, touch wake or 30-60 minute stress acceptance.",
+    "Storage worker still wakes every 100ms; ordinary UART commands are unreliable while deep sleep is allowed.",
+    "Unconnected PM samples belong to the pre-log-fix binary; final binary covers connected messages/wake/rollback.",
+    "P1 leaves runtime deep-sleep gate held and resets held on boot; notification UI is next."
+  ],
+  "previous_binary": {
+    "build_record": "artifacts/product/20260927-155232-915/result.json",
+    "main_sha256": "ae000f347bfae6f5f43889be92b9e4700fc92207c51dd968599450bc77ffd7d0",
+    "unconnected_sample": {
+      "enter": 54,
+      "exit": 54,
+      "deep_elapsed": 49,
+      "deep_ticks": 4997,
+      "max_ticks": 104
+    },
+    "user_confirmed_unconnected_wake_normal": true,
+    "diagnostic_failure": "128-byte console buffer truncated long line; final code splits lines and adds max-counter formatting regression test"
+  }
+}

@@ -13,6 +13,7 @@
 #include "phone_protocol.h"
 #include "product_ble.h"
 #include "product_services.h"
+#include "product_pm.h"
 
 #define WF_BLE_NAME "Bangle.js WristFlow"
 #define SERIAL_UUID_16(x) {((uint8_t)((x) & 0xff)), ((uint8_t)((x) >> 8))}
@@ -147,6 +148,7 @@ static void phone_event(wf_phone_event_t e, int32_t id, void *context)
         rt_kprintf("[ble] phone time UTC=%u result=%d\n", phone.utc, result);
     } else if (e == WF_PHONE_GPS_QUERY) gps_reply = true;
     else rt_kprintf("[ble] event=%u id=%ld count=%u rejected=%u\n", e, (long)id, phone.count, phone.rejected);
+    wristflow_product_pm_phone_event();
 }
 static void worker(void *context)
 {
@@ -165,7 +167,7 @@ static void worker(void *context)
         rt_mutex_release(&phone_lock);
         if (p.generation != generation) continue;
         if (p.kind == PACKET_SUBSCRIBE && subscribed)
-            transmit("\n{\"t\":\"ver\",\"fw\":\"WristFlow BLE A1\",\"hw\":\"Huangshan\"}\n", peer);
+            transmit("\n{\"t\":\"ver\",\"fw\":\"WristFlow PM P1\",\"hw\":\"Huangshan\"}\n", peer);
         if (reply) transmit("\n{\"t\":\"gps_power\",\"status\":false}\n", peer);
     }
 }

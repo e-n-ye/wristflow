@@ -1,6 +1,8 @@
 # 当前状态
 
-更新：2026-09-27。[首个 BLE 实验 A1](BLE-FIRST-LINK.md) 已在同一 Product 上打通 iQOO / Gadgetbridge 0.94.0 的连接、手机校时及真实 QQ 中文通知链路；13/13 主机测试及 Product 编译通过，USB 真机证据已归档。[第二批采购单](PURCHASE-REVIEW.md) 已只读审核，可按实验物料采购；电池先改并验证充电配置再接入。下一步按 [已确认计划 PR #24](https://github.com/e-n-ye/wristflow/pull/24) 尽早开展同一 Product 的 PM/事件唤醒有界实验，随后接完整通知 UI；当前两者均未接入。
+更新：2026-09-27。用户确认 [第二批采购单](PURCHASE-REVIEW.md) 已全部下单、待到货，最终成交价和实物未核验。同一 Product 的 [PM／事件唤醒 P1](PM-EVENT-WAKE.md) 已取得 USB 下的软件休眠路径与恢复证据：开启 PM/BLE、KEY1 AON，息屏仍收到两条 QQ 测试通知且不亮屏，五轮 KEY1 恢复由用户确认正常。运行时允许／禁止休眠的对照已验证，最后保留 hold；14/14 主机测试、Product 编译及三镜像烧录校验通过。没有精确硬件驻留、电流或续航结论。下一步按 [已确认计划 PR #24](https://github.com/e-n-ye/wristflow/pull/24) 接完整通知 UI。
+
+以下 [BLE A1](BLE-FIRST-LINK.md) 结果对应上一轮源码，不自动覆盖 P1；P1 的新连接、校时、息屏消息与 KEY1 证据以专题新记录为准。
 
 本轮真机新增：真实 QQ 中文通知完整接收、手机撤回同步移除、本地删除不清手机通知；六次手动重连均重新协商 MTU=131 并成功校时。开启 Gadgetbridge 全局“当蓝牙打开时连接到 Gadgetbridge 设备”后，再验证一次手机蓝牙关闭/开启可自动恢复；最终 connected=1、subscribed=1，解析拒绝/未知帧/队列丢包均为零。用户确认 KEY1 唤醒后界面正常。同 ID 更新仅有主机测试证据，远离返回和后台长期重连未验；PM 关闭，不能由息屏推断休眠功耗。脱敏串口摘录见 [硬件证据](evidence/2026-09-27/ble-a1-hardware.txt)。
 
@@ -78,7 +80,7 @@
 
 - XML 历史样式/参数/字体问题已修复并真实渲染；Community 不含官方 CLI，仍需人工 GUI 导出及截图复核。CI 编译生成 C 不能证明其与最新 XML 同步。静态 `10:48`、样例数据和 12 张小时图不代表真实 RTC、连接或传感器功能；呼吸/伸缩动画与硬件刷新功耗尚未验证。
 - 12 张 342×282 的 RGB565 小时图片未压缩像素数据约 2.21 MiB；历史 `hour_seven_data.c` 已不再由官方 CMake 清单引用，并已从 SCons 图片源收集中排除，避免无引用 ARGB8888 数据继续增加固件体积。
-- Hello/BLE 基础例程 PM 关闭，Bringup 已开启 PM 但无 BLE；仍没有同一固件下的 UI/BLE/休眠运行证据。
+- Hello/BLE 基础例程 PM 关闭，Bringup 的 PM 证据属于历史独立目标；当前 Product P1 已有 UI/BLE/SDK 休眠路径的组合运行证据，但未测精确驻留、电流或长期稳定性。
 - 黄山派物理 PSRAM 和默认数据分区均为 8MB；不能沿用 Nano 物理 16MB 的资源预期，应用峰值与板上容量待测。
 - 官方例程链接有 RWX LOAD segment 警告；未修改链接脚本，运行风险仍待板端验证。
 - Bringup 编译包含官方 LVGL `lv_obj_tree.c:274` 的潜在空指针警告；触摸开关是 SDK 异步操作，快速熄屏/唤醒及驱动定时器释放须重点实测。
