@@ -57,7 +57,7 @@ static void back(lv_event_t *event)
 static void launch(lv_event_t *event)
 {
     wristflow_apps_t *apps = lv_event_get_user_data(event);
-    if (!apps->product_mode && apps->menu_dragged) return;
+    if (apps->menu_dragged) return;
     lv_obj_t *target = lv_event_get_current_target_obj(event);
     for (unsigned i = 0; i < apps->menu_count; ++i) {
         if (target != apps->menu_icons[i] && target != apps->menu_grid_icons[i])
@@ -386,6 +386,22 @@ static void open_menu_layout(lv_event_t *event)
     wristflow_ui_shell_open(apps->shell, WRISTFLOW_SURFACE_MENU_LAYOUT);
 }
 
+static void product_menu_touch(lv_event_t *event)
+{
+    wristflow_apps_t *apps = lv_event_get_user_data(event);
+    lv_indev_t *input = lv_indev_active();
+    if (!input) return;
+    lv_point_t point;
+    lv_indev_get_point(input, &point);
+    if (lv_event_get_code(event) == LV_EVENT_PRESSED) {
+        apps->menu_press = point;
+        apps->menu_dragged = false;
+    } else if (lv_event_get_code(event) == LV_EVENT_PRESSING &&
+        (LV_ABS(point.x - apps->menu_press.x) > 8 || LV_ABS(point.y - apps->menu_press.y) > 8)) {
+        apps->menu_dragged = true;
+    }
+}
+
 static void create_product_menu(wristflow_apps_t *apps, lv_obj_t *root)
 {
     lv_obj_t *list = named(root, "launcher_list");
@@ -403,6 +419,9 @@ static void create_product_menu(wristflow_apps_t *apps, lv_obj_t *root)
         lv_obj_set_name(icon, entry->launcher_name);
         apps->menu_icons[index] = row;
         apps->menu_grid_icons[index] = icon;
+        /* Keep a drag on its original item instead of retargeting another icon. */
+        lv_obj_add_flag(row, LV_OBJ_FLAG_PRESS_LOCK);
+        lv_obj_add_flag(icon, LV_OBJ_FLAG_PRESS_LOCK);
         lv_obj_add_event_cb(row, launch, LV_EVENT_SHORT_CLICKED, apps);
         lv_obj_add_event_cb(icon, launch, LV_EVENT_SHORT_CLICKED, apps);
     }
@@ -410,6 +429,9 @@ static void create_product_menu(wristflow_apps_t *apps, lv_obj_t *root)
     lv_obj_remove_flag(grid, LV_OBJ_FLAG_SCROLL_CHAIN);
     lv_obj_set_scroll_dir(list, LV_DIR_VER);
     lv_obj_set_scroll_dir(grid, LV_DIR_VER);
+    lv_obj_add_flag(root, LV_OBJ_FLAG_PRESS_LOCK);
+    lv_obj_add_event_cb(root, product_menu_touch, LV_EVENT_PRESSED, apps);
+    lv_obj_add_event_cb(root, product_menu_touch, LV_EVENT_PRESSING, apps);
     sync_menu_layout(apps);
 }
 

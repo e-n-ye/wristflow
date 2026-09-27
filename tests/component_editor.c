@@ -78,7 +78,7 @@ static void enter(void)
     sample(100,110,true); advance(736); sample(100,110,false); advance(480);
     surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
 }
-static void select(const char *name)
+static void select_component(const char *name)
 {
     lv_obj_t *obj=named(lv_screen_active(),name);
     lv_obj_scroll_to_view(obj, LV_ANIM_OFF); advance(32); click(obj);
@@ -99,10 +99,10 @@ static void fill(wristflow_template_t type)
         surface(WRISTFLOW_SURFACE_COMPONENT_PICKER);
         if(wristflow_template_size(type,s)==WRISTFLOW_CARD_QUARTER) {
             assert(!lv_obj_find_by_name(lv_screen_active(),"choose_weather_0"));
-            select("choose_heart_rate_1");
+            select_component("choose_heart_rate_1");
         } else {
             assert(!lv_obj_find_by_name(lv_screen_active(),"choose_heart_rate_0"));
-            select("choose_activity_0");
+            select_component("choose_activity_0");
         }
         assert(requests==before);
     }
@@ -132,7 +132,7 @@ int main(int argc,char **argv)
     press("slot_1"); surface(WRISTFLOW_SURFACE_COMPONENT_PICKER); snapshot("component_quarter_picker");
     swipe(10,200,185,200); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
     press("slot_1"); surface(WRISTFLOW_SURFACE_COMPONENT_PICKER);
-    select("choose_heart_rate_0"); assert(requests==1);
+    select_component("choose_heart_rate_0"); assert(requests==1);
     const wristflow_layout_t *layout=wristflow_ui_shell_layout(shell);
     assert(!strcmp(layout->pages[0].slots[1].app_id,"heart_rate"));
     assert(layout->pages[0].slots[1].instance_id!=layout->pages[0].slots[0].instance_id);
