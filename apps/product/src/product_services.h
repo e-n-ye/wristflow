@@ -5,6 +5,7 @@
 
 void wristflow_product_services_start(wristflow_settings_t *settings, wristflow_layout_t *layout);
 wristflow_watch_snapshot_t wristflow_product_services_snapshot(void);
+int wristflow_product_services_set_time(uint32_t utc_seconds);
 /* Copies preferences; FlashDB writes run on a separate thread after 1.5s idle. */
 void wristflow_product_services_settings(const wristflow_settings_t *settings);
 /* Copies a complete layout immediately; worker writes and verifies independently. */

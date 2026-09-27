@@ -1,5 +1,7 @@
 # 可复现构建基线
 
+2026-09-27 Product BLE A1：13/13 主机测试通过，开启 BLE/CJSON 并加入官方 LCPU 后，Product SCons 编译与产物校验通过；本次未改 UI 资源、公共构建入口或 SDK。版本、命令、首次缺宏失败、最终镜像和硬件联调进度见 [BLE 首轮记录](BLE-FIRST-LINK.md)。下方早期记录只适用于其注明版本。
+
 本页各节结果仅适用于注明的日期与源码版本。当前 [设置与显示状态](PRODUCT-SETTINGS.md) 已通过 12/12 主机测试、官方 XML 导出和 Product/UI Demo 编译；Product 后续两次烧录与真机发现见 [上板记录](evidence/2026-09-26/product-settings-hardware.md)。前一版 [反馈修复](PRODUCT-UI-FEEDBACK.md) 与 [组件编辑](COMPONENT-EDITOR.md) 的真机范围见 [历史烧录证据](evidence/2026-09-26/product-ui-flash.json)。当前状态见 [STATUS](STATUS.md)，历史记录不代表最新源码验收。
 
 ## 设置与显示增量（2026-09-26）

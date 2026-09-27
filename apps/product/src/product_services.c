@@ -175,7 +175,24 @@ wristflow_watch_snapshot_t wristflow_product_services_snapshot(void)
     return snapshot;
 }
 
-/* Temporary USB bring-up interface. Phone time sync will use the same UTC boundary. */
+int wristflow_product_services_set_time(uint32_t seconds)
+{
+    if (!service_ready || !rtc) return -RT_ERROR;
+    if (seconds < WRISTFLOW_TIME_MIN || seconds > WRISTFLOW_TIME_MAX) return -RT_EINVAL;
+    uint32_t readback = 0;
+    rt_mutex_take(&rtc_lock, RT_WAITING_FOREVER);
+    rt_err_t result = rt_device_control(rtc, RT_DEVICE_CTRL_RTC_SET_TIME, &seconds);
+    if (result == RT_EOK) result = rt_device_control(rtc, RT_DEVICE_CTRL_RTC_GET_TIME, &readback);
+    rt_mutex_release(&rtc_lock);
+    if (result != RT_EOK || readback < seconds || readback - seconds > 1) {
+        rt_kprintf("[product] RTC set/readback failed: %d\n", result);
+        return -RT_ERROR;
+    }
+    rt_kprintf("[product] RTC synchronized: UTC=%u; display UTC+8\n", readback);
+    return RT_EOK;
+}
+
+/* USB and phone synchronization share the same checked UTC boundary. */
 static int wf_time(int argc, char **argv)
 {
     if (!service_ready || !rtc) return -RT_ERROR;
@@ -188,16 +205,6 @@ static int wf_time(int argc, char **argv)
     unsigned long value = strtoul(argv[1], &end, 10);
     if (errno || *end || end == argv[1] || argv[1][0] == '-' ||
         value < WRISTFLOW_TIME_MIN || value > WRISTFLOW_TIME_MAX) return -RT_EINVAL;
-    uint32_t seconds = (uint32_t)value, readback = 0;
-    rt_mutex_take(&rtc_lock, RT_WAITING_FOREVER);
-    rt_err_t result = rt_device_control(rtc, RT_DEVICE_CTRL_RTC_SET_TIME, &seconds);
-    if (result == RT_EOK) result = rt_device_control(rtc, RT_DEVICE_CTRL_RTC_GET_TIME, &readback);
-    rt_mutex_release(&rtc_lock);
-    if (result != RT_EOK || readback < seconds || readback - seconds > 1) {
-        rt_kprintf("[product] RTC set/readback failed: %d\n", result);
-        return -RT_ERROR;
-    }
-    rt_kprintf("[product] RTC synchronized: UTC=%u; display UTC+8\n", readback);
-    return RT_EOK;
+    return wristflow_product_services_set_time((uint32_t)value);
 }
 MSH_CMD_EXPORT(wf_time, Set product RTC with UTC Unix seconds);

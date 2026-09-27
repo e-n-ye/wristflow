@@ -6,6 +6,7 @@
 #include "wristflow_ui.h"
 #include "product_ui.h"
 #include "product_services.h"
+#include "product_ble.h"
 
 static struct rt_event key_events;
 static wristflow_ui_shell_t *product_shell;
@@ -95,6 +96,7 @@ int main(void)
     wristflow_settings_t settings;
     wristflow_layout_t layout;
     wristflow_product_services_start(&settings, &layout);
+    wristflow_product_ble_start();
     wristflow_watch_snapshot_t snapshot = wristflow_product_services_snapshot();
     RT_ASSERT(littlevgl2rtt_init("lcd") == RT_EOK);
     RT_ASSERT(lv_display_get_horizontal_resolution(NULL) == 390);
@@ -130,7 +132,7 @@ int main(void)
     int32_t key_id = button_init(&key);
     RT_ASSERT(key_id >= 0);
     RT_ASSERT(button_enable(key_id) == SF_EOK);
-    rt_kprintf("[product] USB stage: RTC=%s, battery absent, BLE/PM pending\n",
+    rt_kprintf("[product] USB stage: RTC=%s, battery absent, BLE A1 active, PM pending\n",
                snapshot.time_unavailable ? "not synchronized" : "in range");
     uint32_t sampled = lv_tick_get();
     for (;;) {

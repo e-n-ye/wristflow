@@ -1,0 +1,82 @@
+{
+  "date": "2026-09-27",
+  "worktree": "C:/Users/13984/.codex/worktrees/ble-first-link/wristflow",
+  "branch": "codex/ble-first-link",
+  "base_head": "e5cdd7b4cef531e6bb59313f66eb0d2f9489c91a",
+  "build_record": "artifacts/product/20260927-141319-544/result.json",
+  "build_record_sha256": "4509ce5f4110858696a6e5b2ff379495ae9d02a17bdd9bcc84f1d970c55ba141",
+  "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+  "submodules": [
+    " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+    " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+  ],
+  "sdk_changes": [],
+  "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+  "build_exit_code": 0,
+  "artifact_validation_passed": true,
+  "source_files_verified": 264,
+  "source_snapshot": {
+    "apps/product/src/phone_protocol.c": "bc437b4324d1f04320a4c6fd1ed23e76d0e06723e775fff76e580c7d2703728e",
+    "apps/product/src/phone_protocol.h": "0ef3df8922698237e21cfca7e719754db44b145afc2c0637023bedf280aad908",
+    "apps/product/src/product_ble.c": "a7c69dee7f0c1fdc6edb1e21769df768f54b181440cc0f93beb92489df3f8f89",
+    "apps/product/src/product_ble.h": "828f276211ea5417d033d01213409b26ab67181423af299205139df4c6d096ac",
+    "apps/product/src/product_services.c": "435854eb068d61890f8823ef35f43ef9db304acbb0c17a8764b66288b74cd76d",
+    "apps/product/src/product_services.h": "3204bf6074ddcbb6d114004f1cf14d3b4d2ecee9a7be02486c861d5c1081a931",
+    "apps/product/src/main.c": "dc4131e3e03ba5aa529f7b6d84eda884c811b87ee2630dc9d6fea6a1a551efe1",
+    "apps/product/project/proj.conf": "bbfc0412efcc231e61d0bc9d4b51491a0f77d8a2a6aac897bd3d24f4a35286b2",
+    "apps/product/project/SConstruct": "a711bc813bbafc39865c673f831718ce4981f88c3d0b4a66ffa2c37dbf42913b",
+    "tests/phone_protocol.c": "11b4b344c619db22859c60b7839f762433701973ac69b3028a92915916ff1223",
+    "tests/support/rtthread.h": "41832b7844746318f817d225929ef019ff06975cf904ab99aca7db47c7ddf7cd",
+    "tests/CMakeLists.txt": "de869bbeed6e7fac492750832736a7ded70c6d12dc30fb7e659ef54946999f4f"
+  },
+  "host_tests": {
+    "passed": 13,
+    "total": 13,
+    "exit_code": 0,
+    "log": "artifacts/ble-validation/host-ble.txt"
+  },
+  "hardware": {
+    "phone": "iQOO Neo9S Pro+ (V2403A)",
+    "phone_software": "PD2403B_A_14.0.12.2.W10.V000L1",
+    "port": "COM5",
+    "pnp_device_id": "USB\\VID_1A86&PID_7523\\6&A8355E6&3&1",
+    "flash_exit_code": 0,
+    "flash_verify": true,
+    "flash_log": "C:/Users/13984/.fastctx/jobs/j-qvpsuf/output.log",
+    "serial_log": "C:/Users/13984/.fastctx/jobs/j-8jmpmj/output.log",
+    "startup_evidence": "wf_ble status responds: connected=0 subscribed=0 generation=0 dropped=0",
+    "phone_link_verified": false,
+    "pm_verified": false,
+    "serial_reset_log": "C:/Users/13984/.fastctx/jobs/j-jf0x8c/output.log",
+    "controlled_rts_reset_ms": 150,
+    "advertising_start_status": 0,
+    "advertising_name": "Bangle.js WristFlow",
+    "initial_phone_scan": "not found; cause unresolved",
+    "advertising_mode": "general discoverable",
+    "board_address": "5C:FD:52:80:0F:D1",
+    "windows_scan_before_fix": {
+      "received": true,
+      "name": "Bangle.js WristFlow",
+      "service_uuid": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+      "rssi_dbm": -52,
+      "log": "C:/Users/13984/.fastctx/jobs/j-a3l2c5/output.log"
+    },
+    "phone_scan_after_fix": "user screenshot confirms name/address; board connected event generation=1",
+    "cccd_subscribed": false
+  },
+  "previous_build_record": "artifacts/product/20260927-134512-469/result.json",
+  "images": {
+    "main.bin": {
+      "size": 3560760,
+      "sha256": "1dbb32dc0ecfb092c78649f2b77d13017ef3bfa759ab8cdfd18d33edd1e180af"
+    },
+    "bootloader/bootloader.bin": {
+      "size": 58496,
+      "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+    },
+    "ftab/ftab.bin": {
+      "size": 11288,
+      "sha256": "56b3681a2c150f755a689cc9acedc48420a583448b967abb2572615e0a78a200"
+    }
+  }
+}
