@@ -49,9 +49,10 @@ static void sleep_return(uint32_t delta, uint8_t exit_mode)
 int main(void)
 {
     wristflow_product_pm_start();
-    assert(idle_requests==1); /* Default boot hold. */
+    assert(idle_requests==1); /* Initialization is protected even with auto sleep. */
     wristflow_product_pm_screen(true);
-    assert(idle_requests==1);
+    assert(idle_requests==0); /* The first OFF can sleep without a serial command. */
+    command("hold"); assert(idle_requests==1);
     command("allow"); command("allow");
     assert(idle_requests==0);
     wristflow_product_pm_phone_event();

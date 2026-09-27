@@ -18,7 +18,7 @@ OUTPUT = ROOT / "ui/xml"
 TEXT = (
     "月日周二步心率次分最近测量今日活动距离目标千米系统状态电池蓝牙已连接未充电"
     "运行时间控制中心勿扰手筒常亮设置小时钟关闭开启分钟数完成度选择组件新增页面"
-    "秒表应用简洁扩散返回暂停继续开始重置已选显示盘即将推出支台"
+    "秒表应用简洁扩散返回暂停继续开始重置已选显示盘即将推出支台已断未连接仅本地清空全部查看详情接收蓝牙预览亮屏振动不影响手机闹钟倒计·"
     "血氧压力活力指标计步站立天气睡眠闹钟供未接入传感器功能等待手机同步暂无数据，布局列表三多组件编辑保存中失败稍后重试是否删除当前小完成退出将不再确认新增选择页面？"
     "管理与声音振动模式消息通知按键关于屏幕自定义熄屏抬腕暂开放允许更换进入过长会减少续航确定使用本仅生效到恢复尚硬件提醒可短打开或首次唤助手以下操作机出厂固版本设备黄山派校实际容量核实识别变持暗。/"
 )
@@ -32,7 +32,7 @@ def subset_font(source, target, family, codepoints):
     worker = subset.Subsetter(options=options)
     worker.populate(unicodes=codepoints)
     worker.subset(font)
-    names = {1: family, 2: "Regular", 3: family + " Regular demo subset",
+    names = {1: family, 2: "Regular", 3: family + " Regular subset",
              4: family + " Regular", 6: family.replace(" ", "") + "-Regular"}
     for record in font["name"].names:
         if record.nameID in names:
@@ -44,6 +44,21 @@ def subset_font(source, target, family, codepoints):
 subset_font(LVGL / "tests/src/test_files/fonts/noto/NotoSansSC-Regular.ttf",
             OUTPUT / "fonts/WristFlowSans-Regular.ttf", "WristFlow Sans",
             set(range(32, 127)) | {ord(c) for c in TEXT})
+# Keep real incoming-message coverage separate from the fixed UI strings.
+# Avoid unrelated scripts with exceptionally tall glyphs inflating every line.
+MESSAGE_RANGES = ((0x20, 0x024f), (0x2000, 0x206f), (0x20a0, 0x20cf),
+                  (0x2190, 0x22ff), (0x25a0, 0x26ff), (0x2e80, 0x30ff),
+                  (0x3100, 0x312f), (0x31a0, 0x31bf), (0x31f0, 0x33ff),
+                  (0x3400, 0x4dbf), (0x4e00, 0x9fff), (0xf900, 0xfaff),
+                  (0xfe10, 0xfe1f), (0xfe50, 0xfe6f), (0xff00, 0xffef))
+message_codepoints = {0xfffd}
+for first, last in MESSAGE_RANGES:
+    message_codepoints.update(range(first, last + 1))
+# These Japanese vertical repeat marks deliberately span two text lines.
+message_codepoints.difference_update((0x3031, 0x3032))
+subset_font(LVGL / "tests/src/test_files/fonts/noto/NotoSansSC-Regular.ttf",
+            OUTPUT / "fonts/WristFlowMessages-Regular.ttf", "WristFlow Messages",
+            message_codepoints)
 subset_font(LVGL / "scripts/built_in_font/FontAwesome5-Solid+Brands+Regular.woff",
             OUTPUT / "fonts/WristFlowIcons.ttf", "WristFlow Icons",
             [0xf004, 0xf012, 0xf013, 0xf017, 0xf053, 0xf054, 0xf0eb, 0xf185, 0xf186,

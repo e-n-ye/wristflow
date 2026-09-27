@@ -52,7 +52,7 @@ include("${UI}/file_list_gen.cmake")
 add_library(wristflow_ui_host STATIC ${LV_EDITOR_PROJECT_SOURCES}
     "${UI}/clock_format.c" "${UI}/watchface_presenter.c" "${DEMO}/ui_demo.c"
     "${RUNTIME}/mount_screen.c" "${RUNTIME}/default_watchface.c" "${RUNTIME}/ui_shell.c"
-    "${RUNTIME}/simple_watchface.c" "${RUNTIME}/apps.c" "${RUNTIME}/app_registry.c" "${RUNTIME}/components.c" "${RUNTIME}/settings_view.c")
+    "${RUNTIME}/simple_watchface.c" "${RUNTIME}/apps.c" "${RUNTIME}/app_registry.c" "${RUNTIME}/components.c" "${RUNTIME}/settings_view.c" "${RUNTIME}/notification_view.c")
 target_include_directories(wristflow_ui_host PUBLIC "${UI}" "${DEMO}" "${RUNTIME}")
 target_link_libraries(wristflow_ui_host PUBLIC lvgl_host watch_core)
 add_executable(ui_preview ui_preview.c)
@@ -80,7 +80,11 @@ add_executable(settings_ui settings_ui.c "${REPO}/apps/product/src/product_ui.c"
 target_include_directories(settings_ui PRIVATE "${REPO}/apps/product/src")
 target_link_libraries(settings_ui PRIVATE wristflow_ui_host)
 add_test(NAME settings_ui COMMAND settings_ui "${CMAKE_CURRENT_BINARY_DIR}/renders")
-foreach(test_target product_pm phone_protocol clock_format core_navigation ui_preview ui_navigation ui_shell_lifecycle ui_apps product_state product_ui component_layout component_editor display_policy settings_ui)
+add_executable(notifications_ui notifications_ui.c "${PRODUCT}/product_ui.c")
+target_include_directories(notifications_ui PRIVATE "${PRODUCT}")
+target_link_libraries(notifications_ui PRIVATE wristflow_ui_host)
+add_test(NAME notifications_ui COMMAND notifications_ui "${CMAKE_CURRENT_BINARY_DIR}/renders")
+foreach(test_target product_pm phone_protocol clock_format core_navigation ui_preview ui_navigation ui_shell_lifecycle ui_apps product_state product_ui component_layout component_editor display_policy settings_ui notifications_ui)
     if(MSVC)
         target_compile_options(${test_target} PRIVATE /UNDEBUG)
     else()

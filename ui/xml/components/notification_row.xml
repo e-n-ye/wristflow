@@ -1,0 +1,12 @@
+<component>
+    <view extends="lv_obj" width="342" height="142" scrollbar_mode="off" style_layout="flex" style_flex_flow="row" style_pad_column="12" style_bg_opa="0%" style_border_width="0" style_radius="0" style_pad_all="0" style_text_color="#fg_primary" style_text_font="notification_22">
+        <lv_button name="notification_row_body" width="342" height="142" scrollable="false" style_bg_color="#bg_surface" style_bg_opa="100%" style_border_width="0" style_radius="22" style_pad_all="0" style_shadow_width="0">
+            <lv_label name="message_source" x="18" y="8" width="306" height="34" long_mode="dots" text="QQ" style_text_color="#accent_blue" />
+            <lv_label name="message_title" x="18" y="52" width="306" height="34" long_mode="dots" text="中文通知" />
+            <lv_label name="message_body" x="18" y="96" width="306" height="34" long_mode="dots" text="下午一起去图书馆。" style_text_color="#fg_secondary" />
+        </lv_button>
+        <lv_button name="notification_row_delete" width="130" height="142" scrollable="false" style_bg_color="#accent_blue" style_bg_opa="100%" style_border_width="0" style_radius="22" style_pad_all="0" style_shadow_width="0" style_text_font="icons_44" style_text_color="#fg_primary">
+            <lv_label align="center" text="&#xf1f8;" />
+        </lv_button>
+    </view>
+</component>

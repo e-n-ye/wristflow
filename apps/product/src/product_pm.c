@@ -1,4 +1,4 @@
-/* P1: runtime-gated PM with bounded diagnostics; no notification presentation. */
+/* Product PM with bounded diagnostics and a runtime rollback gate. */
 #include "product_pm.h"
 #include <rtdevice.h>
 #include <board.h>
@@ -16,7 +16,8 @@ typedef struct {
 static volatile pm_stats_t stats;
 static struct rt_event events;
 static struct rt_timer sample_timer;
-static bool ready, allowed, display_off;
+static bool ready, display_off;
+static bool allowed = true;
 #ifdef RT_USING_PM
 static bool idle_held;
 static rt_tick_t entered_at;
@@ -81,13 +82,13 @@ void wristflow_product_pm_start(void)
         rt_tick_from_millisecond(5000), RT_TIMER_FLAG_ONE_SHOT | RT_TIMER_FLAG_SOFT_TIMER);
 #ifdef RT_USING_PM
     rt_base_t level = rt_hw_interrupt_disable();
-    update_gate(); /* Boot with deep sleep inhibited until an explicit allow. */
+    update_gate(); /* Initialization and every lit frame hold idle; only OFF releases it. */
     rt_pm_notify_set(pm_notify, NULL);
     rt_hw_interrupt_enable(level);
     int8_t pin = HAL_HPAON_QueryWakeupPin(GET_GPIO_INSTANCE(BSP_KEY1_PIN), GET_GPIOx_PIN(BSP_KEY1_PIN));
     RT_ASSERT(pin >= 0);
     RT_ASSERT(pm_enable_pin_wakeup(pin, AON_PIN_MODE_DOUBLE_EDGE) == RT_EOK);
-    rt_kprintf("[pm-p1] KEY1 pin=%d aon=%d; boot hold; wf_pm allow to arm\n", BSP_KEY1_PIN, pin);
+    rt_kprintf("[pm-p1] KEY1 pin=%d aon=%d; auto sleep when off; wf_pm hold to inhibit\n", BSP_KEY1_PIN, pin);
 #else
     rt_kprintf("[pm-p1] PM disabled at build time\n");
 #endif

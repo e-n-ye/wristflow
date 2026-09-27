@@ -1,0 +1,9 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="notification_22" style_text_color="#fg_primary">
+        <app_header title="消息通知" />
+        <lv_obj name="notification_list" x="24" y="82" width="342" height="348" style_layout="flex" style_flex_flow="column" scrollbar_mode="off" style_bg_opa="0%" style_border_width="0" style_radius="0" style_pad_all="0" style_pad_row="12" style_pad_bottom="20">
+            <notification_row name="sample_message" />
+        </lv_obj>
+        <lv_label name="notification_empty" align="center" width="342" style_text_align="center" text="暂无消息" hidden="true" style_text_color="#fg_secondary" />
+    </view>
+</screen>

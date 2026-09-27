@@ -26,6 +26,8 @@ struct wristflow_components {
     uint32_t request_id;
     wristflow_save_state_t save_state;
     lv_timer_t *timer;
+    void (*leave_accepted)(void *);
+    void *leave_context;
 };
 
 static const char *const slot_names[] = {"slot_0", "slot_1", "slot_2", "slot_3"};
@@ -269,6 +271,8 @@ static void confirmed(lv_event_t *event)
     wristflow_components_t *c = lv_event_get_user_data(event);
     if (c->dragged) return;
     bool accept = lv_event_get_current_target_obj(event) == named(c->confirmation, "confirm_accept");
+    void (*leave)(void *) = c->leave_accepted;
+    c->leave_accepted = NULL;
     hide_confirmation(c);
     if (!accept) return;
     if (c->deleting) {
@@ -277,11 +281,13 @@ static void confirmed(lv_event_t *event)
         persist(c); wristflow_ui_shell_rebuild_components(c->shell, c->page + 1);
     }
     c->draft = false;
+    if (leave && !c->deleting) { leave(c->leave_context); return; }
     wristflow_ui_shell_finish_edit(c->shell, c->discard_home ? 0 : c->page + 1);
 }
 
 static void confirm(wristflow_components_t *c, bool deleting, bool home)
 {
+    c->leave_accepted = NULL;
     c->deleting = deleting; c->discard_home = home;
     /* A top-layer modal also covers a selector when KEY1 requests home. */
     if (!c->confirmation) {
@@ -296,6 +302,15 @@ static void confirm(wristflow_components_t *c, bool deleting, bool home)
         "组件编辑未完成，退出将不再保存，确认退出？");
     lv_obj_remove_flag(c->confirmation, LV_OBJ_FLAG_HIDDEN);
     lv_obj_move_foreground(c->confirmation);
+}
+
+bool wristflow_components_confirm_leave(wristflow_components_t *c,
+    void (*accepted)(void *), void *context)
+{
+    if (!c || !c->draft) return false;
+    confirm(c, false, true);
+    c->leave_accepted = accepted; c->leave_context = context;
+    return true;
 }
 
 static void add_page(lv_event_t *event)
@@ -399,6 +414,7 @@ bool wristflow_components_back(wristflow_components_t *c, bool home)
     wristflow_surface_t surface = wristflow_ui_shell_navigation(c->shell)->surface;
     if (surface < WRISTFLOW_SURFACE_COMPONENT_EDITOR) return false;
     if (c->confirmation && !lv_obj_has_flag(c->confirmation, LV_OBJ_FLAG_HIDDEN)) {
+        c->leave_accepted = NULL;
         hide_confirmation(c); return true;
     }
     if (c->draft && (home || surface == WRISTFLOW_SURFACE_COMPONENT_EDITOR ||

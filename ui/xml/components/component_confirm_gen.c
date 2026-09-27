@@ -74,6 +74,7 @@ lv_obj_t * component_confirm_create(lv_obj_t * parent)
         lv_obj_set_align(lv_label_0, LV_ALIGN_CENTER);
         lv_label_set_text(lv_label_0, "");
         lv_obj_set_style_text_font(lv_label_0, icons_20, 0);
+        lv_obj_set_style_text_color(lv_label_0, FG_PRIMARY, 0);
 
         lv_obj_t * confirm_accept = lv_button_create(lv_obj_0);
         lv_obj_set_name(confirm_accept, "confirm_accept");
@@ -89,6 +90,7 @@ lv_obj_t * component_confirm_create(lv_obj_t * parent)
         lv_obj_set_align(lv_label_1, LV_ALIGN_CENTER);
         lv_label_set_text(lv_label_1, "");
         lv_obj_set_style_text_font(lv_label_1, icons_20, 0);
+        lv_obj_set_style_text_color(lv_label_1, FG_PRIMARY, 0);
 
         the_root = lv_obj_0;
     }

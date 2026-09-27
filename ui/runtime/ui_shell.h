@@ -5,6 +5,7 @@
 #include "product_state.h"
 #include "component_layout.h"
 #include "display_policy.h"
+#include "notifications.h"
 
 typedef struct wristflow_ui_shell wristflow_ui_shell_t;
 typedef lv_obj_t *(*wristflow_screen_factory_t)(void);
@@ -74,5 +75,17 @@ wristflow_display_phase_t wristflow_ui_shell_display_phase(const wristflow_ui_sh
 bool wristflow_ui_shell_keep_awake(wristflow_ui_shell_t *shell, unsigned minutes);
 unsigned wristflow_ui_shell_keep_minutes(const wristflow_ui_shell_t *shell);
 void wristflow_ui_shell_display_retry(wristflow_ui_shell_t *shell);
+/* UI-thread only. The caller supplies a synchronized, bounded copy. Returns
+ * true if an off display now needs a notification preview. */
+bool wristflow_ui_shell_notifications(wristflow_ui_shell_t *shell,
+    const wristflow_notifications_snapshot_t *snapshot);
+void wristflow_ui_shell_bind_notification_delete(wristflow_ui_shell_t *shell,
+    wristflow_notification_delete_cb_t callback, void *context);
+void wristflow_ui_shell_delete_notification(wristflow_ui_shell_t *shell, bool all, int32_t id);
+bool wristflow_ui_shell_open_notification(wristflow_ui_shell_t *shell, bool detail, int32_t id);
+void wristflow_ui_shell_notification_dismiss(wristflow_ui_shell_t *shell, bool timeout);
+bool wristflow_ui_shell_dnd(const wristflow_ui_shell_t *shell);
+void wristflow_ui_shell_set_dnd(wristflow_ui_shell_t *shell, bool enabled);
+bool wristflow_ui_shell_phone_connected(const wristflow_ui_shell_t *shell);
 
 #endif

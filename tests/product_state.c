@@ -8,12 +8,13 @@ int main(void)
     assert(defaults.brightness == 60 && strcmp(defaults.face_id, "diffusion") == 0);
     assert(defaults.menu_layout == WRISTFLOW_MENU_LIST);
     assert(defaults.face_long_press && defaults.screen_timeout == 10);
-    const wristflow_settings_t chosen = {37, "simple", WRISTFLOW_MENU_GRID, false, 60};
+    const wristflow_settings_t chosen = {37, "simple", WRISTFLOW_MENU_GRID, false, 60, true};
     uint8_t record[WRISTFLOW_SETTINGS_BYTES];
     assert(wristflow_settings_encode(&chosen, record));
     wristflow_settings_t restored = defaults;
     assert(wristflow_settings_decode(&restored, record, sizeof record));
     assert(wristflow_settings_equal(&chosen, &restored));
+    assert(restored.do_not_disturb);
     for (unsigned byte = 0; byte < sizeof record; ++byte) {
         for (unsigned bit = 0; bit < 8; ++bit) {
             record[byte] ^= 1U << bit;
@@ -41,6 +42,15 @@ int main(void)
     assert(wristflow_settings_decode(&restored, v2, sizeof v2));
     assert(restored.brightness == 27 && !strcmp(restored.face_id, "simple") &&
         restored.menu_layout == WRISTFLOW_MENU_GRID && restored.face_long_press && restored.screen_timeout == 10);
+    assert(!restored.do_not_disturb);
+    /* The deployed P1 v3 format has no DND bit: retain its display preferences. */
+    uint8_t v3[WRISTFLOW_SETTINGS_BYTES];
+    memcpy(v3, v2, sizeof v3); v3[2] = 3; v3[17] = 0; v3[18] = 30;
+    hash = 2166136261U;
+    for (unsigned i = 0; i < 20; ++i) hash = (hash ^ v3[i]) * 16777619U;
+    for (unsigned i = 0; i < 4; ++i) v3[20+i] = (uint8_t)(hash >> (i*8));
+    assert(wristflow_settings_decode(&restored, v3, sizeof v3));
+    assert(!restored.do_not_disturb && !restored.face_long_press && restored.screen_timeout == 30 && restored.brightness == 27);
     restored.screen_timeout = 6;
     assert(!wristflow_settings_encode(&restored, record));
     restored = chosen;

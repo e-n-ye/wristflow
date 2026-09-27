@@ -113,6 +113,15 @@ static void long_press_row(lv_event_t *event)
     lv_obj_send_event(toggle, LV_EVENT_VALUE_CHANGED, NULL);
 }
 
+static void dnd_changed(lv_event_t *event)
+{
+    wristflow_ui_shell_t *shell = lv_event_get_user_data(event);
+    wristflow_ui_shell_set_dnd(shell, lv_obj_has_state(lv_event_get_current_target_obj(event), LV_STATE_CHECKED));
+}
+
+static void notification_center(lv_event_t *event)
+{ wristflow_ui_shell_open_notification(lv_event_get_user_data(event), false, 0); }
+
 static void unavailable(lv_obj_t *list, const char *name, const char *title, const char *detail)
 { lv_obj_add_state(row(list, name, title, detail), LV_STATE_DISABLED); }
 
@@ -190,12 +199,21 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
         break;
     case WRISTFLOW_SURFACE_DND_SETTINGS:
         title = "勿扰模式";
-        settings_note_create(list, "等待手机通知功能，暂不可设置勿扰模式。");
-        unavailable(list, "dnd_disabled", "勿扰模式", "暂未开放"); break;
+        obj = row(list, "dnd_row", "勿扰模式", "继续接收消息");
+        lv_obj_add_event_cb(obj, long_press_row, LV_EVENT_SHORT_CLICKED, shell);
+        obj = named(obj, "row_switch"); lv_obj_remove_flag(obj, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_event_cb(obj, dnd_changed, LV_EVENT_VALUE_CHANGED, shell);
+        obj = settings_note_create(list, "开启后消息不亮屏、不显示预览。闹钟和倒计时不受影响。");
+        lv_obj_set_style_text_font(obj, notification_22, 0);
+        break;
     case WRISTFLOW_SURFACE_NOTIFICATION_SETTINGS:
         title = "消息通知";
-        settings_note_create(list, "等待手机连接与通知同步，当前暂无消息通知。");
-        unavailable(list, "notifications_disabled", "消息提醒", "暂未开放"); break;
+        obj = row(list, "notifications_open", "消息通知", "查看全部消息");
+        lv_obj_add_event_cb(obj, notification_center, LV_EVENT_SHORT_CLICKED, shell);
+        route(row(list, "notifications_dnd", "勿扰模式", "关闭"), WRISTFLOW_SURFACE_DND_SETTINGS, shell);
+        obj = settings_note_create(list, "最多保留10条消息。在手表删除或清空，仅移除本地记录，不影响手机通知。");
+        lv_obj_set_style_text_font(obj, notification_22, 0);
+        break;
     case WRISTFLOW_SURFACE_KEY_SETTINGS:
         title = "按键设置";
         settings_note_create(list, "短按按键可打开应用列表或返回表盘。变暗或熄屏时，首次短按仅亮屏。");
@@ -209,8 +227,8 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
         unavailable(list, "reset_disabled", "恢复出厂", "暂未开放"); break;
     case WRISTFLOW_SURFACE_ABOUT:
         title = "关于";
-        row(list, "about_product", "WristFlow", "Product / 设置与显示");
-        row(list, "about_firmware", "固件版本", "2026.09.26-settings");
+        row(list, "about_product", "WristFlow", "Product / 消息通知");
+        row(list, "about_firmware", "固件版本", "2026.09.27-notify-b1");
         row(list, "about_board", "目标设备", "黄山派 / SF32LB52");
         row(list, "about_sdk", "SDK", "2.5.1 / 421126d9");
         row(list, "about_display", "屏幕", "390 x 450");
@@ -237,6 +255,10 @@ void wristflow_settings_refresh(lv_obj_t *root, wristflow_surface_t surface, wri
     unsigned minutes = wristflow_ui_shell_keep_minutes(shell);
     if (surface == WRISTFLOW_SURFACE_FACE_MANAGEMENT)
         lv_obj_set_state(named(root, "row_switch"), LV_STATE_CHECKED, settings.face_long_press);
+    else if (surface == WRISTFLOW_SURFACE_DND_SETTINGS)
+        lv_obj_set_state(named(root, "row_switch"), LV_STATE_CHECKED, settings.do_not_disturb);
+    else if (surface == WRISTFLOW_SURFACE_NOTIFICATION_SETTINGS)
+        label(named(named(root, "notifications_dnd"), "row_detail"), settings.do_not_disturb ? "开启" : "关闭");
     else if (surface == WRISTFLOW_SURFACE_DISPLAY_SETTINGS) {
         snprintf(value, sizeof value, "%u%%", settings.brightness);
         label(named(named(root, "display_brightness"), "row_detail"), value);

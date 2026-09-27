@@ -203,6 +203,7 @@ extern lv_style_t text_muted;
  *----------------*/
 
 /* Targets: any */
+extern lv_font_t * notification_22;
 extern lv_font_t * body_20;
 extern lv_font_t * title_24;
 extern lv_font_t * metric_56;
@@ -272,6 +273,9 @@ void wristflow_ui_init_gen(const char * asset_path);
 #include "components/layout_save_status_gen.h"
 #include "components/metric_full_gen.h"
 #include "components/metric_half_gen.h"
+#include "components/notification_banner_gen.h"
+#include "components/notification_preview_gen.h"
+#include "components/notification_row_gen.h"
 #include "components/page_dot_gen.h"
 #include "components/page_dots_gen.h"
 #include "components/picker_header_gen.h"
@@ -297,6 +301,8 @@ void wristflow_ui_init_gen(const char * asset_path);
 #include "screens/screen_launcher_gen.h"
 #include "screens/screen_layout_picker_gen.h"
 #include "screens/screen_menu_layout_gen.h"
+#include "screens/screen_notification_detail_gen.h"
+#include "screens/screen_notifications_gen.h"
 #include "screens/screen_picker_full_gen.h"
 #include "screens/screen_picker_half_gen.h"
 #include "screens/screen_picker_quarter_gen.h"

@@ -330,6 +330,10 @@ static void brightness_changed(lv_event_t *event)
 static void control_action(lv_event_t *event)
 {
     wristflow_apps_t *apps = lv_event_get_user_data(event);
+    if (lv_event_get_current_target_obj(event) == named(apps->controls, "dnd_button")) {
+        wristflow_ui_shell_set_dnd(apps->shell, !wristflow_ui_shell_dnd(apps->shell));
+        return;
+    }
     if (lv_event_get_current_target_obj(event) == named(apps->controls, "keep_awake_button")) {
         wristflow_settings_keep_prompt(apps->controls, apps->shell);
         return;
@@ -430,8 +434,8 @@ wristflow_apps_t *wristflow_apps_create(wristflow_ui_shell_t *shell, lv_obj_t *c
     lv_obj_t *slider = named(controls, "brightness_slider");
     lv_slider_set_range(slider, 10, 100);
     lv_obj_add_event_cb(slider, brightness_changed, LV_EVENT_VALUE_CHANGED, apps);
-    /* These two policies require the future notification/power services. */
-    lv_obj_add_state(named(controls, "dnd_button"), LV_STATE_DISABLED);
+    if (product_mode) bind_click(controls, "dnd_button", control_action, apps);
+    else lv_obj_add_state(named(controls, "dnd_button"), LV_STATE_DISABLED);
     if (product_mode) bind_click(controls, "keep_awake_button", control_action, apps);
     else lv_obj_add_state(named(controls, "keep_awake_button"), LV_STATE_DISABLED);
     if (brightness) brightness(apps->brightness, context);
@@ -601,6 +605,10 @@ void wristflow_apps_update(wristflow_apps_t *apps, const wristflow_watch_snapsho
         lv_obj_t *button = named(apps->controls, "keep_awake_button");
         lv_obj_set_style_bg_color(button, lv_color_hex(awake ? 0x38bdf8 : 0x191c20), 0);
         lv_obj_set_style_text_color(button, lv_color_white(), 0);
+        button = named(apps->controls, "dnd_button");
+        lv_obj_set_style_bg_color(button, lv_color_hex(wristflow_ui_shell_dnd(apps->shell) ? 0x38bdf8 : 0x191c20), 0);
+        lv_label_set_text(named(apps->controls, "connection_status"),
+            wristflow_ui_shell_phone_connected(apps->shell) ? "USB · 已连接" : "USB · 未连接");
     }
 }
 

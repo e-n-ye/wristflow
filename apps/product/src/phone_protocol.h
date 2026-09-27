@@ -5,11 +5,7 @@
 #include <stdint.h>
 
 #define WF_PHONE_LINE 8192
-#define WF_PHONE_MESSAGES 10
-typedef struct {
-    int32_t id;
-    char source[161], title[321], body[1601];
-} wf_phone_message_t;
+#include "notifications.h"
 typedef enum { WF_PHONE_NOTIFY, WF_PHONE_REMOVE, WF_PHONE_TIME, WF_PHONE_GPS_QUERY,
                WF_PHONE_REJECT, WF_PHONE_UNKNOWN } wf_phone_event_t;
 typedef void (*wf_phone_callback_t)(wf_phone_event_t event, int32_t id, void *context);

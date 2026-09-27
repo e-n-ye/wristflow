@@ -1,0 +1,7 @@
+<component>
+    <view extends="lv_button" x="16" y="16" width="358" height="124" scrollable="false" style_bg_color="0x25292e" style_bg_opa="100%" style_border_color="0x4b5563" style_border_width="1" style_radius="24" style_pad_all="0" style_shadow_width="0" style_text_color="#fg_primary" style_text_font="notification_22">
+        <lv_label name="message_source" x="18" y="4" width="322" height="34" long_mode="dots" text="QQ" style_text_color="#accent_blue" />
+        <lv_label name="message_title" x="18" y="41" width="322" height="34" long_mode="dots" text="中文通知" />
+        <lv_label name="message_body" x="18" y="78" width="322" height="34" long_mode="dots" text="下午一起去图书馆。" style_text_color="#fg_secondary" />
+    </view>
+</component>
