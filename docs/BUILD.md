@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-09-27 PR 收尾与 Windows 模拟器
+
+手动完整基线 [36317904582](https://github.com/e-n-ye/wristflow/actions/runs/36317904582) 对应 `91d85aea237a60a845d55bf9220b0c0c3ed27497`：锁定 SDK 安装与 Hello／BLE／Bringup／UI Demo／Product 五目标成功，MSVC 主机构建在 `ui/runtime/settings_view.c:42` 报 C2371，内部 `accept` 回调与 Windows SDK 的 Winsock `accept()` 声明冲突，尚未执行 CTest，不能记为基线通过。失败日志位于本工作树 `artifacts/pr-cleanup-ci-failure.log`，云端产物 `build-evidence-36317904582-1`。
+
+收尾分支仅将回调及注册点改名为 `accept_settings_confirmation`，行为和测试断言不变；SDK、资源和工具链锁未改。`cmake --build artifacts/host-pm --parallel 6` 与 `ctest --test-dir artifacts/host-pm --output-on-failure` 均退出 0，15/15 主机测试通过。文档整合保留旧 PR 的独有历史资料并注明版本；本次没有烧录，旧 B1 真机结果仍只对应旧固件哈希。最新云端结果另行记录后才合并，编译不代替硬件验收。
+
 2026-09-27 通知 UI B1 的主机 15/15、Product/UI Demo 编译和资源校验通过；新增中文字库要求 Product/UI Demo/主机使用 `LV_FONT_FMT_TXT_LARGE`。XML 对比度修正完成官方 GUI 完整导出、3/3 相关测试和两目标增量编译；随后按用户参考图改为列表内左滑删除，官方再导出、新增指针用例和两目标再编译通过。最终 286/276 个工程源哈希及全部产物逐项匹配，Product 主 BIN 7,427,628 B；修正版三镜像已独立写入/verify。命令、失败、最终镜像与硬件证据边界见 [通知 UI](NOTIFICATION-UI.md)。
 
 2026-09-27 Product PM P1：同一 Product 开启 PM/Deep Sleep 并保留 BLE，新增运行时可回退 gate、AON KEY1 与后台事件入口；14/14 主机测试和 Product SCons 编译／产物校验通过。266 个源哈希匹配，SDK 锁与源码不变。版本、命令、镜像及硬件验证边界见 [P1 记录](PM-EVENT-WAKE.md)。
