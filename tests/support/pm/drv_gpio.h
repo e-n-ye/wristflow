@@ -1,0 +1,1 @@
+/* GPIO mapping is supplied by the board test adapter. */

@@ -1,0 +1,159 @@
+# Product P1 final firmware: 60d2ad2d050ff19c909af307bdd10406f6c5a4eb0172ba27870ca770e9dc72e4
+# Selected UART diagnostics; original raw bytes remain local. No contact titles or private bodies.
+2026-09-27T16:20:33.876 OPEN COM5 1000000 8N1; controlled 150ms RTS reset
+2026-09-27T16:20:36.210 [pm-p1] KEY1 pin=34 aon=10; boot hold; wf_pm allow to arm
+2026-09-27T16:20:36.212 [product] layout restore=yes generation=26 pages=3
+2026-09-27T16:20:36.214 [product] storage=ready restore=yes brightness=47 face=diffusion rtc=available
+2026-09-27T16:20:37.722 [product] USB stage: RTC=not synchronized, battery absent, BLE active, PM P1 boot hold
+2026-09-27T16:20:38.343 [ble] address=5C:FD:52:80:0F:D1 discoverable=general
+2026-09-27T16:20:38.346 [ble] NUS registered; adv init=0
+2026-09-27T16:20:38.349 [ble] advertising status=0 name=Bangle.js WristFlow
+2026-09-27T16:20:39.132 [pm-p1] tick=2941 allow=0 off=0 own_idle=1 sdk_idle=1
+2026-09-27T16:20:39.132 [pm-p1] enter=0 exit=0 deep_elapsed=0
+2026-09-27T16:20:39.132 [pm-p1] deep_ticks=0 max_ticks=0 wake=0x0
+2026-09-27T16:20:39.133 [pm-p1] screen_off=0 screen_on=0 tick_hz=1000
+2026-09-27T16:20:39.133 [pm-p1] phone=0 phone_off=0 background=0
+2026-09-27T16:20:39.137 [ble] A1 connected=0 subscribed=0 generation=0 messages=0 added=0 updated=0 removed=0 rejected=0 unknown=0 dropped=0
+2026-09-27T16:20:47.727 [product] screen off; P1 events active
+2026-09-27T16:20:49.746 [ble] connected index=0 generation=1
+2026-09-27T16:20:50.402 [ble] MTU=131
+2026-09-27T16:20:50.532 [product] RTC synchronized: UTC=1790497249; display UTC+8
+2026-09-27T16:20:50.533 [ble] phone time UTC=1790497249 result=0
+2026-09-27T16:21:22.114 COMMAND wf_pm status
+2026-09-27T16:21:22.114 COMMAND wf_ble status
+2026-09-27T16:21:22.114 COMMAND wf_pm allow
+2026-09-27T16:21:22.116 [pm-p1] tick=45911 allow=0 off=1 own_idle=1 sdk_idle=1
+2026-09-27T16:21:22.116 [pm-p1] enter=0 exit=0 deep_elapsed=0
+2026-09-27T16:21:22.117 [pm-p1] deep_ticks=0 max_ticks=0 wake=0x0
+2026-09-27T16:21:22.117 [pm-p1] screen_off=1 screen_on=0 tick_hz=1000
+2026-09-27T16:21:22.117 [pm-p1] phone=2 phone_off=2 background=2
+2026-09-27T16:21:22.119 [ble] A1 connected=1 subscribed=1 generation=1 messages=0 added=0 updated=0 removed=0 rejected=0 unknown=0 dropped=0
+2026-09-27T16:21:22.121 [pm-p1] tick=45916 allow=1 off=1 own_idle=0 sdk_idle=0
+2026-09-27T16:21:22.121 [pm-p1] enter=0 exit=0 deep_elapsed=0
+2026-09-27T16:21:22.122 [pm-p1] deep_ticks=0 max_ticks=0 wake=0x0
+2026-09-27T16:21:22.122 [pm-p1] screen_off=1 screen_on=0 tick_hz=1000
+2026-09-27T16:21:22.122 [pm-p1] phone=2 phone_off=2 background=2
+2026-09-27T16:21:27.106 [pm-p1] tick=50916 allow=1 off=1 own_idle=0 sdk_idle=0
+2026-09-27T16:21:27.106 [pm-p1] enter=67 exit=67 deep_elapsed=48
+2026-09-27T16:21:27.106 [pm-p1] deep_ticks=4956 max_ticks=118 wake=0x4
+2026-09-27T16:21:27.107 [pm-p1] screen_off=1 screen_on=0 tick_hz=1000
+2026-09-27T16:21:27.109 [pm-p1] phone=2 phone_off=2 background=2
+2026-09-27T16:22:20.704 [ble] event=0 id=1790491718 count=1 rejected=0
+2026-09-27T16:22:38.708 [ble] event=0 id=1790491719 count=2 rejected=0
+2026-09-27T16:23:26.777 [product] wake event=KEY1
+2026-09-27T16:23:26.777 [pm-p1] tick=170588 allow=1 off=0 own_idle=1 sdk_idle=1
+2026-09-27T16:23:26.778 [pm-p1] enter=1894 exit=1894 deep_elapsed=1216
+2026-09-27T16:23:26.778 [pm-p1] deep_ticks=124406 max_ticks=118 wake=0x40002
+2026-09-27T16:23:26.778 [pm-p1] screen_off=1 screen_on=1 tick_hz=1000
+2026-09-27T16:23:26.781 [pm-p1] phone=4 phone_off=4 background=4
+2026-09-27T16:23:27.082 [product] screen on
+2026-09-27T16:23:40.829 [product] screen off; P1 events active
+2026-09-27T16:23:41.768 [product] wake event=KEY1
+2026-09-27T16:23:41.768 [pm-p1] tick=185579 allow=1 off=0 own_idle=1 sdk_idle=1
+2026-09-27T16:23:41.768 [pm-p1] enter=1904 exit=1904 deep_elapsed=1226
+2026-09-27T16:23:41.769 [pm-p1] deep_ticks=125326 max_ticks=118 wake=0x40006
+2026-09-27T16:23:41.770 [pm-p1] screen_off=2 screen_on=2 tick_hz=1000
+2026-09-27T16:23:41.771 [pm-p1] phone=4 phone_off=4 background=4
+2026-09-27T16:23:42.073 [product] screen on
+2026-09-27T16:23:51.778 [product] screen off; P1 events active
+2026-09-27T16:23:52.574 [product] wake event=KEY1
+2026-09-27T16:23:52.574 [pm-p1] tick=196386 allow=1 off=0 own_idle=1 sdk_idle=1
+2026-09-27T16:23:52.575 [pm-p1] enter=1913 exit=1913 deep_elapsed=1234
+2026-09-27T16:23:52.575 [pm-p1] deep_ticks=126094 max_ticks=118 wake=0x40002
+2026-09-27T16:23:52.576 [pm-p1] screen_off=3 screen_on=3 tick_hz=1000
+2026-09-27T16:23:52.578 [pm-p1] phone=4 phone_off=4 background=4
+2026-09-27T16:23:52.879 [product] screen on
+2026-09-27T16:23:55.394 COMMAND wf_ble list
+2026-09-27T16:23:55.394 COMMAND wf_ble status
+2026-09-27T16:23:55.394 COMMAND wf_pm status
+2026-09-27T16:23:55.406 [ble] id=1790491719 src=QQ title/body=[LOCAL ONLY]
+2026-09-27T16:23:55.406 [ble] id=1790491718 src=QQ title/body=[LOCAL ONLY]
+2026-09-27T16:23:55.406 [ble] A1 connected=1 subscribed=1 generation=1 messages=2 added=2 updated=0 removed=0 rejected=0 unknown=0 dropped=0
+2026-09-27T16:23:55.406 [pm-p1] tick=199211 allow=1 off=0 own_idle=1 sdk_idle=1
+2026-09-27T16:23:55.406 [pm-p1] enter=1913 exit=1913 deep_elapsed=1234
+2026-09-27T16:23:55.407 [pm-p1] deep_ticks=126094 max_ticks=118 wake=0x40002
+2026-09-27T16:23:55.407 [pm-p1] screen_off=3 screen_on=3 tick_hz=1000
+2026-09-27T16:23:55.407 [pm-p1] phone=4 phone_off=4 background=4
+2026-09-27T16:24:03.361 [product] screen off; P1 events active
+2026-09-27T16:24:03.982 [product] wake event=KEY1
+2026-09-27T16:24:03.982 [pm-p1] tick=207792 allow=1 off=0 own_idle=1 sdk_idle=1
+2026-09-27T16:24:03.982 [pm-p1] enter=1920 exit=1920 deep_elapsed=1240
+2026-09-27T16:24:03.983 [pm-p1] deep_ticks=126679 max_ticks=118 wake=0x40002
+2026-09-27T16:24:03.983 [pm-p1] screen_off=4 screen_on=4 tick_hz=1000
+2026-09-27T16:24:03.984 [pm-p1] phone=4 phone_off=4 background=4
+2026-09-27T16:24:04.288 [product] screen on
+2026-09-27T16:24:15.368 [product] screen off; P1 events active
+2026-09-27T16:24:15.997 [product] wake event=KEY1
+2026-09-27T16:24:15.997 [pm-p1] tick=219807 allow=1 off=0 own_idle=1 sdk_idle=1
+2026-09-27T16:24:15.997 [pm-p1] enter=1927 exit=1927 deep_elapsed=1246
+2026-09-27T16:24:15.998 [pm-p1] deep_ticks=127251 max_ticks=118 wake=0x40002
+2026-09-27T16:24:15.998 [pm-p1] screen_off=5 screen_on=5 tick_hz=1000
+2026-09-27T16:24:16.000 [pm-p1] phone=4 phone_off=4 background=4
+2026-09-27T16:24:16.300 [product] screen on
+2026-09-27T16:24:27.341 [product] screen off; P1 events active
+2026-09-27T16:24:27.802 [product] wake event=KEY1
+2026-09-27T16:24:27.802 [pm-p1] tick=231613 allow=1 off=0 own_idle=1 sdk_idle=1
+2026-09-27T16:24:27.803 [pm-p1] enter=1935 exit=1935 deep_elapsed=1252
+2026-09-27T16:24:27.803 [pm-p1] deep_ticks=127697 max_ticks=118 wake=0x40002
+2026-09-27T16:24:27.804 [pm-p1] screen_off=6 screen_on=6 tick_hz=1000
+2026-09-27T16:24:27.806 [pm-p1] phone=4 phone_off=4 background=4
+2026-09-27T16:24:28.106 [product] screen on
+2026-09-27T16:24:39.153 [product] screen off; P1 events active
+2026-09-27T16:24:39.930 [product] wake event=KEY1
+2026-09-27T16:24:39.930 [pm-p1] tick=243741 allow=1 off=0 own_idle=1 sdk_idle=1
+2026-09-27T16:24:39.931 [pm-p1] enter=1947 exit=1947 deep_elapsed=1261
+2026-09-27T16:24:39.931 [pm-p1] deep_ticks=128456 max_ticks=118 wake=0x40002
+2026-09-27T16:24:39.932 [pm-p1] screen_off=7 screen_on=7 tick_hz=1000
+2026-09-27T16:24:39.934 [pm-p1] phone=4 phone_off=4 background=4
+2026-09-27T16:24:40.234 [product] screen on
+2026-09-27T16:24:40.573 COMMAND wf_pm hold
+2026-09-27T16:24:40.573 COMMAND wf_pm status
+2026-09-27T16:24:40.574 COMMAND wf_ble status
+2026-09-27T16:24:40.575 [pm-p1] tick=244386 allow=0 off=0 own_idle=1 sdk_idle=1
+2026-09-27T16:24:40.576 [pm-p1] enter=1947 exit=1947 deep_elapsed=1261
+2026-09-27T16:24:40.576 [pm-p1] deep_ticks=128456 max_ticks=118 wake=0x40002
+2026-09-27T16:24:40.577 [pm-p1] screen_off=7 screen_on=7 tick_hz=1000
+2026-09-27T16:24:40.578 [pm-p1] phone=4 phone_off=4 background=4
+2026-09-27T16:24:40.578 [pm-p1] tick=244389 allow=0 off=0 own_idle=1 sdk_idle=1
+2026-09-27T16:24:40.579 [pm-p1] enter=1947 exit=1947 deep_elapsed=1261
+2026-09-27T16:24:40.580 [pm-p1] deep_ticks=128456 max_ticks=118 wake=0x40002
+2026-09-27T16:24:40.580 [pm-p1] screen_off=7 screen_on=7 tick_hz=1000
+2026-09-27T16:24:40.581 [pm-p1] phone=4 phone_off=4 background=4
+2026-09-27T16:24:40.584 [ble] A1 connected=1 subscribed=1 generation=1 messages=2 added=2 updated=0 removed=0 rejected=0 unknown=0 dropped=0
+2026-09-27T16:26:11.009 [product] screen off; P1 events active
+2026-09-27T16:26:14.510 [product] wake event=KEY1
+2026-09-27T16:26:14.510 [pm-p1] tick=338287 allow=0 off=0 own_idle=1 sdk_idle=1
+2026-09-27T16:26:14.511 [pm-p1] enter=1947 exit=1947 deep_elapsed=1261
+2026-09-27T16:26:14.511 [pm-p1] deep_ticks=128456 max_ticks=118 wake=0x40002
+2026-09-27T16:26:14.511 [pm-p1] screen_off=8 screen_on=8 tick_hz=1000
+2026-09-27T16:26:14.513 [pm-p1] phone=4 phone_off=4 background=4
+2026-09-27T16:26:14.816 [product] screen on
+2026-09-27T16:26:14.934 COMMAND wf_pm hold
+2026-09-27T16:26:14.935 COMMAND wf_pm status
+2026-09-27T16:26:14.935 COMMAND wf_ble status
+2026-09-27T16:26:14.937 [pm-p1] tick=338713 allow=0 off=0 own_idle=1 sdk_idle=1
+2026-09-27T16:26:14.937 [pm-p1] enter=1947 exit=1947 deep_elapsed=1261
+2026-09-27T16:26:14.938 [pm-p1] deep_ticks=128456 max_ticks=118 wake=0x40002
+2026-09-27T16:26:14.938 [pm-p1] screen_off=8 screen_on=8 tick_hz=1000
+2026-09-27T16:26:14.939 [pm-p1] phone=4 phone_off=4 background=4
+2026-09-27T16:26:14.940 [pm-p1] tick=338717 allow=0 off=0 own_idle=1 sdk_idle=1
+2026-09-27T16:26:14.940 [pm-p1] enter=1947 exit=1947 deep_elapsed=1261
+2026-09-27T16:26:14.941 [pm-p1] deep_ticks=128456 max_ticks=118 wake=0x40002
+2026-09-27T16:26:14.941 [pm-p1] screen_off=8 screen_on=8 tick_hz=1000
+2026-09-27T16:26:14.942 [pm-p1] phone=4 phone_off=4 background=4
+2026-09-27T16:26:14.945 [ble] A1 connected=1 subscribed=1 generation=1 messages=2 added=2 updated=0 removed=0 rejected=0 unknown=0 dropped=0
+2026-09-27T16:26:24.521 [product] screen off; P1 events active
+2026-09-27T16:27:09.598 COMMAND wf_pm status
+2026-09-27T16:27:09.599 COMMAND wf_ble status
+2026-09-27T16:27:09.601 [pm-p1] tick=393378 allow=0 off=1 own_idle=1 sdk_idle=1
+2026-09-27T16:27:09.601 [pm-p1] enter=1947 exit=1947 deep_elapsed=1261
+2026-09-27T16:27:09.601 [pm-p1] deep_ticks=128456 max_ticks=118 wake=0x40002
+2026-09-27T16:27:09.602 [pm-p1] screen_off=9 screen_on=8 tick_hz=1000
+2026-09-27T16:27:09.603 [pm-p1] phone=4 phone_off=4 background=4
+2026-09-27T16:27:09.606 [ble] A1 connected=1 subscribed=1 generation=1 messages=2 added=2 updated=0 removed=0 rejected=0 unknown=0 dropped=0
+2026-09-27T16:27:57.663 CLOSED COM5
+# Raw-byte verification: QQ id=1790491719 contains exact test marker PM中文测试456; other fields omitted.
+# Raw-byte verification: QQ id=1790491718 contains exact test marker PM中文测试456; other fields omitted.
+# User: test notification received while board remained dark.
+# User: five natural screen-off / KEY1 wake rounds, display and touch normal.
+# User: additional KEY1 press completed for rollback observation.

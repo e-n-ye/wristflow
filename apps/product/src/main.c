@@ -7,8 +7,8 @@
 #include "product_ui.h"
 #include "product_services.h"
 #include "product_ble.h"
+#include "product_pm.h"
 
-static struct rt_event key_events;
 static wristflow_ui_shell_t *product_shell;
 static lv_indev_read_cb_t original_pointer_read;
 static volatile bool waiting_for_wake;
@@ -28,9 +28,9 @@ static void button_callback(int32_t pin, button_action_t action)
     (void)pin;
     if (action == BUTTON_PRESSED && waiting_for_wake) {
         suppress_wake_click = true;
-        rt_event_send(&key_events, 1);
+        wristflow_product_event_send(WF_EVENT_KEY);
     } else if (action == BUTTON_CLICKED && !suppress_wake_click) {
-        rt_event_send(&key_events, 1);
+        wristflow_product_event_send(WF_EVENT_KEY);
     } else if (action == BUTTON_RELEASED) {
         suppress_wake_click = false;
     }
@@ -57,15 +57,24 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
         }
         if (busy) rt_thread_mdelay(5);
     }
+    waiting_for_wake = true;
     RT_ASSERT(rt_device_control(touch, RTGRAPHIC_CTRL_POWEROFF, NULL) == RT_EOK);
     RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_POWEROFF, NULL) == RT_EOK);
-    rt_kprintf("[product] screen off; KEY1 wake (PM unchanged)\n");
+    /* Touch power work is asynchronous and holds its own SDK idle request. */
+    rt_kprintf("[product] screen off; P1 events active\n");
+    wristflow_product_pm_screen(true);
     rt_uint32_t events;
-    waiting_for_wake = true;
-    RT_ASSERT(rt_event_recv(&key_events, 1, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
-        RT_WAITING_FOREVER, &events) == RT_EOK);
+    for (;;) {
+        events = wristflow_product_event_wait(RT_WAITING_FOREVER);
+        if (events & WF_EVENT_PHONE) wristflow_product_pm_background();
+        if (events & WF_EVENT_PM_SAMPLE) wristflow_product_pm_report();
+        if (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE)) break;
+        /* A phone event is processed in the BLE worker; it does not light the screen in P1. */
+    }
+    wristflow_product_pm_screen(false); /* Hold idle before restoring the display. */
     waiting_for_wake = false;
-    rt_kprintf("[product] KEY1 wake event received\n");
+    rt_kprintf("[product] wake event=%s\n", events & WF_EVENT_KEY ? "KEY1" : "diagnostic");
+    wristflow_product_pm_report();
     /* Select the wake destination while dark; expose only its completed frame. */
     defer_brightness = true;
     wristflow_ui_shell_key(product_shell);
@@ -93,6 +102,7 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
 
 int main(void)
 {
+    wristflow_product_pm_start();
     wristflow_settings_t settings;
     wristflow_layout_t layout;
     wristflow_product_services_start(&settings, &layout);
@@ -119,7 +129,6 @@ int main(void)
     lv_indev_set_read_cb(pointer, read_pointer);
     wristflow_ui_shell_enable_display_policy(shell);
     lv_obj_delete(initial);
-    RT_ASSERT(rt_event_init(&key_events, "wf_key", RT_IPC_FLAG_FIFO) == RT_EOK);
     button_cfg_t key = {0};
     key.pin = BSP_KEY1_PIN;
 #ifdef BSP_KEY1_ACTIVE_HIGH
@@ -132,7 +141,7 @@ int main(void)
     int32_t key_id = button_init(&key);
     RT_ASSERT(key_id >= 0);
     RT_ASSERT(button_enable(key_id) == SF_EOK);
-    rt_kprintf("[product] USB stage: RTC=%s, battery absent, BLE A1 active, PM pending\n",
+    rt_kprintf("[product] USB stage: RTC=%s, battery absent, BLE active, PM P1 boot hold\n",
                snapshot.time_unavailable ? "not synchronized" : "in range");
     uint32_t sampled = lv_tick_get();
     for (;;) {
@@ -157,9 +166,9 @@ int main(void)
                 wristflow_product_services_settings(&settings);
             sampled = now;
         }
-        rt_uint32_t events;
-        if (rt_event_recv(&key_events, 1, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
-            rt_tick_from_millisecond(LV_CLAMP(1, wait_ms, 20)), &events) == RT_EOK)
+        rt_uint32_t events = wristflow_product_event_wait(rt_tick_from_millisecond(LV_CLAMP(1, wait_ms, 20)));
+        if (events & WF_EVENT_PM_SAMPLE) wristflow_product_pm_report();
+        if (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))
             wristflow_ui_shell_key(shell);
     }
 }
