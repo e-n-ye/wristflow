@@ -8,6 +8,7 @@
 #include "product_services.h"
 #include "product_ble.h"
 #include "product_pm.h"
+#include "product_imu.h"
 
 static wristflow_ui_shell_t *product_shell;
 static lv_indev_read_cb_t original_pointer_read;
@@ -119,6 +120,7 @@ int main(void)
     wristflow_layout_t layout;
     wristflow_product_services_start(&settings, &layout);
     wristflow_product_ble_start();
+    wristflow_product_imu_start();
     wristflow_watch_snapshot_t snapshot = wristflow_product_services_snapshot();
     RT_ASSERT(littlevgl2rtt_init("lcd") == RT_EOK);
     RT_ASSERT(lv_display_get_horizontal_resolution(NULL) == 390);

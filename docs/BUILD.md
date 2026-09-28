@@ -1,5 +1,9 @@
 # 可复现构建基线
 
+## 2026-09-28 IMU C1 诊断
+
+`codex/imu-wrist-wake` 的 C1 新增 I2C3、限次采样和 PA31/AON 倾斜中断诊断。最终 `pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/build-isolated.ps1 -Example product` 构建/产物校验通过，290 个工程源哈希匹配；`cmake --build artifacts/host-imu-c1 --parallel 6` 与 `ctest --test-dir artifacts/host-imu-c1 --output-on-failure --timeout 60` 均退出 0，16/16 通过，322 个主机相关源文件测试前后未变。SDK 和子模块继续锁定且源码干净，公共构建入口、UI 资源和分区不变。命令、工具版本、三镜像及告警见 [IMU 专题](IMU-WRIST-WAKE.md) 和 [精简证据](evidence/2026-09-28/imu-c1-local.json)。本版本未烧录；不能将编译或旧 BLE/PM 硬件证据算作 C1 中断已通过。
+
 ## 2026-09-27 PR 收尾与 Windows 模拟器
 
 第三次基线 [36320503029](https://github.com/e-n-ye/wristflow/actions/runs/36320503029) 对应 `04aacd64838f39c72eca54d8983307666062fdb5`。五个固件目标已通过，主机已编译完成，但 CTest 停在第六项 `component_layout`；本轮接手后取消该运行，不能把等待描述为仍在编译。原始日志保留于 `C:/Users/13984/.codex/worktrees/ble-first-link/wristflow/artifacts/ci-hang/original-cloud.log`。
