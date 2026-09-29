@@ -2,6 +2,8 @@
 
 ## 2026-09-28 IMU C1 诊断
 
+首轮上板发现 KEY1 恢复故障后，新增只读按键/GPIO/AON 诊断。20:35 的 Product 构建和全部 290 个工程源哈希校验通过，主 BIN 7,432,436 B，三镜像已写入/verify；一次 GPIO 寄存器结构成员名错误已修正并重编译。续测确认息屏 IMU arm 期间 22 次 `src=0x20` tilt IRQ，KEY1 在 arm 期间及自动停止后均能恢复亮屏；此前异常未复现，根因未知。C1 的 IMU/PM/KEY1 核心路径已取得证据，BLE 通知恢复仍待补测，不能把本轮记作完整 C1 验收。完整现场摘要见 [诊断版记录](evidence/2026-09-28/imu-c1-key-diagnostic.json)。
+
 `codex/imu-wrist-wake` 的 C1 新增 I2C3、限次采样和 PA31/AON 倾斜中断诊断。最终 `pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/build-isolated.ps1 -Example product` 构建/产物校验通过，290 个工程源哈希匹配；`cmake --build artifacts/host-imu-c1 --parallel 6` 与 `ctest --test-dir artifacts/host-imu-c1 --output-on-failure --timeout 60` 均退出 0，16/16 通过，322 个主机相关源文件测试前后未变。SDK 和子模块继续锁定且源码干净，公共构建入口、UI 资源和分区不变。命令、工具版本、三镜像及告警见 [IMU 专题](IMU-WRIST-WAKE.md) 和 [精简证据](evidence/2026-09-28/imu-c1-local.json)。本版本未烧录；不能将编译或旧 BLE/PM 硬件证据算作 C1 中断已通过。
 
 ## 2026-09-27 PR 收尾与 Windows 模拟器

@@ -59,7 +59,7 @@ ctest --test-dir artifacts/host-imu-c1 --output-on-failure --timeout 60
 
 隔离构建助手仅位于本机忽略目录，复用主目录已注册的 SDK 环境并核对两份锁文件；普通检出使用 `scripts/Build.ps1 -Example product -Jobs 6`。最终 Product 原始记录为 `artifacts/product/20260928-161628-226/result.json`，恢复后的主机日志、源码快照与增量构建日志在 `artifacts/imu-c1-resume-verification/`。保留 SDK `MSH_CMD_EXPORT` 函数指针转换警告（新 `wf_imu` 注册点同样出现），以及既有 RWX、新库 syscall／ftab entry 链接警告；未抑制或修改 SDK。旧对话异常未丢失构建产物，接续后完成哈希核对并验证最终修订版。
 
-硬件：本轮尚未烧录、复位或操作串口。下一有界实验为核对 COM5/USB 供电与板上附件，写入经校验的 C1 三镜像，先读取 ID 和三个静止朝向；再在亮屏和息屏状态各做限时 tilt 中断实验，记录 PM 计数及 KEY1/BLE 恢复。通过后再实施 C2，不能用编译代替此条件。
+硬件：C1 诊断版已在同一块仅 USB 供电的黄山派上通过 COM5 写入/verify，并完成 ID、三朝向采样、亮屏/息屏 tilt 中断、自动停止和 KEY1 恢复对照。C1 核心 IMU/PM/KEY1 路径已有实板证据；BLE/Gadgetbridge 通知本轮复测成功，用户确认打开 Redmi Watch 4 历史消息后链路恢复并持续正常，但恢复机制未解释。电流、精确驻留和长测仍未覆盖。通过剩余边界后再实施 C2，不能用编译代替硬件条件。
 
 ## C1 实板步骤与通过条件
 
@@ -68,3 +68,29 @@ ctest --test-dir artifacts/host-imu-c1 --output-on-failure --timeout 60
 3. 分别让屏幕朝上、长边竖起朝自己、短边竖起，各执行 `wf_imu sample 20`。保留 raw XYZ／mg、姿态与方向描述，确认静止重力轴和符号；采样结束必须 `stop=ok`，且没有 `wake disable FAILED`。失败先停在诊断层，不猜轴映射。
 4. 亮屏时启用既有持续亮屏设置，执行 `wf_imu arm 30` 并按固定动作转动，记录 PA31、`src & 0x20`、irq/tilt 增量；命令只记录，不要求屏幕变化。随后关闭持续亮屏，重新 `arm 60`，静置等屏幕关闭后再动作，记录 PM `deep_elapsed`／wake、寄存器保持、触发和限时退出。若串口输入会干扰观察，预先布置命令后只收日志。
 5. 执行 `wf_imu status` 确认 MD1／CTRL10／XL／G 为零，KEY1 能恢复 UI，既有 BLE 测试通知仍可到达。只有读数/方向、中断及息屏恢复均有证据后进入 C2；GPIO 高低和软件 PM 计数不替代电压、电流或硬件驻留测量。
+
+## 2026-09-28 首轮实板故障记录（未通过）
+
+用户确认仍仅 USB 供电、接线未变，授权烧录及诊断。`ffa2730` 对应上述三镜像经 COM5 `sftool 0.2.5 write_flash --verify` 写入，退出 0。单一串口所有者采集 1,000,000 8N1，启动诊断就绪；0x6A 地址读到 WHO=0x6A，0x6B 无响应，prepare 与配置读回成功，AON 映射为 7。`io_errors=1` 来自该备用地址探测，后续有回报的诊断期间未增加。
+
+三组用户确认姿态均取得 20 个样本并 `stop=ok`：朝上平放重力为负 Z，短边在下为负 X，长边在下为负 Y。用户纠正第二组最初误称长边，记录以纠正后的姿态为准；一次在用户确认前发出的第三组采样弃用，之后重采。长边组含一次轻微动态偏离，不作为标定精度证据。
+
+亮屏 120 秒中断窗口取得 11 次 src=0x20；放下动作也触发，不能直接当作抬腕意图。用户确认持续亮屏。息屏且 `allow=1, own_idle=0` 的 120 秒窗口取得 10 次 tilt 中断，`deep_elapsed` 从 1227 增至 2281（最后一次中断附近），用户确认三次动作时屏幕持续黑屏；到期 `stop=ok`。两轮翻起读数主轴分别为 Y/X，下一阶段需收敛手持动作定义，不能静默假定一致。
+
+**阻断**：息屏窗口之后用户按 KEY1 无法亮屏，串口命令一度没有响应，未取得 BLE/通知恢复证据。因此 C1 仅部分路径有证据，整体未通过，C2 未实施。19:59:23 窗口结束后暂时无设备输出；完整日志后段显示 20:00:40 又执行 hold、20:00:42 响应 IMU/BLE/PM 查询（传感器停用寄存器为零、BLE 未连接），因此撤回“之后完全无设备输出”的早期记录，不能判定为整机死锁。host COMMAND 行仍不表示设备执行。受控 RTS 复位后重新正常启动，设置恢复，暂时 `wf_pm hold`；用户确认 KEY1/触摸恢复，故障原因尚待定位。
+
+所有日志位于本工作树忽略目录 `artifacts/hardware/imu-c1-20260928/`：`flash.log`、`images.sha256`、`serial.bin`（原始本地数据）、`serial-key-safe.log`（续测筛选记录）、`serial-safe.log`（首轮记录）和 `recovery-reset.bin`。续测已完成 GPIO/AON/KEY1 对照；当前保留首轮未复现故障及其原始数据，不将当前计数当作电流或精确硬件驻留证明。
+
+接续源码核对未见 PA31 disable 直接误清 PA34：二者分别在 GPIO 第 0/1 组，AON 关闭也只清 PIN7；KEY1 为 PIN10。日志 `wake=0x2/0x6` 包含 GPIO1/LPTIM1，并非每次 IRQ 的独立溯源，不能据此断言 AON 丢失。当前新增 `wf_key` 只读诊断，记录 PA34、按键四类回调计数、产品 KEY 发送/接收计数、WER/WSR 和 GPIO IER1/ISR1；回调中只计数，日志在主线程或命令线程输出，未替换 SDK 的按键 IRQ。IMU 实验结束也请求一次状态快照。该诊断版另行构建/上板，不用 `ffa2730` 的测试或固件哈希覆盖。
+
+诊断版 Product 于 20:35 构建和 290 个源哈希校验通过，主 BIN 7,432,436 B／SHA-256 `7aeeec580c637eb86c23b4bab114be3e823402857178de9ea53b85e587fae60c`；三镜像再次写入/verify 退出 0。首次编译因 SDK HAL 使用 `GPIO_TypeDef` 的 32 引脚分组、没有 `IER1/ISR1` 成员失败，已按 SDK `GPIO_GetInstance` 的同等分组寻址修正，失败日志保留。详见 [诊断版精简证据](evidence/2026-09-28/imu-c1-key-diagnostic.json)。主机覆盖的核心和测试没有改变，未重复用主机测试冒充按钮/GPIO 验证。
+
+20:46 的未启用 IMU／PM hold 基线：用户确认 KEY1 亮屏正常；日志对应 press=1、sent=1、received=1、随后 screen on。多次按键后 press/release/click=5，sent/received=5；未见单边计数增长。20:52 在屏幕已灭但 PM hold 的状态下 arm 10 秒再自动 stop，没有 IRQ，WER=`0x100400c6`、IER1=`0x1004` 与此前息屏值相同，KEY1 PIN10 与 GPIO PA34 位均仍使能。下一步等待用户按 KEY1 验证该启停后的恢复，然后在传感器关闭时单独 allow PM 对照；不能由寄存器位未变直接认定按键恢复成功。
+
+诊断版日志：`artifacts/hardware/imu-c1-20260928/serial-key-safe.log`，原始数据/命令位于其 `key-diagnostic/` 子目录；下载日志为 `artifacts/hardware/imu-c1-keydiag-20260928/flash.log`。续测时完成了 PM hold、PM allow、IMU arm 自动停止和息屏 arm 对照；息屏窗口收到 22 次 `src=0x20` tilt IRQ（`allow=1, off=1, own_idle=0`），未主动亮屏。arm 期间两次 KEY1 均出现 `sent=received` 并完成 `screen on`，`stop=ok` 后再次 KEY1 仍成功。当前 IMU 已停止；此前 KEY1 异常未复现，根因未知。C1 的 IMU/PM/KEY1 核心路径已验证，BLE/Gadgetbridge 通知恢复尚未补测，C2 未实现。
+
+### 2026-09-28 续测结论
+
+最终组合窗口从 `21:17:46` 的 KEY1 唤醒开始，立即执行 `wf_imu arm 60`。`21:17:56` 熄屏并允许 PM 后，`21:17:58`–`21:18:10` 收到 12 次 `src=0x20`，`21:18:13` KEY1 恢复亮屏；再次进入窗口后又收到 10 次 tilt，`21:18:39` KEY1 恢复亮屏。`21:18:48` 自动停止报告 `stop=ok, irq_delta=22`；`21:19:50` IMU 已停止时再次 KEY1 成功亮屏，计数保持 `sent=received`。该记录证明传感器中断不会主动点亮屏幕，且 KEY1 能在 IMU 活动和自动停止后恢复；它没有解释首轮异常，也没有替代电压、电流或 BLE 长测证据。
+
+用户补充的通知现象：一次消息似乎没有立即在黄山派亮屏或留下记录；打开 Redmi Watch 4 的历史消息后，链路恢复，再次发送同类测试消息时两端同时出现，之后持续正常。本轮复测已成功收到无隐私测试通知。该现象仍记为通知到达/显示时序风险，恢复机制未解释，不能直接归因于 IMU 或 PM。

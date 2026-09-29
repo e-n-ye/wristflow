@@ -212,6 +212,7 @@ static void experiment(enum command cmd, unsigned count)
     stop_sensor();
     rt_kprintf("[imu-c1] experiment ended samples=%u irq_delta=%u elapsed_ticks=%u\n",
         samples, irq_count - first_irq, rt_tick_get() - start);
+    wristflow_product_event_send(WF_EVENT_PM_SAMPLE);
     rt_pm_release(PM_SLEEP_MODE_IDLE);
 }
 
