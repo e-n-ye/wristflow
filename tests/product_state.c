@@ -7,8 +7,9 @@ int main(void)
     wristflow_settings_t defaults = wristflow_settings_default();
     assert(defaults.brightness == 60 && strcmp(defaults.face_id, "diffusion") == 0);
     assert(defaults.menu_layout == WRISTFLOW_MENU_LIST);
-    assert(defaults.face_long_press && defaults.screen_timeout == 10);
-    const wristflow_settings_t chosen = {37, "simple", WRISTFLOW_MENU_GRID, false, 60, true};
+    assert(defaults.face_long_press && defaults.screen_timeout == 10 && defaults.wrist_wake);
+
+    const wristflow_settings_t chosen = {37, "simple", WRISTFLOW_MENU_GRID, false, 60, true, true};
     uint8_t record[WRISTFLOW_SETTINGS_BYTES];
     assert(wristflow_settings_encode(&chosen, record));
     wristflow_settings_t restored = defaults;
@@ -51,6 +52,25 @@ int main(void)
     for (unsigned i = 0; i < 4; ++i) v3[20+i] = (uint8_t)(hash >> (i*8));
     assert(wristflow_settings_decode(&restored, v3, sizeof v3));
     assert(!restored.do_not_disturb && !restored.face_long_press && restored.screen_timeout == 30 && restored.brightness == 27);
+    /* v4 stores DND as a single byte; migration keeps the new wrist wake default on. */
+    uint8_t v4[WRISTFLOW_SETTINGS_BYTES];
+    memcpy(v4, v3, sizeof v4); v4[2] = 4; v4[16] = 1;
+    hash = 2166136261U;
+    for (unsigned i = 0; i < 20; ++i) hash = (hash ^ v4[i]) * 16777619U;
+    for (unsigned i = 0; i < 4; ++i) v4[20+i] = (uint8_t)(hash >> (i*8));
+    assert(wristflow_settings_decode(&restored, v4, sizeof v4));
+    assert(restored.do_not_disturb && restored.wrist_wake);
+    /* v5 packs two booleans and rejects unused bits. */
+    restored = chosen; restored.wrist_wake = false; restored.do_not_disturb = true;
+    assert(wristflow_settings_encode(&restored, record));
+    assert(record[2] == 5 && record[16] == 1);
+    assert(wristflow_settings_decode(&defaults, record, sizeof record));
+    assert(defaults.do_not_disturb && !defaults.wrist_wake);
+    record[16] |= 0x04;
+    hash = 2166136261U;
+    for (unsigned i = 0; i < 20; ++i) hash = (hash ^ record[i]) * 16777619U;
+    for (unsigned i = 0; i < 4; ++i) record[20+i] = (uint8_t)(hash >> (i*8));
+    assert(!wristflow_settings_decode(&restored, record, sizeof record));
     restored.screen_timeout = 6;
     assert(!wristflow_settings_encode(&restored, record));
     restored = chosen;

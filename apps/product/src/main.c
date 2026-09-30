@@ -107,8 +107,9 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     rt_kprintf("[product] screen off; notification events active\n");
     key_report();
     wristflow_product_pm_screen(true);
+    wristflow_product_imu_wrist_wake(wristflow_ui_shell_wrist_wake_allowed(product_shell));
     rt_uint32_t events;
-    bool preview = false;
+    bool preview = false, imu_wake = false;
     defer_brightness = true;
     for (;;) {
         events = wristflow_product_event_wait(RT_WAITING_FOREVER);
@@ -118,16 +119,22 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
             preview = sync_notifications();
         }
         if (events & WF_EVENT_PM_SAMPLE) { wristflow_product_pm_report(); key_report(); }
-        if (preview || (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))) break;
+        imu_wake = (events & WF_EVENT_IMU_WAKE) && wristflow_ui_shell_wrist_wake_allowed(product_shell);
+        if (preview || imu_wake || (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))) break;
     }
+    wristflow_product_imu_wrist_wake(false);
     wristflow_product_pm_screen(false); /* Hold idle before restoring the display. */
     waiting_for_wake = false;
-    rt_kprintf("[product] wake event=%s\n", events & WF_EVENT_KEY ? "KEY1" : preview ? "notification" : "diagnostic");
+    rt_kprintf("[product] wake event=%s\n", events & WF_EVENT_KEY ? "KEY1" : preview ? "notification" : imu_wake ? "IMU" : "diagnostic");
     key_report();
     wristflow_product_pm_report();
     /* Select the wake destination while dark; expose only its completed frame. */
     defer_brightness = true;
-    if (!preview || (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))) wristflow_ui_shell_key(product_shell);
+    if (!preview || (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))) {
+        if (imu_wake && !(events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE)))
+            wristflow_ui_shell_wrist_wake(product_shell);
+        else wristflow_ui_shell_key(product_shell);
+    }
     wristflow_watch_snapshot_t wake_snapshot = wristflow_product_services_snapshot();
     wristflow_ui_shell_update(product_shell, &wake_snapshot);
     RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_POWERON, NULL) == RT_EOK);
@@ -199,6 +206,7 @@ int main(void)
     for (;;) {
         uint32_t wait_ms = lv_timer_handler();
         uint32_t now = lv_tick_get();
+        wristflow_product_imu_wrist_wake(wristflow_ui_shell_wrist_wake_allowed(shell));
         if (wristflow_ui_shell_display_phase(shell) == WRISTFLOW_DISPLAY_OFF) {
             if (wristflow_ui_shell_get_settings(shell, &settings))
                 wristflow_product_services_settings(&settings);
@@ -225,5 +233,8 @@ int main(void)
         if (events & WF_EVENT_PHONE) sync_notifications();
         if (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))
             wristflow_ui_shell_key(shell);
+        else if ((events & WF_EVENT_IMU_WAKE) && wristflow_ui_shell_wrist_wake(shell))
+            rt_kprintf("[product] brighten event=IMU\n");
+        wristflow_product_imu_wrist_wake(wristflow_ui_shell_wrist_wake_allowed(shell));
     }
 }

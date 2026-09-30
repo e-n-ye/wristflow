@@ -1,4 +1,4 @@
-/* C1: bounded sensor diagnostics. No gesture or display-wake policy yet. */
+/* C2: bounded IMU diagnostics plus interrupt-driven wrist wake when dim or off. */
 #include "product_imu.h"
 #include "imu_device.h"
 #include "product_pm.h"
@@ -14,7 +14,8 @@
 #define EV_IRQ 2u
 #define EV_STOP 4u
 #define EV_STATUS 8u
-#define EV_ALL 15u
+#define EV_RUNTIME 16u
+#define EV_ALL 31u
 
 enum command { CMD_PROBE, CMD_SAMPLE, CMD_ARM };
 static struct rt_event work;
@@ -28,6 +29,11 @@ static int8_t aon_pin = -1;
 static volatile uint32_t irq_count;
 static uint32_t io_errors, tilt_count;
 static uint8_t last_source;
+static volatile bool runtime_requested;
+static bool runtime_armed, flat_seen;
+static int16_t runtime_baseline[3];
+static rt_tick_t runtime_scan_started;
+static rt_tick_t runtime_candidate_started;
 
 static bool read_register(void *context, uint8_t reg, uint8_t *bytes, size_t count)
 {
@@ -216,28 +222,146 @@ static void experiment(enum command cmd, unsigned count)
     rt_pm_release(PM_SLEEP_MODE_IDLE);
 }
 
+static bool runtime_start(void)
+{
+    if (!runtime_requested || runtime_armed) return true;
+    if (!configured && !probe()) return false;
+    if (!wf_imu_tilt_mode(&device) || aon_pin < 0 ||
+        rt_pin_irq_enable(IMU_PIN, PIN_IRQ_ENABLE) != RT_EOK ||
+        pm_enable_pin_wakeup((uint8_t)aon_pin, AON_PIN_MODE_POS_EDGE) != RT_EOK) {
+        stop_sensor();
+        return false;
+    }
+    int16_t baseline[3];
+    int sample_result = 0;
+    for (unsigned attempt = 0; attempt < 4 && sample_result == 0; ++attempt) {
+        rt_thread_mdelay(40);
+        sample_result = wf_imu_accel(&device, baseline);
+    }
+    if (sample_result != 1) {
+        rt_kprintf("[imu-c2] wrist wake baseline unavailable result=%d\n", sample_result);
+        stop_sensor();
+        return false;
+    }
+    runtime_baseline[0] = baseline[0];
+    runtime_baseline[1] = baseline[1];
+    runtime_baseline[2] = baseline[2];
+    runtime_armed = true;
+    runtime_scan_started = 0;
+    runtime_candidate_started = 0;
+    /* Establish the screen-up gravity baseline before accepting a lift. */
+    flat_seen = baseline[2] < -12000 &&
+        abs((int)baseline[0]) < 8000 && abs((int)baseline[1]) < 8000;
+    rt_kprintf("[imu-c2] wrist wake armed baseline=%d,%d,%d flat=%u direction=negative-X\n",
+        baseline[0], baseline[1], baseline[2], flat_seen);
+    return true;
+}
+
+static bool runtime_sample(void)
+{
+    if (!runtime_armed || !runtime_requested) return false;
+    rt_tick_t now = rt_tick_get();
+    if (now - runtime_scan_started >= rt_tick_from_millisecond(1500)) {
+        runtime_scan_started = 0;
+        runtime_candidate_started = 0;
+        return false;
+    }
+    int16_t axes[3];
+    if (wf_imu_accel(&device, axes) != 1) return false;
+    int32_t x = axes[0], y = axes[1], z = axes[2];
+    if (z < -12000 && abs((int)x) < 8000 && abs((int)y) < 8000) {
+        runtime_baseline[0] = axes[0];
+        runtime_baseline[1] = axes[1];
+        runtime_baseline[2] = axes[2];
+        flat_seen = true;
+    }
+    bool departed = abs((int)(x - runtime_baseline[0])) > 6000 ||
+        abs((int)(y - runtime_baseline[1])) > 6000 ||
+        abs((int)(z - runtime_baseline[2])) > 6000;
+    /* The confirmed wrist pose is the short edge down, screen facing the user: -X. */
+    bool vertical = x < -12000 && abs((int)y) < 8000 && abs((int)z) < 7000;
+    if (!flat_seen || !departed) {
+        runtime_candidate_started = 0;
+        return false;
+    }
+    if (!vertical) {
+        runtime_candidate_started = 0;
+        return false;
+    }
+    if (!runtime_candidate_started) {
+        runtime_candidate_started = now;
+        rt_kprintf("[imu-c2] wrist wake candidate raw=%d,%d,%d\n", axes[0], axes[1], axes[2]);
+        return false;
+    }
+    if (now - runtime_candidate_started < rt_tick_from_millisecond(500)) return false;
+    rt_kprintf("[imu-c2] wrist wake trigger raw=%d,%d,%d hold_ms=%u\n",
+        axes[0], axes[1], axes[2], (unsigned)((now - runtime_candidate_started) * 1000u / RT_TICK_PER_SECOND));
+    runtime_armed = false;
+    runtime_scan_started = 0;
+    stop_sensor();
+    wristflow_product_event_send(WF_EVENT_IMU_WAKE);
+    return true;
+}
+
 static void worker(void *context)
 {
     (void)context;
     for (;;) {
         rt_uint32_t event = 0;
-        rt_event_recv(&work, EV_ALL, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, RT_WAITING_FOREVER, &event);
+        rt_int32_t wait = runtime_scan_started ? (rt_int32_t)rt_tick_from_millisecond(40) : RT_WAITING_FOREVER;
+        rt_event_recv(&work, EV_ALL, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, wait, &event);
         rt_base_t level = rt_hw_interrupt_disable();
         enum command cmd = requested;
         unsigned count = requested_count;
         bool execute = (event & EV_COMMAND) && pending;
         if (execute) { pending = false; busy = true; }
+        bool runtime_change = (event & EV_RUNTIME) != 0;
+        bool want_runtime = runtime_requested;
         rt_hw_interrupt_enable(level);
+        rt_pm_request(PM_SLEEP_MODE_IDLE);
+        if (runtime_change) {
+            if (want_runtime) (void)runtime_start();
+            else {
+                runtime_armed = false;
+                runtime_scan_started = 0;
+                runtime_candidate_started = 0;
+                stop_sensor();
+            }
+        }
+        if ((event & EV_IRQ) && runtime_armed &&
+            read_register(NULL, WF_IMU_FUNC, &last_source, 1) &&
+            (last_source & 0x20) && !runtime_scan_started)
+            runtime_scan_started = rt_tick_get();
+        if (runtime_scan_started && runtime_armed) (void)runtime_sample();
+        rt_pm_release(PM_SLEEP_MODE_IDLE);
+        if (execute && runtime_armed) {
+            rt_kprintf("[imu-c2] diagnostic rejected: wrist wake active; wf_imu stop first\n");
+            execute = false;
+        }
         if (execute && !(event & EV_STOP) && cmd != CMD_PROBE) experiment(cmd, count);
         rt_pm_request(PM_SLEEP_MODE_IDLE);
         if (execute && !(event & EV_STOP) && cmd == CMD_PROBE) { probe(); report(); }
-        if (event & EV_STOP) stop_sensor();
+        if (event & EV_STOP) {
+            runtime_armed = false;
+            runtime_scan_started = 0;
+            runtime_candidate_started = 0;
+            stop_sensor();
+        }
         if (event & EV_STATUS) report();
         rt_pm_release(PM_SLEEP_MODE_IDLE);
         level = rt_hw_interrupt_disable();
         busy = false;
         rt_hw_interrupt_enable(level);
     }
+}
+
+void wristflow_product_imu_wrist_wake(bool enabled)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    bool changed = runtime_requested != enabled;
+    runtime_requested = enabled;
+    if (ready && changed) (void)rt_event_send(&work, EV_RUNTIME);
+    rt_hw_interrupt_enable(level);
 }
 
 void wristflow_product_imu_start(void)
@@ -273,4 +397,4 @@ static int wf_imu(int argc, char **argv)
     rt_hw_interrupt_enable(level);
     return rt_event_send(&work, EV_COMMAND);
 }
-MSH_CMD_EXPORT(wf_imu, Bounded IMU C1 diagnostics without display wake);
+MSH_CMD_EXPORT(wf_imu, Bounded IMU diagnostics and C2 wrist wake);
