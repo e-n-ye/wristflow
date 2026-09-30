@@ -1,6 +1,6 @@
 # IMU 与翻腕亮屏
 
-2026-09-28，范围经 Q1–Q9 确认。当前为 C2 源码与构建验证阶段，实板触发行为仍待新版镜像复测。分支 `codex/imu-wrist-wake` 从 `main 5c0b82c` 建立，工作树为 `C:/Users/13984/.codex/worktrees/imu-wrist-wake/wristflow`。
+2026-09-30，范围经 Q1–Q9 确认。C2 手持实板触发验收已完成；变暗恢复的主观灵敏度和速度问题保留为体验优化项。分支 `codex/imu-wrist-wake` 从 `main 5c0b82c` 建立，工作树为 `C:/Users/13984/.codex/worktrees/imu-wrist-wake/wristflow`。
 
 ## 前置核对
 
