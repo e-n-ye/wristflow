@@ -1,5 +1,17 @@
 # 可复现构建基线
 
+## 2026-09-30 IMU C2 实板验收
+
+本轮 `codex/imu-wrist-wake` 在锁定 SDK（commit `421126d9f476ed8e2a6f0b0ca28a9f241c182e65`）上完成 `cmake --build artifacts/host-c2 --parallel 6`、`ctest --test-dir artifacts/host-c2 --output-on-failure --timeout 60`，16/16 通过。Product 使用 `pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/build-isolated.ps1 -Example product`，实际执行 `scons --board=sf32lb52-lchspi-ulp -j6`，退出 0、产物校验通过，记录为 `artifacts/product/20260930-134137-086/result.json`；UI Demo 同命令 `-Example ui_demo` 退出 0、产物校验通过，记录为 `artifacts/ui_demo/20260930-135419-156/result.json`。Product 主 BIN 7,434,068 B，SHA-256 `5ec759824d3ec167d1d86d2b7499eec97c7c4731334cb19cb85b15381ea4ff6e`；UI Demo 主 BIN 7,237,336 B，SHA-256 `2238e2e3e3166f765cf187481885bbfc8afb2771b62d7b08b2d772aa4ceb24c6`。SDK/子模块未改，`hardware_verified=false` 表示构建记录未自报硬件通过，不能替代串口证据。
+
+Product 三镜像在同一块仅 USB 供电的黄山派上由 COM5 以 sftool 0.2.5 `write_flash --verify` 写入成功；采集使用 1,000,000 8N1、无流控、RTS 150 ms 复位、无串口命令，原始记录为 `artifacts/hardware/imu-c2-20260930/run-20260930-135128-466243/`。用户完成 10/10 负 X 翻腕亮屏、10 次干扰 0 次误亮屏、关闭开关反例、变暗提亮和正常亮屏时序对照。详细动作观察、灵敏度反馈和未覆盖的电流/续航/佩戴识别率见 [IMU 专题](IMU-WRIST-WAKE.md)。构建脚本本身仍不烧录。
+
+## 2026-09-28 IMU C1 诊断
+
+首轮上板发现 KEY1 恢复故障后，新增只读按键/GPIO/AON 诊断。20:35 的 Product 构建和全部 290 个工程源哈希校验通过，主 BIN 7,432,436 B，三镜像已写入/verify；一次 GPIO 寄存器结构成员名错误已修正并重编译。续测确认息屏 IMU arm 期间 22 次 `src=0x20` tilt IRQ，KEY1 在 arm 期间及自动停止后均能恢复亮屏；此前异常未复现，根因未知。C1 的 IMU/PM/KEY1 核心路径已取得证据，BLE 通知恢复仍待补测，不能把本轮记作完整 C1 验收。完整现场摘要见 [诊断版记录](evidence/2026-09-28/imu-c1-key-diagnostic.json)。
+
+`codex/imu-wrist-wake` 的 C1 新增 I2C3、限次采样和 PA31/AON 倾斜中断诊断。最终 `pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/build-isolated.ps1 -Example product` 构建/产物校验通过，290 个工程源哈希匹配；`cmake --build artifacts/host-imu-c1 --parallel 6` 与 `ctest --test-dir artifacts/host-imu-c1 --output-on-failure --timeout 60` 均退出 0，16/16 通过，322 个主机相关源文件测试前后未变。SDK 和子模块继续锁定且源码干净，公共构建入口、UI 资源和分区不变。命令、工具版本、三镜像及告警见 [IMU 专题](IMU-WRIST-WAKE.md) 和 [精简证据](evidence/2026-09-28/imu-c1-local.json)。本版本未烧录；不能将编译或旧 BLE/PM 硬件证据算作 C1 中断已通过。
+
 ## 2026-09-27 PR 收尾与 Windows 模拟器
 
 第三次基线 [36320503029](https://github.com/e-n-ye/wristflow/actions/runs/36320503029) 对应 `04aacd64838f39c72eca54d8983307666062fdb5`。五个固件目标已通过，主机已编译完成，但 CTest 停在第六项 `component_layout`；本轮接手后取消该运行，不能把等待描述为仍在编译。原始日志保留于 `C:/Users/13984/.codex/worktrees/ble-first-link/wristflow/artifacts/ci-hang/original-cloud.log`。

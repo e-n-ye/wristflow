@@ -1,0 +1,90 @@
+{
+  "date": "2026-09-28T16:17:03.0136478+08:00",
+  "worktree": "C:/Users/13984/.codex/worktrees/imu-wrist-wake/wristflow",
+  "branch": "codex/imu-wrist-wake",
+  "base_commit": "5c0b82c02cf8f80168b076b0f76e2514a1867042",
+  "source_review": "Register map, I2C return semantics, GPIO/AON and PM lifecycle reviewed; wake-disable failures now reported and reject subsequent experiment until re-probe.",
+  "product": {
+    "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/build-isolated.ps1 -Example product",
+    "scons_command": "scons --board=sf32lb52-lchspi-ulp -j6",
+    "exit_code": 0,
+    "artifact_validation_passed": true,
+    "result": "artifacts/product/20260928-161628-226/result.json",
+    "source_count": 290,
+    "all_source_hashes_matched": true,
+    "source_manifest_sha256": "a5a485629057bf54c28b69df0285286559d69dbe935a5a9939961ac9a1b9b73a",
+    "imu_sources": {
+      "apps/product/project/proj.conf": "97b9f230b2f2e9a045d7f8dcc3e26a3b58a3e54f8c2f5349a32dd6906b923115",
+      "apps/product/src/imu_device.c": "7d8f5699ce96d66a7c6194c91367d5b68eba00968b1d57a5b3ff17e9c6f9301e",
+      "apps/product/src/imu_device.h": "6f785ba69342049de6da0c3b0aa0de821c5e287ef0532f42c0cee8239ae96095",
+      "apps/product/src/main.c": "4681706cdc41415b2e38265ef5a5d4714153aafdbe576ef306f2447aa536530a",
+      "apps/product/src/phone_protocol.c": "ecb1050b453310ea9e331ad34fa06f1f665c89051201d32791efd8bdad6d845f",
+      "apps/product/src/phone_protocol.h": "f52de149b21fc52c2f1c65f8c26e4d1fee4d36de2c3fd15c584836d51521ca73",
+      "apps/product/src/product_ble.c": "953a3fb26aa6ec947d64989e4b5145b2e16c4b39e186b387e5c5f0a4b51769a5",
+      "apps/product/src/product_ble.h": "0a96d9c6eedb436ded49973348fb9507a7a9d1e049fe18b958eeb6a465a27ae6",
+      "apps/product/src/product_imu.c": "4665ef61039f6e5490b19f18a90b23d13315a3cca5d971f3b402ffdf9d684fef",
+      "apps/product/src/product_imu.h": "cba9fec70b5eede33482f317efecfce152b37d8c530a941618d1f3befd040f83",
+      "apps/product/src/product_pm.c": "e6ed0961f2c7cb73995984e519db6889021ce31bf3dcf6ffa0c53474bb17b26d",
+      "apps/product/src/product_pm.h": "c68fb967652a4b7a722dc09d2c3a08d900a78879802eb3b7f8062a441feb3f14",
+      "apps/product/src/product_services.c": "435854eb068d61890f8823ef35f43ef9db304acbb0c17a8764b66288b74cd76d",
+      "apps/product/src/product_services.h": "3204bf6074ddcbb6d114004f1cf14d3b4d2ecee9a7be02486c861d5c1081a931",
+      "apps/product/src/product_ui.c": "84d789a117667d6e50b62587435d50eb18d75335d6fdb791ba801fd798a6e611",
+      "apps/product/src/product_ui.h": "1b32f6382147156eef4be850b219652693a45dbcac5e3cee254391238533920b",
+      "apps/product/src/SConscript": "8607db513ac8790ea33e4a6f4d01c512bbcfea1cddb48ba2af96ec6cfaa67a88"
+    },
+    "images": [
+      {
+        "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+        "address": "0x12010000",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+        "address": "0x12020000",
+        "bytes": 7431824,
+        "sha256": "b4656248ec75474f6d4af098a85212a075187619e3140dcab02fb0ea1081c0b9"
+      },
+      {
+        "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+        "address": "0x12000000",
+        "bytes": 11288,
+        "sha256": "fc96fbac7c076d77b13ba8719342688398f84d4ebd5538029e46b2c9d56ae6c1"
+      }
+    ]
+  },
+  "host": {
+    "configure": "cmake -S tests -B artifacts/host-imu-c1 -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe -DCMAKE_MAKE_PROGRAM=D:/msys64/ucrt64/bin/ninja.exe -DWRISTFLOW_BUILD_SIMULATOR=ON",
+    "build": "cmake --build artifacts/host-imu-c1 --parallel 6",
+    "test": "ctest --test-dir artifacts/host-imu-c1 --output-on-failure --timeout 60",
+    "exit_code": 0,
+    "passed": 16,
+    "total": 16,
+    "source_count": 322,
+    "source_snapshot_unchanged": true,
+    "source_manifest_sha256": "3fdbba37ab5f681aa0369f6df119b55a4f6ae138f61f4e9818541a344ab68212",
+    "log": "artifacts/imu-c1-resume-verification/host-ctest-final.log"
+  },
+  "versions": {
+    "sdk": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "submodules": [
+      " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+      " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+    ],
+    "python": "Python 3.13.15",
+    "arm_compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+    "scons": "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+    "host_compiler": "gcc.exe (Rev13, Built by MSYS2 project) 15.2.0"
+  },
+  "sdk_changes": [],
+  "hardware_verified": false,
+  "cloud_baseline": "Not run for this C1 draft; required latest-HEAD build remains pending before merge under continuation instructions.",
+  "remaining": [
+    "Board identity and axis mapping",
+    "PA31 tilt IRQ with screen lit and off",
+    "Register retention and bounded cleanup after PM",
+    "KEY1 and BLE recovery",
+    "C2 wrist policy and held-action acceptance after C1 passes",
+    "Current and battery life unmeasured"
+  ]
+}
