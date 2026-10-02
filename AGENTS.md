@@ -12,3 +12,4 @@
 - Do not batch-delete files or directories. Preserve incomplete downloads and existing user work.
 - Subagents are read-only researchers/reviewers. The primary agent makes edits and final decisions.
 - Follow CONTRIBUTING.md: use a focused codex/ branch, validate the affected behavior locally, and review a PR before merging. Cloud baselines are manual checks for SDK/toolchain changes and milestones, not a required wait for daily PRs. Do not push routine changes directly to main or force-push.
+- The primary agent owns PR closure: merge a ready, reviewed PR with Rebase and merge, read back MERGED and its merge commit, then fetch and confirm origin/main contains the change. Creating a PR alone does not complete delivery. For a draft, failed validation or other concrete blocker, record the exact version, reason and next action; do not claim the change is integrated.
