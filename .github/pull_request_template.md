@@ -13,3 +13,13 @@ Describe the problem and resulting behavior.
 ## Remaining Work
 
 Known risks and the next bounded experiment.
+
+## Closure
+
+Complete this section after review and merge, in this PR description or the final handoff. Opening the PR alone is not completion.
+
+- Reviewed head and validation scope:
+- Merge blocker, if any (version, reason and next action):
+- GitHub readback: MERGED, mergedAt and mergeCommit:
+- After fetch: origin/main contains the merge commit and expected changes:
+- Hardware acceptance still pending:
