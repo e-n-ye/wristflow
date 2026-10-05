@@ -5,12 +5,13 @@
 #include <stdlib.h>
 
 static wf_phone_t phone;
-static unsigned time_events, gps_events;
+static unsigned time_events, gps_events, weather_events;
 static void observed(wf_phone_event_t e, int32_t id, void *context)
 {
     (void)id; (void)context;
     if (e == WF_PHONE_TIME) ++time_events;
     if (e == WF_PHONE_GPS_QUERY) ++gps_events;
+    if (e == WF_PHONE_WEATHER) ++weather_events;
 }
 static void feed(const char *s) { wf_phone_feed(&phone, (const uint8_t *)s, strlen(s)); }
 static const char notice[] = "\x10GB({\"t\":\"notify\",\"id\":-42,\"src\":\"Test\",\"title\":\"\\u4e2d\\u6587\",\"body\":\"\\u6d4b\\u8bd5\\n\\ud83d\\ude42\"})\n";
@@ -42,7 +43,36 @@ int main(void)
     feed("setTime(0);\nsetTime(1790481600.5);\nsetTime(-1);\n");
     assert(time_events == 1);
     feed("GB({\"t\":\"is_gps_active\"})\n"); assert(gps_events == 1);
-    feed("GB({\"t\":\"weather\",\"temp\":22})\n"); assert(phone.unknown == 1);
+
+    /* Weather tests */
+    feed("GB({\"t\":\"weather\",\"temp\":295.15,\"hum\":65,\"wind\":\"3.5 km/h\",\"loc\":\"\\u676d\\u5dde\",\"txt\":\"\\u6674\",\"code\":800})\n");
+    assert(weather_events == 1 && phone.has_weather);
+    assert(phone.weather.temp == 22); /* 295.15 K - 273.15 = 22 C */
+    assert(phone.weather.humidity == 65);
+    assert(phone.weather.code == 800);
+    assert(!strcmp(phone.weather.city, "\xe6\x9d\xad\xe5\xb7\x9e"));
+    assert(!strcmp(phone.weather.condition, "\xe6\x99\xb4"));
+    assert(!strcmp(phone.weather.wind, "3.5 km/h"));
+
+    /* Celsius direct feed & numeric wind */
+    feed("GB({\"t\":\"weather\",\"temp\":18.4,\"hum\":80,\"wind\":12,\"loc\":\"Shanghai\",\"txt\":\"Clouds\",\"code\":802})\n");
+    assert(weather_events == 2 && phone.weather.temp == 18);
+    assert(phone.weather.humidity == 80);
+    assert(phone.weather.code == 802);
+    assert(!strcmp(phone.weather.wind, "12 km/h"));
+    assert(!strcmp(phone.weather.city, "Shanghai"));
+
+    /* Raw UTF-8 Chinese characters directly in feed */
+    feed("GB({\"t\":\"weather\",\"temp\":25.0,\"hum\":60,\"wind\":\"10 km/h\",\"loc\":\"杭州市\",\"txt\":\"晴\",\"code\":800})\n");
+    assert(weather_events == 3 && phone.weather.temp == 25);
+    assert(!strcmp(phone.weather.city, "杭州市"));
+    assert(!strcmp(phone.weather.condition, "晴"));
+
+    /* Malformed weather without temp fails gracefully */
+    unsigned prev_rejected = phone.rejected;
+    feed("GB({\"t\":\"weather\",\"loc\":\"Beijing\"})\n");
+    assert(phone.rejected == prev_rejected + 1);
+
 
     feed(notice);
     const char *bad[] = {

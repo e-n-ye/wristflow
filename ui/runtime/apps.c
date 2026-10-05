@@ -3,8 +3,10 @@
 #include "app_registry.h"
 #include "settings_view.h"
 #include "wristflow_ui.h"
+#include "weather_screen.h"
 #include <stdint.h>
 #include <string.h>
+#include <stdio.h>
 
 struct wristflow_apps {
     wristflow_ui_shell_t *shell;
@@ -558,6 +560,10 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         sync_menu_layout(apps);
     } else if (surface == WRISTFLOW_SURFACE_WEATHER) {
         /* Weather owns its full-screen fixture and intentionally has no common app header. */
+        char time_str[8];
+        if (apps->snapshot.time_unavailable) snprintf(time_str, sizeof time_str, "--:--");
+        else snprintf(time_str, sizeof time_str, "%02u:%02u", apps->snapshot.hour_24, apps->snapshot.minute);
+        wristflow_weather_screen_set_time(root, time_str);
     } else {
         lv_label_set_text(named(root, "app_title"), app->title);
         lv_label_set_text(named(root, "placeholder_icon"), app->icon);
@@ -621,6 +627,12 @@ void wristflow_apps_update(wristflow_apps_t *apps, const wristflow_watch_snapsho
     if (apps->active == WRISTFLOW_SURFACE_STOPWATCH && apps->stopwatch.running) {
         wristflow_stopwatch_update(&apps->stopwatch, lv_tick_get());
         render_stopwatch(apps);
+    }
+    if (apps->screens[WRISTFLOW_SURFACE_WEATHER]) {
+        char time_str[8];
+        if (snapshot->time_unavailable) snprintf(time_str, sizeof time_str, "--:--");
+        else snprintf(time_str, sizeof time_str, "%02u:%02u", snapshot->hour_24, snapshot->minute);
+        wristflow_weather_screen_set_time(apps->screens[WRISTFLOW_SURFACE_WEATHER], time_str);
     }
     sync_brightness(apps);
     if (apps->product_mode) {

@@ -10,5 +10,9 @@ void wristflow_weather_screen_set_state(lv_obj_t *screen, wristflow_weather_stat
 bool wristflow_weather_screen_is_horizontal(lv_obj_t *screen);
 /* Horizontal forecast content owns rightward drags in its content band. */
 bool wristflow_weather_screen_edge_back_allowed(lv_obj_t *screen, lv_point_t origin);
+bool wristflow_weather_request_sync(void);
+void wristflow_weather_screen_refresh(lv_obj_t *screen);
+void wristflow_weather_screen_set_time(lv_obj_t *screen, const char *time_str);
 
 #endif
+

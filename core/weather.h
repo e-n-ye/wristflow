@@ -57,6 +57,22 @@ typedef struct {
     char message[32];
 } wristflow_weather_data_t;
 
+typedef struct {
+    char city[16];
+    int8_t temp;          /* Celsius */
+    int16_t code;         /* OWM weather code e.g. 800, or -1 if unknown */
+    char condition[16];   /* text description e.g. "晴", "多云", "Rain" */
+    uint8_t humidity;     /* % e.g. 65 */
+    char wind[12];        /* wind description e.g. "3m/s" or "3级" */
+    uint32_t timestamp;   /* UTC timestamp in seconds */
+} wristflow_phone_weather_t;
+
+void wristflow_weather_reset(void);
+void wristflow_weather_update(const wristflow_phone_weather_t *update);
+bool wristflow_weather_get_current(wristflow_weather_data_t *data, wristflow_weather_state_t *state, uint32_t now_utc);
+wristflow_weather_fixture_t wristflow_weather_determine_fixture(int16_t code, const char *txt);
+bool wristflow_weather_has_data(void);
+
 /* Deterministic local fixture until the phone weather provider is connected. */
 bool wristflow_weather_provider_read(wristflow_weather_state_t state,
                                       wristflow_weather_data_t *data);

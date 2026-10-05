@@ -73,10 +73,121 @@ bool wristflow_weather_provider_read_fixture(wristflow_weather_state_t state,
     return true;
 }
 
+static struct {
+    bool has_data;
+    wristflow_weather_state_t state;
+    wristflow_phone_weather_t current;
+} g_weather = {0};
+
+static bool contains_ignore_case(const char *haystack, const char *needle)
+{
+    if (!haystack || !needle) return false;
+    size_t nlen = strlen(needle);
+    for (; *haystack; ++haystack) {
+        size_t i;
+        for (i = 0; i < nlen; ++i) {
+            char h = haystack[i];
+            char n = needle[i];
+            if (h >= 'A' && h <= 'Z') h += ('a' - 'A');
+            if (n >= 'A' && n <= 'Z') n += ('a' - 'A');
+            if (h != n) break;
+        }
+        if (i == nlen) return true;
+    }
+    return false;
+}
+
+wristflow_weather_fixture_t wristflow_weather_determine_fixture(int16_t code, const char *txt)
+{
+    if (code == 800) return WRISTFLOW_WEATHER_FIXTURE_SUNNY;
+    if (code >= 200 && code < 900 && code != 800) return WRISTFLOW_WEATHER_FIXTURE_CLOUDY;
+    if (txt) {
+        if (strstr(txt, "晴") != NULL || contains_ignore_case(txt, "clear") || contains_ignore_case(txt, "sun"))
+            return WRISTFLOW_WEATHER_FIXTURE_SUNNY;
+    }
+    return WRISTFLOW_WEATHER_FIXTURE_CLOUDY;
+}
+
+void wristflow_weather_reset(void)
+{
+    memset(&g_weather, 0, sizeof g_weather);
+}
+
+bool wristflow_weather_has_data(void)
+{
+    return g_weather.has_data;
+}
+
+void wristflow_weather_update(const wristflow_phone_weather_t *update)
+{
+    if (!update) return;
+    g_weather.current = *update;
+    g_weather.has_data = true;
+    g_weather.state = WRISTFLOW_WEATHER_READY;
+}
+
+bool wristflow_weather_get_current(wristflow_weather_data_t *data, wristflow_weather_state_t *state, uint32_t now_utc)
+{
+    if (!data) return false;
+    memset(data, 0, sizeof *data);
+    if (!g_weather.has_data) {
+        if (state) *state = WRISTFLOW_WEATHER_EMPTY;
+        snprintf(data->message, sizeof data->message, "%s", wristflow_weather_state_message(WRISTFLOW_WEATHER_EMPTY));
+        return false;
+    }
+    if (state) *state = g_weather.state;
+    snprintf(data->city, sizeof data->city, "%s", g_weather.current.city[0] ? g_weather.current.city : "未知城市");
+    data->temperature = g_weather.current.temp;
+    data->high = g_weather.current.temp;
+    data->low = g_weather.current.temp;
+    if (g_weather.current.condition[0]) {
+        snprintf(data->condition, sizeof data->condition, "%s", g_weather.current.condition);
+    } else {
+        snprintf(data->condition, sizeof data->condition, "%s", g_weather.current.code == 800 ? "晴" : "多云");
+    }
+    data->fixture = wristflow_weather_determine_fixture(g_weather.current.code, data->condition);
+
+    if (now_utc > 0 && g_weather.current.timestamp > 0 && now_utc >= g_weather.current.timestamp + 10800) {
+        unsigned hours = (now_utc - g_weather.current.timestamp) / 3600;
+        snprintf(data->updated, sizeof data->updated, "%u小时前更新", hours);
+    } else {
+        snprintf(data->updated, sizeof data->updated, "刚刚更新");
+    }
+
+    snprintf(data->indices[0].value, sizeof data->indices[0].value, "--");
+    snprintf(data->indices[0].label, sizeof data->indices[0].label, "空气质量");
+    snprintf(data->indices[1].value, sizeof data->indices[1].value, "%u%%", g_weather.current.humidity);
+    snprintf(data->indices[1].label, sizeof data->indices[1].label, "相对湿度");
+    char wind_val[16] = "--";
+    if (g_weather.current.wind[0]) {
+        unsigned w_idx = 0;
+        for (const char *wp = g_weather.current.wind; *wp && w_idx + 1 < sizeof wind_val; ++wp) {
+            if ((*wp >= '0' && *wp <= '9') || *wp == '.') {
+                wind_val[w_idx++] = *wp;
+            } else if (w_idx > 0) {
+                break;
+            }
+        }
+        wind_val[w_idx] = 0;
+        if (w_idx == 0) snprintf(wind_val, sizeof wind_val, "%s", g_weather.current.wind);
+    }
+    snprintf(data->indices[2].value, sizeof data->indices[2].value, "%s", wind_val);
+    snprintf(data->indices[2].label, sizeof data->indices[2].label, "风力");
+    snprintf(data->indices[3].value, sizeof data->indices[3].value, "--");
+    snprintf(data->indices[3].label, sizeof data->indices[3].label, "紫外线指数");
+    snprintf(data->sunrise, sizeof data->sunrise, "06:00");
+    snprintf(data->sunset, sizeof data->sunset, "18:00");
+    return true;
+}
+
 bool wristflow_weather_provider_read(wristflow_weather_state_t state,
                                       wristflow_weather_data_t *data)
 {
+    if (g_weather.has_data && state == WRISTFLOW_WEATHER_READY) {
+        return wristflow_weather_get_current(data, &state, 0);
+    }
     return wristflow_weather_provider_read_fixture(state,
                                                    WRISTFLOW_WEATHER_FIXTURE_CLOUDY,
                                                    data);
 }
+

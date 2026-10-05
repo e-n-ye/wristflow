@@ -160,7 +160,7 @@ static void page_header(lv_obj_t *page, const char *title_name, const char *titl
                         const char *clock_name)
 {
     label(page, title_name, 24, 24, 220, 34, title, notification_22, FG_PRIMARY, LV_TEXT_ALIGN_LEFT);
-    label(page, clock_name, 296, 26, 70, 30, "15:00", body_20, FG_PRIMARY, LV_TEXT_ALIGN_RIGHT);
+    label(page, clock_name, 296, 26, 70, 30, "--:--", body_20, FG_PRIMARY, LV_TEXT_ALIGN_RIGHT);
 }
 
 static void render_hour_page(weather_view_t *view, lv_obj_t *page, unsigned page_index)
@@ -240,12 +240,22 @@ static weather_view_t *view_from(lv_obj_t *root)
     return root ? (weather_view_t *)lv_obj_get_user_data(root) : NULL;
 }
 
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((weak))
+#endif
+bool wristflow_weather_request_sync(void)
+{
+    return false;
+}
+
 static void retry(lv_event_t *event)
 {
     weather_view_t *view = lv_event_get_user_data(event);
     if (!view) return;
+    wristflow_weather_request_sync();
     wristflow_weather_screen_set_state(view->root, WRISTFLOW_WEATHER_READY);
 }
+
 
 static void scroll_begin(lv_event_t *event)
 {
@@ -460,8 +470,39 @@ lv_obj_t *screen_weather_create_with_fixture(wristflow_weather_fixture_t fixture
     return root;
 }
 
+void wristflow_weather_screen_refresh(lv_obj_t *screen)
+{
+    weather_view_t *view = view_from(screen);
+    if (!view) return;
+    if (wristflow_weather_has_data()) {
+        wristflow_weather_get_current(&view->data, &view->state, 0);
+        view->fixture = view->data.fixture;
+        view->background = weather_background(view->fixture);
+        lv_obj_set_style_bg_color(view->root, view->background, 0);
+        render_state(view);
+    }
+}
+
+void wristflow_weather_screen_set_time(lv_obj_t *screen, const char *time_str)
+{
+    if (!screen || !time_str) return;
+    set_text(screen, "weather_hourly_clock", time_str);
+    set_text(screen, "weather_daily_clock", time_str);
+    set_text(screen, "weather_indices_clock", time_str);
+    set_text(screen, "weather_sun_clock", time_str);
+}
+
 lv_obj_t *screen_weather_create(void)
 {
+    if (wristflow_weather_has_data()) {
+        wristflow_weather_data_t data;
+        wristflow_weather_state_t state;
+        wristflow_weather_get_current(&data, &state, 0);
+        lv_obj_t *screen = screen_weather_create_with_fixture(data.fixture);
+        wristflow_weather_screen_refresh(screen);
+        return screen;
+    }
+    wristflow_weather_request_sync();
     return screen_weather_create_with_fixture(WRISTFLOW_WEATHER_FIXTURE_CLOUDY);
 }
 
@@ -470,9 +511,14 @@ void wristflow_weather_screen_set_state(lv_obj_t *screen, wristflow_weather_stat
     weather_view_t *view = view_from(screen);
     if (!view || state > WRISTFLOW_WEATHER_ERROR) return;
     view->state = state;
-    wristflow_weather_provider_read_fixture(state, view->fixture, &view->data);
+    if (wristflow_weather_has_data() && state == WRISTFLOW_WEATHER_READY) {
+        wristflow_weather_get_current(&view->data, &view->state, 0);
+    } else {
+        wristflow_weather_provider_read_fixture(state, view->fixture, &view->data);
+    }
     render_state(view);
 }
+
 
 bool wristflow_weather_screen_is_horizontal(lv_obj_t *screen)
 {
