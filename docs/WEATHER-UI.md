@@ -72,9 +72,10 @@
   - 在 `apps/product/src/product_ble.c` 的 BLE 订阅事件（`PACKET_SUBSCRIBE && subscribed`）中，在发送版本号之后自动向手机 NUS 队列追加发送 `\n{"t":"weather"}\n` 报文，并在建立连接时自动调用 `wristflow_weather_reset()` 清空此前调试遗留的 Mock 数据，以便及时接收并呈现手机真实下发的实时天气。
   - 在串口调试命令 `wf_ble` 中新增 `clear_weather` 子命令，支持随时手动重置天气缓存并触发主界面刷新。
   - 在 `apps/product/src/main.c` 的 `WF_EVENT_PHONE` 事件中补充即时刷新 shell 快照（`wristflow_ui_shell_update`），使天气更新或重置时主页卡片无延迟实时刷新。
-- **验证结论**：
+- **验证结论与真机确认（2026-10-05 18:43）**：
   - 主机 CTest 16/16 全部 PASS；
   - Product 固件编译成功（`main.bin` 7,614,596 B，构建产物见 `artifacts/product/20261005-182943-624`）；
-  - 待用户进行真机烧录复验。
+  - **真机验收通过**：用户现场实机观察复核确认，主页天气卡片副标题中的缺字方块 `[]` 已彻底解决，动态汉字显示完整，排版无异常；
+  - **当前待闭环项**：真实所在地天气同步联调（排查 Gadgetbridge 手机端天气数据源下发链路）。
 
 
