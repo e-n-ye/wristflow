@@ -82,6 +82,9 @@ static void paint(lv_obj_t *card, const wristflow_component_t *component,
         component->variant ? lv_color_white() : lv_color_hex(0xa7adb5), 0);
     lv_obj_t *detail = lv_obj_find_by_name(card, "detail_label");
     if (detail) {
+        if (!strcmp(app->id, "weather") && notification_22) {
+            lv_obj_set_style_text_font(detail, notification_22, 0);
+        }
         lv_label_set_text(detail, data.reason);
         lv_obj_set_style_text_color(detail, component->variant ? lv_color_white() : lv_color_hex(0xa7adb5), 0);
     }

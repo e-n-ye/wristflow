@@ -176,8 +176,12 @@ static void worker(void *context)
         rt_mutex_release(&phone_lock);
         if (p.kind == PACKET_LINK || p.kind == PACKET_SUBSCRIBE) wristflow_product_event_send(WF_EVENT_PHONE);
         if (p.generation != generation) continue;
-        if (p.kind == PACKET_SUBSCRIBE && subscribed)
+        if (p.kind == PACKET_SUBSCRIBE && subscribed) {
+            wristflow_weather_reset();
             transmit("\n{\"t\":\"ver\",\"fw\":\"WristFlow Notify B1\",\"hw\":\"Huangshan\"}\n", peer);
+            transmit("\n{\"t\":\"weather\"}\n", peer);
+            rt_kprintf("[ble] subscribed: reset weather cache and requested weather from phone\n");
+        }
         if (p.kind == PACKET_TX_WEATHER_REQ && subscribed)
             transmit("\n{\"t\":\"weather\"}\n", peer);
         if (reply) transmit("\n{\"t\":\"gps_power\",\"status\":false}\n", peer);
@@ -260,12 +264,15 @@ bool wristflow_product_ble_request_weather(void)
 static int wf_ble(int argc, char **argv)
 {
     if (!ready) return -RT_ERROR;
-    if (argc < 2) { rt_kprintf("wf_ble status | list | clear | weather | mock_weather | remove <id>\n"); return -RT_EINVAL; }
+    if (argc < 2) { rt_kprintf("wf_ble status | list | clear | clear_weather | weather | mock_weather | remove <id>\n"); return -RT_EINVAL; }
     rt_mutex_take(&phone_lock, RT_WAITING_FOREVER);
     int result = RT_EOK;
     if (!strcmp(argv[1], "weather")) {
         bool sent = wristflow_product_ble_request_weather();
         rt_kprintf("[ble] weather request queued=%u\n", sent);
+    } else if (!strcmp(argv[1], "clear_weather")) {
+        wristflow_weather_reset();
+        rt_kprintf("[ble] cleared weather cache\n");
     } else if (!strcmp(argv[1], "mock_weather")) {
         const char *sample = "\nGB({\"t\":\"weather\",\"temp\":298.15,\"txt\":\"晴\",\"loc\":\"杭州市\",\"code\":800,\"hum\":65,\"wind\":\"12km/h\"})\n";
         wf_phone_feed(&phone, (const uint8_t *)sample, strlen(sample));

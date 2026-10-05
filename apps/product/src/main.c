@@ -192,6 +192,8 @@ int main(void)
         if (events & WF_EVENT_PM_SAMPLE) wristflow_product_pm_report();
         if (events & WF_EVENT_PHONE) {
             sync_notifications();
+            snapshot = wristflow_product_services_snapshot();
+            wristflow_ui_shell_update(shell, &snapshot);
             lv_obj_t *active = lv_screen_active();
             if (active && lv_obj_get_name(active) && !strcmp(lv_obj_get_name(active), "screen_weather")) {
                 wristflow_weather_screen_refresh(active);
