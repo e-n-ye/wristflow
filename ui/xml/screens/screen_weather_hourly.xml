@@ -1,0 +1,40 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#weather_cloudy" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0">
+        <lv_label name="weather_hourly_title" x="24" y="24" width="220" height="34" text="天气预测" style_text_font="notification_22" style_text_color="#fg_primary" />
+        <lv_label name="weather_hourly_clock" x="296" y="26" width="70" height="30" text="15:00" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="right" />
+        <lv_obj name="weather_hourly_content" x="0" y="76" width="390" height="320" scrollable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0">
+            <lv_label name="hour_1_time" x="10" y="18" width="92" height="30" text="15:00" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_1_temp" x="10" y="68" width="92" height="42" text="30°" style_text_font="title_24" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_1_icon" x="10" y="120" width="92" height="48" text="&#xf0c2;" style_text_font="icons_44" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_1_wind_icon" x="10" y="176" width="92" height="26" text="&#xf798;" style_text_font="icons_20" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_1_wind" x="10" y="204" width="92" height="30" text="东南风" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_1_air" x="10" y="258" width="92" height="30" text="优" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_2_time" x="106" y="18" width="92" height="30" text="16:00" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_2_temp" x="106" y="68" width="92" height="42" text="29°" style_text_font="title_24" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_2_icon" x="106" y="120" width="92" height="48" text="&#xf0c2;" style_text_font="icons_44" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_2_wind_icon" x="106" y="176" width="92" height="26" text="&#xf798;" style_text_font="icons_20" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_2_wind" x="106" y="204" width="92" height="30" text="东南风" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_2_air" x="106" y="258" width="92" height="30" text="优" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_3_time" x="202" y="18" width="92" height="30" text="17:00" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_3_temp" x="202" y="68" width="92" height="42" text="28°" style_text_font="title_24" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_3_icon" x="202" y="120" width="92" height="48" text="&#xf0c2;" style_text_font="icons_44" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_3_wind_icon" x="202" y="176" width="92" height="26" text="&#xf798;" style_text_font="icons_20" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_3_wind" x="202" y="204" width="92" height="30" text="东南风" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_3_air" x="202" y="258" width="92" height="30" text="优" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_4_time" x="298" y="18" width="82" height="30" text="18:00" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_4_temp" x="298" y="68" width="82" height="42" text="27°" style_text_font="title_24" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_4_icon" x="298" y="120" width="82" height="48" text="&#xf0c2;" style_text_font="icons_44" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_4_wind_icon" x="298" y="176" width="82" height="26" text="&#xf798;" style_text_font="icons_20" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_4_wind" x="298" y="204" width="82" height="30" text="东南风" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="hour_4_air" x="298" y="258" width="82" height="30" text="优" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="center" />
+        </lv_obj>
+        <lv_obj name="weather_hourly_dots" x="147" y="420" width="96" height="6" scrollable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0">
+            <lv_obj name="weather_hourly_dot_0" x="0" y="0" width="6" height="6" scrollable="false" style_bg_color="#fg_primary" style_bg_opa="100%" style_border_width="0" style_radius="3" />
+            <lv_obj name="weather_hourly_dot_1" x="18" y="0" width="6" height="6" scrollable="false" style_bg_color="#pager_inactive" style_bg_opa="100%" style_border_width="0" style_radius="3" />
+            <lv_obj name="weather_hourly_dot_2" x="36" y="0" width="6" height="6" scrollable="false" style_bg_color="#pager_inactive" style_bg_opa="100%" style_border_width="0" style_radius="3" />
+            <lv_obj name="weather_hourly_dot_3" x="54" y="0" width="6" height="6" scrollable="false" style_bg_color="#pager_inactive" style_bg_opa="100%" style_border_width="0" style_radius="3" />
+            <lv_obj name="weather_hourly_dot_4" x="72" y="0" width="6" height="6" scrollable="false" style_bg_color="#pager_inactive" style_bg_opa="100%" style_border_width="0" style_radius="3" />
+            <lv_obj name="weather_hourly_dot_5" x="90" y="0" width="6" height="6" scrollable="false" style_bg_color="#pager_inactive" style_bg_opa="100%" style_border_width="0" style_radius="3" />
+        </lv_obj>
+    </view>
+</screen>

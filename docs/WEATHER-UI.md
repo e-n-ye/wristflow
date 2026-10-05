@@ -1,0 +1,39 @@
+# 天气 UI 增量
+
+更新：2026-10-05。本增量把 Product 的天气入口从占位页改为可浏览的五页天气界面：当前天气、逐小时预测、每日预测、天气指数和日升日落。当前数据来自 `core/weather.c` 的确定性本地 fixture，页面已经预留加载中、暂无数据、更新失败和重试状态，手机天气 provider 尚未接入。
+
+本轮按 Redmi Watch 4 日升日落页实拍重做了曲线视觉。日升日落页使用一张 336×128 的透明 ARGB8888 贴图：白色日间弧线、虚线地平线和地平线下较暗的延伸线在贴图中固定；太阳点、标题、日出/日落文字和天气背景仍由页面控件与运行时负责。贴图没有嵌入整张手表照片，也没有把相机曝光、屏幕扫描线或透视差异当作设计目标。晴天使用明亮蓝色，阴天/多云使用明显偏灰的灰蓝色，背景由 fixture 状态驱动。
+
+## XML、Pro 导出和运行时的准确关系
+
+- 视觉源是 `ui/xml/screens/screen_weather_sun.xml`；贴图源是 `ui/xml/images/weather_sun_track.png`，其生成脚本为 `scripts/Generate-Weather-Sun.py`。`ui/xml/globals.xml` 以 `argb8888` 注册 `weather_sun_track`。
+- 使用 LVGL Pro Editor 2.0.1 Community、LVGL 9.4.0 打开 `ui/xml/project.xml`，在目标 `huangshan_390x450` 中预览日升日落页并执行 `Ctrl+B`（Export Code and Recompile）。输出区记录 `Project compiled successfully`、`Initializing custom C code using LVGL v9.4.0`；原始输出保留在 `artifacts/lvgl-pro-weather/20261004/pro_output.txt`。
+- Pro 生成物包括 `ui/xml/screens/screen_weather_sun_gen.c/.h`、`ui/xml/wristflow_ui_gen.c/.h`、`ui/xml/images/weather_sun_track_data.c` 和 `ui/xml/file_list_gen.cmake`。资源清单实际编译 `weather_sun_track_data.c`，生成代码把 `weather_sun_track_image` 绑定到 `weather_sun_track`。
+- `ui/runtime/weather_screen.c:create_sun_page()` 挂载 `screen_weather_sun_create()`，再覆盖生成页面根背景色，所以日升日落页的结构和贴图来自 XML/Pro 生成页面，天气状态背景仍由运行时传入。
+- 目前只有日升日落页由生成页面挂载。`screen_weather_current_gen.c/.h`、`screen_weather_hourly_gen.c/.h`、`screen_weather_daily_gen.c/.h` 和 `screen_weather_indices_gen.c/.h` 虽在 Pro 生成清单中，但五页外层与前四页内容仍由 `ui/runtime/weather_screen.c` 运行时 C 创建；不能把五页都称为 XML 驱动。
+
+## Redmi Watch 4 视觉基线
+
+用户提供的实机照片确认天气页面的层级：顶部标题与时间固定，当前天气突出显示温度和天气状态，逐小时/未来天气使用横向分页，天气指数与日升日落作为独立信息页，底部分页点持续可见。照片拍摄造成的色差、透视和屏幕纹理只用于判断层级，不复制进 UI。
+
+背景色随天气状态变化：晴天使用明亮的高饱和蓝色；阴天切换为明显偏灰的灰蓝色。五页在同一天气状态下保持一致的页面底色，白色文字与图标在两种底色上保持可读。
+
+日升日落贴图位于 XML `(x=27, y=157)`，尺寸 `336×128`；全局地平线约为 `y=240`，弧顶约为 `y=160`，左右交点约为 `(72,240)` 与 `(318,240)`。太阳点中心为 `(272,199)`，处于下降段且高于地平线；暗色延伸线位于地平线下方。
+
+## 行为与实现
+
+- 当前页显示城市、更新时间、温度、天气状况、最高/最低温和空气质量。
+- 逐小时页支持 24 小时数据横向分页；每日页支持 7 天数据横向分页。外层五页纵向滚动，预测页内容区保留水平手势，边缘返回仍可用。
+- 指数页显示空气质量、湿度、风力和紫外线；日升日落页显示时间和太阳轨迹。
+- `ui/runtime/weather_screen.c` 负责五页容器、滚动状态、动态背景和日升日落页挂载；`core/weather.c` 只提供 fixture 和状态文案；注册表仍由 `ui/runtime/app_registry.c` 统一提供天气卡片摘要和页面入口。
+
+## 可复核证据
+
+工作树为 `C:/Users/13984/.codex/worktrees/weather-ui/wristflow`，分支 `codex/weather-ui`，HEAD `9ce5b3e32e338a279741464709f11b8bc3213931`。SDK `421126d9f476ed8e2a6f0b0ca28a9f241c182e65` 及两个子模块未修改。
+
+- 主机命令：`cmake --build artifacts/weather-host-build --parallel 6`；`ctest --test-dir artifacts/weather-host-build --output-on-failure --timeout 60`，最终 **16/16** 通过。`tests/weather_ui.c` 覆盖五页、水平/垂直分页、加载中/暂无数据/错误/重试、返回边界、晴天/多云底色，以及贴图尺寸、ARGB8888、弧顶、虚线间隔、暗色延伸、地平线和太阳点关系。
+- 快照：`artifacts/weather-host-build/renders/weather_current.ppm`、`weather_current_sunny.ppm`、`weather_hourly.ppm`、`weather_daily.ppm`、`weather_indices.ppm`、`weather_sun.ppm`；`weather_sun.png` 是同一真实 LVGL 快照的 PNG 预览。当前页两种底色可由像素复核为灰蓝 `#687f91` 与亮蓝 `#0bb9f2`。
+- Product 命令：`pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 6`，退出码 0，官方 SCons 和产物校验通过。最新记录为 `artifacts/product/20261005-141441-099/result.json`；`main.bin` 为 7,612,188 B，SHA-256 `ee2ec45da3a93f02d47259a067c83c8d65f1ec27e78eae77f6b830e8447198b6`，`hardware_verified=false`。
+- 烧录前确认 USB-only、未接电池，并枚举到 `USB-SERIAL CH340 (COM5)`、VID:PID `1A86:7523`、实例 `USB\VID_1A86&PID_7523\6&A8355E6&3&1`。使用 sftool 0.2.5 对 bootloader/main/ftab 执行三镜像 `write_flash --verify`，退出码 0；未整片擦除、未写 settings。启动串口记录到 CO5300、FT6146、`display on` 和 Product runtime 启动。原始证据见 `artifacts/flash/weather-20261005/evidence.json`；屏幕曲线视觉和触摸仍待用户现场观察确认。
+
+这些结果分别证明源码/资源可读、Pro 导出成功、主机行为与视觉快照通过、Product 可编译、三镜像烧录校验通过并正常启动。它们仍不等于天气曲线的屏幕视觉和触摸已由用户确认，也不证明 BLE 链路、休眠电流、功耗或续航；真实天气同步、后台更新、异常网络和长期运行仍未覆盖。当前待完成项是用户在板上查看日升日落页、确认曲线/太阳点/地平线和页面触摸返回。

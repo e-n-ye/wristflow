@@ -1,0 +1,12 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#weather_cloudy" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0">
+        <lv_label name="weather_sun_title" x="24" y="24" width="220" height="34" text="日升日落" style_text_font="notification_22" style_text_color="#fg_primary" />
+        <lv_label name="weather_sun_clock" x="296" y="26" width="70" height="30" text="15:00" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="right" />
+        <lv_image name="weather_sun_track_image" x="27" y="157" width="336" height="128" src="weather_sun_track" clickable="false" />
+        <lv_obj name="weather_sun_position" x="260" y="187" width="24" height="24" scrollable="false" clickable="false" style_bg_color="#fg_primary" style_bg_opa="100%" style_border_width="0" style_radius="12" />
+        <lv_label name="weather_sunrise_icon" x="48" y="292" width="40" height="34" text="&#xf185;" style_text_font="icons_20" style_text_color="#fg_primary" style_text_align="center" />
+        <lv_label name="weather_sunrise" x="100" y="290" width="180" height="36" text="05:48" style_text_font="notification_22" style_text_color="#fg_primary" />
+        <lv_label name="weather_sunset_icon" x="48" y="350" width="40" height="34" text="&#xf186;" style_text_font="icons_20" style_text_color="#fg_primary" style_text_align="center" />
+        <lv_label name="weather_sunset" x="100" y="348" width="180" height="36" text="17:44" style_text_font="notification_22" style_text_color="#fg_primary" />
+    </view>
+</screen>

@@ -1,0 +1,18 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#weather_cloudy" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0">
+        <lv_label name="weather_indices_title" x="24" y="24" width="220" height="34" text="天气指数" style_text_font="notification_22" style_text_color="#fg_primary" />
+        <lv_label name="weather_indices_clock" x="296" y="26" width="70" height="30" text="15:00" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="right" />
+        <lv_label name="weather_index_0_value" x="30" y="78" width="88" height="58" text="41" style_text_font="metric_56" style_text_color="#fg_primary" />
+        <lv_label name="weather_index_0_icon" x="138" y="90" width="36" height="36" text="&#xf0c2;" style_text_font="icons_20" style_text_color="#fg_primary" style_text_align="center" />
+        <lv_label name="weather_index_0_label" x="184" y="94" width="170" height="30" text="空气质量" style_text_font="notification_22" style_text_color="#fg_primary" />
+        <lv_label name="weather_index_1_value" x="30" y="162" width="88" height="58" text="80" style_text_font="metric_56" style_text_color="#fg_primary" />
+        <lv_label name="weather_index_1_icon" x="138" y="174" width="36" height="36" text="&#xf043;" style_text_font="icons_20" style_text_color="#fg_primary" style_text_align="center" />
+        <lv_label name="weather_index_1_label" x="184" y="178" width="170" height="30" text="相对湿度(%)" style_text_font="notification_22" style_text_color="#fg_primary" />
+        <lv_label name="weather_index_2_value" x="30" y="246" width="88" height="58" text="3" style_text_font="metric_56" style_text_color="#fg_primary" />
+        <lv_label name="weather_index_2_icon" x="138" y="258" width="36" height="36" text="&#xf1d8;" style_text_font="icons_20" style_text_color="#fg_primary" style_text_align="center" />
+        <lv_label name="weather_index_2_label" x="184" y="262" width="170" height="30" text="东南风" style_text_font="notification_22" style_text_color="#fg_primary" />
+        <lv_label name="weather_index_3_value" x="30" y="330" width="88" height="58" text="4" style_text_font="metric_56" style_text_color="#fg_primary" />
+        <lv_label name="weather_index_3_icon" x="138" y="342" width="36" height="36" text="&#xf185;" style_text_font="icons_20" style_text_color="#fg_primary" style_text_align="center" />
+        <lv_label name="weather_index_3_label" x="184" y="346" width="170" height="30" text="紫外线指数" style_text_font="notification_22" style_text_color="#fg_primary" />
+    </view>
+</screen>

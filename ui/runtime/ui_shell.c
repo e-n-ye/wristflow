@@ -4,6 +4,7 @@
 #include "components.h"
 #include "settings_view.h"
 #include "notification_view.h"
+#include "weather_screen.h"
 #include "wristflow_ui.h"
 #include <string.h>
 
@@ -47,6 +48,7 @@ struct wristflow_ui_shell {
     bool transitioning;
     bool ready;
     bool edge_press;
+    lv_point_t edge_origin;
     wristflow_settings_t preferences;
     wristflow_display_policy_t display;
     lv_timer_t *display_timer;
@@ -211,6 +213,7 @@ static void app_pressed(lv_event_t *event)
     if (input) {
         lv_indev_get_point(input, &point);
         shell->edge_press = point.x <= 40;
+        shell->edge_origin = point;
     }
 }
 
@@ -417,8 +420,11 @@ static void gesture(lv_event_t *event)
         handled = wristflow_ui_shell_home(shell);
     else if (shell->navigation.surface == WRISTFLOW_SURFACE_LAUNCHER ||
         shell->navigation.surface >= WRISTFLOW_SURFACE_STOPWATCH) {
-        if (direction == LV_DIR_RIGHT && shell->edge_press)
-            handled = wristflow_ui_shell_back(shell);
+        if (direction == LV_DIR_RIGHT && shell->edge_press) {
+            bool allowed = shell->navigation.surface != WRISTFLOW_SURFACE_WEATHER ||
+                wristflow_weather_screen_edge_back_allowed(lv_screen_active(), shell->edge_origin);
+            if (allowed) handled = wristflow_ui_shell_back(shell);
+        }
     } else if (direction == LV_DIR_BOTTOM) {
         if (shell->navigation.surface == WRISTFLOW_SURFACE_HOME && shell->navigation.page_index == 0 && shell->notifications)
             handled = wristflow_ui_shell_open_notification(shell, false, 0);

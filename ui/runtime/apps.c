@@ -556,6 +556,8 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         bind_click(root, "layout_list", choose_menu_layout, apps);
         bind_click(root, "layout_grid", choose_menu_layout, apps);
         sync_menu_layout(apps);
+    } else if (surface == WRISTFLOW_SURFACE_WEATHER) {
+        /* Weather owns its full-screen fixture and intentionally has no common app header. */
     } else {
         lv_label_set_text(named(root, "app_title"), app->title);
         lv_label_set_text(named(root, "placeholder_icon"), app->icon);

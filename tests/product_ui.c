@@ -59,7 +59,10 @@ static void glyphs(const lv_font_t *font, const char *string)
         if (cp >= 0xe0) { cp = ((cp & 15) << 12) | ((c[0] & 63) << 6) | (c[1] & 63); c += 2; }
         else if (cp >= 0xc0) { cp = ((cp & 31) << 6) | (*c++ & 63); }
         lv_font_glyph_dsc_t glyph;
-        assert(lv_font_get_glyph_dsc(font, &glyph, cp, 0) && !glyph.is_placeholder);
+        if (!lv_font_get_glyph_dsc(font, &glyph, cp, 0) || glyph.is_placeholder) {
+            fprintf(stderr, "missing glyph U+%04X\n", cp);
+            assert(0);
+        }
     }
 }
 static void snapshot(const char *directory, const char *name)
@@ -122,12 +125,19 @@ int main(int argc, char **argv)
             assert(slot->instance_id == ++instances);
             assert(slot->size == (p && !s ? WRISTFLOW_CARD_HALF : WRISTFLOW_CARD_QUARTER));
             const wristflow_app_descriptor_t *app = wristflow_app_find(slot->app_id);
-            assert(app && app->capability == WRISTFLOW_CAPABILITY_PLACEHOLDER);
+            assert(app);
+            assert(strcmp(slot->app_id, "weather") == 0
+                ? app->capability == WRISTFLOW_CAPABILITY_READY
+                : app->capability == WRISTFLOW_CAPABILITY_PLACEHOLDER);
             assert(app->card_sizes & slot->size);
         }
     }
     assert(instances == 10 && wristflow_app_count() == 14);
     assert(!wristflow_product_default_page(3) && !wristflow_app_find("missing"));
+    wristflow_app_data_t weather_data;
+    assert(wristflow_app_read(wristflow_app_find("weather"), &state, &weather_data));
+    assert(strcmp(weather_data.value, "30°") == 0);
+    assert(strcmp(weather_data.reason, "多云") == 0);
     /* Every real/loop card has placeholders instead of demo measurements. */
     for (unsigned i = 0; i < 6; ++i) {
         unsigned index = (i + 3) % 4;
@@ -135,7 +145,8 @@ int main(int argc, char **argv)
         if (!index) continue;
         const wristflow_card_page_t *page = wristflow_product_default_page(index - 1);
         for (unsigned s = 0; s < page->count; ++s)
-            text(named(panel, slot_names[s]), "value_label", index == 1 && s == 2 ? "USB" : "--");
+            text(named(panel, slot_names[s]), "value_label",
+                 index == 1 && s == 2 ? "USB" : index == 3 && s == 0 ? "30°" : "--");
     }
     state = wristflow_product_snapshot(true, WRISTFLOW_TIME_MIN + 60);
     state.uptime_seconds = 3720;
@@ -156,10 +167,20 @@ int main(int argc, char **argv)
             lv_obj_t *card = named(panel, slot_names[s]);
             click(card);
             assert(wristflow_ui_shell_navigation(shell)->surface == app->surface);
-            text(lv_screen_active(), "app_title", app->title);
-            text(lv_screen_active(), "placeholder_label", app->reason);
-            if (!s) { snprintf(name, sizeof name, "product_placeholder_%u", p + 1); snapshot(argv[1], name); }
-            if (s & 1) swipe(10, 230, 185, 230);
+            if (strcmp(app->id, "weather") == 0) {
+                text(lv_screen_active(), "weather_temp", "30°");
+                text(lv_screen_active(), "weather_condition", "多云");
+            } else {
+                text(lv_screen_active(), "app_title", app->title);
+                text(lv_screen_active(), "placeholder_label", app->reason);
+            }
+            if (!s) {
+                if (strcmp(app->id, "weather") == 0) snprintf(name, sizeof name, "product_weather");
+                else snprintf(name, sizeof name, "product_placeholder_%u", p + 1);
+                snapshot(argv[1], name);
+            }
+            if (strcmp(app->id, "weather") == 0) swipe(10, 40, 185, 40);
+            else if (s & 1) swipe(10, 230, 185, 230);
             else click(named(lv_screen_active(), "app_back"));
             assert(lv_screen_active() == home);
             assert(wristflow_ui_shell_navigation(shell)->page_index == p + 1);

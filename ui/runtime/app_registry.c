@@ -1,4 +1,6 @@
 #include "app_registry.h"
+#include "weather.h"
+#include "weather_screen.h"
 #include "wristflow_ui.h"
 #include <stdio.h>
 #include <string.h>
@@ -13,6 +15,15 @@ static void battery(const wristflow_watch_snapshot_t *snapshot, wristflow_app_da
 {
     if (snapshot->battery_unavailable) strcpy(data->value, "USB");
     else snprintf(data->value, sizeof data->value, "%u%%", snapshot->battery_percent);
+}
+
+static void weather(const wristflow_watch_snapshot_t *snapshot, wristflow_app_data_t *data)
+{
+    (void)snapshot;
+    wristflow_weather_data_t fixture;
+    if (!wristflow_weather_provider_read(WRISTFLOW_WEATHER_READY, &fixture)) return;
+    snprintf(data->value, sizeof data->value, "%d°", fixture.temperature);
+    snprintf(data->reason, sizeof data->reason, "%s", fixture.condition);
 }
 
 /* One identity feeds the menu, the card and its destination. XML owns geometry. */
@@ -47,8 +58,8 @@ static const wristflow_app_descriptor_t apps[] = {
         WRISTFLOW_CAPABILITY_PLACEHOLDER, WRISTFLOW_CARD_QUARTER, 0x10d6b0,
         "站立功能待接入", screen_app_placeholder_create, missing},
     {"weather", "天气", "\xef\x83\x82", "launch_weather", WRISTFLOW_SURFACE_WEATHER,
-        WRISTFLOW_CAPABILITY_PLACEHOLDER, WRISTFLOW_CARD_HALF | WRISTFLOW_CARD_FULL, 0x38bdf8,
-        "等待手机同步天气", screen_app_placeholder_create, missing},
+        WRISTFLOW_CAPABILITY_READY, WRISTFLOW_CARD_HALF | WRISTFLOW_CARD_FULL, 0x38bdf8,
+        "多云", screen_weather_create, weather},
     {"sleep", "睡眠", "\xef\x88\xb6", "launch_sleep", WRISTFLOW_SURFACE_SLEEP,
         WRISTFLOW_CAPABILITY_PLACEHOLDER, WRISTFLOW_CARD_QUARTER, 0x388bfa,
         "睡眠功能待接入", screen_app_placeholder_create, missing},
@@ -77,7 +88,8 @@ bool wristflow_app_read(const wristflow_app_descriptor_t *app,
     const wristflow_watch_snapshot_t *snapshot, wristflow_app_data_t *data)
 {
     if (!app || !data || !wristflow_snapshot_valid(snapshot) || !app->read) return false;
-    *data = (wristflow_app_data_t){.reason = app->reason};
+    *data = (wristflow_app_data_t){0};
+    snprintf(data->reason, sizeof data->reason, "%s", app->reason);
     app->read(snapshot, data);
     return true;
 }
