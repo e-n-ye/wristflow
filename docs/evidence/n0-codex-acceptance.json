@@ -1,0 +1,492 @@
+{
+  "task_id": "WF-N0-VERSION-AUDIT-01",
+  "reviewer": "Codex",
+  "review_verdict": "FIX",
+  "reviewed_at": "2026-10-07T23:41:24.161811+08:00",
+  "context_reviewed_at": "2026-10-07T23:48:04.231022+08:00",
+  "scope": "Read-only Git/source/record/hash verification. No builds, tests, hardware, or N1 implementation.",
+  "workspace_at_review": "D:/MY_Desk/project/wristflow",
+  "head_at_review": "114fc04be1caba47a338f5fa0de7aa7cc918fecc",
+  "status_before_reviewer_document_changes": " M .vscode/settings.json\n?? docs/evidence/n0-version-audit.json\n?? docs/handoffs/\n",
+  "task_spec_sha256": "18f9c66c0efc29ea3b260833827a53b75347951a4c0dd16ef11247ff6b27277e",
+  "submission_hashes": {
+    "docs\\evidence\\n0-version-audit.json": "ba5133f291d4f933d0f1ad0e798bf364bea6d421734983d183d9e00c84569aa3",
+    "docs\\handoffs\\N0-VERSION-AUDIT-RESULT.md": "e2736c4ff3139f0b1c867321aa2f0dfe1e87a2b570205609a68aed8489552835"
+  },
+  "preexisting_user_settings_sha256": "c6660f3747fafa617e2b41e808c268f70cdbbb2108ccf7059ea97f13e5cef03d",
+  "refs": {
+    "main": "2acc2de00aa714053778e206dfbf83d23ff8e215",
+    "weather": "114fc04be1caba47a338f5fa0de7aa7cc918fecc",
+    "c2": "823e656e4bd36ff0e84360ff085d524ad641917f",
+    "frozen": "5c0b82c02cf8f80168b076b0f76e2514a1867042"
+  },
+  "acceptance": {
+    "A1": "PASS",
+    "A2": "FIX",
+    "A3": "FIX",
+    "A4": "FIX",
+    "A5": "PASS",
+    "A6": "FIX",
+    "A7": "PASS",
+    "A8": "FIX",
+    "A9": "FIX",
+    "A10": "PASS"
+  },
+  "comparisons": [
+    {
+      "id": "comp1_frozen_to_main",
+      "claimed_count": 18,
+      "actual_count": 18,
+      "actual_diff": [
+        "M\t.github/pull_request_template.md",
+        "M\tAGENTS.md",
+        "M\tCONTEXT.md",
+        "M\tCONTRIBUTING.md",
+        "A\tdocs/ARCHITECTURE-REVIEW.md",
+        "A\tdocs/ARCHITECTURE.md",
+        "M\tdocs/BASELINE.md",
+        "M\tdocs/BUILD.md",
+        "M\tdocs/DOCUMENTATION-WORKFLOW.md",
+        "M\tdocs/HARDWARE.md",
+        "M\tdocs/NEXT-STAGE.md",
+        "A\tdocs/PRODUCT-ACCEPTANCE.md",
+        "M\tdocs/PRODUCT-UI-SCOPE.md",
+        "A\tdocs/REDMI-WATCH-4-SPEC.md",
+        "M\tdocs/STATUS.md",
+        "A\tdocs/WEATHER-UI.md",
+        "A\tdocs/evidence/2026-09-27/pr-merge-flash.json",
+        "A\tdocs/tasks/N0-VERSION-AUDIT.md"
+      ],
+      "merge_base": "5c0b82c02cf8f80168b076b0f76e2514a1867042",
+      "raw_log_matches_git": true,
+      "omitted_from_claimed_list": [
+        "AGENTS.md",
+        "CONTRIBUTING.md",
+        "docs/BUILD.md",
+        "docs/PRODUCT-UI-SCOPE.md",
+        "docs/REDMI-WATCH-4-SPEC.md",
+        "docs/WEATHER-UI.md",
+        "docs/evidence/2026-09-27/pr-merge-flash.json"
+      ],
+      "not_in_actual_diff": [
+        "docs/F411-REUSE.md",
+        "docs/FLASHING.md",
+        "docs/NOTIFICATION-UI.md",
+        "docs/PM-EVENT-WAKE.md",
+        "docs/PRODUCT-DESIGN.md",
+        "docs/PRODUCT-RUNTIME.md",
+        "docs/PRODUCT-SETTINGS.md"
+      ],
+      "commit_a": "5c0b82c02cf8f80168b076b0f76e2514a1867042",
+      "commit_b": "2acc2de00aa714053778e206dfbf83d23ff8e215",
+      "submitted_raw_output_path": "artifacts/n0-version-audit/20261007-224200/comp1_frozen_to_main_diff_name_status.txt"
+    },
+    {
+      "id": "comp2_main_to_weather",
+      "claimed_count": 54,
+      "actual_count": 54,
+      "actual_diff": [
+        "M\tapps/product/src/main.c",
+        "M\tapps/product/src/phone_protocol.c",
+        "M\tapps/product/src/phone_protocol.h",
+        "M\tapps/product/src/product_ble.c",
+        "M\tapps/product/src/product_ble.h",
+        "M\tapps/product/src/product_services.c",
+        "M\tapps/product/src/product_services.h",
+        "A\tcore/weather.c",
+        "A\tcore/weather.h",
+        "M\tdocs/BUILD.md",
+        "A\tdocs/RECOVERY-PLAN.md",
+        "A\tscripts/Flash.ps1",
+        "M\tscripts/Generate-Ui-Assets.py",
+        "A\tscripts/Generate-Weather-Sun.py",
+        "M\ttests/CMakeLists.txt",
+        "M\ttests/phone_protocol.c",
+        "M\ttests/product_ui.c",
+        "A\ttests/weather_ui.c",
+        "M\tui/runtime/app_registry.c",
+        "M\tui/runtime/app_registry.h",
+        "M\tui/runtime/apps.c",
+        "M\tui/runtime/components.c",
+        "M\tui/runtime/ui_shell.c",
+        "A\tui/runtime/weather_screen.c",
+        "A\tui/runtime/weather_screen.h",
+        "M\tui/xml/file_list_gen.cmake",
+        "M\tui/xml/fonts/WristFlowIcons.ttf",
+        "M\tui/xml/fonts/WristFlowMessages-Regular.ttf",
+        "M\tui/xml/fonts/WristFlowSans-Regular.ttf",
+        "M\tui/xml/fonts/body_20_data.c",
+        "M\tui/xml/fonts/icons_20_data.c",
+        "M\tui/xml/fonts/icons_44_data.c",
+        "M\tui/xml/fonts/metric_56_data.c",
+        "M\tui/xml/fonts/title_24_data.c",
+        "M\tui/xml/globals.xml",
+        "A\tui/xml/images/weather_sun_track.png",
+        "A\tui/xml/images/weather_sun_track_data.c",
+        "A\tui/xml/screens/screen_weather_current.xml",
+        "A\tui/xml/screens/screen_weather_current_gen.c",
+        "A\tui/xml/screens/screen_weather_current_gen.h",
+        "A\tui/xml/screens/screen_weather_daily.xml",
+        "A\tui/xml/screens/screen_weather_daily_gen.c",
+        "A\tui/xml/screens/screen_weather_daily_gen.h",
+        "A\tui/xml/screens/screen_weather_hourly.xml",
+        "A\tui/xml/screens/screen_weather_hourly_gen.c",
+        "A\tui/xml/screens/screen_weather_hourly_gen.h",
+        "A\tui/xml/screens/screen_weather_indices.xml",
+        "A\tui/xml/screens/screen_weather_indices_gen.c",
+        "A\tui/xml/screens/screen_weather_indices_gen.h",
+        "A\tui/xml/screens/screen_weather_sun.xml",
+        "A\tui/xml/screens/screen_weather_sun_gen.c",
+        "A\tui/xml/screens/screen_weather_sun_gen.h",
+        "M\tui/xml/wristflow_ui_gen.c",
+        "M\tui/xml/wristflow_ui_gen.h"
+      ],
+      "merge_base": "2acc2de00aa714053778e206dfbf83d23ff8e215",
+      "raw_log_matches_git": true,
+      "omitted_from_claimed_list": [
+        "apps/product/src/product_services.h",
+        "docs/BUILD.md",
+        "docs/RECOVERY-PLAN.md",
+        "scripts/Flash.ps1",
+        "scripts/Generate-Ui-Assets.py",
+        "ui/runtime/app_registry.h",
+        "ui/runtime/apps.c",
+        "ui/runtime/ui_shell.c",
+        "ui/xml/file_list_gen.cmake",
+        "ui/xml/fonts/WristFlowIcons.ttf",
+        "ui/xml/fonts/WristFlowMessages-Regular.ttf",
+        "ui/xml/fonts/WristFlowSans-Regular.ttf",
+        "ui/xml/fonts/body_20_data.c",
+        "ui/xml/fonts/icons_20_data.c",
+        "ui/xml/fonts/icons_44_data.c",
+        "ui/xml/fonts/metric_56_data.c",
+        "ui/xml/fonts/title_24_data.c",
+        "ui/xml/globals.xml"
+      ],
+      "not_in_actual_diff": [
+        "docs/WEATHER-UI.md",
+        "docs/tasks/N0-VERSION-AUDIT.md",
+        "tests/fixtures/weather_payloads.h",
+        "ui/xml/CMakeLists.txt",
+        "ui/xml/SConscript",
+        "ui/xml/fonts/NotoSansSC-Regular.subset.ttf",
+        "ui/xml/fonts/notification_22.c"
+      ],
+      "commit_a": "2acc2de00aa714053778e206dfbf83d23ff8e215",
+      "commit_b": "114fc04be1caba47a338f5fa0de7aa7cc918fecc",
+      "submitted_raw_output_path": "artifacts/n0-version-audit/20261007-224200/comp2_main_to_weather_diff_name_status.txt"
+    },
+    {
+      "id": "comp3_weather_review_to_weather",
+      "claimed_count": 12,
+      "actual_count": 12,
+      "actual_diff": [
+        "M\tAGENTS.md",
+        "M\tCONTEXT.md",
+        "A\tdocs/ARCHITECTURE-REVIEW.md",
+        "A\tdocs/ARCHITECTURE.md",
+        "M\tdocs/BASELINE.md",
+        "M\tdocs/DOCUMENTATION-WORKFLOW.md",
+        "M\tdocs/PRODUCT-ACCEPTANCE.md",
+        "M\tdocs/PRODUCT-UI-SCOPE.md",
+        "A\tdocs/REDMI-WATCH-4-SPEC.md",
+        "M\tdocs/STATUS.md",
+        "M\tdocs/WEATHER-UI.md",
+        "A\tdocs/tasks/N0-VERSION-AUDIT.md"
+      ],
+      "merge_base": "0606f3b23bdaccae14f547f5fa55d997d3a50b21",
+      "raw_log_matches_git": true,
+      "omitted_from_claimed_list": [
+        "AGENTS.md",
+        "docs/PRODUCT-UI-SCOPE.md",
+        "docs/REDMI-WATCH-4-SPEC.md",
+        "docs/WEATHER-UI.md"
+      ],
+      "not_in_actual_diff": [
+        "docs/HARDWARE.md",
+        "docs/NOTIFICATION-UI.md",
+        "docs/PM-EVENT-WAKE.md",
+        "docs/PRODUCT-RUNTIME.md"
+      ],
+      "commit_a": "0606f3b23bdaccae14f547f5fa55d997d3a50b21",
+      "commit_b": "114fc04be1caba47a338f5fa0de7aa7cc918fecc",
+      "submitted_raw_output_path": "artifacts/n0-version-audit/20261007-224200/comp3_weather_review_to_weather_diff_name_status.txt"
+    },
+    {
+      "id": "comp4_main_to_c2",
+      "claimed_count": 39,
+      "actual_count": 39,
+      "actual_diff": [
+        "M\t.github/pull_request_template.md",
+        "M\tAGENTS.md",
+        "M\tCONTEXT.md",
+        "M\tCONTRIBUTING.md",
+        "M\tapps/product/project/proj.conf",
+        "A\tapps/product/src/imu_device.c",
+        "A\tapps/product/src/imu_device.h",
+        "M\tapps/product/src/main.c",
+        "A\tapps/product/src/product_imu.c",
+        "A\tapps/product/src/product_imu.h",
+        "M\tapps/product/src/product_pm.h",
+        "M\tcore/product_state.c",
+        "M\tcore/product_state.h",
+        "D\tdocs/ARCHITECTURE-REVIEW.md",
+        "D\tdocs/ARCHITECTURE.md",
+        "M\tdocs/BASELINE.md",
+        "M\tdocs/BUILD.md",
+        "M\tdocs/DOCUMENTATION-WORKFLOW.md",
+        "M\tdocs/HARDWARE.md",
+        "A\tdocs/IMU-WRIST-WAKE.md",
+        "M\tdocs/NEXT-STAGE.md",
+        "D\tdocs/PRODUCT-ACCEPTANCE.md",
+        "M\tdocs/PRODUCT-UI-SCOPE.md",
+        "M\tdocs/PURCHASE-REVIEW.md",
+        "D\tdocs/REDMI-WATCH-4-SPEC.md",
+        "M\tdocs/STATUS.md",
+        "D\tdocs/WEATHER-UI.md",
+        "D\tdocs/evidence/2026-09-27/pr-merge-flash.json",
+        "A\tdocs/evidence/2026-09-28/imu-c1-key-diagnostic.json",
+        "A\tdocs/evidence/2026-09-28/imu-c1-local.json",
+        "D\tdocs/tasks/N0-VERSION-AUDIT.md",
+        "M\ttests/CMakeLists.txt",
+        "A\ttests/imu_device.c",
+        "M\ttests/product_state.c",
+        "M\ttests/product_ui.c",
+        "M\ttests/settings_ui.c",
+        "M\tui/runtime/settings_view.c",
+        "M\tui/runtime/ui_shell.c",
+        "M\tui/runtime/ui_shell.h"
+      ],
+      "merge_base": "5c0b82c02cf8f80168b076b0f76e2514a1867042",
+      "raw_log_matches_git": true,
+      "omitted_from_claimed_list": [
+        "AGENTS.md",
+        "CONTRIBUTING.md",
+        "apps/product/src/product_pm.h",
+        "docs/BUILD.md",
+        "docs/PRODUCT-UI-SCOPE.md",
+        "docs/PURCHASE-REVIEW.md",
+        "docs/REDMI-WATCH-4-SPEC.md",
+        "docs/WEATHER-UI.md",
+        "docs/evidence/2026-09-27/pr-merge-flash.json",
+        "tests/imu_device.c",
+        "tests/product_ui.c"
+      ],
+      "not_in_actual_diff": [
+        "docs/F411-REUSE.md",
+        "docs/FLASHING.md",
+        "docs/NOTIFICATION-UI.md",
+        "docs/PM-EVENT-WAKE.md",
+        "docs/PRODUCT-DESIGN.md",
+        "docs/PRODUCT-RUNTIME.md",
+        "docs/PRODUCT-SETTINGS.md",
+        "tests/imu_diagnostics.c",
+        "tests/wrist_wake.c",
+        "ui/runtime/app_registry.c"
+      ],
+      "commit_a": "2acc2de00aa714053778e206dfbf83d23ff8e215",
+      "commit_b": "823e656e4bd36ff0e84360ff085d524ad641917f",
+      "submitted_raw_output_path": "artifacts/n0-version-audit/20261007-224200/comp4_main_to_c2_diff_name_status.txt"
+    }
+  ],
+  "builds": [
+    {
+      "id": "build_frozen_product",
+      "record_file": "C:\\Users\\13984\\.codex\\worktrees\\ble-first-link\\wristflow\\artifacts\\product\\20260927-225145-164\\result.json",
+      "record_sha_actual": "b7dd3b78bf9f8baab7609fbb2d9adddaa2602e220c1919feab17d1247a848b2b",
+      "record_sha_claimed": "b7dd3b78bf9f8baab7609fbb2d9adddaa2602e220c1919feab17d1247a848b2b",
+      "candidate_commit": "5c0b82c02cf8f80168b076b0f76e2514a1867042",
+      "record_started_at": "2026-09-27T22:51:45.1752341+08:00",
+      "declared_source_count": 286,
+      "actual_counts": {
+        "crlf": 108,
+        "raw": 178
+      },
+      "images": [
+        {
+          "path": "C:\\Users\\13984\\.codex\\worktrees\\ble-first-link\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+          "exists": true,
+          "actual_bytes": 7427780,
+          "actual_sha256": "e3d78d1737c27bb1ca1110f40a2d438060c308efc26d3d88882493fdf097ebaa",
+          "source_record_bytes": 7427780,
+          "source_record_sha256": "e3d78d1737c27bb1ca1110f40a2d438060c308efc26d3d88882493fdf097ebaa",
+          "matches_original_record": true,
+          "matches_submission_claim": true
+        },
+        {
+          "path": "C:\\Users\\13984\\.codex\\worktrees\\ble-first-link\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+          "exists": true,
+          "actual_bytes": 58496,
+          "actual_sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21",
+          "source_record_bytes": 58496,
+          "source_record_sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21",
+          "matches_original_record": true,
+          "matches_submission_claim": true
+        },
+        {
+          "path": "C:\\Users\\13984\\.codex\\worktrees\\ble-first-link\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+          "exists": true,
+          "actual_bytes": 11288,
+          "actual_sha256": "98b975b15d6db0cefdccaf4cd3a4bad9f512e0821702364523ab6b312f487cb2",
+          "source_record_bytes": 11288,
+          "source_record_sha256": "98b975b15d6db0cefdccaf4cd3a4bad9f512e0821702364523ab6b312f487cb2",
+          "matches_original_record": true,
+          "matches_submission_claim": true
+        }
+      ],
+      "non_raw_detail_count_in_reviewer_local_evidence": 108,
+      "coverage": "Only entries in the original project_sources manifest; not all firmware inputs."
+    },
+    {
+      "id": "build_weather_product",
+      "record_file": "D:\\MY_Desk\\project\\wristflow\\artifacts\\product\\20261005-182943-624\\result.json",
+      "record_sha_actual": "90d39ef09c2234084b7349a0a425465b2da19d7f28cb85532acbbe571d48153e",
+      "record_sha_claimed": "90d39ef09c2234084b7349a0a425465b2da19d7f28cb85532acbbe571d48153e",
+      "candidate_commit": "0606f3b23bdaccae14f547f5fa55d997d3a50b21",
+      "record_started_at": "2026-10-05T18:29:43.6339678+08:00",
+      "declared_source_count": 307,
+      "actual_counts": {
+        "crlf": 282,
+        "raw": 25
+      },
+      "images": [
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+          "exists": true,
+          "actual_bytes": 7614596,
+          "actual_sha256": "f8d578ce25a7a7cf463e285bd22cef8e67ffa691d1df21a8ca3998f70bd8cfbc",
+          "source_record_bytes": 7614596,
+          "source_record_sha256": "f8d578ce25a7a7cf463e285bd22cef8e67ffa691d1df21a8ca3998f70bd8cfbc",
+          "matches_original_record": true,
+          "matches_submission_claim": true
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+          "exists": true,
+          "actual_bytes": 58496,
+          "actual_sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21",
+          "source_record_bytes": 58496,
+          "source_record_sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21",
+          "matches_original_record": true,
+          "matches_submission_claim": true
+        },
+        {
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+          "exists": true,
+          "actual_bytes": 11288,
+          "actual_sha256": "da26f5f83db61a670346147ba7cd4d152d8bb21b81024aa972b68678a8c7333b",
+          "source_record_bytes": 11288,
+          "source_record_sha256": "da26f5f83db61a670346147ba7cd4d152d8bb21b81024aa972b68678a8c7333b",
+          "matches_original_record": true,
+          "matches_submission_claim": true
+        }
+      ],
+      "non_raw_detail_count_in_reviewer_local_evidence": 282,
+      "coverage": "Only entries in the original project_sources manifest; not all firmware inputs."
+    },
+    {
+      "id": "build_c2_product",
+      "record_file": "C:\\Users\\13984\\.codex\\worktrees\\imu-wrist-wake\\wristflow\\artifacts\\product\\20260930-134137-086\\result.json",
+      "record_sha_actual": "82b9c66497d7abf458519f1c9b982df1b8fe055abb8a3370e3259fb884ff5079",
+      "record_sha_claimed": "82b9c66497d7abf458519f1c9b982df1b8fe055abb8a3370e3259fb884ff5079",
+      "candidate_commit": "823e656e4bd36ff0e84360ff085d524ad641917f",
+      "record_started_at": "2026-09-30T13:41:37.0983844+08:00",
+      "declared_source_count": 290,
+      "actual_counts": {
+        "crlf": 265,
+        "raw": 21,
+        "mixed_line_ending": 4
+      },
+      "images": [
+        {
+          "path": "C:\\Users\\13984\\.codex\\worktrees\\imu-wrist-wake\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+          "exists": true,
+          "actual_bytes": 7434068,
+          "actual_sha256": "5ec759824d3ec167d1d86d2b7499eec97c7c4731334cb19cb85b15381ea4ff6e",
+          "source_record_bytes": 7434068,
+          "source_record_sha256": "5ec759824d3ec167d1d86d2b7499eec97c7c4731334cb19cb85b15381ea4ff6e",
+          "matches_original_record": true,
+          "matches_submission_claim": true
+        },
+        {
+          "path": "C:\\Users\\13984\\.codex\\worktrees\\imu-wrist-wake\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+          "exists": true,
+          "actual_bytes": 58496,
+          "actual_sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21",
+          "source_record_bytes": 58496,
+          "source_record_sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21",
+          "matches_original_record": true,
+          "matches_submission_claim": true
+        },
+        {
+          "path": "C:\\Users\\13984\\.codex\\worktrees\\imu-wrist-wake\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+          "exists": true,
+          "actual_bytes": 11288,
+          "actual_sha256": "8c262b3ff58236a086824ac33f0401eb9dee1b5ccb08a64bc8724b70b2f891e7",
+          "source_record_bytes": 11288,
+          "source_record_sha256": "8c262b3ff58236a086824ac33f0401eb9dee1b5ccb08a64bc8724b70b2f891e7",
+          "matches_original_record": true,
+          "matches_submission_claim": true
+        }
+      ],
+      "non_raw_detail_count_in_reviewer_local_evidence": 269,
+      "coverage": "Only entries in the original project_sources manifest; not all firmware inputs."
+    }
+  ],
+  "missing_submission_command_outputs": [
+    {
+      "id": "CMD-10",
+      "output": "artifacts/n0-version-audit/20261007-224200/s2_ls_remote_pr30.txt"
+    },
+    {
+      "id": "CMD-12",
+      "output": "artifacts/n0-version-audit/20261007-224200/s2_sdk_lock.txt"
+    },
+    {
+      "id": "CMD-15",
+      "output": "artifacts/n0-version-audit/20261007-224200/s4_build_audit.txt"
+    }
+  ],
+  "broken_submission_links": [
+    "../IMU-WRIST-WAKE.md"
+  ],
+  "local_only_artifacts": [
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/n0-codex-acceptance/20261007-first-review/verify_submission.py",
+      "sha256": "8fab5a8fd585915a45e6cbaf951e09924ce3f8a72fbd0950f0bd58296edbb3cd"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/n0-codex-acceptance/20261007-first-review/verification.json",
+      "sha256": "728e3bfc4328cfdf6f2b2370cb489b41bb0d231b5a7a516f2cbf7d4a0963efd2"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/n0-codex-acceptance/20261007-first-review/verify_context.py",
+      "sha256": "788e21bca0b15650bddc00a0eb4f6f488a72ccba8fbacc5faa69333aed177b75"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/n0-codex-acceptance/20261007-first-review/context-verification.json",
+      "sha256": "c300e4decca97ad2e31044a9567d8d057324cbb95d8252c97a7a816da1effb96"
+    }
+  ],
+  "current_device_identity": "unknown_not_observed",
+  "verification_commands": [
+    {
+      "cwd": "D:\\MY_Desk\\project\\wristflow",
+      "argv": [
+        "python",
+        "D:\\MY_Desk\\project\\wristflow\\artifacts\\n0-codex-acceptance\\20261007-first-review\\verify_submission.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "cwd": "D:\\MY_Desk\\project\\wristflow",
+      "argv": [
+        "python",
+        "D:\\MY_Desk\\project\\wristflow\\artifacts\\n0-codex-acceptance\\20261007-first-review\\verify_context.py"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "context_command_count": 40,
+  "context_nonzero_exit_codes": []
+}
