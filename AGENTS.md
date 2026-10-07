@@ -1,6 +1,6 @@
 # Project Instructions
 
-- Read `docs/STATUS.md`, `docs/BASELINE.md`, and `docs/BUILD.md` before continuing. Read the reference consensus in full when changing scope or foundational decisions.
+- Read `docs/STATUS.md`, `docs/BASELINE.md`, and `docs/BUILD.md` before continuing. For architecture or module work, also read `docs/ARCHITECTURE.md` and `docs/ARCHITECTURE-REVIEW.md`. Read the reference consensus in full when changing scope or foundational decisions; the Redmi reference is not implementation evidence.
 - Preserve prior decisions. Do not restart a requirements interview; ask only about new decisions with evidence.
 - Use UTF-8 for documents, comments, and Chinese strings. Check only changed Chinese files for encoding corruption.
 - Keep SiFli-SDK at the commit and submodule revisions in `sdk.lock.json`. Use its official installation and SCons conventions.
