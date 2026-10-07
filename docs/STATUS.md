@@ -2,7 +2,9 @@
 
 ## 2026-10-07 Gemini 执行 / Codex 验收试行
 
-下一项 N0 已整理为 [固定执行任务书](tasks/N0-VERSION-AUDIT.md)：Gemini 核对版本、已有构建/镜像证据和四项近期风险，交付结果 Markdown 与证据 JSON；Codex 按 A1–A10 复核后负责集成。**任务书已准备，N0 尚未执行**。本轮只制定步骤与验收口径，不启动 N1、构建或设备实验；当前板上身份可明确记为未知。
+N0 [固定执行任务书](tasks/N0-VERSION-AUDIT.md) 已由 Gemini 提交首轮结果，Codex 按 A1–A10 验收结论为 **FIX，待修订，尚未通过**，详见 [验收与返工任务](handoffs/N0-CODEX-ACCEPTANCE.md) 及 [独立复核证据](evidence/n0-codex-acceptance.json)。三份历史构建的 883 条源码计数及九个镜像哈希可复核；四组差异分类存在错漏，非原始匹配明细和命令留档不完整，部分版本引用与下一步任务范围需更正。Gemini 原交付保留在天气工作树，尚未集成。
+
+**下一项仍是 N0 修订与复验**，按验收报告 R1–R5 执行；本次只同步 Codex 验收记录，不把未通过的 Gemini 结果或天气/C2 代码合入主线。没有新增代码修复、构建、CTest、设备操作或功耗测量；当前设备身份仍为 `unknown_not_observed`，不进入 N1/N2。
 
 ## 2026-10-07 架构共识与下一步
 
