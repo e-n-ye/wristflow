@@ -63,6 +63,28 @@ typedef struct {
 } wristflow_weather_data_t;
 
 typedef struct {
+    bool valid;
+    uint32_t timestamp;
+    int8_t temperature;
+    int16_t code;
+    uint8_t wind_kmh;
+} wristflow_phone_weather_hour_t;
+
+typedef struct {
+    bool valid;
+    int8_t high, low;
+    int16_t code;
+} wristflow_phone_weather_day_t;
+
+typedef struct {
+    bool forecast_present;
+    uint32_t timestamp;
+    uint32_t sunrise, sunset;
+    wristflow_phone_weather_hour_t hourly[WRISTFLOW_WEATHER_HOURLY_COUNT];
+    wristflow_phone_weather_day_t daily[WRISTFLOW_WEATHER_DAILY_COUNT];
+} wristflow_phone_weather_extra_t;
+
+typedef struct {
     char city[16];
     int8_t temp;          /* Celsius */
     int8_t high;
@@ -72,10 +94,16 @@ typedef struct {
     char condition[16];   /* text description e.g. "晴", "多云", "Rain" */
     uint8_t humidity;     /* % e.g. 65 */
     bool humidity_valid;
+    uint8_t uv_tenths;
+    bool uv_valid;
     char wind[12];        /* wind description e.g. "3m/s" or "3级" */
     uint32_t timestamp;   /* UTC timestamp in seconds */
+    wristflow_phone_weather_extra_t extra;
 } wristflow_phone_weather_t;
 
+typedef void (*wristflow_weather_lock_t)(void *context);
+/* Configure once before any consumers start; callbacks protect all cache access. */
+void wristflow_weather_set_lock(wristflow_weather_lock_t lock, wristflow_weather_lock_t unlock, void *context);
 void wristflow_weather_reset(void);
 void wristflow_weather_update(const wristflow_phone_weather_t *update);
 bool wristflow_weather_get_current(wristflow_weather_data_t *data, wristflow_weather_state_t *state, uint32_t now_utc);

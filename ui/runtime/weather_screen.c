@@ -177,9 +177,9 @@ static void render_hour_page(weather_view_t *view, lv_obj_t *page, unsigned page
         label(host, "hour_temp", 0, 68, 92, 42, "--", title_24, FG_PRIMARY, LV_TEXT_ALIGN_CENTER);
         label(host, "hour_icon", 0, 120, 92, 48, "", icons_44,
               FG_PRIMARY, LV_TEXT_ALIGN_CENTER);
-        label(host, "hour_wind_icon", 0, 180, 28, 34, "\xef\x87\x98", icons_20,
+        label(host, "hour_wind_icon", 32, 180, 28, 34, "\xef\x87\x98", icons_20,
               FG_PRIMARY, LV_TEXT_ALIGN_CENTER);
-        label(host, "hour_wind", 20, 186, 72, 30, "--", notification_22, FG_PRIMARY,
+        label(host, "hour_wind", 0, 215, 92, 30, "--", body_20, FG_PRIMARY,
               LV_TEXT_ALIGN_CENTER);
         label(host, "hour_air", 0, 252, 92, 30, "--", notification_22, FG_PRIMARY,
               LV_TEXT_ALIGN_CENTER);

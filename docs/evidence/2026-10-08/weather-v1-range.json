@@ -92,7 +92,7 @@
   "review": "Read-only agent review found no blocking issue; primary owns tests, builds, device and final delivery",
   "remaining": ["full_screen_interaction_matrix", "D2 synchronization_time_expiry_request_state", "D3 configuration_safety", "D8 queue_contract", "C2_and_same_version_joint_acceptance", "independent_power_measurement"],
   "next_bounded_experiment": "D2 synchronized snapshot, actual receipt time, expiry and request timeout/state in a separate round",
-  "capability_scope_alignment": "Pending user choice whether v2 forecasts/sun or all three missing capabilities including phone-side AQI extension are needed before weather merge",
-  "user_scope_followup": "User asked what AQI means and whether phone extension means building new software or extending Gadgetbridge; explained existing Gadgetbridge receiver/model already support AQI, while Bangle.js sender and firmware need changes and a modified APK. No scope option selected yet",
+  "capability_scope_alignment": "User chose existing stock Gadgetbridge v2 forecasts/sun first; phone-side extensions including AQI deferred",
+  "user_scope_followup": "After explanation, user explicitly requested existing capabilities first and Gadgetbridge development later. New implementation/evidence tracked separately in weather-v2.json; this v1 validation is historical",
   "merge_blocker": "D2/D3/D8 and complete relevant interaction acceptance remain unresolved; PR stays Draft"
 }

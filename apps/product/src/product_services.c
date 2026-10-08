@@ -6,7 +6,7 @@
 #include <errno.h>
 
 static struct fdb_kvdb settings_db;
-static struct rt_mutex settings_lock, database_lock, rtc_lock;
+static struct rt_mutex settings_lock, database_lock, rtc_lock, weather_lock;
 static wristflow_settings_t requested, boot_settings;
 static wristflow_layout_t requested_layout;
 static wristflow_layout_store_t layout_store;
@@ -18,6 +18,15 @@ static rt_device_t rtc;
 static uint32_t milliseconds(void)
 {
     return (uint32_t)((uint64_t)rt_tick_get() * 1000 / RT_TICK_PER_SECOND);
+}
+
+static void lock_weather(void *context)
+{
+    rt_mutex_take((rt_mutex_t)context, RT_WAITING_FOREVER);
+}
+static void unlock_weather(void *context)
+{
+    rt_mutex_release((rt_mutex_t)context);
 }
 
 /* Keep flash operations off the lock used to collect UI setting changes. */
@@ -101,6 +110,8 @@ void wristflow_product_services_start(wristflow_settings_t *settings, wristflow_
     RT_ASSERT(rt_mutex_init(&settings_lock, "wf_cfg", RT_IPC_FLAG_PRIO) == RT_EOK);
     RT_ASSERT(rt_mutex_init(&database_lock, "wf_db", RT_IPC_FLAG_PRIO) == RT_EOK);
     RT_ASSERT(rt_mutex_init(&rtc_lock, "wf_rtc", RT_IPC_FLAG_PRIO) == RT_EOK);
+    RT_ASSERT(rt_mutex_init(&weather_lock, "wf_weather", RT_IPC_FLAG_PRIO) == RT_EOK);
+    wristflow_weather_set_lock(lock_weather, unlock_weather, &weather_lock);
     rtc = rt_device_find("rtc");
     fdb_kvdb_control(&settings_db, FDB_KVDB_CTRL_SET_LOCK, lock_database);
     fdb_kvdb_control(&settings_db, FDB_KVDB_CTRL_SET_UNLOCK, unlock_database);
@@ -198,6 +209,11 @@ void wristflow_product_services_update_weather(const wristflow_phone_weather_t *
     if (w) {
         rt_kprintf("[product] weather updated: %s %d C, condition=%s code=%d hum=%u%%\n",
                    w->city, w->temp, w->condition, w->code, w->humidity);
+        unsigned hours = 0, days = 0;
+        for (unsigned i = 0; i < WRISTFLOW_WEATHER_HOURLY_COUNT; ++i) hours += w->extra.hourly[i].valid;
+        for (unsigned i = 0; i < WRISTFLOW_WEATHER_DAILY_COUNT; ++i) days += w->extra.daily[i].valid;
+        rt_kprintf("[product] weather forecast: hours=%u days=%u sunrise=%u sunset=%u\n",
+                   hours, days, w->extra.sunrise, w->extra.sunset);
     }
 }
 

@@ -33,7 +33,7 @@ static sibles_hdl service;
 static volatile uint8_t connection = 0xff, subscribed;
 static volatile uint32_t generation, sequence, dropped;
 static uint8_t cccd[2];
-static bool ready, gps_reply;
+static bool ready, gps_reply, weather_reply, weather_v2_pending;
 static uint32_t revision, alert_sequence;
 static int32_t alert_id;
 static uint8_t nus_uuid[16] = NUS_UUID(1);
@@ -154,6 +154,8 @@ static void phone_event(wf_phone_event_t e, int32_t id, void *context)
     } else if (e == WF_PHONE_GPS_QUERY) gps_reply = true;
     else if (e == WF_PHONE_WEATHER) {
         wristflow_product_services_update_weather(&phone.weather);
+        if (phone.weather_version == 2) weather_v2_pending = false;
+        else if (!weather_v2_pending) weather_reply = true;
     }
     else rt_kprintf("[ble] event=%u id=%ld count=%u rejected=%u\n", e, (long)id, phone.count, phone.rejected);
     wristflow_product_pm_phone_event();
@@ -167,24 +169,34 @@ static void worker(void *context)
         if (rt_mq_recv(packets, &p, sizeof p, RT_WAITING_FOREVER) != RT_EOK) continue;
         if (p.kind == PACKET_POWER) { start_advertising(); last_sequence = p.sequence; continue; }
         rt_mutex_take(&phone_lock, RT_WAITING_FOREVER);
-        if (p.generation != peer) { wf_phone_reconnect(&phone); peer = p.generation; }
+        if (p.generation != peer) {
+            wf_phone_reconnect(&phone); peer = p.generation;
+            weather_reply = weather_v2_pending = false;
+        }
         else if (p.sequence != last_sequence + 1) wf_phone_gap(&phone);
         last_sequence = p.sequence;
         if (p.generation == generation && p.kind == PACKET_RX) wf_phone_feed(&phone, p.data, p.size);
+        if (p.generation == generation && p.kind == PACKET_SUBSCRIBE && subscribed) {
+            wf_phone_clear_weather(&phone);
+            wristflow_weather_reset();
+        }
         if (p.kind == PACKET_LINK || p.kind == PACKET_SUBSCRIBE) ++revision;
         bool reply = gps_reply; gps_reply = false;
+        bool forecast_reply = weather_reply; weather_reply = false;
         rt_mutex_release(&phone_lock);
         if (p.kind == PACKET_LINK || p.kind == PACKET_SUBSCRIBE) wristflow_product_event_send(WF_EVENT_PHONE);
         if (p.generation != generation) continue;
         if (p.kind == PACKET_SUBSCRIBE && subscribed) {
-            wristflow_weather_reset();
+            weather_v2_pending = true;
             /* Gadgetbridge's Bangle.js line reader removes CR before LF. */
             transmit("\r\n{\"t\":\"ver\",\"fw\":\"WristFlow Notify B1\",\"hw\":\"Huangshan\"}\r\n", peer);
-            transmit("\r\n{\"t\":\"weather\"}\r\n", peer);
+            transmit("\r\n{\"t\":\"weather\",\"v\":2,\"f\":true}\r\n", peer);
             rt_kprintf("[ble] subscribed: reset weather cache and requested weather from phone\n");
         }
-        if (p.kind == PACKET_TX_WEATHER_REQ && subscribed)
-            transmit("\r\n{\"t\":\"weather\"}\r\n", peer);
+        if ((p.kind == PACKET_TX_WEATHER_REQ || forecast_reply) && subscribed) {
+            weather_v2_pending = true;
+            transmit("\r\n{\"t\":\"weather\",\"v\":2,\"f\":true}\r\n", peer);
+        }
         if (reply) transmit("\r\n{\"t\":\"gps_power\",\"status\":false}\r\n", peer);
     }
 }
@@ -272,6 +284,7 @@ static int wf_ble(int argc, char **argv)
         bool sent = wristflow_product_ble_request_weather();
         rt_kprintf("[ble] weather request queued=%u\n", sent);
     } else if (!strcmp(argv[1], "clear_weather")) {
+        wf_phone_clear_weather(&phone);
         wristflow_weather_reset();
         rt_kprintf("[ble] cleared weather cache\n");
     } else if (!strcmp(argv[1], "status"))

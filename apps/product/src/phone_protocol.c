@@ -1,5 +1,6 @@
 #include "phone_protocol.h"
 #include "product_state.h"
+#include "phone_weather_v2.h"
 #include "cJSON.h"
 #include <string.h>
 #include <stdlib.h>
@@ -19,7 +20,16 @@ void wf_phone_init(wf_phone_t *p, wf_phone_callback_t cb, void *ctx)
 {
     memset(p, 0, sizeof *p); p->callback = cb; p->context = ctx;
 }
-void wf_phone_reconnect(wf_phone_t *p) { p->used = 0; p->dropping = false; }
+void wf_phone_clear_weather(wf_phone_t *p)
+{
+    memset(&p->weather, 0, sizeof p->weather);
+    p->has_weather = false; p->weather_version = 0; p->weather_location[0] = 0;
+}
+void wf_phone_reconnect(wf_phone_t *p)
+{
+    p->used = 0; p->dropping = false;
+    wf_phone_clear_weather(p);
+}
 void wf_phone_gap(wf_phone_t *p) { p->used = 0; p->dropping = true; reject(p); }
 void wf_phone_clear(wf_phone_t *p) { p->count = 0; }
 static int find(const wf_phone_t *p, int32_t id)
@@ -140,57 +150,88 @@ static bool weather_temperature(const cJSON *value, bool kelvin, int8_t *result)
     return true;
 }
 
+static void weather_text(char *dest, size_t capacity, const char *source)
+{
+    size_t length = strlen(source);
+    if (length >= capacity) {
+        length = capacity - 1;
+        while (length && ((unsigned char)source[length] & 0xc0) == 0x80) --length;
+    }
+    memcpy(dest, source, length); dest[length] = 0;
+}
+
 static bool process_weather_json(wf_phone_t *p, cJSON *o)
 {
     wristflow_phone_weather_t w = {0};
     cJSON *version = cJSON_GetObjectItemCaseSensitive(o, "v");
-    bool kelvin = cJSON_IsNumber(version) && version->valuedouble == 1.0;
-    if (!weather_temperature(cJSON_GetObjectItemCaseSensitive(o, "temp"), kelvin, &w.temp))
-        return false;
-    /* Gadgetbridge hi/lo are Kelvin; missing source values arrive as 0 K. */
-    w.range_valid = weather_temperature(cJSON_GetObjectItemCaseSensitive(o, "hi"), true, &w.high) &&
-                    weather_temperature(cJSON_GetObjectItemCaseSensitive(o, "lo"), true, &w.low) &&
-                    w.high >= w.low;
-    w.code = -1;
-
-    cJSON *loc = cJSON_GetObjectItemCaseSensitive(o, "loc");
-    if (loc && cJSON_IsString(loc) && loc->valuestring) {
-        strncpy(w.city, loc->valuestring, sizeof(w.city) - 1);
-    }
-
-    cJSON *txt = cJSON_GetObjectItemCaseSensitive(o, "txt");
-    if (txt && cJSON_IsString(txt) && txt->valuestring) {
-        strncpy(w.condition, txt->valuestring, sizeof(w.condition) - 1);
-    }
-
-    cJSON *code = cJSON_GetObjectItemCaseSensitive(o, "code");
-    if (code && cJSON_IsNumber(code) && isfinite(code->valuedouble) &&
-        code->valuedouble >= 0 && code->valuedouble <= INT16_MAX &&
-        floor(code->valuedouble) == code->valuedouble) {
-        w.code = (int16_t)code->valuedouble;
-    }
-
-    cJSON *hum = cJSON_GetObjectItemCaseSensitive(o, "hum");
-    if (hum && cJSON_IsNumber(hum) && isfinite(hum->valuedouble)) {
-        double h = hum->valuedouble;
-        if (h >= 0 && h <= 100) {
-            w.humidity = (uint8_t)round(h);
-            w.humidity_valid = true;
+    if (version && (!cJSON_IsNumber(version) || (version->valuedouble != 1 && version->valuedouble != 2))) return false;
+    bool v2 = version && version->valuedouble == 2;
+    cJSON *location = cJSON_GetObjectItemCaseSensitive(o, v2 ? "l" : "loc");
+    const char *loc = cJSON_IsString(location) ? location->valuestring : "";
+    bool same_location = p->has_weather && loc[0] && strlen(loc) < sizeof p->weather_location &&
+                         !strcmp(loc, p->weather_location);
+    if (loc[0]) weather_text(w.city, sizeof w.city, loc);
+    cJSON *txt = cJSON_GetObjectItemCaseSensitive(o, v2 ? "c" : "txt");
+    if (cJSON_IsString(txt)) weather_text(w.condition, sizeof w.condition, txt->valuestring);
+    if (v2) {
+        cJSON *encoded = cJSON_GetObjectItemCaseSensitive(o, "d");
+        if (!cJSON_IsString(encoded) || !wf_phone_weather_v2_decode(encoded->valuestring, &w)) return false;
+        if (w.extra.forecast_present) w.extra.timestamp = p->utc;
+        else if (same_location) {
+            memcpy(w.extra.hourly, p->weather.extra.hourly, sizeof w.extra.hourly);
+            memcpy(w.extra.daily, p->weather.extra.daily, sizeof w.extra.daily);
+            w.extra.forecast_present = p->weather.extra.forecast_present;
+            w.extra.timestamp = p->weather.extra.timestamp;
         }
-    }
+    } else {
+        bool kelvin = cJSON_IsNumber(version) && version->valuedouble == 1.0;
+        if (!weather_temperature(cJSON_GetObjectItemCaseSensitive(o, "temp"), kelvin, &w.temp))
+            return false;
+        /* Gadgetbridge hi/lo are Kelvin; missing source values arrive as 0 K. */
+        w.range_valid = weather_temperature(cJSON_GetObjectItemCaseSensitive(o, "hi"), true, &w.high) &&
+                        weather_temperature(cJSON_GetObjectItemCaseSensitive(o, "lo"), true, &w.low) &&
+                        w.high >= w.low;
+        w.code = -1;
 
-    cJSON *wind = cJSON_GetObjectItemCaseSensitive(o, "wind");
-    if (wind) {
-        if (cJSON_IsString(wind) && wind->valuestring) {
-            strncpy(w.wind, wind->valuestring, sizeof(w.wind) - 1);
-        } else if (cJSON_IsNumber(wind) && isfinite(wind->valuedouble)) {
-            snprintf(w.wind, sizeof(w.wind), "%.0f km/h", wind->valuedouble);
+        cJSON *code = cJSON_GetObjectItemCaseSensitive(o, "code");
+        if (code && cJSON_IsNumber(code) && isfinite(code->valuedouble) &&
+            code->valuedouble >= 0 && code->valuedouble <= INT16_MAX &&
+            floor(code->valuedouble) == code->valuedouble) {
+            w.code = (int16_t)code->valuedouble;
         }
+
+        cJSON *hum = cJSON_GetObjectItemCaseSensitive(o, "hum");
+        if (hum && cJSON_IsNumber(hum) && isfinite(hum->valuedouble)) {
+            double h = hum->valuedouble;
+            if (h >= 0 && h <= 100) {
+                w.humidity = (uint8_t)round(h);
+                w.humidity_valid = true;
+            }
+        }
+
+        cJSON *wind = cJSON_GetObjectItemCaseSensitive(o, "wind");
+        if (wind) {
+            if (cJSON_IsString(wind) && wind->valuestring) {
+                weather_text(w.wind, sizeof w.wind, wind->valuestring);
+            } else if (cJSON_IsNumber(wind) && isfinite(wind->valuedouble)) {
+                snprintf(w.wind, sizeof(w.wind), "%.0f km/h", wind->valuedouble);
+            }
+        }
+
+        cJSON *uv = cJSON_GetObjectItemCaseSensitive(o, "uv");
+        if (cJSON_IsNumber(uv) && isfinite(uv->valuedouble) && uv->valuedouble > 0 && uv->valuedouble <= 20) {
+            w.uv_tenths = (uint8_t)round(uv->valuedouble * 10);
+            w.uv_valid = w.uv_tenths != 0;
+        }
+        if (same_location) w.extra = p->weather.extra;
     }
 
     w.timestamp = p->utc;
     p->weather = w;
     p->has_weather = true;
+    p->weather_version = v2 ? 2 : 1;
+    if (strlen(loc) < sizeof p->weather_location) strcpy(p->weather_location, loc);
+    else p->weather_location[0] = 0;
     event(p, WF_PHONE_WEATHER, 0);
     return true;
 }

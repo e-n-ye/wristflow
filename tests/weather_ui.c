@@ -2,6 +2,8 @@
 #include "weather_fixture.h"
 #include "app_registry.h"
 #include "product_state.h"
+#include "phone_protocol.h"
+#include "support/weather_v2_fixture.h"
 #include "wristflow_ui.h"
 #include <assert.h>
 #include <stdio.h>
@@ -10,6 +12,18 @@
 static uint32_t ticks;
 static uint8_t pixels[390 * 40 * 4];
 static lv_indev_data_t pointer;
+static unsigned weather_locks, weather_unlocks;
+static bool weather_locked;
+static void lock_weather(void *context)
+{
+    assert(context == &weather_locked && !weather_locked);
+    weather_locked = true; ++weather_locks;
+}
+static void unlock_weather(void *context)
+{
+    assert(context == &weather_locked && weather_locked);
+    weather_locked = false; ++weather_unlocks;
+}
 
 static uint32_t tick(void) { return ticks; }
 static void flush(lv_display_t *display, const lv_area_t *area, uint8_t *buffer)
@@ -115,6 +129,7 @@ static void missing_forecasts(lv_obj_t *screen)
 int main(int argc, char **argv)
 {
     assert(argc == 2);
+    wristflow_weather_set_lock(lock_weather, unlock_weather, &weather_locked);
     lv_init();
     lv_tick_set_cb(tick);
     lv_display_t *display = lv_display_create(390, 450);
@@ -202,6 +217,44 @@ int main(int argc, char **argv)
     lv_obj_scroll_to_y(named(screen, "weather_pager"), 4 * 450, LV_ANIM_OFF);
     advance_ms(32);
     snapshot(argv[1], "weather_product_sun");
+
+    /* Exercise protocol -> cache -> real LVGL labels, including UTC+8 midnight. */
+    static wf_phone_t phone;
+    char frame[600];
+    wf_phone_init(&phone, NULL, NULL);
+    weather_v2_frame(frame, sizeof frame, weather_v2_wire, sizeof weather_v2_wire, "乐清市");
+    wf_phone_feed(&phone, (const uint8_t *)frame, strlen(frame));
+    assert(phone.has_weather);
+    wristflow_weather_update(&phone.weather);
+    wristflow_weather_screen_refresh(screen);
+    text(screen, "weather_sunrise", "05:54"); text(screen, "weather_sunset", "17:32");
+    text(screen, "weather_index_3_value", "4.2"); text(screen, "weather_aqi", "--");
+    assert(lv_obj_has_flag(named(screen, "weather_sun_position"), LV_OBJ_FLAG_HIDDEN));
+    snapshot(argv[1], "weather_v2_product_sun");
+    lv_obj_t *first_hour = named(screen, "weather_hour_0");
+    text(first_hour, "hour_time", "23:00"); text(first_hour, "hour_temp", "20°");
+    text(first_hour, "hour_air", "--");
+    lv_obj_update_layout(screen);
+    lv_area_t wind_icon_area, wind_value_area;
+    lv_obj_get_coords(named(first_hour, "hour_wind_icon"), &wind_icon_area);
+    lv_obj_get_coords(named(first_hour, "hour_wind"), &wind_value_area);
+    assert(wind_icon_area.y2 < wind_value_area.y1);
+    lv_point_t wind_size;
+    lv_text_get_size(&wind_size, "255 km/h", body_20, 0, 0, LV_COORD_MAX, LV_TEXT_FLAG_NONE);
+    assert(wind_size.x <= 92 && wind_size.y <= 30);
+    text(named(screen, "weather_hour_1"), "hour_time", "00:00");
+    text(named(screen, "weather_hour_2"), "hour_temp", "0°");
+    text(named(screen, "weather_hour_2"), "hour_wind", "--");
+    text(named(screen, "weather_hour_3"), "hour_icon", "");
+    text(named(screen, "weather_hour_4"), "hour_temp", "--");
+    text(named(screen, "weather_day_0"), "day_name", "第1天");
+    text(named(screen, "weather_day_0"), "day_range", "26°/18°");
+    text(named(screen, "weather_day_6"), "day_range", "20°/12°");
+    codepoint_glyph(notification_22, 0x7b2c); codepoint_glyph(notification_22, 0x5929);
+    lv_obj_scroll_to_y(named(screen, "weather_pager"), 450, LV_ANIM_OFF);
+    advance_ms(32); snapshot(argv[1], "weather_v2_product_hourly");
+    lv_obj_scroll_to_y(named(screen, "weather_pager"), 2 * 450, LV_ANIM_OFF);
+    advance_ms(32); snapshot(argv[1], "weather_v2_product_daily");
 
     current.range_valid = false;
     wristflow_weather_update(&current);
@@ -364,6 +417,10 @@ int main(int argc, char **argv)
     assert(lv_color_eq(lv_obj_get_style_text_color(named(sunny, "weather_condition"), 0), FG_PRIMARY));
     snapshot(argv[1], "weather_current_sunny");
     lv_obj_delete(sunny);
+    assert(weather_locks > 0 && weather_locks == weather_unlocks && !weather_locked);
+    assert(!wristflow_weather_has_data());
+    assert(weather_locks == weather_unlocks);
+    wristflow_weather_set_lock(NULL, NULL, NULL);
     lv_deinit();
     return 0;
 }

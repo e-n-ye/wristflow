@@ -20,6 +20,8 @@ typedef struct {
     uint32_t utc;
     wristflow_phone_weather_t weather;
     bool has_weather;
+    uint8_t weather_version;
+    char weather_location[128];
     wf_phone_callback_t callback;
     void *context;
 } wf_phone_t;
@@ -31,4 +33,5 @@ void wf_phone_gap(wf_phone_t *phone);
 void wf_phone_reconnect(wf_phone_t *phone);
 bool wf_phone_remove(wf_phone_t *phone, int32_t id);
 void wf_phone_clear(wf_phone_t *phone);
+void wf_phone_clear_weather(wf_phone_t *phone);
 #endif
