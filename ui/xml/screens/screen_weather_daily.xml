@@ -1,0 +1,27 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#weather_cloudy" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0">
+        <lv_label name="weather_daily_title" x="24" y="24" width="220" height="34" text="未来天气" style_text_font="notification_22" style_text_color="#fg_primary" />
+        <lv_label name="weather_daily_clock" x="296" y="26" width="70" height="30" text="15:00" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="right" />
+        <lv_obj name="weather_daily_content" x="0" y="76" width="390" height="320" scrollable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0">
+            <lv_label name="day_1_icon" x="18" y="18" width="52" height="44" text="&#xf0c2;" style_text_font="icons_44" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="day_1_name" x="88" y="24" width="104" height="32" text="今天" style_text_font="notification_22" style_text_color="#fg_primary" />
+            <lv_label name="day_1_range" x="220" y="24" width="148" height="32" text="31°/24°" style_text_font="title_24" style_text_color="#fg_primary" style_text_align="right" />
+            <lv_label name="day_2_icon" x="18" y="76" width="52" height="44" text="&#xf0c2;" style_text_font="icons_44" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="day_2_name" x="88" y="82" width="104" height="32" text="周二" style_text_font="notification_22" style_text_color="#fg_primary" />
+            <lv_label name="day_2_range" x="220" y="82" width="148" height="32" text="30°/23°" style_text_font="title_24" style_text_color="#fg_primary" style_text_align="right" />
+            <lv_label name="day_3_icon" x="18" y="134" width="52" height="44" text="&#xf0c2;" style_text_font="icons_44" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="day_3_name" x="88" y="140" width="104" height="32" text="周三" style_text_font="notification_22" style_text_color="#fg_primary" />
+            <lv_label name="day_3_range" x="220" y="140" width="148" height="32" text="29°/22°" style_text_font="title_24" style_text_color="#fg_primary" style_text_align="right" />
+            <lv_label name="day_4_icon" x="18" y="192" width="52" height="44" text="&#xf0c2;" style_text_font="icons_44" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="day_4_name" x="88" y="198" width="104" height="32" text="周四" style_text_font="notification_22" style_text_color="#fg_primary" />
+            <lv_label name="day_4_range" x="220" y="198" width="148" height="32" text="28°/22°" style_text_font="title_24" style_text_color="#fg_primary" style_text_align="right" />
+            <lv_label name="day_5_icon" x="18" y="250" width="52" height="44" text="&#xf0c2;" style_text_font="icons_44" style_text_color="#fg_primary" style_text_align="center" />
+            <lv_label name="day_5_name" x="88" y="256" width="104" height="32" text="周五" style_text_font="notification_22" style_text_color="#fg_primary" />
+            <lv_label name="day_5_range" x="220" y="256" width="148" height="32" text="27°/21°" style_text_font="title_24" style_text_color="#fg_primary" style_text_align="right" />
+        </lv_obj>
+        <lv_obj name="weather_daily_dots" x="183" y="420" width="24" height="6" scrollable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0">
+            <lv_obj name="weather_daily_dot_0" x="0" y="0" width="6" height="6" scrollable="false" style_bg_color="#fg_primary" style_bg_opa="100%" style_border_width="0" style_radius="3" />
+            <lv_obj name="weather_daily_dot_1" x="18" y="0" width="6" height="6" scrollable="false" style_bg_color="#pager_inactive" style_bg_opa="100%" style_border_width="0" style_radius="3" />
+        </lv_obj>
+    </view>
+</screen>

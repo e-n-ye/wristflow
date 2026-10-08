@@ -1,0 +1,11 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#weather_cloudy" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0">
+        <lv_label name="weather_city" x="0" y="42" width="390" height="34" text="乐清市" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="center" />
+        <lv_label name="weather_update" x="0" y="80" width="390" height="30" text="刚刚更新" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="center" />
+        <lv_label name="weather_temp" x="0" y="132" width="390" height="72" text="30°" style_text_font="metric_56" style_text_color="#fg_primary" style_text_align="center" />
+        <lv_label name="weather_condition" x="0" y="232" width="390" height="34" text="多云" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="center" />
+        <lv_label name="weather_range" x="0" y="270" width="390" height="30" text="31°/24°" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="center" />
+        <lv_label name="weather_aqi_caption" x="0" y="360" width="390" height="28" text="空气质量" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="center" />
+        <lv_label name="weather_aqi" x="0" y="392" width="390" height="34" text="优" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="center" />
+    </view>
+</screen>

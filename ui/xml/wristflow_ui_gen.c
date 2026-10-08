@@ -95,6 +95,8 @@ const void * hour_11 = NULL;
 extern const void * hour_11_data;
 const void * hour_12 = NULL;
 extern const void * hour_12_data;
+const void * weather_sun_track = NULL;
+extern const void * weather_sun_track_data;
 
 /*----------------
  * Global styles
@@ -250,6 +252,10 @@ void wristflow_ui_init_gen(const char * asset_path)
         if (!hour_12) {
             hour_12 = &hour_12_data;
         }
+        /* weather_sun_track */
+        if (!weather_sun_track) {
+            weather_sun_track = &weather_sun_track_data;
+        }
     }
     #endif
 
@@ -332,6 +338,7 @@ void wristflow_ui_init_gen(const char * asset_path)
     lv_xml_register_image(NULL, "hour_10", hour_10);
     lv_xml_register_image(NULL, "hour_11", hour_11);
     lv_xml_register_image(NULL, "hour_12", hour_12);
+    lv_xml_register_image(NULL, "weather_sun_track", weather_sun_track);
 #endif
 
 #if defined(LV_USE_XML) && LV_USE_XML == 0

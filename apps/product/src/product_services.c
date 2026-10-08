@@ -192,6 +192,16 @@ int wristflow_product_services_set_time(uint32_t seconds)
     return RT_EOK;
 }
 
+void wristflow_product_services_update_weather(const wristflow_phone_weather_t *w)
+{
+    wristflow_weather_update(w);
+    if (w) {
+        rt_kprintf("[product] weather updated: %s %d C, condition=%s code=%d hum=%u%%\n",
+                   w->city, w->temp, w->condition, w->code, w->humidity);
+    }
+}
+
+
 /* USB and phone synchronization share the same checked UTC boundary. */
 static int wf_time(int argc, char **argv)
 {

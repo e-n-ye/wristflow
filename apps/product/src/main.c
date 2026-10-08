@@ -8,6 +8,13 @@
 #include "product_services.h"
 #include "product_ble.h"
 #include "product_pm.h"
+#include "weather_screen.h"
+#include <string.h>
+
+bool wristflow_weather_request_sync(void)
+{
+    return wristflow_product_ble_request_weather();
+}
 
 static wristflow_ui_shell_t *product_shell;
 static lv_indev_read_cb_t original_pointer_read;
@@ -23,6 +30,7 @@ static bool sync_notifications(void)
     wristflow_product_ble_snapshot(&notifications);
     return wristflow_ui_shell_notifications(product_shell, &notifications);
 }
+
 
 static void read_pointer(lv_indev_t *input, lv_indev_data_t *data)
 {
@@ -182,8 +190,17 @@ int main(void)
         }
         rt_uint32_t events = wristflow_product_event_wait(rt_tick_from_millisecond(LV_CLAMP(1, wait_ms, 20)));
         if (events & WF_EVENT_PM_SAMPLE) wristflow_product_pm_report();
-        if (events & WF_EVENT_PHONE) sync_notifications();
+        if (events & WF_EVENT_PHONE) {
+            sync_notifications();
+            snapshot = wristflow_product_services_snapshot();
+            wristflow_ui_shell_update(shell, &snapshot);
+            lv_obj_t *active = lv_screen_active();
+            if (active && lv_obj_get_name(active) && !strcmp(lv_obj_get_name(active), "screen_weather")) {
+                wristflow_weather_screen_refresh(active);
+            }
+        }
         if (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))
+
             wristflow_ui_shell_key(shell);
     }
 }

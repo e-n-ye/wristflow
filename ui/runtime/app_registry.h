@@ -14,7 +14,7 @@ typedef enum {
 
 typedef struct {
     char value[24];
-    const char *reason;
+    char reason[32];
 } wristflow_app_data_t;
 
 typedef struct wristflow_app_descriptor {

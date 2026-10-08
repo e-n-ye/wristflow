@@ -19,8 +19,9 @@
 #define SERIAL_UUID_16(x) {((uint8_t)((x) & 0xff)), ((uint8_t)((x) >> 8))}
 #define NUS_UUID(n) {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,n,0x00,0x40,0x6e}
 enum { SVC, RX_CHAR, RX_VALUE, TX_CHAR, TX_VALUE, TX_CCCD, ATT_COUNT };
-enum { PACKET_POWER = 1, PACKET_LINK, PACKET_RX, PACKET_SUBSCRIBE };
+enum { PACKET_POWER = 1, PACKET_LINK, PACKET_RX, PACKET_SUBSCRIBE, PACKET_TX_WEATHER_REQ };
 typedef struct {
+
     uint32_t sequence, generation;
     uint16_t kind, size;
     uint8_t data[512];
@@ -151,6 +152,9 @@ static void phone_event(wf_phone_event_t e, int32_t id, void *context)
         int result = wristflow_product_services_set_time(phone.utc);
         rt_kprintf("[ble] phone time UTC=%u result=%d\n", phone.utc, result);
     } else if (e == WF_PHONE_GPS_QUERY) gps_reply = true;
+    else if (e == WF_PHONE_WEATHER) {
+        wristflow_product_services_update_weather(&phone.weather);
+    }
     else rt_kprintf("[ble] event=%u id=%ld count=%u rejected=%u\n", e, (long)id, phone.count, phone.rejected);
     wristflow_product_pm_phone_event();
 }
@@ -172,11 +176,18 @@ static void worker(void *context)
         rt_mutex_release(&phone_lock);
         if (p.kind == PACKET_LINK || p.kind == PACKET_SUBSCRIBE) wristflow_product_event_send(WF_EVENT_PHONE);
         if (p.generation != generation) continue;
-        if (p.kind == PACKET_SUBSCRIBE && subscribed)
+        if (p.kind == PACKET_SUBSCRIBE && subscribed) {
+            wristflow_weather_reset();
             transmit("\n{\"t\":\"ver\",\"fw\":\"WristFlow Notify B1\",\"hw\":\"Huangshan\"}\n", peer);
+            transmit("\n{\"t\":\"weather\"}\n", peer);
+            rt_kprintf("[ble] subscribed: reset weather cache and requested weather from phone\n");
+        }
+        if (p.kind == PACKET_TX_WEATHER_REQ && subscribed)
+            transmit("\n{\"t\":\"weather\"}\n", peer);
         if (reply) transmit("\n{\"t\":\"gps_power\",\"status\":false}\n", peer);
     }
 }
+
 static int ble_event(uint16_t e, uint8_t *data, uint16_t len, uint32_t context)
 {
     (void)len; (void)context;
@@ -237,14 +248,33 @@ void wristflow_product_ble_delete(bool all, int32_t id, void *context)
     wristflow_product_event_send(WF_EVENT_PHONE);
 }
 
+bool wristflow_product_ble_is_connected(void)
+{
+    return connection != 0xff && subscribed;
+}
+
+bool wristflow_product_ble_request_weather(void)
+{
+    if (!wristflow_product_ble_is_connected()) return false;
+    rt_kprintf("[ble] requesting weather from phone\n");
+    return enqueue(PACKET_TX_WEATHER_REQ, NULL, 0);
+}
+
 /* Serial diagnostics are deliberate: routine logs never include notification bodies. */
 static int wf_ble(int argc, char **argv)
 {
     if (!ready) return -RT_ERROR;
-    if (argc < 2) { rt_kprintf("wf_ble status | list | clear | remove <id>\n"); return -RT_EINVAL; }
+    if (argc < 2) { rt_kprintf("wf_ble status | list | clear | clear_weather | weather | remove <id>\n"); return -RT_EINVAL; }
     rt_mutex_take(&phone_lock, RT_WAITING_FOREVER);
     int result = RT_EOK;
-    if (!strcmp(argv[1], "status"))
+    if (!strcmp(argv[1], "weather")) {
+        bool sent = wristflow_product_ble_request_weather();
+        rt_kprintf("[ble] weather request queued=%u\n", sent);
+    } else if (!strcmp(argv[1], "clear_weather")) {
+        wristflow_weather_reset();
+        rt_kprintf("[ble] cleared weather cache\n");
+    } else if (!strcmp(argv[1], "status"))
+
         rt_kprintf("[ble] A1 connected=%u subscribed=%u generation=%u messages=%u added=%u updated=%u removed=%u rejected=%u unknown=%u dropped=%u\n",
             connection != 0xff, subscribed, generation, phone.count, phone.received, phone.updated,
             phone.removed, phone.rejected, phone.unknown, dropped);

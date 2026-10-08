@@ -4,6 +4,25 @@
 
 本轮没有新增构建。已找回 2026-10-04 Product / `7ec96322` 的 result.json、三镜像及写入/启动记录，现存镜像大小与哈希匹配旧 result.json；详见 [历史验收](PRODUCT-ACCEPTANCE.md#2026-10-04-联合验收尝试历史记录恢复) 和 [精简证据](evidence/2026-10-04/product-joint-attempt.json)。旧工作树及产物路径的归档定位见 [恢复记录](handoffs/WORKSPACE-RECOVERY.md)，不把旧构建算成本轮编译通过。
 
+## 2026-10-05 天气 UI 增量
+
+天气 UI 工作树 `C:/Users/13984/.codex/worktrees/weather-ui/wristflow` 基于 `9ce5b3e`，SDK 仍为 `421126d9f476ed8e2a6f0b0ca28a9f241c182e65`，未修改 SDK 或 `sdk.lock.json`。日升日落页已在 LVGL Pro Editor 2.0.1 Community / LVGL 9.4.0 中预览并以 `Ctrl+B` 导出；输出记录 `Project compiled successfully`。主机验证使用：
+
+```powershell
+cmake --build artifacts/weather-host-build --parallel 6
+ctest --test-dir artifacts/weather-host-build --output-on-failure --timeout 60
+```
+
+两步均退出 0，CTest **16/16** 通过。`artifacts/weather-host-build/renders/` 保存 `weather_current.ppm`、`weather_current_sunny.ppm`、`weather_hourly.ppm`、`weather_daily.ppm`、`weather_indices.ppm` 和 `weather_sun.ppm` 六张 390×450 快照；`weather_sun.png` 为同一 LVGL 快照的预览。测试还检查贴图尺寸、ARGB8888、弧顶、虚线间隔、暗色延伸、地平线交点和太阳点关系。Product 复编译使用：
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 6
+```
+
+该命令调用官方 `scons --board=sf32lb52-lchspi-ulp -j6`，退出 0，产物校验通过。最新机器记录为 `artifacts/product/20261005-141441-099/result.json`；`main.bin` 7,612,188 B，SHA-256 `ee2ec45da3a93f02d47259a067c83c8d65f1ec27e78eae77f6b830e8447198b6`，`hardware_verified=false`。完整页面、fixture、XML/Pro 导出范围、测试覆盖和剩余边界见 [天气 UI 增量](WEATHER-UI.md)。
+
+烧录前用户确认 USB-only、未接电池，主机侧枚举到 `USB-SERIAL CH340 (COM5)`、VID:PID `1A86:7523`。本轮用 sftool 0.2.5 对 Product 三镜像执行 `write_flash --verify`，退出码 0；随后 1Mbps/8N1 启动采样确认 CO5300、FT6146 和 `display on`。证据见 `artifacts/flash/weather-20261005/evidence.json`。编译、烧录和启动不代替用户对天气曲线屏幕视觉/触摸的现场验收，也不代表 BLE、休眠电流、功耗或续航通过。真实 provider 尚未接入，天气同步、过期数据和网络异常策略仍待下一项有界实验。
+
 ## 2026-09-27 合入版本 Product 烧录复验
 
 用户授权后，从合入 #28 的 `main 5c0b82c02cf8f80168b076b0f76e2514a1867042` 重新构建 Product。`pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/build-isolated.ps1 -Example product` 调用锁定环境的官方 `scons --board=sf32lb52-lchspi-ulp -j6`，退出 0、产物校验通过。记录为本工作树 `artifacts/product/20260927-225145-164/result.json`；286 个源文件及全部记录产物的哈希复核一致，SDK/子模块符合锁且无修改。主 BIN 为 7,427,780 B，SHA-256 `e3d78d1737c27bb1ca1110f40a2d438060c308efc26d3d88882493fdf097ebaa`。
