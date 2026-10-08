@@ -1,5 +1,25 @@
 # 可复现构建基线
 
+## 2026-10-08 天气 D1 候选构建
+
+工作目录 `D:/MY_Desk/project/wristflow`，验证源码 `codex/weather-d1@3e1a9ce8c1d55bb9f837b2b7f04baf5792293cd3`。SDK/子模块仍匹配锁且干净，使用 SDK Python 3.13.15、SCons 4.10.1、Arm GCC 14.2.1；主机 GCC 15.2.0、CMake 3.31.4、Ninja。
+
+```powershell
+cmake -S tests -B artifacts/weather-d1-host -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe
+cmake --build artifacts/weather-d1-host --parallel 6
+ctest --test-dir artifacts/weather-d1-host --output-on-failure --timeout 60
+pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 6
+pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example ui_demo -Jobs 6
+```
+
+最终主机 16/16 通过，两目标官方 SCons 和产物校验通过。Product 记录 `artifacts/product/20261008-193403-027/result.json`，`main.bin` 7,614,884 B / SHA-256 `e0677ca60daacf57507633aee3d61f1e4950f907ffb5d657a14d1c4a2f6cbb8b`；UI Demo 记录 `artifacts/ui_demo/20261008-193403-861/result.json`，7,422,344 B / `d2b0f16d807b72ab2c46f302a9496d4b01a763bc7e44199021eebe305a638946`。分别 307/299 个工程源和 29/22 个记录产物逐文件重哈希一致；原 result 无项目 Git HEAD/dirty 字段，因此本节另行绑定验证源码，不推断构建当时的 Git 状态。初版构建 `20261008-192649-435` / `20261008-192815-611` 也成功，最终记录是在 EOF 空行修正后重编译的版本。
+
+失败保留：最初天气测试缺 `product_state.h`，构建日志 `C:/Users/13984/.fastctx/jobs/j-9cifgu/output.log`；随后 `product_ui` 仍断言旧样例 `30°/多云`，日志 `C:/Users/13984/.fastctx/jobs/j-yp7co3/output.log`。补 include 并改为无数据预期后通过；最后一笔 EOF 规范化前的差异空白检查曾非零，随后逐文件修正，最终必须再次检查。SDK/FinSH 与既有链接警告保留。两目标最终后台日志为 `j-xtr7bl` / `j-mf9nz7`；主机完整最后测试日志在 `artifacts/weather-d1-host/Testing/Temporary/LastTest.log`。
+
+Product 编译清单/map/ELF 无 Demo provider、`mock_weather`；Demo 清单纳入 `weather_fixture.c`，当前无固件调用者、相应 factory 被链接剔除，专用主机测试实际使用。运行时覆盖生成 XML 的样例标签，所以仅搜索样例字符串不能判定运行时真假。烧录和真机反馈独立记录于[天气专题](WEATHER-UI.md#2026-10-08-d1-生产数据真实性修复候选)，本节编译不证明手机来源、线程安全、触摸或功耗。天气仍为待后续 D2/D3/D8 处理的候选。
+
+用户手机日志触发 CRLF 窄修复后，沿用同一 Product 构建命令补编译成功：`artifacts/product/20261008-194850-771/result.json`，主 BIN 7,614,892 B / SHA-256 `ae291fa22acca8ff6a2a9e5af3434c8dc4007d9907a780cc9aac6f23039a6bcb`。307/307 源和 29/29 产物重哈希匹配；此镜像源为上述初版加 `product_ble.c` CRLF 增量，文件 SHA-256 `67e6362c722c75a2c67c7876269eb04588e67a35a57be68d78e175039ebf7ccd`，不能仅绑定旧 `3e1a9ce`。UI Demo 与主机目标不编译该平台文件，其既有通过记录继续有效，无需为平台字符串改动重跑无关目标。兼容性负例与新镜像 USB 回包单列于天气专题。
+
 ## 2026-10-08 恢复历史构建记录
 
 本轮没有新增构建。已找回 2026-10-04 Product / `7ec96322` 的 result.json、三镜像及写入/启动记录，现存镜像大小与哈希匹配旧 result.json；详见 [历史验收](PRODUCT-ACCEPTANCE.md#2026-10-04-联合验收尝试历史记录恢复) 和 [精简证据](evidence/2026-10-04/product-joint-attempt.json)。旧工作树及产物路径的归档定位见 [恢复记录](handoffs/WORKSPACE-RECOVERY.md)，不把旧构建算成本轮编译通过。

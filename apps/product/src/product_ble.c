@@ -178,13 +178,14 @@ static void worker(void *context)
         if (p.generation != generation) continue;
         if (p.kind == PACKET_SUBSCRIBE && subscribed) {
             wristflow_weather_reset();
-            transmit("\n{\"t\":\"ver\",\"fw\":\"WristFlow Notify B1\",\"hw\":\"Huangshan\"}\n", peer);
-            transmit("\n{\"t\":\"weather\"}\n", peer);
+            /* Gadgetbridge's Bangle.js line reader removes CR before LF. */
+            transmit("\r\n{\"t\":\"ver\",\"fw\":\"WristFlow Notify B1\",\"hw\":\"Huangshan\"}\r\n", peer);
+            transmit("\r\n{\"t\":\"weather\"}\r\n", peer);
             rt_kprintf("[ble] subscribed: reset weather cache and requested weather from phone\n");
         }
         if (p.kind == PACKET_TX_WEATHER_REQ && subscribed)
-            transmit("\n{\"t\":\"weather\"}\n", peer);
-        if (reply) transmit("\n{\"t\":\"gps_power\",\"status\":false}\n", peer);
+            transmit("\r\n{\"t\":\"weather\"}\r\n", peer);
+        if (reply) transmit("\r\n{\"t\":\"gps_power\",\"status\":false}\r\n", peer);
     }
 }
 

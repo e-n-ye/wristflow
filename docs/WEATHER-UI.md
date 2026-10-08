@@ -1,5 +1,26 @@
 # 天气 UI 与同步分支记录
 
+## 2026-10-08 D1 生产数据真实性修复候选
+
+工作目录 `D:/MY_Desk/project/wristflow`，分支 `codex/weather-d1`，基于 `main@7d11849` 接入保留天气成果 `f68d64f`；验证源码 `3e1a9ce8c1d55bb9f837b2b7f04baf5792293cd3`。尚未合入 main，天气整体保持 Draft；本节不覆盖下方历史版本。
+
+- **源码修复**：`core/weather.c` 删除 fixture provider 和无缓存回退；`product_ble.c` 删除 `mock_weather` 命令及假报文。旧完整演示数据移到 `apps/ui_demo/src/weather_fixture.c`，由 `weather_ui` 测试显式链接；Product 清单、map 与 ELF 符号均无该 provider 或 mock 命令。Demo 清单编译该文件，当前 Demo 固件无调用者，因此链接不保留其 factory；主机专用测试仍实际渲染完整演示天气。
+- **数据表达**：当前温度与高低温、预报、太阳位置各有有效位；湿度区分缺失和真实 0%。缺天气文本、AQI、日出/日落及预报显示占位，不填多云、假温度或固定时间。协议窄化前检查温度/code 范围，风值保留单位。
+- **界面修复**：Product 冷启动 EMPTY、卡片显示 `-- / 暂无天气数据`；清空刷新和重入恢复 EMPTY。重试失败为 ERROR，成功入队只到 LOADING；每次刷新覆盖全部 24 小时/7 天标签和页面背景，无真实太阳位置时隐藏 marker。挂载生成日升日落页时覆盖样例时间；指数长值换行、小字号保持单位可读。
+- **主机验证**：最终源增量构建与 CTest 16/16 通过，覆盖无缓存、缺湿度/真实 0%、部分及越界报文、卡片占位、清空后刷新/重入、Demo 转真实数据清除预报与既有手势。真实 LVGL 390×450 快照保留在本机 `artifacts/weather-d1-host/renders/`，其中 `weather_product_{empty,partial,current,indices,sun}` 检查了占位、风速单位与 marker；本轮 XML 无语义修改，生成 C 只做末尾空行规范化，未重新 Pro 导出。
+- **固件编译**：Product `artifacts/product/20261008-193403-027/result.json`、UI Demo `artifacts/ui_demo/20261008-193403-861/result.json` 均退出 0、产物校验通过；源码哈希分别 307/307、299/299，产物分别 29/29、22/22 匹配。版本、镜像与命令见[构建记录](BUILD.md#2026-10-08-天气-d1-候选构建)。
+- **初版 USB 回归**：用户确认接入同一板屏、USB-only、不接电池；枚举 COM5 的 CH340 / `1A86:7523` / `1-1.1`，三镜像 dry-run 及写入/verify 退出 0，记录 `artifacts/flash/product/20261008-193935-833/result.json`。启动采集确认 CO5300、FT6146、display on、Product、BLE 广播；随后自动重连、订阅、MTU=131、真实手机校时。用户只确认点击重试一直处在“正在同步天气”，其他占位/手势尚未确认。一次非复位采集的三个串口命令没有回执，不能记为清空或请求诊断执行成功；日志保留于 `artifacts/weather-d1/20261008/` 和 FastCtx jobs `j-7tusk5` / `j-u4ty8l`。
+
+### 手机日志触发的 CRLF 修复
+
+用户随后提供本机 `gadgetbridge(1).log`（28,851 行，版本 `0.94.0-2ee6b3002 (dirty)`）。天气相关五次请求中，原始接收字节包含完整 JSON，但 `UART RX LINE` 缺失末尾 `}`，随后 `Unterminated object`；最近窗口为 28713–28721、28792–28800、28815–28823 行。未见天气 `UART TX`，不能归因为未配置数据源；日志只有时分秒，不推断全部记录的日期或固件版本。
+
+归档 Gadgetbridge 0.94.0 的 `BangleJSDeviceSupport.java:1225–1230` 在 LF 位置无条件截去前一字符，要求 CRLF；`:630–632` 支持天气请求，`:1972–1977` 数据为空时另有明确告警。Product 原发 LF，所以完整 `}` 被截掉。本轮只将 `product_ble.c` 的版本、订阅天气、主动天气、GPS 回复四个 JSON 帧统一改为 CRLF；无手机端修改。按实际四个 C 字面量、同一拆行算法和 JSON parser 对每个两片切分核对，旧版 121/121 失败，修正版 129/129 通过；只证明分行兼容，不证明来源有效。
+
+CRLF 补构建 `artifacts/product/20261008-194850-771/result.json` 已成功，307 个源/29 个产物哈希匹配；新主 BIN 7,614,892 B / `ae291fa22acca8ff6a2a9e5af3434c8dc4007d9907a780cc9aac6f23039a6bcb`。补丁源文件 SHA-256 `67e6362c722c75a2c67c7876269eb04588e67a35a57be68d78e175039ebf7ccd`，其余已验证源不变。新镜像写入与真实手机回包正在复验；不能把初版镜像的现场结果直接转记给修正版。
+
+**仍待处理**：真实手机数据源未闭环；D2 的共同同步、接收时间/老化及非天气事件覆盖请求状态未改，D3/D8 未核查。主机成功请求只直接设置 LOADING，未覆盖 retry 的 `queued=true` 分支；需要在 D2 补真实请求结果的可测试边界。完整天气 PR 不能因本轮局部修复而转 Ready 或合并。当前活动项与唯一下一步见 [STATUS](STATUS.md#current)。
+
 ## 2026-10-07 静态审查更正
 
 以下保留天气分支的历史开发/验证记录，**不表示天气代码已合入主线**。本次审查对象为 `codex/weather-sync@0606f3b`，文档整理起点主线为 `9ce5b3e`；没有新增构建、烧录或实验。
