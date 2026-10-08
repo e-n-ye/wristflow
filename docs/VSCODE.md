@@ -1,5 +1,7 @@
 # 使用 VS Code 编译
 
+工具入口遵循 [AGENTS](../AGENTS.md) 和 [任务索引](../PROJECT_INDEX.md) 的同一读写规范；活动任务只见 [STATUS 当前区](STATUS.md#current)。本页只维护 VS Code 操作，不保存另一份任务队列。
+
 版本提交、分支、GitHub PR 与云端检查见 [开发流程](../CONTRIBUTING.md)。本页任务和默认快捷键不变。
 
 2026-09-22 主板改为黄山派，任务统一读取 `sdk.lock.json` 中的 `sf32lb52-lchspi-ulp`；下面 2026-09-21 的日志和哈希仍属于 Nano 历史验证。黄山派构建结果见 [构建说明](BUILD.md)。

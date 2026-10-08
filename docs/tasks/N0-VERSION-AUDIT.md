@@ -2,7 +2,9 @@
 
 任务 ID：`WF-N0-VERSION-AUDIT-01`
 制定日期：2026-10-07（Asia/Shanghai）
-执行者：Gemini；验收与集成负责人：Codex。状态：**待执行**。
+原协作角色：Gemini 执行，Codex 验收与集成。**本页为 2026-10-07 的历史任务契约，不维护执行状态。**
+
+2026-10-08 用户暂时放弃 Gemini 协作；下文步骤、写入白名单和 Git 限制仅保留原任务的授权边界，不能自动用于新的接续任务。活动项和下一步只见 [STATUS 当前区](../STATUS.md#current)，首轮结论见 [验收记录](../handoffs/N0-CODEX-ACCEPTANCE.md)。
 
 ## 1. 唯一目标与交付边界
 
