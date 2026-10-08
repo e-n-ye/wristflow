@@ -582,14 +582,15 @@ static void mount_card(wristflow_ui_shell_t *shell, lv_obj_t *screen,
             wristflow_surface_t target = shell->components
                 ? wristflow_components_target(shell->components, index - 1, i)
                 : shell->card_target(index - 1, i);
-            if (target < WRISTFLOW_SURFACE_STOPWATCH || target >= WRISTFLOW_SURFACE_COUNT) continue;
+            bool navigable = target >= WRISTFLOW_SURFACE_STOPWATCH && target < WRISTFLOW_SURFACE_COUNT;
+            if (!navigable && !shell->components) continue;
             lv_obj_t *component = lv_obj_find_by_name(shell->slots[slot].panel, names[i]);
-            LV_ASSERT(component);
+            if (!component) { LV_ASSERT(!navigable); continue; }
             card_link_t *link = &shell->slots[slot].links[i];
             *link = (card_link_t){shell, target, index, i};
             lv_obj_add_flag(component, LV_OBJ_FLAG_CLICKABLE);
             bubble_events(component);
-            lv_obj_add_event_cb(component, card_clicked, LV_EVENT_SHORT_CLICKED, link);
+            if (navigable) lv_obj_add_event_cb(component, card_clicked, LV_EVENT_SHORT_CLICKED, link);
             if (shell->components) lv_obj_add_event_cb(component, card_touch, LV_EVENT_ALL, link);
         }
     }
