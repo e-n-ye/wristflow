@@ -23,7 +23,9 @@ CRLF 补构建 `artifacts/product/20261008-194850-771/result.json` 已成功，3
 
 ### 下一处来源核查
 
-归档 Gadgetbridge 0.94.0 的简中设置文案说明：LineageOS 可使用系统天气服务，其它 Android 需类似 Breezy Weather 的应用提供天气；`Weather.kt` 维护缓存，`GenericWeatherReceiver` 接收外部天气广播。不能据此推断用户已装/未装某个来源，也不能从没有回包确定缓存为空。已请用户在 Gadgetbridge 的 `Debug → Weather → Cache` 查看真实缓存：`No cached weather` 表示没有可供重发的数据，有条目可核对城市；本轮没有添加测试天气或向缓存注入。此来源反馈尚待，需与修正版手机日志一起继续定位。
+归档 Gadgetbridge 0.94.0 的简中设置文案说明：LineageOS 可使用系统天气服务，其它 Android 需类似 Breezy Weather 的应用提供天气；`Weather.kt` 维护缓存，`GenericWeatherReceiver` 接收外部天气广播。用户随后确认 `Debug → Weather → Cache` 显示 `No cached weather`，截图中“缓存天气信息”已开启，证明当前没有可供重发的天气条目；不能进一步断言未安装来源或 Android 广播投递失败。本轮没有添加测试天气或向缓存注入。
+
+[Gadgetbridge 官方指南](https://gadgetbridge.org/basics/integrations/weather/) 的 Breezy Weather 路径为 `Settings → External modules → Send Gadgetbridge data → Gadgetbridge`。v6.2.2 源码及简中资源核对的入口为 `设置 → 微件与动态壁纸 → 数据共享 → 发送天气数据到 Gadgetbridge`，需要选择已安装的 Gadgetbridge 接收包并保存；`ModulesSettingsScreen.kt` 保存所选包后立即触发发送，`GadgetbridgeService.kt` 在全部位置都无当前天气时不生成发送内容。推荐从 [官方 v6.2.2 发布页](https://github.com/breezy-weather/breezy-weather/releases/tag/v6.2.2) 安装 standard APK，先添加真实所在地并成功取得天气，再选择 Gadgetbridge 输出并刷新。多位置时本设备使用第一项。随后回到 Gadgetbridge 查看真实 Cache 条目；已有条目且设备连接时点 `Send weather to devices`，核对手表城市、当前温度和缺失字段占位。归档接收器为 exported、没有声明 receiver permission，处理流程未检查额外外部来源开关或发送方白名单；这只是源码检查，用户手机的实际投递仍待验。来源配置、真实缓存、设备天气报文与现场屏幕分别记录，不把来源安装当作链路通过。
 
 **仍待处理**：真实手机数据源未闭环；D2 的共同同步、接收时间/老化及非天气事件覆盖请求状态未改，D3/D8 未核查。主机成功请求只直接设置 LOADING，未覆盖 retry 的 `queued=true` 分支；需要在 D2 补真实请求结果的可测试边界。完整天气 PR 不能因本轮局部修复而转 Ready 或合并。当前活动项与唯一下一步见 [STATUS](STATUS.md#current)。
 

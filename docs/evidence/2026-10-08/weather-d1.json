@@ -125,17 +125,24 @@
     "compatibility_limit": "Uses documented line reader and a host JSON parser; does not prove weather source availability or run the Android application"
   },
   "phone_weather_source_check": {
-    "status": "user_observation_pending",
+    "status": "user_and_screenshot_confirm_empty_cache",
     "check_path": "Gadgetbridge Debug > Weather > Cache; inspect real entries only",
     "empty_label": "No cached weather",
-    "source_model": "Archived Gadgetbridge 0.94.0 uses LineageOS weather or external providers such as Breezy Weather; source configuration on user's phone is not observed",
+    "source_model": "Archived Gadgetbridge 0.94.0 uses LineageOS weather or external providers such as Breezy Weather; source configuration and actual broadcast delivery on user's phone are not observed",
+    "cache_enabled_in_screenshot": true,
+    "cache_empty_confirmed": true,
+    "user_screenshot": "C:/Users/13984/AppData/Local/Temp/codex-clipboard-80601dd4-1768-431e-95f9-86ee7e7b3034.jpg; remains outside repository",
+    "official_source_guide": "https://gadgetbridge.org/basics/integrations/weather/",
+    "proposed_provider_release": "https://github.com/breezy-weather/breezy-weather/releases/tag/v6.2.2",
+    "provider_setup": "Obtain real location weather in Breezy Weather; Settings > External modules > Send Gadgetbridge data > select installed Gadgetbridge package and save; refresh, confirm real Gadgetbridge cache, then send to connected device",
+    "provider_setup_source_tag": "breezy-weather/breezy-weather v6.2.2; RootSettingsScreen.kt:105-112, ModulesSettingsScreen.kt:376-402, GadgetbridgeService.kt:41-70, values-zh-rCN/strings.xml:386,480,544",
     "references_under_archived_app": [
       "src/main/java/nodomain/freeyourgadget/gadgetbridge/model/weather/Weather.kt:6",
       "src/main/java/nodomain/freeyourgadget/gadgetbridge/externalevents/GenericWeatherReceiver.java:48",
       "src/main/res/values-zh-rCN/strings.xml:835"
     ],
     "test_weather_added": false,
-    "provider_empty_is_confirmed_root_cause": false
+    "provider_delivery_failure_root_cause_confirmed": false
   },
   "usb_hardware": {
     "conditions": "User confirmed same Huangshan board and screen, USB-only, battery not connected",
@@ -190,6 +197,6 @@
     "Same-version joint acceptance remains pending",
     "No current, energy or battery-life measurement"
   ],
-  "next_bounded_experiment": "Complete any D1 regression feedback, then handle D2 synchronized weather snapshot, real receipt time, expiry and request state in a separate round",
+  "next_bounded_experiment": "Configure Breezy Weather for a real location and Gadgetbridge output, confirm real phone cache, then verify weather packet and on-screen values with the CRLF firmware; D2 remains a separate round",
   "merge_blocker": "Full weather candidate stays Draft until relevant D1 acceptance and D2/D3/D8 blockers are resolved"
 }
