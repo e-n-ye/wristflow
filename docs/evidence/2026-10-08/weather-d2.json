@@ -1,0 +1,94 @@
+{
+  "date": "2026-10-08",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/weather-d1",
+  "source_commit": "767a67b51c1cd8d29e6df29a76d3d88f80c30688",
+  "source_parent_commit": "bb5bb39d03477d4448225d691253a583dc8b4bd7",
+  "delivery": "candidate_not_merged",
+  "scope": "D2 receipt time, independent cache age, expiry and shared request lifecycle; D3/D8 fixes deferred",
+  "source_inspection": {
+    "receipt": "Sample actual RTC UTC when accepting weather. The wire has no source observation timestamp; UI says received",
+    "age": "Monotonic milliseconds extended from uint32 RT-Thread ticks under weather_lock before scaling. Tick rate is 1000 Hz; worker samples at least every three hours",
+    "expiry_ms": 10800000,
+    "request_timeout_ms": 30000,
+    "independent_age": "Current, forecast and solar receipts age independently; same-source inherited extras do not renew",
+    "request": "Service owns ID, connection generation, fixed deadline and status. Reentry coalesces without renewal; failed queue/TX, disconnect and timeout finish pending; only valid weather completes successfully",
+    "callback_context": "BLE callbacks update link fields and queue only; peer reader detects generation changes without adding weather locks in callbacks",
+    "time_unknown": "No clock adapter means unknown age. Unset RTC remains UTC=0 while monotonic age is valid",
+    "ui": "Read-only snapshot; retain stale current values with explicit hint and retry; expired extras become unavailable; unchanged snapshots skip redraw",
+    "automatic_followup": "At most one automatic v2 attempt per connection; explicit retry remains possible",
+    "d3": "Existing origin/main condition: missing app/unsupported size can reset full layout, and fallback target lookup lacks null check. Full current default registry/layout match; no current device NVS inspection",
+    "d8": "Multiple producers assign sequence before copying and queue insertion; non-atomic increment/reversed insertion can cause false gap. Source-feasible, not hardware reproduced"
+  },
+  "host": {
+    "commands": [
+      "cmake -S tests -B artifacts/weather-d2-host -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe",
+      "cmake --build artifacts/weather-d2-host --parallel 6",
+      "ctest --test-dir artifacts/weather-d2-host --output-on-failure --timeout 60"
+    ],
+    "passed": 17,
+    "failed": 0,
+    "ctest_log_sha256": "8788251e96e8c949fe4b19978e40873cd6debe43e998100c905dfd45be499604",
+    "last_test_log_sha256": "5781c72b7456b647e444ed4b2be4c349b3796f7667333ba511c11af75910572e",
+    "coverage": ["queued_and_success_reply", "29999_30000ms_fixed_deadline", "duplicate_and_reentry_coalescing", "queue_failure", "disconnect_and_rapid_generation_change", "old_request_result_after_reset", "non_weather_refresh_preserves_request", "unset_RTC_and_forward_backward_RTC", "three_hour_boundary", "inherited_extra_age", "64bit_monotonic_and_backward_time", "stale_retry_timeout_failure_with_old_values", "all_hint_glyphs", "retry_button_geometry"],
+    "lvgl_version": "9.4.0",
+    "dimensions": [390, 450],
+    "snapshots": [
+      {"path": "artifacts/weather-d2-host/renders/weather_product_current.png", "sha256": "cf63d3dd61947ac74e34fb92dc54b6c15b2f87144fefd26084bbe46c8675acea"},
+      {"path": "artifacts/weather-d2-host/renders/weather_product_timeout.png", "sha256": "8ca256f7df109f922cd68e1a9161a75e2a96be44a6af73ed4096c5ece484fd2a"},
+      {"path": "artifacts/weather-d2-host/renders/weather_product_stale.png", "sha256": "4d879646ab07e8ae2354b1c9da1e3e1805202837aeeb6b43622286a4492bc0d3"},
+      {"path": "artifacts/weather-d2-host/renders/weather_product_stale_timeout.png", "sha256": "52a0d4a574dd755ef046fd0a36cbffcacff94b2be385b8d3cac0100a8d02a876"}
+    ],
+    "snapshot_kind": "Synthetic data rendered by actual LVGL; not hardware evidence",
+    "xml_export": "Not repeated; XML, generated sources and fonts unchanged"
+  },
+  "builds": [
+    {"example": "product", "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 6", "result": "artifacts/product/20261008-225818-563/result.json", "result_sha256": "97072f505e2c1e65a66c290aedea63469f4a00733bc9a781095a063d40270d99", "exit_code": 0, "artifact_validation_passed": true, "matched_sources": 310, "matched_artifacts": 29, "main_bytes": 7620380, "main_sha256": "f7fc54b527d6e4d57814e7065a060548b479d76356ce547b1df3869c13abc28d"},
+    {"example": "ui_demo", "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example ui_demo -Jobs 6", "result": "artifacts/ui_demo/20261008-225818-557/result.json", "result_sha256": "b3f9c6796dc4f344f7277c23af4df1be843a8eddc9d04c8f536f577881122b7e", "exit_code": 0, "artifact_validation_passed": true, "matched_sources": 299, "matched_artifacts": 22, "main_bytes": 7424064, "main_sha256": "602372adec0c6cc9d93a8332a539bb7eb878972030c754759ff98817517b793d"}
+  ],
+  "toolchain": {"sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65", "python": "3.13.15", "scons": "4.10.1", "arm_gcc": "14.2.1", "host_gcc": "15.2.0", "cmake": "3.31.4", "board": "sf32lb52-lchspi-ulp", "sdk_changes": false, "cloud_baseline": "not_run_ordinary_source_change"},
+  "review_fixes": [
+    "Extend raw ticks before millisecond conversion; bound idle worker wait below raw tick wrap",
+    "Keep deadline transition in poll so remaining-time read cannot swallow timeout event",
+    "Detect link generation in service without weather mutex calls from BLE callbacks",
+    "Preserve stale failure/timeout hints and usable retry; verify glyphs and button geometry"
+  ],
+  "usb_hardware": {
+    "conditions": "Same Huangshan board/screen; user confirmed connected and still USB-only, no battery",
+    "port": "COM5",
+    "device_id": "USB/VID_1A86&PID_7523/6&A8355E6&3&1",
+    "enumeration": "Present PnP USB-SERIAL CH340(COM5), status OK. Win32_SerialPort omitted this adapter",
+    "dry_run_exit_code": 0,
+    "flash_command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Flash.ps1 -Example product -Port COM5",
+    "flash_exit_code": 0,
+    "flash_result": "artifacts/flash/product/20261008-230016-845/result.json",
+    "flash_result_sha256": "12f5bbc9f03a5089e3618b9453eeb92b60a322975703089558f629bfe8887bbd",
+    "images": [
+      {"name": "bootloader.bin", "address": "0x12010000", "bytes": 58496, "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"},
+      {"name": "main.bin", "address": "0x12020000", "bytes": 7620380, "sha256": "f7fc54b527d6e4d57814e7065a060548b479d76356ce547b1df3869c13abc28d"},
+      {"name": "ftab.bin", "address": "0x12000000", "bytes": 11288, "sha256": "944ebf8ee46521d7cd122291d5f41ec050f0b82bb889c70ded5b5c41c0459965"}
+    ],
+    "settings_written": false,
+    "whole_chip_erase": false,
+    "serial": {
+      "environment_prefix": ". ./scripts/Set-LocalEnvironment.ps1; Enable-SdkEnvironment",
+      "baud": 1000000,
+      "format": "8N1",
+      "captures": [
+        {"command": "python artifacts/weather-d1/20261008/capture_session.py --port COM5 --seconds 95 --reset --command-at '6:wf_ble status' --command-at '18:wf_ble weather' --command-at '45:wf_ble status' --command-at '85:wf_ble status' --out artifacts/weather-d2-host/startup.bin", "path": "artifacts/weather-d2-host/startup.bin", "bytes": 4836, "sha256": "1a48a30ee0582c50752180a11fa9d0ee811901fa93ae944d0538908153951adb", "exit_code": 0},
+        {"command": "python artifacts/weather-d1/20261008/capture_session.py --port COM5 --seconds 36 --reset --command-at '12:wf_ble status' --command-at '18:wf_ble weather' --command-at '20:wf_ble status' --command-at '25:wf_ble status' --out artifacts/weather-d2-host/receipt.bin", "path": "artifacts/weather-d2-host/receipt.bin", "bytes": 5257, "sha256": "db784accb65a1002edd58e18c5ddd33cae11e24e0017606c9427168da11ddce7", "exit_code": 0}
+      ],
+      "observed": ["CO5300_FT6146_startup", "connection_subscription_MTU131", "real_Yueqing_20C_clear_humidity71", "24_hourly_7_daily_solar", "manual_request_queued1_then_reply", "KEY1_restore", "offline_request_failed", "actual_receipt_UTC_and_request_IDLE"],
+      "receipt_status": {"phone_set_time_utc": 1791472090, "received_utc_after_retry": 1791472093, "cached": 1, "state": 1, "expired": 0, "age_known": 1, "request": 0, "remaining_ms": 0, "rejected": 0, "unknown": 0, "dropped": 0},
+      "offline_status": {"cached": 0, "state": 3, "request": 2},
+      "boundary": "First capture off-screen status had no valid reply and last command had a corrupt prefix/command-not-found. Second capture status succeeded; zero counts cover only that short window. Short KEY1 restore does not verify sleep across deadline/expiry",
+      "closed": true
+    },
+    "screen_feedback": ["显示刚刚接收", "现在显示一分钟前接收"],
+    "screen_feedback_boundary": "Receipt-age progression on this firmware only; full return/reentry matrix not explicitly confirmed",
+    "power_measurement": "not_performed"
+  },
+  "remaining": ["target_no_reply_30s_and_sleep_across_deadline", "target_three_hour_and_RTC_jump_boundaries", "target_concurrency_pressure", "full_return_reentry_interaction_matrix", "D3_configuration_safety", "D8_queue_contract", "C2_and_same_version_joint_acceptance", "independent_power_measurement"],
+  "next_bounded_experiment": "See docs/STATUS.md#current: proposed D3 missing-app/unsupported-size slot safety without full pruning",
+  "merge_blocker": "D3/D8 and relevant same-version interaction/boundary acceptance remain unresolved; PR 37 stays Draft"
+}

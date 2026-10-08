@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-10-08 D2 天气时效与请求构建
+
+验证源码 `codex/weather-d1@767a67b51c1cd8d29e6df29a76d3d88f80c30688`。沿用下方 CMake/Ninja/CTest 命令，输出目录为 `artifacts/weather-d2-host`，17/17 通过；新增 `weather_service` 验证独立接收年龄、30 秒请求截止、三小时边界、RTC 跳变、重连代次与旧请求结果隔离。实际 LVGL 超时/过期重试快照、notification_22 逐字字形和按钮几何检查通过。XML/生成物未修改，未重新 Pro 导出。
+
+`pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 6` 与 `-Example ui_demo -Jobs 6` 均退出 0、产物校验通过。Product `artifacts/product/20261008-225818-563/result.json`，主 BIN 7,620,380 B / `f7fc54b527d6e4d57814e7065a060548b479d76356ce547b1df3869c13abc28d`；UI Demo `artifacts/ui_demo/20261008-225818-557/result.json`，7,424,064 B / `602372adec0c6cc9d93a8332a539bb7eb878972030c754759ff98817517b793d`。310/299 个源码、29/22 个产物重哈希一致，SDK/子模块锁和工具链未改；既有告警保留，未运行手动云端基线。USB 结果按 [D2 记录](WEATHER-UI.md#weather-d2) 独立验收，不沿用 v2 镜像。
+
 ## 2026-10-08 原版天气 v2 构建
 
 验证源码 `codex/weather-d1@10331bf7eac9d51c5ee04d43b849ae3bd817d6cc`。使用下节同一 CMake/Ninja/CTest 命令，主机目录改为 `artifacts/weather-v2-host`，16/16 通过；Product/UI Demo 沿用官方 `Build.ps1 -Example <目标> -Jobs 6`，均编译及产物检查通过。310/299 个源、29/22 个产物重哈希一致；SDK/子模块与工具链锁不变，SDK 工作树干净。Product `artifacts/product/20261008-214449-096/result.json`，主 BIN 7,618,260 B / `033e45f2047e4977794c0aaf1a85007ab50ba5ad274cd8a0455f7d562f11df5d`；UI Demo `artifacts/ui_demo/20261008-214450-426/result.json`，7,422,896 B / `44f52f6b6439ebe92b905bf787bb097fe4db89c2229937f595d7ef48a1bbd041`。
