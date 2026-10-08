@@ -1,8 +1,28 @@
 # 天气 UI 与同步分支记录
 
+<a id="weather-v1-range"></a>
+## 2026-10-08 真实来源反馈与 v1 高低温补丁
+
+用户在配置天气来源后提供七张截图/照片：Gadgetbridge Cache 出现两条“乐清市”，Breezy 显示 Open-Meteo、20°C、晴朗、湿度 68%、风速 2 m/s，手表显示相同城市、温度、天气和湿度及 7 km/h（与 2 m/s 换算、取整一致）。这些是 `02d4647` CRLF 版后的现场反馈，确认基础天气已到达屏幕；没有新的手机原始报文采集，不能据照片关闭完整返回/重入/KEY1 回归或更新时效问题。两个同名缓存条目的成因未确认。
+
+定点核对 Breezy Weather v6.2.2 和归档 Gadgetbridge 0.94.0 的字段路径：
+
+| 字段 | Breezy 到 Gadgetbridge | Gadgetbridge 到设备 / 当前固件 |
+|---|---|---|
+| 当天高低温 | `todayMaxTemp/todayMinTemp`，整数 K | v1 已发送 `hi/lo`，固件此前未解析。本轮 `5d286c7` 补解析及快照范围；缺失的 0 K、非数字、越界和倒置保留占位，真实 273 K 显示 0°C |
+| 紫外线 | `uvIndex` | v1 发送 `uv`，但 Receiver 把缺失值填成 0，发送端还使用整数除法。真实 0、缺失和低于 1 的指数不可区分；本轮继续占位，不把默认 0 当已验证的来源数据 |
+| 逐小时 / 多日预报、日出 / 日落 | `hourly/forecasts/sunRise/sunSet` | v1 不发送；请求 `{"t":"weather","v":2,"f":true}` 可获得 v2 Base64 二进制数据，当前固件尚无解码。独立后续闭环处理，不能仅换请求后把 v2 交给现有 v1 parser |
+| AQI | `airQuality.aqi` | Bangle.js v1/v2 均未编码 AQI；需另行扩展发送契约，当前继续占位 |
+
+本轮只补已有 v1 高低温，不改 UI XML、请求版本、预报协议或紫外线策略。明确 `v:1` 的当前温按 K 解码，无版本的既有温度兼容路径保留。每份天气覆盖范围有效位，后续报文缺少范围时不会残留上次值。
+
+源码为 `5d286c7df5c5e0630b15413d78a9c9c79e043910`；主机 16/16、Product/UI Demo 编译及 307/299 个源、29/22 个产物重哈希通过。真实 LVGL 390×450 新快照显示 `26°/18°`，来源取值和缺失/撤销占位有主机回归。COM5 CH340 重新枚举、dry-run 与三镜像写入/verify 退出 0；90 秒启动采集确认 CO5300/FT6146、自动重连/订阅、MTU=131、真实校时、乐清市 20°C 晴朗/湿度 68% 的天气更新及 KEY1 唤醒。串口已关闭。用户对 KEY1 返回重入答“应该是正常的”，随后新照片显示手表高低温 `25°/18°`，与 Breezy“今天 10/08”的 daily 预报 `25°/18°` 一致；本次仍不扩大成完整交互或时效通过。Breezy v6.2.2 的 `Weather.kt:94–124` 明确 18:00 后顶部范围使用 today.night + tomorrow.day，所以顶部“白天 26°”是明日白天，不是今天最高温。手机系统天气显示 `18～26°C`，来源/更新时间未核实，不能将区别直接归因为固件错误。命令、产物及边界见 [精简证据](evidence/2026-10-08/weather-v1-range.json)。下方 D1 初版和 CRLF 构建记录保留为历史证据。
+
+用户再次要求解释缺失的预报、空气质量和日升日落后，新增一次范围对齐：是否合并前接入现成 v2，AQI 独立后续；是否三类全齐才合并；或沿用安全修复优先、完整数据后续。用户目前仅追问 AQI 和手机端开发含义，尚未选择。AQI 是空气质量指数；Gadgetbridge 接收模型已有 `airQuality`，缺的是 Bangle.js 出站编码，建议若纳入范围则在现有 Gadgetbridge 源码上扩展发送字段并给固件补解析，实际使用需编译安装修改版 APK。不把“原版 Gadgetbridge 能提供 v2 预报/太阳”与“原版能够发送 AQI”混为一谈，也不未经决定扩展 Android 工程。
+
 ## 2026-10-08 D1 生产数据真实性修复候选
 
-工作目录 `D:/MY_Desk/project/wristflow`，分支 `codex/weather-d1`，基于 `main@7d11849` 接入保留天气成果 `f68d64f`；D1 初版为 `3e1a9ce`，CRLF 修正版验证代码为 `02d46475af6c4dc7cd06b361e9153bfb75c6529a`。后续文档提交不改变代码。尚未合入 main，天气整体保持 Draft；[精简证据](evidence/2026-10-08/weather-d1.json)绑定两版结果，不覆盖下方历史版本。
+工作目录 `D:/MY_Desk/project/wristflow`，分支 `codex/weather-d1`，基于 `main@7d11849` 接入保留天气成果 `f68d64f`；D1 初版为 `3e1a9ce`，CRLF 修正版验证代码为 `02d46475af6c4dc7cd06b361e9153bfb75c6529a`，其后的高低温补丁另见上节。尚未合入 main，天气整体保持 Draft；[精简证据](evidence/2026-10-08/weather-d1.json)绑定初版/CRLF 两版结果，不覆盖后续或下方历史版本。
 
 - **源码修复**：`core/weather.c` 删除 fixture provider 和无缓存回退；`product_ble.c` 删除 `mock_weather` 命令及假报文。旧完整演示数据移到 `apps/ui_demo/src/weather_fixture.c`，由 `weather_ui` 测试显式链接；Product 清单、map 与 ELF 符号均无该 provider 或 mock 命令。Demo 清单编译该文件，当前 Demo 固件无调用者，因此链接不保留其 factory；主机专用测试仍实际渲染完整演示天气。
 - **数据表达**：当前温度与高低温、预报、太阳位置各有有效位；湿度区分缺失和真实 0%。缺天气文本、AQI、日出/日落及预报显示占位，不填多云、假温度或固定时间。协议窄化前检查温度/code 范围，风值保留单位。
@@ -27,7 +47,7 @@ CRLF 补构建 `artifacts/product/20261008-194850-771/result.json` 已成功，3
 
 [Gadgetbridge 官方指南](https://gadgetbridge.org/basics/integrations/weather/) 的 Breezy Weather 路径为 `Settings → External modules → Send Gadgetbridge data → Gadgetbridge`。v6.2.2 源码及简中资源核对的入口为 `设置 → 微件与动态壁纸 → 数据共享 → 发送天气数据到 Gadgetbridge`，需要选择已安装的 Gadgetbridge 接收包并保存；`ModulesSettingsScreen.kt` 保存所选包后立即触发发送，`GadgetbridgeService.kt` 在全部位置都无当前天气时不生成发送内容。推荐从 [官方 v6.2.2 发布页](https://github.com/breezy-weather/breezy-weather/releases/tag/v6.2.2) 安装 standard APK，先添加真实所在地并成功取得天气，再选择 Gadgetbridge 输出并刷新。多位置时本设备使用第一项。随后回到 Gadgetbridge 查看真实 Cache 条目；已有条目且设备连接时点 `Send weather to devices`，核对手表城市、当前温度和缺失字段占位。归档接收器为 exported、没有声明 receiver permission，处理流程未检查额外外部来源开关或发送方白名单；这只是源码检查，用户手机的实际投递仍待验。来源配置、真实缓存、设备天气报文与现场屏幕分别记录，不把来源安装当作链路通过。
 
-**仍待处理**：真实手机数据源未闭环；D2 的共同同步、接收时间/老化及非天气事件覆盖请求状态未改，D3/D8 未核查。主机成功请求只直接设置 LOADING，未覆盖 retry 的 `queued=true` 分支；需要在 D2 补真实请求结果的可测试边界。完整天气 PR 不能因本轮局部修复而转 Ready 或合并。当前活动项与唯一下一步见 [STATUS](STATUS.md#current)。
+**后续反馈与仍待处理**：来源配置后的照片已确认基础天气显示，高低温补丁已有主机/编译/USB 证据及用户总体正常反馈，见上节。D2 的共同同步、接收时间/老化及非天气事件覆盖请求状态未改，D3/D8 未核查，完整交互矩阵仍待。主机成功请求只直接设置 LOADING，未覆盖 retry 的 `queued=true` 分支；需要在 D2 补真实请求结果的可测试边界。完整天气 PR 不能因局部修复而转 Ready 或合并。当前活动项与唯一下一步见 [STATUS](STATUS.md#current)。
 
 ## 2026-10-07 静态审查更正
 

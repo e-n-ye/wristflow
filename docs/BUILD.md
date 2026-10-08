@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-10-08 v1 高低温补丁构建
+
+验证源码 `codex/weather-d1@5d286c7df5c5e0630b15413d78a9c9c79e043910`。沿用下节主机构建/CTest 及 Product/UI Demo 官方构建命令，主机 16/16 通过；Product `artifacts/product/20261008-205254-798/result.json` 和 UI Demo `artifacts/ui_demo/20261008-205255-538/result.json` 均退出 0、产物校验通过，307/299 个源及 29/22 个产物重哈希一致。主 BIN 分别 7,615,076 B / `824285cb5131de25643fe065bfc5f42263383b689f59b3fc3f475108334eb8dc`，7,422,360 B / `66c3d5375f1f10561d94f35255b8ad4964e5ecc157832317bf51110cc178184a`。SDK/子模块锁与工具版本不变，既有 FinSH/链接告警保留。
+
+新 LVGL 快照 `artifacts/weather-d1-host/renders/weather_product_current.ppm` 显示高低温；使用 Codex bundled Python 的 Pillow 转换为 `weather_product_current_range.png` 并检查。旧同名 `.png` 不用于此次验收。仅补 v1 高低温及 Kelvin 哨兵检查，紫外线仍占位；编译不证明新增字段真机显示。现场、来源和下一实验见 [天气记录](WEATHER-UI.md#weather-v1-range)及 [精简证据](evidence/2026-10-08/weather-v1-range.json)。以下初版和 CRLF 记录保留对应源码身份。
+
 ## 2026-10-08 天气 D1 候选构建
 
 工作目录 `D:/MY_Desk/project/wristflow`，D1 初版与主机/UI Demo 验证锚点为 `codex/weather-d1@3e1a9ce8c1d55bb9f837b2b7f04baf5792293cd3`；最终 Product 的 CRLF 修正版为 `02d4647`，见下方补构建与精简证据。SDK/子模块仍匹配锁且干净，使用 SDK Python 3.13.15、SCons 4.10.1、Arm GCC 14.2.1；主机 GCC 15.2.0、CMake 3.31.4、Ninja。

@@ -6,6 +6,7 @@
   "branch": "codex/weather-d1",
   "source_commit": "02d46475af6c4dc7cd06b361e9153bfb75c6529a",
   "initial_d1_source_commit": "3e1a9ce8c1d55bb9f837b2b7f04baf5792293cd3",
+  "later_source_feedback_and_range_patch": "docs/evidence/2026-10-08/weather-v1-range.json; empty cache and absent weather below describe pre-setup observations",
   "main_at_start": "7d11849ff40d63925364600ec65c6221453310b8",
   "preserved_weather_input": "f68d64f170fea22eaf9561dc844731aa4f0fa9ed",
   "source_inspection": {
