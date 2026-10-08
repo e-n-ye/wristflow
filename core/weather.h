@@ -7,12 +7,32 @@
 #define WRISTFLOW_WEATHER_HOURLY_COUNT 24U
 #define WRISTFLOW_WEATHER_DAILY_COUNT 7U
 #define WRISTFLOW_WEATHER_INDEX_COUNT 4U
+#define WRISTFLOW_WEATHER_EXPIRY_MS (3ULL * 60U * 60U * 1000U)
+#define WRISTFLOW_WEATHER_REQUEST_MS 30000U
+
+enum { WRISTFLOW_WEATHER_FORECAST_UPDATE = 1U, WRISTFLOW_WEATHER_SOLAR_UPDATE = 2U };
+
+typedef enum {
+    WRISTFLOW_WEATHER_REQUEST_IDLE,
+    WRISTFLOW_WEATHER_REQUEST_PENDING,
+    WRISTFLOW_WEATHER_REQUEST_FAILED,
+    WRISTFLOW_WEATHER_REQUEST_TIMEOUT
+} wristflow_weather_request_state_t;
+
+typedef struct {
+    uint64_t monotonic_ms;
+    uint32_t utc_seconds; /* Zero means RTC time is unavailable. */
+} wristflow_weather_time_t;
+typedef wristflow_weather_time_t (*wristflow_weather_clock_t)(void *context);
+typedef bool (*wristflow_weather_sender_t)(uint32_t request, void *context);
+typedef uint32_t (*wristflow_weather_peer_t)(void *context);
 
 typedef enum {
     WRISTFLOW_WEATHER_LOADING,
     WRISTFLOW_WEATHER_READY,
     WRISTFLOW_WEATHER_EMPTY,
-    WRISTFLOW_WEATHER_ERROR
+    WRISTFLOW_WEATHER_ERROR,
+    WRISTFLOW_WEATHER_STALE
 } wristflow_weather_state_t;
 
 typedef enum {
@@ -43,6 +63,10 @@ typedef struct {
 } wristflow_weather_index_t;
 
 typedef struct {
+    bool expired;
+    bool age_known;
+    uint32_t received_utc;
+    wristflow_weather_request_state_t request_state;
     bool temperature_valid;
     bool range_valid;
     bool sun_position_valid;
@@ -78,7 +102,6 @@ typedef struct {
 
 typedef struct {
     bool forecast_present;
-    uint32_t timestamp;
     uint32_t sunrise, sunset;
     wristflow_phone_weather_hour_t hourly[WRISTFLOW_WEATHER_HOURLY_COUNT];
     wristflow_phone_weather_day_t daily[WRISTFLOW_WEATHER_DAILY_COUNT];
@@ -97,16 +120,29 @@ typedef struct {
     uint8_t uv_tenths;
     bool uv_valid;
     char wind[12];        /* wind description e.g. "3m/s" or "3级" */
-    uint32_t timestamp;   /* UTC timestamp in seconds */
     wristflow_phone_weather_extra_t extra;
 } wristflow_phone_weather_t;
 
 typedef void (*wristflow_weather_lock_t)(void *context);
 /* Configure once before any consumers start; callbacks protect all cache access. */
 void wristflow_weather_set_lock(wristflow_weather_lock_t lock, wristflow_weather_lock_t unlock, void *context);
+/* Configure at startup. Called under the cache lock; must not re-enter weather. */
+void wristflow_weather_set_clock(wristflow_weather_clock_t clock, void *context);
+void wristflow_weather_set_sender(wristflow_weather_sender_t sender, void *context);
+/* A cheap transport identity read; no locks or weather re-entry. */
+void wristflow_weather_set_peer(wristflow_weather_peer_t peer, void *context);
+bool wristflow_weather_request_sync(void);
 void wristflow_weather_reset(void);
-void wristflow_weather_update(const wristflow_phone_weather_t *update);
-bool wristflow_weather_get_current(wristflow_weather_data_t *data, wristflow_weather_state_t *state, uint32_t now_utc);
+/* Flags identify newly received extras, rather than same-source inherited data. */
+void wristflow_weather_update(const wristflow_phone_weather_t *update, unsigned updates);
+bool wristflow_weather_get_current(wristflow_weather_data_t *data, wristflow_weather_state_t *state);
+/* Coalesces a pending request without extending its deadline. IDs survive reset. */
+uint32_t wristflow_weather_request_begin(bool *started);
+void wristflow_weather_request_failed(uint32_t request);
+void wristflow_weather_request_disconnected(void);
+bool wristflow_weather_request_pending(uint32_t request);
+uint32_t wristflow_weather_request_remaining_ms(void);
+bool wristflow_weather_poll(void);
 wristflow_weather_theme_t wristflow_weather_determine_theme(int16_t code, const char *txt);
 bool wristflow_weather_has_data(void);
 

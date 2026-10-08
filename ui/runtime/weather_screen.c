@@ -211,7 +211,13 @@ static void render_ready(weather_view_t *view)
     if (view->data.temperature_valid) snprintf(text, sizeof text, "%d°", view->data.temperature);
     else snprintf(text, sizeof text, "--");
     set_text(view->root, "weather_city", view->data.city[0] ? view->data.city : "--");
-    set_text(view->root, "weather_update", view->data.updated);
+    const char *updated = view->data.message[0] ? view->data.message : view->data.updated;
+    if (view->data.expired) {
+        updated = view->data.request_state == WRISTFLOW_WEATHER_REQUEST_PENDING ? "已过期 · 同步中" :
+            view->data.request_state == WRISTFLOW_WEATHER_REQUEST_FAILED ? "已过期 · 更新失败" :
+            view->data.request_state == WRISTFLOW_WEATHER_REQUEST_TIMEOUT ? "已过期 · 同步超时" : view->data.updated;
+    }
+    set_text(view->root, "weather_update", updated);
     set_text(view->root, "weather_temp", text);
     set_text(view->root, "weather_condition", view->data.condition[0] ? view->data.condition : "--");
     if (view->data.range_valid) snprintf(text, sizeof text, "%d°/%d°", view->data.high, view->data.low);
@@ -273,11 +279,15 @@ static void render_state(weather_view_t *view)
                 view->hourly_page, weather_dot_dim(view->theme));
     update_dots(lv_obj_find_by_name(view->root, "weather_daily_dots"), 2,
                 view->daily_page, weather_dot_dim(view->theme));
-    bool ready = view->state == WRISTFLOW_WEATHER_READY;
+    bool ready = view->state == WRISTFLOW_WEATHER_READY || view->state == WRISTFLOW_WEATHER_STALE;
     lv_obj_set_flag(view->outer, LV_OBJ_FLAG_HIDDEN, !ready);
     lv_obj_set_flag(view->state_panel, LV_OBJ_FLAG_HIDDEN, ready);
+    lv_obj_t *retry_parent = ready ? lv_obj_find_by_name(view->root, "weather_page_current") : view->state_panel;
+    if (lv_obj_get_parent(view->state_retry) != retry_parent) lv_obj_set_parent(view->state_retry, retry_parent);
+    lv_obj_set_pos(view->state_retry, 134, ready ? 310 : 276);
     lv_obj_set_flag(view->state_retry, LV_OBJ_FLAG_HIDDEN,
-                    view->state == WRISTFLOW_WEATHER_LOADING);
+        view->state == WRISTFLOW_WEATHER_LOADING || view->data.request_state == WRISTFLOW_WEATHER_REQUEST_PENDING ||
+        (ready && !view->data.expired && view->data.request_state == WRISTFLOW_WEATHER_REQUEST_IDLE));
     lv_label_set_text(view->state_label, view->data.message);
     render_ready(view);
 }
@@ -287,21 +297,12 @@ static weather_view_t *view_from(lv_obj_t *root)
     return root ? (weather_view_t *)lv_obj_get_user_data(root) : NULL;
 }
 
-#if defined(__GNUC__) || defined(__clang__)
-__attribute__((weak))
-#endif
-bool wristflow_weather_request_sync(void)
-{
-    return false;
-}
-
 static void retry(lv_event_t *event)
 {
     weather_view_t *view = lv_event_get_user_data(event);
     if (!view) return;
-    bool queued = wristflow_weather_request_sync();
-    wristflow_weather_screen_set_state(view->root,
-        queued ? WRISTFLOW_WEATHER_LOADING : WRISTFLOW_WEATHER_ERROR);
+    wristflow_weather_request_sync();
+    wristflow_weather_screen_refresh(view->root);
 }
 
 
@@ -527,7 +528,12 @@ void wristflow_weather_screen_refresh(lv_obj_t *screen)
 {
     weather_view_t *view = view_from(screen);
     if (!view) return;
-    wristflow_weather_get_current(&view->data, &view->state, 0);
+    wristflow_weather_data_t data;
+    wristflow_weather_state_t state;
+    wristflow_weather_get_current(&data, &state);
+    if (state == view->state && !memcmp(&data, &view->data, sizeof data)) return;
+    view->data = data;
+    view->state = state;
     render_state(view);
 }
 
@@ -543,32 +549,17 @@ void wristflow_weather_screen_set_time(lv_obj_t *screen, const char *time_str)
 lv_obj_t *screen_weather_create(void)
 {
     wristflow_weather_data_t data;
-    if (wristflow_weather_get_current(&data, NULL, 0))
-        return wristflow_weather_screen_create_with_data(&data);
-    wristflow_weather_request_sync();
-    return wristflow_weather_screen_create_with_data(NULL);
+    bool available = wristflow_weather_get_current(&data, NULL);
+    if (!available || data.expired) wristflow_weather_request_sync();
+    lv_obj_t *screen = wristflow_weather_screen_create_with_data(available ? &data : NULL);
+    wristflow_weather_screen_refresh(screen);
+    return screen;
 }
-
-void wristflow_weather_screen_set_state(lv_obj_t *screen, wristflow_weather_state_t state)
-{
-    weather_view_t *view = view_from(screen);
-    if (!view || state > WRISTFLOW_WEATHER_ERROR) return;
-    view->state = state;
-    if (state == WRISTFLOW_WEATHER_READY) {
-        wristflow_weather_get_current(&view->data, &view->state, 0);
-    } else {
-        view->data = (wristflow_weather_data_t){0};
-        snprintf(view->data.message, sizeof view->data.message, "%s",
-                  wristflow_weather_state_message(state));
-    }
-    render_state(view);
-}
-
 
 bool wristflow_weather_screen_is_horizontal(lv_obj_t *screen)
 {
     weather_view_t *view = view_from(screen);
-    if (!view || view->state != WRISTFLOW_WEATHER_READY) return false;
+    if (!view || (view->state != WRISTFLOW_WEATHER_READY && view->state != WRISTFLOW_WEATHER_STALE)) return false;
     unsigned page = page_from_scroll(view->outer, WEATHER_PAGE_HEIGHT, WEATHER_PAGE_COUNT - 1U);
     view->outer_page = page;
     return page == 1U || page == 2U;

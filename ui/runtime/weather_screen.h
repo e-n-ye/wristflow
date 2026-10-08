@@ -6,7 +6,6 @@
 
 lv_obj_t *screen_weather_create(void);
 lv_obj_t *wristflow_weather_screen_create_with_data(const wristflow_weather_data_t *data);
-void wristflow_weather_screen_set_state(lv_obj_t *screen, wristflow_weather_state_t state);
 bool wristflow_weather_screen_is_horizontal(lv_obj_t *screen);
 /* Horizontal forecast content owns rightward drags in its content band. */
 bool wristflow_weather_screen_edge_back_allowed(lv_obj_t *screen, lv_point_t origin);

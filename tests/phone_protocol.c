@@ -74,7 +74,7 @@ static void test_weather_v2(void)
     /* A v1 push retains same-source extras. Other cities cannot inherit them. */
     feed("setTime(1791475200);\nGB({\"t\":\"weather\",\"v\":1,\"loc\":\"乐清市\",\"temp\":294})\n");
     assert(phone.weather_version == 1 && phone.weather.temp == 21 && phone.weather.extra.daily[0].valid);
-    assert(phone.weather.extra.timestamp == previous.extra.timestamp);
+    assert(!phone.weather_updates);
     weather_v2_frame(frame, sizeof frame, weather_v2_wire, 38, "乐清市");
     feed(frame); assert(phone.weather.extra.daily[0].valid);
     feed("GB({\"t\":\"weather\",\"v\":1,\"loc\":\"Other\",\"temp\":293})\n");

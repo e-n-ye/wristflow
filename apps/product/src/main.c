@@ -11,11 +11,6 @@
 #include "weather_screen.h"
 #include <string.h>
 
-bool wristflow_weather_request_sync(void)
-{
-    return wristflow_product_ble_request_weather();
-}
-
 static wristflow_ui_shell_t *product_shell;
 static lv_indev_read_cb_t original_pointer_read;
 static volatile bool waiting_for_wake;
@@ -177,6 +172,9 @@ int main(void)
         if (now - sampled >= 250) {
             sync_notifications();
             wristflow_watch_snapshot_t next = wristflow_product_services_snapshot();
+            lv_obj_t *active = lv_screen_active();
+            if (active && lv_obj_get_name(active) && !strcmp(lv_obj_get_name(active), "screen_weather"))
+                wristflow_weather_screen_refresh(active);
             /* RTC polling and settings collection must not redraw static pages. */
             if (next.hour_24 != snapshot.hour_24 || next.minute != snapshot.minute ||
                 next.time_unavailable != snapshot.time_unavailable ||

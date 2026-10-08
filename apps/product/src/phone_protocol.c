@@ -166,6 +166,7 @@ static bool process_weather_json(wf_phone_t *p, cJSON *o)
     cJSON *version = cJSON_GetObjectItemCaseSensitive(o, "v");
     if (version && (!cJSON_IsNumber(version) || (version->valuedouble != 1 && version->valuedouble != 2))) return false;
     bool v2 = version && version->valuedouble == 2;
+    unsigned updates = 0;
     cJSON *location = cJSON_GetObjectItemCaseSensitive(o, v2 ? "l" : "loc");
     const char *loc = cJSON_IsString(location) ? location->valuestring : "";
     bool same_location = p->has_weather && loc[0] && strlen(loc) < sizeof p->weather_location &&
@@ -176,12 +177,12 @@ static bool process_weather_json(wf_phone_t *p, cJSON *o)
     if (v2) {
         cJSON *encoded = cJSON_GetObjectItemCaseSensitive(o, "d");
         if (!cJSON_IsString(encoded) || !wf_phone_weather_v2_decode(encoded->valuestring, &w)) return false;
-        if (w.extra.forecast_present) w.extra.timestamp = p->utc;
-        else if (same_location) {
+        updates = WRISTFLOW_WEATHER_SOLAR_UPDATE |
+            (w.extra.forecast_present ? WRISTFLOW_WEATHER_FORECAST_UPDATE : 0);
+        if (!w.extra.forecast_present && same_location) {
             memcpy(w.extra.hourly, p->weather.extra.hourly, sizeof w.extra.hourly);
             memcpy(w.extra.daily, p->weather.extra.daily, sizeof w.extra.daily);
             w.extra.forecast_present = p->weather.extra.forecast_present;
-            w.extra.timestamp = p->weather.extra.timestamp;
         }
     } else {
         bool kelvin = cJSON_IsNumber(version) && version->valuedouble == 1.0;
@@ -226,10 +227,10 @@ static bool process_weather_json(wf_phone_t *p, cJSON *o)
         if (same_location) w.extra = p->weather.extra;
     }
 
-    w.timestamp = p->utc;
     p->weather = w;
     p->has_weather = true;
     p->weather_version = v2 ? 2 : 1;
+    p->weather_updates = (uint8_t)updates;
     if (strlen(loc) < sizeof p->weather_location) strcpy(p->weather_location, loc);
     else p->weather_location[0] = 0;
     event(p, WF_PHONE_WEATHER, 0);

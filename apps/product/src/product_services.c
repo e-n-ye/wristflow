@@ -29,6 +29,24 @@ static void unlock_weather(void *context)
     rt_mutex_release((rt_mutex_t)context);
 }
 
+static wristflow_weather_time_t weather_time(void *context)
+{
+    (void)context;
+    /* Called only under weather_lock. Extend raw ticks before scaling. */
+    static uint32_t previous;
+    static uint64_t elapsed_ticks;
+    uint32_t tick = rt_tick_get();
+    elapsed_ticks += (uint32_t)(tick - previous);
+    previous = tick;
+    wristflow_weather_time_t time = {.monotonic_ms = elapsed_ticks * 1000U / RT_TICK_PER_SECOND};
+    uint32_t utc = 0;
+    rt_mutex_take(&rtc_lock, RT_WAITING_FOREVER);
+    bool valid = rtc && rt_device_control(rtc, RT_DEVICE_CTRL_RTC_GET_TIME, &utc) == RT_EOK;
+    rt_mutex_release(&rtc_lock);
+    if (valid && utc >= WRISTFLOW_TIME_MIN && utc <= WRISTFLOW_TIME_MAX) time.utc_seconds = utc;
+    return time;
+}
+
 /* Keep flash operations off the lock used to collect UI setting changes. */
 static void lock_database(fdb_db_t db)
 {
@@ -113,6 +131,7 @@ void wristflow_product_services_start(wristflow_settings_t *settings, wristflow_
     RT_ASSERT(rt_mutex_init(&weather_lock, "wf_weather", RT_IPC_FLAG_PRIO) == RT_EOK);
     wristflow_weather_set_lock(lock_weather, unlock_weather, &weather_lock);
     rtc = rt_device_find("rtc");
+    wristflow_weather_set_clock(weather_time, NULL);
     fdb_kvdb_control(&settings_db, FDB_KVDB_CTRL_SET_LOCK, lock_database);
     fdb_kvdb_control(&settings_db, FDB_KVDB_CTRL_SET_UNLOCK, unlock_database);
     fdb_err_t result = fdb_kvdb_init(&settings_db, "preferences", "settings", NULL, NULL);
@@ -203,9 +222,9 @@ int wristflow_product_services_set_time(uint32_t seconds)
     return RT_EOK;
 }
 
-void wristflow_product_services_update_weather(const wristflow_phone_weather_t *w)
+void wristflow_product_services_update_weather(const wristflow_phone_weather_t *w, unsigned updates)
 {
-    wristflow_weather_update(w);
+    wristflow_weather_update(w, updates);
     if (w) {
         rt_kprintf("[product] weather updated: %s %d C, condition=%s code=%d hum=%u%%\n",
                    w->city, w->temp, w->condition, w->code, w->humidity);

@@ -21,6 +21,7 @@ typedef struct {
     wristflow_phone_weather_t weather;
     bool has_weather;
     uint8_t weather_version;
+    uint8_t weather_updates; /* Newly delivered extras, not inherited fields. */
     char weather_location[128];
     wf_phone_callback_t callback;
     void *context;

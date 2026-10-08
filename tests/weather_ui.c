@@ -14,6 +14,22 @@ static uint8_t pixels[390 * 40 * 4];
 static lv_indev_data_t pointer;
 static unsigned weather_locks, weather_unlocks;
 static bool weather_locked;
+static bool weather_queued;
+static unsigned weather_requests;
+static uint32_t weather_request, requested_at;
+static wristflow_weather_time_t weather_clock(void *context)
+{
+    (void)context;
+    assert(weather_locked);
+    return (wristflow_weather_time_t){.monotonic_ms = ticks, .utc_seconds = 1791475200U};
+}
+static bool send_weather(uint32_t request, void *context)
+{
+    (void)context;
+    assert(!weather_locked);
+    weather_request = request; requested_at = ticks; ++weather_requests;
+    return weather_queued;
+}
 static void lock_weather(void *context)
 {
     assert(context == &weather_locked && !weather_locked);
@@ -130,6 +146,8 @@ int main(int argc, char **argv)
 {
     assert(argc == 2);
     wristflow_weather_set_lock(lock_weather, unlock_weather, &weather_locked);
+    wristflow_weather_set_clock(weather_clock, NULL);
+    wristflow_weather_set_sender(send_weather, NULL);
     lv_init();
     lv_tick_set_cb(tick);
     lv_display_t *display = lv_display_create(390, 450);
@@ -151,8 +169,14 @@ int main(int argc, char **argv)
     glyph(icons_20, "\xef\x86\x86");
     codepoint_glyph(metric_56, 0x00b0);
     codepoint_glyph(title_24, 0x00b0);
+    const unsigned char *hints = (const unsigned char *)"天气同步超时已过期接收间未知刚分钟前小时更新失败";
+    for (unsigned i = 0; hints[i]; i += 3) {
+        uint32_t cp = ((hints[i] & 15U) << 12) | ((hints[i + 1] & 63U) << 6) | (hints[i + 2] & 63U);
+        codepoint_glyph(notification_22, cp);
+    }
+    codepoint_glyph(notification_22, 0x00b7);
 
-    lv_obj_t *screen = screen_weather_create();
+    lv_obj_t *screen = wristflow_weather_screen_create_with_data(NULL);
     lv_screen_load(screen);
     advance_ms(480);
     text(screen, "weather_temp", "--");
@@ -163,23 +187,42 @@ int main(int argc, char **argv)
     assert(lv_obj_has_flag(named(screen, "weather_pager"), LV_OBJ_FLAG_HIDDEN));
     snapshot(argv[1], "weather_product_empty");
 
-    wristflow_weather_screen_set_state(screen, WRISTFLOW_WEATHER_LOADING);
+    weather_queued = true;
+    click(named(screen, "weather_retry"));
     text(screen, "weather_state_label", "正在同步天气");
     assert(lv_obj_has_flag(named(screen, "weather_retry"), LV_OBJ_FLAG_HIDDEN));
-    wristflow_weather_screen_set_state(screen, WRISTFLOW_WEATHER_EMPTY);
-    text(screen, "weather_state_label", "暂无天气数据");
+    assert(weather_requests == 1);
+    /* The same refresh used for notifications/time events cannot complete the request. */
+    wristflow_weather_screen_refresh(screen);
+    text(screen, "weather_state_label", "正在同步天气");
+    lv_obj_delete(screen);
+    screen = screen_weather_create();
+    lv_screen_load(screen);
+    assert(weather_requests == 1);
+    text(screen, "weather_state_label", "正在同步天气");
+    ticks = requested_at + WRISTFLOW_WEATHER_REQUEST_MS - 1;
+    wristflow_weather_screen_refresh(screen);
+    text(screen, "weather_state_label", "正在同步天气");
+    ++ticks;
+    wristflow_weather_screen_refresh(screen);
+    text(screen, "weather_state_label", "天气同步超时");
+    assert(!lv_obj_has_flag(named(screen, "weather_retry"), LV_OBJ_FLAG_HIDDEN));
+    snapshot(argv[1], "weather_product_timeout");
+    weather_queued = false;
     click(named(screen, "weather_retry"));
     text(screen, "weather_state_label", "天气更新失败");
     text(screen, "weather_temp", "--");
-    wristflow_weather_screen_set_state(screen, WRISTFLOW_WEATHER_LOADING);
+    weather_queued = true;
+    click(named(screen, "weather_retry"));
     text(screen, "weather_state_label", "正在同步天气");
     assert(lv_obj_has_flag(named(screen, "weather_retry"), LV_OBJ_FLAG_HIDDEN));
-    wristflow_weather_screen_set_state(screen, WRISTFLOW_WEATHER_READY);
-    text(screen, "weather_state_label", "暂无天气数据");
+    wristflow_weather_request_failed(weather_request);
+    wristflow_weather_screen_refresh(screen);
+    text(screen, "weather_state_label", "天气更新失败");
     text(screen, "weather_temp", "--");
 
     wristflow_phone_weather_t current = {.temp = -5, .code = -1};
-    wristflow_weather_update(&current);
+    wristflow_weather_update(&current, 0);
     wristflow_weather_screen_refresh(screen);
     text(screen, "weather_temp", "-5°");
     text(screen, "weather_range", "--/--");
@@ -202,7 +245,7 @@ int main(int argc, char **argv)
     strcpy(current.city, "杭州市");
     strcpy(current.condition, "晴");
     strcpy(current.wind, "12 km/h");
-    wristflow_weather_update(&current);
+    wristflow_weather_update(&current, 0);
     wristflow_weather_screen_refresh(screen);
     text(screen, "weather_temp", "0°");
     text(screen, "weather_range", "26°/18°");
@@ -211,6 +254,38 @@ int main(int argc, char **argv)
     text(screen, "weather_index_3_value", "--");
     assert(lv_color_eq(lv_obj_get_style_bg_color(named(screen, "weather_page_sun"), 0), WEATHER_BLUE));
     snapshot(argv[1], "weather_product_current");
+    text(screen, "weather_update", "刚刚接收");
+    ticks += WRISTFLOW_WEATHER_EXPIRY_MS;
+    wristflow_weather_screen_refresh(screen);
+    text(screen, "weather_update", "天气已过期");
+    text(screen, "weather_temp", "0°");
+    assert(!lv_obj_has_flag(named(screen, "weather_pager"), LV_OBJ_FLAG_HIDDEN));
+    snapshot(argv[1], "weather_product_stale");
+    assert(!lv_obj_has_flag(named(screen, "weather_retry"), LV_OBJ_FLAG_HIDDEN));
+    assert(lv_obj_get_parent(named(screen, "weather_retry")) == named(screen, "weather_page_current"));
+    lv_obj_update_layout(screen);
+    lv_area_t range_area, retry_area, aqi_area;
+    lv_obj_get_coords(named(screen, "weather_range"), &range_area);
+    lv_obj_get_coords(named(screen, "weather_retry"), &retry_area);
+    lv_obj_get_coords(named(screen, "weather_aqi_caption"), &aqi_area);
+    assert(range_area.y2 < retry_area.y1 && retry_area.y2 < aqi_area.y1);
+    click(named(screen, "weather_retry"));
+    text(screen, "weather_update", "已过期 · 同步中");
+    assert(lv_obj_has_flag(named(screen, "weather_retry"), LV_OBJ_FLAG_HIDDEN));
+    ticks = requested_at + WRISTFLOW_WEATHER_REQUEST_MS;
+    wristflow_weather_screen_refresh(screen);
+    text(screen, "weather_update", "已过期 · 同步超时");
+    text(screen, "weather_temp", "0°");
+    assert(!lv_obj_has_flag(named(screen, "weather_retry"), LV_OBJ_FLAG_HIDDEN));
+    snapshot(argv[1], "weather_product_stale_timeout");
+    click(named(screen, "weather_retry"));
+    wristflow_weather_request_failed(weather_request);
+    wristflow_weather_screen_refresh(screen);
+    text(screen, "weather_update", "已过期 · 更新失败");
+    text(screen, "weather_temp", "0°");
+    assert(!lv_obj_has_flag(named(screen, "weather_retry"), LV_OBJ_FLAG_HIDDEN));
+    wristflow_weather_update(&current, 0);
+    wristflow_weather_screen_refresh(screen);
     lv_obj_scroll_to_y(named(screen, "weather_pager"), 3 * 450, LV_ANIM_OFF);
     advance_ms(32);
     snapshot(argv[1], "weather_product_indices");
@@ -225,7 +300,7 @@ int main(int argc, char **argv)
     weather_v2_frame(frame, sizeof frame, weather_v2_wire, sizeof weather_v2_wire, "乐清市");
     wf_phone_feed(&phone, (const uint8_t *)frame, strlen(frame));
     assert(phone.has_weather);
-    wristflow_weather_update(&phone.weather);
+    wristflow_weather_update(&phone.weather, phone.weather_updates);
     wristflow_weather_screen_refresh(screen);
     text(screen, "weather_sunrise", "05:54"); text(screen, "weather_sunset", "17:32");
     text(screen, "weather_index_3_value", "4.2"); text(screen, "weather_aqi", "--");
@@ -257,7 +332,7 @@ int main(int argc, char **argv)
     advance_ms(32); snapshot(argv[1], "weather_v2_product_daily");
 
     current.range_valid = false;
-    wristflow_weather_update(&current);
+    wristflow_weather_update(&current, 0);
     wristflow_weather_screen_refresh(screen);
     text(screen, "weather_range", "--/--");
 
@@ -270,12 +345,12 @@ int main(int argc, char **argv)
     lv_obj_delete(screen);
     screen = screen_weather_create();
     lv_screen_load(screen);
-    text(screen, "weather_state_label", "暂无天气数据");
+    text(screen, "weather_state_label", "正在同步天气");
     text(screen, "weather_temp", "--");
     wristflow_app_data_t card;
     wristflow_watch_snapshot_t watch = wristflow_product_snapshot(false, 0);
     assert(wristflow_app_read(wristflow_app_find("weather"), &watch, &card));
-    assert(!strcmp(card.value, "--") && !strcmp(card.reason, "暂无天气数据"));
+    assert(!strcmp(card.value, "--") && !strcmp(card.reason, "正在同步天气"));
     lv_obj_delete(screen);
 
     screen = screen_weather_demo_create(WRISTFLOW_WEATHER_THEME_CLOUDY);
@@ -396,7 +471,7 @@ int main(int argc, char **argv)
     assert(wristflow_weather_screen_edge_back_allowed(screen, (lv_point_t){10, 220}));
 
     /* A real current-only payload replaces every demonstration forecast. */
-    wristflow_weather_update(&current);
+    wristflow_weather_update(&current, 0);
     wristflow_weather_screen_refresh(screen);
     missing_forecasts(screen);
     text(screen, "weather_range", "--/--");
@@ -421,6 +496,8 @@ int main(int argc, char **argv)
     assert(!wristflow_weather_has_data());
     assert(weather_locks == weather_unlocks);
     wristflow_weather_set_lock(NULL, NULL, NULL);
+    wristflow_weather_set_clock(NULL, NULL);
+    wristflow_weather_set_sender(NULL, NULL);
     lv_deinit();
     return 0;
 }

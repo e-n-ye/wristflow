@@ -22,10 +22,13 @@ static void weather(const wristflow_watch_snapshot_t *snapshot, wristflow_app_da
     (void)snapshot;
     wristflow_weather_data_t current;
     strcpy(data->value, "--");
-    if (!wristflow_weather_get_current(&current, NULL, 0)) return;
+    if (!wristflow_weather_get_current(&current, NULL)) {
+        snprintf(data->reason, sizeof data->reason, "%s", current.message);
+        return;
+    }
     if (current.temperature_valid)
         snprintf(data->value, sizeof data->value, "%d°", current.temperature);
-    snprintf(data->reason, sizeof data->reason, "%s", current.condition);
+    snprintf(data->reason, sizeof data->reason, "%s", current.expired ? current.updated : current.condition);
 }
 
 /* One identity feeds the menu, the card and its destination. XML owns geometry. */

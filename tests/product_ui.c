@@ -169,7 +169,7 @@ int main(int argc, char **argv)
             assert(wristflow_ui_shell_navigation(shell)->surface == app->surface);
             if (strcmp(app->id, "weather") == 0) {
                 text(lv_screen_active(), "weather_temp", "--");
-                text(lv_screen_active(), "weather_state_label", "暂无天气数据");
+                text(lv_screen_active(), "weather_state_label", "天气更新失败");
             } else {
                 text(lv_screen_active(), "app_title", app->title);
                 text(lv_screen_active(), "placeholder_label", app->reason);
