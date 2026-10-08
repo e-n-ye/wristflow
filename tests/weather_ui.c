@@ -180,6 +180,9 @@ int main(int argc, char **argv)
     current.temp = 0;
     current.humidity_valid = true;
     current.humidity = 0;
+    current.high = 26;
+    current.low = 18;
+    current.range_valid = true;
     current.code = 800;
     strcpy(current.city, "杭州市");
     strcpy(current.condition, "晴");
@@ -187,8 +190,10 @@ int main(int argc, char **argv)
     wristflow_weather_update(&current);
     wristflow_weather_screen_refresh(screen);
     text(screen, "weather_temp", "0°");
+    text(screen, "weather_range", "26°/18°");
     text(screen, "weather_index_1_value", "0");
     text(screen, "weather_index_2_value", "12 km/h");
+    text(screen, "weather_index_3_value", "--");
     assert(lv_color_eq(lv_obj_get_style_bg_color(named(screen, "weather_page_sun"), 0), WEATHER_BLUE));
     snapshot(argv[1], "weather_product_current");
     lv_obj_scroll_to_y(named(screen, "weather_pager"), 3 * 450, LV_ANIM_OFF);
@@ -197,6 +202,11 @@ int main(int argc, char **argv)
     lv_obj_scroll_to_y(named(screen, "weather_pager"), 4 * 450, LV_ANIM_OFF);
     advance_ms(32);
     snapshot(argv[1], "weather_product_sun");
+
+    current.range_valid = false;
+    wristflow_weather_update(&current);
+    wristflow_weather_screen_refresh(screen);
+    text(screen, "weather_range", "--/--");
 
     wristflow_weather_reset();
     wristflow_weather_screen_refresh(screen);

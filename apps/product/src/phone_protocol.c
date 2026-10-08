@@ -129,22 +129,28 @@ static bool field(cJSON *o, const char *key, char *dest, size_t capacity, bool p
     strcpy(dest, v->valuestring);
     return true;
 }
+static bool weather_temperature(const cJSON *value, bool kelvin, int8_t *result)
+{
+    if (!cJSON_IsNumber(value) || !isfinite(value->valuedouble)) return false;
+    double temperature = value->valuedouble;
+    if (kelvin || temperature > 150.0) temperature -= 273.15;
+    double rounded = round(temperature);
+    if (rounded < -60 || rounded > 70) return false;
+    *result = (int8_t)rounded;
+    return true;
+}
+
 static bool process_weather_json(wf_phone_t *p, cJSON *o)
 {
-    cJSON *temp = cJSON_GetObjectItemCaseSensitive(o, "temp");
-    if (!temp || !cJSON_IsNumber(temp) || !isfinite(temp->valuedouble)) {
-        return false;
-    }
-    double temp_val = temp->valuedouble;
-    if (temp_val > 150.0) {
-        temp_val -= 273.15;
-    }
-    double rounded = round(temp_val);
-    if (rounded < -60 || rounded > 70) return false;
-    int8_t temp_c = (int8_t)rounded;
-
     wristflow_phone_weather_t w = {0};
-    w.temp = temp_c;
+    cJSON *version = cJSON_GetObjectItemCaseSensitive(o, "v");
+    bool kelvin = cJSON_IsNumber(version) && version->valuedouble == 1.0;
+    if (!weather_temperature(cJSON_GetObjectItemCaseSensitive(o, "temp"), kelvin, &w.temp))
+        return false;
+    /* Gadgetbridge hi/lo are Kelvin; missing source values arrive as 0 K. */
+    w.range_valid = weather_temperature(cJSON_GetObjectItemCaseSensitive(o, "hi"), true, &w.high) &&
+                    weather_temperature(cJSON_GetObjectItemCaseSensitive(o, "lo"), true, &w.low) &&
+                    w.high >= w.low;
     w.code = -1;
 
     cJSON *loc = cJSON_GetObjectItemCaseSensitive(o, "loc");

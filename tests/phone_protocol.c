@@ -97,6 +97,34 @@ int main(void)
     feed("GB({\"t\":\"weather\",\"temp\":-256})\n");
     assert(phone.rejected == before_bad_temp + 2 && phone.weather.temp == 20);
 
+    /* Match the real Gadgetbridge v1 units at every transport split. */
+    const char *weather_v1 = "GB({\"t\":\"weather\",\"v\":1,\"temp\":293,\"hi\":299,\"lo\":291,\"hum\":68,\"wind\":7.2,\"code\":800,\"uv\":0})\n";
+    for (size_t split = 0; split <= strlen(weather_v1); ++split) {
+        wf_phone_init(&phone, observed, NULL);
+        wf_phone_feed(&phone, (const uint8_t *)weather_v1, split);
+        wf_phone_feed(&phone, (const uint8_t *)weather_v1 + split, strlen(weather_v1) - split);
+        assert(phone.has_weather && phone.weather.temp == 20);
+        assert(phone.weather.range_valid && phone.weather.high == 26 && phone.weather.low == 18);
+    }
+    feed("GB({\"t\":\"weather\",\"v\":1,\"temp\":273,\"hi\":273,\"lo\":263})\n");
+    assert(phone.weather.temp == 0 && phone.weather.range_valid);
+    assert(phone.weather.high == 0 && phone.weather.low == -10);
+    const char *invalid_ranges[] = {
+        "GB({\"t\":\"weather\",\"v\":1,\"temp\":293,\"hi\":0,\"lo\":0})\n",
+        "GB({\"t\":\"weather\",\"v\":1,\"temp\":293,\"hi\":299})\n",
+        "GB({\"t\":\"weather\",\"v\":1,\"temp\":293,\"hi\":null,\"lo\":291})\n",
+        "GB({\"t\":\"weather\",\"v\":1,\"temp\":293,\"hi\":\"299\",\"lo\":291})\n",
+        "GB({\"t\":\"weather\",\"v\":1,\"temp\":293,\"hi\":1e999,\"lo\":291})\n",
+        "GB({\"t\":\"weather\",\"v\":1,\"temp\":293,\"hi\":1000,\"lo\":291})\n",
+        "GB({\"t\":\"weather\",\"v\":1,\"temp\":293,\"hi\":280,\"lo\":291})\n"
+    };
+    for (unsigned i = 0; i < sizeof invalid_ranges / sizeof invalid_ranges[0]; ++i) {
+        feed(invalid_ranges[i]);
+        assert(phone.weather.temp == 20 && !phone.weather.range_valid);
+    }
+    before_bad_temp = phone.rejected;
+    feed("GB({\"t\":\"weather\",\"v\":1,\"temp\":0})\n");
+    assert(phone.rejected == before_bad_temp + 1 && phone.weather.temp == 20);
 
     feed(notice);
     const char *bad[] = {

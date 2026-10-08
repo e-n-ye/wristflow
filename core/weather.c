@@ -79,6 +79,11 @@ bool wristflow_weather_get_current(wristflow_weather_data_t *data, wristflow_wea
     snprintf(data->city, sizeof data->city, "%s", g_weather.current.city[0] ? g_weather.current.city : "未知城市");
     data->temperature = g_weather.current.temp;
     data->temperature_valid = true;
+    data->range_valid = g_weather.current.range_valid;
+    if (data->range_valid) {
+        data->high = g_weather.current.high;
+        data->low = g_weather.current.low;
+    }
     if (g_weather.current.condition[0]) {
         snprintf(data->condition, sizeof data->condition, "%s", g_weather.current.condition);
     } else {

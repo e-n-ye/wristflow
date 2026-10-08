@@ -65,6 +65,9 @@ typedef struct {
 typedef struct {
     char city[16];
     int8_t temp;          /* Celsius */
+    int8_t high;
+    int8_t low;
+    bool range_valid;
     int16_t code;         /* OWM weather code e.g. 800, or -1 if unknown */
     char condition[16];   /* text description e.g. "晴", "多云", "Rain" */
     uint8_t humidity;     /* % e.g. 65 */
