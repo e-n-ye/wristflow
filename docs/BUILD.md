@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-10-08 原版天气 v2 构建
+
+验证源码 `codex/weather-d1@10331bf7eac9d51c5ee04d43b849ae3bd817d6cc`。使用下节同一 CMake/Ninja/CTest 命令，主机目录改为 `artifacts/weather-v2-host`，16/16 通过；Product/UI Demo 沿用官方 `Build.ps1 -Example <目标> -Jobs 6`，均编译及产物检查通过。310/299 个源、29/22 个产物重哈希一致；SDK/子模块与工具链锁不变，SDK 工作树干净。Product `artifacts/product/20261008-214449-096/result.json`，主 BIN 7,618,260 B / `033e45f2047e4977794c0aaf1a85007ab50ba5ad274cd8a0455f7d562f11df5d`；UI Demo `artifacts/ui_demo/20261008-214450-426/result.json`，7,422,896 B / `44f52f6b6439ebe92b905bf787bb097fe4db89c2229937f595d7ef48a1bbd041`。
+
+新 Base64 单独链接锁定 SDK 的既有实现，使用项目精简配置，不启用 TLS 包。首次主机缺测试 shim 路径、SCons 列表原位追加导致外部源两种编译动作冲突，修复后以上最终构建通过；原日志保留。实际 LVGL 快照及最长风速单位的几何检查通过，XML/生成物未改，不计为新 Pro 导出。源码/构建/USB 验证分别见 [v2 记录](WEATHER-UI.md#weather-v2) 和 [精简证据](evidence/2026-10-08/weather-v2.json)；既有链接/FinSH 告警保留，不由编译推断真机或功耗通过。
+
 ## 2026-10-08 v1 高低温补丁构建
 
 验证源码 `codex/weather-d1@5d286c7df5c5e0630b15413d78a9c9c79e043910`。沿用下节主机构建/CTest 及 Product/UI Demo 官方构建命令，主机 16/16 通过；Product `artifacts/product/20261008-205254-798/result.json` 和 UI Demo `artifacts/ui_demo/20261008-205255-538/result.json` 均退出 0、产物校验通过，307/299 个源及 29/22 个产物重哈希一致。主 BIN 分别 7,615,076 B / `824285cb5131de25643fe065bfc5f42263383b689f59b3fc3f475108334eb8dc`，7,422,360 B / `66c3d5375f1f10561d94f35255b8ad4964e5ecc157832317bf51110cc178184a`。SDK/子模块锁与工具版本不变，既有 FinSH/链接告警保留。
