@@ -14,4 +14,3 @@ uint32_t wristflow_product_services_layout(const wristflow_layout_t *layout, voi
 wristflow_save_state_t wristflow_product_services_layout_status(uint32_t request, void *context);
 void wristflow_product_services_update_weather(const wristflow_phone_weather_t *w);
 #endif
-

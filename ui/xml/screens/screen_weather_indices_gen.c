@@ -207,4 +207,3 @@ lv_obj_t * screen_weather_indices_create(void)
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-

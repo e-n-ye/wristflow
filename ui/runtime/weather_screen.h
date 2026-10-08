@@ -15,4 +15,3 @@ void wristflow_weather_screen_refresh(lv_obj_t *screen);
 void wristflow_weather_screen_set_time(lv_obj_t *screen, const char *time_str);
 
 #endif
-

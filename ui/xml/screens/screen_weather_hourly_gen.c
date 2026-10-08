@@ -441,4 +441,3 @@ lv_obj_t * screen_weather_hourly_create(void)
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-

@@ -8,4 +8,3 @@ void wristflow_product_ble_delete(bool all, int32_t id, void *context);
 bool wristflow_product_ble_is_connected(void);
 bool wristflow_product_ble_request_weather(void);
 #endif
-

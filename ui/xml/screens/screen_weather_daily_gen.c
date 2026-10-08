@@ -289,4 +289,3 @@ lv_obj_t * screen_weather_daily_create(void)
 /**********************
  *   STATIC FUNCTIONS
  **********************/
-

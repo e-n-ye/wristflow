@@ -109,4 +109,3 @@ bool wristflow_weather_get_current(wristflow_weather_data_t *data, wristflow_wea
     snprintf(data->sunset, sizeof data->sunset, "--:--");
     return true;
 }
-
