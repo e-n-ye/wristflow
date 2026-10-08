@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "event_date": "2026-10-04",
+  "review_date": "2026-10-08",
+  "source_head": "7ec96322ad95e9954e4b63fd4357d57211366206",
+  "firmware_implementation_baseline": "5c0b82c02cf8f80168b076b0f76e2514a1867042",
+  "firmware_path_diff": {
+    "command": "git diff --name-status 5c0b82c 7ec96322 -- apps core ui scripts tests sdk.lock.json .github/workflows",
+    "exit_code": 0,
+    "changed_paths": []
+  },
+  "original_worktree": "C:/Users/13984/.codex/worktrees/product-acceptance/wristflow",
+  "archive_worktree": "C:/Users/13984/.codex/worktree-archives/wristflow-20261008/product-acceptance/wristflow",
+  "original_uncommitted_record_sha256": "a3e276b0387fadae9b34a90e270a05316ca8d8fead2c979d2df15500468b6282",
+  "board": "sf32lb52-lchspi-ulp",
+  "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+  "build_record": {
+    "path": "artifacts/product/20261004-165632-236/result.json",
+    "sha256": "0559d01b7a3ff7d4d53166624a94d4a27f267c5ffddede454b59cc32effe7f38",
+    "exit_code": 0,
+    "artifact_validation_passed": true,
+    "hardware_verified": false,
+    "source_hash_count": 286
+  },
+  "images": [
+    {
+      "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+      "bytes": 7427780,
+      "sha256": "4fc74fcf442c5c5231dedf48eb85e763344a2be3947ec2ed792f44203b24e393",
+      "address": "0x12020000"
+    },
+    {
+      "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+      "bytes": 58496,
+      "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21",
+      "address": "0x12010000"
+    },
+    {
+      "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+      "bytes": 11288,
+      "sha256": "98b975b15d6db0cefdccaf4cd3a4bad9f512e0821702364523ab6b312f487cb2",
+      "address": "0x12000000"
+    }
+  ],
+  "flash_record": {
+    "path": "artifacts/flash/product/20261004-180405-302/result.json",
+    "sha256": "99f7e6a09f07d652eb38c476accff7a69cd48131c30894c51e2a08859fd1594f",
+    "tool_version": "sftool 0.2.5",
+    "exit_code": 0,
+    "flash_verified": true,
+    "hardware_verified": false,
+    "battery_connected": false,
+    "settings_written": false
+  },
+  "startup_record": {
+    "path": "artifacts/serial-capture-20261004/startup.bin",
+    "bytes": 2736,
+    "sha256": "ff5afae91f0be67cba45a6ff7de802005e55f2d69ee45a92d948ebfd9591bc2d",
+    "observed_build_string": "2.5.1 build 7ec96322",
+    "layout_generation": 28,
+    "layout_pages": 3,
+    "settings_restore": "defaults",
+    "battery_absent_string_found": false
+  },
+  "historical_user_observations": {
+    "J1": "10 rounds reported normal; user observation only",
+    "J2": "brief confirmation; per-round count and timestamps unavailable",
+    "J3": "incomplete; initial intermittent failure, then single Product-only and dual-watch successes",
+    "J4": "attempted, not passed; protocol IDs and failure-window logs unavailable",
+    "J5_J6_J7": "not completed"
+  },
+  "joint_acceptance_passed": false,
+  "current_device_identity": "unknown_not_observed",
+  "new_build_performed": false,
+  "new_hardware_operation_performed": false,
+  "gadgetbridge_original_log_available_in_archive": false
+}

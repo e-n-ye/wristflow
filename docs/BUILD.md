@@ -1,5 +1,9 @@
 # 可复现构建基线
 
+## 2026-10-08 恢复历史构建记录
+
+本轮没有新增构建。已找回 2026-10-04 Product / `7ec96322` 的 result.json、三镜像及写入/启动记录，现存镜像大小与哈希匹配旧 result.json；详见 [历史验收](PRODUCT-ACCEPTANCE.md#2026-10-04-联合验收尝试历史记录恢复) 和 [精简证据](evidence/2026-10-04/product-joint-attempt.json)。旧工作树及产物路径的归档定位见 [恢复记录](handoffs/WORKSPACE-RECOVERY.md)，不把旧构建算成本轮编译通过。
+
 ## 2026-09-27 合入版本 Product 烧录复验
 
 用户授权后，从合入 #28 的 `main 5c0b82c02cf8f80168b076b0f76e2514a1867042` 重新构建 Product。`pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/build-isolated.ps1 -Example product` 调用锁定环境的官方 `scons --board=sf32lb52-lchspi-ulp -j6`，退出 0、产物校验通过。记录为本工作树 `artifacts/product/20260927-225145-164/result.json`；286 个源文件及全部记录产物的哈希复核一致，SDK/子模块符合锁且无修改。主 BIN 为 7,427,780 B，SHA-256 `e3d78d1737c27bb1ca1110f40a2d438060c308efc26d3d88882493fdf097ebaa`。
