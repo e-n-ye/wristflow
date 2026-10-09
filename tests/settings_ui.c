@@ -118,7 +118,10 @@ int main(int argc,char **argv)
     press("settings_notifications"); snapshot("notifications"); back();
     press("settings_display"); snapshot("display");
     assert(!lv_obj_find_by_name(lv_screen_active(),"display_tap"));
-    press("display_wrist"); snapshot("wrist"); back();
+    press("display_wrist"); snapshot("wrist");
+    assert(lv_obj_has_state(named(named(lv_screen_active(), "wrist_wake_row"), "row_switch"), LV_STATE_CHECKED));
+    press("row_switch"); assert(!settings().wrist_wake);
+    back();
     press("display_brightness"); snapshot("brightness");
     assert(lv_obj_has_state(named(lv_screen_active(),"auto_brightness"),LV_STATE_DISABLED));
     press("custom_brightness"); snapshot("adjust27");
@@ -144,20 +147,28 @@ int main(int argc,char **argv)
     jump(299000); tap(20,20); jump(1000);
     assert(!wristflow_ui_shell_keep_minutes(shell) && wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_ACTIVE);
     home(); key(); open(WRISTFLOW_SURFACE_SETTINGS);
-    wristflow_settings_t chosen=settings(); chosen.brightness=27; chosen.screen_timeout=5;
+    wristflow_settings_t chosen=settings(); chosen.brightness=27; chosen.screen_timeout=5; chosen.wrist_wake=true;
     assert(wristflow_ui_shell_configure(shell,&chosen));
-    jump(4050); assert(brightness==5 && wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_DIM);
+    /* A late sensor event in the bright phase cannot navigate or renew the timeout. */
+    jump(3000); assert(!wristflow_ui_shell_wrist_wake_allowed(shell));
+    assert(!wristflow_ui_shell_wrist_wake(shell)); surface(WRISTFLOW_SURFACE_SETTINGS);
+    jump(1050); assert(brightness==5 && wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_DIM);
     /* A dim touch over an actionable row consumes down, drag, and release. */
     sample(195,125,true); assert(brightness==27); sample(195,130,true); sample(195,125,false); advance(240); surface(WRISTFLOW_SURFACE_SETTINGS);
     press("settings_faces"); surface(WRISTFLOW_SURFACE_FACE_MANAGEMENT);
-    jump(4050); key(); surface(WRISTFLOW_SURFACE_FACE_MANAGEMENT); assert(brightness==27);
+    jump(4050); assert(wristflow_ui_shell_wrist_wake_allowed(shell));
+    assert(wristflow_ui_shell_wrist_wake(shell)); advance(240);
+    surface(WRISTFLOW_SURFACE_FACE_MANAGEMENT); assert(brightness==27 && settings().do_not_disturb);
     jump(5050); assert(wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_OFF); tap(195,125);
     assert(wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_OFF);
     jump(119000); key(); surface(WRISTFLOW_SURFACE_FACE_MANAGEMENT);
-    jump(5050); jump(120000); check_wake_home=true; key(); check_wake_home=false; surface(WRISTFLOW_SURFACE_HOME);
+    jump(5050); jump(120000); check_wake_home=true;
+    assert(wristflow_ui_shell_wrist_wake(shell)); advance(240);
+    check_wake_home=false; surface(WRISTFLOW_SURFACE_HOME);
     key(); open(WRISTFLOW_SURFACE_FLASHLIGHT); jump(600000); assert(brightness==100 && wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_ACTIVE);
     key(); assert(brightness==27); jump(3000); assert(wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_ACTIVE);
-    key(); open(WRISTFLOW_SURFACE_STOPWATCH); press("stopwatch_toggle"); jump(5050); jump(120000); key(); surface(WRISTFLOW_SURFACE_STOPWATCH);
+    key(); open(WRISTFLOW_SURFACE_STOPWATCH); press("stopwatch_toggle"); jump(5050); jump(120000);
+    assert(wristflow_ui_shell_wrist_wake(shell)); advance(240); surface(WRISTFLOW_SURFACE_STOPWATCH);
     assert(strcmp(lv_label_get_text(named(lv_screen_active(),"stopwatch_time")),"00:00")); snapshot("stopwatch_wake");
     press("stopwatch_toggle");
     char paused[32]; snprintf(paused,sizeof paused,"%s",lv_label_get_text(named(lv_screen_active(),"stopwatch_time")));
@@ -184,12 +195,19 @@ int main(int argc,char **argv)
     swipe(320,125,60,125); sample(100,110,true); advance(736); sample(100,110,false); advance(240); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
     press("edit_right"); press("full"); press("slot_0"); press("choose_activity_0"); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
     lv_obj_t *draft=lv_screen_active(); assert(wristflow_ui_shell_layout(shell)->count==3);
-    jump(5050); jump(600000); key(); assert(lv_screen_active()==draft); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
+    jump(5050); jump(600000); assert(wristflow_ui_shell_wrist_wake(shell)); advance(240);
+    assert(lv_screen_active()==draft); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
     assert(!lv_obj_has_state(named(draft,"edit_action"),LV_STATE_DISABLED)); assert(wristflow_ui_shell_layout(shell)->count==3); snapshot("draft_wake");
+    chosen=settings(); chosen.wrist_wake=false; assert(wristflow_ui_shell_configure(shell,&chosen));
+    jump(4050); assert(!wristflow_ui_shell_wrist_wake_allowed(shell) && !wristflow_ui_shell_wrist_wake(shell));
+    assert(wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_DIM);
+    jump(1000); assert(!wristflow_ui_shell_wrist_wake(shell));
+    assert(wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_OFF && settings().do_not_disturb);
+    key();
     uint8_t record[WRISTFLOW_SETTINGS_BYTES]; chosen=settings(); assert(wristflow_settings_encode(&chosen,record));
     assert(wristflow_ui_shell_keep_awake(shell,20)); wristflow_ui_shell_destroy(shell); shell=NULL;
     assert(wristflow_settings_decode(&initial,record,sizeof record));
     shell=wristflow_product_ui_create(&state,&initial,set_brightness,NULL); advance(240);
-    assert(!wristflow_ui_shell_keep_minutes(shell) && !settings().face_long_press && settings().screen_timeout==5 && brightness==27);
+    assert(!wristflow_ui_shell_keep_minutes(shell) && !settings().face_long_press && !settings().wrist_wake && settings().screen_timeout==5 && brightness==27);
     wristflow_ui_shell_destroy(shell); shell=NULL; lv_deinit(); return 0;
 }

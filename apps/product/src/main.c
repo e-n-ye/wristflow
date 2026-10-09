@@ -8,6 +8,7 @@
 #include "product_services.h"
 #include "product_ble.h"
 #include "product_pm.h"
+#include "product_imu.h"
 #include "weather_screen.h"
 #include <string.h>
 
@@ -19,6 +20,34 @@ static bool defer_brightness;
 static uint8_t wake_brightness;
 /* This bounded phone copy is too large for the main thread's stack. */
 static wristflow_notifications_snapshot_t notifications;
+/* C1 diagnostics: observe the existing key path without replacing its IRQ handler. */
+static volatile uint32_t key_actions[4], key_sent, key_received, key_tick;
+
+static void key_report(void)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    uint32_t pressed = key_actions[BUTTON_PRESSED], released = key_actions[BUTTON_RELEASED];
+    uint32_t clicked = key_actions[BUTTON_CLICKED], held = key_actions[BUTTON_LONG_PRESSED];
+    uint32_t sent = key_sent, received = key_received, tick = key_tick;
+    bool waiting = waiting_for_wake, suppressed = suppress_wake_click;
+    uint32_t wer = hwp_hpsys_aon->WER, wsr = hwp_hpsys_aon->WSR;
+    /* HAL exposes GPIO registers as an array of 32-pin banks. */
+    GPIO_TypeDef *key_bank = hwp_gpio1 + (BSP_KEY1_PIN >> 5);
+    uint32_t ier = key_bank->IER, isr = key_bank->ISR;
+    int pin = rt_pin_read(BSP_KEY1_PIN);
+    rt_hw_interrupt_enable(level);
+    rt_kprintf("[key-c1] pin34=%d waiting=%u suppressed=%u tick=%u\n", pin, waiting, suppressed, rt_tick_get());
+    rt_kprintf("[key-c1] press=%u release=%u click=%u long=%u last_tick=%u\n", pressed, released, clicked, held, tick);
+    rt_kprintf("[key-c1] sent=%u received=%u WER=0x%x WSR=0x%x IER1=0x%x ISR1=0x%x\n", sent, received, wer, wsr, ier, isr);
+}
+
+static int wf_key(int argc, char **argv)
+{
+    (void)argc; (void)argv;
+    key_report();
+    return RT_EOK;
+}
+MSH_CMD_EXPORT(wf_key, Read only KEY1 C1 callback and wake diagnostics);
 
 static bool sync_notifications(void)
 {
@@ -37,10 +66,16 @@ static void read_pointer(lv_indev_t *input, lv_indev_data_t *data)
 static void button_callback(int32_t pin, button_action_t action)
 {
     (void)pin;
+    rt_base_t level = rt_hw_interrupt_disable();
+    if ((unsigned)action < 4) ++key_actions[action];
+    key_tick = rt_tick_get();
+    rt_hw_interrupt_enable(level);
     if (action == BUTTON_PRESSED && waiting_for_wake) {
         suppress_wake_click = true;
+        ++key_sent;
         wristflow_product_event_send(WF_EVENT_KEY);
     } else if (action == BUTTON_CLICKED && !suppress_wake_click) {
+        ++key_sent;
         wristflow_product_event_send(WF_EVENT_KEY);
     } else if (action == BUTTON_RELEASED) {
         suppress_wake_click = false;
@@ -73,26 +108,36 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_POWEROFF, NULL) == RT_EOK);
     /* Touch power work is asynchronous and holds its own SDK idle request. */
     rt_kprintf("[product] screen off; notification events active\n");
+    key_report();
     wristflow_product_pm_screen(true);
+    wristflow_product_imu_wrist_wake(wristflow_ui_shell_wrist_wake_allowed(product_shell));
     rt_uint32_t events;
-    bool preview = false;
+    bool preview = false, imu_wake = false;
     defer_brightness = true;
     for (;;) {
         events = wristflow_product_event_wait(RT_WAITING_FOREVER);
+        if (events & WF_EVENT_KEY) ++key_received;
         if (events & WF_EVENT_PHONE) {
             wristflow_product_pm_background();
             preview = sync_notifications();
         }
-        if (events & WF_EVENT_PM_SAMPLE) wristflow_product_pm_report();
-        if (preview || (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))) break;
+        if (events & WF_EVENT_PM_SAMPLE) { wristflow_product_pm_report(); key_report(); }
+        imu_wake = (events & WF_EVENT_IMU_WAKE) && wristflow_ui_shell_wrist_wake_allowed(product_shell);
+        if (preview || imu_wake || (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))) break;
     }
+    wristflow_product_imu_wrist_wake(false);
     wristflow_product_pm_screen(false); /* Hold idle before restoring the display. */
     waiting_for_wake = false;
-    rt_kprintf("[product] wake event=%s\n", events & WF_EVENT_KEY ? "KEY1" : preview ? "notification" : "diagnostic");
+    rt_kprintf("[product] wake event=%s\n", events & WF_EVENT_KEY ? "KEY1" : preview ? "notification" : imu_wake ? "IMU" : "diagnostic");
+    key_report();
     wristflow_product_pm_report();
     /* Select the wake destination while dark; expose only its completed frame. */
     defer_brightness = true;
-    if (!preview || (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))) wristflow_ui_shell_key(product_shell);
+    if (!preview || (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))) {
+        if (imu_wake && !(events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE)))
+            wristflow_ui_shell_wrist_wake(product_shell);
+        else wristflow_ui_shell_key(product_shell);
+    }
     wristflow_watch_snapshot_t wake_snapshot = wristflow_product_services_snapshot();
     wristflow_ui_shell_update(product_shell, &wake_snapshot);
     RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_POWERON, NULL) == RT_EOK);
@@ -122,6 +167,7 @@ int main(void)
     wristflow_layout_t layout;
     wristflow_product_services_start(&settings, &layout);
     wristflow_product_ble_start();
+    wristflow_product_imu_start();
     wristflow_watch_snapshot_t snapshot = wristflow_product_services_snapshot();
     RT_ASSERT(littlevgl2rtt_init("lcd") == RT_EOK);
     RT_ASSERT(lv_display_get_horizontal_resolution(NULL) == 390);
@@ -163,6 +209,7 @@ int main(void)
     for (;;) {
         uint32_t wait_ms = lv_timer_handler();
         uint32_t now = lv_tick_get();
+        wristflow_product_imu_wrist_wake(wristflow_ui_shell_wrist_wake_allowed(shell));
         if (wristflow_ui_shell_display_phase(shell) == WRISTFLOW_DISPLAY_OFF) {
             if (wristflow_ui_shell_get_settings(shell, &settings))
                 wristflow_product_services_settings(&settings);
@@ -187,7 +234,8 @@ int main(void)
             sampled = now;
         }
         rt_uint32_t events = wristflow_product_event_wait(rt_tick_from_millisecond(LV_CLAMP(1, wait_ms, 20)));
-        if (events & WF_EVENT_PM_SAMPLE) wristflow_product_pm_report();
+        if (events & WF_EVENT_KEY) ++key_received;
+        if (events & WF_EVENT_PM_SAMPLE) { wristflow_product_pm_report(); key_report(); }
         if (events & WF_EVENT_PHONE) {
             sync_notifications();
             snapshot = wristflow_product_services_snapshot();
@@ -198,7 +246,9 @@ int main(void)
             }
         }
         if (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))
-
             wristflow_ui_shell_key(shell);
+        else if ((events & WF_EVENT_IMU_WAKE) && wristflow_ui_shell_wrist_wake(shell))
+            rt_kprintf("[product] brighten event=IMU\n");
+        wristflow_product_imu_wrist_wake(wristflow_ui_shell_wrist_wake_allowed(shell));
     }
 }
