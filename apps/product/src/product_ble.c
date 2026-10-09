@@ -310,9 +310,13 @@ static int wf_ble(int argc, char **argv)
         wristflow_weather_reset();
         rt_kprintf("[ble] cleared weather cache\n");
     } else if (!strcmp(argv[1], "status")) {
-        rt_kprintf("[ble] A1 connected=%u subscribed=%u generation=%u messages=%u added=%u updated=%u removed=%u rejected=%u unknown=%u dropped=%u gaps=%u stale=%u\n",
-            connection != 0xff, subscribed, generation, phone.count, phone.received, phone.updated,
-            phone.removed, phone.rejected, phone.unknown, wf_phone_queue_dropped(&sender), receiver.gaps, receiver.stale);
+        /* Keep each line within the SDK's 128-byte console buffer. */
+        rt_kprintf("[ble] A1 connected=%u subscribed=%u generation=%u messages=%u\n",
+            connection != 0xff, subscribed, generation, phone.count);
+        rt_kprintf("[ble] stats added=%u updated=%u removed=%u rejected=%u unknown=%u\n",
+            phone.received, phone.updated, phone.removed, phone.rejected, phone.unknown);
+        rt_kprintf("[ble] queue dropped=%u gaps=%u stale=%u\n",
+            wf_phone_queue_dropped(&sender), receiver.gaps, receiver.stale);
         wristflow_weather_data_t weather;
         wristflow_weather_state_t state;
         bool cached = wristflow_weather_get_current(&weather, &state);
