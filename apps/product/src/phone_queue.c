@@ -1,4 +1,5 @@
 #include "phone_queue.h"
+#include <rthw.h>
 
 bool wf_phone_queue_send(wf_phone_sender_t *sender, rt_mq_t queue, uint32_t peer,
                          unsigned kind, const uint8_t *data, unsigned size, uint32_t request)

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "phone_queue.h"
+#include <rthw.h>
 #include "phone_protocol.h"
 
 struct test_queue {
