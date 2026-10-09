@@ -1,0 +1,468 @@
+{
+  "date": "2026-10-09",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/weather-d1",
+  "documentation_start_head": "6b230d44c79cde48edd0e4df5b9a5e84158cfd97",
+  "source_commit": "83a6bd2d8954b69e3e8536b0f249efb169381e7e",
+  "scope": "Bounded same-firmware weather five-page, pagination/edge return, reentry, KEY1/short-sleep and one real Bluetooth off/on regression",
+  "delivery": "related_hardware_passed_pending_final_pr_closure",
+  "source_inspection": {
+    "changed": false,
+    "short_sleep_contract": "UI-INTERACTION:212-214 and ui_shell.c:330-351: off <120000ms restores prior page; >=120000ms returns ordinary pages home, with timer/editor exemptions",
+    "correction": "Assistant originally requested home after about20s; user reported prior page. Existing source/contract confirms that is correct. No firmware change or new product decision",
+    "prior_review_reused": "Production/tests unchanged from reviewed83a6bd2; no new clear blocker found in lifecycle/registry/default layout or flash/build boundaries",
+    "flash_limit": "Flash script validates images, paths and hashes; physical port identity, power and authorization are checked by operator, not automatically by script"
+  },
+  "compilation": {
+    "new_build": false,
+    "new_flash": false,
+    "prior_evidence": "docs/evidence/2026-10-09/queue-d8.json",
+    "product_result": {
+      "example": "product",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 6",
+      "result": "artifacts/product/20261009-123632-974/result.json",
+      "result_sha256": "ac2924fdc965981f7724be59588e8b3792ef67b1ffc58c6acb378cd8ce9a7dd3",
+      "exit_code": 0,
+      "matched_sources": 312,
+      "matched_artifacts": 29,
+      "main_bytes": 7620916,
+      "main_sha256": "353978765b56c969daf42af853235d235a14dc8f247ab2209a5a35da09a7126f"
+    },
+    "images_rehashed_this_round": [
+      {
+        "path": "D:/MY_Desk/project/wristflow/apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+        "bytes": 7620916,
+        "sha256": "353978765b56c969daf42af853235d235a14dc8f247ab2209a5a35da09a7126f"
+      },
+      {
+        "path": "D:/MY_Desk/project/wristflow/apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "path": "D:/MY_Desk/project/wristflow/apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+        "bytes": 11288,
+        "sha256": "532648b9c5acbc7db8844cf3bcd75925a172c9721efb790db1efc096c219ea48"
+      }
+    ],
+    "host_test_boundary": "Existing18/18 and finalaffected1/1; no redundant tests for this evidence-only change"
+  },
+  "hardware": {
+    "conditions": "Same Huangshan board/screen, COM5 CH340 USB VID1A86 PID7523, USB only/no battery",
+    "port_device_id": "USB\\VID_1A86&PID_7523\\6&A8355E6&3&1",
+    "address": "5C:FD:52:80:0F:D1",
+    "cold_start": "User reconnected USB after initial enumeration did not find board; captured one startup/layout restore. Collector did not toggle reset or flash",
+    "layout_restore": {
+      "host_s": 2.203,
+      "text": "[product] layout restore=yes generation=37 pages=3"
+    },
+    "collector": "Serial1M8N1, DTR/RTSfalse, no BLE client/application fixture; only confirmed status/PM diagnostics used",
+    "sessions": [
+      {
+        "name": "session",
+        "duration_s": 642.641,
+        "exit_code": 0,
+        "serial_closed": true,
+        "files": [
+          {
+            "path": "artifacts/weather-regression/session/uart.bin",
+            "bytes": 13517,
+            "sha256": "d9064c013e25a79d3e29b9619de0ae5b27e624cb4016bc3d28b76aa20529ecd5"
+          },
+          {
+            "path": "artifacts/weather-regression/session/events.json",
+            "bytes": 19014,
+            "sha256": "8fed53470b2a42faf0598a1d6a67821d48181f825b0cbed6012610382e78584a"
+          },
+          {
+            "path": "artifacts/weather-regression/session/events.jsonl",
+            "bytes": 16096,
+            "sha256": "5eb7f50a7b1404d74b00209a316abe22add1d1f9b68872c26eddd9a97c1c18f6"
+          },
+          {
+            "path": "artifacts/weather-regression/session.log",
+            "bytes": 16096,
+            "sha256": "5eb7f50a7b1404d74b00209a316abe22add1d1f9b68872c26eddd9a97c1c18f6"
+          }
+        ],
+        "confirmed_commands": [
+          {
+            "host_s": 35.063,
+            "label": "initial-status",
+            "command": "wf_ble status"
+          },
+          {
+            "host_s": 36.094,
+            "label": "initial-status",
+            "command": "wf_pm status"
+          },
+          {
+            "host_s": 100.844,
+            "label": "after-five-pages",
+            "command": "wf_ble status"
+          },
+          {
+            "host_s": 101.86,
+            "label": "after-five-pages",
+            "command": "wf_pm status"
+          },
+          {
+            "host_s": 248.0,
+            "label": "after-pagination",
+            "command": "wf_ble status"
+          },
+          {
+            "host_s": 422.766,
+            "label": "natural-wake-status",
+            "command": "wf_ble status"
+          },
+          {
+            "host_s": 423.813,
+            "label": "natural-wake-status",
+            "command": "wf_pm status"
+          }
+        ]
+      },
+      {
+        "name": "connection",
+        "duration_s": 170.25,
+        "exit_code": 0,
+        "serial_closed": true,
+        "files": [
+          {
+            "path": "artifacts/weather-regression/connection/uart.bin",
+            "bytes": 2446,
+            "sha256": "819af66c4b2e4560475e90461e1d57c42b7282159b4d58de4240a8011bccb4c4"
+          },
+          {
+            "path": "artifacts/weather-regression/connection/events.json",
+            "bytes": 9057,
+            "sha256": "a7739a4814d7cc18d7688c47452a7d2a7e636ac0a320a208f25819ad4c55693b"
+          },
+          {
+            "path": "artifacts/weather-regression/connection/events.jsonl",
+            "bytes": 7572,
+            "sha256": "aa7459bf61294c3befd68a42ce89474a367e09ba8e4b3e21b54fdd976cea4e98"
+          },
+          {
+            "path": "artifacts/weather-regression/connection.log",
+            "bytes": 7572,
+            "sha256": "aa7459bf61294c3befd68a42ce89474a367e09ba8e4b3e21b54fdd976cea4e98"
+          }
+        ],
+        "confirmed_commands": [
+          {
+            "host_s": 0.063,
+            "label": "before-disconnect",
+            "command": "wf_ble status"
+          },
+          {
+            "host_s": 1.109,
+            "label": "before-disconnect",
+            "command": "wf_pm status"
+          },
+          {
+            "host_s": 64.969,
+            "label": "during-disconnect",
+            "command": "wf_ble status"
+          },
+          {
+            "host_s": 127.094,
+            "label": "after-reconnect",
+            "command": "wf_ble status"
+          },
+          {
+            "host_s": 128.141,
+            "label": "after-reconnect",
+            "command": "wf_pm status"
+          },
+          {
+            "host_s": 135.094,
+            "label": "after-reconnect",
+            "command": "wf_ble status"
+          }
+        ]
+      }
+    ]
+  },
+  "runtime": {
+    "python": "3.12.14",
+    "pyserial": "3.5",
+    "dependencies_reused": "Ignored local weather-deadline/peer-tools; SDK environment unchanged",
+    "commands": [
+      "PYTHONUTF8=1 python artifacts/weather-regression/capture.py --out artifacts/weather-regression/session --controls artifacts/weather-regression/controls.jsonl --limit 900",
+      "PYTHONUTF8=1 python artifacts/weather-regression/capture.py --out artifacts/weather-regression/connection --controls artifacts/weather-regression/connection-controls.jsonl --limit 600"
+    ],
+    "controls": [
+      {
+        "path": "artifacts/weather-regression/controls.jsonl",
+        "bytes": 1510,
+        "sha256": "c4379cc67d20c37af2550565115b62c3d3ccc0ea2c74dac834e3a3d90c4e7cb3"
+      },
+      {
+        "path": "artifacts/weather-regression/connection-controls.jsonl",
+        "bytes": 719,
+        "sha256": "b042a29d9290b4799eac8bb15efbc80447979bd47ee11a93464d44beb115ae6f"
+      }
+    ],
+    "helper": {
+      "path": "artifacts/weather-regression/capture.py",
+      "bytes": 6126,
+      "sha256": "69ea9ba1a490405c40a8fa9f0346b1cedebbabba4b9649cf8b87aa0bc1591bff"
+    }
+  },
+  "user_acceptance": [
+    {
+      "group": "five_pages",
+      "requested": "Current/forecast/daily/indices/sun reached; fields reasonable, no missing glyph/overlap/freeze; AQI/UV placeholder accepted",
+      "reply_verbatim": "均正常"
+    },
+    {
+      "group": "pagination_edge_return",
+      "requested": "6hourly groups of4 and2daily groups5+2, end boundary/back tofirst, content horizontal only, both titles edge-return then reenter",
+      "reply_verbatim": "均正常"
+    },
+    {
+      "group": "reentry_key",
+      "requested": "3return/reentry cycles fromforecast/daily/sun and1awakeKEY1 home/reentry; first screen/cache restored, no stale loading/error",
+      "reply_verbatim": "均正常"
+    },
+    {
+      "group": "short_sleep_page",
+      "requested": "Two natural screenoff waits about20s, KEY1 and weather recovery",
+      "reply_verbatim": "等待20s后回到的是熄屏前的页面，这个应该是正常的",
+      "correction": "Restore prior page is the existing correct short-sleep contract"
+    },
+    {
+      "group": "short_sleep_touch_data",
+      "requested": "Confirm touch/data after both short-sleep restores; prepare next temporary keepawake",
+      "reply_verbatim": "都正常，已准备好"
+    },
+    {
+      "group": "disconnect_cache",
+      "requested": "PhoneBluetooth off, cachedtemperature/forecast andpage gestures remain usable",
+      "reply_verbatim": "断开后，也是正常的"
+    },
+    {
+      "group": "reconnect",
+      "requested": "Bluetooth on/Gadgetbridge reconnect, receivedage updates, return/reentry, nofreeze/unexpectedrestart",
+      "reply_verbatim": "显示刚刚接收，均正常"
+    }
+  ],
+  "page_runtime": {
+    "weather_updates": [
+      {
+        "host_s": 39.375,
+        "text": "[product] weather updated: 乐清市 20 C, condition=晴朗 code=800 hum=71%"
+      }
+    ],
+    "forecast": [
+      {
+        "host_s": 39.375,
+        "text": "[product] weather forecast: hours=24 days=7 sunrise=1791409920 sunset=1791452100"
+      }
+    ],
+    "statuses": [
+      {
+        "host_s": 35.063,
+        "cached": 0,
+        "state": 2,
+        "expired": 0,
+        "age_known": 0,
+        "received_utc": 0,
+        "request": 0,
+        "remaining_ms": 0
+      },
+      {
+        "host_s": 100.844,
+        "cached": 1,
+        "state": 1,
+        "expired": 0,
+        "age_known": 1,
+        "received_utc": 1791524396,
+        "request": 0,
+        "remaining_ms": 0
+      },
+      {
+        "host_s": 248.0,
+        "cached": 1,
+        "state": 1,
+        "expired": 0,
+        "age_known": 1,
+        "received_utc": 1791524396,
+        "request": 0,
+        "remaining_ms": 0
+      },
+      {
+        "host_s": 422.766,
+        "cached": 1,
+        "state": 1,
+        "expired": 0,
+        "age_known": 1,
+        "received_utc": 1791524396,
+        "request": 0,
+        "remaining_ms": 0
+      }
+    ],
+    "short_sleep_cycles": [
+      {
+        "screen_off_host_s": 431.922,
+        "key1_host_s": 462.656,
+        "elapsed_s": 30.734
+      },
+      {
+        "screen_off_host_s": 472.672,
+        "key1_host_s": 496.703,
+        "elapsed_s": 24.031
+      }
+    ],
+    "excluded_preparation_sleep_s": 8.093,
+    "hardware_observation_limit": "UI operation counts/appearance from explicit user group replies; no per-gesture telemetry/photos. Serial ties runtime states and physical off/KEY wake",
+    "fresh_reentry_request_limit": "Source checks fresh cache before requesting; serial capture is not a NUS TX monitor, so does not prove absence of every outgoing weather request"
+  },
+  "connection_runtime": {
+    "disconnect": [
+      {
+        "host_s": 41.875,
+        "text": "[ble] disconnected reason=19"
+      }
+    ],
+    "reconnect": [
+      {
+        "host_s": 93.766,
+        "text": "msh />msh />[ble] connected index=0 generation=3"
+      }
+    ],
+    "subscription": [
+      {
+        "host_s": 94.328,
+        "text": "[ble] subscribed: reset weather cache and requested weather from phone"
+      }
+    ],
+    "rtc": [
+      {
+        "host_s": 94.406,
+        "text": "[product] RTC synchronized: UTC=1791525094; display UTC+8"
+      }
+    ],
+    "weather_updates": [
+      {
+        "host_s": 94.453,
+        "text": "[product] weather updated: 乐清市 20 C, condition=晴朗 code=800 hum=71%"
+      }
+    ],
+    "forecast": [
+      {
+        "host_s": 94.453,
+        "text": "[product] weather forecast: hours=24 days=7 sunrise=1791409920 sunset=1791452100"
+      }
+    ],
+    "links": [
+      {
+        "host_s": 0.063,
+        "connected": 1,
+        "subscribed": 1,
+        "generation": 1,
+        "messages": 0
+      },
+      {
+        "host_s": 64.969,
+        "connected": 0,
+        "subscribed": 0,
+        "generation": 2,
+        "messages": 1
+      },
+      {
+        "host_s": 127.094,
+        "connected": 1,
+        "subscribed": 1,
+        "generation": 3,
+        "messages": 1
+      },
+      {
+        "host_s": 135.109,
+        "connected": 1,
+        "subscribed": 1,
+        "generation": 3,
+        "messages": 1
+      }
+    ],
+    "statuses": [
+      {
+        "host_s": 0.078,
+        "cached": 1,
+        "state": 1,
+        "expired": 0,
+        "age_known": 1,
+        "received_utc": 1791524396,
+        "request": 0,
+        "remaining_ms": 0
+      },
+      {
+        "host_s": 64.969,
+        "cached": 1,
+        "state": 1,
+        "expired": 0,
+        "age_known": 1,
+        "received_utc": 1791524396,
+        "request": 0,
+        "remaining_ms": 0
+      },
+      {
+        "host_s": 127.109,
+        "cached": 1,
+        "state": 1,
+        "expired": 0,
+        "age_known": 1,
+        "received_utc": 1791525094,
+        "request": 0,
+        "remaining_ms": 0
+      },
+      {
+        "host_s": 135.109,
+        "cached": 1,
+        "state": 1,
+        "expired": 0,
+        "age_known": 1,
+        "received_utc": 1791525094,
+        "request": 0,
+        "remaining_ms": 0
+      }
+    ]
+  },
+  "observed_counters": {
+    "rejected": 0,
+    "unknown": 0,
+    "dropped": 0,
+    "gaps": 0,
+    "stale": 0,
+    "scope": "All8confirmedstatus replies in this power-on session; earlierD2 unknown3 baseline remains valid for its prior boot, not combined"
+  },
+  "restoration": {
+    "serial_tools_closed": true,
+    "phone_bluetooth_gadgetbridge_restored": true,
+    "temporary_keep_awake_reply_verbatim": "已关闭",
+    "feedback_source": "User reply after both collectors closed; backlight state not inferred from UART closure"
+  },
+  "failures_and_limits": [
+    "Initial board enumeration absent; after user USB reattachment pyserial/PnP found same COM5 CH340",
+    "Assistant short-sleep home expectation was wrong and corrected from existing contract/source; physical prior-page restoration is expected",
+    "No collector error/command-not-found; commands count only with UART execution replies",
+    "Two short-sleep cycles and one reconnection are bounded weather regression, not fullN2 10navigation/10sleep/5reconnection or30-60minute matrix",
+    "No>=2minute weather-specific sleep in this round; source rule not claimed hardware passed",
+    "Three-hour/RTC-jump physical tests, exact autonomous deadline wake, target producer pressure/IRQ latency, physical power-failure/GC interruption andpower/battery life uncovered"
+  ],
+  "merge_readiness": {
+    "related_usb_regression": "passed",
+    "no_new_clear_code_blocker": true,
+    "retained_risks": "Host boundary/models plus bounded USB evidence support related merge; unmeasured fullN2/target-pressure/IRQ andphysicallongboundaries explicitly retained, not converted to devicepass",
+    "independent_followups": "C2 conflict/experience/integration, complete joint acceptance, N4 andpower remain separate",
+    "authorization": "User previously requested merge ifready; final reviewed head must be ready, rebase-merged, readback andfetched before claiming integrated"
+  },
+  "review": {
+    "read_only_ui_log_audit": "gpt-6-luna / low",
+    "read_only_source_gate_audit": "gpt-6.1-sol / medium",
+    "primary": "Owns all writes, hardware collection, commands, documentary verification andfinalGit closure"
+  },
+  "next_bounded_experiment": "After weatherPR closure, inspect C2 PR30 against latestmain and choose one bounded conflict/experience regression task; do not execute in this round"
+}
