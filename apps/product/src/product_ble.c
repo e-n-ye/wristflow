@@ -11,6 +11,7 @@
 #include "bf0_sibles_advertising.h"
 #include "ble_connection_manager.h"
 #include "phone_protocol.h"
+#include "phone_queue.h"
 #include "product_ble.h"
 #include "product_services.h"
 #include "product_pm.h"
@@ -19,19 +20,14 @@
 #define SERIAL_UUID_16(x) {((uint8_t)((x) & 0xff)), ((uint8_t)((x) >> 8))}
 #define NUS_UUID(n) {0x9e,0xca,0xdc,0x24,0x0e,0xe5,0xa9,0xe0,0x93,0xf3,0xa3,0xb5,n,0x00,0x40,0x6e}
 enum { SVC, RX_CHAR, RX_VALUE, TX_CHAR, TX_VALUE, TX_CCCD, ATT_COUNT };
-enum { PACKET_POWER = 1, PACKET_LINK, PACKET_RX, PACKET_SUBSCRIBE, PACKET_TX_WEATHER_REQ };
-typedef struct {
-
-    uint32_t sequence, generation, request;
-    uint16_t kind, size;
-    uint8_t data[512];
-} packet_t;
 static rt_mq_t packets;
+static wf_phone_sender_t sender;
+static wf_phone_receiver_t receiver;
 static struct rt_mutex phone_lock;
 static wf_phone_t phone;
 static sibles_hdl service;
 static volatile uint8_t connection = 0xff, subscribed;
-static volatile uint32_t generation, sequence, dropped;
+static volatile uint32_t generation;
 static uint8_t cccd[2];
 static bool ready, gps_reply, weather_reply, weather_v2_attempted;
 static uint32_t revision, alert_sequence;
@@ -53,14 +49,8 @@ BLE_GATT_SERVICE_DEFINE_128(attributes) {
 
 static bool enqueue(unsigned kind, const uint8_t *data, unsigned size, uint32_t request)
 {
-    packet_t p = {0};
-    p.kind = (uint16_t)kind; p.generation = generation; p.sequence = ++sequence;
-    p.request = request;
-    if (size > sizeof p.data || !packets) { dropped++; return false; }
-    p.size = (uint16_t)size;
-    if (size) memcpy(p.data, data, size);
-    if (rt_mq_send(packets, &p, sizeof p) != RT_EOK) { dropped++; return false; }
-    return true;
+    uint32_t peer = generation;
+    return wf_phone_queue_send(&sender, packets, peer, kind, data, size, request);
 }
 static bool queue_weather(uint32_t request, void *context)
 {
@@ -179,22 +169,30 @@ static void phone_event(wf_phone_event_t e, int32_t id, void *context)
 static void worker(void *context)
 {
     (void)context;
-    packet_t p;
-    uint32_t last_sequence = 0, peer = 0;
+    wf_phone_packet_t p;
     for (;;) {
         if (wristflow_weather_poll()) wristflow_product_event_send(WF_EVENT_PHONE);
         uint32_t remaining = wristflow_weather_request_remaining_ms();
         /* At most three hours between tick-extension samples, including while off. */
         rt_int32_t wait = rt_tick_from_millisecond(remaining ? remaining : (uint32_t)WRISTFLOW_WEATHER_EXPIRY_MS);
         if (rt_mq_recv(packets, &p, sizeof p, wait) != RT_EOK) continue;
-        if (p.kind == PACKET_POWER) { start_advertising(); last_sequence = p.sequence; continue; }
         rt_mutex_take(&phone_lock, RT_WAITING_FOREVER);
-        if (p.generation != peer) {
-            wf_phone_reconnect(&phone); peer = p.generation;
+        wf_phone_packet_action_t action = wf_phone_queue_receive(&receiver, &p, generation);
+        if (action == WF_PHONE_PACKET_STALE) {
+            rt_mutex_release(&phone_lock);
+            continue;
+        }
+        uint32_t peer = receiver.generation;
+        if (action == WF_PHONE_PACKET_RECONNECT) {
+            wf_phone_reconnect(&phone);
             weather_reply = weather_v2_attempted = false;
         }
-        else if (p.sequence != last_sequence + 1) wf_phone_gap(&phone);
-        last_sequence = p.sequence;
+        else if (action == WF_PHONE_PACKET_GAP) wf_phone_gap(&phone);
+        if (p.kind == PACKET_POWER) {
+            rt_mutex_release(&phone_lock);
+            start_advertising();
+            continue;
+        }
         if (p.generation == generation && p.kind == PACKET_RX) wf_phone_feed(&phone, p.data, p.size);
         if (p.generation == generation && p.kind == PACKET_SUBSCRIBE && subscribed) {
             wf_phone_clear_weather(&phone);
@@ -250,7 +248,7 @@ void wristflow_product_ble_start(void)
 {
     RT_ASSERT(rt_mutex_init(&phone_lock, "wf_phone", RT_IPC_FLAG_PRIO) == RT_EOK);
     wf_phone_init(&phone, phone_event, NULL);
-    packets = rt_mq_create("wf_ble", sizeof(packet_t), 32, RT_IPC_FLAG_FIFO);
+    packets = rt_mq_create("wf_ble", sizeof(wf_phone_packet_t), WF_PHONE_QUEUE_DEPTH, RT_IPC_FLAG_FIFO);
     RT_ASSERT(packets);
     wristflow_weather_set_sender(queue_weather, NULL);
     wristflow_weather_set_peer(weather_peer, NULL);
@@ -312,9 +310,9 @@ static int wf_ble(int argc, char **argv)
         wristflow_weather_reset();
         rt_kprintf("[ble] cleared weather cache\n");
     } else if (!strcmp(argv[1], "status")) {
-        rt_kprintf("[ble] A1 connected=%u subscribed=%u generation=%u messages=%u added=%u updated=%u removed=%u rejected=%u unknown=%u dropped=%u\n",
+        rt_kprintf("[ble] A1 connected=%u subscribed=%u generation=%u messages=%u added=%u updated=%u removed=%u rejected=%u unknown=%u dropped=%u gaps=%u stale=%u\n",
             connection != 0xff, subscribed, generation, phone.count, phone.received, phone.updated,
-            phone.removed, phone.rejected, phone.unknown, dropped);
+            phone.removed, phone.rejected, phone.unknown, wf_phone_queue_dropped(&sender), receiver.gaps, receiver.stale);
         wristflow_weather_data_t weather;
         wristflow_weather_state_t state;
         bool cached = wristflow_weather_get_current(&weather, &state);
