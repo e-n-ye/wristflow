@@ -170,6 +170,18 @@ bool wristflow_ui_check_target(uint32_t target);
  * Inactive page dot
  */
 #define PAGER_INACTIVE lv_color_hex(0x334155)
+/**
+ * Weather full-screen sky blue
+ */
+#define WEATHER_BLUE lv_color_hex(0x0bb9f2)
+/**
+ * Cloudy weather gray-blue preview background
+ */
+#define WEATHER_CLOUDY lv_color_hex(0x687f91)
+/**
+ * Weather inactive pager dot
+ */
+#define WEATHER_DOT_DIM lv_color_hex(0x76d7f5)
 
 
 #ifndef LV_XML_EVAL_STRING_BUF_SIZE
@@ -231,6 +243,7 @@ extern const void * hour_9;
 extern const void * hour_10;
 extern const void * hour_11;
 extern const void * hour_12;
+extern const void * weather_sun_track;
 
 /*----------------
  * Subjects
@@ -321,6 +334,11 @@ void wristflow_ui_init_gen(const char * asset_path);
 #include "screens/screen_tile_system_gen.h"
 #include "screens/screen_watchface_gen.h"
 #include "screens/screen_watchface_simple_gen.h"
+#include "screens/screen_weather_current_gen.h"
+#include "screens/screen_weather_daily_gen.h"
+#include "screens/screen_weather_hourly_gen.h"
+#include "screens/screen_weather_indices_gen.h"
+#include "screens/screen_weather_sun_gen.h"
 
 #ifdef __cplusplus
 } /*extern "C"*/

@@ -52,6 +52,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/images/hour_11_data.c
   ${CMAKE_CURRENT_LIST_DIR}/images/hour_12_data.c
   ${CMAKE_CURRENT_LIST_DIR}/images/hour_unknown_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/images/weather_sun_track_data.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_app_placeholder_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_brightness_adjust_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_component_editor_gen.c
@@ -84,5 +85,10 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_tile_system_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_watchface_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_watchface_simple_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_weather_current_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_weather_daily_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_weather_hourly_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_weather_indices_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_weather_sun_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/wristflow_ui_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/wristflow_ui.c)

@@ -1,0 +1,252 @@
+{
+  "date": "2026-10-09",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/weather-d1",
+  "source_commit": "83a6bd2d8954b69e3e8536b0f249efb169381e7e",
+  "source_parent_commit": "055eb28a1e9018cad9533e453fec2b2f5233a308",
+  "source_baseline_commit": "d8e9d01f1e9381ba244f451f607c3d534f2ba3cd",
+  "delivery": "candidate_not_merged",
+  "scope": "D8 queue ordering, stream loss and stale peer isolation; notification snapshot copying unchanged",
+  "source_inspection": {
+    "producer": "Capture generation and copy input before saved/restored PRIMASK; sequence allocation, non-waiting MQ insertion and drop update in one single-HCPU guard",
+    "critical_region": "Includes RT-Thread full 528-byte packet copy plus queue and scheduling bookkeeping; latency not measured",
+    "failure": "Every attempted insertion reserves a sequence, including full queue, invalid payload and null queue; failed controls conservatively mark stream loss",
+    "receiver": "Advance global sequence for all consumed packets; stale only updates stale/pending_gap, never active peer or parser. Defer real loss to next current packet; reconnect clears prior partial and pending gap",
+    "limits": {
+      "depth": 32,
+      "packet_bytes": 528,
+      "payload_bytes": 512
+    },
+    "diagnostics": "Split A1/stats/queue into lines bounded by 94/106/64 bytes even with maximum unsigned values; RT_CONSOLEBUF_SIZE=128",
+    "sdk": "Current product configuration has no RT_USING_SMP; enabled public send hook installation not found. Precompiled BLE internals not inspected"
+  },
+  "host": {
+    "commands": [
+      "cmake -S tests -B artifacts/queue-d8-host -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe",
+      "cmake --build artifacts/queue-d8-host --parallel 6",
+      "ctest --test-dir artifacts/queue-d8-host --output-on-failure",
+      "ctest --test-dir artifacts/queue-d8-host --output-on-failure -R '^phone_queue$'"
+    ],
+    "suite_passed": 18,
+    "suite_failed": 0,
+    "suite_log": {
+      "path": "artifacts/queue-d8-test.log",
+      "bytes": 2116,
+      "sha256": "a1174188b32508b4c5505a775724eb5ee44f7978ea7a823d8d4fb19ea87478ca"
+    },
+    "final_affected_passed": 1,
+    "final_affected_failed": 0,
+    "final_affected_log": {
+      "path": "artifacts/queue-d8-final-test.log",
+      "bytes": 342,
+      "sha256": "fe83e565c9973fc1ba8ea12260d91a1fa22fb9386ec071bbb56a8e1b96d79595"
+    },
+    "version_boundary": "Full suite before added generation-wrap/control-loss assertions and official rthw include; final phone_queue rerun after those changes. Final commit changes diagnostics only, outside host compilation",
+    "production_used": true,
+    "parser": "Actual phone_protocol and phone_weather_v2 linked; narrow IRQ/MQ/memcpy deterministic shim, not full worker or RTOS",
+    "coverage": [
+      "copy_time_producer_interleaving",
+      "insertion_time_deferred_producer",
+      "nested_irq_state_restoration",
+      "32_full_queue_and_33rd_failure",
+      "loss_discards_partial_through_newline_then_recovers",
+      "failed_control_conservative_gap",
+      "stale_after_new_partial_preserves_parser",
+      "stale_with_real_loss_defers_gap",
+      "new_generation_clears_pending_gap",
+      "512_payload_and_invalid_null_bounds",
+      "sequence_wrap",
+      "generation_wrap"
+    ]
+  },
+  "builds": [
+    {
+      "example": "product",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 6",
+      "result": "artifacts/product/20261009-123632-974/result.json",
+      "result_sha256": "ac2924fdc965981f7724be59588e8b3792ef67b1ffc58c6acb378cd8ce9a7dd3",
+      "exit_code": 0,
+      "matched_sources": 312,
+      "matched_artifacts": 29,
+      "main_bytes": 7620916,
+      "main_sha256": "353978765b56c969daf42af853235d235a14dc8f247ab2209a5a35da09a7126f"
+    },
+    {
+      "example": "ui_demo",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example ui_demo -Jobs 6",
+      "result": "artifacts/ui_demo/20261009-122938-333/result.json",
+      "result_sha256": "8e79debedfba4bd52d5a4b8cdf84a5e9336c2d3fa35792549577e3e040616d1f",
+      "exit_code": 0,
+      "matched_sources": 299,
+      "matched_artifacts": 22,
+      "main_bytes": 7424360,
+      "main_sha256": "b4a9f460b67cb1302e93544ba4d0b1acb4f3a4477b98b9ebc6bda025ac623c06"
+    }
+  ],
+  "failures_and_superseded": [
+    {
+      "source": "c1b392300b19376e522e3121c03eb41c3e917348",
+      "result": "artifacts/product/20261009-122938-783/result.json",
+      "exit_code": 2,
+      "reason": "Missing rthw.h declarations; fixed and rebuilt"
+    },
+    {
+      "source": "055eb28a1e9018cad9533e453fec2b2f5233a308",
+      "result": "artifacts/product/20261009-123127-970/result.json",
+      "exit_code": 0,
+      "reason": "132-byte minimum status line exceeded 128-byte SDK console buffer, stale field truncated; split lines, rebuilt and reflashed",
+      "preserved_main": {
+        "path": "artifacts/queue-d8-host/main-055eb28.bin",
+        "bytes": 7620884,
+        "sha256": "85248b09eacbab96e77838dbf46c3704b365f2c72ef4cc19b358bb1783c0db5f"
+      },
+      "preserved_ftab": {
+        "path": "artifacts/queue-d8-host/ftab-055eb28.bin",
+        "bytes": 11288,
+        "sha256": "911bca6483cefbc69aa352d0e779b3ffe6f5c709d694643762af451899aabc4f"
+      }
+    }
+  ],
+  "toolchain": {
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "python": "3.13.15",
+    "scons": "4.10.1",
+    "arm_gcc": "14.2.1",
+    "host_gcc": "15.2.0",
+    "sdk_changed": false,
+    "cloud_baseline": "not_run_ordinary_source_change"
+  },
+  "review": {
+    "queue_worker": "Read-only Sol medium review found no concrete new defect; target timing/pressure not proven",
+    "host": "Read-only Luna low review confirmed production helper and parser reuse; generation-wrap gap corrected",
+    "evidence": "Read-only Luna low review found no contradiction across D8 topic/STATUS/JSON and scoped device logs; versions, no-reply commands and user inference correctly separated"
+  },
+  "usb_hardware": {
+    "conditions": "Same authorized Huangshan board/screen; USB only, no battery",
+    "port": "COM5",
+    "device_id": "USB/VID_1A86&PID_7523/6&A8355E6&3&1",
+    "flash_command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Flash.ps1 -Example product -Port COM5",
+    "dry_runs_exit_code": 0,
+    "flash_exit_code": 0,
+    "flash_result": "artifacts/flash/product/20261009-123853-720/result.json",
+    "flash_result_sha256": "7ffdf7daeeae66dbd200c8adcb866e57d20d101cfca78c116d32e48021068416",
+    "images": [
+      {
+        "name": "bootloader.bin",
+        "address": "0x12010000",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "name": "main.bin",
+        "address": "0x12020000",
+        "bytes": 7620916,
+        "sha256": "353978765b56c969daf42af853235d235a14dc8f247ab2209a5a35da09a7126f"
+      },
+      {
+        "name": "ftab.bin",
+        "address": "0x12000000",
+        "bytes": 11288,
+        "sha256": "532648b9c5acbc7db8844cf3bcd75925a172c9721efb790db1efc096c219ea48"
+      }
+    ],
+    "settings_written": false,
+    "whole_chip_erase": false,
+    "first_source": "055eb28a1e9018cad9533e453fec2b2f5233a308",
+    "first_flash_result": "artifacts/flash/product/20261009-123218-594/result.json",
+    "first_flash_result_sha256": "c2a9a1b4603a27fd8afd58667f5924753fdb2fa07e7f2897a8d4c4ee81618c21",
+    "serial_captures": [
+      {
+        "path": "artifacts/queue-d8-host/device.bin",
+        "bytes": 6830,
+        "sha256": "66c2fad4ff7a56dd87ae48f4514e4f7356babfde7bcbed43f5d6a1a5646221e3",
+        "source": "055eb28a1e9018cad9533e453fec2b2f5233a308",
+        "duration_s": 180,
+        "exit_code": 0
+      },
+      {
+        "path": "artifacts/queue-d8-host/device-final.bin",
+        "bytes": 4864,
+        "sha256": "c9f674b3b3d268c16cb96fa54d19c9d60033538e8c76de93441a0ef314ad463b",
+        "source": "83a6bd2d8954b69e3e8536b0f249efb169381e7e",
+        "duration_s": 100,
+        "exit_code": 0
+      },
+      {
+        "path": "artifacts/queue-d8-host/device-request.bin",
+        "bytes": 830,
+        "sha256": "44ca72b790272a82f9db9f8695ee090cfa590df5034f84e2eb207b0fd2c03047",
+        "source": "83a6bd2d8954b69e3e8536b0f249efb169381e7e",
+        "duration_s": 24,
+        "reset": false,
+        "exit_code": 0
+      }
+    ],
+    "serial_logs": [
+      {
+        "path": "artifacts/queue-d8-host/device.log",
+        "bytes": 7435,
+        "sha256": "f46f2993aa11dd8a612c3279b4b7e60b9f1acf7b6b166d1e35bd79b95a0bde0c"
+      },
+      {
+        "path": "artifacts/queue-d8-host/device-final.log",
+        "bytes": 5329,
+        "sha256": "79fbe096f9f841a94dcfc9782fb6b8e3e8e5499f2553b4eadd061d5f31d4b84d"
+      },
+      {
+        "path": "artifacts/queue-d8-host/device-request.log",
+        "bytes": 1020,
+        "sha256": "0a894f6af8dc5b9466e50870e3b30f445c7f1d2cfc6263078f7d95a329d6a650"
+      }
+    ],
+    "first_facts": {
+      "connected_generations": [
+        1,
+        3
+      ],
+      "one_disconnect_reason": 19,
+      "reconnected_received_utc": 1791520562,
+      "reconnected_cached": true,
+      "stale_counter": "truncated_not_claimed_zero"
+    },
+    "user_feedback_source": "055eb28a1e9018cad9533e453fec2b2f5233a308",
+    "user_feedback_verbatim": "断开后，天气界面还是有数据，重连后刷新显示刚刚接收",
+    "final_user_feedback_verbatim": "打开后，没有同步按键，应该是自动同步了，退出后进入正常",
+    "final_user_feedback_source": "83a6bd2d8954b69e3e8536b0f249efb169381e7e",
+    "fresh_data_ui": "Source weather_screen.c hides retry while fresh READY/IDLE; lack of retry is expected. Entry requests sync only when unavailable or expired",
+    "missed_commands": "Initial 25s and final 25s requests had no execution reply while screen off. Final 40s/90s status also had no reply; no completed command or post-connect zero counts claimed from those timestamps. Extra awake capture verifies request",
+    "final_facts": {
+      "manual_weather_queued": true,
+      "weather_cached": true,
+      "request_completed": true,
+      "received_utc": 1791521279,
+      "connected_generation": 1,
+      "observed_at_s": [
+        17,
+        21
+      ],
+      "queue_dropped": 0,
+      "parser_gaps": 0,
+      "stale_packets": 0,
+      "rejected": 0,
+      "unknown": 0,
+      "boot_layout_generation": 37,
+      "boot_layout_pages": 3
+    },
+    "wake_user_feedback_verbatim": "已点亮",
+    "extra_capture_initial_status": "2s status had no execution reply; 5s request and 17/21s status had complete replies. Counts come only from these confirmed replies",
+    "serial_environment": ". ./scripts/Set-LocalEnvironment.ps1; Enable-SdkEnvironment; python artifacts/weather-d1/20261008/capture_session.py",
+    "serial_arguments": [
+      "--port COM5 --seconds 180 --reset --command-at 4:wf_ble status --command-at 25:wf_ble weather --command-at 40:wf_ble status --command-at 85:wf_ble status --command-at 130:wf_ble status --command-at 170:wf_ble status --out artifacts/queue-d8-host/device.bin",
+      "--port COM5 --seconds 100 --reset --command-at 8:wf_ble status --command-at 25:wf_ble weather --command-at 40:wf_ble status --command-at 90:wf_ble status --out artifacts/queue-d8-host/device-final.bin",
+      "--port COM5 --seconds 24 --command-at 2:wf_ble status --command-at 5:wf_ble weather --command-at 17:wf_ble status --command-at 21:wf_ble status --out artifacts/queue-d8-host/device-request.bin"
+    ],
+    "limits": [
+      "User did not explicitly answer freeze/unexpected-reset part",
+      "No target multi-producer pressure reproduction or IRQ latency measurement",
+      "No full same-version interaction/boundary matrix",
+      "No power/battery claim"
+    ]
+  },
+  "next_bounded_experiment": "Same final firmware weather no-reply/screen-off deadline and reentry/connection interaction acceptance; do not broaden into notifications copy refactor or C2"
+}

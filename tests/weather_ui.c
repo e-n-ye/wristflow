@@ -1,0 +1,503 @@
+#include "weather_screen.h"
+#include "weather_fixture.h"
+#include "app_registry.h"
+#include "product_state.h"
+#include "phone_protocol.h"
+#include "support/weather_v2_fixture.h"
+#include "wristflow_ui.h"
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+
+static uint32_t ticks;
+static uint8_t pixels[390 * 40 * 4];
+static lv_indev_data_t pointer;
+static unsigned weather_locks, weather_unlocks;
+static bool weather_locked;
+static bool weather_queued;
+static unsigned weather_requests;
+static uint32_t weather_request, requested_at;
+static wristflow_weather_time_t weather_clock(void *context)
+{
+    (void)context;
+    assert(weather_locked);
+    return (wristflow_weather_time_t){.monotonic_ms = ticks, .utc_seconds = 1791475200U};
+}
+static bool send_weather(uint32_t request, void *context)
+{
+    (void)context;
+    assert(!weather_locked);
+    weather_request = request; requested_at = ticks; ++weather_requests;
+    return weather_queued;
+}
+static void lock_weather(void *context)
+{
+    assert(context == &weather_locked && !weather_locked);
+    weather_locked = true; ++weather_locks;
+}
+static void unlock_weather(void *context)
+{
+    assert(context == &weather_locked && weather_locked);
+    weather_locked = false; ++weather_unlocks;
+}
+
+static uint32_t tick(void) { return ticks; }
+static void flush(lv_display_t *display, const lv_area_t *area, uint8_t *buffer)
+{ (void)area; (void)buffer; lv_display_flush_ready(display); }
+static void read_pointer(lv_indev_t *input, lv_indev_data_t *data)
+{ (void)input; *data = pointer; }
+static void advance_ms(unsigned duration)
+{
+    for (unsigned elapsed = 0; elapsed < duration; elapsed += 16) {
+        ticks += 16;
+        lv_timer_handler();
+    }
+    lv_obj_update_layout(lv_screen_active());
+}
+static void sample(int x, int y, bool pressed)
+{
+    pointer.point = (lv_point_t){x, y};
+    pointer.state = pressed ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
+    advance_ms(16);
+}
+static void swipe(int x1, int y1, int x2, int y2)
+{
+    sample(x1, y1, true);
+    for (int i = 1; i <= 12; ++i)
+        sample(x1 + (x2 - x1) * i / 12, y1 + (y2 - y1) * i / 12, true);
+    sample(x2, y2, false);
+    advance_ms(800);
+}
+static lv_obj_t *named(lv_obj_t *root, const char *name)
+{
+    lv_obj_t *object = lv_obj_find_by_name(root, name);
+    assert(object);
+    return object;
+}
+static void text(lv_obj_t *root, const char *name, const char *expected)
+{ assert(strcmp(lv_label_get_text(named(root, name)), expected) == 0); }
+static void click(lv_obj_t *object)
+{
+    lv_area_t area;
+    lv_obj_get_coords(object, &area);
+    int x = (area.x1 + area.x2) / 2;
+    int y = (area.y1 + area.y2) / 2;
+    sample(x, y, true);
+    sample(x, y, false);
+    advance_ms(480);
+}
+static void snapshot(const char *directory, const char *name)
+{
+    lv_draw_buf_t *buffer = lv_snapshot_take(lv_screen_active(), LV_COLOR_FORMAT_RGB888);
+    assert(buffer);
+    char path[1024];
+    snprintf(path, sizeof path, "%s/%s.ppm", directory, name);
+    FILE *file = fopen(path, "wb");
+    assert(file);
+    assert(fprintf(file, "P6\n390 450\n255\n") > 0);
+    for (unsigned y = 0; y < 450; ++y) {
+        const unsigned char *row = buffer->data + y * buffer->header.stride;
+        for (unsigned x = 0; x < 390; ++x) {
+            unsigned char rgb[] = {row[x * 3 + 2], row[x * 3 + 1], row[x * 3]};
+            assert(fwrite(rgb, 1, 3, file) == 3);
+        }
+    }
+    assert(fclose(file) == 0);
+    lv_draw_buf_destroy(buffer);
+}
+static bool at_offset(lv_coord_t value, lv_coord_t expected)
+{ return value == expected || value == -expected; }
+static void glyph(const lv_font_t *font, const char *string)
+{
+    const unsigned char *bytes = (const unsigned char *)string;
+    uint32_t codepoint = ((bytes[0] & 15U) << 12) | ((bytes[1] & 63U) << 6) | (bytes[2] & 63U);
+    lv_font_glyph_dsc_t descriptor;
+    assert(lv_font_get_glyph_dsc(font, &descriptor, codepoint, 0) && !descriptor.is_placeholder);
+}
+static void codepoint_glyph(const lv_font_t *font, uint32_t codepoint)
+{
+    lv_font_glyph_dsc_t descriptor;
+    assert(lv_font_get_glyph_dsc(font, &descriptor, codepoint, 0) && !descriptor.is_placeholder);
+}
+
+static void missing_forecasts(lv_obj_t *screen)
+{
+    for (unsigned i = 0; i < WRISTFLOW_WEATHER_HOURLY_COUNT; ++i) {
+        char name[24];
+        snprintf(name, sizeof name, "weather_hour_%u", i);
+        lv_obj_t *host = named(screen, name);
+        text(host, "hour_time", "--:--");
+        text(host, "hour_temp", "--");
+        text(host, "hour_icon", "");
+        text(host, "hour_wind", "--");
+        text(host, "hour_air", "--");
+    }
+    for (unsigned i = 0; i < WRISTFLOW_WEATHER_DAILY_COUNT; ++i) {
+        char name[24];
+        snprintf(name, sizeof name, "weather_day_%u", i);
+        lv_obj_t *host = named(screen, name);
+        text(host, "day_name", "--");
+        text(host, "day_range", "--/--");
+        text(host, "day_icon", "");
+    }
+}
+
+int main(int argc, char **argv)
+{
+    assert(argc == 2);
+    wristflow_weather_set_lock(lock_weather, unlock_weather, &weather_locked);
+    wristflow_weather_set_clock(weather_clock, NULL);
+    wristflow_weather_set_sender(send_weather, NULL);
+    lv_init();
+    lv_tick_set_cb(tick);
+    lv_display_t *display = lv_display_create(390, 450);
+    lv_display_set_buffers(display, pixels, NULL, sizeof pixels, LV_DISPLAY_RENDER_MODE_PARTIAL);
+    lv_display_set_flush_cb(display, flush);
+    wristflow_ui_init("");
+    lv_indev_t *input = lv_indev_create();
+    lv_indev_set_type(input, LV_INDEV_TYPE_POINTER);
+    lv_indev_set_display(input, display);
+    lv_indev_set_read_cb(input, read_pointer);
+    lv_timer_set_period(lv_indev_get_read_timer(input), 16);
+
+    glyph(icons_44, "\xef\x83\x82");
+    glyph(icons_44, "\xef\x81\x83");
+    glyph(icons_44, "\xef\x86\x85");
+    glyph(icons_20, "\xef\x81\x83");
+    glyph(icons_20, "\xef\x81\x93");
+    glyph(icons_20, "\xef\x87\x98");
+    glyph(icons_20, "\xef\x86\x86");
+    codepoint_glyph(metric_56, 0x00b0);
+    codepoint_glyph(title_24, 0x00b0);
+    const unsigned char *hints = (const unsigned char *)"天气同步超时已过期接收间未知刚分钟前小时更新失败";
+    for (unsigned i = 0; hints[i]; i += 3) {
+        uint32_t cp = ((hints[i] & 15U) << 12) | ((hints[i + 1] & 63U) << 6) | (hints[i + 2] & 63U);
+        codepoint_glyph(notification_22, cp);
+    }
+    codepoint_glyph(notification_22, 0x00b7);
+
+    lv_obj_t *screen = wristflow_weather_screen_create_with_data(NULL);
+    lv_screen_load(screen);
+    advance_ms(480);
+    text(screen, "weather_temp", "--");
+    text(screen, "weather_condition", "--");
+    text(screen, "weather_state_label", "暂无天气数据");
+    text(screen, "weather_sun_clock", "--:--");
+    missing_forecasts(screen);
+    assert(lv_obj_has_flag(named(screen, "weather_pager"), LV_OBJ_FLAG_HIDDEN));
+    snapshot(argv[1], "weather_product_empty");
+
+    weather_queued = true;
+    click(named(screen, "weather_retry"));
+    text(screen, "weather_state_label", "正在同步天气");
+    assert(lv_obj_has_flag(named(screen, "weather_retry"), LV_OBJ_FLAG_HIDDEN));
+    assert(weather_requests == 1);
+    /* The same refresh used for notifications/time events cannot complete the request. */
+    wristflow_weather_screen_refresh(screen);
+    text(screen, "weather_state_label", "正在同步天气");
+    lv_obj_delete(screen);
+    screen = screen_weather_create();
+    lv_screen_load(screen);
+    assert(weather_requests == 1);
+    text(screen, "weather_state_label", "正在同步天气");
+    ticks = requested_at + WRISTFLOW_WEATHER_REQUEST_MS - 1;
+    wristflow_weather_screen_refresh(screen);
+    text(screen, "weather_state_label", "正在同步天气");
+    ++ticks;
+    wristflow_weather_screen_refresh(screen);
+    text(screen, "weather_state_label", "天气同步超时");
+    assert(!lv_obj_has_flag(named(screen, "weather_retry"), LV_OBJ_FLAG_HIDDEN));
+    snapshot(argv[1], "weather_product_timeout");
+    weather_queued = false;
+    click(named(screen, "weather_retry"));
+    text(screen, "weather_state_label", "天气更新失败");
+    text(screen, "weather_temp", "--");
+    weather_queued = true;
+    click(named(screen, "weather_retry"));
+    text(screen, "weather_state_label", "正在同步天气");
+    assert(lv_obj_has_flag(named(screen, "weather_retry"), LV_OBJ_FLAG_HIDDEN));
+    wristflow_weather_request_failed(weather_request);
+    wristflow_weather_screen_refresh(screen);
+    text(screen, "weather_state_label", "天气更新失败");
+    text(screen, "weather_temp", "--");
+
+    wristflow_phone_weather_t current = {.temp = -5, .code = -1};
+    wristflow_weather_update(&current, 0);
+    wristflow_weather_screen_refresh(screen);
+    text(screen, "weather_temp", "-5°");
+    text(screen, "weather_range", "--/--");
+    text(screen, "weather_condition", "--");
+    text(screen, "weather_aqi", "--");
+    text(screen, "weather_index_1_value", "--");
+    text(screen, "weather_sunrise", "--:--");
+    text(screen, "weather_sunset", "--:--");
+    assert(lv_obj_has_flag(named(screen, "weather_sun_position"), LV_OBJ_FLAG_HIDDEN));
+    missing_forecasts(screen);
+    snapshot(argv[1], "weather_product_partial");
+
+    current.temp = 0;
+    current.humidity_valid = true;
+    current.humidity = 0;
+    current.high = 26;
+    current.low = 18;
+    current.range_valid = true;
+    current.code = 800;
+    strcpy(current.city, "杭州市");
+    strcpy(current.condition, "晴");
+    strcpy(current.wind, "12 km/h");
+    wristflow_weather_update(&current, 0);
+    wristflow_weather_screen_refresh(screen);
+    text(screen, "weather_temp", "0°");
+    text(screen, "weather_range", "26°/18°");
+    text(screen, "weather_index_1_value", "0");
+    text(screen, "weather_index_2_value", "12 km/h");
+    text(screen, "weather_index_3_value", "--");
+    assert(lv_color_eq(lv_obj_get_style_bg_color(named(screen, "weather_page_sun"), 0), WEATHER_BLUE));
+    snapshot(argv[1], "weather_product_current");
+    text(screen, "weather_update", "刚刚接收");
+    ticks += WRISTFLOW_WEATHER_EXPIRY_MS;
+    wristflow_weather_screen_refresh(screen);
+    text(screen, "weather_update", "天气已过期");
+    text(screen, "weather_temp", "0°");
+    assert(!lv_obj_has_flag(named(screen, "weather_pager"), LV_OBJ_FLAG_HIDDEN));
+    snapshot(argv[1], "weather_product_stale");
+    assert(!lv_obj_has_flag(named(screen, "weather_retry"), LV_OBJ_FLAG_HIDDEN));
+    assert(lv_obj_get_parent(named(screen, "weather_retry")) == named(screen, "weather_page_current"));
+    lv_obj_update_layout(screen);
+    lv_area_t range_area, retry_area, aqi_area;
+    lv_obj_get_coords(named(screen, "weather_range"), &range_area);
+    lv_obj_get_coords(named(screen, "weather_retry"), &retry_area);
+    lv_obj_get_coords(named(screen, "weather_aqi_caption"), &aqi_area);
+    assert(range_area.y2 < retry_area.y1 && retry_area.y2 < aqi_area.y1);
+    click(named(screen, "weather_retry"));
+    text(screen, "weather_update", "已过期 · 同步中");
+    assert(lv_obj_has_flag(named(screen, "weather_retry"), LV_OBJ_FLAG_HIDDEN));
+    ticks = requested_at + WRISTFLOW_WEATHER_REQUEST_MS;
+    wristflow_weather_screen_refresh(screen);
+    text(screen, "weather_update", "已过期 · 同步超时");
+    text(screen, "weather_temp", "0°");
+    assert(!lv_obj_has_flag(named(screen, "weather_retry"), LV_OBJ_FLAG_HIDDEN));
+    snapshot(argv[1], "weather_product_stale_timeout");
+    click(named(screen, "weather_retry"));
+    wristflow_weather_request_failed(weather_request);
+    wristflow_weather_screen_refresh(screen);
+    text(screen, "weather_update", "已过期 · 更新失败");
+    text(screen, "weather_temp", "0°");
+    assert(!lv_obj_has_flag(named(screen, "weather_retry"), LV_OBJ_FLAG_HIDDEN));
+    wristflow_weather_update(&current, 0);
+    wristflow_weather_screen_refresh(screen);
+    lv_obj_scroll_to_y(named(screen, "weather_pager"), 3 * 450, LV_ANIM_OFF);
+    advance_ms(32);
+    snapshot(argv[1], "weather_product_indices");
+    lv_obj_scroll_to_y(named(screen, "weather_pager"), 4 * 450, LV_ANIM_OFF);
+    advance_ms(32);
+    snapshot(argv[1], "weather_product_sun");
+
+    /* Exercise protocol -> cache -> real LVGL labels, including UTC+8 midnight. */
+    static wf_phone_t phone;
+    char frame[600];
+    wf_phone_init(&phone, NULL, NULL);
+    weather_v2_frame(frame, sizeof frame, weather_v2_wire, sizeof weather_v2_wire, "乐清市");
+    wf_phone_feed(&phone, (const uint8_t *)frame, strlen(frame));
+    assert(phone.has_weather);
+    wristflow_weather_update(&phone.weather, phone.weather_updates);
+    wristflow_weather_screen_refresh(screen);
+    text(screen, "weather_sunrise", "05:54"); text(screen, "weather_sunset", "17:32");
+    text(screen, "weather_index_3_value", "4.2"); text(screen, "weather_aqi", "--");
+    assert(lv_obj_has_flag(named(screen, "weather_sun_position"), LV_OBJ_FLAG_HIDDEN));
+    snapshot(argv[1], "weather_v2_product_sun");
+    lv_obj_t *first_hour = named(screen, "weather_hour_0");
+    text(first_hour, "hour_time", "23:00"); text(first_hour, "hour_temp", "20°");
+    text(first_hour, "hour_air", "--");
+    lv_obj_update_layout(screen);
+    lv_area_t wind_icon_area, wind_value_area;
+    lv_obj_get_coords(named(first_hour, "hour_wind_icon"), &wind_icon_area);
+    lv_obj_get_coords(named(first_hour, "hour_wind"), &wind_value_area);
+    assert(wind_icon_area.y2 < wind_value_area.y1);
+    lv_point_t wind_size;
+    lv_text_get_size(&wind_size, "255 km/h", body_20, 0, 0, LV_COORD_MAX, LV_TEXT_FLAG_NONE);
+    assert(wind_size.x <= 92 && wind_size.y <= 30);
+    text(named(screen, "weather_hour_1"), "hour_time", "00:00");
+    text(named(screen, "weather_hour_2"), "hour_temp", "0°");
+    text(named(screen, "weather_hour_2"), "hour_wind", "--");
+    text(named(screen, "weather_hour_3"), "hour_icon", "");
+    text(named(screen, "weather_hour_4"), "hour_temp", "--");
+    text(named(screen, "weather_day_0"), "day_name", "第1天");
+    text(named(screen, "weather_day_0"), "day_range", "26°/18°");
+    text(named(screen, "weather_day_6"), "day_range", "20°/12°");
+    codepoint_glyph(notification_22, 0x7b2c); codepoint_glyph(notification_22, 0x5929);
+    lv_obj_scroll_to_y(named(screen, "weather_pager"), 450, LV_ANIM_OFF);
+    advance_ms(32); snapshot(argv[1], "weather_v2_product_hourly");
+    lv_obj_scroll_to_y(named(screen, "weather_pager"), 2 * 450, LV_ANIM_OFF);
+    advance_ms(32); snapshot(argv[1], "weather_v2_product_daily");
+
+    current.range_valid = false;
+    wristflow_weather_update(&current, 0);
+    wristflow_weather_screen_refresh(screen);
+    text(screen, "weather_range", "--/--");
+
+    wristflow_weather_reset();
+    wristflow_weather_screen_refresh(screen);
+    text(screen, "weather_state_label", "暂无天气数据");
+    text(screen, "weather_temp", "--");
+    missing_forecasts(screen);
+    assert(lv_obj_has_flag(named(screen, "weather_pager"), LV_OBJ_FLAG_HIDDEN));
+    lv_obj_delete(screen);
+    screen = screen_weather_create();
+    lv_screen_load(screen);
+    text(screen, "weather_state_label", "正在同步天气");
+    text(screen, "weather_temp", "--");
+    wristflow_app_data_t card;
+    wristflow_watch_snapshot_t watch = wristflow_product_snapshot(false, 0);
+    assert(wristflow_app_read(wristflow_app_find("weather"), &watch, &card));
+    assert(!strcmp(card.value, "--") && !strcmp(card.reason, "正在同步天气"));
+    lv_obj_delete(screen);
+
+    screen = screen_weather_demo_create(WRISTFLOW_WEATHER_THEME_CLOUDY);
+    lv_screen_load(screen);
+    advance_ms(480);
+    text(screen, "weather_city", "乐清市");
+    text(screen, "weather_temp", "30°");
+    text(screen, "weather_condition", "多云");
+    assert(lv_color_eq(lv_obj_get_style_bg_color(screen, 0), lv_color_hex(0x687f91)));
+    assert(lv_color_eq(lv_obj_get_style_bg_color(named(screen, "weather_page_sun"), 0),
+                       lv_color_hex(0x687f91)));
+    assert(lv_color_eq(lv_obj_get_style_text_color(named(screen, "weather_temp"), 0), FG_PRIMARY));
+    assert(!lv_obj_find_by_name(screen, "app_title"));
+    assert(!lv_obj_find_by_name(screen, "weather_dots"));
+    snapshot(argv[1], "weather_current");
+
+    lv_obj_t *outer = named(screen, "weather_pager");
+    swipe(195, 404, 195, 74);
+    assert(at_offset(lv_obj_get_scroll_y(outer), 450));
+    assert(wristflow_weather_screen_is_horizontal(screen));
+    assert(!wristflow_weather_screen_edge_back_allowed(screen, (lv_point_t){10, 220}));
+    assert(wristflow_weather_screen_edge_back_allowed(screen, (lv_point_t){10, 40}));
+    text(screen, "weather_hourly_title", "天气预测");
+    snapshot(argv[1], "weather_hourly");
+    lv_obj_t *hourly = named(screen, "weather_hourly_pager");
+    /* A single horizontal gesture advances one forecast page, even when it is fast. */
+    swipe(350, 240, 20, 240);
+    assert(lv_obj_get_scroll_x(hourly) == 390);
+    assert(lv_color_eq(lv_obj_get_style_bg_color(
+        named(screen, "weather_hourly_dots_1"), 0), FG_PRIMARY));
+    swipe(20, 240, 350, 240);
+    assert(lv_obj_get_scroll_x(hourly) == 0);
+    lv_obj_scroll_to_x(hourly, 0, LV_ANIM_OFF);
+    advance_ms(32);
+    /* The middle of the forecast is allowed to hand a vertical gesture to the outer pager. */
+    swipe(195, 240, 195, 70);
+    assert(at_offset(lv_obj_get_scroll_y(outer), 2 * 450));
+    assert(wristflow_weather_screen_is_horizontal(screen));
+    text(screen, "weather_daily_title", "未来天气");
+    lv_obj_t *daily = named(screen, "weather_daily_pager");
+    swipe(350, 240, 20, 240);
+    assert(lv_obj_get_scroll_x(daily) == 390);
+    assert(lv_color_eq(lv_obj_get_style_bg_color(
+        named(screen, "weather_daily_dots_1"), 0), FG_PRIMARY));
+    lv_obj_scroll_to_x(daily, 0, LV_ANIM_OFF);
+    advance_ms(32);
+    /* The same middle-band vertical handoff works on the second forecast page. */
+    swipe(195, 240, 195, 70);
+    assert(at_offset(lv_obj_get_scroll_y(outer), 3 * 450));
+    text(screen, "weather_indices_title", "天气指数");
+
+    lv_obj_scroll_to_y(outer, 450, LV_ANIM_OFF);
+    advance_ms(32);
+    hourly = named(screen, "weather_hourly_pager");
+    lv_obj_scroll_to_x(hourly, 5 * 390, LV_ANIM_OFF);
+    advance_ms(32);
+    lv_obj_send_event(hourly, LV_EVENT_SCROLL_END, NULL);
+    assert(at_offset(lv_obj_get_scroll_x(hourly), 5 * 390));
+    assert(lv_color_eq(lv_obj_get_style_bg_color(
+        named(screen, "weather_hourly_dots_5"), 0), FG_PRIMARY));
+    lv_obj_scroll_to_x(hourly, 0, LV_ANIM_OFF);
+    advance_ms(32);
+    assert(lv_obj_get_scroll_x(hourly) == 0);
+
+    lv_obj_scroll_to_y(outer, 2 * 450, LV_ANIM_OFF);
+    advance_ms(32);
+    assert(at_offset(lv_obj_get_scroll_y(outer), 2 * 450));
+    assert(wristflow_weather_screen_is_horizontal(screen));
+    assert(!wristflow_weather_screen_edge_back_allowed(screen, (lv_point_t){10, 220}));
+    text(screen, "weather_daily_title", "未来天气");
+    snapshot(argv[1], "weather_daily");
+    daily = named(screen, "weather_daily_pager");
+    lv_obj_scroll_to_x(daily, 390, LV_ANIM_OFF);
+    advance_ms(32);
+    lv_obj_send_event(daily, LV_EVENT_SCROLL_END, NULL);
+    assert(at_offset(lv_obj_get_scroll_x(daily), 390));
+    assert(lv_color_eq(lv_obj_get_style_bg_color(
+        named(screen, "weather_daily_dots_1"), 0), FG_PRIMARY));
+
+    lv_obj_scroll_to_y(outer, 3 * 450, LV_ANIM_OFF);
+    advance_ms(32);
+    text(screen, "weather_indices_title", "天气指数");
+    text(screen, "weather_index_3_value", "4");
+    named(screen, "weather_index_0_icon");
+    snapshot(argv[1], "weather_indices");
+    assert(!wristflow_weather_screen_is_horizontal(screen));
+
+    lv_obj_scroll_to_y(outer, 4 * 450, LV_ANIM_OFF);
+    advance_ms(32);
+    text(screen, "weather_sun_title", "日升日落");
+    lv_obj_t *sun_track = named(screen, "weather_sun_track_image");
+    lv_obj_t *sun_position = named(screen, "weather_sun_position");
+    assert(lv_obj_get_x(sun_track) == 27 && lv_obj_get_y(sun_track) == 157);
+    assert(lv_obj_get_width(sun_track) == 336 && lv_obj_get_height(sun_track) == 128);
+    assert(lv_image_get_src(sun_track) == weather_sun_track);
+    const lv_image_dsc_t *track_dsc = (const lv_image_dsc_t *)weather_sun_track;
+    assert(track_dsc->header.cf == LV_COLOR_FORMAT_ARGB8888);
+    assert(track_dsc->header.w == 336 && track_dsc->header.h == 128);
+    assert(track_dsc->header.stride == 336 * 4);
+    const lv_color32_t *track_px = (const lv_color32_t *)track_dsc->data;
+    /* White daytime arc: apex (168,3) is high and opaque. */
+    assert(track_px[3 * 336 + 168].red > 200 && track_px[3 * 336 + 168].alpha > 150);
+    /* The dashed horizon crosses the arc endpoints at y=83. */
+    assert(track_px[83 * 336 + 5].red > 200 && track_px[83 * 336 + 5].alpha > 100);
+    assert(track_px[83 * 336 + 10].alpha == 0);
+    /* Below-horizon extensions are dark translucent pixels, not white arc pixels. */
+    assert(track_px[110 * 336 + 20].red < 100 && track_px[110 * 336 + 20].alpha > 0);
+    assert(track_px[110 * 336 + 320].red < 100 && track_px[110 * 336 + 320].alpha > 0);
+    int sun_center_x = lv_obj_get_x(sun_position) + lv_obj_get_width(sun_position) / 2;
+    int sun_center_y = lv_obj_get_y(sun_position) + lv_obj_get_height(sun_position) / 2;
+    /* Track image global position is x=27..363, y=157..285. The point is
+     * on the descending daytime arc and above its y=240 horizon. */
+    assert(sun_center_x == 272 && sun_center_y == 199);
+    assert(sun_center_x > 27 + 0.70 * 336 && sun_center_x < 27 + 0.80 * 336);
+    assert(sun_center_y < 157 + 83);
+    snapshot(argv[1], "weather_sun");
+    assert(!wristflow_weather_screen_is_horizontal(screen));
+    assert(wristflow_weather_screen_edge_back_allowed(screen, (lv_point_t){10, 220}));
+
+    /* A real current-only payload replaces every demonstration forecast. */
+    wristflow_weather_update(&current, 0);
+    wristflow_weather_screen_refresh(screen);
+    missing_forecasts(screen);
+    text(screen, "weather_range", "--/--");
+    assert(lv_obj_has_flag(named(screen, "weather_sun_position"), LV_OBJ_FLAG_HIDDEN));
+    assert(wristflow_app_read(wristflow_app_find("weather"), &watch, &card));
+    assert(!strcmp(card.value, "0°") && !strcmp(card.reason, "晴"));
+    wristflow_weather_reset();
+    lv_obj_delete(screen);
+
+    lv_obj_t *sunny = screen_weather_demo_create(WRISTFLOW_WEATHER_THEME_SUNNY);
+    lv_screen_load(sunny);
+    advance_ms(480);
+    text(sunny, "weather_condition", "晴");
+    assert(lv_color_eq(lv_obj_get_style_bg_color(sunny, 0), lv_color_hex(0x0bb9f2)));
+    assert(!lv_color_eq(lv_obj_get_style_bg_color(sunny, 0), lv_color_hex(0x687f91)));
+    assert(lv_color_eq(lv_obj_get_style_bg_color(named(sunny, "weather_page_indices"), 0),
+                       lv_color_hex(0x0bb9f2)));
+    assert(lv_color_eq(lv_obj_get_style_text_color(named(sunny, "weather_condition"), 0), FG_PRIMARY));
+    snapshot(argv[1], "weather_current_sunny");
+    lv_obj_delete(sunny);
+    assert(weather_locks > 0 && weather_locks == weather_unlocks && !weather_locked);
+    assert(!wristflow_weather_has_data());
+    assert(weather_locks == weather_unlocks);
+    wristflow_weather_set_lock(NULL, NULL, NULL);
+    wristflow_weather_set_clock(NULL, NULL);
+    wristflow_weather_set_sender(NULL, NULL);
+    lv_deinit();
+    return 0;
+}

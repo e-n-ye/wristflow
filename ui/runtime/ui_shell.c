@@ -4,6 +4,7 @@
 #include "components.h"
 #include "settings_view.h"
 #include "notification_view.h"
+#include "weather_screen.h"
 #include "wristflow_ui.h"
 #include <string.h>
 
@@ -47,6 +48,7 @@ struct wristflow_ui_shell {
     bool transitioning;
     bool ready;
     bool edge_press;
+    lv_point_t edge_origin;
     wristflow_settings_t preferences;
     wristflow_display_policy_t display;
     lv_timer_t *display_timer;
@@ -211,6 +213,7 @@ static void app_pressed(lv_event_t *event)
     if (input) {
         lv_indev_get_point(input, &point);
         shell->edge_press = point.x <= 40;
+        shell->edge_origin = point;
     }
 }
 
@@ -417,8 +420,11 @@ static void gesture(lv_event_t *event)
         handled = wristflow_ui_shell_home(shell);
     else if (shell->navigation.surface == WRISTFLOW_SURFACE_LAUNCHER ||
         shell->navigation.surface >= WRISTFLOW_SURFACE_STOPWATCH) {
-        if (direction == LV_DIR_RIGHT && shell->edge_press)
-            handled = wristflow_ui_shell_back(shell);
+        if (direction == LV_DIR_RIGHT && shell->edge_press) {
+            bool allowed = shell->navigation.surface != WRISTFLOW_SURFACE_WEATHER ||
+                wristflow_weather_screen_edge_back_allowed(lv_screen_active(), shell->edge_origin);
+            if (allowed) handled = wristflow_ui_shell_back(shell);
+        }
     } else if (direction == LV_DIR_BOTTOM) {
         if (shell->navigation.surface == WRISTFLOW_SURFACE_HOME && shell->navigation.page_index == 0 && shell->notifications)
             handled = wristflow_ui_shell_open_notification(shell, false, 0);
@@ -576,14 +582,15 @@ static void mount_card(wristflow_ui_shell_t *shell, lv_obj_t *screen,
             wristflow_surface_t target = shell->components
                 ? wristflow_components_target(shell->components, index - 1, i)
                 : shell->card_target(index - 1, i);
-            if (target < WRISTFLOW_SURFACE_STOPWATCH || target >= WRISTFLOW_SURFACE_COUNT) continue;
+            bool navigable = target >= WRISTFLOW_SURFACE_STOPWATCH && target < WRISTFLOW_SURFACE_COUNT;
+            if (!navigable && !shell->components) continue;
             lv_obj_t *component = lv_obj_find_by_name(shell->slots[slot].panel, names[i]);
-            LV_ASSERT(component);
+            if (!component) { LV_ASSERT(!navigable); continue; }
             card_link_t *link = &shell->slots[slot].links[i];
             *link = (card_link_t){shell, target, index, i};
             lv_obj_add_flag(component, LV_OBJ_FLAG_CLICKABLE);
             bubble_events(component);
-            lv_obj_add_event_cb(component, card_clicked, LV_EVENT_SHORT_CLICKED, link);
+            if (navigable) lv_obj_add_event_cb(component, card_clicked, LV_EVENT_SHORT_CLICKED, link);
             if (shell->components) lv_obj_add_event_cb(component, card_touch, LV_EVENT_ALL, link);
         }
     }

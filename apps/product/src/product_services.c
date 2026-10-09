@@ -6,7 +6,7 @@
 #include <errno.h>
 
 static struct fdb_kvdb settings_db;
-static struct rt_mutex settings_lock, database_lock, rtc_lock;
+static struct rt_mutex settings_lock, database_lock, rtc_lock, weather_lock;
 static wristflow_settings_t requested, boot_settings;
 static wristflow_layout_t requested_layout;
 static wristflow_layout_store_t layout_store;
@@ -18,6 +18,33 @@ static rt_device_t rtc;
 static uint32_t milliseconds(void)
 {
     return (uint32_t)((uint64_t)rt_tick_get() * 1000 / RT_TICK_PER_SECOND);
+}
+
+static void lock_weather(void *context)
+{
+    rt_mutex_take((rt_mutex_t)context, RT_WAITING_FOREVER);
+}
+static void unlock_weather(void *context)
+{
+    rt_mutex_release((rt_mutex_t)context);
+}
+
+static wristflow_weather_time_t weather_time(void *context)
+{
+    (void)context;
+    /* Called only under weather_lock. Extend raw ticks before scaling. */
+    static uint32_t previous;
+    static uint64_t elapsed_ticks;
+    uint32_t tick = rt_tick_get();
+    elapsed_ticks += (uint32_t)(tick - previous);
+    previous = tick;
+    wristflow_weather_time_t time = {.monotonic_ms = elapsed_ticks * 1000U / RT_TICK_PER_SECOND};
+    uint32_t utc = 0;
+    rt_mutex_take(&rtc_lock, RT_WAITING_FOREVER);
+    bool valid = rtc && rt_device_control(rtc, RT_DEVICE_CTRL_RTC_GET_TIME, &utc) == RT_EOK;
+    rt_mutex_release(&rtc_lock);
+    if (valid && utc >= WRISTFLOW_TIME_MIN && utc <= WRISTFLOW_TIME_MAX) time.utc_seconds = utc;
+    return time;
 }
 
 /* Keep flash operations off the lock used to collect UI setting changes. */
@@ -101,7 +128,10 @@ void wristflow_product_services_start(wristflow_settings_t *settings, wristflow_
     RT_ASSERT(rt_mutex_init(&settings_lock, "wf_cfg", RT_IPC_FLAG_PRIO) == RT_EOK);
     RT_ASSERT(rt_mutex_init(&database_lock, "wf_db", RT_IPC_FLAG_PRIO) == RT_EOK);
     RT_ASSERT(rt_mutex_init(&rtc_lock, "wf_rtc", RT_IPC_FLAG_PRIO) == RT_EOK);
+    RT_ASSERT(rt_mutex_init(&weather_lock, "wf_weather", RT_IPC_FLAG_PRIO) == RT_EOK);
+    wristflow_weather_set_lock(lock_weather, unlock_weather, &weather_lock);
     rtc = rt_device_find("rtc");
+    wristflow_weather_set_clock(weather_time, NULL);
     fdb_kvdb_control(&settings_db, FDB_KVDB_CTRL_SET_LOCK, lock_database);
     fdb_kvdb_control(&settings_db, FDB_KVDB_CTRL_SET_UNLOCK, unlock_database);
     fdb_err_t result = fdb_kvdb_init(&settings_db, "preferences", "settings", NULL, NULL);
@@ -191,6 +221,21 @@ int wristflow_product_services_set_time(uint32_t seconds)
     rt_kprintf("[product] RTC synchronized: UTC=%u; display UTC+8\n", readback);
     return RT_EOK;
 }
+
+void wristflow_product_services_update_weather(const wristflow_phone_weather_t *w, unsigned updates)
+{
+    wristflow_weather_update(w, updates);
+    if (w) {
+        rt_kprintf("[product] weather updated: %s %d C, condition=%s code=%d hum=%u%%\n",
+                   w->city, w->temp, w->condition, w->code, w->humidity);
+        unsigned hours = 0, days = 0;
+        for (unsigned i = 0; i < WRISTFLOW_WEATHER_HOURLY_COUNT; ++i) hours += w->extra.hourly[i].valid;
+        for (unsigned i = 0; i < WRISTFLOW_WEATHER_DAILY_COUNT; ++i) days += w->extra.daily[i].valid;
+        rt_kprintf("[product] weather forecast: hours=%u days=%u sunrise=%u sunset=%u\n",
+                   hours, days, w->extra.sunrise, w->extra.sunset);
+    }
+}
+
 
 /* USB and phone synchronization share the same checked UTC boundary. */
 static int wf_time(int argc, char **argv)
