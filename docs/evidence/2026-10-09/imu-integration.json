@@ -1,0 +1,306 @@
+{
+  "date": "2026-10-09",
+  "workspace": "C:/Users/13984/.codex/worktrees/imu-wrist-wake/wristflow",
+  "branch": "codex/imu-weather-integration",
+  "base_commit": "64c7e43e1d105772893e893f326e0234dbe327fb",
+  "source_commit": "a257d67d1ee84d89680306ab27307beeaa967b6c",
+  "original_c2_commit": "823e656e4bd36ff0e84360ff085d524ad641917f",
+  "scope": "Integrate existing C2 with latest weather; keep negative-X/500ms parameters; no algorithm tuning",
+  "delivery": "draft_not_merged_hardware_gesture_gate_failed",
+  "source_inspection": {
+    "result": "pass for semantic union; old C2 source retained, weather refresh/queue/D3 guards retained",
+    "review": "read-only gpt-6.1-sol/medium; evidence selection gpt-6-luna/low; root owns edits and validation",
+    "settings": "v5, 24 bytes, byte16 bit0 DND/bit1 wrist wake; v1-v4 migrate default wrist on; v4 firmware cannot decode v5",
+    "limits": "IMU event has no session generation; exact IRQ/async timing and physical panel not proven by source review"
+  },
+  "compilation": {
+    "host": {
+      "compiler": "GCC 15.2.0",
+      "generator": "Ninja",
+      "configuration": "Debug",
+      "commands": [
+        "cmake -S tests -B artifacts/host-imu-integration -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe -DCMAKE_MAKE_PROGRAM=D:/msys64/ucrt64/bin/ninja.exe -DWRISTFLOW_BUILD_SIMULATOR=ON",
+        "cmake --build artifacts/host-imu-integration --parallel 6",
+        "ctest --test-dir artifacts/host-imu-integration --output-on-failure --timeout 60"
+      ],
+      "exit_code": 0,
+      "passed": 19,
+      "total": 19,
+      "seconds": 17.72
+    },
+    "builds": [
+      {
+        "example": "product",
+        "result": {
+          "path": "artifacts/product/20261009-184531-613/result.json",
+          "bytes": 79008,
+          "sha256": "a02cbb23d6df8930964050604a75970e9003605d872ed9763523b87fe7b236c9"
+        },
+        "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+        "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+        "python": "Python 3.13.15",
+        "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+        "matched_sources": 316,
+        "matched_artifacts": 29,
+        "images": [
+          {
+            "path": "C:/Users/13984/.codex/worktrees/imu-wrist-wake/wristflow/apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+            "bytes": 7627220,
+            "sha256": "74c83862b13660a6d4919b3ba30a0e5903483ec9e6f710b158bb78e79af29fbb"
+          },
+          {
+            "path": "C:/Users/13984/.codex/worktrees/imu-wrist-wake/wristflow/apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+            "bytes": 58496,
+            "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+          },
+          {
+            "path": "C:/Users/13984/.codex/worktrees/imu-wrist-wake/wristflow/apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+            "bytes": 11288,
+            "sha256": "4533858234f4e41a62e637082458df1c206be3cf1aa5076ed85d5189b6e12978"
+          }
+        ],
+        "exit_code": 0,
+        "new_hardware_claim": false
+      },
+      {
+        "example": "ui_demo",
+        "result": {
+          "path": "artifacts/ui_demo/20261009-185017-223/result.json",
+          "bytes": 73327,
+          "sha256": "f1efdb0b4d538dfedba10b6f8546359a39071762d52f1fc5a87f27bb9fc170f3"
+        },
+        "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+        "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+        "python": "Python 3.13.15",
+        "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+        "matched_sources": 299,
+        "matched_artifacts": 22,
+        "images": [
+          {
+            "path": "C:/Users/13984/.codex/worktrees/imu-wrist-wake/wristflow/apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+            "bytes": 7424456,
+            "sha256": "0612848bb8b2981f759a22145000003f0188c81dab5a99718e4ee1bd7559a522"
+          },
+          {
+            "path": "C:/Users/13984/.codex/worktrees/imu-wrist-wake/wristflow/apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+            "bytes": 58496,
+            "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+          },
+          {
+            "path": "C:/Users/13984/.codex/worktrees/imu-wrist-wake/wristflow/apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+            "bytes": 11288,
+            "sha256": "0c40ad260995e163ceecba020075c8575f0ea54062bbe52423713747ea0d71aa"
+          }
+        ],
+        "exit_code": 0,
+        "new_hardware_claim": false
+      }
+    ],
+    "matched_sources": 615,
+    "matched_artifacts": 51,
+    "sdk_lock_changed": false,
+    "manual_cloud_baseline": "not run; SDK/toolchain/build entry unchanged",
+    "retained_warnings": "Existing SDK/FinSH casts, RWX/syscall, LVGL and enum-range warnings; vendor unchanged"
+  },
+  "flash": {
+    "record": {
+      "path": "artifacts/flash/product/20261009-185355-100/result.json",
+      "bytes": 1935,
+      "sha256": "da8bad97fc83f556ae162883ee1dafae375091383aef448369de18d6b50ff2ac"
+    },
+    "command": "D:/MY_Desk/project/wristflow/.tools/sifli/tools/sftool/0.2.5/sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify C:\\Users\\13984\\.codex\\worktrees\\imu-wrist-wake\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 C:\\Users\\13984\\.codex\\worktrees\\imu-wrist-wake\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 C:\\Users\\13984\\.codex\\worktrees\\imu-wrist-wake\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+    "exit_code": 0,
+    "images": [
+      {
+        "name": "bootloader.bin",
+        "path": "C:\\Users\\13984\\.codex\\worktrees\\imu-wrist-wake\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+        "address": "0x12010000",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "name": "main.bin",
+        "path": "C:\\Users\\13984\\.codex\\worktrees\\imu-wrist-wake\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+        "address": "0x12020000",
+        "bytes": 7627220,
+        "sha256": "74c83862b13660a6d4919b3ba30a0e5903483ec9e6f710b158bb78e79af29fbb"
+      },
+      {
+        "name": "ftab.bin",
+        "path": "C:\\Users\\13984\\.codex\\worktrees\\imu-wrist-wake\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+        "address": "0x12000000",
+        "bytes": 11288,
+        "sha256": "4533858234f4e41a62e637082458df1c206be3cf1aa5076ed85d5189b6e12978"
+      }
+    ],
+    "erase_all": false,
+    "settings_write": false,
+    "boundary": "write/verify and startup do not pass gesture acceptance"
+  },
+  "hardware": {
+    "conditions": "Same Huangshan board/screen, COM5 CH340 VID1A86 PID7523, USB only, no battery or new wiring",
+    "port_device_id": "USB\\VID_1A86&PID_7523\\6&A8355E6&3&1",
+    "collector": "1M8N1, DTR/RTS false, no BLE client, read-only status commands; KEY1 triggers plans",
+    "session": {
+      "duration_s": 896.031,
+      "exit_code": 0,
+      "serial_closed": true,
+      "pending_plans": [],
+      "uart_bytes": 19629
+    },
+    "startup": {
+      "layout": "restore=yes generation=37 pages=3",
+      "settings": "storage=ready restore=yes brightness=47",
+      "first_baseline_flat": 1
+    },
+    "gesture_acceptance": {
+      "result": "failed / not ready to merge",
+      "required_fixed_visible_wakes": "10/10",
+      "first_group": {
+        "asked_attempts": 3,
+        "user_visible_wakes": 2,
+        "user_feedback": "两次成功亮屏幕，体感上和以前一样慢",
+        "software_sequences": [
+          {
+            "trigger_host_s": 358.797,
+            "hold_ms": 521,
+            "screen_on_host_s": 359.094,
+            "host_receive_interval_ms": 297
+          },
+          {
+            "trigger_host_s": 379.797,
+            "hold_ms": 516,
+            "screen_on_host_s": 380.094,
+            "host_receive_interval_ms": 297
+          },
+          {
+            "trigger_host_s": 391.516,
+            "hold_ms": 523,
+            "screen_on_host_s": 391.828,
+            "host_receive_interval_ms": 312
+          }
+        ],
+        "boundary": "3 software paths do not override 2 visible wake observations; unmapped failed attempt"
+      },
+      "followup": {
+        "attempt_count": "unknown; user tried several instead of one",
+        "user_feedback": "我对1秒的感知不一定准确，我做了几次，要么是根本不亮屏，要么是在快要放回的过程中才亮起",
+        "candidate_host_s": [
+          673.359,
+          679.734,
+          683.703
+        ],
+        "software_sequence": {
+          "trigger_host_s": 684.219,
+          "hold_ms": 518,
+          "screen_on_host_s": 684.531,
+          "host_receive_interval_ms": 312
+        },
+        "boundary": "Two candidates without a following trigger before the next candidate; no intermediate samples or one-to-one gesture markers"
+      },
+      "timing_boundary": "Host UART receive intervals include logging/UI/power/refresh/busy waits; not physical light or motion-start latency",
+      "remaining_groups": "Not performed after fixed-wake failure: 10 interference, switch-off persistence, DIM/active timing, IMU wake from weather page"
+    },
+    "independent_recovery": {
+      "initial_ble": "connected=0 subscribed=0 generation=0; user asked to reconnect after flash",
+      "reconnect_host_s": 808.187,
+      "subscribed_host_s": 808.734,
+      "real_weather": "Received current temperature/forecast from Gadgetbridge; 24 hourly and 7 daily entries",
+      "final_status_host_s": 857.312,
+      "final_status": "connected=1 subscribed=1 generation=1; cached=1 state=1 request=0; dropped=0 gaps=0 stale=0",
+      "user_feedback": "正常（温度/预报/接收时间恢复，返回重入和触摸）",
+      "key_wake": "3 KEY1 software wake sequences observed; latest sent=3 received=3",
+      "imu_status": "4 snapshots configured=1 addr0x6a io_errors=1; no increment within snapshot interval",
+      "warnings": "One SDK touch buffer overwrite at host_s831.750; user reports touch normal; no root-cause claim",
+      "temporary_keep_awake": "User confirmed disabled after capture closed; normal phone connected/USB only retained"
+    }
+  },
+  "artifacts": [
+    {
+      "path": "artifacts/imu-integration/session/uart.bin",
+      "bytes": 19629,
+      "sha256": "c6ecd1c544c03eb58b75a5da42c4e3db4efd1931112a82f9e7e5349c95f2559d"
+    },
+    {
+      "path": "artifacts/imu-integration/session/events.json",
+      "bytes": 36032,
+      "sha256": "ef88b662f95b9c6d37ebec8d4c555dd12b2ada650d1109b1ba7e3676a1649097"
+    },
+    {
+      "path": "artifacts/imu-integration/session/events.jsonl",
+      "bytes": 29455,
+      "sha256": "32d6882f1d5b8368b7348a0ee2e44a9afb5c5e9d14ea6f34a943585571ae6e9f"
+    },
+    {
+      "path": "artifacts/imu-integration/controls.jsonl",
+      "bytes": 1857,
+      "sha256": "066ac9065fffaf26076513b4ca8f9b8b5808b0956db655ed50e4d3824dda515f"
+    },
+    {
+      "path": "artifacts/imu-integration/capture.py",
+      "bytes": 6157,
+      "sha256": "47ab78d72c0ac05f5cbe6aaf8e537b465077b4b505e3d3ce72e9700c9494db42"
+    },
+    {
+      "path": "artifacts/imu-integration/capture.log",
+      "bytes": 29455,
+      "sha256": "32d6882f1d5b8368b7348a0ee2e44a9afb5c5e9d14ea6f34a943585571ae6e9f"
+    },
+    {
+      "path": "artifacts/imu-integration/flash-isolated.ps1",
+      "bytes": 1438,
+      "sha256": "250c28a6f5357562a64c26f2d0f659e5e6492a29c6f5ab07d6f0b3bdcd83c4ef"
+    },
+    {
+      "path": "artifacts/build-isolated.ps1",
+      "bytes": 793,
+      "sha256": "bf69d7164de2df572b708c98533e3dd298069e95d9d7666c0b481a0d897095e4"
+    },
+    {
+      "path": "artifacts/imu-integration/verify-builds.py",
+      "bytes": 2533,
+      "sha256": "9a53b544075d5c7caa45bd54e9b1e69927b5d10dd10ff5eeb7449e131e40be4e"
+    },
+    {
+      "path": "artifacts/imu-integration/build-summary.json",
+      "bytes": 3145,
+      "sha256": "705d751ef3301631985a5aa5f7df9e3eaa7ba9623979578f4409d7d648a45206"
+    },
+    {
+      "path": "artifacts/imu-integration/host-configure.log",
+      "bytes": 450,
+      "sha256": "4c45e49639cbb6b44f48e371f26220887a7c5f73e942a1bb145f1dc5a2dbc1aa"
+    },
+    {
+      "path": "artifacts/imu-integration/host-build.log",
+      "bytes": 104663,
+      "sha256": "ba8f2131fd691bbbb0fc430b07fffdc8b2ed69e16685b61195e194dc4ca97853"
+    },
+    {
+      "path": "artifacts/imu-integration/host-test.log",
+      "bytes": 2158,
+      "sha256": "44e5f31a1600a7a591ed9952a0fe195bfd62f00df831fb3b56859a9f547556f9"
+    },
+    {
+      "path": "artifacts/imu-integration/flash-console.log",
+      "bytes": 915,
+      "sha256": "9466b4da5b5427fa1a09c9cd31a32d952aed61c32aac7d1f3e8f843206dffe22"
+    },
+    {
+      "path": "artifacts/flash/product/20261009-185355-100/result.json",
+      "bytes": 1935,
+      "sha256": "da8bad97fc83f556ae162883ee1dafae375091383aef448369de18d6b50ff2ac"
+    }
+  ],
+  "user_algorithm_opinion": "User believes matching Redmi Watch 4 may require neural-network fitting or new approach; opinion recorded, not an adopted route",
+  "next_bounded_experiment": "Record candidate reset reason/short axis trace and segmented display restore timestamps; align natural motions with visible wake, then select one change. Do not require user to time one second",
+  "not_covered": [
+    "Full N2 joint matrix",
+    "Wear recognition rate",
+    "Physical panel latency",
+    "IRQ pressure/latency",
+    "Power/current/battery life",
+    "RTC/three-hour target tests",
+    "Flash power-loss/GC interruption"
+  ]
+}

@@ -1,5 +1,14 @@
 # 可复现构建基线
 
+<a id="imu-integration-build"></a>
+## 2026-10-09 天气与 C2 同版集成构建
+
+候选源码 `codex/imu-weather-integration@a257d67d1ee84d89680306ab27307beeaa967b6c`，基于天气主线 `64c7e43` 接原 C2 `823e656`。主机使用 GCC 15.2.0 / Ninja / Debug，命令为 `cmake -S tests -B artifacts/host-imu-integration -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe -DCMAKE_MAKE_PROGRAM=D:/msys64/ucrt64/bin/ninja.exe -DWRISTFLOW_BUILD_SIMULATOR=ON`、`cmake --build artifacts/host-imu-integration --parallel 6`、`ctest --test-dir artifacts/host-imu-integration --output-on-failure --timeout 60`，均退出 0，19/19 通过。保留天气/队列测试并加入 imu_device，既有 settings_ui 覆盖抬腕关闭、迟到事件不续时、变暗/长睡恢复；主机结果不替代异步 IRQ/PM 真机验证。
+
+在既有 C2 工作树运行忽略目录的 `artifacts/build-isolated.ps1 -Example product` / `-Example ui_demo`；仅复用主目录已注册的官方 SDK 环境，构建目标仍为本工作树，实际均执行 `scons --board=sf32lb52-lchspi-ulp -j6`。Product 记录 `artifacts/product/20261009-184531-613/result.json`，316 个源/29 个产物重哈希一致；主 BIN 7,627,220 B / `74c83862b13660a6d4919b3ba30a0e5903483ec9e6f710b158bb78e79af29fbb`。UI Demo 记录 `artifacts/ui_demo/20261009-185017-223/result.json`，299 个源/22 个产物重哈希一致；主 BIN 7,424,456 B / `0612848bb8b2981f759a22145000003f0188c81dab5a99718e4ee1bd7559a522`。
+
+两项退出 0、产物校验通过；锁定 SDK/子模块、公共构建入口和 XML/生成物/字体未改。构建 Python 3.13.15 / Arm GCC 14.2.1；原有 SDK 命令注册转换、链接 RWX/syscall 及 LVGL/枚举范围告警保留，未抑制或改厂商代码。未运行手动云端基线；本轮不修改 SDK/工具链。Product 三镜像 `Flash.ps1 -DryRun` 检查后另行实际写入/verify 退出 0；构建入口不烧录。源码检查、编译和设备结果按 [IMU 记录](IMU-WRIST-WAKE.md#imu-integration)及[精简证据](evidence/2026-10-09/imu-integration.json)分开验收；本组合固定抬腕硬件门槛失败，成功编译不构成合入依据。
+
 ## 2026-10-09 D8 队列契约构建
 
 最终验证源码 `codex/weather-d1@83a6bd2d8954b69e3e8536b0f249efb169381e7e`。`cmake -S tests -B artifacts/queue-d8-host -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe`、`cmake --build artifacts/queue-d8-host --parallel 6` 和 CTest 全套退出 0，18/18 通过；随后补代次回绕/失败控制包断流断言并补官方头文件，最终受影响 `phone_queue` 1/1 通过。之后仅 Product 串口诊断拆行，主机所编译模块未改。测试直接编译生产队列函数并连接实际 parser；确定性交错的 IRQ/MQ shim 不等于目标板调度压力实测。
