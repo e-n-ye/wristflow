@@ -9,12 +9,13 @@ enum wf_imu_trace_reason {
     WF_TRACE_CANDIDATE, WF_TRACE_NO_FLAT, WF_TRACE_NOT_DEPARTED,
     WF_TRACE_NOT_X, WF_TRACE_NOT_Y, WF_TRACE_NOT_Z,
     WF_TRACE_NO_DATA, WF_TRACE_IO, WF_TRACE_DEADLINE,
-    WF_TRACE_TRIGGER, WF_TRACE_STOP, WF_TRACE_EXPIRED
+    WF_TRACE_TRIGGER, WF_TRACE_STOP, WF_TRACE_EXPIRED, WF_TRACE_NOT_GRAVITY
 };
 enum wf_imu_trace_flags {
     WF_TRACE_FLAT = 1, WF_TRACE_DEPARTED = 2,
+    /* X/Y are direction/side guards; Z is the joint XZ viewing-angle guard. */
     WF_TRACE_X = 4, WF_TRACE_Y = 8, WF_TRACE_Z = 16,
-    WF_TRACE_AXES = 32, WF_TRACE_SOURCE_OK = 64
+    WF_TRACE_AXES = 32, WF_TRACE_SOURCE_OK = 64, WF_TRACE_GRAVITY = 128
 };
 typedef struct {
     uint32_t tick, scan, irq;

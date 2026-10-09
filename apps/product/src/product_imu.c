@@ -2,6 +2,7 @@
 #include "product_imu.h"
 #include "imu_device.h"
 #include "imu_trace.h"
+#include "wrist_pose.h"
 #include "product_pm.h"
 #include <rtdevice.h>
 #include <board.h>
@@ -66,7 +67,7 @@ static void trace_dump(void)
     }
     static const char *const reasons[] = {"none", "arm", "irq", "scan", "sample", "candidate",
         "no_flat", "not_departed", "not_x", "not_y", "not_z", "no_data", "io",
-        "deadline", "trigger", "stop", "expired"};
+        "deadline", "trigger", "stop", "expired", "not_gravity"};
     rt_kprintf("[imu-trace] enabled=%u count=%u total=%u overwritten=%u\n",
         trace.enabled, trace.count, trace.total, trace.overwritten);
     rt_kprintf("[imu-trace] capacity=%u bytes=%u hz=%u start=%u span=%u\n",
@@ -340,17 +341,22 @@ static bool runtime_sample(void)
     bool departed = abs((int)(x - runtime_baseline[0])) > 6000 ||
         abs((int)(y - runtime_baseline[1])) > 6000 ||
         abs((int)(z - runtime_baseline[2])) > 6000;
-    /* The confirmed wrist pose is the short edge down, screen facing the user: -X. */
-    bool vertical = x < -12000 && abs((int)y) < 8000 && abs((int)z) < 7000;
-    unsigned flags = (departed ? WF_TRACE_DEPARTED : 0) | (x < -12000 ? WF_TRACE_X : 0) |
-        (abs((int)y) < 8000 ? WF_TRACE_Y : 0) | (abs((int)z) < 7000 ? WF_TRACE_Z : 0);
+    unsigned pose = wf_wrist_pose_classify(axes);
+    unsigned flags = (departed ? WF_TRACE_DEPARTED : 0) |
+        ((pose & WF_WRIST_POSE_X) ? WF_TRACE_X : 0) |
+        ((pose & WF_WRIST_POSE_Y) ? WF_TRACE_Y : 0) |
+        ((pose & WF_WRIST_POSE_VIEW) ? WF_TRACE_Z : 0) |
+        ((pose & WF_WRIST_POSE_GRAVITY) ? WF_TRACE_GRAVITY : 0);
     if (!flat_seen || !departed) {
         trace_record(!flat_seen ? WF_TRACE_NO_FLAT : WF_TRACE_NOT_DEPARTED, now, axes, flags, read_ticks, held);
         runtime_candidate_started = 0;
         return false;
     }
-    if (!vertical) {
-        trace_record(x >= -12000 ? WF_TRACE_NOT_X : abs((int)y) >= 8000 ? WF_TRACE_NOT_Y : WF_TRACE_NOT_Z,
+    if (pose != WF_WRIST_POSE_ACCEPT) {
+        unsigned reason = !(pose & WF_WRIST_POSE_X) ? WF_TRACE_NOT_X :
+            !(pose & WF_WRIST_POSE_Y) ? WF_TRACE_NOT_Y :
+            !(pose & WF_WRIST_POSE_VIEW) ? WF_TRACE_NOT_Z : WF_TRACE_NOT_GRAVITY;
+        trace_record(reason,
             now, axes, flags, read_ticks, held);
         runtime_candidate_started = 0;
         return false;
