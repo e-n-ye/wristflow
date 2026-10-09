@@ -1,5 +1,14 @@
 # 可复现构建基线
 
+<a id="imu-diagnostics-build"></a>
+## 2026-10-09 抬腕诊断构建
+
+诊断源码 `16188c3f9acaa849f5d48c4acb34c04918f8e352`，负 X/500 ms/1500 ms 判定及 SDK 不变。沿用下节 CMake/Ninja/Debug 命令，增加 `imu_trace` 缓冲保留/覆盖/冻结/tick 回绕用例，20/20 通过、5.48 秒，原始结果保存在本 C2 工作树忽略目录 `artifacts/imu-diagnostics/host-last-test.log`。新诊断输出最保守长度 96 B，小于目标 `RT_CONSOLEBUF_SIZE=128`；`RT_TICK_PER_SECOND=1000` 已从目标配置核对。
+
+`artifacts/build-isolated.ps1 -Example product` 实际调用官方 SCons `scons --board=sf32lb52-lchspi-ulp -j6`，退出 0、产物校验通过；记录 `artifacts/product/20261009-193403-733/result.json`，318 源/29 产物重哈希一致，主 BIN 7,629,492 B / `c33d86c97542984694bf5d8340583e4eb3feb68b1f65d6fb2e7597b2b68adb84`。UI Demo 源未受影响，复核既有 `20261009-185017-223` 的 299 源/22 产物仍匹配，没有重复编译或沿用旧 Product 镜像。本轮新增缓冲为静态 worker 私有数据，主线程计时数组仅 9 个 tick；SDK/工具链与既有告警保留。
+
+三镜像 dry run 已检查，随后另行实际写入与 verify 退出 0，记录 `artifacts/flash/product/20261009-193832-009/result.json`；目标 map 的 `.bss.trace=0x101c` 确认静态缓冲 4124 B。设备结果见 [诊断记录](IMU-WRIST-WAKE.md#imu-diagnostics)及[精简证据](evidence/2026-10-09/imu-diagnostics.json)，编译与哈希不代表识别体验已改善。未运行手动云端基线。
+
 <a id="imu-integration-build"></a>
 ## 2026-10-09 天气与 C2 同版集成构建
 

@@ -6,14 +6,14 @@
 本区是活动任务和下一步的唯一权威来源；下方 history 区、任务书和专题里的“下一步 / 待执行”均为对应日期的历史记录，不是执行授权。接续先核对实际工作树与远端版本，再按 [任务索引](../PROJECT_INDEX.md) 读取。
 
 - **阶段**：清理存量成果并恢复主线开发。用户已确认 [清理完成线和功耗独立里程碑](BASELINE.md#2026-10-08-清理完成线与恢复开发)；清理后首个复杂 UI 功能为倒计时。阶段任务卡保留技术契约，旧 N0 返工与完整天气裁剪不再作为默认前置任务。
-- **本轮活动项**：用户继续后，进入[抬腕诊断闭环](IMU-WRIST-WAKE.md#imu-diagnostics)：加入固定缓冲的轴值/候选失效记录及显示恢复分段计时，保留负 X / 500 ms / 1500 ms 和既有 IRQ/PM 路径。正在完成源码审查、主机测试与 Product 编译，尚未写入诊断版。[PR #39](https://github.com/e-n-ye/wristflow/pull/39)仍 OPEN/DRAFT，旧集成 `a257d67` 的固定抬腕失败尚未修复，不合入。
-- **实际版本**：主目录 `main=origin/main@64c7e43`；[PR #38](https://github.com/e-n-ye/wristflow/pull/38) 已回读 MERGED，merge commit `64c7e43e1d105772893e893f326e0234dbe327fb`，fetch/完整 tree 核对通过。[原 #37](https://github.com/e-n-ye/wristflow/pull/37) 因 Rebase 失败被 #38 替代并关闭，原分支保留。C2 原 `823e656` / [PR #30](https://github.com/e-n-ye/wristflow/pull/30) OPEN/DRAFT，现复用其工作树建立 `codex/imu-weather-integration`。板上已写入集成源码 `a257d67` / BIN `74c83862…`；COM5 CH340、三镜像 `write_flash --verify` 退出 0，记录 `artifacts/flash/product/20261009-185355-100/result.json`。用户确认仍仅 USB、未接电池；启动日志确认朝上基线 `flat=1`。
+- **本轮活动项**：[抬腕诊断闭环](IMU-WRIST-WAKE.md#imu-diagnostics)已完成：保留负 X / 500 ms / 1500 ms 和既有 IRQ/PM 路径。诊断 `16188c3` 源码审查、20/20 主机与 Product 编译通过，318 源/29 产物一致；未重编译的旧 UI Demo 299 源/22 产物仍匹配，见[构建记录](BUILD.md#imu-diagnostics-build)。两份冻结记录无覆盖：一次 523ms 后触发；一次条件通过到 303ms，348ms 样本 Z 条件失效并清零。两次 IMU 软件恢复均 307ms，busy 为 270/261ms。用户反馈需要刻意停顿，并补充倾斜姿态本板不亮、Redmi 会亮；照片未量化姿态范围。详见[本版诊断证据](evidence/2026-10-09/imu-diagnostics.json)。没有识别体验改善结论，[PR #39](https://github.com/e-n-ye/wristflow/pull/39)仍 OPEN/DRAFT，不合入。
+- **实际版本**：主目录 `main=origin/main@64c7e43`；[PR #38](https://github.com/e-n-ye/wristflow/pull/38) 已回读 MERGED，merge commit `64c7e43e1d105772893e893f326e0234dbe327fb`，fetch/完整 tree 核对通过。[原 #37](https://github.com/e-n-ye/wristflow/pull/37) 因 Rebase 失败被 #38 替代并关闭，原分支保留。C2 原 `823e656` / [PR #30](https://github.com/e-n-ye/wristflow/pull/30) OPEN/DRAFT，现复用其工作树建立 `codex/imu-weather-integration`。板上已改为诊断 `16188c3` / BIN `c33d86c9…`；COM5 CH340、三镜像 `write_flash --verify` 退出 0，记录 `artifacts/flash/product/20261009-193832-009/result.json`。用户继续沿用仅 USB、未接电池条件并确认已平放；启动日志确认朝上基线 `flat=1`。旧 `a257d67` 失败证据保留。
 - **验证与交付条件**：集成源码 `a257d67` 并集审查通过；19/19 主机测试和 Product/UI Demo 构建通过，615 个源/51 个产物重哈希一致。USB 首组 3 次动作，用户报告 2 次可见亮屏、体感仍慢；串口另有 3 次 trigger / IMU wake / screen on，未能一一对齐。随后用户多次尝试仍不亮或快放回才亮；不能用软件日志认定物理亮屏通过。真实 Gadgetbridge 重连后天气/返回/触摸正常，状态连接/订阅有效、队列计数 0。采集退出 0、串口关闭，用户确认关闭临时持续亮屏；详见[本版精简证据](evidence/2026-10-09/imu-integration.json)。旧 C2 10/10 不覆盖本版，当前不合入；后续仍按实际 head 审阅/验证及 Rebase/MERGED/fetch 闭环。
 - **保留边界**：天气各版 [验收与证据](WEATHER-UI.md#weather-regression)继续有效，但不自动覆盖本集成的受影响路径。完整 N2、目标压力/IRQ 延迟、三小时/RTC 真机、物理掉电/GC 中断、佩戴识别率及功耗仍未关闭；设置写入 v5 后不能用旧 v4 固件读取。Gemini 暂停、旧 N0 FIX；本轮 XML/生成物/字体和 SDK 锁未改。
 
 ### 当前闭环与唯一下一步
 
-下一步在诊断版源码审查、主机测试和 Product 编译/镜像核验通过后，写入并采集少量自然抬起动作及 KEY1 对照，导出一次扫描的冻结记录和软件恢复分段时间；不要求用户准确计时一秒。只诊断，不改判定或 SDK 面板延时；根据采集结果再选择一项修复。未达到固定手持门槛前保持草稿，不合入。神经网络仍是待评估看法，整套联合验收与功耗按既有分工独立安排。
+下一轮建议先做“倾斜看表姿态范围”一个闭环：对齐用户新增场景的轴值与容许角度，再仅修改姿态判定并复验正例/干扰；本轮没有从照片设阈值或执行该修改。500ms 确认时间和约 307ms 显示恢复分别保留对照，后续独立评估，避免同时改三处而无法归因。未达到固定手持门槛前保持草稿，不合入。已有 InfiniTime/Bangle.js 规则算法可只读参考，神经网络仍待评估，未确定算法替换。采集已正常关闭，手机连接/天气状态恢复，用户确认关闭临时持续亮屏；本轮不再操作板子。整套联合验收与功耗按既有分工独立安排。
 
 既定阶段顺序仍为天气交付、独立处理 C2 和联合验收，再进入倒计时；天气本轮必要交互验收已经完成。电流/能量测量独立后置。后续具体设备操作前重新核对版本、端口与 USB 条件，不自动回刷旧冻结镜像。
 

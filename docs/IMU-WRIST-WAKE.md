@@ -7,7 +7,19 @@
 
 `wf_imu trace off` 只冻结诊断，`trace dump` 仅冻结且 runtime 未 arm/request 时导出，不改变传感器配置或页面；不在 IRQ 或逐样本输出 UART。同批命令的 off/stop 优先，on+dump 拒绝导出；导出期间出现 runtime 请求会中止导出。采集工具仅在持续亮屏下导出，不把该打印窗口当识别或 PM 验收。原 candidate/trigger 诊断打印、负 X/500 ms/1500 ms 判定、40 ms 事件等待、事件投递和 PM 申请顺序保留，诊断仍可能产生有限观测开销。主线程保存事件收到、准备/UI、LCD/触摸 POWERON、输入恢复、刷新、busy 与亮度调用的 tick，完成亮屏后才打印分段；异步 POWERON 返回耗时不能代表硬件完成，亮度值/软件时间也不能代替物理发光测量。
 
-固定 SDK CO5300 `Init` 的 `rt_thread_delay(10+10+50+120+70)` 为 260 ticks，在现有 1000 Hz 配置下约 260 ms；LCD POWERON 通过消息让 LCD worker 重新 Init，触摸独立线程初始化，不能把两路延时直接相加。本轮不改 SDK 或这些延时。新缓冲测试覆盖默认关闭、覆盖后时间序列/字段保留、冻结不改记录、重新开始和 tick 回绕；构建/真机结论尚待本版采集。当前状态仍只见 [STATUS](STATUS.md#current)。
+固定 SDK CO5300 `Init` 的 `rt_thread_delay(10+10+50+120+70)` 为 260 ticks，在现有 1000 Hz 配置下约 260 ms；LCD POWERON 通过消息让 LCD worker 重新 Init，触摸独立线程初始化，不能把两路延时直接相加。本轮不改 SDK 或这些延时。新缓冲测试覆盖默认关闭、覆盖后时间序列/字段保留、冻结不改记录、重新开始和 tick 回绕；最终验证见下文，当前状态仍只见 [STATUS](STATUS.md#current)。
+
+诊断源码 `16188c3f9acaa849f5d48c4acb34c04918f8e352`：只读审查修正同批 on/off 与 on/dump 的处理后通过；20/20 主机测试通过，Product 官方 SCons 编译及 318 源/29 产物重哈希通过。UI Demo 无受影响源，复核旧构建 299 源/22 产物匹配，本轮未重编译。新增静态记录占 4124 B，目标 map 的 `.bss.trace=0x101c` 与串口报告一致；新输出最保守长度 96 B，小于 128 B 控制台缓冲。详见[构建记录](BUILD.md#imu-diagnostics-build)。COM5 CH340 三镜像 `write_flash --verify` 退出 0，主 BIN `c33d86c9…`，记录 `artifacts/flash/product/20261009-193832-009/result.json`；用户确认屏幕朝上，启动 `flat=1`，沿用同套板屏、仅 USB、未接电池。
+
+第一份完整导出 16 条、无覆盖，候选 tick 74547 至 trigger 75070，保持 523ms；有效样本间隔 41–46ms。第二份完整导出 39 条、无覆盖，候选 tick 290623，最后全部条件通过的样本 tick 290926 / hold 303ms；tick 290971 的 `xyz=-13492,135,-7537` 为 `not_z`，此时 hold 348ms 是失败样本前累计时间，不是成功保持时长。`abs(z)<7000` 先失败并清零计时，随后 X/Z 条件失效，回平放区更新基线，扫描到 1515ms 截止冻结。两份均无 `io/no_data/no_flat`，读取耗时 1–2ms；这是有限样本事实，不证明整个运行零故障或连续物理姿态。之后 UART 的另一扫描 `hold_ms=539` 才触发，不属于这份冻结记录。
+
+两次 IMU 事件收到至亮度调用返回均 307ms，busy 等待分别 270/261ms；三个 KEY1 对照为 306/306/309ms，busy 为 270/270/265ms。busy 与面板重新初始化的 260ms 延时规模接近，支持优先核查显示恢复路径；仍未分离实际面板完成与调度时间，未测物理发光或动作起点。候选确认与显示恢复是前后两段成本，不能把 307ms 当成总抬腕延迟或相对 Redmi 的差值。
+
+用户第一段反馈“感觉还是有点不跟手”，第二段反馈“就是要亮，需要刻意停顿”；未明确这轮尝试总次数，不能统计成功率。随后估计比 Redmi Watch 4 慢 200～300ms，并补充倾斜姿态下 Redmi 会亮而本板不亮，附图只记录一屏亮、一屏黑的现象，不能从照片计算 IMU 角度或判定两设备动作条件等同。现有 `x<-12000 / abs(y)<8000 / abs(z)<7000` 仍只接受此前确认的负 X 姿态范围；本次 Z 条件失效提供了收窄范围影响一次候选的证据，但未把照片姿态绑定到该扫描。
+
+开源参考（2026-10-09 只读检索，未复制代码）：[InfiniTime 的 MotionController](https://github.com/InfiniTimeOrg/InfiniTime/blob/main/src/components/motion/MotionController.cpp) 使用加速度历史均值/方差与滚转角；[Espruino/Bangle.js](https://github.com/espruino/Espruino/blob/master/libs/banglejs/jswrap_bangle.c) 的 twist 路径使用方向变化、时间窗及姿态门控。这些实现可供比较规则、窗口和容许角度，传感器量纲/安装方向、采样与省电路径不同，不能照搬阈值或声称达到 Redmi 体验。本轮未取得可核验的 Redmi Watch 4 算法公开源码；神经网络仍为待评估看法，没有由本轮证据确定采用它。
+
+恢复项：动作采集期间手机未连接；用户按要求重新连接、进入天气并检查返回/触摸后回复“好了”。末两次状态 `connected=1 / subscribed=1 / generation=1`、真实天气缓存有效、接收年龄已知、request=0，队列 dropped/gaps/stale=0。两次 IMU status 的 io_errors=1 无增长，不宣称启动或整个运行零错误。诊断最终 frozen count=39，采集 815.813 秒、26356 B、退出 0、无待执行计划，串口正常关闭；用户确认关闭本次持续亮屏。精简数据及本机原始记录哈希见[诊断证据](evidence/2026-10-09/imu-diagnostics.json)。本轮定位了失效条件和软件恢复耗时，未改姿态/保持参数、未证明体验改善，PR #39 保持草稿，旧集成失败证据继续有效。
 
 <a id="imu-integration"></a>
 ## 2026-10-09 天气主线与 C2 同版集成候选
