@@ -1,5 +1,15 @@
 # 可复现构建基线
 
+## 2026-10-09 D8 队列契约构建
+
+最终验证源码 `codex/weather-d1@83a6bd2d8954b69e3e8536b0f249efb169381e7e`。`cmake -S tests -B artifacts/queue-d8-host -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe`、`cmake --build artifacts/queue-d8-host --parallel 6` 和 CTest 全套退出 0，18/18 通过；随后补代次回绕/失败控制包断流断言并补官方头文件，最终受影响 `phone_queue` 1/1 通过。之后仅 Product 串口诊断拆行，主机所编译模块未改。测试直接编译生产队列函数并连接实际 parser；确定性交错的 IRQ/MQ shim 不等于目标板调度压力实测。
+
+官方 `Build.ps1 -Example product -Jobs 6` 最终退出 0、产物检查通过，记录 `artifacts/product/20261009-123632-974/result.json`，312 份源码/29 个产物重哈希一致。主 BIN 7,620,916 B / `353978765b56c969daf42af853235d235a14dc8f247ab2209a5a35da09a7126f`。首次 `c1b3923` 构建因漏引入 `rthw.h` 而退出 2，保留 `artifacts/product/20261009-122938-783/result.json`；修复后重编，没有沿用失败产物。
+
+首个成功 Product `055eb28` 构建记录 `artifacts/product/20261009-123127-970/result.json`；写入后发现新增 status 行最短 132 B，超过 SDK 128 B console buffer，截断了 stale。`83a6bd2` 将输出拆成 A1/stats/queue 三行，即使各项最大无符号数分别为 94/106/64 B；重新 Product 编译和写入，不改变队列/parser 行为。此前成功版是保留的诊断缺陷记录，不能替代最终版。
+
+UI Demo 同命令退出 0，记录 `artifacts/ui_demo/20261009-122938-333/result.json`；299 份源码/22 个产物与最终工作树哈希一致，主 BIN 7,424,360 B / `b4a9f460b67cb1302e93544ba4d0b1acb4f3a4477b98b9ebc6bda025ac623c06`。后续改动只涉及 Product 队列及主机测试，未重复无影响的 Demo 编译。SDK、子模块、工具链、构建入口、XML/生成物/字体均未改，既有告警保留，未运行手动云端基线。设备结果和未覆盖项见 [D8 记录](BLE-FIRST-LINK.md#queue-d8)及[精简证据](evidence/2026-10-09/queue-d8.json)，编译不替代硬件验收。
+
 ## 2026-10-09 D3 配置安全构建
 
 验证源码 `codex/weather-d1@03699cd322e53f14835cf1ef0a7057645a34ba30`。主机沿用下方 CMake/Ninja 命令，目录为 `artifacts/config-d3-host`；CTest 全套 17/17 通过。随后仅加强测试字形断言，排除 LVGL placeholder，受影响的 `component_editor` 1/1 通过，生产源码未再改动。四份主机配置缺项的实际 LVGL 渲染通过，XML/生成物/字体未改，无新 Pro 导出。
