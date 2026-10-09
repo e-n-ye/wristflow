@@ -1,5 +1,14 @@
 # IMU 与翻腕亮屏
 
+<a id="imu-diagnostics"></a>
+## 2026-10-09 抬腕失败诊断增量
+
+用户在集成 `a257d67` 失败后继续，授权先诊断漏亮/迟缓。新增 worker 独占的 128 条、每条 32 B 环形记录；默认关闭，`wf_imu trace on` 仅正常亮屏且 runtime 未 arm 时接受，重置记录，捕捉后续 baseline/IRQ source/扫描/轴值/保持时间与失效条件。首次扫描触发、1500 ms 截止、runtime 停止或达到 180 秒采集跨度时冻结；跨度在既有记录点检查，不新增定时唤醒。覆盖数明确报告，不把有限缓冲当完整连续观测。
+
+`wf_imu trace off` 只冻结诊断，`trace dump` 仅冻结且 runtime 未 arm/request 时导出，不改变传感器配置或页面；不在 IRQ 或逐样本输出 UART。同批命令的 off/stop 优先，on+dump 拒绝导出；导出期间出现 runtime 请求会中止导出。采集工具仅在持续亮屏下导出，不把该打印窗口当识别或 PM 验收。原 candidate/trigger 诊断打印、负 X/500 ms/1500 ms 判定、40 ms 事件等待、事件投递和 PM 申请顺序保留，诊断仍可能产生有限观测开销。主线程保存事件收到、准备/UI、LCD/触摸 POWERON、输入恢复、刷新、busy 与亮度调用的 tick，完成亮屏后才打印分段；异步 POWERON 返回耗时不能代表硬件完成，亮度值/软件时间也不能代替物理发光测量。
+
+固定 SDK CO5300 `Init` 的 `rt_thread_delay(10+10+50+120+70)` 为 260 ticks，在现有 1000 Hz 配置下约 260 ms；LCD POWERON 通过消息让 LCD worker 重新 Init，触摸独立线程初始化，不能把两路延时直接相加。本轮不改 SDK 或这些延时。新缓冲测试覆盖默认关闭、覆盖后时间序列/字段保留、冻结不改记录、重新开始和 tick 回绕；构建/真机结论尚待本版采集。当前状态仍只见 [STATUS](STATUS.md#current)。
+
 <a id="imu-integration"></a>
 ## 2026-10-09 天气主线与 C2 同版集成候选
 

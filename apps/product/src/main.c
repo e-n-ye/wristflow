@@ -113,9 +113,11 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     wristflow_product_imu_wrist_wake(wristflow_ui_shell_wrist_wake_allowed(product_shell));
     rt_uint32_t events;
     bool preview = false, imu_wake = false;
+    rt_tick_t wake_trace[9];
     defer_brightness = true;
     for (;;) {
         events = wristflow_product_event_wait(RT_WAITING_FOREVER);
+        wake_trace[0] = rt_tick_get();
         if (events & WF_EVENT_KEY) ++key_received;
         if (events & WF_EVENT_PHONE) {
             wristflow_product_pm_background();
@@ -131,6 +133,7 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     rt_kprintf("[product] wake event=%s\n", events & WF_EVENT_KEY ? "KEY1" : preview ? "notification" : imu_wake ? "IMU" : "diagnostic");
     key_report();
     wristflow_product_pm_report();
+    wake_trace[1] = rt_tick_get();
     /* Select the wake destination while dark; expose only its completed frame. */
     defer_brightness = true;
     if (!preview || (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))) {
@@ -140,13 +143,18 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     }
     wristflow_watch_snapshot_t wake_snapshot = wristflow_product_services_snapshot();
     wristflow_ui_shell_update(product_shell, &wake_snapshot);
+    wake_trace[2] = rt_tick_get();
     RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_POWERON, NULL) == RT_EOK);
+    wake_trace[3] = rt_tick_get();
     RT_ASSERT(rt_device_control(touch, RTGRAPHIC_CTRL_POWERON, NULL) == RT_EOK);
+    wake_trace[4] = rt_tick_get();
     lv_indev_reset(pointer, NULL);
     lv_indev_wait_release(pointer);
+    wake_trace[5] = rt_tick_get();
     lv_timer_enable(true);
     lv_obj_invalidate(lv_screen_active());
     lv_refr_now(NULL);
+    wake_trace[6] = rt_tick_get();
     started = rt_tick_get();
     do {
         RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_GET_BUSY, &busy) == RT_EOK);
@@ -155,9 +163,20 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     if (busy) rt_kprintf("[product] wake frame incomplete: LCD busy after %lu ticks; brightness held at zero\n",
         (unsigned long)(rt_tick_get() - started));
     RT_ASSERT(!busy);
+    wake_trace[7] = rt_tick_get();
     defer_brightness = false;
     set_brightness(wake_brightness, lcd);
+    wake_trace[8] = rt_tick_get();
     rt_kprintf("[product] screen on\n");
+    /* Capture first, print after restoration. POWERON may queue asynchronous work. */
+    rt_kprintf("[wake-trace] tick=%u prep=%u ui=%u\n", wake_trace[0],
+        wake_trace[1]-wake_trace[0], wake_trace[2]-wake_trace[1]);
+    rt_kprintf("[wake-trace] lcd=%u touch=%u input=%u refresh=%u\n",
+        wake_trace[3]-wake_trace[2], wake_trace[4]-wake_trace[3],
+        wake_trace[5]-wake_trace[4], wake_trace[6]-wake_trace[5]);
+    rt_kprintf("[wake-trace] busy=%u bright=%u total=%u value=%u hz=%u\n",
+        wake_trace[7]-wake_trace[6], wake_trace[8]-wake_trace[7],
+        wake_trace[8]-wake_trace[0], wake_brightness, RT_TICK_PER_SECOND);
 }
 
 int main(void)
