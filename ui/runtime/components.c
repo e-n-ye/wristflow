@@ -53,14 +53,19 @@ static void touch(lv_event_t *event)
     }
 }
 
+static const wristflow_app_descriptor_t *supported_app(const wristflow_component_t *component)
+{
+    const wristflow_app_descriptor_t *app = wristflow_app_find(component->app_id);
+    return app && (app->card_sizes & component->size) ? app : NULL;
+}
+
 bool wristflow_components_supported(const wristflow_layout_t *layout)
 {
     if (!wristflow_layout_valid(layout)) return false;
     for (unsigned p = 0; p < layout->count; ++p)
         for (unsigned s = 0; s < wristflow_template_slots(layout->pages[p].template_id); ++s) {
             const wristflow_component_t *slot = &layout->pages[p].slots[s];
-            const wristflow_app_descriptor_t *app = wristflow_app_find(slot->app_id);
-            if (!app || !(app->card_sizes & slot->size)) return false;
+            if (!supported_app(slot)) return false;
         }
     return true;
 }
@@ -68,8 +73,25 @@ bool wristflow_components_supported(const wristflow_layout_t *layout)
 static void paint(lv_obj_t *card, const wristflow_component_t *component,
                   const wristflow_watch_snapshot_t *snapshot)
 {
-    const wristflow_app_descriptor_t *app = wristflow_app_find(component->app_id);
-    if (!app) return;
+    const wristflow_app_descriptor_t *app = supported_app(component);
+    if (!app) {
+        lv_obj_t *caption = named(card, "caption_label");
+        lv_label_set_text(caption, "不可用");
+        if (notification_22) lv_obj_set_style_text_font(caption, notification_22, 0);
+        lv_label_set_text(named(card, "value_label"), "--");
+        lv_obj_set_style_bg_color(card, lv_color_hex(0x191c20), 0);
+        lv_obj_set_style_text_color(caption, lv_color_hex(0xa7adb5), 0);
+        lv_obj_set_style_text_color(named(card, "value_label"), lv_color_hex(0xa7adb5), 0);
+        lv_obj_t *icon = lv_obj_find_by_name(card, "icon_label");
+        if (icon) lv_label_set_text(icon, "");
+        lv_obj_t *detail = lv_obj_find_by_name(card, "detail_label");
+        if (detail) {
+            lv_label_set_text(detail, "请选择其他组件");
+            if (notification_22) lv_obj_set_style_text_font(detail, notification_22, 0);
+            lv_obj_set_style_text_color(detail, lv_color_hex(0xa7adb5), 0);
+        }
+        return;
+    }
     wristflow_app_data_t data;
     if (!wristflow_app_read(app, snapshot, &data)) return;
     lv_label_set_text(named(card, "caption_label"), app->title);
@@ -82,6 +104,9 @@ static void paint(lv_obj_t *card, const wristflow_component_t *component,
         component->variant ? lv_color_white() : lv_color_hex(0xa7adb5), 0);
     lv_obj_t *detail = lv_obj_find_by_name(card, "detail_label");
     if (detail) {
+        if (!strcmp(app->id, "weather") && notification_22) {
+            lv_obj_set_style_text_font(detail, notification_22, 0);
+        }
         lv_label_set_text(detail, data.reason);
         lv_obj_set_style_text_color(detail, component->variant ? lv_color_white() : lv_color_hex(0xa7adb5), 0);
     }
@@ -106,7 +131,7 @@ static lv_obj_t *make_card(lv_obj_t *parent, const wristflow_component_t *slot,
         card = card_container_create(parent, "", "--", "", lv_color_hex(0x191c20),
             lv_color_white(), lv_color_white(), lv_color_white());
     else if (slot->size == WRISTFLOW_CARD_FULL) card = product_metric_full_create(parent);
-    else if (!strcmp(slot->app_id, "activity")) card = activity_summary_create(parent);
+    else if (supported_app(slot) && !strcmp(slot->app_id, "activity")) card = activity_summary_create(parent);
     else card = metric_half_create(parent, "", "--", "", "", lv_color_hex(0x191c20), lv_color_white(), lv_color_white());
     paint(card, slot, snapshot);
     return card;
@@ -144,8 +169,10 @@ void wristflow_components_update(wristflow_components_t *c, lv_obj_t *root,
 
 wristflow_surface_t wristflow_components_target(wristflow_components_t *c, unsigned page, unsigned slot)
 {
-    if (slot >= wristflow_template_slots(c->layout.pages[page].template_id)) return WRISTFLOW_SURFACE_COUNT;
-    return wristflow_app_find(c->layout.pages[page].slots[slot].app_id)->surface;
+    if (!c || page >= c->layout.count ||
+        slot >= wristflow_template_slots(c->layout.pages[page].template_id)) return WRISTFLOW_SURFACE_COUNT;
+    const wristflow_app_descriptor_t *app = supported_app(&c->layout.pages[page].slots[slot]);
+    return app ? app->surface : WRISTFLOW_SURFACE_COUNT;
 }
 
 static void save_status(wristflow_components_t *c)
@@ -441,7 +468,8 @@ wristflow_components_t *wristflow_components_create(wristflow_ui_shell_t *shell,
 {
     wristflow_components_t *c = lv_malloc_zeroed(sizeof(*c)); LV_ASSERT_MALLOC(c);
     c->shell = shell;
-    c->layout = wristflow_components_supported(initial) ? *initial : wristflow_layout_default();
+    /* Registry availability does not invalidate a structurally sound saved layout. */
+    c->layout = wristflow_layout_valid(initial) ? *initial : wristflow_layout_default();
     c->request = request; c->status = status; c->context = context;
     c->failure = layout_save_status_create(lv_layer_top());
     c->timer = lv_timer_create(poll, 200, c);

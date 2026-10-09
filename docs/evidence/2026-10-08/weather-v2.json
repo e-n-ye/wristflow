@@ -1,0 +1,94 @@
+{
+  "date": "2026-10-08",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/weather-d1",
+  "source_commit": "10331bf7eac9d51c5ee04d43b849ae3bd817d6cc",
+  "source_parent_commit": "ac7fc9b5e86570ae81ae728f9c996a28771ed827",
+  "delivery": "candidate_not_merged",
+  "user_scope": "Stock Gadgetbridge capabilities first; phone-side development including AQI deferred",
+  "source_inspection": {
+    "gadgetbridge": "Archived 0.94.0 BangleJSDeviceSupport.java:2016-2162",
+    "request": {"t": "weather", "v": 2, "f": true},
+    "header_bytes": 38,
+    "maximum_binary_bytes": 236,
+    "maximum_base64_characters_excluding_line_breaks": 316,
+    "wire_hourly_limit": 25,
+    "ui_hourly_limit": 24,
+    "daily_limit": 7,
+    "daily_labels": "Source order: day 1..7; no invented calendar dates because the wire has no daily date or observation timestamp",
+    "display_timezone": "Existing Product UTC+8 contract",
+    "uv_zero_and_missing": "Indistinguishable; remain unavailable. Positive reasonable UV values are displayed",
+    "aqi_sent": false,
+    "solar_position": "Hidden; static marker not used as real-time position",
+    "synchronization": "Startup-registered common mutex for cache update/reset/has_data/full snapshot copy; formatting outside lock",
+    "v1_compatibility": "Same full source identity retains extras and coalesces a v2 request; in-flight marker prevents fallback feedback loops; reset/reconnect clears parser weather",
+    "v2_current_only_boundary": "Any accepted v2 completes the in-flight marker. A header-only response is not evidence that forecasts synchronized"
+  },
+  "host": {
+    "commands": [
+      "cmake -S tests -B artifacts/weather-v2-host -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe",
+      "cmake --build artifacts/weather-v2-host --parallel 6",
+      "ctest --test-dir artifacts/weather-v2-host --output-on-failure --timeout 60"
+    ],
+    "passed": 16,
+    "failed": 0,
+    "last_test_log_sha256": "f3e0e466fc7218b759a0080c5670724e89593107ccf9b8b819e2746bfa909751",
+    "coverage": ["all_transport_splits", "binary_truncation_except_valid_current_only_header", "bad_base64_padding_characters_groups", "exact_lengths_and_count_limits", "maximum_25_hour_7_day_frame", "255_hour_offset", "zero_and_negative_temperature", "invalid_hour_times_preserve_current_daily_sun", "invalid_single_solar_time_preserves_other", "same_source_retention_changed_source_and_long_source_identity", "clear_and_reconnect", "explicit_empty_forecast", "protocol_to_cache_to_LVGL_labels", "UTC8_midnight", "lock_callback_balance", "wind_geometry_and_longest_unit_value"],
+    "lvgl_version": "9.4.0",
+    "snapshots": [
+      {"path": "artifacts/weather-v2-host/renders/weather_v2_product_hourly.png", "sha256": "aa91cf8907e26df9189e5a92be911fb60dd46a63121e0e88b75bf58b0a5a2686"},
+      {"path": "artifacts/weather-v2-host/renders/weather_v2_product_daily.png", "sha256": "9633a919994f120415c586c26cbd7c0d970652e7acafb4bb20af3f784b6a786e"},
+      {"path": "artifacts/weather-v2-host/renders/weather_v2_product_sun.png", "sha256": "07633fa374de0a3c4c909800633773a03265d0d7a63842e833e7e8c8ac9c8e9a"}
+    ],
+    "snapshot_kind": "Synthetic protocol vector rendered by actual LVGL; not hardware evidence",
+    "xml_export": "Not repeated; XML/generated sources unchanged"
+  },
+  "builds": [
+    {"example": "product", "result": "artifacts/product/20261008-214449-096/result.json", "result_sha256": "e213a1cebba2ef02e0d31c40c73810b88ffc545b71099b5d314d0b9672dfdcb9", "exit_code": 0, "matched_sources": 310, "matched_artifacts": 29, "main_bytes": 7618260, "main_sha256": "033e45f2047e4977794c0aaf1a85007ab50ba5ad274cd8a0455f7d562f11df5d"},
+    {"example": "ui_demo", "result": "artifacts/ui_demo/20261008-214450-426/result.json", "result_sha256": "6aeea381ced384921f7443633b325f6e26defc9adb2012991929b698b572af37", "exit_code": 0, "matched_sources": 299, "matched_artifacts": 22, "main_bytes": 7422896, "main_sha256": "44f52f6b6439ebe92b905bf787bb097fe4db89c2229937f595d7ef48a1bbd041"}
+  ],
+  "toolchain": {"sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65", "python": "3.13.15", "scons": "4.10.1", "arm_gcc": "14.2.1", "host_gcc": "15.2.0", "board": "sf32lb52-lchspi-ulp", "sdk_changes": false},
+  "failures_and_fixes": [
+    {"job": "j-2iwp5y", "cause": "Host codec target lost existing test RT-Thread shim include path", "resolution": "Restored support include; final host suite passes"},
+    {"job": "j-l0trw9", "cause": "In-place SCons source list extension aliased the first group and compiled Base64 with two local environments", "resolution": "Concatenate without mutating group source list; final Product build passes"},
+    {"cause": "Initial hourly snapshot showed wind icon/value overlap", "resolution": "Separated rows; geometry and 255 km/h size assertion plus rerender pass"}
+  ],
+  "usb_hardware": {
+    "conditions": "Previously authorized same Huangshan board/screen, USB-only, no battery",
+    "port": "COM5",
+    "device_id": "USB/VID_1A86&PID_7523/6&A8355E6&3&1",
+    "dry_run_exit_code": 0,
+    "flash_job": "j-f638hc",
+    "flash_command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Flash.ps1 -Example product -Port COM5",
+    "flash_exit_code": 0,
+    "flash_result": "artifacts/flash/product/20261008-215106-805/result.json",
+    "flash_result_sha256": "948391b77c84f6478d6ddc91371d505534fd1cb548960095e74a311dcc6fe0ed",
+    "images": [
+      {"name": "bootloader.bin", "address": "0x12010000", "bytes": 58496, "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"},
+      {"name": "main.bin", "address": "0x12020000", "bytes": 7618260, "sha256": "033e45f2047e4977794c0aaf1a85007ab50ba5ad274cd8a0455f7d562f11df5d"},
+      {"name": "ftab.bin", "address": "0x12000000", "bytes": 11288, "sha256": "95e21ecd69fac3c7537b132c5bf1084189f81418467cf81c7a2b45e618727443"}
+    ],
+    "status": "flash_verified_real_v2_received_and_user_confirmed_display",
+    "settings_written": false,
+    "whole_chip_erase": false,
+    "serial": {
+      "environment_prefix": ". ./scripts/Set-LocalEnvironment.ps1; Enable-SdkEnvironment",
+      "baud": 1000000,
+      "format": "8N1",
+      "captures": [
+        {"job": "j-irgzri", "command": "python artifacts/weather-d1/20261008/capture_session.py --port COM5 --seconds 90 --reset --command-at \"5:wf_ble status\" --command-at \"12:wf_ble weather\" --command-at \"75:wf_ble status\" --out artifacts/weather-v2/startup.bin", "path": "artifacts/weather-v2/startup.bin", "bytes": 4540, "sha256": "e0de39ca248f218630dd3c8a92891cd18086b7a4cd79a866c4a1aea02c8fc287", "exit_code": 0},
+        {"job": "j-w5er14", "command": "python artifacts/weather-d1/20261008/capture_session.py --port COM5 --seconds 60 --command-at \"2:wf_ble status\" --command-at \"10:wf_ble weather\" --command-at \"50:wf_ble status\" --out artifacts/weather-v2/resend.bin", "path": "artifacts/weather-v2/resend.bin", "bytes": 1408, "sha256": "1fa4088ebd517973f4cdc4a3eda8a76f5e5cb8380af86d22fd56ae2e5247a465", "exit_code": 0}
+      ],
+      "observed": ["CO5300_and_FT6146_initialized", "display_on_and_KEY1_wake", "connection_and_subscription", "MTU_131", "actual_phone_time_sync", "real_Yueqing_20C_clear_weather", "24_hourly_7_daily_forecasts", "manual_request_queued_1_and_real_v2_reply"],
+      "weather_summary": {"hourly_count": 24, "daily_count": 7, "sunrise_utc": 1791409920, "sunset_utc": 1791452100, "sunrise_local": "2026-10-08 05:52 +08:00", "sunset_local": "2026-10-08 17:35 +08:00", "humidity_startup": 68, "humidity_resend": 71},
+      "status_boundary": "Startup diagnostics preceded connection; resend status commands had no reply. No final reject/unknown/drop counts are claimed",
+      "closed": true
+    },
+    "screen_interaction_feedback": "User explicitly confirmed all 24 hourly entries, 7 daily entries, and sunrise/sunset are displayed. Did not separately confirm the full KEY1 return/reentry matrix",
+    "power_measurement": "not_performed"
+  },
+  "review": "Two read-only reviews; hourly offset limit and solar validity defects corrected and re-reviewed; common mutex and guarded followup requests inspected",
+  "remaining": ["full_new_firmware_return_reentry_interaction_matrix", "D2_actual_receipt_time_expiry_timeout_state_and_target_concurrency", "D3_configuration_safety", "D8_queue_contract", "C2_and_same_version_joint_acceptance", "independent_power_measurement"],
+  "next_bounded_experiment": "D2 actual receipt time, expiry and weather request timeout/state on this candidate",
+  "merge_blocker": "D2/D3/D8 and relevant interaction acceptance remain unresolved; PR 37 stays Draft"
+}

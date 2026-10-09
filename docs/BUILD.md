@@ -1,8 +1,81 @@
 # 可复现构建基线
 
+## 2026-10-09 D8 队列契约构建
+
+最终验证源码 `codex/weather-d1@83a6bd2d8954b69e3e8536b0f249efb169381e7e`。`cmake -S tests -B artifacts/queue-d8-host -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe`、`cmake --build artifacts/queue-d8-host --parallel 6` 和 CTest 全套退出 0，18/18 通过；随后补代次回绕/失败控制包断流断言并补官方头文件，最终受影响 `phone_queue` 1/1 通过。之后仅 Product 串口诊断拆行，主机所编译模块未改。测试直接编译生产队列函数并连接实际 parser；确定性交错的 IRQ/MQ shim 不等于目标板调度压力实测。
+
+官方 `Build.ps1 -Example product -Jobs 6` 最终退出 0、产物检查通过，记录 `artifacts/product/20261009-123632-974/result.json`，312 份源码/29 个产物重哈希一致。主 BIN 7,620,916 B / `353978765b56c969daf42af853235d235a14dc8f247ab2209a5a35da09a7126f`。首次 `c1b3923` 构建因漏引入 `rthw.h` 而退出 2，保留 `artifacts/product/20261009-122938-783/result.json`；修复后重编，没有沿用失败产物。
+
+首个成功 Product `055eb28` 构建记录 `artifacts/product/20261009-123127-970/result.json`；写入后发现新增 status 行最短 132 B，超过 SDK 128 B console buffer，截断了 stale。`83a6bd2` 将输出拆成 A1/stats/queue 三行，即使各项最大无符号数分别为 94/106/64 B；重新 Product 编译和写入，不改变队列/parser 行为。此前成功版是保留的诊断缺陷记录，不能替代最终版。
+
+UI Demo 同命令退出 0，记录 `artifacts/ui_demo/20261009-122938-333/result.json`；299 份源码/22 个产物与最终工作树哈希一致，主 BIN 7,424,360 B / `b4a9f460b67cb1302e93544ba4d0b1acb4f3a4477b98b9ebc6bda025ac623c06`。后续改动只涉及 Product 队列及主机测试，未重复无影响的 Demo 编译。SDK、子模块、工具链、构建入口、XML/生成物/字体均未改，既有告警保留，未运行手动云端基线。设备结果和未覆盖项见 [D8 记录](BLE-FIRST-LINK.md#queue-d8)及[精简证据](evidence/2026-10-09/queue-d8.json)，编译不替代硬件验收。
+
+## 2026-10-09 D3 配置安全构建
+
+验证源码 `codex/weather-d1@03699cd322e53f14835cf1ef0a7057645a34ba30`。主机沿用下方 CMake/Ninja 命令，目录为 `artifacts/config-d3-host`；CTest 全套 17/17 通过。随后仅加强测试字形断言，排除 LVGL placeholder，受影响的 `component_editor` 1/1 通过，生产源码未再改动。四份主机配置缺项的实际 LVGL 渲染通过，XML/生成物/字体未改，无新 Pro 导出。
+
+官方 `Build.ps1 -Example product -Jobs 6` 与 `-Example ui_demo -Jobs 6` 均退出 0、产物检查通过。记录分别为 `artifacts/product/20261009-000847-308/result.json`、`artifacts/ui_demo/20261009-000847-681/result.json`；310/299 个源码与 29/22 个产物重哈希一致。Product 主 BIN 7,620,676 B / `f2287798776dfde30e8903474b9e2e8e0ac6a571e3c088b169b1f4644b3ef742`，UI Demo 7,424,360 B / `b4a9f460b67cb1302e93544ba4d0b1acb4f3a4477b98b9ebc6bda025ac623c06`。SDK/子模块锁、工具链和公共构建入口未改，既有告警保留，未运行手动云端基线。源码/主机/编译与 USB 结果按 [D3 记录](COMPONENT-EDITOR.md#configuration-d3) 分开验收。
+
+## 2026-10-08 D2 天气时效与请求构建
+
+验证源码 `codex/weather-d1@767a67b51c1cd8d29e6df29a76d3d88f80c30688`。沿用下方 CMake/Ninja/CTest 命令，输出目录为 `artifacts/weather-d2-host`，17/17 通过；新增 `weather_service` 验证独立接收年龄、30 秒请求截止、三小时边界、RTC 跳变、重连代次与旧请求结果隔离。实际 LVGL 超时/过期重试快照、notification_22 逐字字形和按钮几何检查通过。XML/生成物未修改，未重新 Pro 导出。
+
+`pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 6` 与 `-Example ui_demo -Jobs 6` 均退出 0、产物校验通过。Product `artifacts/product/20261008-225818-563/result.json`，主 BIN 7,620,380 B / `f7fc54b527d6e4d57814e7065a060548b479d76356ce547b1df3869c13abc28d`；UI Demo `artifacts/ui_demo/20261008-225818-557/result.json`，7,424,064 B / `602372adec0c6cc9d93a8332a539bb7eb878972030c754759ff98817517b793d`。310/299 个源码、29/22 个产物重哈希一致，SDK/子模块锁和工具链未改；既有告警保留，未运行手动云端基线。USB 结果按 [D2 记录](WEATHER-UI.md#weather-d2) 独立验收，不沿用 v2 镜像。
+
+## 2026-10-08 原版天气 v2 构建
+
+验证源码 `codex/weather-d1@10331bf7eac9d51c5ee04d43b849ae3bd817d6cc`。使用下节同一 CMake/Ninja/CTest 命令，主机目录改为 `artifacts/weather-v2-host`，16/16 通过；Product/UI Demo 沿用官方 `Build.ps1 -Example <目标> -Jobs 6`，均编译及产物检查通过。310/299 个源、29/22 个产物重哈希一致；SDK/子模块与工具链锁不变，SDK 工作树干净。Product `artifacts/product/20261008-214449-096/result.json`，主 BIN 7,618,260 B / `033e45f2047e4977794c0aaf1a85007ab50ba5ad274cd8a0455f7d562f11df5d`；UI Demo `artifacts/ui_demo/20261008-214450-426/result.json`，7,422,896 B / `44f52f6b6439ebe92b905bf787bb097fe4db89c2229937f595d7ef48a1bbd041`。
+
+新 Base64 单独链接锁定 SDK 的既有实现，使用项目精简配置，不启用 TLS 包。首次主机缺测试 shim 路径、SCons 列表原位追加导致外部源两种编译动作冲突，修复后以上最终构建通过；原日志保留。实际 LVGL 快照及最长风速单位的几何检查通过，XML/生成物未改，不计为新 Pro 导出。源码/构建/USB 验证分别见 [v2 记录](WEATHER-UI.md#weather-v2) 和 [精简证据](evidence/2026-10-08/weather-v2.json)；既有链接/FinSH 告警保留，不由编译推断真机或功耗通过。
+
+## 2026-10-08 v1 高低温补丁构建
+
+验证源码 `codex/weather-d1@5d286c7df5c5e0630b15413d78a9c9c79e043910`。沿用下节主机构建/CTest 及 Product/UI Demo 官方构建命令，主机 16/16 通过；Product `artifacts/product/20261008-205254-798/result.json` 和 UI Demo `artifacts/ui_demo/20261008-205255-538/result.json` 均退出 0、产物校验通过，307/299 个源及 29/22 个产物重哈希一致。主 BIN 分别 7,615,076 B / `824285cb5131de25643fe065bfc5f42263383b689f59b3fc3f475108334eb8dc`，7,422,360 B / `66c3d5375f1f10561d94f35255b8ad4964e5ecc157832317bf51110cc178184a`。SDK/子模块锁与工具版本不变，既有 FinSH/链接告警保留。
+
+新 LVGL 快照 `artifacts/weather-d1-host/renders/weather_product_current.ppm` 显示高低温；使用 Codex bundled Python 的 Pillow 转换为 `weather_product_current_range.png` 并检查。旧同名 `.png` 不用于此次验收。仅补 v1 高低温及 Kelvin 哨兵检查，紫外线仍占位；编译不证明新增字段真机显示。现场、来源和下一实验见 [天气记录](WEATHER-UI.md#weather-v1-range)及 [精简证据](evidence/2026-10-08/weather-v1-range.json)。以下初版和 CRLF 记录保留对应源码身份。
+
+## 2026-10-08 天气 D1 候选构建
+
+工作目录 `D:/MY_Desk/project/wristflow`，D1 初版与主机/UI Demo 验证锚点为 `codex/weather-d1@3e1a9ce8c1d55bb9f837b2b7f04baf5792293cd3`；最终 Product 的 CRLF 修正版为 `02d4647`，见下方补构建与精简证据。SDK/子模块仍匹配锁且干净，使用 SDK Python 3.13.15、SCons 4.10.1、Arm GCC 14.2.1；主机 GCC 15.2.0、CMake 3.31.4、Ninja。
+
+```powershell
+cmake -S tests -B artifacts/weather-d1-host -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe
+cmake --build artifacts/weather-d1-host --parallel 6
+ctest --test-dir artifacts/weather-d1-host --output-on-failure --timeout 60
+pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 6
+pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example ui_demo -Jobs 6
+```
+
+主机最终共享源码 16/16 通过，D1 初版两目标官方 SCons 和产物校验通过。初版 Product 记录 `artifacts/product/20261008-193403-027/result.json`，`main.bin` 7,614,884 B / SHA-256 `e0677ca60daacf57507633aee3d61f1e4950f907ffb5d657a14d1c4a2f6cbb8b`；UI Demo 记录 `artifacts/ui_demo/20261008-193403-861/result.json`，7,422,344 B / `d2b0f16d807b72ab2c46f302a9496d4b01a763bc7e44199021eebe305a638946`。分别 307/299 个工程源和 29/22 个记录产物在初版验证时逐文件重哈希一致；原 result 无项目 Git HEAD/dirty 字段，因此本节另行绑定验证源码，不推断构建当时的 Git 状态。此前 `20261008-192649-435` / `20261008-192815-611` 也成功；`193403` 记录是在 EOF 空行修正后重编译的初版，不是后续 CRLF 镜像。
+
+失败保留：最初天气测试缺 `product_state.h`，构建日志 `C:/Users/13984/.fastctx/jobs/j-9cifgu/output.log`；随后 `product_ui` 仍断言旧样例 `30°/多云`，日志 `C:/Users/13984/.fastctx/jobs/j-yp7co3/output.log`。补 include 并改为无数据预期后通过；最后一笔 EOF 规范化前的差异空白检查曾非零，随后逐文件修正，最终必须再次检查。SDK/FinSH 与既有链接警告保留。两目标最终后台日志为 `j-xtr7bl` / `j-mf9nz7`；主机完整最后测试日志在 `artifacts/weather-d1-host/Testing/Temporary/LastTest.log`。
+
+Product 编译清单/map/ELF 无 Demo provider、`mock_weather`；Demo 清单纳入 `weather_fixture.c`，当前无固件调用者、相应 factory 被链接剔除，专用主机测试实际使用。运行时覆盖生成 XML 的样例标签，所以仅搜索样例字符串不能判定运行时真假。烧录和真机反馈独立记录于[天气专题](WEATHER-UI.md#2026-10-08-d1-生产数据真实性修复候选)，本节编译不证明手机来源、线程安全、触摸或功耗。天气仍为待后续 D2/D3/D8 处理的候选。
+
+用户手机日志触发 CRLF 窄修复后，沿用同一 Product 构建命令补编译成功：`artifacts/product/20261008-194850-771/result.json`，主 BIN 7,614,892 B / SHA-256 `ae291fa22acca8ff6a2a9e5af3434c8dc4007d9907a780cc9aac6f23039a6bcb`。307/307 源和 29/29 产物重哈希匹配，绑定最终代码 `02d4647`；文件哈希、三镜像清单与验证边界见[精简证据](evidence/2026-10-08/weather-d1.json)，不能仅绑定旧 `3e1a9ce`。UI Demo 与主机目标不编译该平台文件，其既有通过记录继续有效，无需为平台字符串改动重跑无关目标。`pwsh -NoProfile -File artifacts/weather-d1/20261008/Check-Uart-Lines.ps1` 退出 0，负例 121/121 malformed、新版 129/129 valid，输出在同目录 `uart-lines.log`。修正版 USB 三镜像写入/verify 和启动通过，真实天气回包未观察到，具体范围见天气专题。
+
 ## 2026-10-08 恢复历史构建记录
 
 本轮没有新增构建。已找回 2026-10-04 Product / `7ec96322` 的 result.json、三镜像及写入/启动记录，现存镜像大小与哈希匹配旧 result.json；详见 [历史验收](PRODUCT-ACCEPTANCE.md#2026-10-04-联合验收尝试历史记录恢复) 和 [精简证据](evidence/2026-10-04/product-joint-attempt.json)。旧工作树及产物路径的归档定位见 [恢复记录](handoffs/WORKSPACE-RECOVERY.md)，不把旧构建算成本轮编译通过。
+
+## 2026-10-05 天气 UI 增量
+
+天气 UI 工作树 `C:/Users/13984/.codex/worktrees/weather-ui/wristflow` 基于 `9ce5b3e`，SDK 仍为 `421126d9f476ed8e2a6f0b0ca28a9f241c182e65`，未修改 SDK 或 `sdk.lock.json`。日升日落页已在 LVGL Pro Editor 2.0.1 Community / LVGL 9.4.0 中预览并以 `Ctrl+B` 导出；输出记录 `Project compiled successfully`。主机验证使用：
+
+```powershell
+cmake --build artifacts/weather-host-build --parallel 6
+ctest --test-dir artifacts/weather-host-build --output-on-failure --timeout 60
+```
+
+两步均退出 0，CTest **16/16** 通过。`artifacts/weather-host-build/renders/` 保存 `weather_current.ppm`、`weather_current_sunny.ppm`、`weather_hourly.ppm`、`weather_daily.ppm`、`weather_indices.ppm` 和 `weather_sun.ppm` 六张 390×450 快照；`weather_sun.png` 为同一 LVGL 快照的预览。测试还检查贴图尺寸、ARGB8888、弧顶、虚线间隔、暗色延伸、地平线交点和太阳点关系。Product 复编译使用：
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 6
+```
+
+该命令调用官方 `scons --board=sf32lb52-lchspi-ulp -j6`，退出 0，产物校验通过。最新机器记录为 `artifacts/product/20261005-141441-099/result.json`；`main.bin` 7,612,188 B，SHA-256 `ee2ec45da3a93f02d47259a067c83c8d65f1ec27e78eae77f6b830e8447198b6`，`hardware_verified=false`。完整页面、fixture、XML/Pro 导出范围、测试覆盖和剩余边界见 [天气 UI 增量](WEATHER-UI.md)。
+
+烧录前用户确认 USB-only、未接电池，主机侧枚举到 `USB-SERIAL CH340 (COM5)`、VID:PID `1A86:7523`。本轮用 sftool 0.2.5 对 Product 三镜像执行 `write_flash --verify`，退出码 0；随后 1Mbps/8N1 启动采样确认 CO5300、FT6146 和 `display on`。证据见 `artifacts/flash/weather-20261005/evidence.json`。编译、烧录和启动不代替用户对天气曲线屏幕视觉/触摸的现场验收，也不代表 BLE、休眠电流、功耗或续航通过。真实 provider 尚未接入，天气同步、过期数据和网络异常策略仍待下一项有界实验。
 
 ## 2026-09-27 合入版本 Product 烧录复验
 

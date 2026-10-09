@@ -1,5 +1,6 @@
 #include "phone_protocol.h"
 #include "product_state.h"
+#include "phone_weather_v2.h"
 #include "cJSON.h"
 #include <string.h>
 #include <stdlib.h>
@@ -19,7 +20,16 @@ void wf_phone_init(wf_phone_t *p, wf_phone_callback_t cb, void *ctx)
 {
     memset(p, 0, sizeof *p); p->callback = cb; p->context = ctx;
 }
-void wf_phone_reconnect(wf_phone_t *p) { p->used = 0; p->dropping = false; }
+void wf_phone_clear_weather(wf_phone_t *p)
+{
+    memset(&p->weather, 0, sizeof p->weather);
+    p->has_weather = false; p->weather_version = 0; p->weather_location[0] = 0;
+}
+void wf_phone_reconnect(wf_phone_t *p)
+{
+    p->used = 0; p->dropping = false;
+    wf_phone_clear_weather(p);
+}
 void wf_phone_gap(wf_phone_t *p) { p->used = 0; p->dropping = true; reject(p); }
 void wf_phone_clear(wf_phone_t *p) { p->count = 0; }
 static int find(const wf_phone_t *p, int32_t id)
@@ -42,7 +52,23 @@ static int hex(char c)
     if (c >= 'A' && c <= 'F') return c - 'A' + 10;
     return -1;
 }
-/* Gadgetbridge 0.94 uses ISO-8859-1 and a limited JS string syntax.
+static unsigned utf8_sequence_length(unsigned c, const char *s)
+{
+    if ((c & 0xE0) == 0xC0 && c >= 0xC2) {
+        if (((unsigned char)s[0] & 0xC0) == 0x80) return 2;
+    } else if ((c & 0xF0) == 0xE0) {
+        if (((unsigned char)s[0] & 0xC0) == 0x80 && ((unsigned char)s[1] & 0xC0) == 0x80) {
+            if (c != 0xED || ((unsigned char)s[0] < 0xA0)) return 3;
+        }
+    } else if ((c & 0xF8) == 0xF0 && c <= 0xF4) {
+        if (((unsigned char)s[0] & 0xC0) == 0x80 &&
+            ((unsigned char)s[1] & 0xC0) == 0x80 &&
+            ((unsigned char)s[2] & 0xC0) == 0x80) return 4;
+    }
+    return 0;
+}
+
+/* Gadgetbridge uses UTF-8 or ISO-8859-1 with limited JS string syntax.
  * Normalize escapes to JSON; never evaluate expressions, atob or scripts.
  * Text as Bitmaps must be OFF. Unsupported representations fail atomically. */
 static bool normalize(wf_phone_t *p, const char *s)
@@ -89,7 +115,13 @@ static bool normalize(wf_phone_t *p, const char *s)
         }
         if (c >= 128) {
             if (!quoted) return false;
-            n += (size_t)snprintf(p->json + n, sizeof p->json - n, "\\u%04x", c);
+            unsigned ulen = utf8_sequence_length(c, s);
+            if (ulen > 0) {
+                p->json[n++] = (char)c;
+                for (unsigned i = 1; i < ulen; ++i) p->json[n++] = *s++;
+            } else {
+                n += (size_t)snprintf(p->json + n, sizeof p->json - n, "\\u%04x", c);
+            }
         } else {
             if (quoted && c < 32) return false;
             p->json[n++] = (char)c;
@@ -107,6 +139,104 @@ static bool field(cJSON *o, const char *key, char *dest, size_t capacity, bool p
     strcpy(dest, v->valuestring);
     return true;
 }
+static bool weather_temperature(const cJSON *value, bool kelvin, int8_t *result)
+{
+    if (!cJSON_IsNumber(value) || !isfinite(value->valuedouble)) return false;
+    double temperature = value->valuedouble;
+    if (kelvin || temperature > 150.0) temperature -= 273.15;
+    double rounded = round(temperature);
+    if (rounded < -60 || rounded > 70) return false;
+    *result = (int8_t)rounded;
+    return true;
+}
+
+static void weather_text(char *dest, size_t capacity, const char *source)
+{
+    size_t length = strlen(source);
+    if (length >= capacity) {
+        length = capacity - 1;
+        while (length && ((unsigned char)source[length] & 0xc0) == 0x80) --length;
+    }
+    memcpy(dest, source, length); dest[length] = 0;
+}
+
+static bool process_weather_json(wf_phone_t *p, cJSON *o)
+{
+    wristflow_phone_weather_t w = {0};
+    cJSON *version = cJSON_GetObjectItemCaseSensitive(o, "v");
+    if (version && (!cJSON_IsNumber(version) || (version->valuedouble != 1 && version->valuedouble != 2))) return false;
+    bool v2 = version && version->valuedouble == 2;
+    unsigned updates = 0;
+    cJSON *location = cJSON_GetObjectItemCaseSensitive(o, v2 ? "l" : "loc");
+    const char *loc = cJSON_IsString(location) ? location->valuestring : "";
+    bool same_location = p->has_weather && loc[0] && strlen(loc) < sizeof p->weather_location &&
+                         !strcmp(loc, p->weather_location);
+    if (loc[0]) weather_text(w.city, sizeof w.city, loc);
+    cJSON *txt = cJSON_GetObjectItemCaseSensitive(o, v2 ? "c" : "txt");
+    if (cJSON_IsString(txt)) weather_text(w.condition, sizeof w.condition, txt->valuestring);
+    if (v2) {
+        cJSON *encoded = cJSON_GetObjectItemCaseSensitive(o, "d");
+        if (!cJSON_IsString(encoded) || !wf_phone_weather_v2_decode(encoded->valuestring, &w)) return false;
+        updates = WRISTFLOW_WEATHER_SOLAR_UPDATE |
+            (w.extra.forecast_present ? WRISTFLOW_WEATHER_FORECAST_UPDATE : 0);
+        if (!w.extra.forecast_present && same_location) {
+            memcpy(w.extra.hourly, p->weather.extra.hourly, sizeof w.extra.hourly);
+            memcpy(w.extra.daily, p->weather.extra.daily, sizeof w.extra.daily);
+            w.extra.forecast_present = p->weather.extra.forecast_present;
+        }
+    } else {
+        bool kelvin = cJSON_IsNumber(version) && version->valuedouble == 1.0;
+        if (!weather_temperature(cJSON_GetObjectItemCaseSensitive(o, "temp"), kelvin, &w.temp))
+            return false;
+        /* Gadgetbridge hi/lo are Kelvin; missing source values arrive as 0 K. */
+        w.range_valid = weather_temperature(cJSON_GetObjectItemCaseSensitive(o, "hi"), true, &w.high) &&
+                        weather_temperature(cJSON_GetObjectItemCaseSensitive(o, "lo"), true, &w.low) &&
+                        w.high >= w.low;
+        w.code = -1;
+
+        cJSON *code = cJSON_GetObjectItemCaseSensitive(o, "code");
+        if (code && cJSON_IsNumber(code) && isfinite(code->valuedouble) &&
+            code->valuedouble >= 0 && code->valuedouble <= INT16_MAX &&
+            floor(code->valuedouble) == code->valuedouble) {
+            w.code = (int16_t)code->valuedouble;
+        }
+
+        cJSON *hum = cJSON_GetObjectItemCaseSensitive(o, "hum");
+        if (hum && cJSON_IsNumber(hum) && isfinite(hum->valuedouble)) {
+            double h = hum->valuedouble;
+            if (h >= 0 && h <= 100) {
+                w.humidity = (uint8_t)round(h);
+                w.humidity_valid = true;
+            }
+        }
+
+        cJSON *wind = cJSON_GetObjectItemCaseSensitive(o, "wind");
+        if (wind) {
+            if (cJSON_IsString(wind) && wind->valuestring) {
+                weather_text(w.wind, sizeof w.wind, wind->valuestring);
+            } else if (cJSON_IsNumber(wind) && isfinite(wind->valuedouble)) {
+                snprintf(w.wind, sizeof(w.wind), "%.0f km/h", wind->valuedouble);
+            }
+        }
+
+        cJSON *uv = cJSON_GetObjectItemCaseSensitive(o, "uv");
+        if (cJSON_IsNumber(uv) && isfinite(uv->valuedouble) && uv->valuedouble > 0 && uv->valuedouble <= 20) {
+            w.uv_tenths = (uint8_t)round(uv->valuedouble * 10);
+            w.uv_valid = w.uv_tenths != 0;
+        }
+        if (same_location) w.extra = p->weather.extra;
+    }
+
+    p->weather = w;
+    p->has_weather = true;
+    p->weather_version = v2 ? 2 : 1;
+    p->weather_updates = (uint8_t)updates;
+    if (strlen(loc) < sizeof p->weather_location) strcpy(p->weather_location, loc);
+    else p->weather_location[0] = 0;
+    event(p, WF_PHONE_WEATHER, 0);
+    return true;
+}
+
 static bool process_json(wf_phone_t *p, cJSON *o)
 {
     if (!cJSON_IsObject(o)) return false;
@@ -117,6 +247,7 @@ static bool process_json(wf_phone_t *p, cJSON *o)
     if (!cJSON_IsString(type)) return false;
     const char *t = type->valuestring;
     if (!strcmp(t, "is_gps_active")) { event(p, WF_PHONE_GPS_QUERY, 0); return true; }
+    if (!strcmp(t, "weather")) { return process_weather_json(p, o); }
     if (strcmp(t, "notify") && strcmp(t, "notify~") && strcmp(t, "notify-")) {
         p->unknown++; event(p, WF_PHONE_UNKNOWN, 0); return true;
     }

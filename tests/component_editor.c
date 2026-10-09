@@ -1,4 +1,5 @@
 #include "product_ui.h"
+#include "components.h"
 #include "wristflow_ui.h"
 #include <assert.h>
 #include <stdio.h>
@@ -109,6 +110,122 @@ static void fill(wristflow_template_t type)
     assert(!lv_obj_has_state(named(lv_screen_active(),"edit_action"),LV_STATE_DISABLED));
 }
 
+static void same_layout(const wristflow_layout_t *a, const wristflow_layout_t *b)
+{
+    uint8_t left[WRISTFLOW_LAYOUT_BYTES], right[WRISTFLOW_LAYOUT_BYTES];
+    assert(wristflow_layout_encode(a, 1, left) && wristflow_layout_encode(b, 1, right));
+    assert(!memcmp(left, right, sizeof left));
+}
+
+static lv_obj_t *current_slot(const char *name)
+{
+    lv_obj_t *carousel = named(lv_screen_active(), "demo_carousel");
+    for (unsigned i = 0; i < lv_obj_get_child_count(carousel); ++i) {
+        lv_obj_t *card = lv_obj_find_by_name(lv_obj_get_child(carousel, i), name);
+        if (!card) continue;
+        lv_area_t area; lv_obj_get_coords(card, &area);
+        if (area.x1 >= 0 && area.x2 < 390) return card;
+    }
+    assert(false); return NULL;
+}
+
+static void unavailable(lv_obj_t *card, bool detail)
+{
+    assert(!strcmp(lv_label_get_text(named(card, "caption_label")), "不可用"));
+    assert(!strcmp(lv_label_get_text(named(card, "value_label")), "--"));
+    assert(!strcmp(lv_label_get_text(named(card, "icon_label")), ""));
+    if (detail)
+        assert(!strcmp(lv_label_get_text(named(card, "detail_label")), "请选择其他组件"));
+}
+
+static void unsupported_layout(const wristflow_watch_snapshot_t *state, const wristflow_settings_t *settings)
+{
+    wristflow_layout_t layout = wristflow_layout_default(), restored;
+    assert(wristflow_components_supported(&layout)); /* Explicit defaults match this compiled registry. */
+    assert(wristflow_layout_replace(&layout, 0, 0, "missing", 1));
+    assert(wristflow_layout_replace(&layout, 0, 1, "weather", 1)); /* Weather has no quarter card. */
+    assert(wristflow_layout_replace(&layout, 1, 0, "missing_half", 0));
+    wristflow_layout_page_t full = {WRISTFLOW_LAYOUT_FULL, {{"missing_full",0,WRISTFLOW_CARD_FULL,1}}};
+    assert(wristflow_layout_insert(&layout, layout.count, &full));
+    assert(wristflow_layout_valid(&layout) && !wristflow_components_supported(&layout));
+    uint8_t record[WRISTFLOW_LAYOUT_BYTES]; uint32_t generation;
+    assert(wristflow_layout_encode(&layout, 7, record));
+    assert(wristflow_layout_decode(&restored, &generation, record, sizeof record) && generation == 7);
+    same_layout(&layout, &restored);
+
+    /* Missing, unsupported-size and out-of-range targets never dereference a null app. */
+    assert(wristflow_components_target(NULL, 0, 0) == WRISTFLOW_SURFACE_COUNT);
+    wristflow_components_t *components = wristflow_components_create(NULL, &restored, NULL, NULL, NULL);
+    same_layout(&restored, wristflow_components_layout(components));
+    assert(wristflow_components_target(components, 0, 0) == WRISTFLOW_SURFACE_COUNT);
+    assert(wristflow_components_target(components, 0, 1) == WRISTFLOW_SURFACE_COUNT);
+    assert(wristflow_components_target(components, 0, 2) == WRISTFLOW_SURFACE_SYSTEM);
+    assert(wristflow_components_target(components, 1, 3) == WRISTFLOW_SURFACE_COUNT);
+    assert(wristflow_components_target(components, UINT32_MAX, 0) == WRISTFLOW_SURFACE_COUNT);
+    assert(wristflow_components_target(components, 0, UINT32_MAX) == WRISTFLOW_SURFACE_COUNT);
+    wristflow_components_destroy(components);
+    const char *hint = "不可用请选择其他组件";
+    while (*hint) {
+        uint32_t letter = lv_text_encoded_next(hint, NULL);
+        lv_font_glyph_dsc_t glyph;
+        assert(lv_font_get_glyph_dsc(notification_22, &glyph, letter, 0) && !glyph.is_placeholder);
+        hint += lv_text_encoded_size(hint);
+    }
+
+    unsigned before = requests;
+    shell = wristflow_product_ui_create_with_layout(state, settings, NULL, NULL, &restored, request, status, NULL);
+    assert(shell); advance(480);
+    same_layout(&restored, wristflow_ui_shell_layout(shell));
+    assert(wristflow_ui_shell_navigation(shell)->page_count == 5 && requests == before);
+    swipe(320,125,60,125);
+    unavailable(current_slot("slot_0"), false); unavailable(current_slot("slot_1"), false);
+    assert(!strcmp(lv_label_get_text(named(current_slot("slot_2"), "value_label")), "USB"));
+    snapshot("component_unavailable_quarters");
+    tap(100,110); surface(WRISTFLOW_SURFACE_HOME);
+    tap(280,110); surface(WRISTFLOW_SURFACE_HOME);
+    tap(100,300); surface(WRISTFLOW_SURFACE_SYSTEM); /* Other slots still route. */
+    assert(wristflow_ui_shell_back(shell)); advance(480);
+    enter(); /* An unavailable slot must still permit long-press editing. */
+    unavailable(named(lv_screen_active(), "slot_0"), false);
+    snapshot("component_unavailable_editor");
+    press("slot_3"); surface(WRISTFLOW_SURFACE_COMPONENT_PICKER);
+    assert(!lv_obj_find_by_name(lv_screen_active(), "choose_missing_0"));
+    assert(!lv_obj_find_by_name(lv_screen_active(), "choose_weather_0"));
+    select_component("choose_heart_rate_0");
+    assert(requests == before + 1);
+    wristflow_layout_t expected = restored;
+    assert(wristflow_layout_replace(&expected, 0, 3, "heart_rate", 0));
+    same_layout(&expected, wristflow_ui_shell_layout(shell));
+    same_layout(&layout, &restored); /* Caller-owned initial layout was not changed. */
+    assert(wristflow_layout_decode(&restored, &generation, saved, sizeof saved));
+    same_layout(&expected, &restored); /* Saving another slot retains every unavailable reference. */
+    wristflow_ui_shell_destroy(shell);
+    shell = wristflow_product_ui_create_with_layout(state, settings, NULL, NULL, &restored, request, status, NULL);
+    advance(480); same_layout(&expected, wristflow_ui_shell_layout(shell));
+    swipe(320,125,60,125); unavailable(current_slot("slot_0"), false);
+    tap(280,300); surface(WRISTFLOW_SURFACE_HEART);
+    assert(wristflow_ui_shell_back(shell)); advance(480);
+    swipe(320,125,60,125); unavailable(current_slot("slot_0"), true);
+    snapshot("component_unavailable_half");
+    swipe(320,125,60,125); swipe(320,125,60,125);
+    assert(wristflow_ui_shell_navigation(shell)->page_index == 4);
+    unavailable(current_slot("slot_0"), true); snapshot("component_unavailable_full");
+    tap(100,200); surface(WRISTFLOW_SURFACE_HOME);
+    enter(); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
+    assert(requests == before + 1);
+    wristflow_ui_shell_destroy(shell);
+
+    /* Structural corruption still follows the existing default fallback contract. */
+    restored.pages[0].slots[0].size = WRISTFLOW_CARD_HALF;
+    assert(!wristflow_layout_valid(&restored));
+    assert(!wristflow_layout_encode(&restored, 1, record));
+    shell = wristflow_product_ui_create_with_layout(state, settings, NULL, NULL, &restored, request, status, NULL);
+    advance(480); wristflow_layout_t defaults = wristflow_layout_default();
+    same_layout(&defaults, wristflow_ui_shell_layout(shell));
+    assert(requests == before + 1);
+    wristflow_ui_shell_destroy(shell);
+}
+
 int main(int argc,char **argv)
 {
     assert(argc==2); renders=argv[1]; lv_init(); lv_tick_set_cb(tick);
@@ -194,5 +311,7 @@ int main(int argc,char **argv)
     shell=wristflow_product_ui_create_with_layout(&state,&settings,NULL,NULL,&reboot,request,status,NULL); advance(480);
     assert(wristflow_ui_shell_layout(shell)->count==1 && wristflow_ui_shell_navigation(shell)->page_count==2);
     swipe(320,125,60,125); snapshot("component_restored");
-    wristflow_ui_shell_destroy(shell); lv_deinit(); return 0;
+    wristflow_ui_shell_destroy(shell);
+    unsupported_layout(&state, &settings);
+    lv_deinit(); return 0;
 }

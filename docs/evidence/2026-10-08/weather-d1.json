@@ -1,0 +1,203 @@
+{
+  "date": "2026-10-08",
+  "scope": "Weather D1 candidate and log-driven Gadgetbridge CRLF compatibility fix",
+  "delivery": "candidate_not_merged",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/weather-d1",
+  "source_commit": "02d46475af6c4dc7cd06b361e9153bfb75c6529a",
+  "initial_d1_source_commit": "3e1a9ce8c1d55bb9f837b2b7f04baf5792293cd3",
+  "later_source_feedback_and_range_patch": "docs/evidence/2026-10-08/weather-v1-range.json; empty cache and absent weather below describe pre-setup observations",
+  "main_at_start": "7d11849ff40d63925364600ec65c6221453310b8",
+  "preserved_weather_input": "f68d64f170fea22eaf9561dc844731aa4f0fa9ed",
+  "source_inspection": {
+    "product_fixture_provider_removed": true,
+    "product_mock_weather_command_removed": true,
+    "missing_fields_use_validity_and_placeholders": true,
+    "clear_refresh_and_reentry_restore_empty": true,
+    "product_compilation_database_excludes_ui_demo_and_weather_fixture": true,
+    "product_map_and_elf_exclude_demo_provider_and_mock_weather_symbols": true,
+    "demo_fixture_compiled_but_unused_in_demo_firmware": true,
+    "demo_fixture_actually_rendered_by_weather_ui_host_test": true,
+    "xml_semantic_change_this_round": false,
+    "pro_export_this_round": false
+  },
+  "host": {
+    "source_anchor": "3e1a9ce8c1d55bb9f837b2b7f04baf5792293cd3",
+    "post_anchor_change": "Only product_ble.c platform TX literals changed; this file is not compiled by host or UI Demo targets",
+    "compiler": "GCC 15.2.0",
+    "cmake": "3.31.4",
+    "commands": [
+      "cmake -S tests -B artifacts/weather-d1-host -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe",
+      "cmake --build artifacts/weather-d1-host --parallel 6",
+      "ctest --test-dir artifacts/weather-d1-host --output-on-failure --timeout 60"
+    ],
+    "passed": 16,
+    "failed": 0,
+    "last_test_log": "artifacts/weather-d1-host/Testing/Temporary/LastTest.log",
+    "last_test_log_sha256": "abb6577502fb3f5571ccffa7be27338e2d34241311dcbe275fea478a26efb846",
+    "render_directory": "artifacts/weather-d1-host/renders",
+    "render_resolution": [390, 450],
+    "product_snapshots": [
+      "weather_product_empty",
+      "weather_product_partial",
+      "weather_product_current",
+      "weather_product_indices",
+      "weather_product_sun"
+    ],
+    "retry_queued_true_branch_tested": false
+  },
+  "sdk": {
+    "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "bluetooth_commit": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c",
+    "silicon_schema_commit": "304658c6edd5497211b7d152932327ce6e4450ff",
+    "lock_matched": true,
+    "sdk_and_submodules_clean": true,
+    "python": "3.13.15",
+    "scons": "4.10.1",
+    "arm_gcc": "14.2.1",
+    "board": "sf32lb52-lchspi-ulp"
+  },
+  "product_build": {
+    "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 6",
+    "result": "artifacts/product/20261008-194850-771/result.json",
+    "result_sha256": "a1dfe0450575196e3a260531e81f45b0838a69b0d1498b93b94f2b32fefb6a44",
+    "exit_code": 0,
+    "artifact_validation_passed": true,
+    "matched_project_source_hashes": 307,
+    "matched_artifact_hashes": 29,
+    "project_git_identity_in_original_result": "not_recorded; separately bound by source_commit and matched source hashes",
+    "crlf_product_ble_source_sha256": "67e6362c722c75a2c67c7876269eb04588e67a35a57be68d78e175039ebf7ccd",
+    "images": [
+      {
+        "name": "bootloader.bin",
+        "address": "0x12010000",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "name": "main.bin",
+        "address": "0x12020000",
+        "bytes": 7614892,
+        "sha256": "ae291fa22acca8ff6a2a9e5af3434c8dc4007d9907a780cc9aac6f23039a6bcb"
+      },
+      {
+        "name": "ftab.bin",
+        "address": "0x12000000",
+        "bytes": 11288,
+        "sha256": "138e9d4885540314cfcc65cdfb071cc96faeb20a9312cd08e282159b2a978493"
+      }
+    ]
+  },
+  "ui_demo_build": {
+    "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example ui_demo -Jobs 6",
+    "result": "artifacts/ui_demo/20261008-193403-861/result.json",
+    "result_sha256": "bd1cc6940fd53db6ccc0ea603b0bd20bc5f362798ce3d9c9f6d2a18ff8536f27",
+    "exit_code": 0,
+    "artifact_validation_passed": true,
+    "matched_project_source_hashes": 299,
+    "matched_artifact_hashes": 22,
+    "main_bin_bytes": 7422344,
+    "main_bin_sha256": "d2b0f16d807b72ab2c46f302a9496d4b01a763bc7e44199021eebe305a638946"
+  },
+  "phone_log_diagnosis": {
+    "input": "User-supplied gadgetbridge(1).log; raw log stays outside repository",
+    "input_sha256": "cb7546cd0a6803503579f61417b75ba4160105f238721601331d3c3e58736c6c",
+    "lines": 28851,
+    "app_version": "0.94.0-2ee6b3002 (dirty) mainline release",
+    "timestamps": "time-of-day only; full date and firmware identity cannot be assigned to all records",
+    "weather_requests_observed": 5,
+    "latest_failure_windows": [[28713, 28721], [28792, 28800], [28815, 28823]],
+    "raw_weather_request_hex": "0A7B2274223A2277656174686572227D0A",
+    "parsed_line": "{\"t\":\"weather\"",
+    "error": "Unterminated object at character 14",
+    "weather_uart_tx_in_input": "not_observed",
+    "weather_provider_success_or_failure_in_input": "not_observed",
+    "corroborating_source": "C:/Users/13984/.codex/worktree-archives/wristflow-20261008/ble-first-link/wristflow/artifacts/ble-research/Gadgetbridge-0.94.0/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/banglejs/BangleJSDeviceSupport.java",
+    "corroborating_source_sha256": "2d85e9c69768181fb74aab8b1827ca9f90c5286217ff4fcbdc246c939edd0434",
+    "line_reader_lines": [1225, 1230],
+    "mechanism": "Reader removes the character before LF. With LF-only frames it removes the JSON closing brace; CRLF preserves JSON.",
+    "fix": "Use CRLF on all four outgoing version, weather and GPS JSON literals",
+    "compatibility_command": "pwsh -NoProfile -File artifacts/weather-d1/20261008/Check-Uart-Lines.ps1",
+    "compatibility_script_sha256": "cab300f1c4020bb4c20c6971f6fd28a946d0ba00b320fe9e9f1849864668570c",
+    "compatibility_log": "artifacts/weather-d1/20261008/uart-lines.log",
+    "compatibility_log_sha256": "99c78820a12cb33ddfa0af8b32bd9ca31d27fa136c73a80cc4854da2e1dd9475",
+    "old_split_trials": {"valid": 0, "malformed": 121},
+    "fixed_split_trials": {"valid": 129, "malformed": 0},
+    "compatibility_limit": "Uses documented line reader and a host JSON parser; does not prove weather source availability or run the Android application"
+  },
+  "phone_weather_source_check": {
+    "status": "user_and_screenshot_confirm_empty_cache",
+    "check_path": "Gadgetbridge Debug > Weather > Cache; inspect real entries only",
+    "empty_label": "No cached weather",
+    "source_model": "Archived Gadgetbridge 0.94.0 uses LineageOS weather or external providers such as Breezy Weather; source configuration and actual broadcast delivery on user's phone are not observed",
+    "cache_enabled_in_screenshot": true,
+    "cache_empty_confirmed": true,
+    "user_screenshot": "C:/Users/13984/AppData/Local/Temp/codex-clipboard-80601dd4-1768-431e-95f9-86ee7e7b3034.jpg; remains outside repository",
+    "official_source_guide": "https://gadgetbridge.org/basics/integrations/weather/",
+    "proposed_provider_release": "https://github.com/breezy-weather/breezy-weather/releases/tag/v6.2.2",
+    "provider_setup": "Obtain real location weather in Breezy Weather; Settings > External modules > Send Gadgetbridge data > select installed Gadgetbridge package and save; refresh, confirm real Gadgetbridge cache, then send to connected device",
+    "provider_setup_source_tag": "breezy-weather/breezy-weather v6.2.2; RootSettingsScreen.kt:105-112, ModulesSettingsScreen.kt:376-402, GadgetbridgeService.kt:41-70, values-zh-rCN/strings.xml:386,480,544",
+    "references_under_archived_app": [
+      "src/main/java/nodomain/freeyourgadget/gadgetbridge/model/weather/Weather.kt:6",
+      "src/main/java/nodomain/freeyourgadget/gadgetbridge/externalevents/GenericWeatherReceiver.java:48",
+      "src/main/res/values-zh-rCN/strings.xml:835"
+    ],
+    "test_weather_added": false,
+    "provider_delivery_failure_root_cause_confirmed": false
+  },
+  "usb_hardware": {
+    "conditions": "User confirmed same Huangshan board and screen, USB-only, battery not connected",
+    "port": "COM5",
+    "usb_description": "USB-SERIAL CH340",
+    "vid_pid": "1A86:7523",
+    "usb_location": "1-1.1",
+    "dry_run_exit_code": 0,
+    "flash_command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Flash.ps1 -Example product -Port COM5",
+    "flash_result": "artifacts/flash/product/20261008-195045-752/result.json",
+    "flash_result_sha256": "c860aae9aa1dd9048c45407b0cef52b6af5d42c50d0c99e049a4b88e28e38e01",
+    "flash_exit_code": 0,
+    "three_images_verified": true,
+    "settings_written": false,
+    "whole_chip_erase": false,
+    "startup_capture": "artifacts/weather-d1/20261008/crlf-startup.bin",
+    "startup_capture_sha256": "114867f94d6c6a560e6ebd5b51ef77d09ae0654d7080009f6ddc96a0ae6fa0c4",
+    "startup_job_log": "C:/Users/13984/.fastctx/jobs/j-agfimy/output.log",
+    "uart": "1000000 baud, 8N1, no flow control, controlled RTS reset",
+    "observed": [
+      "CO5300 ID 0x331100",
+      "FT6146 found",
+      "display on and Product runtime",
+      "BLE advertising, connection and subscription",
+      "MTU=131 and actual phone RTC synchronization",
+      "wf_ble clear_weather acknowledged before connection",
+      "wf_ble weather returned queued=0 while disconnected"
+    ],
+    "real_phone_weather_after_crlf": "not_observed_in_90_second_capture",
+    "serial_closed": true,
+    "user_screen_feedback_after_crlf": "pending",
+    "user_feedback_before_crlf": "Retry remains in syncing-weather state; other requested screen checks not confirmed",
+    "initial_flash_result": "artifacts/flash/product/20261008-193935-833/result.json",
+    "initial_startup_capture": "artifacts/weather-d1/20261008/startup.bin",
+    "initial_startup_sha256": "52f8a2ddd8d425f48cc19945fa33933b4984398738b1f375104fdf437dbff395",
+    "initial_nonreset_capture": "artifacts/weather-d1/20261008/weather-request.bin",
+    "initial_nonreset_sha256": "4340db9b29bf07b4daf0cb387965d2e8650af9efc177d91b4d63f4832cf2629c",
+    "initial_nonreset_commands": "No acknowledgements for scheduled status/clear/request; do not count as successful diagnostics",
+    "boot_banner_limit": "SDK object still prints Oct 5 build date after incremental build; source identity comes from matched hashes and verified images"
+  },
+  "retained_failures": [
+    {"failure": "New weather test missing product_state.h include", "log": "C:/Users/13984/.fastctx/jobs/j-9cifgu/output.log", "resolution": "Add include"},
+    {"failure": "product_ui assertions still expect old sample values", "log": "C:/Users/13984/.fastctx/jobs/j-yp7co3/output.log", "resolution": "Assert empty and placeholder state"},
+    {"failure": "Diff whitespace check nonzero before EOF normalization", "resolution": "Normalize ten identified file endings, then rerun diff check"}
+  ],
+  "remaining": [
+    "Real phone weather source and on-screen values not yet accepted",
+    "D2 shared snapshot synchronization, time/expiry and request timeout/state",
+    "D3 missing configuration reference safety",
+    "D8 queue ordering contract audit",
+    "C2 conflict, experience fixes and combined regression in separate round",
+    "Same-version joint acceptance remains pending",
+    "No current, energy or battery-life measurement"
+  ],
+  "next_bounded_experiment": "Configure Breezy Weather for a real location and Gadgetbridge output, confirm real phone cache, then verify weather packet and on-screen values with the CRLF firmware; D2 remains a separate round",
+  "merge_blocker": "Full weather candidate stays Draft until relevant D1 acceptance and D2/D3/D8 blockers are resolved"
+}
