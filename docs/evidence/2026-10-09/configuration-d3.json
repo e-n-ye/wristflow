@@ -1,0 +1,94 @@
+{
+  "date": "2026-10-09",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/weather-d1",
+  "source_commit": "03699cd322e53f14835cf1ef0a7057645a34ba30",
+  "source_parent_commit": "2728840e01e02143bf155ff325960f677fb6aed8",
+  "delivery": "candidate_not_merged",
+  "scope": "D3 structurally valid configuration retains missing app/unsupported card-size slots; no complete pruning or storage format change",
+  "source_inspection": {
+    "preservation": "Keep valid initial layout verbatim, including page order/template, app ID, instance ID, size and variant; only structural corruption/incompatible records retain default fallback",
+    "availability": "Resolve app identity and supported card size per slot for painting and target routing",
+    "target": "Guard null context/page/slot bounds and missing/unsupported app; return no-target sentinel",
+    "interaction": "Unavailable slot has no short-click navigation but retains 700ms long-press editing. Nonexistent template slots are not bound",
+    "display": "Unavailable and --; half/full includes choose-another-component hint. Existing normal slots still read and route",
+    "defaults": "Current complete explicit default layout matches compiled registry, verified by supported(default) plus product_ui per-slot lookup/size checks. No automatic default-generation framework",
+    "storage": "Existing WFLY version1 512-byte dual-record format unchanged; valid unknown IDs already serialize independently of registry",
+    "generated": "XML/generated C/fonts unchanged; no new Pro export",
+    "not_implemented": ["D8_queue_contract", "N4_complete_pruning_profiles_and_module_readdition", "new_storage_format"]
+  },
+  "host": {
+    "commands": [
+      "cmake -S tests -B artifacts/config-d3-host -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe",
+      "cmake --build artifacts/config-d3-host --parallel 6",
+      "ctest --test-dir artifacts/config-d3-host --output-on-failure --timeout 60",
+      "ctest --test-dir artifacts/config-d3-host --output-on-failure --timeout 60 -R '^component_editor$'"
+    ],
+    "suite_passed": 17,
+    "suite_failed": 0,
+    "suite_log": "artifacts/config-d3-host/ctest.log",
+    "suite_log_sha256": "5964afa963face04eef018278ba850a576ba59b2adf898c1ba64a67359c8f2d2",
+    "final_affected_passed": 1,
+    "final_affected_failed": 0,
+    "final_affected_log": "artifacts/config-d3-host/component-editor-final.log",
+    "final_affected_log_sha256": "51126ad56924c24df5a6040f5097414716e27cc08048af7f8c044dbcb7b49673",
+    "final_change": "Only strengthen glyph assertion to reject LVGL placeholder after full suite; production source unchanged, affected test rerun passes",
+    "coverage": ["missing_app_quarter_half_full", "weather_quarter_unsupported_capability_with_valid_structure", "retain_all_layout_fields_by_encoded_record_equality", "null_page_slot_target_bounds", "unavailable_short_click_no_route", "unavailable_long_press_edit", "normal_slot_route", "edit_other_slot_keeps_unavailable_references", "save_decode_and_UI_recreation_preserves_references", "unavailable_excluded_from_picker", "structural_corruption_still_default_fallback", "complete_current_default_registry_match", "hint_glyphs_no_placeholder"],
+    "lvgl_version": "9.4.0",
+    "dimensions": [390, 450],
+    "snapshots": [
+      {"path": "artifacts/config-d3-host/renders/component_unavailable_quarters.png", "sha256": "85398542a48b8cbf7991848a8df6421fa7ec5a83e4f7b9e8c680dfc725f93c25"},
+      {"path": "artifacts/config-d3-host/renders/component_unavailable_editor.png", "sha256": "5e7a9338cca1b9f64c7422b8cebf9035ead0fc3450449b0d9aa44418a80f13b8"},
+      {"path": "artifacts/config-d3-host/renders/component_unavailable_half.png", "sha256": "3dee61cfba9e1a15a7efb2436b2aef066b2072c39a11a68aae2fcd3ce1b7cb43"},
+      {"path": "artifacts/config-d3-host/renders/component_unavailable_full.png", "sha256": "06085c9e1058361de79df9070001a9a532686333a69ae3818ef7f917c52a15bd"}
+    ],
+    "snapshot_kind": "Constructed host configuration rendered by actual LVGL; not hardware missing-module evidence"
+  },
+  "builds": [
+    {"example": "product", "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 6", "result": "artifacts/product/20261009-000847-308/result.json", "result_sha256": "ad9c6bc286d4ed77ad471167af5eed5865cb6fad2958e3feff0223ec9726580e", "exit_code": 0, "artifact_validation_passed": true, "matched_sources": 310, "matched_artifacts": 29, "main_bytes": 7620676, "main_sha256": "f2287798776dfde30e8903474b9e2e8e0ac6a571e3c088b169b1f4644b3ef742"},
+    {"example": "ui_demo", "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example ui_demo -Jobs 6", "result": "artifacts/ui_demo/20261009-000847-681/result.json", "result_sha256": "6df05c8e1d9fc43c911b7cc0b89e534f8521aa7b5d063c108aa0dffc2798242e", "exit_code": 0, "artifact_validation_passed": true, "matched_sources": 299, "matched_artifacts": 22, "main_bytes": 7424360, "main_sha256": "b4a9f460b67cb1302e93544ba4d0b1acb4f3a4477b98b9ebc6bda025ac623c06"}
+  ],
+  "toolchain": {"sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65", "python": "3.13.15", "scons": "4.10.1", "arm_gcc": "14.2.1", "host_gcc": "15.2.0", "board": "sf32lb52-lchspi-ulp", "sdk_changes": false, "cloud_baseline": "not_run_ordinary_source_change"},
+  "review": {"data_and_tests": "Read-only review confirmed valid-layout preservation and slot/target safety; weak glyph assertion corrected", "shell_lifecycle": "Separate read-only review found no new short-click/long-press/link-lifetime defect; no device operation by reviewers"},
+  "usb_hardware": {
+    "conditions": "Previously authorized same Huangshan board/screen, USB-only no battery; user now available to observe",
+    "port": "COM5",
+    "device_id": "USB/VID_1A86&PID_7523/6&A8355E6&3&1",
+    "dry_run_exit_code": 0,
+    "flash_command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Flash.ps1 -Example product -Port COM5",
+    "flash_exit_code": 0,
+    "flash_result": "artifacts/flash/product/20261009-120428-510/result.json",
+    "flash_result_sha256": "7b95da67d2d494731b94b9f701fefa00b8c919e7b13be1d5e3ae83ca84ea1b85",
+    "images": [
+      {"name": "bootloader.bin", "address": "0x12010000", "bytes": 58496, "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"},
+      {"name": "main.bin", "address": "0x12020000", "bytes": 7620676, "sha256": "f2287798776dfde30e8903474b9e2e8e0ac6a571e3c088b169b1f4644b3ef742"},
+      {"name": "ftab.bin", "address": "0x12000000", "bytes": 11288, "sha256": "29b18d84580e7505aef26073fed1916f779dd63f27cf8908c015be5c8a0f1512"}
+    ],
+    "settings_written_by_flasher": false,
+    "whole_chip_erase": false,
+    "serial_status": "both_captures_exit0_closed_normal_layout_saved_and_restored",
+    "serial_environment_prefix": ". ./scripts/Set-LocalEnvironment.ps1; Enable-SdkEnvironment",
+    "serial_format": "1000000 baud 8N1",
+    "serial_captures": [
+      {"command": "python artifacts/weather-d1/20261008/capture_session.py --port COM5 --seconds 150 --reset --command-at '10:wf_ble status' --command-at '28:wf_ble status' --command-at '90:wf_ble status' --out artifacts/config-d3-host/editor.bin", "path": "artifacts/config-d3-host/editor.bin", "bytes": 5066, "sha256": "9dd2d4a29cdd830ef82ef37363a58dfda1a40e254965f5c43580c4f9e0ca883f", "exit_code": 0},
+      {"command": "python artifacts/weather-d1/20261008/capture_session.py --port COM5 --seconds 28 --reset --command-at '8:wf_ble status' --command-at '18:wf_ble status' --out artifacts/config-d3-host/restore.bin", "path": "artifacts/config-d3-host/restore.bin", "bytes": 4137, "sha256": "6a60671b482fff0450fdeb0fdbb0de562b2f22c599d8090109c28b6a84fc17f1", "exit_code": 0}
+    ],
+    "user_feedback": ["更换了活力组件为天气", "修改保留，操作正常"],
+    "observed": {
+      "initial_layout_restore": true,
+      "initial_generation": 33,
+      "pages": 3,
+      "saves_before_reset": [{"request": 1, "generation": 34, "write_ms": 124}, {"request": 2, "generation": 35, "write_ms": 3}, {"request": 3, "generation": 36, "write_ms": 4}],
+      "reset_layout_restore": true,
+      "reset_restored_generation": 36,
+      "save_after_reset": {"request": 1, "generation": 37, "write_ms": 6},
+      "screen_and_KEY1_restore": true,
+      "phone_connected_in_valid_status": false
+    },
+    "boundary": "Normal complete-registry editing/save/software-reset restore only. No missing-module hardware configuration injected; host exercises those branches. Generation37 saved after reset, not claimed restored. No phone connection in valid status; no new real-weather/BLE acceptance. Off-screen later status had no reply. Physical interruption/GC and complete same-version matrix not covered",
+    "power_measurement": "not_performed"
+  },
+  "remaining": ["D8_queue_contract", "D2_target_timeout_sleep_expiry_boundaries", "full_same_version_interaction_concurrency_and_joint_acceptance", "N4_pruning_profiles_and_readdition", "C2_separate_work", "independent_power_measurement"],
+  "next_bounded_experiment": "See docs/STATUS.md#current for proposed D8 queue contract fix",
+  "merge_blocker": "D8 and relevant same-version interaction/boundary acceptance remain unresolved; PR37 stays Draft"
+}

@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-10-09 D3 配置安全构建
+
+验证源码 `codex/weather-d1@03699cd322e53f14835cf1ef0a7057645a34ba30`。主机沿用下方 CMake/Ninja 命令，目录为 `artifacts/config-d3-host`；CTest 全套 17/17 通过。随后仅加强测试字形断言，排除 LVGL placeholder，受影响的 `component_editor` 1/1 通过，生产源码未再改动。四份主机配置缺项的实际 LVGL 渲染通过，XML/生成物/字体未改，无新 Pro 导出。
+
+官方 `Build.ps1 -Example product -Jobs 6` 与 `-Example ui_demo -Jobs 6` 均退出 0、产物检查通过。记录分别为 `artifacts/product/20261009-000847-308/result.json`、`artifacts/ui_demo/20261009-000847-681/result.json`；310/299 个源码与 29/22 个产物重哈希一致。Product 主 BIN 7,620,676 B / `f2287798776dfde30e8903474b9e2e8e0ac6a571e3c088b169b1f4644b3ef742`，UI Demo 7,424,360 B / `b4a9f460b67cb1302e93544ba4d0b1acb4f3a4477b98b9ebc6bda025ac623c06`。SDK/子模块锁、工具链和公共构建入口未改，既有告警保留，未运行手动云端基线。源码/主机/编译与 USB 结果按 [D3 记录](COMPONENT-EDITOR.md#configuration-d3) 分开验收。
+
 ## 2026-10-08 D2 天气时效与请求构建
 
 验证源码 `codex/weather-d1@767a67b51c1cd8d29e6df29a76d3d88f80c30688`。沿用下方 CMake/Ninja/CTest 命令，输出目录为 `artifacts/weather-d2-host`，17/17 通过；新增 `weather_service` 验证独立接收年龄、30 秒请求截止、三小时边界、RTC 跳变、重连代次与旧请求结果隔离。实际 LVGL 超时/过期重试快照、notification_22 逐字字形和按钮几何检查通过。XML/生成物未修改，未重新 Pro 导出。
