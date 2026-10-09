@@ -1,0 +1,457 @@
+{
+  "date": "2026-10-09",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/weather-d1",
+  "source_commit": "83a6bd2d8954b69e3e8536b0f249efb169381e7e",
+  "documentation_start_head": "eb64526ccb9e7c0bbf7423e0664359f0ecc82e80",
+  "scope": "D2 30-second no-reply deadline, pending coalescing, screen-off across deadline, retry and real phone recovery",
+  "delivery": "candidate_not_merged",
+  "source_inspection": {
+    "unchanged": true,
+    "deadline": "Service uses monotonic request deadline; repeated pending begin does not renew it; only effective weather ends request",
+    "worker": "product_ble worker polls weather and waits for remaining request duration independently of LVGL",
+    "getter_limit": "Weather getter can itself advance request; post-wake TIMEOUT alone does not identify transition time",
+    "background_limit": "PHONE has multiple sources and can coalesce with KEY; automatic wake PM report precedes UI/getter, but background is not a dedicated timeout timestamp"
+  },
+  "compilation": {
+    "new_build": false,
+    "new_flash": false,
+    "prior_evidence": "docs/evidence/2026-10-09/queue-d8.json",
+    "product_result": {
+      "example": "product",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 6",
+      "result": "artifacts/product/20261009-123632-974/result.json",
+      "result_sha256": "ac2924fdc965981f7724be59588e8b3792ef67b1ffc58c6acb378cd8ce9a7dd3",
+      "exit_code": 0,
+      "matched_sources": 312,
+      "matched_artifacts": 29,
+      "main_bytes": 7620916,
+      "main_sha256": "353978765b56c969daf42af853235d235a14dc8f247ab2209a5a35da09a7126f"
+    },
+    "images_rehashed_this_round": [
+      {
+        "name": "bootloader.bin",
+        "address": "0x12010000",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "name": "main.bin",
+        "address": "0x12020000",
+        "bytes": 7620916,
+        "sha256": "353978765b56c969daf42af853235d235a14dc8f247ab2209a5a35da09a7126f"
+      },
+      {
+        "name": "ftab.bin",
+        "address": "0x12000000",
+        "bytes": 11288,
+        "sha256": "532648b9c5acbc7db8844cf3bcd75925a172c9721efb790db1efc096c219ea48"
+      }
+    ]
+  },
+  "hardware": {
+    "conditions": "Same Huangshan board/screen, COM5 CH340, USB only, no battery; no reset/flash this round",
+    "address": "5C:FD:52:80:0F:D1",
+    "uart_baud": 1000000,
+    "uart_dtr": false,
+    "uart_rts": false,
+    "silent_peer": "Windows BLE NUS client subscribes TX only; no GATT application writes, weather/time fixture or firmware changes",
+    "sessions": [
+      {
+        "name": "peer-session",
+        "duration_s": 687.078,
+        "exit_code": 1,
+        "uart_closed": true,
+        "files": [
+          {
+            "path": "artifacts/weather-deadline/peer-session/uart.bin",
+            "bytes": 4954,
+            "sha256": "af48353ef9eda9756a2c4142b9446c9152cf0badec578bd0391b16f13b899240"
+          },
+          {
+            "path": "artifacts/weather-deadline/peer-session/events.json",
+            "bytes": 24000,
+            "sha256": "6d5f3f8171d60ce243fbba3088faea1a0a8f0ba97c801c47136dc968c0c30f01"
+          },
+          {
+            "path": "artifacts/weather-deadline/peer.log",
+            "bytes": 10026,
+            "sha256": "79b02ddd62582d9899850fef742d6f512d89b3e9e124a0c3759de78ca7c28a95"
+          },
+          {
+            "path": "artifacts/weather-deadline/peer-session/board-tx.bin",
+            "bytes": 229,
+            "sha256": "2d4b5e53f71106a13ef53d1c9e53db08bf44e17142a855bfa277189638169ec4"
+          }
+        ]
+      },
+      {
+        "name": "peer-session-retry",
+        "duration_s": 335.703,
+        "exit_code": 0,
+        "uart_closed": true,
+        "files": [
+          {
+            "path": "artifacts/weather-deadline/peer-session-retry/uart.bin",
+            "bytes": 6410,
+            "sha256": "87550bd1270adc9f75c5613f71df8bdcbb92845d0483f7a57b8cd40f9101049d"
+          },
+          {
+            "path": "artifacts/weather-deadline/peer-session-retry/events.json",
+            "bytes": 21105,
+            "sha256": "e62c81fb732a9dd530080514a60617c63d2aa76f8d1f34cfc26e989e70e24eeb"
+          },
+          {
+            "path": "artifacts/weather-deadline/peer-retry.log",
+            "bytes": 12456,
+            "sha256": "7a5ff0bd8f6daced3268762dfb1cfc900fcd60e93c59844f52feec1ea2d38b9b"
+          },
+          {
+            "path": "artifacts/weather-deadline/peer-session-retry/board-tx.bin",
+            "bytes": 161,
+            "sha256": "cc258d1392b25c1d64e65af6bbb74d66bedf8277ac608147c75edcc652e7ade7"
+          }
+        ]
+      },
+      {
+        "name": "phone-recovery",
+        "duration_s": 72.344,
+        "exit_code": 0,
+        "uart_closed": true,
+        "files": [
+          {
+            "path": "artifacts/weather-deadline/phone-recovery/uart.bin",
+            "bytes": 2562,
+            "sha256": "d9be6e85c2e60426383fe75bbbf5162b5afa170ec8a69bf019b837c0a0d6179c"
+          },
+          {
+            "path": "artifacts/weather-deadline/phone-recovery/events.json",
+            "bytes": 6008,
+            "sha256": "f2eb786483ee2f68873c5d9150018c3bcf41253b02ed4f9115a323bbd42dc0b3"
+          },
+          {
+            "path": "artifacts/weather-deadline/phone-recovery.log",
+            "bytes": 4891,
+            "sha256": "6f4386d53c6f3495d7f5b3a6e468319eb509842d2bacb35f0976925442e66ee0"
+          }
+        ]
+      }
+    ]
+  },
+  "runtime": {
+    "python": "3.12.14",
+    "bleak": "3.0.2",
+    "pyserial": "3.5",
+    "winrt": "3.2.1",
+    "install": "python -m pip install --target artifacts/weather-deadline/peer-tools bleak==3.0.2 pyserial==3.5",
+    "install_exit_code": 0,
+    "tools_ignored_local_only": true,
+    "commands": [
+      "python artifacts/weather-deadline/controlled_peer.py --out artifacts/weather-deadline/peer-session --controls artifacts/weather-deadline/controls.jsonl --limit 900",
+      "PYTHONUTF8=1 python artifacts/weather-deadline/controlled_peer.py --out artifacts/weather-deadline/peer-session-retry --controls artifacts/weather-deadline/controls-retry.jsonl --limit 900",
+      "PYTHONUTF8=1 python artifacts/weather-deadline/recover_phone.py"
+    ],
+    "controls": [
+      {
+        "path": "artifacts/weather-deadline/controls.jsonl",
+        "bytes": 714,
+        "sha256": "e33c9f8401388c063b0355f3415a299a69a43a89de41f2cda96fb6e02cd76913"
+      },
+      {
+        "path": "artifacts/weather-deadline/controls-retry.jsonl",
+        "bytes": 737,
+        "sha256": "218bd1e5ca3848ee9c1f73f940c2402ad63e5e5743ff8b6392e6e7d8ca7297da"
+      }
+    ],
+    "final_helpers": [
+      {
+        "path": "artifacts/weather-deadline/controlled_peer.py",
+        "bytes": 8017,
+        "sha256": "ad2d072dd77e7b9b887beefeee06916c49d19ba7cb00c01cdada6594b1fdd0ae"
+      },
+      {
+        "path": "artifacts/weather-deadline/recover_phone.py",
+        "bytes": 2738,
+        "sha256": "1d89f0f53463b2ebe9369fae88fb275390307a58d928105e5edfa8f277522f94"
+      }
+    ],
+    "helper_version_boundary": "controlled_peer final hash includes ASCII console JSON, UART frame break and next-KEY1 trigger; first session used earlier GBK-sensitive helper"
+  },
+  "awake": {
+    "generation": 3,
+    "request_acks": [
+      {
+        "host_s": 30.281,
+        "text": "[ble] weather request queued=1"
+      },
+      {
+        "host_s": 40.265,
+        "text": "[ble] weather request queued=1"
+      }
+    ],
+    "statuses": [
+      {
+        "host_s": 31.312,
+        "cached": 0,
+        "state": 0,
+        "expired": 0,
+        "age_known": 0,
+        "received_utc": 0,
+        "request": 1,
+        "remaining_ms": 28988
+      },
+      {
+        "host_s": 41.312,
+        "cached": 0,
+        "state": 0,
+        "expired": 0,
+        "age_known": 0,
+        "received_utc": 0,
+        "request": 1,
+        "remaining_ms": 18978
+      },
+      {
+        "host_s": 58.265,
+        "cached": 0,
+        "state": 0,
+        "expired": 0,
+        "age_known": 0,
+        "received_utc": 0,
+        "request": 1,
+        "remaining_ms": 1994
+      },
+      {
+        "host_s": 62.312,
+        "cached": 0,
+        "state": 3,
+        "expired": 0,
+        "age_known": 0,
+        "received_utc": 0,
+        "request": 3,
+        "remaining_ms": 0
+      }
+    ],
+    "board_weather_requests_in_window": [
+      {
+        "host_s": 30.437,
+        "text": "{\"t\":\"weather\",\"v\":2,\"f\":true}"
+      }
+    ],
+    "repeated_request_renewed": false,
+    "ui_feedback_verbatim": [
+      "显示重试，已点击显示同步，",
+      "然后显示同步超时"
+    ],
+    "ui_retry_board_tx_host_s": [
+      237.265,
+      282.375
+    ]
+  },
+  "screen_off": {
+    "generation": 5,
+    "cycles": [
+      {
+        "request_ack": {
+          "host_s": 63.093,
+          "text": "[ble] weather request queued=1"
+        },
+        "pending": {
+          "host_s": 64.046,
+          "cached": 0,
+          "state": 0,
+          "expired": 0,
+          "age_known": 0,
+          "received_utc": 0,
+          "request": 1,
+          "remaining_ms": 29032
+        },
+        "estimated_cutoff_host_s": 93.078,
+        "screen_off": {
+          "host_s": 71.187,
+          "text": "[product] screen off; notification events active"
+        },
+        "wake": {
+          "host_s": 243.765,
+          "text": "[product] wake event=KEY1"
+        },
+        "first_status_after_wake": {
+          "host_s": 244.625,
+          "cached": 0,
+          "state": 3,
+          "expired": 0,
+          "age_known": 0,
+          "received_utc": 0,
+          "request": 3,
+          "remaining_ms": 0
+        }
+      },
+      {
+        "request_ack": {
+          "host_s": 246.656,
+          "text": "[ble] weather request queued=1"
+        },
+        "pending": {
+          "host_s": 247.64,
+          "cached": 0,
+          "state": 0,
+          "expired": 0,
+          "age_known": 0,
+          "received_utc": 0,
+          "request": 1,
+          "remaining_ms": 29009
+        },
+        "estimated_cutoff_host_s": 276.649,
+        "screen_off": {
+          "host_s": 253.812,
+          "text": "[product] screen off; notification events active"
+        },
+        "wake": {
+          "host_s": 320.703,
+          "text": "[product] wake event=KEY1"
+        },
+        "first_status_after_wake": {
+          "host_s": 321.531,
+          "cached": 0,
+          "state": 3,
+          "expired": 0,
+          "age_known": 0,
+          "received_utc": 0,
+          "request": 3,
+          "remaining_ms": 0
+        }
+      }
+    ],
+    "pm_phone_background_records": [
+      {
+        "host_s": 61.203,
+        "text": "[pm-p1] phone=7 phone_off=3 background=11"
+      },
+      {
+        "host_s": 65.046,
+        "text": "[pm-p1] phone=7 phone_off=3 background=11"
+      },
+      {
+        "host_s": 71.046,
+        "text": "[pm-p1] phone=7 phone_off=3 background=11"
+      },
+      {
+        "host_s": 243.765,
+        "text": "[pm-p1] phone=7 phone_off=3 background=12"
+      },
+      {
+        "host_s": 245.625,
+        "text": "[pm-p1] phone=7 phone_off=3 background=12"
+      },
+      {
+        "host_s": 320.703,
+        "text": "[pm-p1] phone=7 phone_off=3 background=13"
+      },
+      {
+        "host_s": 322.578,
+        "text": "[pm-p1] phone=7 phone_off=3 background=13"
+      }
+    ],
+    "interpretation": "Both cutoff estimates lie within physical screen-off intervals, and first post-KEY1 reads TIMEOUT; background increases before getters while parser phone counters stay unchanged, consistent with worker processing. Exact autonomous transition/wake instant not isolated",
+    "off_baseline_sample": "263.468s wf_pm sample written while off had no report; excluded as executed evidence. Earlier sample at 71.046s still off=0, immediately before 71.187s screen-off"
+  },
+  "phone_recovery": {
+    "connected_generation": 7,
+    "mtu": 131,
+    "request_ack": [
+      {
+        "host_s": 32.516,
+        "text": "[ble] weather request queued=1"
+      }
+    ],
+    "weather": [
+      {
+        "host_s": 29.203,
+        "text": "[product] weather updated: 乐清市 20 C, condition=晴朗 code=800 hum=71%"
+      },
+      {
+        "host_s": 32.656,
+        "text": "msh />msh />[product] weather updated: 乐清市 20 C, condition=晴朗 code=800 hum=71%"
+      }
+    ],
+    "forecast": [
+      {
+        "host_s": 29.203,
+        "text": "[product] weather forecast: hours=24 days=7 sunrise=1791409920 sunset=1791452100"
+      },
+      {
+        "host_s": 32.656,
+        "text": "[product] weather forecast: hours=24 days=7 sunrise=1791409920 sunset=1791452100"
+      }
+    ],
+    "statuses": [
+      {
+        "host_s": 31.516,
+        "cached": 1,
+        "state": 1,
+        "expired": 0,
+        "age_known": 1,
+        "received_utc": 1791523417,
+        "request": 0,
+        "remaining_ms": 0
+      },
+      {
+        "host_s": 35.453,
+        "cached": 1,
+        "state": 1,
+        "expired": 0,
+        "age_known": 1,
+        "received_utc": 1791523420,
+        "request": 0,
+        "remaining_ms": 0
+      },
+      {
+        "host_s": 42.437,
+        "cached": 1,
+        "state": 1,
+        "expired": 0,
+        "age_known": 1,
+        "received_utc": 1791523420,
+        "request": 0,
+        "remaining_ms": 0
+      },
+      {
+        "host_s": 50.531,
+        "cached": 1,
+        "state": 1,
+        "expired": 0,
+        "age_known": 1,
+        "received_utc": 1791523420,
+        "request": 0,
+        "remaining_ms": 0
+      }
+    ],
+    "rtc_sync_utc": 1791523417,
+    "received_utc_after_retry": 1791523420,
+    "ui_feedback_verbatim": "恢复温度/预报及“刚刚接收”  ，返回再进入正常",
+    "phone_bluetooth_restored": true,
+    "gadgetbridge_restored": true,
+    "temporary_keep_awake_closed_user_feedback": "已关闭"
+  },
+  "counters": {
+    "rejected": 0,
+    "unknown_baseline": 3,
+    "unknown_unchanged": true,
+    "dropped": 0,
+    "gaps": 0,
+    "stale": 0,
+    "scope": "Only confirmed status replies in these short captures"
+  },
+  "failures_and_limits": [
+    "First session exited 1 after U+FFFD-prefixed command-not-found and UnicodeEncodeError in GBK console output; prior complete awake phase preserved, missing wake status excluded",
+    "First asleep plan confirmed weather request only; clear/status/PM commands without replies are not treated as executed",
+    "60-second host watcher expired before wake plan completed (exit 2); appended no controls; later off sample had no execution report",
+    "Post-wake getter may advance state; no dedicated 30-second transition timestamp or autonomous wake proof",
+    "Three-hour/RTC-jump physical tests, target producer pressure/IRQ latency, full same-version joint matrix and power/battery life remain uncovered"
+  ],
+  "review": {
+    "read_only_log_audit": "gpt-6-luna / low",
+    "causal_audit": "gpt-6.1-sol / medium",
+    "primary": "Checked exact request acknowledgements and status/cutoff/raw-artifact identities; documentation and Git owned by primary"
+  },
+  "next_bounded_experiment": "Same 83a6bd2 firmware: weather five-page vertical/horizontal navigation and edge return, repeated entry/return and KEY1 wake, necessary Gadgetbridge disconnect/reconnect; review PR37 readiness afterwards"
+}
