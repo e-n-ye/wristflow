@@ -7,6 +7,8 @@
   "original_c2_commit": "823e656e4bd36ff0e84360ff085d524ad641917f",
   "scope": "Integrate existing C2 with latest weather; keep negative-X/500ms parameters; no algorithm tuning",
   "delivery": "draft_not_merged_hardware_gesture_gate_failed",
+  "pull_request": "https://github.com/e-n-ye/wristflow/pull/39",
+  "pull_request_state": "OPEN/DRAFT; MERGEABLE is not hardware acceptance",
   "source_inspection": {
     "result": "pass for semantic union; old C2 source retained, weather refresh/queue/D3 guards retained",
     "review": "read-only gpt-6.1-sol/medium; evidence selection gpt-6-luna/low; root owns edits and validation",
