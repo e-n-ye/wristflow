@@ -3,7 +3,9 @@
 <a id="weather-regression"></a>
 ## 2026-10-09 同版天气相关交互验收
 
-同一 `83a6bd2d8954b69e3e8536b0f249efb169381e7e` 完成天气 PR 的必要有界 USB 回归；下方各版证据按原日期保留，其中“等待本版交互 / 保持 Draft”的状态由本节验收判定覆盖。当前活动项只见 [STATUS](STATUS.md#current)，最终交付须以 [PR #37](https://github.com/e-n-ye/wristflow/pull/37) 的 MERGED/merge commit 回读及主线核对为准。
+同一 `83a6bd2d8954b69e3e8536b0f249efb169381e7e` 完成天气 PR 的必要有界 USB 回归；下方各版证据按原日期保留，其中“等待本版交互 / 保持 Draft”的状态由本节验收判定覆盖。当前活动项只见 [STATUS](STATUS.md#current)，最终交付须以 [集成 PR #38](https://github.com/e-n-ye/wristflow/pull/38) 的 MERGED/merge commit 回读及主线核对为准。
+
+**交付历史阻碍**：[原 PR #37](https://github.com/e-n-ye/wristflow/pull/37) 最终审阅候选 `28e8be5` 为 MERGEABLE/CLEAN，但指定该 head 的 Rebase 返回 `This branch can't be rebased`，未合并。原分支及证据保留；从主线 `7d11849` 建立线性集成 `67bb00f`，完整 tree `1ed69fa7670b9312a3a8c914af9fc93c2c4a1d49` 与原候选一致，此后仅调整交接文档，固件/测试/SDK 不变。服务器未报告具体失败提交，复杂合并历史/中间重放冲突仅为推断，不记为最终代码冲突。#38 实际交付后将 #37 标为被替代，不声称 #37 自身 MERGED。
 
 - **源码与编译**：生产实现/相关测试相对已审 `83a6bd2` 未改；生命周期、请求/缓存、逐槽目标及默认 registry 抽查未发现明确新阻碍。沿用 [D8 构建与主机证据](BUILD.md#2026-10-09-d8-队列契约构建)，没有新构建/烧录。三镜像重哈希一致，Product 主 BIN 7,620,916 B / `35397876…`。源码检查、既有成功编译和本节新硬件观察分别记录。
 - **设备与采集**：同一黄山派板屏、COM5 CH340、仅 USB/无电池。初次枚举未找到板，用户接回 USB 后 pyserial/PnP 确认同一设备；采集捕获一次冷启动，布局恢复 generation=37/pages=3。工具未操作复位，不开电脑 BLE peer、不注入天气，仅用有回执的 status/PM 诊断。页面段 642.641 秒 / UART 13,517 B，连接段 170.250 秒 / 2,446 B，均退出 0、无未完成计划，串口已关闭。原始长日志仅留 `D:/MY_Desk/project/wristflow/artifacts/weather-regression/`；命令、哈希与精简时间轴见 [证据](evidence/2026-10-09/weather-regression.json)。

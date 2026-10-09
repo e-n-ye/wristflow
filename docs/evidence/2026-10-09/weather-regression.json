@@ -459,6 +459,22 @@
     "independent_followups": "C2 conflict/experience/integration, complete joint acceptance, N4 andpower remain separate",
     "authorization": "User previously requested merge ifready; final reviewed head must be ready, rebase-merged, readback andfetched before claiming integrated"
   },
+  "integration_handoff": {
+    "original_pr": "https://github.com/e-n-ye/wristflow/pull/37",
+    "reviewed_original_head": "28e8be5092459ab2a34b97d4f1276b76e653591e",
+    "original_state": "MERGEABLE/CLEAN; exact-head Rebase rejected, not merged",
+    "error_verbatim": "GraphQL: This branch can't be rebased (mergePullRequest)",
+    "failure_cause_limit": "Server did not identify first failing replay; merge-heavy history/intermediate replay conflicts are an inference, not a demonstrated final-tree conflict",
+    "original_branch_preserved": true,
+    "base_main": "7d11849ff40d63925364600ec65c6221453310b8",
+    "integration_pr": "https://github.com/e-n-ye/wristflow/pull/38",
+    "integration_branch": "codex/weather-delivery",
+    "exact_tree_commit_before_handoff_docs": "67bb00f88518d6616ba9109d710a158fc44c2a2e",
+    "exact_tree_sha": "1ed69fa7670b9312a3a8c914af9fc93c2c4a1d49",
+    "tree_verified_identical_to_original": true,
+    "subsequent_changes": "Only STATUS, WEATHER-UI, ARCHITECTURE-REVIEW and this evidence record for delivery route; production, tests, generated assets and SDK unchanged",
+    "delivery_boundary": "Integration PR must be final-reviewed, Rebase-merged, MERGED read back and fetched main verified; original PR becomes superseded, not MERGED"
+  },
   "review": {
     "read_only_ui_log_audit": "gpt-6-luna / low",
     "read_only_source_gate_audit": "gpt-6.1-sol / medium",
