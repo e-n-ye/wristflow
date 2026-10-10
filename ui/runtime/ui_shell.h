@@ -72,6 +72,9 @@ void wristflow_ui_shell_enable_display_policy(wristflow_ui_shell_t *shell);
 /* Called by the platform's raw pointer read wrapper, before LVGL dispatch. */
 bool wristflow_ui_shell_filter_touch(wristflow_ui_shell_t *shell, bool pressed);
 wristflow_display_phase_t wristflow_ui_shell_display_phase(const wristflow_ui_shell_t *shell);
+bool wristflow_ui_shell_wrist_wake_allowed(const wristflow_ui_shell_t *shell);
+/* A sensor event only brightens/restores; stale events never navigate or renew activity. */
+bool wristflow_ui_shell_wrist_wake(wristflow_ui_shell_t *shell);
 bool wristflow_ui_shell_keep_awake(wristflow_ui_shell_t *shell, unsigned minutes);
 unsigned wristflow_ui_shell_keep_minutes(const wristflow_ui_shell_t *shell);
 void wristflow_ui_shell_display_retry(wristflow_ui_shell_t *shell);

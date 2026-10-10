@@ -2,6 +2,8 @@
 
 更新：2026-09-26。工作树 `C:/Users/13984/.codex/worktrees/product-settings/wristflow`，分支 `codex/product-settings`，基于上一轮 `0edf7cc`。设置及后续修订已完成源码、官方 XML 导出、12/12 主机测试及 Product/UI Demo 编译；Product 累计三次烧录并校验，新版长睡首帧和秒表退出交互已获用户确认，范围和失败见 [上板记录](evidence/2026-09-26/product-settings-hardware.md)。原构建精简证据见 [清单](evidence/2026-09-26/product-settings.json)。
 
+2026-10-09 [C2/天气候选](IMU-WRIST-WAKE.md#imu-integration) `a257d67` 接入既有“显示→抬腕亮屏”默认开启/保存、独立于勿扰及 DIM/OFF 恢复；设置升级 v5，24 字节不变，byte 16 bit 0/1 为勿扰/抬腕，v1–v4 迁移默认抬腕开启，旧 v4 固件不能读取 v5。19/19 主机覆盖编解码、关闭/重建、变暗和迟到事件不续时；本版 USB 抬腕门槛失败，尚未合入，未完成开关重启持久化实测。下方 v3 与硬件结果保留为原版历史，不覆盖本候选；当前任务只见 [STATUS](STATUS.md#current)。
+
 ## 已确认行为
 
 - 设置采用 Redmi Watch 4 的十项一级目录：表盘管理、显示与亮度、声音与振动、勿扰模式、消息通知、按键设置、应用布局、电池、系统操作、关于。运动识别和设备密码隐藏。

@@ -1,0 +1,49 @@
+{
+  "date": "2026-09-28T20:35:12.8336646+08:00",
+  "source_parent": "ffa2730a85ae4ec44430f7da3016b2fb10fae118",
+  "worktree": "C:/Users/13984/.codex/worktrees/imu-wrist-wake/wristflow",
+  "result": "artifacts/product/20260928-203449-527/result.json",
+  "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+  "build_exit_code": 0,
+  "artifact_validation_passed": true,
+  "source_count": 290,
+  "all_sources_matched": true,
+  "modified_firmware_sources": [
+    {
+      "path": "apps/product/src/main.c",
+      "sha256": "767c754b741f1f55f0c4740535e8847d8a213d8c18a64322534fbabc60e96010"
+    },
+    {
+      "path": "apps/product/src/product_imu.c",
+      "sha256": "9f86c152baf0803f11efdf5129ebdae851959b124fcac6b7b0a32918b81cd9b6"
+    }
+  ],
+  "images": [
+    {
+      "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+      "bytes": 7432436,
+      "sha256": "7aeeec580c637eb86c23b4bab114be3e823402857178de9ea53b85e587fae60c"
+    },
+    {
+      "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+      "bytes": 58496,
+      "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+    },
+    {
+      "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+      "bytes": 11288,
+      "sha256": "dd15084a3b0ebba0f606dd39d49633054f999f9e3d73ecdea4c0a534e00f7435"
+    }
+  ],
+  "host_tests": "Host-covered files unchanged from C1; no host model of GPIO/button callbacks, validation for this diagnostic addition is firmware build and targeted board observation.",
+  "hardware": {
+    "flash": "COM5, three images, write_flash --verify exit 0",
+    "imu": "WHO_AM_I 0x6A at 0x6A; 0x6B probe NACK; three static orientations and 20-sample reads completed",
+    "tilt_irq": "screen-off PM allow arm window observed 22 src=0x20 IRQs; no display wake from IMU",
+    "key_recovery": "KEY1 recovered during IMU arm twice and after automatic stop; sent=received on each observed wake",
+    "cleanup": "stop=ok after arm; IMU stopped at end of session",
+    "ble_notifications": "one post-diagnostic no-privacy test notification received; user reports opening Redmi Watch 4 history restored the path and subsequent notifications remained normal; mechanism unconfirmed",
+    "status": "C1 IMU/PM/KEY1 core path evidenced and BLE notification retest succeeded; prior KEY1 anomaly was not reproduced and its cause remains unknown"
+  },
+  "build_failure": "Initial diagnostic used nonexistent GPIO_TypeDef.IER1/ISR1; corrected to HAL 32-pin bank addressing and rebuilt successfully."
+}

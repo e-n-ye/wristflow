@@ -7,6 +7,7 @@
 | 对象 | 事实来源与所有权 | 操作 / 验证入口 |
 |---|---|---|
 | 产品集成 | [apps/product](../apps/product/)；`project/SConstruct`、`SConscript`、`proj.conf`、`rtconfig.py` 与 `src/` 由项目维护 | [PRODUCT-RUNTIME](PRODUCT-RUNTIME.md)；Build 的 `product` 目标；联合验收另按版本绑定 |
+| C2 IMU 集成候选 | `apps/product/src/imu_device.*` 维护寄存器/总线接口；`product_imu.c` 线程拥有诊断、PA31/AON、baseline与候选计时，主线程消费亮屏事件；`core/wrist_pose.*` 只分类三轴姿态，不操作设备/时钟/事件 | [姿态版本与证据](IMU-WRIST-WAKE.md#imu-tilted-view)；相关主机测试、Product/UI Demo 编译及必要 USB 回归 |
 | 固定数据演示 | [apps/ui_demo](../apps/ui_demo/)；与 Product 共用 core、运行时和生成 UI | Build 的 `ui_demo`；不能用演示值证明产品数据真实性 |
 | 板级诊断 | [apps/bringup](../apps/bringup/)；自有工程 / 板级集成 | [BRINGUP](BRINGUP.md)；Build 的 `bringup`，不能代替 Product 联合验收 |
 | 官方 Hello / BLE | 实际路径由 [Build.ps1](../scripts/Build.ps1) 的 `$projects` 定义，位于锁定 SDK 内 | Build 的 `hello` / `ble`；按官方 SCons，不迁移固件到 CMake |
@@ -32,7 +33,7 @@
 | 手动云端基线 | [CONTRIBUTING](../CONTRIBUTING.md) 与 [build.yml](../.github/workflows/build.yml)，仅 `workflow_dispatch` | 用实际提交和 Actions 结果；纯文档不 dispatch，无自动 Checks 不是阻断 |
 | 下载与设备 | 先读 [HARDWARE](HARDWARE.md) 和 [Product 验收](PRODUCT-ACCEPTANCE.md) 的版本 / 设置边界；[FLASHING](FLASHING.md) 的旧 sftool 示例仅供方法参考 | 先核对实际镜像清单、端口、供电与授权；传输 / verify 与真实运行分开。身份未知就记录未知，不为文档补齐而操作设备 |
 
-**分支差异**：本主线没有 `scripts/Flash.ps1`。flow 的 SiFli 示例和天气工作树中该脚本 / `-DryRun` 不能当作主线可用命令；固定天气版本为 `f68d64f170fea22eaf9561dc844731aa4f0fa9ed:scripts/Flash.ps1`，本轮未移植。主线已有直接 sftool 记录，当前 Product 操作仍须按实际版本重新核对。
+**分支差异**：上述地图主体按 `8be5821` 核对；天气已由 PR #38 交付至 `main@64c7e43`，其中 `scripts/Flash.ps1` 现已可用。C2 候选复用该入口，执行前仍核对实际版本、镜像/哈希、物理端口及 USB 条件；`-DryRun` 仅检查命令，不证明烧录或设备运行。构建脚本不包含下载步骤。
 
 固件输出位置由 Build 计算为对应工程的 `build_<board>_hcpu`，该目录不存在时改查 `build_<board>`；日志 / 配置 / 源码及产物哈希进入该工作树 `artifacts/<example>/<run-id>/`。`hardware_verified=false` 保持证据边界。主机输出由操作入口选择。`.tools/`、构建目录和日常 artifacts 不入库；提交的精简证据在 `docs/evidence/`。只读隔离工作树不保证本机依赖已可构建，多个任务不能共用可写构建目录、生成目录或设备。
 

@@ -772,6 +772,22 @@ bool wristflow_ui_shell_filter_touch(wristflow_ui_shell_t *shell, bool pressed)
 wristflow_display_phase_t wristflow_ui_shell_display_phase(const wristflow_ui_shell_t *shell)
 { return shell ? shell->display.phase : WRISTFLOW_DISPLAY_ACTIVE; }
 
+bool wristflow_ui_shell_wrist_wake_allowed(const wristflow_ui_shell_t *shell)
+{
+    return shell && shell->display_timer && shell->preferences.wrist_wake &&
+        shell->display.phase != WRISTFLOW_DISPLAY_ACTIVE;
+}
+
+bool wristflow_ui_shell_wrist_wake(wristflow_ui_shell_t *shell)
+{
+    if (!wristflow_ui_shell_wrist_wake_allowed(shell)) return false;
+    if (shell->display.phase == WRISTFLOW_DISPLAY_OFF)
+        restore_after_long_sleep(shell, shell->display.off_at);
+    wristflow_display_activity(&shell->display, lv_tick_get());
+    display_tick(shell->display_timer);
+    return true;
+}
+
 bool wristflow_ui_shell_keep_awake(wristflow_ui_shell_t *shell, unsigned minutes)
 {
     if (!shell || !wristflow_display_keep(&shell->display, lv_tick_get(), minutes)) return false;
