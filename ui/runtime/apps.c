@@ -413,7 +413,8 @@ static void create_product_menu(wristflow_apps_t *apps, lv_obj_t *root)
     apps->menu_count = 0;
     for (size_t i = 0; i < wristflow_app_count(); ++i) {
         const wristflow_app_descriptor_t *entry = wristflow_app_at(i);
-        if (entry->surface == WRISTFLOW_SURFACE_FACE_PICKER || entry->demo_only) continue;
+        if (entry->surface == WRISTFLOW_SURFACE_FACE_PICKER ||
+            !wristflow_apps_allows(apps, entry->surface)) continue;
         unsigned index = apps->menu_count++;
         LV_ASSERT(index < WRISTFLOW_SURFACE_COUNT);
         apps->menu_entries[index] = entry;
@@ -442,7 +443,8 @@ static void create_product_menu(wristflow_apps_t *apps, lv_obj_t *root)
 wristflow_apps_t *wristflow_apps_create(wristflow_ui_shell_t *shell, lv_obj_t *controls,
                                       wristflow_brightness_cb_t brightness, void *context,
                                       uint8_t initial_brightness, bool product_mode,
-                                      wristflow_menu_layout_t menu_layout)
+                                      wristflow_menu_layout_t menu_layout,
+                                      const wristflow_countdown_port_t *countdown)
 {
     wristflow_apps_t *apps = lv_malloc_zeroed(sizeof(*apps));
     LV_ASSERT_MALLOC(apps);
@@ -452,7 +454,7 @@ wristflow_apps_t *wristflow_apps_create(wristflow_ui_shell_t *shell, lv_obj_t *c
     apps->brightness_cb = brightness;
     apps->context = context;
     apps->product_mode = product_mode;
-    if (!product_mode) apps->countdown = wristflow_countdown_view_create(shell);
+    if (!product_mode || countdown) apps->countdown = wristflow_countdown_view_create(shell, countdown);
     apps->menu_layout = menu_layout;
     apps->timer = lv_timer_create(tick, 40, apps);
     lv_timer_pause(apps->timer);
@@ -482,8 +484,15 @@ wristflow_menu_layout_t wristflow_apps_menu_layout(const wristflow_apps_t *apps)
 bool wristflow_apps_allows(const wristflow_apps_t *apps, wristflow_surface_t surface)
 {
     const wristflow_app_descriptor_t *app = wristflow_app_for_surface(surface);
+    if (surface == WRISTFLOW_SURFACE_COUNTDOWN) return apps && apps->countdown;
     return apps && !(apps->product_mode && app && app->demo_only);
 }
+
+bool wristflow_apps_countdown_event(wristflow_apps_t *apps)
+{ return apps && wristflow_countdown_view_refresh(apps->countdown); }
+
+bool wristflow_apps_countdown_active(const wristflow_apps_t *apps)
+{ return apps && wristflow_countdown_view_active(apps->countdown); }
 
 void wristflow_apps_bind_home(wristflow_apps_t *apps, lv_obj_t *home)
 { if (apps) wristflow_countdown_view_bind_home(apps->countdown, home); }

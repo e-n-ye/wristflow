@@ -1,5 +1,13 @@
 # 产品固件框架
 
+## 2026-10-10 倒计时服务接入
+
+本节覆盖下方 2026-09 首轮的相关实现状态；历史证据继续按原版本使用。现版已启用 BLE 与息屏自动 PM，配置源仍为 Product `proj.conf` / 锁定 SDK；本轮不修改 SDK、BLE 协议或存储 worker。
+
+[product_countdown](../apps/product/src/product_countdown.c) 在 PM 事件邮箱后启动，独占易失任务、mutex 与一次性 RT 软 timer；通过 [平台无关 port](../core/countdown_port.h) 注入 Product UI。只有具备后端的组合才开放倒计时；演示和未注入后端的视觉构造继续分别保留本地模型 / 阻断入口。服务不读写 FlashDB，启动 IDLE，所以固件重启取消活动任务。
+
+`WF_EVENT_COUNTDOWN` 唤醒主线程；息屏等待每次先对照服务副本，再处理手机通知 / KEY1。UI 在 LVGL timer 停止时创建提醒，恢复首帧同时重画顶层覆盖，帧完成后才提亮。确认交付后 30 秒无输入息屏，后续 KEY1 保留原提醒；关闭 / 重来恢复有效原会话。具体时钟、分段等待、输入 / 确认和测试边界见 [第二轮证据](COUNTDOWN.md#round2)。这是源码 / 主机与编译接入，不是同版硬件验收，也不关闭 C2 / 通知联合矩阵或功耗。
+
 更新：2026-09-26。本文保留首个 USB 产品框架及 2026-09-25 真机证据。应用入口 `feabc1d` 曾上板；此后的 [反馈修复](PRODUCT-UI-FEEDBACK.md) 与 [组件编辑保存](COMPONENT-EDITOR.md) 版本 `2dbc782` 已通过主机测试和两目标编译，Product 也已烧录、校验和启动；菜单/编辑交互尚待实测。完整需求见 [产品应用与组件编辑](PRODUCT-UI-SCOPE.md)；设置扩展及亮灭屏仍待接入，不能沿用下列旧硬件结果宣称新源码通过。
 
 ## 入口和边界

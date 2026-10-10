@@ -59,6 +59,9 @@ int main(void)
     wristflow_product_event_send(WF_EVENT_KEY);
     assert(wristflow_product_event_wait(0)==(WF_EVENT_PHONE|WF_EVENT_KEY));
     assert(wristflow_product_event_wait(0)==0);
+    wristflow_product_event_send(WF_EVENT_COUNTDOWN | WF_EVENT_KEY | WF_EVENT_PHONE);
+    assert(wristflow_product_event_wait(0)==(WF_EVENT_COUNTDOWN | WF_EVENT_KEY | WF_EVENT_PHONE));
+    assert(wristflow_product_event_wait(0)==0);
     assert(display_off && idle_requests==0 && stats.phone_off==1);
     for (int i=0;i<10;++i) {
         wristflow_product_pm_screen(false); wristflow_product_pm_screen(false);

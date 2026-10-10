@@ -1,6 +1,6 @@
 # 工程与所有权地图
 
-本页只描述入口及对应关系，不保存任务队列或复制锁文件参数。活动项见 [STATUS 当前区](STATUS.md#current)，操作按 [任务索引](../PROJECT_INDEX.md) 选取。原地图基线为 `8be5821`；2026-10-10 按主线 `64c7e43` 复核下载入口，并从 `56b4ceb` 增加倒计时第一轮接缝，不代表重审全部工程。C2 草稿的内容不能自动套用到本工作树。
+本页只描述入口及对应关系，不保存任务队列或复制锁文件参数。活动项见 [STATUS 当前区](STATUS.md#current)，操作按 [任务索引](../PROJECT_INDEX.md) 选取。原地图基线为 `8be5821`；2026-10-10 按主线 `64c7e43` 复核下载入口，倒计时从 `56b4ceb` 完成第一轮、从 `e6e58be` 接第二轮，不代表重审全部工程。C2 草稿的内容不能自动套用到本工作树。
 
 ## 目标、配置与手写区
 
@@ -12,7 +12,8 @@
 | 官方 Hello / BLE | 实际路径由 [Build.ps1](../scripts/Build.ps1) 的 `$projects` 定义，位于锁定 SDK 内 | Build 的 `hello` / `ble`；按官方 SCons，不迁移固件到 CMake |
 | 平台无关逻辑 | [core](../core/) 的手写模型、协议、配置与状态；具体消费者由 SConscript / CMakeLists 决定 | 对应 [tests/CMakeLists.txt](../tests/CMakeLists.txt) 的主机用例及集成目标 |
 | UI 行为适配 | [ui/runtime](../ui/runtime/) 手写数据绑定、路由、交互及生命周期 | [UI-RUNTIME](UI-RUNTIME.md)、[UI-INTERACTION](UI-INTERACTION.md) 的相关契约；受影响目标回归 |
-| 倒计时第一轮 | [countdown 模型](../core/countdown.h) 不依赖 LVGL；[countdown_view](../ui/runtime/countdown_view.c) 持有演示任务，具名绑定官方页面，离页释放视图后保留模型 | [COUNTDOWN](COUNTDOWN.md)；主机 `countdown` / `countdown_ui`。Product 通过 registry、shell 与页面工厂阻断演示入口；尚未接入后台 / PM |
+| 倒计时模型 / 服务 | [countdown 模型](../core/countdown.h) 不依赖 LVGL；[port](../core/countdown_port.h) 定义命令 / 副本 / 时钟边界，[Product 服务](../apps/product/src/product_countdown.c) 持有任务与独立 RT timer | [COUNTDOWN](COUNTDOWN.md#round2)；纯模型、服务和实际 UI 三层主机检查。Product 组合注入后端后开放入口，未注入则阻断；板上 PM / 输入另验 |
+| 倒计时 UI / 提醒 | [countdown_view](../ui/runtime/countdown_view.c) 具名绑定官方页面；[reminder_host](../ui/runtime/reminder_host.c) 持有一个高优先级覆盖槽，shell 保留原导航 / 显示策略并检查会话 | 同一 XML 用于演示、Product 页面与到期覆盖；不改变生成 C，不把覆盖宿主当作业务 scheduler 或完整多提醒队列 |
 | 主机 / 模拟器 | [tests](../tests/) 与 [apps/simulator](../apps/simulator/)；使用 SDK 内 LVGL | [SIMULATOR 启动](SIMULATOR.md#启动)、[Simulate.ps1](../scripts/Simulate.ps1)；主机 CMake 与固件 SCons 分工独立 |
 
 板型、SDK 提交、子模块及工具锁来源以 [sdk.lock.json](../sdk.lock.json) 为准；应用配置源为各 `apps/<目标>/project/` 下实际文件，包括存在时的板型覆盖目录。构建产生的 `.config` / `rtconfig.h` 是结果，不是手工维护配置源。厂商 `vendor/SiFli-SDK` 为固定 gitlink，功能任务不改厂商与子模块；确需进入时先读该目录适用规则。

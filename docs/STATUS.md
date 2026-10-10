@@ -6,17 +6,18 @@
 本区是活动任务和下一步的唯一权威来源；下方 history 区、任务书和专题里的“下一步 / 待执行”均为对应日期的历史记录，不是执行授权。接续先核对实际工作树与远端版本，再按 [任务索引](../PROJECT_INDEX.md) 读取。
 
 - **阶段与用户决定**：恢复常规主线开发，首个复杂 UI 功能为倒计时。用户已确认 [C2 与通知联合验收独立后置](BASELINE.md#2026-10-10-恢复常规开发与倒计时)，先修正下载入口文档，再从最新 main 推进倒计时。旧清理顺序不再要求先合入 C2；完整裁剪、功耗和 Gemini N0 返工不作为默认前置。
-- **本轮范围**：`codex/countdown-ui` 从入口修正后的 `main=origin/main@56b4ceb` 进入倒计时第一轮：纯 C 状态机、官方 XML 页面及演示适配。最新五张实拍覆盖预设为 1/2/3/5/10/30，运行 / 暂停、立即取消、离页保留、沙漏单击回跳、到期关闭 / 原时长重来已实施。Product 菜单、shell open 与工厂均阻断第一轮演示入口，不操作 C2 工作树。
-- **第一轮验证**：官方 Pro 2.0.1 / LVGL 9.4.0 GUI 导出与预览编译成功，实际 LVGL 八份 390×450 渲染及输入 / 生命周期断言通过；最终主机 CTest 20/20、UI Demo 与 Product 固件编译 / 镜像重哈希通过。源哈希、命令、失败原因、工具和产物见 [倒计时专题](COUNTDOWN.md#round1)与[精简证据](evidence/2026-10-10/countdown-round1.json)。本轮无串口、烧录或硬件输入，不能据此关闭 Product 后台 / PM / 提醒恢复或真机验收。
+- **本轮范围**：第一轮 [PR #41](https://github.com/e-n-ye/wristflow/pull/41) 已 Rebase 合入 `e6e58be`，MERGED 回读与 fetch / tree 核对完成。用户随后“继续吧”授权第二轮；`codex/countdown-product` 从该 main 在独立工作树接 Product 服务、后台截止 / PM 事件、30 秒待处理提醒、有效会话与确认恢复。主目录 Pro 导出改动保留，不操作 C2 工作树；USB 真机属于第三轮。
+- **第一轮验证**：官方 Pro 2.0.1 / LVGL 9.4.0 GUI 导出与预览编译成功，实际 LVGL 八份 390×450 渲染及输入 / 生命周期断言通过；主机 CTest 20/20、UI Demo 与 Product 固件编译 / 镜像重哈希通过。源哈希、命令、失败原因、工具和产物见 [第一轮专题](COUNTDOWN.md#round1)与[精简证据](evidence/2026-10-10/countdown-round1.json)。第一轮无硬件操作，不能抵扣 Product 或设备验收。
+- **第二轮软件验证**：服务直接编译到主机测试，getter 只复制；实际停止 LVGL timer 后独立到期、勿扰 / 30 秒保留 / KEY1、有效会话与确认、通知缓存、立即取消竞争和原时长重来通过。CTest 22/22，最后邮箱断言增补 `product_pm` 1/1；Product 与 UI Demo 编译 / 全部源和产物重哈希通过，实际 LVGL 三份覆盖帧检查、文档 UTF-8 / 链接及空白检查通过。见 [第二轮专题](COUNTDOWN.md#round2)与[精简证据](evidence/2026-10-10/countdown-round2.json)。软件验证完成，PR 合入状态以本轮 PR / 交接回读为准；没有串口、烧录或硬件输入。
 - **入口与天气交付**：[PR #40](https://github.com/e-n-ye/wristflow/pull/40) 回读 MERGED，merge commit `56b4ceb4182221ff6edbf9d5764ef619cd00d0cd`，fetch 确认远端 main 包含入口文档修正；它只有文档 / 源码检查，没有设备操作。天气 [PR #38](https://github.com/e-n-ye/wristflow/pull/38) 已合入 `64c7e43`，各版源码/测试/编译及必要 USB 回归见 [专题](WEATHER-UI.md#weather-regression)和[精简证据](evidence/2026-10-09/weather-regression.json)，保留有界验收结果。
 - **独立后续任务**：C2 [PR #39](https://github.com/e-n-ye/wristflow/pull/39) 仍 OPEN / DRAFT，head `9815dca`；原 [PR #30](https://github.com/e-n-ye/wristflow/pull/30) 草稿和工作树保留。10日抬腕手感优化已暂停，未提交的 500→300ms 修改已撤回；动作识别、停顿手感和误触发/关闭边界尚未闭环。通知 J3/J4 原因未定、其余联合矩阵未完成，见 [Product 验收](PRODUCT-ACCEPTANCE.md)。暂停不表示通过或合并，本轮不操作 C2 工作树。
-- **倒计时证据边界**：第一轮只开放演示 / 主机入口；模型独立于视图，演示 LVGL timer 不构成 Product 息屏后台。第二轮独立截止 / PM 到期 / 30 秒待处理提醒 / 有效会话恢复及重启取消，第三轮同版 USB 验收均未执行；D4 稳定身份与 D5 后台框架债务保留。完整 N2、三小时/RTC 真机、目标压力/IRQ 延迟、物理掉电/GC 中断、佩戴与功耗仍未关闭；设置 v5 后不能用旧 v4 固件读取。现版板上身份未重新观察，不沿用旧端口作为当前事实。
+- **倒计时证据边界**：第二轮源码 / 主机 / 编译通过不证明板上自主唤醒、精度、实际输入释放或功耗；D4 稳定身份与 D5 后台框架债务保留。第三轮同版 USB、完整 N2、三小时/RTC 真机、目标压力/IRQ 延迟、物理掉电/GC 中断、佩戴与功耗仍未关闭；设置 v5 后不能用旧 v4 固件读取。现版板上身份未重新观察，不沿用旧端口作为当前事实。
 
 ### 当前闭环与唯一下一步
 
-本轮倒计时第一轮候选已通过上述源码 / 主机 / 编译门槛，最后按 CONTRIBUTING 完成审阅和 PR 收尾；交付以 MERGED/merge commit 回读及 fetch 后主线核对为准，记录放 PR / 本轮交接，不另开回填文档 PR。
+本轮倒计时第二轮候选已通过源码 / 主机 / 两目标编译门槛，按 CONTRIBUTING 完成最终审阅、PR 与 Rebase 合并。交付以 MERGED/merge commit 回读及 fetch 后主线核对为准，记录放 PR / 本轮交接，不另开回填文档 PR。
 
-唯一下一步：完成第一轮 PR 最终审阅、Rebase 合并、MERGED 回读与 fetch 后主线核对。交付后才建议进入第二轮，届时按 [COUNTDOWN](COUNTDOWN.md) 的后台 / 提醒契约定位 [Product 运行时](PRODUCT-RUNTIME.md)及 [PM 事件唤醒](PM-EVENT-WAKE.md)，先确定权威单调时钟、服务拥有者和 PM 事件；第二轮尚未获准在本轮执行。C2、通知联合验收、功耗和完整裁剪不自动续跑。设备操作前重新核对版本、端口与 USB 条件，不自动回刷旧冻结镜像。
+唯一下一步：按本轮 PR / 交接核对最终审阅、Rebase 合并、MERGED 回读与 fetch 后主线结果；这些核对完成即结束第二轮，不重复开启交付。交付后的唯一后续建议是独立进入第三轮同版 USB 验收，先核对候选源码 / 三镜像、实际端口和 USB 条件，再验证自主到期、首帧、真实输入及会话恢复；本轮不自动进入设备操作。契约见 [COUNTDOWN](COUNTDOWN.md)，接入见 [Product 运行时](PRODUCT-RUNTIME.md)及 [PM 事件唤醒](PM-EVENT-WAKE.md)。C2、通知联合验收、功耗和完整裁剪不自动续跑，不自动回刷旧冻结镜像。
 
 <a id="history"></a>
 ## 历史摘要的适用边界
