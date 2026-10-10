@@ -9,6 +9,7 @@
                 <launcher_icon name="launch_system" x="335" y="171" icon="&#xf240;" tint="0x21a1bd" />
                 <launcher_icon name="launch_flashlight" x="215" y="379" icon="&#xf0eb;" tint="0x8b71bf" />
                 <launcher_icon name="launch_settings" x="335" y="379" icon="&#xf013;" tint="0x647783" />
+                <launcher_icon name="launch_countdown" x="455" y="379" icon="&#xf252;" tint="0x008cff" />
             </lv_obj>
         </lv_obj>
         <lv_label name="launcher_caption" x="24" y="404" width="342" text="应用" style_text_align="center" style_text_color="#fg_secondary" />

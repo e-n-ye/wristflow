@@ -1,0 +1,58 @@
+<screen>
+    <styles>
+        <style name="wheel_selected" bg_opa="0%" text_color="#fg_primary" text_font="value_36" />
+    </styles>
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="body_20" style_text_color="#fg_primary">
+        <lv_button name="app_back" x="18" y="14" width="218" height="52" style_bg_opa="0%" style_border_width="0" style_shadow_width="0" style_pad_all="0">
+            <lv_label name="countdown_title" x="6" y="12" text="倒计时" style_text_font="title_24" />
+        </lv_button>
+        <lv_label name="countdown_clock" x="270" y="26" width="96" text="13:40" style_text_font="title_24" style_text_align="right" />
+        <lv_obj name="countdown_picker" x="0" y="78" width="390" height="350" scrollable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0">
+            <countdown_preset name="countdown_preset_1" x="24" y="16" minutes="1" />
+            <countdown_preset name="countdown_preset_2" x="143" y="16" minutes="2" />
+            <countdown_preset name="countdown_preset_3" x="262" y="16" minutes="3" />
+            <countdown_preset name="countdown_preset_5" x="24" y="140" minutes="5" />
+            <countdown_preset name="countdown_preset_10" x="143" y="140" minutes="10" />
+            <countdown_preset name="countdown_preset_30" x="262" y="140" minutes="30" />
+            <lv_button name="countdown_custom" x="30" y="279" width="330" height="66" style_radius="33" style_bg_color="0x143d63" style_shadow_width="0" style_pad_all="0">
+                <lv_label align="center" text="自定义" style_text_font="title_24" style_text_color="0x008cff" />
+            </lv_button>
+        </lv_obj>
+        <lv_obj name="countdown_custom_panel" x="0" y="78" width="390" height="350" hidden="true" scrollable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0">
+            <lv_roller name="countdown_hours" x="38" y="46" width="94" options="00&#10;01&#10;02&#10;03&#10;04&#10;05&#10;06&#10;07&#10;08&#10;09&#10;10&#10;11&#10;12&#10;13&#10;14&#10;15&#10;16&#10;17&#10;18&#10;19&#10;20&#10;21&#10;22&#10;23" options-mode="infinite" style_bg_opa="0%" style_border_width="0" style_radius="0" style_text_font="value_36" style_text_color="0x7895b3" style_text_line_space="20" style_text_align="center" visible_row_count="3">
+                <style name="wheel_selected" selector="selected" />
+            </lv_roller>
+            <lv_roller name="countdown_minutes" x="148" y="46" width="94" options="00&#10;01&#10;02&#10;03&#10;04&#10;05&#10;06&#10;07&#10;08&#10;09&#10;10&#10;11&#10;12&#10;13&#10;14&#10;15&#10;16&#10;17&#10;18&#10;19&#10;20&#10;21&#10;22&#10;23&#10;24&#10;25&#10;26&#10;27&#10;28&#10;29&#10;30&#10;31&#10;32&#10;33&#10;34&#10;35&#10;36&#10;37&#10;38&#10;39&#10;40&#10;41&#10;42&#10;43&#10;44&#10;45&#10;46&#10;47&#10;48&#10;49&#10;50&#10;51&#10;52&#10;53&#10;54&#10;55&#10;56&#10;57&#10;58&#10;59" options-mode="infinite" selected="1" style_bg_opa="0%" style_border_width="0" style_radius="0" style_text_font="value_36" style_text_color="0x7895b3" style_text_line_space="20" style_text_align="center" visible_row_count="3">
+                <style name="wheel_selected" selector="selected" />
+            </lv_roller>
+            <lv_roller name="countdown_seconds" x="258" y="46" width="94" options="00&#10;01&#10;02&#10;03&#10;04&#10;05&#10;06&#10;07&#10;08&#10;09&#10;10&#10;11&#10;12&#10;13&#10;14&#10;15&#10;16&#10;17&#10;18&#10;19&#10;20&#10;21&#10;22&#10;23&#10;24&#10;25&#10;26&#10;27&#10;28&#10;29&#10;30&#10;31&#10;32&#10;33&#10;34&#10;35&#10;36&#10;37&#10;38&#10;39&#10;40&#10;41&#10;42&#10;43&#10;44&#10;45&#10;46&#10;47&#10;48&#10;49&#10;50&#10;51&#10;52&#10;53&#10;54&#10;55&#10;56&#10;57&#10;58&#10;59" options-mode="infinite" style_bg_opa="0%" style_border_width="0" style_radius="0" style_text_font="value_36" style_text_color="0x7895b3" style_text_line_space="20" style_text_align="center" visible_row_count="3">
+                <style name="wheel_selected" selector="selected" />
+            </lv_roller>
+            <lv_label name="countdown_separator_1" x="131" y="118" width="18" text=":" style_text_font="value_36" style_text_align="center" />
+            <lv_label name="countdown_separator_2" x="241" y="118" width="18" text=":" style_text_font="value_36" style_text_align="center" />
+            <lv_button name="countdown_start" x="120" y="279" width="150" height="66" style_bg_color="0x008cff" style_radius="33" style_shadow_width="0" style_pad_all="0">
+                <lv_label align="center" text="&#xf00c;" style_text_font="icons_44" />
+            </lv_button>
+        </lv_obj>
+        <lv_obj name="countdown_active_panel" x="0" y="78" width="390" height="350" hidden="true" scrollable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0">
+            <lv_label name="countdown_remaining" x="24" y="93" width="342" text="00:00:57" style_text_font="metric_56" style_text_align="center" />
+            <lv_label name="countdown_paused" x="24" y="162" width="342" text="已暂停" hidden="true" style_text_color="#fg_secondary" style_text_align="center" />
+            <lv_button name="countdown_cancel" x="42" y="279" width="144" height="66" style_radius="33" style_bg_color="0x143d63" style_shadow_width="0" style_pad_all="0">
+                <lv_label align="center" text="&#xf04d;" style_text_font="icons_44" />
+            </lv_button>
+            <lv_button name="countdown_toggle" x="204" y="279" width="144" height="66" style_radius="33" style_bg_color="0x008cff" style_shadow_width="0" style_pad_all="0">
+                <lv_label name="countdown_toggle_icon" align="center" text="&#xf04c;" style_text_font="icons_44" />
+            </lv_button>
+        </lv_obj>
+        <lv_obj name="countdown_alert_panel" x="0" y="78" width="390" height="350" hidden="true" scrollable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0">
+            <lv_label x="24" y="81" width="342" text="计时结束" style_text_font="value_36" style_text_align="center" />
+            <lv_label name="countdown_original" x="24" y="134" width="342" text="00:01:00" style_text_font="title_24" style_text_align="center" />
+            <lv_button name="countdown_close" x="42" y="279" width="144" height="66" style_radius="33" style_bg_color="0x143d63" style_shadow_width="0" style_pad_all="0">
+                <lv_label align="center" text="&#xf00d;" style_text_font="icons_44" />
+            </lv_button>
+            <lv_button name="countdown_repeat" x="204" y="279" width="144" height="66" style_radius="33" style_bg_color="0x008cff" style_shadow_width="0" style_pad_all="0">
+                <lv_label align="center" text="&#xf2f9;" style_text_font="icons_44" />
+            </lv_button>
+        </lv_obj>
+    </view>
+</screen>

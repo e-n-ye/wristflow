@@ -107,6 +107,11 @@ lv_obj_t * screen_launcher_create(void)
         lv_obj_set_x(launch_settings, 335);
         lv_obj_set_y(launch_settings, 379);
 
+        lv_obj_t * launch_countdown = launcher_icon_create(launcher_canvas, "", lv_color_hex(0x008cff));
+        lv_obj_set_name(launch_countdown, "launch_countdown");
+        lv_obj_set_x(launch_countdown, 455);
+        lv_obj_set_y(launch_countdown, 379);
+
         lv_obj_t * launcher_caption = lv_label_create(lv_obj_0);
         lv_obj_set_name(launcher_caption, "launcher_caption");
         lv_obj_set_x(launcher_caption, 24);

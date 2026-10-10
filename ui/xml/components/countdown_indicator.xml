@@ -1,0 +1,5 @@
+<component>
+    <view extends="lv_button" x="294" y="14" width="42" height="42" scrollable="false" style_bg_color="0x008cff" style_bg_opa="100%" style_radius="21" style_border_width="0" style_shadow_width="0" style_pad_all="0">
+        <lv_label align="center" text="&#xf252;" style_text_font="icons_20" style_text_color="#fg_primary" />
+    </view>
+</component>

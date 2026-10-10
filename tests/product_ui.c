@@ -132,7 +132,8 @@ int main(int argc, char **argv)
             assert(app->card_sizes & slot->size);
         }
     }
-    assert(instances == 10 && wristflow_app_count() == 14);
+    assert(instances == 10 && wristflow_app_count() == 15);
+    assert(wristflow_app_find("countdown")->demo_only);
     assert(!wristflow_product_default_page(3) && !wristflow_app_find("missing"));
     wristflow_app_data_t weather_data;
     assert(wristflow_app_read(wristflow_app_find("weather"), &state, &weather_data));
@@ -224,7 +225,13 @@ int main(int argc, char **argv)
     for (unsigned layout = 0; layout < 2; ++layout) {
       lv_obj_t *menu = named(launcher, layout ? "launcher_grid" : "launcher_list");
       assert(!lv_obj_has_flag(menu, LV_OBJ_FLAG_HIDDEN));
-      assert(lv_obj_get_child_count(menu) == wristflow_app_count() - 1);
+      unsigned available = 0;
+      for (size_t i = 0; i < wristflow_app_count(); ++i) {
+          const wristflow_app_descriptor_t *app = wristflow_app_at(i);
+          if (!app->demo_only && app->surface != WRISTFLOW_SURFACE_FACE_PICKER) ++available;
+      }
+      assert(lv_obj_get_child_count(menu) == available);
+      assert(!lv_obj_find_by_name(menu, "launch_countdown"));
       assert(!lv_obj_find_by_name(menu, wristflow_app_for_surface(WRISTFLOW_SURFACE_FACE_PICKER)->launcher_name));
       snapshot(argv[1], layout ? "product_grid" : "product_list");
       swipe(90, 10, 300, 10);
@@ -238,7 +245,7 @@ int main(int argc, char **argv)
       assert(lv_screen_active() == launcher);
       for (size_t i = 0; i < wristflow_app_count(); ++i) {
         const wristflow_app_descriptor_t *app = wristflow_app_at(i);
-        if (app->surface == WRISTFLOW_SURFACE_FACE_PICKER) continue;
+        if (app->surface == WRISTFLOW_SURFACE_FACE_PICKER || app->demo_only) continue;
         lv_obj_t *icon = named(menu, app->launcher_name);
         int initial_width = lv_obj_get_width(icon);
         for (unsigned tries = 0; tries < 12; ++tries) {

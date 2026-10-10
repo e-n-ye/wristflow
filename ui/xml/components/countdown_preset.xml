@@ -1,0 +1,15 @@
+<component>
+    <api><prop name="minutes" type="string" default="1" /></api>
+    <styles>
+        <style name="dial_minor" line_width="2" length="4" line_color="0x9ac4ea" />
+        <style name="dial_major" line_width="2" length="6" line_color="0x9ac4ea" />
+    </styles>
+    <view extends="lv_button" width="104" height="104" scrollable="false" style_bg_color="0x143d63" style_bg_opa="100%" style_radius="52" style_border_width="0" style_shadow_width="0" style_pad_all="0">
+        <lv_scale x="7" y="7" width="90" height="90" mode="round_inner" total_tick_count="31" major_tick_every="5" label_show="false" angle_range="360" rotation="270" clickable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_line_width="0">
+            <style name="dial_minor" selector="items" />
+            <style name="dial_major" selector="indicator" />
+        </lv_scale>
+        <lv_label x="0" y="21" width="104" text="$minutes" style_text_font="value_36" style_text_color="0x008cff" style_text_align="center" />
+        <lv_label x="0" y="61" width="104" text="min" style_text_font="body_20" style_text_color="#fg_primary" style_text_align="center" />
+    </view>
+</component>

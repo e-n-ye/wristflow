@@ -1,0 +1,220 @@
+{
+  "date": "2026-10-10",
+  "scope": "Countdown round one: independent core and demo XML UI",
+  "base_commit": "56b4ceb4182221ff6edbf9d5764ef619cd00d0cd",
+  "branch": "codex/countdown-ui",
+  "source_identity": "SHA-256 of local working files used by the final build; Git may normalize line endings",
+  "source_sha256": {
+    "core/countdown.c": "cf230d678a70bd0c4ada0976efd46ad76970550bdd6e7dc4398e5ef544dd671f",
+    "core/countdown.h": "c524d739fe5da1524decb27739e24df42a2c35d28fd469a995d5c265b5fa92d0",
+    "core/watch_core.c": "951ff142c9eefe15211000adb826fb30315002aa2eb7e42fef562c2ab6148817",
+    "core/watch_core.h": "2bca747f4be16af56758f4bc58c1d145fcdc5e76e7c8f0eabe87db8d06f7e72b",
+    "scripts/Generate-Ui-Assets.py": "ba292099806de9068e3b256ceeeb72c01218ca6591029088cabe3e088b64e5a7",
+    "tests/CMakeLists.txt": "83717c2da4a4ed8e90d17d463658cfb965f4f58f17b95e4e3bdf961cc6377c45",
+    "tests/countdown.c": "09262a60c963b3b5c86a6360ba9a03716a6404c3b95a55f427d85a26349cc19e",
+    "tests/countdown_ui.c": "a052ce54a71f49608505305122ed8af47691a4d9fa7e62094acdd959d77b4ff1",
+    "tests/product_ui.c": "2ab9bd573893f6808b6438257426ede4fd93b6c85c0332cbcdfad21129640ace",
+    "ui/runtime/app_registry.c": "3a76f3df45025f90751cd0762c1a34be47b0a0e776cb577828d5f346e0d44ec4",
+    "ui/runtime/app_registry.h": "fe4c8b15c0d3e587fa4a477d5a2ea0c5c5b799acbe561827016e4901688f4891",
+    "ui/runtime/apps.c": "4931b1b507cc6755fd356b5b7520cdc7b85cdb576078b5d538ebf09f061c2101",
+    "ui/runtime/apps.h": "030fffed07f99f47b5536ffe645c5ff07a0a7c38479d8ff388595e89f6c87a23",
+    "ui/runtime/components.c": "58e6414c0e0570c074ef35b2d5e8f824b0eae6d117711980eb5fe0745224e3b9",
+    "ui/runtime/countdown_view.c": "eaa9e3bc0248a9d10a22fe708e5f18e9f8b1a9b8f73dade9174dfce25e9f55b2",
+    "ui/runtime/countdown_view.h": "d1c29e995d764037951a0e734b1626a2199a71de40f576ddc7c6ccfff5422622",
+    "ui/runtime/ui_shell.c": "e225e6f20c4ccec18cfba5534cff24bffecbb0c7b625726fce256733598be8ea",
+    "ui/xml/components/countdown_indicator.xml": "5af6b2a1a28b6e64d929abb0260450e5ed65c5a6e038eaf0f1eb7fccc5ef37ca",
+    "ui/xml/components/countdown_indicator_gen.c": "e4195dd05e073b97f09d5b35ef3f8e012302e093d82ae51ae7993d719c2413ea",
+    "ui/xml/components/countdown_indicator_gen.h": "3685b984d1a8b90ebf2c2b0a4d6730112a1281e88bf7c4e2bd73cb81159434e5",
+    "ui/xml/components/countdown_preset.xml": "e0272c8f8d2f57cc5f1e24efa1ef7c34d5b7cb7e55d490539da67fc8aa21aeeb",
+    "ui/xml/components/countdown_preset_gen.c": "01e255f9830848c5c35fc726a7230c4cf5a052accb5b467069fc2f15aed07a76",
+    "ui/xml/components/countdown_preset_gen.h": "42aac19cae74e09b6bca416cdf3c33d5814817603e349575014fad40b41c79ee",
+    "ui/xml/file_list_gen.cmake": "68bc64d875818143693657c5b64a103cb000cd009b459a55763832e2de941cbb",
+    "ui/xml/fonts/WristFlowIcons.ttf": "b300669f40fd59084865b5672a78b4d6bd936293a0360f9d9e3fb7ae480db767",
+    "ui/xml/fonts/WristFlowSans-Regular.ttf": "1d8c2a3d106399d8a5dba7955642633209b5aa321a3725f6d8fe7269a99ea0ab",
+    "ui/xml/fonts/icons_20_data.c": "1c1d8249e7647b840002fd4d3c3b8bbb7e585ac911e2d6f47257fdf4646a71a1",
+    "ui/xml/fonts/icons_44_data.c": "4c0a8e41e3a82a7e14f59c2d8b5905e962e252ce741dcd2a7b497823fe8a8ff5",
+    "ui/xml/fonts/value_36_data.c": "9f8ca25dbcfea1dcc9309f2d80cb9dec0cd3cf324394bfdadb51720b590d35ca",
+    "ui/xml/globals.xml": "36749a1ad4767cdfa4d08e97c0103fd26ed170743fa1f6960afe3c8c84acb1e1",
+    "ui/xml/screens/screen_countdown.xml": "5a2dc03d622d063a3cfe0f0a1d88920007a289170c49271a86e1901944a5ad18",
+    "ui/xml/screens/screen_countdown_gen.c": "cbd27e37632618db2151a6703b205a7aa3cb09f7c595e1bdf6c8794f5a98d707",
+    "ui/xml/screens/screen_countdown_gen.h": "9a1d3cfbda16c9051fa93e4867679ea86367afa0b8e763348e92c8641d294df3",
+    "ui/xml/screens/screen_launcher.xml": "1ad73ed623cac8684072c51145acfe06b734f0c90a0e810a30cf1eb4900e4659",
+    "ui/xml/screens/screen_launcher_gen.c": "d0959d11ef3914a6653bdcdebcd3edddde188197e755857cc71fb859df91d842",
+    "ui/xml/wristflow_ui_gen.h": "8a00ed505c273e3de40d7d331f56f099f10e671839a8d9012e350b45aac62c36"
+  },
+  "sdk_lock": "sdk.lock.json",
+  "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+  "lvgl_version": "9.4.0",
+  "editor_version": "2.0.1 Community",
+  "official_export": {
+    "method": "Pro GUI Ctrl+B",
+    "observed_result": "Built runtime for Preview; Project compiled successfully",
+    "xml_well_formed": [
+      "ui/xml/components/countdown_preset.xml",
+      "ui/xml/components/countdown_indicator.xml",
+      "ui/xml/screens/screen_countdown.xml",
+      "ui/xml/screens/screen_launcher.xml",
+      "ui/xml/globals.xml"
+    ],
+    "preview_wasm_sha256": "ecb91463ab3e68d3a1181cc48c5d4554bda1e61049e2ad4f5fb11ab82a9dfff8",
+    "custom_exporter_used": false
+  },
+  "host": {
+    "command": "pwsh -NoProfile -File scripts/Simulate.ps1 -BuildOnly -Jobs 4",
+    "exit_code": 0,
+    "tests_passed": 20,
+    "tests_failed": 0,
+    "seconds": 10.59,
+    "log_local": "artifacts/countdown-host-final.log",
+    "log_sha256": "62ccbe00bd2d607ee947a5bbd45897caabf3e22351b902a1b676b96b89998a31",
+    "render_sha256": {
+      "artifacts/simulator-build/renders/countdown_custom.ppm": "460b5b6ed2e8c2a2738dff8ed3cd6c6319120039c93bb1ce51c41aeacb3914c9",
+      "artifacts/simulator-build/renders/countdown_custom_max.ppm": "21d30fc42dae0cac4433fda63c20cb2456454418c2c41327b0abf85c0a6ab8c2",
+      "artifacts/simulator-build/renders/countdown_expired.ppm": "aeb25a5210bb0eaeb9bd02f562807f2ba2cd37fbbc41e1a029d5a6b8d4d105a5",
+      "artifacts/simulator-build/renders/countdown_home_paused.ppm": "f004746e6f61cfa4237457caf1a2ae3f2a6a73878230d005feadad7763f542dd",
+      "artifacts/simulator-build/renders/countdown_home_running.ppm": "f004746e6f61cfa4237457caf1a2ae3f2a6a73878230d005feadad7763f542dd",
+      "artifacts/simulator-build/renders/countdown_paused.ppm": "8749de41822359a5a0087d3479d91afdc51d1eb56d9c140b433a85f8327ccdea",
+      "artifacts/simulator-build/renders/countdown_picker.ppm": "596fc101e28c86a881ac446b87c76bd995b06042c160791868f9aed54db7fb60",
+      "artifacts/simulator-build/renders/countdown_running.ppm": "89cfdf55bbdac63ccd7c168e7d7623f3d4c539aaae04d57ddf14bb2973e726bb"
+    },
+    "preview_local": "artifacts/countdown/preview.png"
+  },
+  "builds": {
+    "ui_demo": {
+      "command": "pwsh -NoProfile -File scripts/Build.ps1 -Example ui_demo -Jobs 4",
+      "result_local": "artifacts/ui_demo/20261010-142018-228/result.json",
+      "started_at": "2026-10-10T14:20:18.2437354+08:00",
+      "finished_at": "2026-10-10T14:21:05.2409803+08:00",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "python": "Python 3.13.15",
+      "images_and_map": [
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+          "bytes": 7438008,
+          "sha256": "436cc37e9ceeb14ab2f32e09251eb85827f208cd8243b7f40cf47006e35047a9"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/main.map",
+          "bytes": 5095993,
+          "sha256": "adf6fae42679155b82d83b10c07febc4e51f71d1b7af70cd432b3b7a9e3394b4"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+          "bytes": 11288,
+          "sha256": "52ecbc9c299b4e3742d533ca3bd15fc8d620665e537b85b40401224ccf8c9610"
+        }
+      ]
+    },
+    "product": {
+      "command": "pwsh -NoProfile -File scripts/Build.ps1 -Example product -Jobs 4",
+      "result_local": "artifacts/product/20261010-142119-814/result.json",
+      "started_at": "2026-10-10T14:21:19.8327221+08:00",
+      "finished_at": "2026-10-10T14:22:54.4164856+08:00",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "python": "Python 3.13.15",
+      "images_and_map": [
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+          "bytes": 7634580,
+          "sha256": "799731b7f862559e371395e3fcc9fd03f3cfd793f6c9b4f208474684052cdc92"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.map",
+          "bytes": 8090824,
+          "sha256": "b1c021c2eec224e80717c6d5eee557dbdf242e8bd73aaa698ec4371ee1d156a7"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+          "bytes": 11288,
+          "sha256": "1ad89df46902c37693d67d38730188f945e0ecc61e21ad0a5c7db7779d33ef63"
+        }
+      ]
+    }
+  },
+  "unrelated_generated_outputs_restored": {
+    "ui/xml/screens/screen_weather_current_gen.c": {
+      "compiled_sha256": "d0beb4573a14a32a047340c5eee91c44797ab69da660e6d7fd12a9281f146c24",
+      "restored_working_sha256": "4a43b7032a2ea0d1954fc41572c2e454638d51c4f7b919010f10276e7ca124d7",
+      "reason": "Unchanged XML; restore prior official output after unrelated EOF blank line from re-export"
+    },
+    "ui/xml/screens/screen_weather_daily_gen.c": {
+      "compiled_sha256": "c2c9de06897b686cdc736e13145c9748b42cfc1020ec4f68ee3f071180e59824",
+      "restored_working_sha256": "e5baba6268f18358991f93724629e246e067f6c05e7a77be3f506208a9ed6f39",
+      "reason": "Unchanged XML; restore prior official output after unrelated EOF blank line from re-export"
+    },
+    "ui/xml/screens/screen_weather_hourly_gen.c": {
+      "compiled_sha256": "ce6bd3ac719d45225ee07947bae3cb0dbdc54cc05b9134385fabb76f68a06791",
+      "restored_working_sha256": "5550c51b5b64e82d4b9f76bf02dd8ad42f47eb91a29d82402b303ffc2c3e36dd",
+      "reason": "Unchanged XML; restore prior official output after unrelated EOF blank line from re-export"
+    },
+    "ui/xml/screens/screen_weather_indices_gen.c": {
+      "compiled_sha256": "154614eb753756c9085d5e5c1f8c97c17a782fc483595f9c1a63ed2d20385c8d",
+      "restored_working_sha256": "4d3e9e07cf735bdba2d79ad2a09d857c3317b3bc87b020678b74f2addb7f7530",
+      "reason": "Unchanged XML; restore prior official output after unrelated EOF blank line from re-export"
+    },
+    "ui/xml/screens/screen_weather_sun_gen.c": {
+      "compiled_sha256": "f0b0ffc975753419ad956ee8501d1839043de14ed01cd386a073c7b548d506d5",
+      "restored_working_sha256": "576c0bd32bccc85b9c3b86ac7f714ee9ebddeda22d46ae5df36e0c3bea9ddc1e",
+      "reason": "Unchanged XML; restore prior official output after unrelated EOF blank line from re-export"
+    },
+    "ui/xml/images/weather_sun_track_data.c": {
+      "compiled_sha256": "4bf8a0428bb499a9b5e8a3fe8c86213bc07d29db85fb4507dd07f8d6afb1f1e4",
+      "restored_working_sha256": "0aa994e4eac09849d5648f35c3aafbb922e73e8b881273a81518251e3128e629",
+      "reason": "Unchanged XML; restore prior official output after unrelated EOF blank line from re-export"
+    }
+  },
+  "hardware_verified": false,
+  "flashed": false,
+  "device_io_performed": false,
+  "failures_resolved": [
+    {
+      "stage": "Pro XML",
+      "cause": "Unsupported colon-bearing style attributes",
+      "fix": "Named style and selector"
+    },
+    {
+      "stage": "LVGL layout",
+      "cause": "Roller visible rows computed before font and line spacing",
+      "fix": "XML attribute order and explicit text center"
+    },
+    {
+      "stage": "Source font subset",
+      "cause": "New Chinese and icon codepoints absent",
+      "fix": "Static subset update and official export"
+    },
+    {
+      "stage": "Pro generation",
+      "error": "UNKNOWN open file_list_gen.cmake",
+      "cause": "Unknown",
+      "observation": "Exclusive read/write probe passed; retry export succeeded"
+    },
+    {
+      "stage": "UI Demo firmware",
+      "cause": "Private open callback conflicts with SDK/Newlib open declaration",
+      "fix": "Rename open_countdown"
+    }
+  ],
+  "not_covered": [
+    "Product background deadline and screen-off wake",
+    "30-second pending reminder",
+    "DND and valid-session/confirmation restoration",
+    "USB hardware UI/input/timing",
+    "C2 and notification joint acceptance",
+    "Power/current/battery life",
+    "Full module/resource trimming"
+  ]
+}
