@@ -1,5 +1,14 @@
 # 可复现构建基线
 
+<a id="imu-tilt-build"></a>
+## 2026-10-09 倾斜姿态构建
+
+候选源码 `ab5b1ce9ca884851614af39f7d2d28f6c0a6fbd4`。Debug 沿用下方 CMake/Ninja/GCC15.2 入口，全套21/21通过（5.53秒）；新增 `wrist_pose` 验实测倾斜/镜像/侧翻/平放/旧关键样本与角度、模长、int16极值。补齐断言保护后，另以 `-DCMAKE_BUILD_TYPE=Release` 配置 `artifacts/imu-tilt/release-check`，仅构建wrist_pose目标并运行 `ctest --test-dir artifacts/imu-tilt/release-check -R '^wrist_pose$' --output-on-failure --timeout 60`，1/1通过（0.11秒），编译选项的 `-UNDEBUG` 保留断言。两次原始测试结果保存在本工作树忽略目录 `artifacts/imu-tilt/`。
+
+官方SCons两目标本轮均编译并校验通过：Product记录 `artifacts/product/20261009-202157-811/result.json`，320源/29产物重哈希一致，主BIN 7,629,668 B / `de58b365a5c5d6572552c36ac42888e9f59683ca9dae7f21604042f2fb6a6a53`；UI Demo记录 `artifacts/ui_demo/20261009-202158-104/result.json`，301源/22产物一致，主BIN 7,424,456 B / `b6a931555cf6ab456cce3ca8729f1acbea36a08540b7abe549c429b932d6c0e0`。新增core分类源由两目标Glob纳入，不能复用旧Demo构建代替本次；命令仍为 `artifacts/build-isolated.ps1 -Example <目标>` 调用官方 `scons --board=sf32lb52-lchspi-ulp -j6`，Python3.13.15/ArmGCC14.2.1、SDK及子模块锁不变且干净，既有厂商告警保留。未运行手动云端基线。
+
+新诊断行最保守96 B，小于128 B控制台缓冲；trace结构大小未变。三镜像dry run核验通过，再单独执行COM5 CH340的三镜像 `write_flash --verify`，退出0，记录 `artifacts/flash/product/20261009-202735-834/result.json`。构建入口未执行烧录；USB行为以[本版姿态记录](IMU-WRIST-WAKE.md#imu-tilted-view)为准，编译与静态分类不是触发/误触发硬件验收。
+
 <a id="imu-diagnostics-build"></a>
 ## 2026-10-09 抬腕诊断构建
 

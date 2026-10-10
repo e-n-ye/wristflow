@@ -1,0 +1,650 @@
+{
+  "date": "2026-10-09",
+  "workspace": "C:/Users/13984/.codex/worktrees/imu-wrist-wake/wristflow",
+  "branch": "codex/imu-weather-integration",
+  "base_commit": "64c7e43e1d105772893e893f326e0234dbe327fb",
+  "source_commit": "ab5b1ce9ca884851614af39f7d2d28f6c0a6fbd4",
+  "pull_request": "https://github.com/e-n-ye/wristflow/pull/39",
+  "delivery": "reviewable_candidate_gates_deferred_by_user_not_a_merge_receipt",
+  "scope": "Tilted-view classification only; retain 500ms hold, 1500ms scan, 40ms wait, baseline/departed/flat, IRQ/PM and SDK display restore",
+  "source_inspection": {
+    "classifier": "X<-9000, abs(Y)<8000, Z<7000; Z<=0 requires 3X^2>=2Z^2, Z>0 requires X<-12000; magnitude 13000..20000 raw; int64 arithmetic",
+    "inferred_front_pitch_min_deg": 39.231520483592256,
+    "ownership": "core owns pure classification; product worker owns validity, baseline, time, device and event",
+    "review": "Read-only Sol/medium review plus root checks; added wrist_pose to common -UNDEBUG/MSVC test runtime list after review",
+    "trace_semantics": "Old reason numbers preserved, append not_gravity; bit7 is gravity guard, existing Z bit now joint XZ VIEW; retain 32B entries / 128 capacity / 4124B static storage",
+    "console": {
+      "utf8_files": 8,
+      "diagnostic_lines": 15,
+      "max_conservative_line_bytes": 96,
+      "console_bytes": 128,
+      "source_commit": "ab5b1ce9ca884851614af39f7d2d28f6c0a6fbd4"
+    }
+  },
+  "compilation": {
+    "host": {
+      "compiler": "GCC15.2.0",
+      "generator": "Ninja",
+      "configuration": "Debug",
+      "passed": 21,
+      "total": 21,
+      "exit_code": 0,
+      "seconds": 5.53,
+      "commands": [
+        "cmake -S tests -B artifacts/host-imu-integration -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe -DCMAKE_MAKE_PROGRAM=D:/msys64/ucrt64/bin/ninja.exe -DWRISTFLOW_BUILD_SIMULATOR=ON",
+        "cmake --build artifacts/host-imu-integration --parallel 6",
+        "ctest --test-dir artifacts/host-imu-integration --output-on-failure --timeout 60"
+      ],
+      "cases": "Measured static targets/mirror/side/flat/old key rows plus direction/view/gravity boundaries and int16 extremes; full existing host regressions"
+    },
+    "release": {
+      "target": "wrist_pose",
+      "passed": 1,
+      "total": 1,
+      "exit_code": 0,
+      "seconds": 0.11,
+      "assertion_option": "-UNDEBUG",
+      "command": "ctest --test-dir artifacts/imu-tilt/release-check -R '^wrist_pose$' --output-on-failure --timeout 60"
+    },
+    "builds": [
+      {
+        "example": "product",
+        "result": {
+          "path": "artifacts/product/20261009-202157-811/result.json",
+          "bytes": 79834,
+          "sha256": "edc7a46b156f5bea22d75e8996557cde910cd6c32d9bacb0f4417fb93efc9bd4"
+        },
+        "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+        "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+        "python": "Python 3.13.15",
+        "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+        "matched_sources": 320,
+        "matched_artifacts": 29,
+        "images": [
+          {
+            "path": "C:/Users/13984/.codex/worktrees/imu-wrist-wake/wristflow/apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+            "bytes": 7629668,
+            "sha256": "de58b365a5c5d6572552c36ac42888e9f59683ca9dae7f21604042f2fb6a6a53"
+          },
+          {
+            "path": "C:/Users/13984/.codex/worktrees/imu-wrist-wake/wristflow/apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+            "bytes": 58496,
+            "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+          },
+          {
+            "path": "C:/Users/13984/.codex/worktrees/imu-wrist-wake/wristflow/apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+            "bytes": 11288,
+            "sha256": "4721152ec63fcb3113665d9569a040384015654ebd0b40a2643ae38529c321d5"
+          }
+        ],
+        "exit_code": 0,
+        "new_hardware_claim": false
+      },
+      {
+        "example": "ui_demo",
+        "result": {
+          "path": "artifacts/ui_demo/20261009-202158-104/result.json",
+          "bytes": 73727,
+          "sha256": "1717ff1aa716d5791373a4a88893dce0e93e1620525881bc94d345dee153cc99"
+        },
+        "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+        "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+        "python": "Python 3.13.15",
+        "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+        "matched_sources": 301,
+        "matched_artifacts": 22,
+        "images": [
+          {
+            "path": "C:/Users/13984/.codex/worktrees/imu-wrist-wake/wristflow/apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+            "bytes": 7424456,
+            "sha256": "b6a931555cf6ab456cce3ca8729f1acbea36a08540b7abe549c429b932d6c0e0"
+          },
+          {
+            "path": "C:/Users/13984/.codex/worktrees/imu-wrist-wake/wristflow/apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+            "bytes": 58496,
+            "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+          },
+          {
+            "path": "C:/Users/13984/.codex/worktrees/imu-wrist-wake/wristflow/apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+            "bytes": 11288,
+            "sha256": "0c40ad260995e163ceecba020075c8575f0ea54062bbe52423713747ea0d71aa"
+          }
+        ],
+        "exit_code": 0,
+        "new_hardware_claim": false
+      }
+    ],
+    "matched_sources": 621,
+    "matched_artifacts": 51,
+    "sdk_and_submodules_unchanged": true,
+    "generated_ui_unchanged": true,
+    "manual_cloud_run": false
+  },
+  "static_target": {
+    "source_commit": "16188c3f9acaa849f5d48c4acb34c04918f8e352",
+    "samples": 20,
+    "elapsed_ticks": 2037,
+    "tick_hz": 1000,
+    "diagnostic_interval_ms": "about 100..102; not runtime 40ms scan",
+    "stop": "ok",
+    "io_errors_before_after": [
+      1,
+      1
+    ],
+    "ranges": {
+      "x": [
+        -11464,
+        -10709
+      ],
+      "y": [
+        -528,
+        -102
+      ],
+      "z": [
+        -12405,
+        -11676
+      ],
+      "pitch_deg": [
+        41.60905068393413,
+        43.0526695155279
+      ],
+      "magnitude_raw": [
+        15868.336176171717,
+        16795.55706131833
+      ]
+    },
+    "old_accepted": 0,
+    "candidate_accepted": 20,
+    "prior_trace_offline_replay": [
+      {
+        "label": "trial-one-dump-and-next-enable",
+        "max_eligible_hold_ms": 523,
+        "hypothetical_trigger_tick": 75070
+      },
+      {
+        "label": "trial-two-final-dump",
+        "max_eligible_hold_ms": 474,
+        "hypothetical_trigger_tick": null
+      }
+    ],
+    "limits": "Gravity-based pitch estimate only; static sampling does not measure motion trajectory, wear detection or physical wake; offline replay is not RT worker verification",
+    "capture_close": {
+      "host_s": 170.328,
+      "kind": "closed",
+      "exit_code": 0,
+      "uart_bytes": 3133,
+      "pending_plans": []
+    },
+    "raw_records": [
+      {
+        "path": "artifacts/imu-tilt/baseline-session/uart.bin",
+        "bytes": 3133,
+        "sha256": "262a041ed9ccfc4e40784c9872c31ad3f3f70ea4bfa3b3db57d04fe425b30d69"
+      },
+      {
+        "path": "artifacts/imu-tilt/baseline-session/events.jsonl",
+        "bytes": 8248,
+        "sha256": "cef8309e32da0faf0a64cf168ce48947e4ac7a189ce3ae4277f7ebeec744ed6f"
+      },
+      {
+        "path": "artifacts/imu-tilt/baseline-session/events.json",
+        "bytes": 10195,
+        "sha256": "499872530c9ba57027bed15352638fe7a1f13d8db91605fff93e6ad2182dbb55"
+      }
+    ]
+  },
+  "hardware": {
+    "conditions": {
+      "board": "Same Huangshan board and panel",
+      "power": "USB only; no battery",
+      "port": "COM5 CH340",
+      "physical_id": "USB\\VID_1A86&PID_7523\\6&A8355E6&3&1",
+      "serial": "1000000 8N1, no flow control, DTR/RTS false; collector does not reset",
+      "ble": "Real phone Gadgetbridge; no computer BLE peer or injected weather this round"
+    },
+    "flash": {
+      "result": {
+        "path": "artifacts/flash/product/20261009-202735-834/result.json",
+        "bytes": 1935,
+        "sha256": "980332b91052736887e91378009fb8be05cc5a282b80250ac9f3eec5a28bdc87"
+      },
+      "command": "D:/MY_Desk/project/wristflow/.tools/sifli/tools/sftool/0.2.5/sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify C:\\Users\\13984\\.codex\\worktrees\\imu-wrist-wake\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 C:\\Users\\13984\\.codex\\worktrees\\imu-wrist-wake\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 C:\\Users\\13984\\.codex\\worktrees\\imu-wrist-wake\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+      "images": [
+        {
+          "name": "bootloader.bin",
+          "path": "C:\\Users\\13984\\.codex\\worktrees\\imu-wrist-wake\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+          "address": "0x12010000",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "name": "main.bin",
+          "path": "C:\\Users\\13984\\.codex\\worktrees\\imu-wrist-wake\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+          "address": "0x12020000",
+          "bytes": 7629668,
+          "sha256": "de58b365a5c5d6572552c36ac42888e9f59683ca9dae7f21604042f2fb6a6a53"
+        },
+        {
+          "name": "ftab.bin",
+          "path": "C:\\Users\\13984\\.codex\\worktrees\\imu-wrist-wake\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+          "address": "0x12000000",
+          "bytes": 11288,
+          "sha256": "4721152ec63fcb3113665d9569a040384015654ebd0b40a2643ae38529c321d5"
+        }
+      ],
+      "exit_code": 0,
+      "verify_is_not_behavior_acceptance": true
+    },
+    "startup_flat": {
+      "axes": [
+        -39,
+        -325,
+        -16384
+      ],
+      "flat": 1
+    },
+    "user_observations": {
+      "tilt": {
+        "requested": 3,
+        "visibly_lit": 3,
+        "first_reply": "亮了，但是还是要在那里停顿一下才亮，其他正常",
+        "repeat_reply": "都亮了，但是问题还是不灵敏",
+        "latency_improved": false
+      },
+      "phone_recovery": {
+        "reply": "已连接，正常",
+        "weather_return_touch_normal": true
+      },
+      "upright": {
+        "planned_gate": 10,
+        "requested_first_group": 5,
+        "completed": null,
+        "visibly_lit": null,
+        "replies": [
+          "点亮现在都是没有问题的，只是不灵敏，不必继续测试了吧"
+        ],
+        "exact_count_not_reported": true
+      },
+      "disturbance": {
+        "requested": 10,
+        "completed": 0,
+        "visible_false_wakes": null,
+        "reply": null
+      },
+      "switch_and_final_recovery": null,
+      "keep_awake_closed": true,
+      "keep_awake_basis": "User performed repeat-tilt instructions with keep-awake disabled; later fixed-pose instruction kept it disabled. UART shows repeated natural screen off; no re-enable was requested.",
+      "gate": {
+        "status": "deferred_by_user",
+        "reason": "User accepts current lighting qualitatively and asks to stop repeated action tests. Do not infer fixed 10/10, disturbance <=1/10 or switch-off completion. Sensitivity/pause remains unresolved; keep PR draft."
+      }
+    },
+    "first_trace": {
+      "count": 16,
+      "complete": true,
+      "overwritten": 0,
+      "terminal": "trigger",
+      "hold_ticks": 520,
+      "eligible_rows": 13,
+      "old_accepted_rows": 0,
+      "xyz_ranges": [
+        [
+          -13584,
+          -12516
+        ],
+        [
+          588,
+          1529
+        ],
+        [
+          -10698,
+          -9686
+        ]
+      ],
+      "inferred_pitch_range": [
+        50.90396389793195,
+        52.55027234257909
+      ],
+      "flags": [
+        191
+      ]
+    },
+    "action_windows": [
+      {
+        "label": "tilt-repeat-two",
+        "start_s": 524.578,
+        "end_s": 628.984,
+        "user_result": "User reports both visible trials lit, but still not sensitive. Combined requested tilted trials 3/3; no latency improvement claim.",
+        "imu_wake": 2,
+        "imu_brighten": 0,
+        "trigger": 2,
+        "key_wake": 0,
+        "screen_on": 2,
+        "screen_off": 3,
+        "arms": 3,
+        "flat_arms": 3
+      },
+      {
+        "label": "upright-five-one",
+        "start_s": 628.984,
+        "end_s": 1128.437,
+        "user_result": "User: current lighting has no problem, but still not sensitive; asks to stop repeated tests. Exact visible trial count was not provided; do not infer 5/5 or 10/10.",
+        "imu_wake": 5,
+        "imu_brighten": 0,
+        "trigger": 5,
+        "key_wake": 0,
+        "screen_on": 5,
+        "screen_off": 5,
+        "arms": 5,
+        "flat_arms": 5
+      }
+    ],
+    "software_wakes": [
+      {
+        "host_s": 89.812,
+        "event": "KEY1",
+        "complete": true,
+        "tick": 88639,
+        "prep": 5,
+        "ui": 7,
+        "lcd": 2,
+        "touch": 1,
+        "input": 0,
+        "refresh": 22,
+        "busy": 270,
+        "bright": 0,
+        "total": 307,
+        "value": 47,
+        "hz": 1000
+      },
+      {
+        "host_s": 103.234,
+        "event": "IMU",
+        "complete": true,
+        "tick": 102061,
+        "prep": 5,
+        "ui": 8,
+        "lcd": 2,
+        "touch": 0,
+        "input": 1,
+        "refresh": 21,
+        "busy": 270,
+        "bright": 0,
+        "total": 307,
+        "value": 47,
+        "hz": 1000
+      },
+      {
+        "host_s": 460.062,
+        "event": "KEY1",
+        "complete": true,
+        "tick": 458952,
+        "prep": 5,
+        "ui": 8,
+        "lcd": 2,
+        "touch": 1,
+        "input": 0,
+        "refresh": 23,
+        "busy": 270,
+        "bright": 0,
+        "total": 309,
+        "value": 47,
+        "hz": 1000
+      },
+      {
+        "host_s": 550.109,
+        "event": "IMU",
+        "complete": true,
+        "tick": 549017,
+        "prep": 5,
+        "ui": 7,
+        "lcd": 2,
+        "touch": 1,
+        "input": 0,
+        "refresh": 41,
+        "busy": 250,
+        "bright": 0,
+        "total": 306,
+        "value": 47,
+        "hz": 1000
+      },
+      {
+        "host_s": 562.687,
+        "event": "IMU",
+        "complete": true,
+        "tick": 561594,
+        "prep": 5,
+        "ui": 7,
+        "lcd": 2,
+        "touch": 1,
+        "input": 0,
+        "refresh": 41,
+        "busy": 250,
+        "bright": 0,
+        "total": 306,
+        "value": 47,
+        "hz": 1000
+      },
+      {
+        "host_s": 999.828,
+        "event": "IMU",
+        "complete": true,
+        "tick": 998734,
+        "prep": 5,
+        "ui": 9,
+        "lcd": 1,
+        "touch": 1,
+        "input": 1,
+        "refresh": 29,
+        "busy": 260,
+        "bright": 1,
+        "total": 307,
+        "value": 47,
+        "hz": 1000
+      },
+      {
+        "host_s": 1012.109,
+        "event": "IMU",
+        "complete": true,
+        "tick": 1011008,
+        "prep": 5,
+        "ui": 9,
+        "lcd": 2,
+        "touch": 1,
+        "input": 0,
+        "refresh": 29,
+        "busy": 261,
+        "bright": 1,
+        "total": 308,
+        "value": 47,
+        "hz": 1000
+      },
+      {
+        "host_s": 1023.969,
+        "event": "IMU",
+        "complete": true,
+        "tick": 1022882,
+        "prep": 5,
+        "ui": 9,
+        "lcd": 2,
+        "touch": 1,
+        "input": 0,
+        "refresh": 29,
+        "busy": 261,
+        "bright": 1,
+        "total": 308,
+        "value": 47,
+        "hz": 1000
+      },
+      {
+        "host_s": 1035.703,
+        "event": "IMU",
+        "complete": true,
+        "tick": 1034610,
+        "prep": 5,
+        "ui": 9,
+        "lcd": 2,
+        "touch": 1,
+        "input": 0,
+        "refresh": 29,
+        "busy": 261,
+        "bright": 1,
+        "total": 308,
+        "value": 47,
+        "hz": 1000
+      },
+      {
+        "host_s": 1047.437,
+        "event": "IMU",
+        "complete": true,
+        "tick": 1046338,
+        "prep": 5,
+        "ui": 8,
+        "lcd": 2,
+        "touch": 1,
+        "input": 0,
+        "refresh": 29,
+        "busy": 261,
+        "bright": 1,
+        "total": 307,
+        "value": 47,
+        "hz": 1000
+      }
+    ],
+    "timing_limits": "Wake stages sum to total at 1000Hz; asynchronous POWERON return/brightness call are not physical light onset or total gesture latency. Initial runtime view is about 51..53 degrees, distinct from static 41..43 target.",
+    "last_ble_status": [
+      {
+        "host_s": 500.547,
+        "kind": "uart_line",
+        "text": "msh />msh />msh />msh />[ble] A1 connected=1 subscribed=1 generation=1 messages=0"
+      },
+      {
+        "host_s": 500.547,
+        "kind": "uart_line",
+        "text": "[ble] stats added=0 updated=0 removed=0 rejected=0 unknown=0"
+      },
+      {
+        "host_s": 500.547,
+        "kind": "uart_line",
+        "text": "[ble] queue dropped=0 gaps=0 stale=0"
+      },
+      {
+        "host_s": 500.547,
+        "kind": "uart_line",
+        "text": "[ble] weather cached=1 state=1 expired=0 age_known=1 received_utc=1791549468 request=0 remaining_ms=0"
+      }
+    ],
+    "last_ble_events": [
+      {
+        "host_s": 500.547,
+        "kind": "uart_line",
+        "text": "[ble] queue dropped=0 gaps=0 stale=0"
+      },
+      {
+        "host_s": 500.547,
+        "kind": "uart_line",
+        "text": "[ble] weather cached=1 state=1 expired=0 age_known=1 received_utc=1791549468 request=0 remaining_ms=0"
+      },
+      {
+        "host_s": 869.359,
+        "kind": "uart_line",
+        "text": "[ble] event=6 id=0 count=0 rejected=0"
+      },
+      {
+        "host_s": 920.391,
+        "kind": "uart_line",
+        "text": "[ble] event=6 id=0 count=0 rejected=0"
+      }
+    ],
+    "last_pm": [
+      {
+        "host_s": 1047.437,
+        "kind": "uart_line",
+        "text": "[pm-p1] tick=1046340 allow=1 off=0 own_idle=1 sdk_idle=2"
+      },
+      {
+        "host_s": 1047.437,
+        "kind": "uart_line",
+        "text": "[pm-p1] enter=11123 exit=11123 deep_elapsed=5460"
+      },
+      {
+        "host_s": 1047.437,
+        "kind": "uart_line",
+        "text": "[pm-p1] deep_ticks=551375 max_ticks=104 wake=0x4"
+      },
+      {
+        "host_s": 1047.437,
+        "kind": "uart_line",
+        "text": "[pm-p1] screen_off=10 screen_on=10 tick_hz=1000"
+      },
+      {
+        "host_s": 1047.437,
+        "kind": "uart_line",
+        "text": "[pm-p1] phone=5 phone_off=5 background=8"
+      }
+    ],
+    "last_io": [
+      {
+        "host_s": 1035.703,
+        "kind": "uart_line",
+        "text": "[imu-c1] stop=ok (MD1/function/accel/gyro readback)"
+      },
+      {
+        "host_s": 1035.734,
+        "kind": "uart_line",
+        "text": "[imu-c1] stop=ok (MD1/function/accel/gyro readback)"
+      },
+      {
+        "host_s": 1047.437,
+        "kind": "uart_line",
+        "text": "[imu-c1] stop=ok (MD1/function/accel/gyro readback)"
+      },
+      {
+        "host_s": 1047.469,
+        "kind": "uart_line",
+        "text": "[imu-c1] stop=ok (MD1/function/accel/gyro readback)"
+      }
+    ],
+    "last_io_counter": [
+      {
+        "host_s": 501.031,
+        "kind": "uart_line",
+        "text": "msh />msh />msh />msh />[imu-c1] configured=1 addr=0x6a irq=1 tilt=0 io_errors=1 src=0x20"
+      }
+    ],
+    "captured_abnormal_lines": [],
+    "capture_close": {
+      "host_s": 1128.437,
+      "kind": "closed",
+      "exit_code": 0,
+      "uart_bytes": 28816,
+      "pending_plans": []
+    },
+    "raw_records": [
+      {
+        "path": "artifacts/imu-tilt/runtime-session/uart.bin",
+        "bytes": 28816,
+        "sha256": "a04d515d1b63097ef12339353a17bd02d9abf9f3b782e895b7d46ae6bb67a3a9"
+      },
+      {
+        "path": "artifacts/imu-tilt/runtime-session/events.jsonl",
+        "bytes": 41296,
+        "sha256": "9c80838698050f5ac892b725833f068b7685df68bc120c9d5fda56a55d6ca276"
+      },
+      {
+        "path": "artifacts/imu-tilt/runtime-session/events.json",
+        "bytes": 50380,
+        "sha256": "2b32d865224c4182a5f5d8f101b62925b6ce5c362b1d637d2deb91f596257a7d"
+      }
+    ]
+  },
+  "remaining": [
+    "Pause/sensitivity remains; no latency improvement claim",
+    "Actual wear detection and long-term stability",
+    "Full J1-J7/N2 and target pressure/IRQ timing",
+    "Physical light-on timing, current/energy/battery life",
+    "Three-hour/RTC and power-loss/GC interruption boundaries"
+  ],
+  "next_bounded_experiment": "Propose 500ms to 300ms candidate hold only, preserving classification, baseline and display/PM path; review false-wake tradeoff before the separately authorized latency experiment",
+  "private_raw_policy": "Raw UART stays ignored locally; only necessary summaries and hashes are public"
+}

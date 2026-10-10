@@ -10,6 +10,8 @@
 
 同日 [C2/天气组合候选](IMU-WRIST-WAKE.md#imu-integration) `a257d67` 源码审查、19/19 主机和两目标构建通过，三镜像已写入；固定动作首组用户只见 2/3 次亮屏，随后多次尝试仍不亮或快放回才亮，软件 `screen on` 不能替代可见亮屏，当前硬件门槛失败、不合入。真实 Gadgetbridge 重连后的天气/返回/触摸有独立正常反馈，串口已关闭。下方 #30 的 10/10 与干扰 0/10 仅支持旧 `823e656`；不能抵扣本版或 J1–J7，早期 KEY1 故障也未与本次漏亮归为同一根因。分项和原始记录哈希见[本版证据](evidence/2026-10-09/imu-integration.json)。
 
+后续[倾斜姿态候选](IMU-WRIST-WAKE.md#imu-tilted-view) `ab5b1ce` 主机21/21、Release单项及Product/UI Demo编译通过；同版USB倾斜3/3可见亮屏，手机/天气/触摸恢复正常。负X首组记录5次软件触发，用户定性确认点亮正常、仍不灵敏并要求停止重复测试；本轮结束，不推定固定10/10、干扰最多1/10或关闭开关已通过。PR #39保留草稿，当前未验项与延迟体验仍保留，不关闭J1–J7；见[本轮精简证据](evidence/2026-10-09/imu-tilt.json)。
+
 ## 2026-10-04 联合验收尝试（历史记录恢复）
 
 2026-10-08 从旧 Product 验收工作树未提交文件恢复。原工作树 HEAD 为 `7ec96322ad95e9954e4b63fd4357d57211366206`，启动日志显示 `2.5.1 build 7ec96322`；Git 核对其 apps/core/ui/scripts/tests/SDK 锁/CI 路径相对 `5c0b82c` 无变化。该关系不表示今日板上身份已确认，也不覆盖天气或 C2。原文件、长日志和镜像按[恢复记录](handoffs/WORKSPACE-RECOVERY.md)保留；哈希与证据边界见[精简证据](evidence/2026-10-04/product-joint-attempt.json)。

@@ -7,7 +7,7 @@
 | 对象 | 事实来源与所有权 | 操作 / 验证入口 |
 |---|---|---|
 | 产品集成 | [apps/product](../apps/product/)；`project/SConstruct`、`SConscript`、`proj.conf`、`rtconfig.py` 与 `src/` 由项目维护 | [PRODUCT-RUNTIME](PRODUCT-RUNTIME.md)；Build 的 `product` 目标；联合验收另按版本绑定 |
-| C2 IMU 集成候选 | `apps/product/src/imu_device.*` 维护寄存器/总线接口；`product_imu.c` 线程拥有诊断、PA31/AON 和候选姿态判定，主线程消费亮屏事件 | [IMU 版本与证据](IMU-WRIST-WAKE.md#imu-integration)；相关主机测试、Product 编译及必要 USB 回归 |
+| C2 IMU 集成候选 | `apps/product/src/imu_device.*` 维护寄存器/总线接口；`product_imu.c` 线程拥有诊断、PA31/AON、baseline与候选计时，主线程消费亮屏事件；`core/wrist_pose.*` 只分类三轴姿态，不操作设备/时钟/事件 | [姿态版本与证据](IMU-WRIST-WAKE.md#imu-tilted-view)；相关主机测试、Product/UI Demo 编译及必要 USB 回归 |
 | 固定数据演示 | [apps/ui_demo](../apps/ui_demo/)；与 Product 共用 core、运行时和生成 UI | Build 的 `ui_demo`；不能用演示值证明产品数据真实性 |
 | 板级诊断 | [apps/bringup](../apps/bringup/)；自有工程 / 板级集成 | [BRINGUP](BRINGUP.md)；Build 的 `bringup`，不能代替 Product 联合验收 |
 | 官方 Hello / BLE | 实际路径由 [Build.ps1](../scripts/Build.ps1) 的 `$projects` 定义，位于锁定 SDK 内 | Build 的 `hello` / `ble`；按官方 SCons，不迁移固件到 CMake |
