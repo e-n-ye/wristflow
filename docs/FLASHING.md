@@ -1,6 +1,25 @@
 # 编译、下载与真机验证
 
-本页保留 PR #11 的 2026-09-24 首次上板流程与实测。它对应 Hello／Bringup 历史版本，不是当前 Product 下载指令；当前入口和版本见 [BUILD](BUILD.md)、[STATUS](STATUS.md)。下载必须另行确认 COM 口、板型、当前镜像清单和授权。本次整理未重新烧录或核验忽略目录的历史产物。
+当前构建与版本按 [BUILD](BUILD.md)、[STATUS 当前区](STATUS.md#current) 核对；下载前确认 COM 口、板型、当前镜像清单、供电和授权。本页后面的编号 1–5 保留 PR #11 的 2026-09-24 Hello／Bringup 首次上板流程与实测，不替代当前 Product 指令。
+
+<a id="current-flash-entry"></a>
+## 当前下载入口（2026-10-10 源码核对）
+
+主线 `64c7e43` 已包含 [scripts/Flash.ps1](../scripts/Flash.ps1)，需要 PowerShell 7、目标已有构建产物和本机 sftool。脚本以对应构建目录的 `sftool_param.json` 为准，校验锁定板型、NOR、verify 标志、三份非空镜像及地址，拒绝重复项和目录外路径，输出镜像哈希。
+
+- `-Example`：目标为 `hello`、`ble`、`bringup`、`ui_demo`、`watch` 或 `product`。
+- `-Port`：实际枚举确认的 `COM` 编号；下例 `COM5` 只是命令示例，不表示本轮观察到了设备。
+- `-DryRun`：完成本地校验后返回，不调用 sftool、不打开设备、不复位。它仍要求构建产物和下载工具已存在；通过不证明已下载或能运行。
+
+在项目根目录先做本地校验：
+
+```powershell
+pwsh -NoProfile -File .\scripts\Flash.ps1 -Example product -Port COM5 -DryRun
+```
+
+实际下载在版本、端口、USB 条件与授权已核对后使用同一命令去掉 `-DryRun`；脚本会执行 `write_flash --verify`、软件复位，并将日志、命令、镜像哈希和退出码写到 `artifacts/flash/product/<run-id>/`。`FLASH SUCCEEDED` 表示下载工具退出 0，记录仍为 `hardware_verified=false`；启动、画面、触摸、BLE 和电源分别验收。`Build.ps1` 仍不执行烧录。
+
+本轮只检查脚本参数与执行路径，没有执行上述命令、构建、下载或串口操作。原天气分支才有此脚本的描述已被现版入口替代，flow 接入时的历史快照继续保留。
 
 ## 1. 在 VS Code 编译
 
