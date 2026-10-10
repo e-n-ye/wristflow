@@ -22,6 +22,14 @@ The current subsets were generated using fontTools 4.66.0. The official Editor v
 converts them to `*_data.c`. That editor requires one explicit contiguous
 `range` for icon fonts; space-separated ranges fail in its converter.
 
+For additions to static UI text or icons, update the glyph lists in
+`scripts/Generate-Ui-Assets.py` and run it with `--static-fonts-only` using
+fontTools 4.66.0. This updates only the static text and icon TTF subsets;
+it does not regenerate notification fonts or images. Check the source TTF
+cmap for every new codepoint, then export and recompile in the official
+editor. Expanding XML `range` or `symbols` cannot restore a glyph already
+removed from the source subset.
+
 `WristFlowMessages-Regular.ttf` is a separate subset of the same locked Noto
 Sans SC source, renamed `WristFlow Messages` under the same OFL. It covers the
 source font's Basic CJK and Extension A glyphs, Latin/Latin Extended A/B,

@@ -439,7 +439,7 @@ bool wristflow_components_back(wristflow_components_t *c, bool home)
 {
     if (!c) return false;
     wristflow_surface_t surface = wristflow_ui_shell_navigation(c->shell)->surface;
-    if (surface < WRISTFLOW_SURFACE_COMPONENT_EDITOR) return false;
+    if (surface < WRISTFLOW_SURFACE_COMPONENT_EDITOR || surface > WRISTFLOW_SURFACE_COMPONENT_TEMPLATES) return false;
     if (c->confirmation && !lv_obj_has_flag(c->confirmation, LV_OBJ_FLAG_HIDDEN)) {
         c->leave_accepted = NULL;
         hide_confirmation(c); return true;

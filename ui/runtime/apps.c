@@ -4,6 +4,7 @@
 #include "settings_view.h"
 #include "wristflow_ui.h"
 #include "weather_screen.h"
+#include "countdown_view.h"
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
@@ -14,6 +15,7 @@ struct wristflow_apps {
     lv_obj_t *controls;
     lv_timer_t *timer;
     wristflow_stopwatch_t stopwatch;
+    wristflow_countdown_view_t *countdown;
     wristflow_watch_snapshot_t snapshot;
     wristflow_brightness_cb_t brightness_cb;
     void *context;
@@ -411,7 +413,7 @@ static void create_product_menu(wristflow_apps_t *apps, lv_obj_t *root)
     apps->menu_count = 0;
     for (size_t i = 0; i < wristflow_app_count(); ++i) {
         const wristflow_app_descriptor_t *entry = wristflow_app_at(i);
-        if (entry->surface == WRISTFLOW_SURFACE_FACE_PICKER) continue;
+        if (entry->surface == WRISTFLOW_SURFACE_FACE_PICKER || entry->demo_only) continue;
         unsigned index = apps->menu_count++;
         LV_ASSERT(index < WRISTFLOW_SURFACE_COUNT);
         apps->menu_entries[index] = entry;
@@ -450,6 +452,7 @@ wristflow_apps_t *wristflow_apps_create(wristflow_ui_shell_t *shell, lv_obj_t *c
     apps->brightness_cb = brightness;
     apps->context = context;
     apps->product_mode = product_mode;
+    if (!product_mode) apps->countdown = wristflow_countdown_view_create(shell);
     apps->menu_layout = menu_layout;
     apps->timer = lv_timer_create(tick, 40, apps);
     lv_timer_pause(apps->timer);
@@ -476,11 +479,30 @@ wristflow_menu_layout_t wristflow_apps_menu_layout(const wristflow_apps_t *apps)
     return apps ? apps->menu_layout : WRISTFLOW_MENU_LIST;
 }
 
+bool wristflow_apps_allows(const wristflow_apps_t *apps, wristflow_surface_t surface)
+{
+    const wristflow_app_descriptor_t *app = wristflow_app_for_surface(surface);
+    return apps && !(apps->product_mode && app && app->demo_only);
+}
+
+void wristflow_apps_bind_home(wristflow_apps_t *apps, lv_obj_t *home)
+{ if (apps) wristflow_countdown_view_bind_home(apps->countdown, home); }
+
+void wristflow_apps_home_visible(wristflow_apps_t *apps, bool visible)
+{ if (apps) wristflow_countdown_view_home_visible(apps->countdown, visible); }
+
+bool wristflow_apps_back(wristflow_apps_t *apps)
+{
+    return apps && apps->active == WRISTFLOW_SURFACE_COUNTDOWN &&
+        wristflow_countdown_view_back(apps->countdown);
+}
+
 lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surface, bool *created)
 {
     if (created) *created = false;
     if (!apps || surface < WRISTFLOW_SURFACE_LAUNCHER || surface >= WRISTFLOW_SURFACE_COUNT)
         return NULL;
+    if (!wristflow_apps_allows(apps, surface)) return NULL;
     if (apps->screens[surface]) return apps->screens[surface];
     lv_obj_t *root = NULL;
     const wristflow_app_descriptor_t *app = wristflow_app_for_surface(surface);
@@ -490,6 +512,8 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         root = apps->product_mode ? screen_product_launcher_create() : screen_launcher_create();
     else if (surface == WRISTFLOW_SURFACE_MENU_LAYOUT && apps->product_mode)
         root = screen_menu_layout_create();
+    else if (surface == WRISTFLOW_SURFACE_COUNTDOWN)
+        root = wristflow_countdown_view_screen(apps->countdown);
     else if (app)
         root = apps->product_mode && app->capability != WRISTFLOW_CAPABILITY_READY
             ? screen_product_placeholder_create() : app->create();
@@ -506,7 +530,7 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         for (size_t i = 0; i < wristflow_app_count(); ++i) {
             const wristflow_app_descriptor_t *entry = wristflow_app_at(i);
             lv_obj_t *icon = lv_obj_find_by_name(root, entry->launcher_name);
-            if (!icon) continue; /* Demo retains its seven-entry composition. */
+            if (!icon) continue; /* Demo XML chooses its visible entries. */
             unsigned index = apps->menu_count++;
             LV_ASSERT(index < WRISTFLOW_SURFACE_COUNT);
             apps->menu_entries[index] = entry;
@@ -523,6 +547,8 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         lv_obj_add_event_cb(scroll, menu_touch, LV_EVENT_ALL, apps);
         apps->menu_nearest = UINT32_MAX;
         menu_position(apps, -130, -124);
+    } else if (surface == WRISTFLOW_SURFACE_COUNTDOWN) {
+        /* Countdown owns its bindings; the shell owns navigation and lifetime. */
     } else if (surface == WRISTFLOW_SURFACE_STOPWATCH) {
         bind_click(root, "stopwatch_toggle", stopwatch_action, apps);
         bind_click(root, "stopwatch_reset", stopwatch_action, apps);
@@ -624,6 +650,7 @@ void wristflow_apps_update(wristflow_apps_t *apps, const wristflow_watch_snapsho
 {
     if (!apps) return;
     apps->snapshot = *snapshot;
+    wristflow_countdown_view_clock(apps->countdown, snapshot);
     if (apps->active == WRISTFLOW_SURFACE_STOPWATCH && apps->stopwatch.running) {
         wristflow_stopwatch_update(&apps->stopwatch, lv_tick_get());
         render_stopwatch(apps);
@@ -654,6 +681,7 @@ static void release_screen(wristflow_apps_t *apps, wristflow_surface_t surface)
     if (!root) return;
     stop_view_effects(apps, surface);
     apps->screens[surface] = NULL;
+    if (surface == WRISTFLOW_SURFACE_COUNTDOWN) wristflow_countdown_view_detach(apps->countdown);
     if (surface == WRISTFLOW_SURFACE_LAUNCHER)
         memset(apps->menu_icons, 0, sizeof apps->menu_icons);
     lv_obj_delete(root);
@@ -675,5 +703,6 @@ void wristflow_apps_destroy(wristflow_apps_t *apps)
     lv_timer_delete(apps->timer);
     for (unsigned i = 0; i < WRISTFLOW_SURFACE_COUNT; ++i)
         release_screen(apps, (wristflow_surface_t)i);
+    wristflow_countdown_view_destroy(apps->countdown);
     lv_free(apps);
 }

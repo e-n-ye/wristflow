@@ -13,6 +13,10 @@ void wristflow_apps_set_brightness(wristflow_apps_t *apps, uint8_t brightness);
 bool wristflow_apps_timer_running(const wristflow_apps_t *apps);
 bool wristflow_apps_timer_has_data(const wristflow_apps_t *apps);
 void wristflow_apps_timer_clear(wristflow_apps_t *apps);
+bool wristflow_apps_allows(const wristflow_apps_t *apps, wristflow_surface_t surface);
+void wristflow_apps_bind_home(wristflow_apps_t *apps, lv_obj_t *home);
+void wristflow_apps_home_visible(wristflow_apps_t *apps, bool visible);
+bool wristflow_apps_back(wristflow_apps_t *apps);
 /* Apps is the sole owner of app screens. The shell binds navigation events only
  * when created is true; callers must not retain a screen after it leaves the path. */
 lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surface, bool *created);

@@ -7,6 +7,8 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/components/card_container_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/component_confirm_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/component_group_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/countdown_indicator_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/countdown_preset_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/editor_card_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/face_thumbnail_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/launcher_icon_gen.c
@@ -60,6 +62,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_component_picker_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_component_templates_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_control_center_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_countdown_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_face_picker_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_flashlight_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_launcher_gen.c

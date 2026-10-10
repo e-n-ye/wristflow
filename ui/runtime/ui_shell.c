@@ -127,6 +127,7 @@ static void sync_visibility(wristflow_ui_shell_t *shell)
     int32_t x = lv_obj_get_scroll_x(shell->carousel);
     bool home_visible = shell->ready && !shell->transitioning &&
                         shell->navigation.surface == WRISTFLOW_SURFACE_HOME;
+    wristflow_apps_home_visible(shell->apps, home_visible && shell->navigation.page_index == 0 && x == PAGE_WIDTH);
     for (unsigned int i = 0; i < slot_count(shell); ++i) {
         int32_t left = (int32_t)i * PAGE_WIDTH - x;
         set_visible(shell, &shell->slots[i], home_visible && left < PAGE_WIDTH &&
@@ -229,12 +230,12 @@ static bool load_surface(wristflow_ui_shell_t *shell)
         bool created;
         screen = (surface == WRISTFLOW_SURFACE_NOTIFICATIONS || surface == WRISTFLOW_SURFACE_NOTIFICATION_DETAIL)
             ? (shell->notifications ? wristflow_notification_view_screen(shell->notifications, surface, &created) : NULL)
-            : surface >= WRISTFLOW_SURFACE_COMPONENT_EDITOR
+            : surface >= WRISTFLOW_SURFACE_COMPONENT_EDITOR && surface <= WRISTFLOW_SURFACE_COMPONENT_TEMPLATES
             ? wristflow_components_screen(shell->components, surface, &created)
             : wristflow_apps_screen(shell->apps, surface, &created);
         if (!screen) return false;
         if (created) {
-            if (surface >= WRISTFLOW_SURFACE_COMPONENT_EDITOR || surface == WRISTFLOW_SURFACE_NOTIFICATIONS ||
+            if ((surface >= WRISTFLOW_SURFACE_COMPONENT_EDITOR && surface <= WRISTFLOW_SURFACE_COMPONENT_TEMPLATES) || surface == WRISTFLOW_SURFACE_NOTIFICATIONS ||
                 surface == WRISTFLOW_SURFACE_NOTIFICATION_DETAIL)
                 lv_obj_add_event_cb(lv_obj_find_by_name(screen, "app_back"), editor_back, LV_EVENT_SHORT_CLICKED, shell);
             bubble_events(screen);
@@ -305,6 +306,7 @@ static bool confirm_stopwatch_exit(wristflow_ui_shell_t *shell, unsigned action,
 bool wristflow_ui_shell_open(wristflow_ui_shell_t *shell, wristflow_surface_t surface)
 {
     if (!shell || !shell->apps || shell->transitioning) return false;
+    if (!wristflow_apps_allows(shell->apps, surface)) return false;
     if (surface != shell->navigation.surface &&
         confirm_stopwatch_exit(shell, STOPWATCH_EXIT_OPEN, surface)) return true;
     if (shell->navigation.surface == WRISTFLOW_SURFACE_HOME &&
@@ -365,6 +367,7 @@ bool wristflow_ui_shell_back(wristflow_ui_shell_t *shell)
     if (!shell || shell->transitioning) return false;
     if (dismiss_stopwatch_exit()) return true;
     if (wristflow_settings_dismiss(lv_screen_active())) return true;
+    if (wristflow_apps_back(shell->apps)) return true;
     if (confirm_stopwatch_exit(shell, STOPWATCH_EXIT_BACK, WRISTFLOW_SURFACE_HOME)) return true;
     if (wristflow_components_back(shell->components, false)) return true;
     wristflow_navigation_t previous = shell->navigation;
@@ -671,6 +674,7 @@ wristflow_ui_shell_t *wristflow_ui_shell_create(const wristflow_ui_shell_config_
             config->initial_settings ? config->initial_settings->brightness : 60, config->product_apps,
             config->initial_settings ? config->initial_settings->menu_layout : WRISTFLOW_MENU_LIST);
         wristflow_apps_update(shell->apps, &shell->snapshot);
+        wristflow_apps_bind_home(shell->apps, shell->home);
     }
     lv_obj_add_event_cb(shell->home, gesture, LV_EVENT_GESTURE, shell);
     lv_obj_add_event_cb(shell->controls, gesture, LV_EVENT_GESTURE, shell);
