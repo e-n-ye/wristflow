@@ -1,6 +1,6 @@
 # 工程与所有权地图
 
-本页只描述入口及对应关系，不保存任务队列或复制锁文件参数。活动项见 [STATUS 当前区](STATUS.md#current)，操作按 [任务索引](../PROJECT_INDEX.md) 选取。地图核对基线为主线 `8be5821`；天气 / C2 的内容不能自动套用到本工作树。
+本页只描述入口及对应关系，不保存任务队列或复制锁文件参数。活动项见 [STATUS 当前区](STATUS.md#current)，操作按 [任务索引](../PROJECT_INDEX.md) 选取。原地图基线为 `8be5821`；2026-10-10 仅按主线 `64c7e43` 复核下载入口，不代表重审全部工程。C2 草稿的内容不能自动套用到本工作树。
 
 ## 目标、配置与手写区
 
@@ -30,9 +30,9 @@
 | 环境与固件构建 | 在选定工作树根目录，按 [BUILD](BUILD.md#当前机器直接使用) 调用 Build；[Set-LocalEnvironment](../scripts/Set-LocalEnvironment.ps1) 核对锁与现有环境 | 实际退出码、`BUILD SUCCEEDED`、该次 `result.json` 与镜像校验；锁 / 工具失败先定位，保留改动，不绕校验或擅自重装 |
 | 主机测试 / 模拟器 | 按 SIMULATOR 核对已有 CMake、编译器与独立输出目录；Simulate 会构建和测试，`-BuildOnly` 也会执行它们 | 实际 CTest 结果及对应源码，测试数以当前工程为准；旧文档的 3/6 项不能充当现版结果。已有窗口占用先停止本次操作，不强杀用户窗口 |
 | 手动云端基线 | [CONTRIBUTING](../CONTRIBUTING.md) 与 [build.yml](../.github/workflows/build.yml)，仅 `workflow_dispatch` | 用实际提交和 Actions 结果；纯文档不 dispatch，无自动 Checks 不是阻断 |
-| 下载与设备 | 先读 [HARDWARE](HARDWARE.md) 和 [Product 验收](PRODUCT-ACCEPTANCE.md) 的版本 / 设置边界；[FLASHING](FLASHING.md) 的旧 sftool 示例仅供方法参考 | 先核对实际镜像清单、端口、供电与授权；传输 / verify 与真实运行分开。身份未知就记录未知，不为文档补齐而操作设备 |
+| 下载与设备 | 先读 [HARDWARE](HARDWARE.md) 和 [Product 验收](PRODUCT-ACCEPTANCE.md) 的版本 / 设置边界；按 [FLASHING 当前入口](FLASHING.md#current-flash-entry) 使用 [Flash.ps1](../scripts/Flash.ps1)，旧 sftool 示例仅供历史方法参考 | 先核对实际镜像清单、端口、供电与授权；`-DryRun` 只校验本地清单 / 镜像，不打开设备。传输 / verify 与真实运行分开；身份未知就记录未知 |
 
-**分支差异**：本主线没有 `scripts/Flash.ps1`。flow 的 SiFli 示例和天气工作树中该脚本 / `-DryRun` 不能当作主线可用命令；固定天气版本为 `f68d64f170fea22eaf9561dc844731aa4f0fa9ed:scripts/Flash.ps1`，本轮未移植。主线已有直接 sftool 记录，当前 Product 操作仍须按实际版本重新核对。
+**现版下载入口**：`64c7e43` 已包含 `scripts/Flash.ps1`。脚本要求 `-Example` 和实际 `-Port`，读取目标构建目录的 `sftool_param.json`，核对锁定板型、三镜像地址、文件与哈希；`-DryRun` 在调用 sftool 前返回。实际下载会执行 `write_flash --verify` 和软件复位，并写入该工作树的 `artifacts/flash/<example>/<run-id>/`。构建脚本仍不烧录；本轮仅核对源码，没有执行 DryRun 或设备操作。
 
 固件输出位置由 Build 计算为对应工程的 `build_<board>_hcpu`，该目录不存在时改查 `build_<board>`；日志 / 配置 / 源码及产物哈希进入该工作树 `artifacts/<example>/<run-id>/`。`hardware_verified=false` 保持证据边界。主机输出由操作入口选择。`.tools/`、构建目录和日常 artifacts 不入库；提交的精简证据在 `docs/evidence/`。只读隔离工作树不保证本机依赖已可构建，多个任务不能共用可写构建目录、生成目录或设备。
 
