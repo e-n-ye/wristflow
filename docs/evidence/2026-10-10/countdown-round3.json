@@ -1,0 +1,488 @@
+{
+  "schema": 1,
+  "recorded_at": "2026-10-10T20:09:30.013843+08:00",
+  "worktree": "C:/Users/13984/.codex/worktrees/countdown-product/wristflow",
+  "conditions": "same Huangshan board/display; USB-only; no new wiring; can operate screen/KEY1",
+  "port": "COM5",
+  "observed_pnp_id": "USB\\VID_1A86&PID_7523\\6&A8355E6&3&1",
+  "baseline": {
+    "implementation_commit": "c8b5103d3c5faad1cf2d6ff085815624bb0b5a97",
+    "preflight": {
+      "path": "artifacts/countdown/usb-preflight.json",
+      "bytes": 1543,
+      "sha256": "e64298ff2658d8ede96f5e6584b3c3cdb1b93da0aa5db7ee5535a2616a4b659f"
+    },
+    "source_hashes_verified_before_flash": 330,
+    "artifact_hashes_verified_before_flash": 29,
+    "archived_artifact_map": {
+      "path": "artifacts/countdown/baseline-c8b5103/archive-map.json",
+      "bytes": 12149,
+      "sha256": "7edcf9d08c75d629fbf2209d12206ac9cebbbb36b684a394e264e020fb5e74ed"
+    },
+    "flash": {
+      "date": "2026-10-10T19:17:50.2353976+08:00",
+      "example": "product",
+      "board": "sf32lb52-lchspi-ulp",
+      "port": "COM5",
+      "tool": "C:\\Users\\13984\\.codex\\worktrees\\countdown-product\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe",
+      "command": "C:\\Users\\13984\\.codex\\worktrees\\countdown-product\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify C:\\Users\\13984\\.codex\\worktrees\\countdown-product\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 C:\\Users\\13984\\.codex\\worktrees\\countdown-product\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 C:\\Users\\13984\\.codex\\worktrees\\countdown-product\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+      "images": [
+        {
+          "name": "bootloader.bin",
+          "path": "C:\\Users\\13984\\.codex\\worktrees\\countdown-product\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+          "address": "0x12010000",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "name": "main.bin",
+          "path": "C:\\Users\\13984\\.codex\\worktrees\\countdown-product\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+          "address": "0x12020000",
+          "bytes": 7637244,
+          "sha256": "d7aba11725f8e9fba4910d50e5a2438c851f636979615eb56a04d2821fcbb2fc"
+        },
+        {
+          "name": "ftab.bin",
+          "path": "C:\\Users\\13984\\.codex\\worktrees\\countdown-product\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+          "address": "0x12000000",
+          "bytes": 11288,
+          "sha256": "204678195dbaf457d6b729a4ae1bc139b6fd5cde6e451499f413d0d853b622a6"
+        }
+      ],
+      "exit_code": 0,
+      "hardware_verified": false
+    },
+    "usb_sessions": [
+      {
+        "path": "artifacts/countdown/usb-20261010-191843-200",
+        "raw_uart": {
+          "path": "artifacts/countdown/usb-20261010-191843-200/uart.bin",
+          "bytes": 24030,
+          "sha256": "c423add4f973256e7c7b95907acaefaddbca82b46b2e4f3534390c2555e1b681"
+        },
+        "events": {
+          "path": "artifacts/countdown/usb-20261010-191843-200/events.jsonl",
+          "bytes": 36371,
+          "sha256": "a9c19e2a273054e51e14982a69f940208a27c5c99bd345751e6f2623ccec0018"
+        },
+        "started_utc": "2026-10-10T11:18:44Z",
+        "closed_utc": "2026-10-10T11:51:09Z",
+        "exit_code": 0,
+        "resets": [],
+        "serial_commands": [],
+        "touch_overwrite_warnings": 1,
+        "assert_or_fault_lines": []
+      },
+      {
+        "path": "artifacts/countdown/usb-20261010-195131-262",
+        "raw_uart": {
+          "path": "artifacts/countdown/usb-20261010-195131-262/uart.bin",
+          "bytes": 5574,
+          "sha256": "abacd4dd06ba7b9a995d3f21d2d7f7d39db7d6f1cac4f8ec8c8fe4c75ba04a4c"
+        },
+        "events": {
+          "path": "artifacts/countdown/usb-20261010-195131-262/events.jsonl",
+          "bytes": 6308,
+          "sha256": "3b017e870fdc0439661365f998534dfc8c106ca00f3d9dfc98faaa128cfaecdd"
+        },
+        "started_utc": "2026-10-10T11:51:31Z",
+        "closed_utc": "2026-10-10T11:55:19Z",
+        "exit_code": 0,
+        "resets": [
+          {
+            "utc": "2026-10-10T11:52:27Z",
+            "host_s": 55.9975,
+            "kind": "reset_requested",
+            "method": "RTS pulse",
+            "seconds": 0.15
+          },
+          {
+            "utc": "2026-10-10T11:52:28Z",
+            "host_s": 56.1488,
+            "kind": "reset_released",
+            "rts": false
+          }
+        ],
+        "serial_commands": [
+          {
+            "utc": "2026-10-10T11:53:57Z",
+            "host_s": 145.271,
+            "kind": "serial_written",
+            "command": "wf_pm status"
+          }
+        ],
+        "touch_overwrite_warnings": 0,
+        "assert_or_fault_lines": []
+      }
+    ],
+    "observations": [
+      {
+        "recorded_at": "2026-10-10T19:24:53.5453079+08:00",
+        "case": "U2",
+        "source": "user observation",
+        "result": "passed",
+        "original_answer": "全部符合，已取消任务",
+        "scope": "all first-group requested operations",
+        "uart_cold_start": "not yet captured; full startup remains to be captured in restart group"
+      },
+      {
+        "recorded_at": "2026-10-10T19:27:12.7100339+08:00",
+        "case": "U3",
+        "source": "user observation",
+        "result": "passed",
+        "original_answer": "全部符合，提醒仍待处理",
+        "scope": "all second-group requested operations"
+      },
+      {
+        "recorded_at": "2026-10-10T19:32:45.4321649+08:00",
+        "case": "U4",
+        "source": "user observation",
+        "result": "passed",
+        "original_answer": "全部符合，已取消原确认",
+        "scope": "all third-group requested operations including first visible reminder/no underlying confirmation flash"
+      },
+      {
+        "recorded_at": "2026-10-10T19:49:36.7100653+08:00",
+        "case": "U5-long-session",
+        "source": "user observation",
+        "result": "recovery passed; autonomous visible wake uncertain",
+        "original_answer": "开启勿扰模式，3分钟倒计时后，好像没有亮屏，不知道是不是我错过了，其他均正常",
+        "scope": "Long-session return to Home and invalid confirmation reported normal; automatic visible wake not personally confirmed"
+      },
+      {
+        "recorded_at": "2026-10-10T19:50:51.3436914+08:00",
+        "case": "U5-repeat-observe",
+        "source": "user observation",
+        "result": "passed at actual 1 minute duration",
+        "original_answer": "我用一分钟测试，符合",
+        "scope": "Requested autonomous visible wake and original-duration repeat, actual duration 1min instead of requested 3min; does not replace the earlier long-session sample"
+      },
+      {
+        "recorded_at": "2026-10-10T19:53:57.1779083+08:00",
+        "case": "U6",
+        "source": "user observation",
+        "result": "passed",
+        "original_answer": "全部正常，没有旧任务提醒",
+        "scope": "Running1min task before one RTS reset; startup visual normal, no hourglass, duration selector, no stale reminder beyond prior deadline"
+      }
+    ],
+    "U3_monotonic_intervals_seconds": {
+      "original_off": 412.7021,
+      "countdown_event": 458.2298,
+      "screen_on": 458.5424,
+      "reminder_off": 488.2375,
+      "idle_from_event": 30.0077,
+      "physical_key1": 491.36,
+      "screen_on_after_key1": 491.6693
+    },
+    "U5_long_session_seconds": {
+      "original_off": 855.7959,
+      "countdown_event": 1016.5697,
+      "screen_on": 1016.8808,
+      "reminder_off": 1046.575,
+      "off_to_event": 160.7738,
+      "user_visible_wake": "uncertain; may have missed; later 1min repeat passed"
+    },
+    "U6_restart": {
+      "reset_utc": "2026-10-10T11:52:27Z",
+      "pulse_seconds": 0.15,
+      "user_pass_utc": "2026-10-10T11:53:57Z",
+      "seconds_after_reset_to_user_pass": 89.2723,
+      "startup_facts": [
+        "layout restore=yes generation=37 pages=3",
+        "storage=ready restore=yes brightness=60 face=diffusion rtc=available",
+        "CO5300 0x331100; FT6146 id_H=64 id_L=56",
+        "Notify B1: RTC=not synchronized, USB, BLE active, PM auto when off"
+      ],
+      "banner": "build on Oct 10 2026, 2.5.1 build e6e58be5",
+      "banner_is_not_authoritative_implementation_identity": true
+    },
+    "archived_artifact_hashes_rechecked": 29
+  },
+  "color_revision": {
+    "implementation_commit": "0a7d1d678e2c300098f2e670be05f13bf076830e",
+    "source_delta": [
+      "ui/xml/components/countdown_preset.xml",
+      "ui/xml/components/countdown_preset_gen.c",
+      "ui/xml/screens/screen_countdown.xml",
+      "ui/xml/screens/screen_countdown_gen.c"
+    ],
+    "official_export": {
+      "recorded_at": "2026-10-10T19:46:01.275183+08:00",
+      "official_editor": "2.0.1 Community",
+      "preview_lvgl": "9.4.0",
+      "project": "ui/xml",
+      "command": "GUI Ctrl+B Export Code and Recompile",
+      "success_log": [
+        "Built runtime for Preview",
+        "compile completed",
+        "Project compiled successfully",
+        "Initializing custom C code using LVGL v9.4.0"
+      ],
+      "recovery": "First export remained at Cleaning generated files for several minutes without a concrete error; one UI Reload Window then Ctrl+B completed. Root cause unknown.",
+      "unrelated_generated_restores": [
+        {
+          "path": "ui/xml/images/weather_sun_track_data.c",
+          "export_sha256": "4bf8a0428bb499a9b5e8a3fe8c86213bc07d29db85fb4507dd07f8d6afb1f1e4",
+          "committed_sha256": "b00aa18a2adce7a3109e5b3bff6a075e183a408091398a76a4f953b08fe21c0f",
+          "semantic_difference": "one extra EOF newline",
+          "restored_worktree_sha256": "0aa994e4eac09849d5648f35c3aafbb922e73e8b881273a81518251e3128e629"
+        },
+        {
+          "path": "ui/xml/screens/screen_weather_current_gen.c",
+          "export_sha256": "d0beb4573a14a32a047340c5eee91c44797ab69da660e6d7fd12a9281f146c24",
+          "committed_sha256": "a7abb0072c9a27f3ea80be42a4aeeab7c4d983e6955c8a98ad1fb1d37bc389dd",
+          "semantic_difference": "one extra EOF newline",
+          "restored_worktree_sha256": "4a43b7032a2ea0d1954fc41572c2e454638d51c4f7b919010f10276e7ca124d7"
+        },
+        {
+          "path": "ui/xml/screens/screen_weather_daily_gen.c",
+          "export_sha256": "c2c9de06897b686cdc736e13145c9748b42cfc1020ec4f68ee3f071180e59824",
+          "committed_sha256": "dcf5f988fc36c99bd0d71ee9141a9fc2f1890f0ae86fda59c10b525782a8caad",
+          "semantic_difference": "one extra EOF newline",
+          "restored_worktree_sha256": "e5baba6268f18358991f93724629e246e067f6c05e7a77be3f506208a9ed6f39"
+        },
+        {
+          "path": "ui/xml/screens/screen_weather_hourly_gen.c",
+          "export_sha256": "ce6bd3ac719d45225ee07947bae3cb0dbdc54cc05b9134385fabb76f68a06791",
+          "committed_sha256": "c047152f266dc4821dd7327bb21bfab88347bcf1800cda97d28e461e8b1aa0f2",
+          "semantic_difference": "one extra EOF newline",
+          "restored_worktree_sha256": "5550c51b5b64e82d4b9f76bf02dd8ad42f47eb91a29d82402b303ffc2c3e36dd"
+        },
+        {
+          "path": "ui/xml/screens/screen_weather_indices_gen.c",
+          "export_sha256": "154614eb753756c9085d5e5c1f8c97c17a782fc483595f9c1a63ed2d20385c8d",
+          "committed_sha256": "ec1dcb62bc283bf12ec6bafcbb91bf3db3596a980959f81c138175e002a41915",
+          "semantic_difference": "one extra EOF newline",
+          "restored_worktree_sha256": "4d3e9e07cf735bdba2d79ad2a09d857c3317b3bc87b020678b74f2addb7f7530"
+        },
+        {
+          "path": "ui/xml/screens/screen_weather_sun_gen.c",
+          "export_sha256": "f0b0ffc975753419ad956ee8501d1839043de14ed01cd386a073c7b548d506d5",
+          "committed_sha256": "1cecfaf0d3b32099355f937913927b1c174a8c2b26802a2e6a639efb039e5cb0",
+          "semantic_difference": "one extra EOF newline",
+          "restored_worktree_sha256": "576c0bd32bccc85b9c3b86ac7f714ee9ebddeda22d46ae5df36e0c3bea9ddc1e"
+        }
+      ],
+      "changed_source_hashes": [
+        {
+          "path": "ui/xml/components/countdown_preset.xml",
+          "sha256": "c49f3b049e213531d54fb9f59cdbbbcd04ad202abb3ac7e2fe24525aa06d9acc"
+        },
+        {
+          "path": "ui/xml/components/countdown_preset_gen.c",
+          "sha256": "06da9cc909c3c49ba4d9407ef776a5a9c6e1b0c541eca55eef0d8493d6e482a8"
+        },
+        {
+          "path": "ui/xml/screens/screen_countdown.xml",
+          "sha256": "58c46415033d1e8a0533151f221a78c25ac9ced14aef71b8f4b61e1cbfa6888b"
+        },
+        {
+          "path": "ui/xml/screens/screen_countdown_gen.c",
+          "sha256": "05659a5252f31fea1c9712ebf36c9f8095a9eda3d8fb64871169d6c4a840d5e5"
+        }
+      ]
+    },
+    "host_validation": {
+      "command": "cmake --build artifacts/simulator-build --target countdown_ui product_countdown_ui --parallel 4; ctest --test-dir artifacts/simulator-build -R ^(countdown_ui|product_countdown_ui)$ --output-on-failure",
+      "exit_code": 0,
+      "passed": 2,
+      "failed": 0,
+      "seconds": 7.38,
+      "lvgl": "9.4.0",
+      "render": {
+        "path": "artifacts/countdown/picker-gray.png",
+        "bytes": 15226,
+        "sha256": "d76b80bd3060ecdadd28dfc7e6e4e297ce5d8addee7c9d1fdff384de51f60e46"
+      },
+      "last_test_log": {
+        "path": "artifacts/simulator-build/Testing/Temporary/LastTest.log",
+        "bytes": 1986,
+        "sha256": "2bf371a38b482cdcaeea91f712ef67d109f4ed703eba4bcec41ce0e51c6513a4"
+      }
+    },
+    "product_build": {
+      "record": "artifacts/product/20261010-194615-192/result.json",
+      "record_sha256": "46e48987474a5b6bda64a61592055428f49e73752c9b8d7a34eb8da95dc71fb6",
+      "started_at": "2026-10-10T19:46:15.2067035+08:00",
+      "completed_at": "2026-10-10T19:50:47.5503611+08:00",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "implementation_commit": "0a7d1d678e2c300098f2e670be05f13bf076830e",
+      "source_hashes_rechecked": 330,
+      "source_manifest_sha256": "1e9d6e7f99848ca76bfe9662fdd92ff1c0b9d1e5db971fbef90de77631b9a290",
+      "all_sources_match_commit_with_git_line_ending_normalization": true,
+      "line_ending_normalized_file_count": 149,
+      "artifact_hashes_rechecked": 29,
+      "images": [
+        {
+          "name": "main.bin",
+          "bytes": 7637244,
+          "sha256": "5946526df0658eee17ebe1319b9d44ea869d0d13cb8e854d24bf2f478ba811a2"
+        },
+        {
+          "name": "bootloader.bin",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "name": "ftab.bin",
+          "bytes": 11288,
+          "sha256": "204678195dbaf457d6b729a4ae1bc139b6fd5cde6e451499f413d0d853b622a6"
+        }
+      ],
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "python": "Python 3.13.15",
+      "hardware_verified_by_build": false
+    },
+    "ui_demo_build": {
+      "record": "artifacts/ui_demo/20261010-195349-341/result.json",
+      "record_sha256": "0681d2e97e70b7d6aa20f57069084bf025028262aafb2a191b69ae36bba22150",
+      "started_at": "2026-10-10T19:53:49.3498315+08:00",
+      "completed_at": "2026-10-10T19:57:16.9728249+08:00",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "implementation_commit": "0a7d1d678e2c300098f2e670be05f13bf076830e",
+      "source_hashes_rechecked": 315,
+      "source_manifest_sha256": "57a1aae9d9641babe5e4832873a0c60afcff5aeaa7ff2d1d35c99110d82c3f06",
+      "all_sources_match_commit_with_git_line_ending_normalization": true,
+      "line_ending_normalized_file_count": 136,
+      "artifact_hashes_rechecked": 22,
+      "images": [
+        {
+          "name": "main.bin",
+          "bytes": 7439512,
+          "sha256": "3bd44ad672b4a72b1e8795cb9024312681488b73f6549aed31dd8075c72a6225"
+        },
+        {
+          "name": "bootloader.bin",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "name": "ftab.bin",
+          "bytes": 11288,
+          "sha256": "39f873c86bcbb60424df22f82a315c00c2e711dd414caffd1a2d262de49650d4"
+        }
+      ],
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "python": "Python 3.13.15",
+      "hardware_verified_by_build": false
+    },
+    "flash": {
+      "date": "2026-10-10T19:58:36.4017586+08:00",
+      "example": "product",
+      "board": "sf32lb52-lchspi-ulp",
+      "port": "COM5",
+      "tool": "C:\\Users\\13984\\.codex\\worktrees\\countdown-product\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe",
+      "command": "C:\\Users\\13984\\.codex\\worktrees\\countdown-product\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify C:\\Users\\13984\\.codex\\worktrees\\countdown-product\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 C:\\Users\\13984\\.codex\\worktrees\\countdown-product\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 C:\\Users\\13984\\.codex\\worktrees\\countdown-product\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+      "images": [
+        {
+          "name": "bootloader.bin",
+          "path": "C:\\Users\\13984\\.codex\\worktrees\\countdown-product\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+          "address": "0x12010000",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "name": "main.bin",
+          "path": "C:\\Users\\13984\\.codex\\worktrees\\countdown-product\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+          "address": "0x12020000",
+          "bytes": 7637244,
+          "sha256": "5946526df0658eee17ebe1319b9d44ea869d0d13cb8e854d24bf2f478ba811a2"
+        },
+        {
+          "name": "ftab.bin",
+          "path": "C:\\Users\\13984\\.codex\\worktrees\\countdown-product\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+          "address": "0x12000000",
+          "bytes": 11288,
+          "sha256": "204678195dbaf457d6b729a4ae1bc139b6fd5cde6e451499f413d0d853b622a6"
+        }
+      ],
+      "exit_code": 0,
+      "hardware_verified": false
+    },
+    "hardware_regression": [
+      {
+        "recorded_at": "2026-10-10T20:04:53.869898+08:00",
+        "case": "V1",
+        "source": "user observation",
+        "implementation_commit": "0a7d1d678e2c300098f2e670be05f13bf076830e",
+        "original_answer": "配色满意，操作正常",
+        "scope": "Dark gray preset and custom backgrounds, blue text; preset immediate cancel, 1 second custom expiry and close return to picker."
+      },
+      {
+        "recorded_at": "2026-10-10T20:09:10.252469+08:00",
+        "case": "V2",
+        "source": "user observation",
+        "implementation_commit": "0a7d1d678e2c300098f2e670be05f13bf076830e",
+        "original_answer": "四项均正常",
+        "scope": "Actual 1min natural off and autonomous visible expiry, 30s idle off and KEY1 same pending reminder, original 1min repeat then immediate cancel/hourglass gone, no stale reminder after 65s from cancel."
+      }
+    ],
+    "preflight": {
+      "path": "artifacts/countdown/color-preflight.json",
+      "bytes": 1561,
+      "sha256": "ddeedf8666d6a0b6f6c9f0880a5d86e3f16b6fc548b54ee8c9d280d97f4b1a10"
+    },
+    "usb_sessions": [
+      {
+        "path": "artifacts/countdown/usb-20261010-195933-500",
+        "raw_uart": {
+          "path": "artifacts/countdown/usb-20261010-195933-500/uart.bin",
+          "bytes": 7863,
+          "sha256": "7dbfb411d50481ad0e3924fd240eb94804428dc4523069d98181941961de3190"
+        },
+        "events": {
+          "path": "artifacts/countdown/usb-20261010-195933-500/events.jsonl",
+          "bytes": 9182,
+          "sha256": "e86cead55e8eb2887a1c7453d5a739b56704b91c55f1337d7782d85460dfb178"
+        },
+        "started_utc": "2026-10-10T11:59:33Z",
+        "closed_utc": "2026-10-10T12:09:10Z",
+        "exit_code": 0,
+        "resets": [
+          {
+            "utc": "2026-10-10T11:59:33Z",
+            "host_s": 0.0577,
+            "kind": "reset_requested",
+            "method": "RTS pulse",
+            "seconds": 0.15
+          },
+          {
+            "utc": "2026-10-10T11:59:33Z",
+            "host_s": 0.2092,
+            "kind": "reset_released",
+            "rts": false
+          }
+        ],
+        "serial_commands": [],
+        "touch_overwrite_warnings": 0,
+        "assert_or_fault_lines": []
+      }
+    ],
+    "V2_monotonic_intervals_seconds": {
+      "original_off": 426.6915,
+      "countdown_event": 475.1742,
+      "screen_on": 475.4809,
+      "reminder_off": 505.1907,
+      "idle_from_event": 30.0165,
+      "physical_key1": 509.032,
+      "no_serial_commands": true,
+      "cancel_deadline_observation": "User observed 65 seconds after cancel; cancellation time is not independently logged by UART."
+    },
+    "startup_banner_is_not_authoritative_implementation_identity": true
+  },
+  "not_covered": [
+    "C2 and notification joint acceptance",
+    "power/current/battery life",
+    "absolute long-duration precision and RTC retention",
+    "new hardware/battery",
+    "multi-reminder conflict arbitration",
+    "full module trimming and stable firmware identity"
+  ]
+}
