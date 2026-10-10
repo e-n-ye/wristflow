@@ -14,7 +14,7 @@
             <countdown_preset name="countdown_preset_5" x="24" y="140" minutes="5" />
             <countdown_preset name="countdown_preset_10" x="143" y="140" minutes="10" />
             <countdown_preset name="countdown_preset_30" x="262" y="140" minutes="30" />
-            <lv_button name="countdown_custom" x="30" y="279" width="330" height="66" style_radius="33" style_bg_color="0x143d63" style_shadow_width="0" style_pad_all="0">
+            <lv_button name="countdown_custom" x="30" y="279" width="330" height="66" style_radius="33" style_bg_color="0x202124" style_shadow_width="0" style_pad_all="0">
                 <lv_label align="center" text="自定义" style_text_font="title_24" style_text_color="0x008cff" />
             </lv_button>
         </lv_obj>

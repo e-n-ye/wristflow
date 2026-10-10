@@ -140,7 +140,7 @@ lv_obj_t * screen_countdown_create(void)
         lv_obj_set_width(countdown_custom, 330);
         lv_obj_set_height(countdown_custom, 66);
         lv_obj_set_style_radius(countdown_custom, 33, 0);
-        lv_obj_set_style_bg_color(countdown_custom, lv_color_hex(0x143d63), 0);
+        lv_obj_set_style_bg_color(countdown_custom, lv_color_hex(0x202124), 0);
         lv_obj_set_style_shadow_width(countdown_custom, 0, 0);
         lv_obj_set_style_pad_all(countdown_custom, 0, 0);
         lv_obj_t * lv_label_0 = lv_label_create(countdown_custom);

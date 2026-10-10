@@ -46,10 +46,10 @@ lv_obj_t * countdown_preset_create(lv_obj_t * parent, const char * minutes)
 
         lv_style_set_line_width(&dial_minor, 2);
         lv_style_set_length(&dial_minor, 4);
-        lv_style_set_line_color(&dial_minor, lv_color_hex(0x9ac4ea));
+        lv_style_set_line_color(&dial_minor, lv_color_hex(0x737980));
         lv_style_set_line_width(&dial_major, 2);
         lv_style_set_length(&dial_major, 6);
-        lv_style_set_line_color(&dial_major, lv_color_hex(0x9ac4ea));
+        lv_style_set_line_color(&dial_major, lv_color_hex(0x737980));
 
         style_inited = true;
     }
@@ -64,7 +64,7 @@ lv_obj_t * countdown_preset_create(lv_obj_t * parent, const char * minutes)
         lv_obj_set_width(lv_button_0, 104);
         lv_obj_set_height(lv_button_0, 104);
         lv_obj_set_flag(lv_button_0, LV_OBJ_FLAG_SCROLLABLE, false);
-        lv_obj_set_style_bg_color(lv_button_0, lv_color_hex(0x143d63), 0);
+        lv_obj_set_style_bg_color(lv_button_0, lv_color_hex(0x202124), 0);
         lv_obj_set_style_bg_opa(lv_button_0, (255 * 100 / 100), 0);
         lv_obj_set_style_radius(lv_button_0, 52, 0);
         lv_obj_set_style_border_width(lv_button_0, 0, 0);
