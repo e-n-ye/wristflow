@@ -8,6 +8,7 @@
 #include "product_services.h"
 #include "product_ble.h"
 #include "product_pm.h"
+#include "product_countdown.h"
 #include "weather_screen.h"
 #include <string.h>
 
@@ -75,24 +76,27 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     rt_kprintf("[product] screen off; notification events active\n");
     wristflow_product_pm_screen(true);
     rt_uint32_t events;
-    bool preview = false;
+    bool preview = false, reminder = false;
     defer_brightness = true;
     for (;;) {
         events = wristflow_product_event_wait(RT_WAITING_FOREVER);
+        /* Rebuild from service state on every wake: event bits can coalesce.
+         * An acknowledged reminder stays pending without repeatedly waking. */
+        reminder = wristflow_ui_shell_countdown_event(product_shell);
         if (events & WF_EVENT_PHONE) {
             wristflow_product_pm_background();
             preview = sync_notifications();
         }
         if (events & WF_EVENT_PM_SAMPLE) wristflow_product_pm_report();
-        if (preview || (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))) break;
+        if (reminder || preview || (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))) break;
     }
     wristflow_product_pm_screen(false); /* Hold idle before restoring the display. */
     waiting_for_wake = false;
-    rt_kprintf("[product] wake event=%s\n", events & WF_EVENT_KEY ? "KEY1" : preview ? "notification" : "diagnostic");
+    rt_kprintf("[product] wake event=%s\n", events & WF_EVENT_KEY ? "KEY1" : reminder ? "countdown" : preview ? "notification" : "diagnostic");
     wristflow_product_pm_report();
     /* Select the wake destination while dark; expose only its completed frame. */
     defer_brightness = true;
-    if (!preview || (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))) wristflow_ui_shell_key(product_shell);
+    if ((!preview && !reminder) || (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))) wristflow_ui_shell_key(product_shell);
     wristflow_watch_snapshot_t wake_snapshot = wristflow_product_services_snapshot();
     wristflow_ui_shell_update(product_shell, &wake_snapshot);
     RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_POWERON, NULL) == RT_EOK);
@@ -101,6 +105,7 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     lv_indev_wait_release(pointer);
     lv_timer_enable(true);
     lv_obj_invalidate(lv_screen_active());
+    lv_obj_invalidate(lv_layer_top());
     lv_refr_now(NULL);
     started = rt_tick_get();
     do {
@@ -118,6 +123,7 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
 int main(void)
 {
     wristflow_product_pm_start();
+    const wristflow_countdown_port_t *countdown = wristflow_product_countdown_start();
     wristflow_settings_t settings;
     wristflow_layout_t layout;
     wristflow_product_services_start(&settings, &layout);
@@ -130,8 +136,8 @@ int main(void)
     rt_device_t lcd = rt_device_find("lcd");
     RT_ASSERT(lcd);
     lv_obj_t *initial = lv_screen_active();
-    wristflow_ui_shell_t *shell = wristflow_product_ui_create_with_layout(&snapshot, &settings, set_brightness, lcd,
-        &layout, wristflow_product_services_layout, wristflow_product_services_layout_status, NULL);
+    wristflow_ui_shell_t *shell = wristflow_product_ui_create_with_countdown(&snapshot, &settings, set_brightness, lcd,
+        &layout, wristflow_product_services_layout, wristflow_product_services_layout_status, NULL, countdown);
     RT_ASSERT(shell);
     product_shell = shell;
     wristflow_ui_shell_bind_notification_delete(shell, wristflow_product_ble_delete, NULL);
@@ -188,6 +194,7 @@ int main(void)
         }
         rt_uint32_t events = wristflow_product_event_wait(rt_tick_from_millisecond(LV_CLAMP(1, wait_ms, 20)));
         if (events & WF_EVENT_PM_SAMPLE) wristflow_product_pm_report();
+        if (events & WF_EVENT_COUNTDOWN) wristflow_ui_shell_countdown_event(shell);
         if (events & WF_EVENT_PHONE) {
             sync_notifications();
             snapshot = wristflow_product_services_snapshot();

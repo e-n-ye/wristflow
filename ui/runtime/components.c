@@ -16,7 +16,7 @@ struct wristflow_components {
     wristflow_layout_page_t draft_page;
     unsigned page, slot, insertion;
     bool draft, template_chosen, discard_home, deleting;
-    bool dragged;
+    bool dragged, confirmation_suspended;
     lv_point_t press;
     lv_obj_t *screens[3], *confirmation, *failure;
     choice_t choices[32];
@@ -338,6 +338,22 @@ bool wristflow_components_confirm_leave(wristflow_components_t *c,
     confirm(c, false, true);
     c->leave_accepted = accepted; c->leave_context = context;
     return true;
+}
+
+void wristflow_components_suspend_confirm(wristflow_components_t *c, bool suspend)
+{
+    if (!c || !c->confirmation) return;
+    if (suspend) {
+        c->confirmation_suspended = !lv_obj_has_flag(c->confirmation, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(c->confirmation, LV_OBJ_FLAG_HIDDEN);
+    } else if (c->confirmation_suspended) {
+        c->confirmation_suspended = false;
+        /* Draft and request still belong to the retained editor. */
+        if (c->draft || c->deleting) {
+            lv_obj_remove_flag(c->confirmation, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_move_foreground(c->confirmation);
+        }
+    }
 }
 
 static void add_page(lv_event_t *event)

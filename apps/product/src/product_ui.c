@@ -2,10 +2,11 @@
 #include "wristflow_ui.h"
 #include <string.h>
 
-wristflow_ui_shell_t *wristflow_product_ui_create_with_layout(const wristflow_watch_snapshot_t *snapshot,
+wristflow_ui_shell_t *wristflow_product_ui_create_with_countdown(const wristflow_watch_snapshot_t *snapshot,
     const wristflow_settings_t *settings, wristflow_brightness_cb_t brightness, void *context,
     const wristflow_layout_t *layout, wristflow_layout_request_cb_t request,
-    wristflow_layout_status_cb_t status, void *layout_context)
+    wristflow_layout_status_cb_t status, void *layout_context,
+    const wristflow_countdown_port_t *countdown)
 {
     if (!wristflow_snapshot_valid(snapshot) || !wristflow_settings_valid(settings)) return NULL;
     const wristflow_ui_shell_config_t config = {
@@ -15,9 +16,19 @@ wristflow_ui_shell_t *wristflow_product_ui_create_with_layout(const wristflow_wa
         .initial_snapshot = *snapshot, .enable_apps = true,
         .set_brightness = brightness, .platform_context = context,
         .initial_settings = settings, .product_apps = true, .initial_layout = layout,
-        .save_layout = request, .layout_status = status, .layout_context = layout_context
+        .save_layout = request, .layout_status = status, .layout_context = layout_context,
+        .countdown = countdown
     };
     return wristflow_ui_shell_create(&config);
+}
+
+wristflow_ui_shell_t *wristflow_product_ui_create_with_layout(const wristflow_watch_snapshot_t *snapshot,
+    const wristflow_settings_t *settings, wristflow_brightness_cb_t brightness, void *context,
+    const wristflow_layout_t *layout, wristflow_layout_request_cb_t request,
+    wristflow_layout_status_cb_t status, void *layout_context)
+{
+    return wristflow_product_ui_create_with_countdown(snapshot, settings, brightness, context,
+        layout, request, status, layout_context, NULL);
 }
 
 wristflow_ui_shell_t *wristflow_product_ui_create(const wristflow_watch_snapshot_t *snapshot,

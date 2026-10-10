@@ -18,5 +18,7 @@ bool wristflow_components_back(wristflow_components_t *components, bool home);
 /* Reuse the draft-discard prompt for a user-requested external destination. */
 bool wristflow_components_confirm_leave(wristflow_components_t *components,
     void (*accepted)(void *), void *context);
+/* Temporarily hide a top-layer prompt without resolving its request. */
+void wristflow_components_suspend_confirm(wristflow_components_t *components, bool suspend);
 void wristflow_components_collect(wristflow_components_t *components, const wristflow_navigation_t *navigation);
 #endif

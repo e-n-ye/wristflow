@@ -1,0 +1,251 @@
+{
+  "date": "2026-10-10",
+  "base_commit": "e6e58be50b90708592ff422469194eeafc0b27d5",
+  "branch": "codex/countdown-product",
+  "worktree": "C:/Users/13984/.codex/worktrees/countdown-product/wristflow",
+  "scope": "countdown round 2: Product service, independent deadlines and reminder/session integration",
+  "hardware_verified": false,
+  "device_operation": "none",
+  "xml_or_generated_files_changed": false,
+  "source_sha256": [
+    {
+      "path": "apps/product/src/main.c",
+      "sha256": "36cc3ec4fbc98653eb643181fcf018737ef9c4e5db9c697e6b4a0093c108df46"
+    },
+    {
+      "path": "apps/product/src/product_countdown.c",
+      "sha256": "48cac92b53822fc69fe06d8a4490cc9bab6069397dd39ac7c492ef40b5ea78aa"
+    },
+    {
+      "path": "apps/product/src/product_countdown.h",
+      "sha256": "a97f0aefdf0a2c35e08d4fc679cc3615998170895a82aab398fb9bf98402be1d"
+    },
+    {
+      "path": "apps/product/src/product_pm.h",
+      "sha256": "f9537e7b65b4bfb4a0d95b8c2ae7e1c568f3d2430944591d2802a78a752dc21c"
+    },
+    {
+      "path": "apps/product/src/product_ui.c",
+      "sha256": "c0655da5d48beef9f3d0901ae1051ba2e9a5e5a924f530ee44586a78c3348345"
+    },
+    {
+      "path": "apps/product/src/product_ui.h",
+      "sha256": "25f6f83d8fb1617068aa27af20c6e41762c6d741618ce6d649b225c4ea7d538d"
+    },
+    {
+      "path": "core/countdown_port.h",
+      "sha256": "9f9c8f74df8be1ceb01d25e461a3980b67060b5a597d981120f31abf5f5c43ab"
+    },
+    {
+      "path": "tests/CMakeLists.txt",
+      "sha256": "3b8009872466ef2b2cd39abd60ce7511eed78aca4963a2661bd753dfe2ee96b5"
+    },
+    {
+      "path": "tests/product_countdown.c",
+      "sha256": "e1b44952e523f6b9960aa32300de818bfd6c6e79d84f41d37ce968f3ecf5a06b"
+    },
+    {
+      "path": "tests/product_countdown_ui.c",
+      "sha256": "0b5915f2e67e054f8ea2162d0032acf22a21a43267e8657af656c2220f45ace8"
+    },
+    {
+      "path": "tests/product_pm.c",
+      "sha256": "d841eb915d37c8a5f952af345ac9752d5870fbee71c5044eaa43e2c75f487ab4"
+    },
+    {
+      "path": "tests/support/countdown/rtthread.c",
+      "sha256": "5bf9b1fd711cbd57bb068ededaa94163db72745ff5af539139ae6d178da46c60"
+    },
+    {
+      "path": "tests/support/countdown/rtthread.h",
+      "sha256": "2a686fb506039f27821f30d18bd8ccea7c462592c3322806f2444ffb9f14333e"
+    },
+    {
+      "path": "ui/runtime/apps.c",
+      "sha256": "d5f65c1e579a0916dec532f3fb0e959a99c6cbc15ad602a66ff2862e610d404a"
+    },
+    {
+      "path": "ui/runtime/apps.h",
+      "sha256": "0bb69cf9b58597d9c107d30bd1b2071eab30798917c64290af21fe8e68fdfb3c"
+    },
+    {
+      "path": "ui/runtime/components.c",
+      "sha256": "6af20d871358c6f34d704d2bdf085d90d0f52251cea11f4977f727f19fc466f2"
+    },
+    {
+      "path": "ui/runtime/components.h",
+      "sha256": "0a35e801c45928d719dbc68d6c99c20fce0b80e86cf5c56205bccb770d7c1191"
+    },
+    {
+      "path": "ui/runtime/countdown_view.c",
+      "sha256": "0006bb2e889ffc90d8e24af322487210a5e9cfc86a30ee8f06ffec0caf1347b9"
+    },
+    {
+      "path": "ui/runtime/countdown_view.h",
+      "sha256": "9d56e6f67c9bd5e5e6363d82271de14285e42da9d17b125456de24ed78490d3c"
+    },
+    {
+      "path": "ui/runtime/reminder_host.c",
+      "sha256": "ed970130c53bc2570c7905d09a41ec37d4b2704246af8c28ece5f39bdbe60f57"
+    },
+    {
+      "path": "ui/runtime/reminder_host.h",
+      "sha256": "c309da790801056571fd0a03694bcf9abbf1019caa9482dc4e3c45a45fe42e1d"
+    },
+    {
+      "path": "ui/runtime/ui_shell.c",
+      "sha256": "e96085e85d66cd1a3151ef94b8bad16ce5f34e8b3b97d94c228508e8854fc1bd"
+    },
+    {
+      "path": "ui/runtime/ui_shell.h",
+      "sha256": "9f48d291c161c07501c8dedb836d6fc97ce3dd29b5b9d501e261b6de082d3169"
+    }
+  ],
+  "host": {
+    "configure": "cmake -S tests -B artifacts/simulator-build -G Ninja -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/cc.exe -DCMAKE_MAKE_PROGRAM=D:/msys64/ucrt64/bin/ninja.exe -DCMAKE_BUILD_TYPE=Debug -DWRISTFLOW_BUILD_SIMULATOR=ON",
+    "build": "cmake --build artifacts/simulator-build --parallel 4",
+    "test": "ctest --test-dir artifacts/simulator-build --output-on-failure",
+    "passed": 22,
+    "failed": 0,
+    "seconds": 27.6,
+    "log": "artifacts/host-round2-ctest.log",
+    "log_sha256": "c6e49884c0529406cc7beaa2942b1f01459af5a82d9397cb0a8d35303b886936",
+    "last_test_only_change": "product_pm added COUNTDOWN|KEY|PHONE combined mailbox assertion; targeted product_pm 1/1 passed in 0.07 sec",
+    "targeted_log_sha256": "6f62428882c6394bba8b4b69af069bd49fa93c012a6fcf2036b3c722d4bf0217",
+    "compiler": "MSYS2 UCRT64 GCC 15.2.0; CMake Ninja Debug"
+  },
+  "firmware": [
+    {
+      "example": "product",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": [
+        "SCons by Steven Knight et al.:",
+        "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+        "\tSCons path: ['D:\\\\MY_Desk\\\\project\\\\wristflow\\\\.tools\\\\sifli\\\\envs\\\\default\\\\b1ffa931b7485f8607540b6a2f6a9a53bbefe3696b9db68845be1c3c5cff1ab9\\\\python\\\\Lib\\\\site-packages\\\\SCons']",
+        "Copyright (c) 2001 - 2025 The SCons Foundation"
+      ],
+      "record": "artifacts/product/20261010-185503-451/result.json",
+      "record_sha256": "c7ef7635b919d5b34b156b1736fcdef5631252febf0880cef2bbbf97f9f450c4",
+      "invocation": "pwsh -NoProfile -File artifacts/build-isolated.ps1 -Example product -Jobs 4",
+      "verified_project_sources": 330,
+      "verified_artifacts": 29,
+      "images": [
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21",
+          "address": "0x12010000"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+          "bytes": 7637244,
+          "sha256": "d7aba11725f8e9fba4910d50e5a2438c851f636979615eb56a04d2821fcbb2fc",
+          "address": "0x12020000"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+          "bytes": 11288,
+          "sha256": "204678195dbaf457d6b729a4ae1bc139b6fd5cde6e451499f413d0d853b622a6",
+          "address": "0x12000000"
+        }
+      ],
+      "map_sha256": "cb410e91d851b15831cdf6a24168cbf1be54c8fdd089995aadfcbba7269049f3",
+      "config_sha256": "575e78b28a891aea608f91e100d4617083453b067f72f85d672000c5d5497ecc"
+    },
+    {
+      "example": "ui_demo",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": [
+        "SCons by Steven Knight et al.:",
+        "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+        "\tSCons path: ['D:\\\\MY_Desk\\\\project\\\\wristflow\\\\.tools\\\\sifli\\\\envs\\\\default\\\\b1ffa931b7485f8607540b6a2f6a9a53bbefe3696b9db68845be1c3c5cff1ab9\\\\python\\\\Lib\\\\site-packages\\\\SCons']",
+        "Copyright (c) 2001 - 2025 The SCons Foundation"
+      ],
+      "record": "artifacts/ui_demo/20261010-185556-201/result.json",
+      "record_sha256": "371336e0e42a8773a40190baa307c675cbf8e10753eab8bd21ee2d54311b1b82",
+      "invocation": "pwsh -NoProfile -File artifacts/build-isolated.ps1 -Example ui_demo -Jobs 4",
+      "verified_project_sources": 315,
+      "verified_artifacts": 22,
+      "images": [
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21",
+          "address": "0x12010000"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+          "bytes": 7439512,
+          "sha256": "d13cbf62f7f44b76289ebb6f41a46c1c8f3bffca29187dca5c1a5e8f4a66029c",
+          "address": "0x12020000"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+          "bytes": 11288,
+          "sha256": "39f873c86bcbb60424df22f82a315c00c2e711dd414caffd1a2d262de49650d4",
+          "address": "0x12000000"
+        }
+      ],
+      "map_sha256": "a21821c3f209b6c4a890598ebb80c967c51ef6a221570b87f897d7c272d4dd09",
+      "config_sha256": "1158d3af0ced308693ca20d3013ff85f83b56105008d1bc95da2ffd842830503"
+    }
+  ],
+  "build_environment": "Ignored build-isolated.ps1 copies current Build.ps1 and changes only environment activation to the already registered primary checkout, then restores this worktree ProjectRoot. Official offline check/export, SCons and normal artifact/source recording remain. Host reads pinned SDK via local junction; no SDK edits or dependency downloads.",
+  "build_helper_sha256": "0ba94ccc6c8d88580a9834a1e70736cdf4c03b140d7a6c7b712bd37270558f75",
+  "build_script_sha256": "a4e0ea1f5c336a2bef0219a75eee984b0a3c1d51f3c0bde4a718a5ae49fa632c",
+  "scheduler": {
+    "tick_hz": 1000,
+    "max_wait_ticks": 300000,
+    "max_seconds": 86399,
+    "maximum_task_wait_segments_tested": 288,
+    "getter_drives_expiry": false,
+    "service_source_compiled_directly_in_host": true,
+    "all_lvgl_timers_disabled_in_expiry_test": true,
+    "sdk_sleep_accuracy_hardware_verified": false
+  },
+  "renders": [
+    {
+      "path": "artifacts/simulator-build/renders/countdown_product_draft_covered.ppm",
+      "sha256": "0a69a4e03aebf18fe8c2e26e97a2e1c0b2425546811797f0ee221bf8966bed11"
+    },
+    {
+      "path": "artifacts/simulator-build/renders/countdown_product_expired_off_dnd.ppm",
+      "sha256": "fe06315e6424f818bc911ef87e2fc7b0156eb44d145ce04f71d4e3a7435753ff"
+    },
+    {
+      "path": "artifacts/simulator-build/renders/countdown_product_settings_covered.ppm",
+      "sha256": "ac6f2f1b65d6e1c53329113bcf57b17f0b8ee08e63d88f6200fc3165237a9558"
+    }
+  ],
+  "failures_and_repairs": [
+    "New UI test paused LVGL before ordinary policy was OFF; made it naturally sleep first.",
+    "New UI test bypassed menu and component-page entry; used existing navigation and real card swipe/hold.",
+    "Independent review found Cancel rejected at expiry boundary; immediate cancel now clears task/pending and both callback race orders are tested."
+  ],
+  "remaining": [
+    "Same-build USB autonomous expiry/wake and complete first frame",
+    "Actual touch release and reminder/session controls",
+    "Clock accuracy, LPTIM/Deep residency, concurrency pressure and power",
+    "C2 and notification joint acceptance (independent)",
+    "Multiple reminder conflicts, common confirmation framework and complete modular trimming",
+    "RTC/power-loss task recovery (excluded)"
+  ]
+}
