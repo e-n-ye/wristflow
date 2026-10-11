@@ -1,0 +1,22 @@
+<component>
+    <view extends="lv_obj" width="180" height="180" scrollable="false" clickable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0">
+        <lv_arc name="ring_glow" width="100%" height="100%" start_angle="315" end_angle="270" clickable="false" style_bg_opa="0%" style_border_width="0" style_arc_opa="0%">
+            <style name="breath_glow" selector="indicator" />
+            <style name="breath_knob" selector="knob" />
+        </lv_arc>
+        <lv_arc name="ring_halo" width="100%" height="100%" start_angle="315" end_angle="270" clickable="false" style_bg_opa="0%" style_border_width="0" style_arc_opa="0%">
+            <style name="breath_halo" selector="indicator" />
+            <style name="breath_knob" selector="knob" />
+        </lv_arc>
+        <lv_arc name="ring_line" width="100%" height="100%" start_angle="315" end_angle="270" clickable="false" style_bg_opa="0%" style_border_width="0" style_arc_opa="0%">
+            <style name="breath_line" selector="indicator" />
+            <style name="breath_knob" selector="knob" />
+        </lv_arc>
+    </view>
+    <styles>
+        <style name="breath_glow" arc_color="0x0065ff" arc_width="26" arc_opa="15%" arc_rounded="true" />
+        <style name="breath_halo" arc_color="0x008cff" arc_width="14" arc_opa="40%" arc_rounded="true" />
+        <style name="breath_line" arc_color="0x58e7ff" arc_width="4" arc_opa="100%" arc_rounded="true" />
+        <style name="breath_knob" bg_opa="0%" pad_all="0" />
+    </styles>
+</component>

@@ -219,6 +219,7 @@ extern lv_font_t * notification_22;
 extern lv_font_t * body_20;
 extern lv_font_t * title_24;
 extern lv_font_t * metric_56;
+extern lv_font_t * guide_40;
 extern lv_font_t * clock_80;
 extern lv_font_t * value_36;
 extern lv_font_t * icons_44;
@@ -278,6 +279,12 @@ void wristflow_ui_init_gen(const char * asset_path);
 #include "components/alarm_reminder_gen.h"
 #include "components/app_header_gen.h"
 #include "components/app_list_item_gen.h"
+#include "components/breathing_controls_gen.h"
+#include "components/breathing_duration_gen.h"
+#include "components/breathing_home_gen.h"
+#include "components/breathing_result_gen.h"
+#include "components/breathing_ring_gen.h"
+#include "components/breathing_training_gen.h"
 #include "components/card_container_gen.h"
 #include "components/component_confirm_gen.h"
 #include "components/component_group_gen.h"
@@ -309,6 +316,7 @@ void wristflow_ui_init_gen(const char * asset_path);
 #include "components/tile_quarter_gen.h"
 #include "screens/screen_alarm_gen.h"
 #include "screens/screen_app_placeholder_gen.h"
+#include "screens/screen_breathing_gen.h"
 #include "screens/screen_brightness_adjust_gen.h"
 #include "screens/screen_component_editor_gen.h"
 #include "screens/screen_component_page_gen.h"

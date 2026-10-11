@@ -1,0 +1,13 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="body_20" style_text_color="#fg_primary">
+        <lv_button name="app_back" x="18" y="14" width="226" height="52" style_bg_opa="0%" style_border_width="0" style_shadow_width="0" style_pad_all="0">
+            <lv_label name="breathing_title" x="6" y="12" text="呼吸" style_text_font="title_24" />
+        </lv_button>
+        <lv_label name="breathing_clock" x="270" y="26" width="96" text="13:40" style_text_font="title_24" style_text_align="right" />
+        <breathing_home name="breathing_home_panel" y="76" />
+        <breathing_duration name="breathing_duration_panel" y="76" hidden="true" />
+        <breathing_training name="breathing_training_panel" y="76" hidden="true" />
+        <breathing_controls name="breathing_controls_panel" y="76" hidden="true" />
+        <breathing_result name="breathing_result_panel" y="76" hidden="true" />
+    </view>
+</screen>

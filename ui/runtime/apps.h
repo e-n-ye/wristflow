@@ -19,6 +19,10 @@ bool wristflow_apps_allows(const wristflow_apps_t *apps, wristflow_surface_t sur
 void wristflow_apps_bind_home(wristflow_apps_t *apps, lv_obj_t *home);
 void wristflow_apps_home_visible(wristflow_apps_t *apps, bool visible);
 bool wristflow_apps_back(wristflow_apps_t *apps);
+/* Demo foreground session. Product remains gated until lifecycle integration. */
+bool wristflow_apps_breathing_confirm_leave(wristflow_apps_t *apps, void (*commit)(void *), void *context);
+bool wristflow_apps_breathing_cancel_leave(wristflow_apps_t *apps);
+bool wristflow_apps_breathing_gesture(wristflow_apps_t *apps, lv_dir_t direction, bool edge);
 bool wristflow_apps_countdown_event(wristflow_apps_t *apps);
 bool wristflow_apps_reminder_event(wristflow_apps_t *apps);
 bool wristflow_apps_countdown_active(const wristflow_apps_t *apps);

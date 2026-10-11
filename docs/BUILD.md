@@ -1,5 +1,9 @@
 # 可复现构建基线
 
+## 2026-10-11 呼吸训练第一轮构建
+
+基线 `f250eb9`，隔离分支 `codex/breathing-ui`。Pro 2.0.1／固定 LVGL 9.4.0 官方 GUI 导出及五页 100% 预览通过；最终 CMake 3.31.4／GCC 15.2.0／Ninja Debug 主机 31/31 与严格 core 通过。Product `artifacts/product/20261011-222319-329/result.json`、UI Demo `artifacts/ui_demo/20261011-222515-154/result.json` 均退出 0、镜像校验通过；383／366 份源码及产物重哈希一致，官方清单 106 份 C 在两端实际编译数据库中全部匹配，字体链接核对通过。Product 主 BIN 7,710,436 B，UI Demo 7,507,392 B。完整哈希、复现方法、失败与最终布局覆盖关系见 [BREATHING](BREATHING.md#第一轮记录)和[精简证据](evidence/2026-10-11/breathing-round1.json)。本机复用已锁定 SDK，Product Base64 从官方 `SIFLI_SDK` 根解析；没有 SDK／子模块升级、手动云端运行、烧录或设备结论。
+
 ## 2026-10-11 闹钟列表末尾提示修订构建
 
 沿用 `codex/alarm-usb` / `e5928d25`、既有隔离包装器和官方 SCons。两条提示移入闹钟滚动列表，官方 Pro 2.0.1 / LVGL 9.4.0 GUI 导出成功并保存 100% 预览；实际 LVGL 顶部及滚到底帧按 1:1 核对。受影响 UI 2/2、全主机 CTest 29/29 通过，最终日志 `artifacts/alarm/usb-round3/ctest-scroll-footer-final.log`。Product `artifacts/product/20261011-193101-667/result.json`、UI Demo `artifacts/ui_demo/20261011-193211-417/result.json` 均退出 0、产物校验通过；接续逐项重哈希 357 / 340 份源码及 29 / 22 个产物匹配，SDK / 子模块和工具锁未变。Product 主 BIN 7,663,276 B / `499ac4db1336d88928f9adaaa4e2fea406254b6c74067f2c71e5c1f4b8fb02ea`。本条覆盖下方容量修订版的当前布局证据，旧记录保留其版本；完整镜像与设备观察见 [ALARM 第三轮](ALARM.md#round3)及精简证据的 `scroll_footer_revision`，编译不代替真机验收。
