@@ -13,7 +13,7 @@ static void present(wristflow_reminders_t *owner)
     if (front) for (unsigned i = 0; i < WRISTFLOW_REMINDER_CAPACITY; ++i)
         if (owner->slots[i].content && wristflow_reminder_key_equal(owner->slots[i].key, front->key))
             content = owner->slots[i].content;
-    if (content && content != owner->current) {
+    if (content && (content != owner->current || !owner->queue.active)) {
         bool accepted = owner->current ? wristflow_ui_shell_replace_reminder(owner->shell, content) :
             wristflow_ui_shell_present_reminder(owner->shell, content);
         if (accepted) { owner->current = content; owner->queue.active = true; }
@@ -53,7 +53,8 @@ void wristflow_reminders_remove(wristflow_reminders_t *owner, wristflow_reminder
     if (!owner || !wristflow_reminder_remove(&owner->queue, key)) return;
     for (unsigned i = 0; i < WRISTFLOW_REMINDER_CAPACITY; ++i)
         if (owner->slots[i].content && wristflow_reminder_key_equal(owner->slots[i].key, key)) owner->slots[i].content = NULL;
-    if (!owner->batching) present(owner);
+    /* The caller reconciles all producers before end advances the host. An
+     * unseen next item must not be pinned ahead of backend-pending arrivals. */
 }
 void wristflow_reminders_destroy(wristflow_reminders_t *owner) { lv_free(owner); }
 bool wristflow_reminders_contains(const wristflow_reminders_t *owner, wristflow_reminder_key_t key)

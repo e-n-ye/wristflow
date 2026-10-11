@@ -141,6 +141,13 @@ static void submit(wristflow_alarm_view_t *view, wristflow_alarm_command_t cmd)
     }
 }
 
+static void read_snapshot(wristflow_alarm_view_t *view, wristflow_alarm_snapshot_t *snapshot)
+{
+    view->backend.read(view->backend.context, snapshot);
+    view->alarms = snapshot->alarms; view->time_valid = snapshot->time_valid;
+    view->storage_failed = snapshot->storage_failed;
+}
+
 static void collect_state(wristflow_alarm_view_t *view, wristflow_alarm_snapshot_t *snapshot)
 {
     if (view->request) {
@@ -150,9 +157,7 @@ static void collect_state(wristflow_alarm_view_t *view, wristflow_alarm_snapshot
             if (!view->failed) completed(view);
         }
     }
-    view->backend.read(view->backend.context, snapshot);
-    view->alarms = snapshot->alarms; view->time_valid = snapshot->time_valid;
-    view->storage_failed = snapshot->storage_failed;
+    read_snapshot(view, snapshot);
     if (!view->request) lv_timer_pause(view->timer);
     render(view);
 }
@@ -160,8 +165,7 @@ static void collect_state(wristflow_alarm_view_t *view, wristflow_alarm_snapshot
 static void save_tick(lv_timer_t *timer)
 {
     wristflow_alarm_view_t *view = lv_timer_get_user_data(timer);
-    wristflow_alarm_snapshot_t snapshot;
-    collect_state(view, &snapshot);
+    wristflow_ui_shell_reminder_event(view->shell);
 }
 
 static void dismiss(lv_event_t *event)
@@ -197,13 +201,14 @@ static lv_obj_t *alert_content(wristflow_alarm_view_t *view, const wristflow_ala
     return view->alerts[at].content;
 }
 
-void wristflow_alarm_view_refresh(wristflow_alarm_view_t *view)
+void wristflow_alarm_view_refresh(wristflow_alarm_view_t *view, uint64_t cutoff_ms)
 {
     if (!view || !view->backend.read) return;
     wristflow_alarm_snapshot_t snapshot;
     collect_state(view, &snapshot);
     for (unsigned i = 0; i < WRISTFLOW_ALARM_CAPACITY; ++i) if (snapshot.pending[i].active) {
         const wristflow_alarm_pending_t *pending = &snapshot.pending[i];
+        if (pending->due_ms > cutoff_ms) continue;
         wristflow_reminder_entry_t entry = {.key = {WF_REMINDER_ALARM, pending->alarm.id},
             .due_ms = pending->due_ms, .order = pending->alarm.id};
         if (wristflow_reminders_submit(view->reminders, entry, alert_content(view, pending)))
@@ -347,7 +352,9 @@ lv_obj_t *wristflow_alarm_view_screen(wristflow_alarm_view_t *view)
     }
     for (unsigned i = 0; i < 7; ++i)
         lv_obj_add_event_cb(numbered(view, "alarm_day", i), action, LV_EVENT_SHORT_CLICKED, view);
-    if (view->backend.read) { wristflow_alarm_snapshot_t snapshot; collect_state(view, &snapshot); }
+    /* Rebuilding a page only copies configuration. Completion/removal belongs
+     * to the unified batch, so construction cannot leave a deferred host swap. */
+    if (view->backend.read) { wristflow_alarm_snapshot_t snapshot; read_snapshot(view, &snapshot); }
     render(view); return view->root;
 }
 

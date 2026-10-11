@@ -18,5 +18,8 @@ typedef struct {
     /* Explicit reconciliation before collecting a batch across producers.
      * Independent RT deadlines remain authoritative while LVGL is paused. */
     void (*sync)(void *);
+    /* Shared monotonic epoch with countdown; freeze a batch's delivery cutoff
+     * before either producer is reconciled. */
+    uint64_t (*now64)(void *);
 } wristflow_alarm_port_t;
 #endif

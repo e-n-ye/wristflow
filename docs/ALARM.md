@@ -42,7 +42,7 @@
 - [Product 闹钟服务](../apps/product/src/product_alarm.c) 独占模型、mutex、一次性 RT 软 timer 和保存线程；getter 只复制，息屏不依赖 LVGL。最长五分钟观察一次，保存失败五秒重试；软 timer 争锁时二十毫秒后重试，不等待 Flash 发布锁。RTC 使用 SDK 公开 `GET_TIMEVAL`，亚秒精度尚无设备结论。
 - [alarm_store](../core/alarm_store.h) 编码版本 / CRC / 代次及配置日期。FlashDB 两份 payload 加两份 publication marker，共四个 key；先写非活动 payload 并读回，再在版本重查成功后发布 marker。恢复只接受 payload 与 marker 匹配的已发布代次。最终 marker 写入仍串行持有模型锁；物理 NOR 掉电原子性与写入延迟留真机验证。
 - 用户操作成功发布后才改变有效配置；准备期间发生到期、校时、ACK 或跨过一次性时分则重新准备候选。自动到期先交付提醒并更新内存进度，后台保存失败显示状态、保留进度并重试；Flash 完成不是亮屏前置。
-- [reminder_queue](../core/reminder_queue.h) 持有最多六条纯模型队列；[reminders](../ui/runtime/reminders.c) 一批收集闹钟和倒计时、统一排序后展示。已显示队首固定，其余按截止 / 来源 / 创建顺序排序；宿主继续只拥有一个覆盖槽，替换下一条不重新捕获会话。业务适配拥有提醒内容并在接受后条件 ACK。
+- [reminder_queue](../core/reminder_queue.h) 持有最多六条纯模型队列；[reminders](../ui/runtime/reminders.c) 在两个 producer 同步前捕获共享单调截止，只收集不晚于该时刻的待处理项，再排序展示。采样期间更新到期的项保留给下一批；移除当前项也等收集完成才推进，避免固定尚未展示的次项。已显示队首固定，其余按截止 / 来源 / 创建顺序排序；宿主只拥有一个覆盖槽，替换不重新捕获会话。业务适配拥有内容并在接受后条件 ACK。
 - 闹钟适配保留第一轮草稿与导航，增加等待 / 保存 / 失败状态和五条提醒内容；Product 注入有效后端后开放入口，未注入仍阻断。Demo 继续只做配置交互。
 
 <a id="round2"></a>
@@ -52,10 +52,10 @@
 
 - **源码 / XML**：Pro 2.0.1 GUI `Ctrl+B` 回读编译成功，预览与固件 LVGL 9.4.0；新提醒页 100% 检查并保存截图。列表 GUI 再检查只观察到 87%，随后最小化窗口 / 用户输入保护阻止恢复，未声称本轮该 GUI 页达到 100%。第一轮列表几何保留；新增隐藏状态在五张实际 390×450 LVGL 主机帧按 1:1 核对，无缺字、重叠或越界。官方生成 C / 清单同步，未手改或使用自制导出器。
 - **主机**：GCC 15.2.0 / CMake 3.31.4 / Ninja Debug，最终 CTest **29/29** 通过；调度 / 存储 / 队列另以 `-std=c11 -Wall -Wextra -Werror` 编译运行通过。新增用例覆盖 Q8–Q15、不同创建采样的同刻排序、32 位回绕、逐字节 payload / marker 中断、CRC / 读回失败、代次回绕、真实 Product 服务源码的独立截止及保存竞争。停止 LVGL timers 时五条同刻闹钟先于倒计时；逐条关闭、合并再亮屏、勿扰、通知缓存 / 不补播和原草稿 / 会话恢复通过。RTOS / Flash 是确定性 shim，不代表并发压力或物理掉电通过。
-- **固件编译**：Product 与 UI Demo 均退出 0、产物校验通过；357 / 340 份源码和 29 / 22 个产物逐项重哈希一致。Product `artifacts/product/20261011-180812-425/result.json`，主 BIN 7,662,724 B；UI Demo `artifacts/ui_demo/20261011-181308-179/result.json`，主 BIN 7,459,688 B。Arm GCC 14.2.1 / SDK Python 3.13.15 / SCons 4.10.1，SDK 工作树干净、提交及子模块仍匹配锁。既有 SDK / FinSH、`watch_core` 和链接告警保留，未运行手动云端基线。
+- **固件编译**：最终批次修订后 Product / UI Demo 双目标通过，357 / 340 份源码和 29 / 22 个产物逐项重哈希一致，见 [精简证据](evidence/2026-10-11/alarm-round2.json)。记录分别为 `artifacts/product/20261011-183114-275/result.json` 和 `artifacts/ui_demo/20261011-183636-155/result.json`，主 BIN 分别为 7,662,836 B / 7,459,792 B。Arm GCC 14.2.1 / SDK Python 3.13.15 / SCons 4.10.1，SDK 工作树干净、提交及子模块仍匹配锁。既有 SDK / FinSH、`watch_core` 和链接告警保留，未运行手动云端基线。
 - **硬件**：未串口、烧录或设备输入；RTC 亚秒 / 校时 / 重启保时、真实 FlashDB 掉电恢复、息屏自主唤醒 / 首帧 / 输入、到期延迟、功耗与续航仍未验。
 
-复现沿用下方第一轮 CMake / 官方构建入口，最终测试增加 `--timeout 60`；本轮完整日志为本工作树 `artifacts/alarm/ctest-final-round2.log`，实际帧 / 联系图、GUI 截图及严格编译产物也留在 `artifacts/alarm/`。最初新测试未指定 RGB888，导致采集图片失真，修正后重跑全套并重新核图；这不是设备显示证据。审查修复了未发布 payload 的启动采用、同刻采样偏移排序、批次队首移除固定、自动保存失败遗漏及准备跨分钟重算问题，相关回归已加入。
+复现沿用下方第一轮 CMake / 官方构建入口，最终测试增加 `--timeout 60`；本轮完整日志为本工作树 `artifacts/alarm/ctest-final-round2.log`，实际帧 / 联系图、GUI 截图及严格编译产物也留在 `artifacts/alarm/`。最初新测试未指定 RGB888，修正采集格式后重跑 / 核图；这不是设备显示证据。审查修复未发布 payload 的启动采用、同刻采样偏移、移除队首提前展示、跨 producer 采样越序、自动保存失败遗漏及准备跨分钟重算，并补回归。新用例在释放回调才暴露后端 B，确认 B 先于已排队 C；跨 59999→60000ms 的首批双方暂缓，下一批闹钟优先。新重复到期的已关闭 A/B 按较晚截止排在旧倒计时之后；最初测试仍假定全部闹钟优先，修正为实际先后规则后通过。页面重建只读取配置，保存完成由统一批次消费。
 
 ### 2026-10-11 第一轮
 

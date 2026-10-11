@@ -179,9 +179,11 @@ static void storage_thread(void *context)
     (void)context;
     for (;;) { rt_sem_take(&storage_work, RT_WAITING_FOREVER); storage_step(); }
 }
+static uint64_t now64(void *context)
+{ (void)context; return wristflow_product_services_monotonic(); }
 const wristflow_alarm_port_t *wristflow_product_alarm_start(void)
 {
-    static const wristflow_alarm_port_t port = {.request=request,.status=status,.read=read_state,.ack=ack,.sync=reconcile};
+    static const wristflow_alarm_port_t port = {.request=request,.status=status,.read=read_state,.ack=ack,.sync=reconcile,.now64=now64};
     if (!ready) {
         rt_mutex_init(&lock, "wf_alarm", RT_IPC_FLAG_PRIO);
         rt_sem_init(&storage_work, "wf_alarm_save", 0, RT_IPC_FLAG_PRIO);

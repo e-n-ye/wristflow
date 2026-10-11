@@ -120,7 +120,7 @@ static lv_obj_t *alert_content(wristflow_countdown_view_t *view)
     return view->alert;
 }
 
-static bool observe(wristflow_countdown_view_t *view)
+static bool observe(wristflow_countdown_view_t *view, uint64_t cutoff_ms)
 {
     read_task(view);
     render(view);
@@ -131,7 +131,8 @@ static bool observe(wristflow_countdown_view_t *view)
             uint64_t elapsed = (uint32_t)((uint32_t)at - view->task.expired_at_ms);
             wristflow_reminder_entry_t entry = {.key = {WF_REMINDER_COUNTDOWN, 0},
                 .due_ms = at >= elapsed ? at - elapsed : 0};
-            presented = wristflow_reminders_submit(view->reminders, entry, alert_content(view));
+            if (entry.due_ms <= cutoff_ms)
+                presented = wristflow_reminders_submit(view->reminders, entry, alert_content(view));
             if (presented) command(view, WF_COUNTDOWN_ACK, view->task.generation);
         } else {
             wristflow_ui_shell_open(view->shell, WRISTFLOW_SURFACE_COUNTDOWN);
@@ -152,7 +153,7 @@ static void tick(lv_timer_t *timer)
 {
     wristflow_countdown_view_t *view = lv_timer_get_user_data(timer);
     if (view->backend.read) wristflow_ui_shell_reminder_event(view->shell);
-    else observe(view);
+    else observe(view, UINT64_MAX);
 }
 
 static void wheel_changed(lv_event_t *event)
@@ -194,7 +195,7 @@ static void action(lv_event_t *event)
         else if (close && accepted && !wristflow_ui_shell_back(view->shell)) wristflow_ui_shell_home(view->shell);
     }
     if (view->backend.read) wristflow_ui_shell_reminder_event(view->shell);
-    else observe(view);
+    else observe(view, UINT64_MAX);
 }
 
 static void open_countdown(lv_event_t *event)
@@ -219,8 +220,8 @@ wristflow_countdown_view_t *wristflow_countdown_view_create(wristflow_ui_shell_t
     return view;
 }
 
-bool wristflow_countdown_view_refresh(wristflow_countdown_view_t *view)
-{ return view && observe(view); }
+bool wristflow_countdown_view_refresh(wristflow_countdown_view_t *view, uint64_t cutoff_ms)
+{ return view && observe(view, cutoff_ms); }
 
 bool wristflow_countdown_view_active(const wristflow_countdown_view_t *view)
 { return view && view->task.phase != WRISTFLOW_COUNTDOWN_IDLE; }

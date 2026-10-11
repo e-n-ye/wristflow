@@ -6,7 +6,7 @@
   "source_identity": "SHA-256 of final local source files used by builds; Git line-ending normalization reviewed separately",
   "source_sha256": {
     "apps/product/src/main.c": "6d97ea4857e3d56e52f69b87bf0e78aae995b6ae9fbf93d8fa7e5e3bdac00964",
-    "apps/product/src/product_alarm.c": "f4132355c24cc385c5ae7a12a65d6d307143da94ba5009fb9157bb93950e16ec",
+    "apps/product/src/product_alarm.c": "1b7e75880476c365ebd5923ffc2581f8115a1e5104c1afdacbf442a89d375fc6",
     "apps/product/src/product_alarm.h": "aaae84145029288c0effcd318c757f6b3af19fb10b44decdcb33d814fb4bd1a2",
     "apps/product/src/product_countdown.c": "de5dea8972bfe09c445487b8d4cd41c86e8b8183ef15951b79373882b9deb6e2",
     "apps/product/src/product_pm.h": "852fa4ff6622f24ba07ce402f12adae547b98a2ae4db1ee1500a8cdded57699a",
@@ -14,7 +14,7 @@
     "apps/product/src/product_services.h": "15f3080545741f4257bdc6013889fc9b5f82ed656db2445722ce4d86873637f0",
     "apps/product/src/product_ui.c": "1af93ba430c9218ccba293ae6accf19f87d77f838ac686ef8095e08a6882c2b3",
     "apps/product/src/product_ui.h": "138cc70039cef90b85bdb757fe56587be093205a1f404ed950f6d15b4c6d777b",
-    "core/alarm_port.h": "9a2478a4e7d438ec72a89b6b27df211b9608f76a22c5226e916d473b864ddec3",
+    "core/alarm_port.h": "9c34743cabc5d124313e6fdd4aed3803f7e58cc15ab7074e40ab70ca7897a664",
     "core/alarm_schedule.c": "643598c34387c004696dcc546961c851eeaba9e5d9686151a217162a718d5b46",
     "core/alarm_schedule.h": "22ba7fcd5ec2b27a01597bee4c52f55beae926997f3801ab71cd3639e2f66ae2",
     "core/alarm_store.c": "79ea53e545fd0ac59c900104db57f8769a12cc6f669bbf63ca4b78a55f3badd4",
@@ -28,23 +28,23 @@
     "tests/alarm_schedule.c": "31fc4333204172690c6f607dd22da3702c4ac505fda2e41b759a734dc7546a7f",
     "tests/alarm_store.c": "4e59ece19270ec7d0b08dda8499448d57ba53838d5a36ec122ea9d6e6cc3e0a4",
     "tests/product_alarm.c": "951d4673ee421b7f96a909b86b87f2cbb0b9db6287014c33c390d01d5399e812",
-    "tests/product_alarm_ui.c": "c8f91f551d369962beb17f0f961f6d45e3196a4b841722ed5a2c672175aba219",
+    "tests/product_alarm_ui.c": "1340635001d6c692f6fc0dcdb7a3151246c7f527a84dd5d51796f68f2f8ffa5b",
     "tests/product_pm.c": "117cccbba7246c0b9a3029ea18b10a8792239c631367a6606dc522ee73461cd5",
     "tests/product_ui.c": "5c18c308b9959f6a690e4a59c8e427370446f66101b229ff8667e5638cd57e31",
     "tests/reminder_queue.c": "ceed6a70e5b2599ce3277c0ae39e72c1c33a67d028acb1a97a105a3dac6c342b",
     "tests/support/alarm/rtthread.h": "f549d34bb923d0bc0f17bf76abc9f8962a3a8dce9b7de9b940db501eeed1914e",
     "tests/support/countdown/rtthread.c": "a7955047d44eff64d3305c17a1e43173fd9dd5eaa7656978cb424b51eb25464d",
-    "ui/runtime/alarm_view.c": "5a5ba410ff1875ffceeb235db84cec9b3a17747381eddd75c6d078ee3567ac0d",
-    "ui/runtime/alarm_view.h": "968c3851a9eb54c6da1acc304b4e90a0ad8b6bb96346bbab2078bed6fe288513",
+    "ui/runtime/alarm_view.c": "083f33540321db5a69c56297133105675696579cf44d76b79b29a2540e280bd2",
+    "ui/runtime/alarm_view.h": "df88a71a80d1f8d95ca7d6f2971c27d56cb045836b95815f89962ebd89d7e9d7",
     "ui/runtime/app_registry.c": "98a3cb0d44c9012e4d97e9aca2f2faa5868d3ec91afd64010a3641318ae1b73f",
-    "ui/runtime/apps.c": "5344f9dbe7650595bf52696a866a4eb0776b51de695a0d2e9eb5f0f7b205e93f",
+    "ui/runtime/apps.c": "c98a485d14cd31b2c273cfb7b6637808ac1e1cf81aa9eea565de555cee1671d9",
     "ui/runtime/apps.h": "c820be377ab5d0b41e57a9e638e9e356ace3cea17db9eec3db03961897a11e0f",
-    "ui/runtime/countdown_view.c": "be480f0ac2d4845458a50338b4f0ae5c39494157888a91dd510e760a88b2114b",
-    "ui/runtime/countdown_view.h": "30601354738fc58a7c161000aeea7a9637bef5c5cc9290685d03d37b2a36d5f8",
+    "ui/runtime/countdown_view.c": "a5b4472dfe5afcce59872446b2eb1dd72d5d701a75d6879f731b874700054730",
+    "ui/runtime/countdown_view.h": "9ea3d0e474dbe0434524b1ba0b0f25211adde86ae0f8b9b8fc80510a422e64b9",
     "ui/runtime/reminder_host.c": "2a934603a72c348c9e0f071f4ba4cebadd4dcc14d59d7406ed6a38727473db4c",
     "ui/runtime/reminder_host.h": "bd03684993308eae3066ffb7b3301a4074f8a2781a7d3c2b1f7ddbc1a85b9f43",
-    "ui/runtime/reminders.c": "b83347059b8841a6270fdf024181c9f32ab3f55c5866b7ea1ee3870b1256bcd7",
-    "ui/runtime/reminders.h": "1213d0f6c4aa626150d2dcef3e95f15b582658c024c7541022a2a6fbf5b1bd1f",
+    "ui/runtime/reminders.c": "9027f6716d2c2b5098cd895ce8c58826e0948606df714a09fc44d2b36bfc1d31",
+    "ui/runtime/reminders.h": "3c9197454fc30122125f4e8ceab36e639611a77fa372c50dc338e8eefd5cec11",
     "ui/runtime/ui_shell.c": "e70a38beb6a5fd3f4e248a25e410a73a84d7b58ac04336bd60137083a9a909b2",
     "ui/runtime/ui_shell.h": "6bdd273a87562af9ec18b9fc3f6a286b065f29ee8c3eb0eeb0ce16e8f119510d",
     "ui/xml/components/alarm_reminder.xml": "ad1427c6aee69455ce1c4ce1c866ea339a7e85a0f7d9e26f6248be9051083d1c",
@@ -88,7 +88,7 @@
     "tests_failed": 0,
     "exit_code": 0,
     "log_local": "artifacts/alarm/ctest-final-round2.log",
-    "log_sha256": "51704c1e2575dc25388b48ac13e20ffe9e830e2fdba0e143b63c1b7d76f6e61c",
+    "log_sha256": "7f4fac066947c6c2afcf1c441e7a1524cd41e3b7edd2653aa97d6751fe918b7a",
     "strict_core_commands": [
       "D:/msys64/ucrt64/bin/gcc.exe -std=c11 -Wall -Wextra -Werror -I core core/alarm.c core/alarm_schedule.c tests/alarm_schedule.c -o artifacts/alarm/schedule-strict.exe",
       "D:/msys64/ucrt64/bin/gcc.exe -std=c11 -Wall -Wextra -Werror -I core core/alarm.c core/alarm_schedule.c core/alarm_store.c tests/alarm_store.c -o artifacts/alarm/store-strict.exe",
@@ -113,7 +113,9 @@
       "Actual Product backend source against deterministic RTC/Flash/RTOS shim",
       "Prepare racing RTC/expiry and crossing configured minute",
       "Soft-timer lock contention retries without blocking",
-      "Five same-time alarms before countdown with LVGL timers disabled",
+      "Common deadline crosses between producer samples: both withheld at shared cutoff then alarm first",
+      "Backend-pending B appears during release/close of A: B precedes already-queued C",
+      "Six pending sources, older countdown precedes newly repeated alarms, LVGL timer-independent expiry",
       "Save/failure/retry, toggle/delete and original draft/session restoration",
       "Pending coalescing, new-arrival 30-second renewal, DND and notification cache/no replay"
     ],
@@ -123,11 +125,11 @@
     "product": {
       "command": "pwsh -NoProfile -File artifacts/alarm/build-isolated.ps1 -Example product -Jobs 6",
       "entry_equivalence": "Official Build.ps1 logic; installed environment path and isolated application root overridden only",
-      "result_local": "artifacts/product/20261011-180812-425/result.json",
-      "result_sha256": "e95965b51f254ba068c6d0c74d542219b93ea030d3b7e03383415690a5ac4575",
-      "log_sha256": "000ef8fe1de44913465bb921e573b198a721f2fc659792c49a8ece7f9f1ef2ce",
-      "started_at": "2026-10-11T18:08:12.4364517+08:00",
-      "finished_at": "2026-10-11T18:11:29.6249604+08:00",
+      "result_local": "artifacts/product/20261011-183114-275/result.json",
+      "result_sha256": "bb443b1d0df9837e1862b93baf426862ca1dc883e3fc87fc7575bbef687abe09",
+      "log_sha256": "8aa24ac62da5a532272dd889d8ca13e95b86c01ac17c30724588582583fe15ff",
+      "started_at": "2026-10-11T18:31:15.3147813+08:00",
+      "finished_at": "2026-10-11T18:36:05.8323339+08:00",
       "exit_code": 0,
       "artifact_validation_passed": true,
       "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
@@ -139,13 +141,13 @@
       "images_and_map": [
         {
           "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
-          "bytes": 7662724,
-          "sha256": "314080bf2ccb4325f017a9a4c81f8b7e25215ff30c38caee7ac0312f14bdef19"
+          "bytes": 7662836,
+          "sha256": "7833c3a30b836b61972a317d833255857a7605b0ddf2f821495808f3c4489c50"
         },
         {
           "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.map",
-          "bytes": 8180855,
-          "sha256": "72ff4f87b89c7326174b84e98761906fd38c13933ff3b2ab737ce84ea175ce28"
+          "bytes": 8180829,
+          "sha256": "88672d13a15d3d636fd7dfd37a0a8616dd60e01c67cadab51238be5307d6f46f"
         },
         {
           "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
@@ -155,18 +157,18 @@
         {
           "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
           "bytes": 11288,
-          "sha256": "af51640961cde2011090b486ecaf0eb36a717a4e7600f7f0c673a930ae148ad8"
+          "sha256": "a94a9c98b84f9c9f97c388923a65f9e06365d77d09bdc3541e1da4bc9d927ded"
         }
       ]
     },
     "ui_demo": {
       "command": "pwsh -NoProfile -File artifacts/alarm/build-isolated.ps1 -Example ui_demo -Jobs 6",
       "entry_equivalence": "Official Build.ps1 logic; installed environment path and isolated application root overridden only",
-      "result_local": "artifacts/ui_demo/20261011-181308-179/result.json",
-      "result_sha256": "e2d82147281cf933e4098d3786a4f1f5ff7d6de8e8c9476da0fec937e72de45e",
-      "log_sha256": "0d0b44763788a84c06acf5e908f087326ec920ecabd2aee20bfcefc8c94291b3",
-      "started_at": "2026-10-11T18:13:08.1876703+08:00",
-      "finished_at": "2026-10-11T18:16:54.4743279+08:00",
+      "result_local": "artifacts/ui_demo/20261011-183636-155/result.json",
+      "result_sha256": "7e729b01e2ba9bbadc1dc202f37a0aa8e087b93306c9e1d8ab1a1cb3bd550652",
+      "log_sha256": "52d400728499e517aefbdfe26b2a3edfd341133f7c614948a41e67c919129cca",
+      "started_at": "2026-10-11T18:36:36.1633085+08:00",
+      "finished_at": "2026-10-11T18:39:59.2253558+08:00",
       "exit_code": 0,
       "artifact_validation_passed": true,
       "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
@@ -178,13 +180,13 @@
       "images_and_map": [
         {
           "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
-          "bytes": 7459688,
-          "sha256": "5fa45583b501ba64b61c0de9a8c21c247df62447cc694b24c78dce5d64e4814e"
+          "bytes": 7459792,
+          "sha256": "eec02541532c7d6d208f7ba3c949737edc524daaf357443346ff5689da8bbb25"
         },
         {
           "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/main.map",
-          "bytes": 5166727,
-          "sha256": "82dd02542042a1b33fe1906eb97a340ea86c26ec410662e936a6370be6d6ddb3"
+          "bytes": 5166651,
+          "sha256": "ef95faf612f73617504cb0dda7c0cbd4e30ead3dcd0e2605a954ec3f1bcc2c45"
         },
         {
           "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
@@ -194,7 +196,7 @@
         {
           "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
           "bytes": 11288,
-          "sha256": "6096a17c3b79d01faf10ca9c27e25da40b13081c8dd23d4721e2a98bd07ab672"
+          "sha256": "6a92dc56c6c3697962b15920b26e9376bdbb8e5563fcd60bf18cfd45bd649c12"
         }
       ]
     }
@@ -202,11 +204,14 @@
   "failures_resolved": [
     "Unpublished verified payload could be adopted after restart: separate two publication markers added",
     "Independent creation-time offsets could reorder same-time alarms: shared RTC-subsecond mapping added",
-    "Removing active front could pin unseen next item: clear active before batch sorting",
+    "Removing active front could pin unseen next item: clear active and defer presentation until all pending producers are collected",
+    "Common deadline crossing between samples could deliver countdown first: shared batch cutoff filters newer arrivals without ACK",
+    "Page construction could consume save completion outside a batch: copy snapshot only",
     "Automatic storage failure omitted from UI: status propagated",
     "Storage preparation crossing once time: candidate recalculated before publication",
     "New screenshot test used wrong display color format: explicit RGB888 and rerendered",
-    "Strict test clock initializer omitted new field: designated initializer used"
+    "Strict test clock initializer omitted new field: designated initializer used",
+    "Extended queue test assumed new repeat alarms precede older countdown: expectation corrected to chronological order"
   ],
   "retained_build_warnings": [
     "Existing watch_core enum comparison",

@@ -14,6 +14,8 @@ static lv_indev_data_t pointer;
 static uint8_t draw[390*40*3], frame[390*450*3];
 static const char *directory;
 static unsigned brightness;
+static uint32_t held_alarm;
+static bool cross_sample, reveal_on_release, reveal_pressed;
 static uint32_t tick(void) { return ticks; }
 static void flush(lv_display_t *d,const lv_area_t*a,uint8_t*p) {
     unsigned w=a->x2-a->x1+1;
@@ -21,6 +23,8 @@ static void flush(lv_display_t *d,const lv_area_t*a,uint8_t*p) {
     lv_display_flush_ready(d);
 }
 static void read_pointer(lv_indev_t*i,lv_indev_data_t*d) { (void)i;*d=pointer;
+    if(reveal_on_release&&d->state==LV_INDEV_STATE_PRESSED)reveal_pressed=true;
+    if(reveal_on_release&&reveal_pressed&&d->state==LV_INDEV_STATE_RELEASED) { held_alarm=0;reveal_on_release=false; }
     if(!wristflow_ui_shell_filter_touch(shell,d->state==LV_INDEV_STATE_PRESSED))d->state=LV_INDEV_STATE_RELEASED;
 }
 static void bright(uint8_t v,void*c) { (void)c;brightness=v; }
@@ -30,13 +34,17 @@ static uint32_t request(void*c,const wristflow_alarm_command_t*cmd) { (void)c;as
 static wristflow_save_state_t status(void*c,uint32_t id) { (void)c;assert(id==request_id);return status_value; }
 static void read_alarm(void*c,wristflow_alarm_snapshot_t*s) { (void)c;memset(s,0,sizeof *s);
     s->alarms=alarms.data.alarms;memcpy(s->pending,alarms.pending,sizeof s->pending);s->time_valid=alarms.time_valid;
+    for(unsigned i=0;i<5;++i)if(s->pending[i].alarm.id==held_alarm)s->pending[i].active=false;
 }
 static bool ack(void*c,uint32_t id,uint32_t seq) { (void)c;return wristflow_alarm_schedule_ack(&alarms,id,seq); }
 static void sync_alarm(void*c) { (void)c;wristflow_alarm_schedule_update(&alarms,clock_value); }
 static void read_countdown(void*c,wristflow_countdown_t*t) { (void)c;*t=countdown; }
 static uint32_t now(void*c) { (void)c;return (uint32_t)clock_value.monotonic_ms; }
 static uint64_t now64(void*c) { (void)c;return clock_value.monotonic_ms; }
-static void sync_countdown(void*c) { wristflow_countdown_update(&countdown,now(c)); }
+static void sync_countdown(void*c) {
+    if(cross_sample) { cross_sample=false;++ticks;++clock_value.monotonic_ms;++clock_value.utc;clock_value.subsecond_ms=0; }
+    wristflow_countdown_update(&countdown,now(c));
+}
 static bool command(void*c,wristflow_countdown_command_t op,uint32_t arg) {
     switch(op) {
     case WF_COUNTDOWN_START:return wristflow_countdown_start(&countdown,arg,now(c));
@@ -46,7 +54,7 @@ static bool command(void*c,wristflow_countdown_command_t op,uint32_t arg) {
     default:return false;
     }
 }
-static const wristflow_alarm_port_t alarm_port={.request=request,.status=status,.read=read_alarm,.ack=ack,.sync=sync_alarm};
+static const wristflow_alarm_port_t alarm_port={.request=request,.status=status,.read=read_alarm,.ack=ack,.sync=sync_alarm,.now64=now64};
 static const wristflow_countdown_port_t countdown_port={.command=command,.read=read_countdown,.now=now,.now64=now64,.sync=sync_countdown};
 static void advance(unsigned ms) {
     for(unsigned i=0;i<ms;i+=16) { ticks+=16;clock_value.monotonic_ms+=16;
@@ -80,6 +88,13 @@ static lv_obj_t *current_alarm(void) {
     for(unsigned i=0;i<lv_obj_get_child_count(host);++i) { lv_obj_t*c=lv_obj_get_child(host,i);
         if(!lv_obj_has_flag(c,LV_OBJ_FLAG_HIDDEN)&&lv_obj_find_by_name(c,"alarm_reminder_close"))return c; }
     return NULL;
+}
+static lv_obj_t *first_hidden_alarm(void) {
+    for(unsigned i=0;i<lv_obj_get_child_count(lv_layer_top());++i) {
+        lv_obj_t*c=lv_obj_get_child(lv_layer_top(),i);
+        if(lv_obj_has_flag(c,LV_OBJ_FLAG_HIDDEN)&&lv_obj_find_by_name(c,"alarm_reminder_close"))return c;
+    }
+    assert(false);return NULL;
 }
 static unsigned timers(void) { unsigned n=0;for(lv_timer_t*t=lv_timer_get_next(NULL);t;t=lv_timer_get_next(t))++n;return n; }
 int main(int argc,char**argv) {
@@ -120,19 +135,29 @@ int main(int argc,char**argv) {
     wristflow_ui_shell_set_dnd(shell,true);
     uint32_t until=60000-(uint32_t)clock_value.monotonic_ms;
     assert(wristflow_countdown_start(&countdown,1,now(NULL)));countdown.remaining_ms=until;countdown.anchor_ms=now(NULL);
-    /* Exact common deadline; all LVGL timers are disabled. */
-    lv_timer_enable(false);ticks=60000;clock_value.monotonic_ms=60000;clock_value.utc=1791673200;clock_value.subsecond_ms=0;
+    /* The common deadline falls between producer samples. A frozen cutoff
+     * withholds both until the next batch, which must select the alarm first. */
+    lv_timer_enable(false);ticks=59999;clock_value.monotonic_ms=59999;clock_value.utc=1791673199;clock_value.subsecond_ms=999;
+    held_alarm=alarms.data.alarms.entries[1].id;cross_sample=true;
+    assert(!wristflow_ui_shell_reminder_event(shell));assert(!wristflow_ui_shell_reminder_active(shell));
     assert(wristflow_ui_shell_reminder_event(shell));assert(!wristflow_ui_shell_reminder_event(shell));lv_timer_enable(true);advance(32);
     assert(wristflow_ui_shell_reminder_active(shell));assert(current_alarm());text(current_alarm(),"alarm_reminder_time","07:00");capture("first");
+    /* B is pending only in the backend when A's release is dispatched. The
+     * already-queued C must remain unseen until B has been collected/sorted. */
+    lv_obj_t*c=first_hidden_alarm();reveal_on_release=true;click(current_alarm(),"alarm_reminder_close");
+    assert(current_alarm()&&current_alarm()!=c);click(current_alarm(),"alarm_reminder_close");assert(current_alarm()==c);
     wristflow_notifications_snapshot_t phone={.connected=true,.revision=1,.alert_sequence=1,.alert_id=42,.count=1};phone.messages[0].id=42;
     strcpy(phone.messages[0].source,"QQ");strcpy(phone.messages[0].title,"期间消息");assert(!wristflow_ui_shell_notifications(shell,&phone));
     advance(30100);assert(brightness==0&&wristflow_ui_shell_reminder_active(shell));
     /* New same-record arrivals coalesce and renew light without preemption. */
     for(unsigned i=0;i<5;++i) { alarms.pending[i]=(wristflow_alarm_pending_t){.alarm=alarms.data.alarms.entries[i],.due_ms=clock_value.monotonic_ms,.sequence=100+i,.active=true}; }
     assert(wristflow_ui_shell_reminder_event(shell));assert(brightness>0);assert(current_alarm());
-    for(unsigned i=0;i<5;++i) { lv_obj_t*alert=current_alarm();assert(alert);click(alert,"alarm_reminder_close");assert(lv_screen_active()==original); }
+    /* Old C/D/E precede countdown; newly repeated A/B have later deadlines. */
+    for(unsigned i=0;i<3;++i) { lv_obj_t*alert=current_alarm();assert(alert);click(alert,"alarm_reminder_close");assert(lv_screen_active()==original); }
     assert(!current_alarm()&&wristflow_ui_shell_reminder_active(shell));capture("countdown_last");
-    click(named(lv_layer_top(),"countdown_reminder"),"countdown_close");assert(!wristflow_ui_shell_reminder_active(shell));
+    click(named(lv_layer_top(),"countdown_reminder"),"countdown_close");assert(wristflow_ui_shell_reminder_active(shell));
+    for(unsigned i=0;i<2;++i) { assert(current_alarm());click(current_alarm(),"alarm_reminder_close"); }
+    assert(!wristflow_ui_shell_reminder_active(shell));
     assert(lv_screen_active()==original);text(original,"alarm_title","设置");
     assert(lv_obj_has_flag(named(lv_layer_top(),"notification_banner"),LV_OBJ_FLAG_HIDDEN));
     wristflow_ui_shell_destroy(shell);shell=NULL;lv_indev_delete(input);assert(timers()==initial);
