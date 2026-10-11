@@ -9,6 +9,7 @@ void wristflow_reminders_begin(wristflow_reminders_t *owner);
  * Content remains adapter-owned. Collect every source before end presents. */
 bool wristflow_reminders_submit(wristflow_reminders_t *owner, wristflow_reminder_entry_t entry, lv_obj_t *content);
 bool wristflow_reminders_end(wristflow_reminders_t *owner);
+/* Removal is deferred until end, including removals made before begin. */
 void wristflow_reminders_remove(wristflow_reminders_t *owner, wristflow_reminder_key_t key);
 bool wristflow_reminders_contains(const wristflow_reminders_t *owner, wristflow_reminder_key_t key);
 void wristflow_reminders_destroy(wristflow_reminders_t *owner);

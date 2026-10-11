@@ -506,11 +506,13 @@ bool wristflow_apps_countdown_event(wristflow_apps_t *apps)
 bool wristflow_apps_reminder_event(wristflow_apps_t *apps)
 {
     if (!apps) return false;
+    uint64_t cutoff = apps->alarm_port.now64 ? apps->alarm_port.now64(apps->alarm_port.context) :
+        apps->countdown_port.now64 ? apps->countdown_port.now64(apps->countdown_port.context) : UINT64_MAX;
     if (apps->alarm_port.sync) apps->alarm_port.sync(apps->alarm_port.context);
     if (apps->countdown_port.sync) apps->countdown_port.sync(apps->countdown_port.context);
     wristflow_reminders_begin(apps->reminders);
-    wristflow_alarm_view_refresh(apps->alarm);
-    wristflow_countdown_view_refresh(apps->countdown);
+    wristflow_alarm_view_refresh(apps->alarm, cutoff);
+    wristflow_countdown_view_refresh(apps->countdown, cutoff);
     return wristflow_reminders_end(apps->reminders);
 }
 

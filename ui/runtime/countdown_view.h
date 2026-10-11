@@ -9,7 +9,7 @@ typedef struct wristflow_reminders wristflow_reminders_t;
  * independent service; this adapter never advances that service's deadline. */
 wristflow_countdown_view_t *wristflow_countdown_view_create(wristflow_ui_shell_t *shell,
     const wristflow_countdown_port_t *backend, wristflow_reminders_t *reminders);
-bool wristflow_countdown_view_refresh(wristflow_countdown_view_t *view);
+bool wristflow_countdown_view_refresh(wristflow_countdown_view_t *view, uint64_t cutoff_ms);
 bool wristflow_countdown_view_active(const wristflow_countdown_view_t *view);
 lv_obj_t *wristflow_countdown_view_screen(wristflow_countdown_view_t *view);
 void wristflow_countdown_view_detach(wristflow_countdown_view_t *view);
