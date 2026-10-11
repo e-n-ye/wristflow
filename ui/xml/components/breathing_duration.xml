@@ -1,0 +1,13 @@
+<component>
+    <styles><style name="breathing_selected" bg_opa="0%" text_color="#fg_primary" text_font="metric_56" /></styles>
+    <view extends="lv_obj" width="390" height="374" scrollable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="body_20" style_text_color="#fg_primary">
+        <lv_roller name="breathing_minutes" x="122" y="15" width="100" options="1&#10;2&#10;3&#10;4&#10;5" options-mode="infinite" style_bg_opa="0%" style_border_width="0" style_radius="0" style_text_font="metric_56" style_text_color="0x60656c" style_text_line_space="12" style_text_align="center" visible_row_count="3">
+            <style name="breathing_selected" selector="selected" />
+        </lv_roller>
+        <lv_label x="226" y="102" text="分钟" style_text_font="title_24" />
+        <lv_label name="breathing_cycles" x="24" y="239" width="342" text="呼吸7次" style_text_font="title_24" style_text_color="0x008cff" style_text_align="center" />
+        <lv_button name="breathing_duration_confirm" x="120" y="289" width="150" height="66" style_bg_color="0x143d63" style_radius="33" style_shadow_width="0" style_pad_all="0">
+            <lv_label align="center" text="&#xf00c;" style_text_font="icons_44" />
+        </lv_button>
+    </view>
+</component>

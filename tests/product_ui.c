@@ -132,8 +132,9 @@ int main(int argc, char **argv)
             assert(app->card_sizes & slot->size);
         }
     }
-    assert(instances == 10 && wristflow_app_count() == 15);
+    assert(instances == 10 && wristflow_app_count() == 16);
     assert(wristflow_app_find("countdown")->demo_only);
+    assert(wristflow_app_find("breathing")->demo_only);
     assert(!wristflow_product_default_page(3) && !wristflow_app_find("missing"));
     wristflow_app_data_t weather_data;
     assert(wristflow_app_read(wristflow_app_find("weather"), &state, &weather_data));

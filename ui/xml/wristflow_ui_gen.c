@@ -55,6 +55,8 @@ lv_font_t * title_24;
 extern lv_font_t title_24_data;
 lv_font_t * metric_56;
 extern lv_font_t metric_56_data;
+lv_font_t * guide_40;
+extern lv_font_t guide_40_data;
 lv_font_t * clock_80;
 extern lv_font_t clock_80_data;
 lv_font_t * value_36;
@@ -164,6 +166,12 @@ void wristflow_ui_init_gen(const char * asset_path)
             /* metric_56 */
             /* get font 'metric_56' from a C array */
             metric_56 = &metric_56_data;
+
+        }
+        if (!guide_40) {
+            /* guide_40 */
+            /* get font 'guide_40' from a C array */
+            guide_40 = &guide_40_data;
 
         }
         if (!clock_80) {
@@ -301,6 +309,7 @@ void wristflow_ui_init_gen(const char * asset_path)
     check_font(&body_20, "body_20");
     check_font(&title_24, "title_24");
     check_font(&metric_56, "metric_56");
+    check_font(&guide_40, "guide_40");
     check_font(&clock_80, "clock_80");
     check_font(&value_36, "value_36");
     check_font(&icons_44, "icons_44");
@@ -311,6 +320,7 @@ void wristflow_ui_init_gen(const char * asset_path)
     lv_xml_register_font(NULL, "body_20", body_20);
     lv_xml_register_font(NULL, "title_24", title_24);
     lv_xml_register_font(NULL, "metric_56", metric_56);
+    lv_xml_register_font(NULL, "guide_40", guide_40);
     lv_xml_register_font(NULL, "clock_80", clock_80);
     lv_xml_register_font(NULL, "value_36", value_36);
     lv_xml_register_font(NULL, "icons_44", icons_44);

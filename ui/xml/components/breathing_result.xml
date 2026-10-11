@@ -1,0 +1,15 @@
+<component>
+    <view extends="lv_obj" width="390" height="374" scrollable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="body_20" style_text_color="#fg_primary">
+        <lv_label x="30" y="14" text="训练前心率" style_text_font="title_24" style_text_color="#fg_secondary" />
+        <lv_label name="breathing_before" x="171" y="14" text="--次/分" style_text_font="title_24" />
+        <lv_label x="84" y="59" text="&#xf004;" style_text_font="icons_20" style_text_color="0xf43f8d" />
+        <lv_label name="breathing_after" x="30" y="57" text="--" style_text_font="metric_56" />
+        <lv_label x="91" y="88" text="次/分" style_text_font="title_24" />
+        <lv_label x="30" y="155" text="训练时长" style_text_font="title_24" style_text_color="#fg_secondary" />
+        <lv_label name="breathing_result_minutes" x="30" y="192" text="1" style_text_font="metric_56" />
+        <lv_label x="74" y="222" text="分钟" style_text_font="title_24" />
+        <lv_button name="breathing_done" x="30" y="289" width="330" height="66" style_bg_color="0x143d63" style_radius="33" style_shadow_width="0" style_pad_all="0">
+            <lv_label align="center" text="完成" style_text_font="value_36" />
+        </lv_button>
+    </view>
+</component>

@@ -11,6 +11,7 @@
                 <launcher_icon name="launch_settings" x="335" y="379" icon="&#xf013;" tint="0x647783" />
                 <launcher_icon name="launch_countdown" x="455" y="379" icon="&#xf252;" tint="0x008cff" />
                 <launcher_icon name="launch_alarm" x="95" y="379" icon="&#xf0f3;" tint="0x008cff" />
+                <launcher_icon name="launch_breathing" x="155" y="483" icon="&#xf192;" tint="0x008cff" />
             </lv_obj>
         </lv_obj>
         <lv_label name="launcher_caption" x="24" y="404" width="342" text="应用" style_text_align="center" style_text_color="#fg_secondary" />

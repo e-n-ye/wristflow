@@ -58,6 +58,8 @@ struct wristflow_ui_shell {
     uint8_t applied_brightness;
     unsigned stopwatch_exit;
     wristflow_surface_t stopwatch_destination;
+    unsigned breathing_exit;
+    wristflow_surface_t breathing_destination;
     wristflow_notification_view_t *notifications;
     wristflow_reminder_host_t *reminder;
     bool reminder_session_exempt;
@@ -311,10 +313,29 @@ static bool confirm_stopwatch_exit(wristflow_ui_shell_t *shell, unsigned action,
     return true;
 }
 
+static void breathing_exit_commit(void *context)
+{
+    wristflow_ui_shell_t *shell = context;
+    if (shell->breathing_exit == STOPWATCH_EXIT_BACK) wristflow_ui_shell_back(shell);
+    else if (shell->breathing_exit == STOPWATCH_EXIT_HOME) wristflow_ui_shell_home(shell);
+    else wristflow_ui_shell_open(shell, shell->breathing_destination);
+}
+
+static bool confirm_breathing_exit(wristflow_ui_shell_t *shell, unsigned action, wristflow_surface_t target)
+{
+    if (shell->navigation.surface != WRISTFLOW_SURFACE_BREATHING) return false;
+    if (lv_obj_find_by_name(lv_screen_active(), "breathing_exit_confirm")) return true;
+    shell->breathing_exit = action;
+    shell->breathing_destination = target;
+    return wristflow_apps_breathing_confirm_leave(shell->apps, breathing_exit_commit, shell);
+}
+
 bool wristflow_ui_shell_open(wristflow_ui_shell_t *shell, wristflow_surface_t surface)
 {
     if (!shell || !shell->apps || shell->transitioning || wristflow_ui_shell_reminder_active(shell)) return false;
     if (!wristflow_apps_allows(shell->apps, surface)) return false;
+    if (surface != shell->navigation.surface &&
+        confirm_breathing_exit(shell, STOPWATCH_EXIT_OPEN, surface)) return true;
     if (surface != shell->navigation.surface &&
         confirm_stopwatch_exit(shell, STOPWATCH_EXIT_OPEN, surface)) return true;
     if (shell->navigation.surface == WRISTFLOW_SURFACE_HOME &&
@@ -331,6 +352,7 @@ bool wristflow_ui_shell_open(wristflow_ui_shell_t *shell, wristflow_surface_t su
 bool wristflow_ui_shell_home(wristflow_ui_shell_t *shell)
 {
     if (!shell || shell->transitioning || wristflow_ui_shell_reminder_active(shell)) return false;
+    if (confirm_breathing_exit(shell, STOPWATCH_EXIT_HOME, WRISTFLOW_SURFACE_HOME)) return true;
     if (confirm_stopwatch_exit(shell, STOPWATCH_EXIT_HOME, WRISTFLOW_SURFACE_HOME)) return true;
     if (wristflow_components_back(shell->components, true)) return true;
     wristflow_navigation_home(&shell->navigation);
@@ -373,6 +395,8 @@ bool wristflow_ui_shell_key(wristflow_ui_shell_t *shell)
     }
     if (!shell || !shell->apps || shell->transitioning || lv_obj_is_scrolling(shell->carousel)) return false;
     if (dismiss_stopwatch_exit()) return true;
+    if (wristflow_apps_breathing_cancel_leave(shell->apps)) return true;
+    if (confirm_breathing_exit(shell, STOPWATCH_EXIT_HOME, WRISTFLOW_SURFACE_HOME)) return true;
     if (confirm_stopwatch_exit(shell, STOPWATCH_EXIT_HOME, WRISTFLOW_SURFACE_HOME)) return true;
     if (wristflow_components_back(shell->components, true)) return true;
     wristflow_navigation_t previous = shell->navigation;
@@ -388,6 +412,7 @@ bool wristflow_ui_shell_back(wristflow_ui_shell_t *shell)
     if (dismiss_stopwatch_exit()) return true;
     if (wristflow_settings_dismiss(lv_screen_active())) return true;
     if (wristflow_apps_back(shell->apps)) return true;
+    if (confirm_breathing_exit(shell, STOPWATCH_EXIT_BACK, WRISTFLOW_SURFACE_HOME)) return true;
     if (confirm_stopwatch_exit(shell, STOPWATCH_EXIT_BACK, WRISTFLOW_SURFACE_HOME)) return true;
     if (wristflow_components_back(shell->components, false)) return true;
     wristflow_navigation_t previous = shell->navigation;
@@ -438,7 +463,9 @@ static void gesture(lv_event_t *event)
         shell->navigation.surface == WRISTFLOW_SURFACE_FACE_PICKER)
         return;
     bool handled = false;
-    if (shell->navigation.surface == WRISTFLOW_SURFACE_NOTIFICATIONS && direction == LV_DIR_TOP &&
+    if (wristflow_apps_breathing_gesture(shell->apps, direction, shell->edge_press))
+        handled = true;
+    else if (shell->navigation.surface == WRISTFLOW_SURFACE_NOTIFICATIONS && direction == LV_DIR_TOP &&
         lv_obj_get_scroll_y(lv_obj_find_by_name(lv_screen_active(), "notification_list")) == 0)
         handled = wristflow_ui_shell_home(shell);
     else if (shell->navigation.surface == WRISTFLOW_SURFACE_LAUNCHER ||

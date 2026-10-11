@@ -11,6 +11,7 @@
 | 板级诊断 | [apps/bringup](../apps/bringup/)；自有工程 / 板级集成 | [BRINGUP](BRINGUP.md)；Build 的 `bringup`，不能代替 Product 联合验收 |
 | 官方 Hello / BLE | 实际路径由 [Build.ps1](../scripts/Build.ps1) 的 `$projects` 定义，位于锁定 SDK 内 | Build 的 `hello` / `ble`；按官方 SCons，不迁移固件到 CMake |
 | 平台无关逻辑 | [core](../core/) 的手写模型、协议、配置与状态；具体消费者由 SConscript / CMakeLists 决定 | 对应 [tests/CMakeLists.txt](../tests/CMakeLists.txt) 的主机用例及集成目标 |
+| 呼吸前台引导 | [breathing](../core/breathing.h) 独立单调时钟模型，[breathing_view](../ui/runtime/breathing_view.c) 拥有滚轮草稿、动画与结果；apps／shell 管导航和 Demo 退出确认 | [BREATHING](BREATHING.md) 第一轮；Product 入口受限。模型暂停能力不等于已接电源、Flash 或提醒生命周期 |
 | UI 行为适配 | [ui/runtime](../ui/runtime/) 手写数据绑定、路由、交互及生命周期 | [UI-RUNTIME](UI-RUNTIME.md)、[UI-INTERACTION](UI-INTERACTION.md) 的相关契约；受影响目标回归 |
 | 闹钟配置 / 调度 / 保存 | [alarm](../core/alarm.h) 持有最多五条配置，[alarm_schedule](../core/alarm_schedule.h) 持有日历 / 日期进度；[alarm_store](../core/alarm_store.h) 编码与校验，[Product 服务](../apps/product/src/product_alarm.c) 拥有独立截止和后台保存；[alarm_view](../ui/runtime/alarm_view.c) 拥有草稿与 UI | [ALARM 第二轮](ALARM.md#round2)；Product 注入有效后端才开放，未注入仍阻断；用户操作保存 / 读回 / 发布成功后生效，自动进度异步重试。真实 RTC / Flash / PM 留 USB 验收 |
 | 倒计时模型 / 服务 | [countdown 模型](../core/countdown.h) 不依赖 LVGL；[port](../core/countdown_port.h) 定义命令 / 副本 / 时钟边界，[Product 服务](../apps/product/src/product_countdown.c) 持有任务与独立 RT timer | [COUNTDOWN](COUNTDOWN.md#round2)；纯模型、服务和实际 UI 三层主机检查。Product 组合注入后端后开放入口，未注入则阻断；板上 PM / 输入另验 |

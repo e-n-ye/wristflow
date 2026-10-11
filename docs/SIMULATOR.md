@@ -10,9 +10,13 @@
 pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Simulate.ps1
 ```
 
-脚本检查 SDK 锁定状态，配置并构建主机程序、运行六项 CTest，然后打开 **WristFlow - LVGL Simulator**。只编译与测试可加 `-BuildOnly`。再次构建前关闭已有模拟器窗口；脚本不会结束用户正在操作的窗口，也不会烧录。2026-09-24 新增的框架边界和验证见 [UI 运行框架](UI-RUNTIME.md)，下文 2026-09-23 验证记录保留为历史证据。
+脚本检查 SDK 锁定状态，配置并构建主机程序、运行当前工程的 CTest，然后打开 **WristFlow - LVGL Simulator**。只编译与测试可加 `-BuildOnly`。再次构建前关闭已有模拟器窗口；脚本不会结束用户正在操作的窗口，也不会烧录。2026-09-24 新增的框架边界和验证见 [UI 运行框架](UI-RUNTIME.md)，下文 2026-09-23 验证记录保留为历史证据。
 
 本机依赖为 PowerShell 7、CMake 3.31.4、Ninja、MSYS2 UCRT64 GCC 15.2.0；默认主机工具目录 `D:/msys64/ucrt64/bin`，其他安装位置用 `-HostTools` 指定。沿用项目已有任务中的 PowerShell/Git 路径，其他机器须按实际安装调整。程序逻辑分辨率为 390×450，Windows 的显示缩放会改变窗口的物理像素大小。
+
+隔离工作树的子模块未初始化时，主机工程可用 `-DWRISTFLOW_SDK_ROOT=<已按 sdk.lock.json 核验的 SDK checkout>` 指定现有依赖；默认仍为本仓库 `vendor/SiFli-SDK`。该参数只选择依赖路径，不代替锁定版本、子模块与干净状态检查，也不用于切换 LVGL 版本。直接配置 `tests` 时使用独立 `-B` 输出目录，编译后运行该目录的 CTest；需要交互窗口再加 `-DWRISTFLOW_BUILD_SIMULATOR=ON`。脚本启动入口仍使用当前仓库的 SDK。
+
+2026-10-11 的[呼吸训练第一轮](BREATHING.md)在 UI Demo 开放，在 Product 保持 gated；退出确认和动画的主机证据不代表 Product 保存、电源或提醒联动已实现。
 
 ## 本批操作
 
