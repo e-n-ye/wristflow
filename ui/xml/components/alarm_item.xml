@@ -1,0 +1,16 @@
+<component>
+    <styles>
+        <style name="alarm_switch_on" bg_color="0x008cff" bg_opa="100%" radius="20" />
+        <style name="alarm_switch_knob" bg_color="#fg_primary" bg_opa="100%" radius="16" pad_all="-4" />
+    </styles>
+    <view extends="lv_obj" width="342" height="94" scrollable="false" style_bg_color="0x202124" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="24" style_text_color="#fg_primary">
+        <lv_button name="alarm_open" x="0" y="0" width="244" height="94" style_bg_opa="0%" style_border_width="0" style_shadow_width="0" style_pad_all="0">
+            <lv_label name="alarm_time" x="20" y="8" text="07:30" style_text_font="value_36" />
+            <lv_label name="alarm_rule" x="20" y="55" width="222" text="仅一次" style_text_font="body_20" style_text_color="#fg_secondary" />
+        </lv_button>
+        <lv_switch name="alarm_enabled" x="256" y="26" width="66" height="40" checked="true" style_bg_color="0x44484e" style_bg_opa="100%" style_radius="20" style_pad_all="0" style_border_width="0">
+            <style name="alarm_switch_on" selector="indicator|checked" />
+            <style name="alarm_switch_knob" selector="knob" />
+        </lv_switch>
+    </view>
+</component>

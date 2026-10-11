@@ -1,0 +1,217 @@
+{
+  "date": "2026-10-11",
+  "scope": "Alarm round one: independent configuration model and Demo XML UI",
+  "base_commit": "654507f41eb0f9578a13992e2e766a210a857d8e",
+  "branch": "codex/alarm-ui",
+  "source_identity": "SHA-256 of final local working files used by the builds; Git may normalize line endings",
+  "source_sha256": {
+    "core/alarm.c": "daf75df746c20541f9d089d67e2407d0e71b08e770a6286252226c628ef13977",
+    "core/alarm.h": "7a8356aec922cf710220c470a682693f7f213e445023ea45af47d63efa7c85f8",
+    "scripts/Generate-Ui-Assets.py": "2bbed451504297ab86f75cff45e55493e17ca234b74f59ea9972541a0ea42580",
+    "tests/CMakeLists.txt": "aa8d2d222dd816b9ae684c1560b2eba56f3d3c57544e1d1253f696aa6e3be51f",
+    "tests/alarm.c": "20394716f66f885d9bdcb57bb67e01bd0cfed453f97ed3cbf5cf0137e4b4d62e",
+    "tests/alarm_ui.c": "55a53a8154e26d9c9c24781918087608a97cbc5a89e5673d8110463d8dc2c56f",
+    "tests/product_ui.c": "3d2e4007f086ddff475af57a376890da8fd64b2583307e95bafa6553427deea2",
+    "ui/runtime/alarm_view.c": "364fc1791d7baedadfd4fd7a69191f0d31267ba0df440ed4e1f095834ad78ae7",
+    "ui/runtime/alarm_view.h": "129ced582d05591c8dd7ecd9b48fa748f69d3830467f1c67bd88067e5c0f9b4d",
+    "ui/runtime/app_registry.c": "b5f12e1d83a13812879d4e54ea4268aa3aa2a4af4edbc894bc3afa2ef6e2f57a",
+    "ui/runtime/apps.c": "aa6672ca26a6889b07f7bff7261416e02a2f7d7cdedea8005e9704df00dfaf94",
+    "ui/runtime/apps.h": "d7743c81a4c3fb6baf43ca4139c04b8346b1194136b781163a3504c1219333a6",
+    "ui/runtime/ui_shell.c": "127ad86594d2904536e5e05302329e76921ff8bff1c3e22fcde1a6b039b3131e",
+    "ui/xml/components/alarm_item.xml": "6f08ad930b31062770d91814b8de232acb152b6778ba69bae40e08c78f438024",
+    "ui/xml/components/alarm_item_gen.c": "afc8834af0186e8cefb737ddb667daebe4dedd894028497aa941ccaaa766459c",
+    "ui/xml/components/alarm_item_gen.h": "ca3ae93b620c9345daafae694fe3475229dd6c89660da80dc3bd619dce9f5028",
+    "ui/xml/components/alarm_option.xml": "697f559c4d72878d9b22bfc588d0b50465200a2ab09348a23d0095ec3822b938",
+    "ui/xml/components/alarm_option_gen.c": "cbb8572b195fedf11eb82bb9654f809f6cb4570ff16ef0a3bd5710d2682c6908",
+    "ui/xml/components/alarm_option_gen.h": "b9d570fbc46bbd5b58fe76bcba6d9ab2be980e771e5e562ea141a429907f8e3f",
+    "ui/xml/file_list_gen.cmake": "70df81c5cfec6343835ad6ecf9286de4909ca7e07fa94d112e548db2a43d0678",
+    "ui/xml/fonts/WristFlowIcons.ttf": "34db18fb63a6e521e39195a89507c9bb1dc6041f351413516d96bbad8e0c060c",
+    "ui/xml/fonts/WristFlowSans-Regular.ttf": "ba25d2178e43a255e4865ea6ebc00659dc3a665a6197d2b5a4ea919c5b2059d9",
+    "ui/xml/fonts/body_20_data.c": "69938076d3851616a170bd24e1c450856010d40629a32e0e533fa3d43da2128c",
+    "ui/xml/fonts/icons_20_data.c": "4c11a88500d9ea083cbefc289368c086b5591d4de1bf7f1f250a2083856f8619",
+    "ui/xml/fonts/icons_44_data.c": "fe19b325f60e17a02a4579c80a0836ab356ba8b138077ee48cc5e5c66e943295",
+    "ui/xml/fonts/title_24_data.c": "c1025072a846c7424eda9d9b4b5ed07d9060c2e18e590f4f784e2c6b4f0dd294",
+    "ui/xml/globals.xml": "b52bfdd156cb32e67e307ee1aeafbc36ec987f5b3caac571aa5bf4d07f8e8725",
+    "ui/xml/screens/screen_alarm.xml": "fc2ab80da90dfee4c8724db8f1353c41aec324a540301b70609b0991b9033492",
+    "ui/xml/screens/screen_alarm_gen.c": "5a6caa47e25a9105719d74bbc55989b167fbdf66da0f5f2f845602b377d6e0b2",
+    "ui/xml/screens/screen_alarm_gen.h": "8d6125f7e4ff785d561e722f809bc20117e0107272943015d7be228b24db3676",
+    "ui/xml/screens/screen_launcher.xml": "ea0080d66a4881b55ddf0c1db73a1409d5b7054cd91817bec53fb38800313649",
+    "ui/xml/screens/screen_launcher_gen.c": "c677e5f447ffd6892cf95b7ef7f23516d2c0d6bf88ffb2852a08de47e90b09dd",
+    "ui/xml/wristflow_ui_gen.h": "b7f637ef37d60d5a0e3324200394b5ccecb0e0e81e2fb3a3db2cfe47b9cb602a"
+  },
+  "sdk_lock": "sdk.lock.json",
+  "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+  "lvgl_version": "9.4.0",
+  "editor_version": "2.0.1",
+  "official_export": {
+    "method": "Pro GUI Ctrl+B",
+    "observed_result": "Project compiled successfully.",
+    "xml_well_formed": [
+      "ui/xml/components/alarm_item.xml",
+      "ui/xml/components/alarm_option.xml",
+      "ui/xml/screens/screen_alarm.xml",
+      "ui/xml/screens/screen_launcher.xml",
+      "ui/xml/globals.xml"
+    ],
+    "preview_wasm_sha256": "a4bc26be97d0cfb720a6e7e0be0c0bfe6253404fb1b0cf4e6b9d3d66c8d18647",
+    "gui_100_percent_pages": [
+      "empty",
+      "list",
+      "time",
+      "settings",
+      "repeat",
+      "weekdays"
+    ],
+    "saved_gui_screenshot_sha256": {
+      "artifacts/alarm/pro-list.png": "7dfe9eb58d9a1350a52ef3eb770f9ccb6bee002df43f0af16970bc2b0a4c52dd",
+      "artifacts/alarm/pro-repeat.png": "437d63c2e1a837bacfbd6ddfb70a64c0a9c92fa267432b0233920696da89816b",
+      "artifacts/alarm/pro-weekdays.png": "406e96dd1123b7a873635cc9eaa70827ee8bdd8f273396117d635ab1fa88e51c"
+    },
+    "source_font_cmap_checked": true,
+    "exported_real_glyphs_checked": true,
+    "roller_style_before_visible_row_count_checked": true,
+    "custom_exporter_used": false
+  },
+  "host": {
+    "configure": "cmake -S tests -B artifacts/alarm/host -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe",
+    "build": "cmake --build artifacts/alarm/host -j 6",
+    "test": "ctest --test-dir artifacts/alarm/host --output-on-failure",
+    "compiler": "GCC 15.2.0",
+    "cmake": "3.31.4",
+    "generator": "Ninja",
+    "strict_model_command": "gcc -std=c11 -Wall -Wextra -Werror -I core core/alarm.c tests/alarm.c -o artifacts/alarm/alarm-strict.exe; artifacts/alarm/alarm-strict.exe",
+    "strict_model_exit_code": 0,
+    "exit_code": 0,
+    "tests_passed": 24,
+    "tests_failed": 0,
+    "log_local": "artifacts/alarm/ctest-final.log",
+    "log_sha256": "08c3d65f0199bb301337ea582e9527ebe7ebad6a741459ce53bf8b0fa258cca4",
+    "render_sha256": {
+      "artifacts/alarm/host/renders/alarm_delete_confirm.ppm": "74fd0715fcf335fad416f0f167c70c88dd868ab73a221293f05452551377edad",
+      "artifacts/alarm/host/renders/alarm_empty.ppm": "b2d663324bb0a6e63f400494e05424a7e6c4c51ad532aa9fede750145d66dd0a",
+      "artifacts/alarm/host/renders/alarm_full.ppm": "a681df851bff9d8fd9fc722933cd49bdf0dd784124ba173ef0a1d0913b77ccc2",
+      "artifacts/alarm/host/renders/alarm_full_more.ppm": "eca7905e37a9046bde764670ca39da1113749ea4479781ceb7ee69c47bb92d76",
+      "artifacts/alarm/host/renders/alarm_list.ppm": "190d0c7fbf4eac81c75a0ad3cf08c4aac9f0c2687a740d4c2434c46c3ec8f35e",
+      "artifacts/alarm/host/renders/alarm_repeat.ppm": "1144597c9efd24a65f265763976122a5690af990456d280143a4aac3d677c1de",
+      "artifacts/alarm/host/renders/alarm_repeat_more.ppm": "d439570b1fe211f3a1565cf42b2b40c41c63ede6ecaca317532f6376d7e16077",
+      "artifacts/alarm/host/renders/alarm_settings.ppm": "882f62dbf9f06b6052cb21a1e174f02ce4cb7ef4eb84df0cfe95e8f54be87762",
+      "artifacts/alarm/host/renders/alarm_time_max.ppm": "4c9c40d8acb32655a4ff91213f44046bffb4d447c876aba77302755e3e251e35",
+      "artifacts/alarm/host/renders/alarm_time_min.ppm": "cdefe43e55d86c4ff9a0daf85d153a5dd79a047cc06359f08c1c5b3976ad3d12",
+      "artifacts/alarm/host/renders/alarm_weekdays.ppm": "4a584cd5700a8fabb33cb82903c7a9f834fa993ca8040adca16c9a5be0c05f3d",
+      "artifacts/alarm/host/renders/alarm_weekdays_more.ppm": "6e898e156c429a6a41898c646f59c80df92c8c3c2d4c8fe5cc074d8b7b9eb4f6"
+    },
+    "preview_local": "artifacts/alarm/alarm-contact-sheet.png",
+    "input_scope": "Actual LVGL pointer clicks/swipes; KEY1 calls shell API, not physical press/release"
+  },
+  "builds": {
+    "ui_demo": {
+      "command": "pwsh -NoProfile -File artifacts/alarm/build-isolated.ps1 -Example ui_demo -Jobs 6",
+      "entry_equivalence": "Official Build.ps1 logic; local environment path and isolated application root overridden only",
+      "result_local": "artifacts/ui_demo/20261011-130622-286/result.json",
+      "result_sha256": "d4d53b922380a019d64a99a4086275ce24e4391b07a91c28d359a03e6adde161",
+      "log_local": "artifacts/ui_demo/20261011-130622-286/build.log",
+      "log_sha256": "7f0867854f5610f3ea346e2de3b564629230d89c458d6b7d9cb0b1aa47ff9666",
+      "started_at": "2026-10-11T13:06:22.2960475+08:00",
+      "finished_at": "2026-10-11T13:09:26.0757888+08:00",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "python": "Python 3.13.15",
+      "scons": "SCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+      "source_count": 328,
+      "artifact_count": 22,
+      "all_source_artifact_hashes_rechecked": true,
+      "images_and_map": [
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+          "bytes": 7456024,
+          "sha256": "0e75d0193536c4fc1dfcdbbda84c6b58993a9e74ab16d142ad6604fa16591bb4"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/main.map",
+          "bytes": 5140786,
+          "sha256": "52c29dfd03f39db513d776869ec1733a4601fa8df3273b7cb7da4659452d21bb"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+          "bytes": 11288,
+          "sha256": "d511555297dcd6189c23108acb0bcfbdd3f5df77c2d29fa8eda12bc913cc88bb"
+        }
+      ]
+    },
+    "product": {
+      "command": "pwsh -NoProfile -File artifacts/alarm/build-isolated.ps1 -Example product -Jobs 6",
+      "entry_equivalence": "Official Build.ps1 logic; local environment path and isolated application root overridden only",
+      "result_local": "artifacts/product/20261011-130956-683/result.json",
+      "result_sha256": "1b911053a590c6ea59cd2442ddf2e8a23aee48818f8a37c323d2ba41a5c1f254",
+      "log_local": "artifacts/product/20261011-130956-683/build.log",
+      "log_sha256": "1cd4742dd4965373a6194ba4304dcb4ddc47f0def1a492f6101300bf02e491fc",
+      "started_at": "2026-10-11T13:09:56.6922650+08:00",
+      "finished_at": "2026-10-11T13:13:36.6401704+08:00",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "python": "Python 3.13.15",
+      "scons": "SCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+      "source_count": 343,
+      "artifact_count": 29,
+      "all_source_artifact_hashes_rechecked": true,
+      "images_and_map": [
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+          "bytes": 7653756,
+          "sha256": "bf33d61d547fc368765198a213e3eaf25bd60f5ab7c8b0886d81cd1ec4f4780d"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.map",
+          "bytes": 8142642,
+          "sha256": "868666da8b8ab3c9c24595b08bb390acfbd9c0ea58aee1d376feea08fd679fab"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+          "bytes": 11288,
+          "sha256": "2d10c18c09372e6a451c29d447eba2fb78f8e56eccdd8ced6a35fd2d417db27e"
+        }
+      ]
+    }
+  },
+  "unrelated_generated_outputs_restored": 160,
+  "official_generated_eof_blank_lines_preserved": [
+    "ui/xml/components/alarm_item_gen.c",
+    "ui/xml/components/alarm_option_gen.c",
+    "ui/xml/screens/screen_alarm_gen.c"
+  ],
+  "retained_build_warnings": [
+    "Existing watch_core enum comparison",
+    "SDK lv_obj_tree null-dereference and FinSH casts",
+    "Linker RWX segments, newlib I/O stubs and ftab entry"
+  ],
+  "hardware_verified": false,
+  "flashed": false,
+  "device_io_performed": false,
+  "failures_resolved": [
+    "Task Python lacked fontTools: task-only virtual environment used",
+    "Official XML validator rejected scroll_dir: vertical direction set in handwritten adapter",
+    "Explicit empty-state text color and switch indicator opacity, wheel separator alignment, Demo alarm icon fixed through XML and official export",
+    "Old Product UI test expected an alarm placeholder route: assertions changed to the agreed Demo-only gate",
+    "Test navigation/visibility setup adjusted to actual shell topology and LVGL scroll clipping"
+  ],
+  "not_covered": [
+    "Product alarm scheduling/storage/reboot recovery",
+    "Once-date, RTC/time jumps and reminder conflict policy",
+    "Physical touch/KEY1, USB device acceptance, BLE, power and battery life",
+    "Legal holiday/adjusted workday calendar, snooze and intelligent wake",
+    "General D4 identity and D5 background-framework debt"
+  ],
+  "next_bounded_experiment": "Round two alignment of once-date, clock jumps and multiple reminders, followed by Product scheduler and persistence"
+}

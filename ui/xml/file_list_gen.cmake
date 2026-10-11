@@ -2,6 +2,8 @@ list(
   APPEND
   LV_EDITOR_PROJECT_SOURCES
   ${CMAKE_CURRENT_LIST_DIR}/components/activity_summary_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/alarm_item_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/alarm_option_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/app_header_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/app_list_item_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/card_container_gen.c
@@ -55,6 +57,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/images/hour_12_data.c
   ${CMAKE_CURRENT_LIST_DIR}/images/hour_unknown_data.c
   ${CMAKE_CURRENT_LIST_DIR}/images/weather_sun_track_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_alarm_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_app_placeholder_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_brightness_adjust_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_component_editor_gen.c

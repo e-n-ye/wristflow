@@ -154,7 +154,7 @@ int main(int argc, char **argv)
     assert(wristflow_ui_shell_update(shell, &state));
     text(home, "simple_time", "08:01");
     snapshot(argv[1], "product_time");
-    /* Real pointer input: every default slot routes and returns to the retained page. */
+    /* Real pointer input: available slots route; Demo-only slots retain their card page. */
     for (unsigned p = 0; p < 3; ++p) {
         swipe(320, 125, 60, 125);
         assert(wristflow_ui_shell_navigation(shell)->surface == WRISTFLOW_SURFACE_HOME);
@@ -167,6 +167,14 @@ int main(int argc, char **argv)
             const wristflow_app_descriptor_t *app = wristflow_app_find(expected[p][s]);
             lv_obj_t *card = named(panel, slot_names[s]);
             click(card);
+            if (app->demo_only) {
+                assert(lv_screen_active() == home);
+                assert(wristflow_ui_shell_navigation(shell)->surface == WRISTFLOW_SURFACE_HOME);
+                assert(wristflow_ui_shell_navigation(shell)->page_index == p + 1);
+                assert(!wristflow_ui_shell_open(shell, app->surface));
+                assert(named(panel, slot_names[s]) == card);
+                continue;
+            }
             assert(wristflow_ui_shell_navigation(shell)->surface == app->surface);
             if (strcmp(app->id, "weather") == 0) {
                 text(lv_screen_active(), "weather_temp", "--");
@@ -195,7 +203,10 @@ int main(int argc, char **argv)
     swipe(60, 125, 320, 125);
     assert(wristflow_ui_shell_navigation(shell)->page_index == 3);
     click(named(lv_obj_get_child(carousel, 4), "slot_2"));
-    assert(wristflow_ui_shell_navigation(shell)->surface == WRISTFLOW_SURFACE_ALARM);
+    assert(wristflow_ui_shell_navigation(shell)->surface == WRISTFLOW_SURFACE_HOME);
+    assert(wristflow_ui_shell_navigation(shell)->page_index == 3);
+    click(named(lv_obj_get_child(carousel, 4), "slot_1"));
+    assert(wristflow_ui_shell_navigation(shell)->surface == WRISTFLOW_SURFACE_SLEEP);
     assert(wristflow_ui_shell_key(shell)); advance();
     assert(wristflow_ui_shell_navigation(shell)->page_index == 0);
     assert(lv_obj_get_scroll_x(carousel) == 390);
@@ -232,6 +243,7 @@ int main(int argc, char **argv)
       }
       assert(lv_obj_get_child_count(menu) == available);
       assert(!lv_obj_find_by_name(menu, "launch_countdown"));
+      assert(!lv_obj_find_by_name(menu, "launch_alarm"));
       assert(!lv_obj_find_by_name(menu, wristflow_app_for_surface(WRISTFLOW_SURFACE_FACE_PICKER)->launcher_name));
       snapshot(argv[1], layout ? "product_grid" : "product_list");
       swipe(90, 10, 300, 10);
