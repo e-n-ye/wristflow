@@ -116,40 +116,27 @@ lv_obj_t * screen_alarm_create(void)
         lv_obj_set_x(alarm_list, 24);
         lv_obj_set_y(alarm_list, 2);
         lv_obj_set_width(alarm_list, 342);
-        lv_obj_set_height(alarm_list, 244);
-        lv_obj_set_flag(alarm_list, LV_OBJ_FLAG_HIDDEN, true);
+        lv_obj_set_height(alarm_list, 350);
         lv_obj_set_scrollbar_mode(alarm_list, LV_SCROLLBAR_MODE_OFF);
         lv_obj_set_style_bg_opa(alarm_list, (255 * 0 / 100), 0);
         lv_obj_set_style_border_width(alarm_list, 0, 0);
         lv_obj_set_style_pad_all(alarm_list, 0, 0);
-        lv_obj_t * alarm_row_0 = alarm_item_create(alarm_list);
-        lv_obj_set_name(alarm_row_0, "alarm_row_0");
-        lv_obj_set_y(alarm_row_0, 0);
-        lv_obj_set_flag(alarm_row_0, LV_OBJ_FLAG_HIDDEN, true);
-
-        lv_obj_t * alarm_row_1 = alarm_item_create(alarm_list);
-        lv_obj_set_name(alarm_row_1, "alarm_row_1");
-        lv_obj_set_y(alarm_row_1, 104);
-        lv_obj_set_flag(alarm_row_1, LV_OBJ_FLAG_HIDDEN, true);
-
-        lv_obj_t * alarm_row_2 = alarm_item_create(alarm_list);
-        lv_obj_set_name(alarm_row_2, "alarm_row_2");
-        lv_obj_set_y(alarm_row_2, 208);
-        lv_obj_set_flag(alarm_row_2, LV_OBJ_FLAG_HIDDEN, true);
-
-        lv_obj_t * alarm_row_3 = alarm_item_create(alarm_list);
-        lv_obj_set_name(alarm_row_3, "alarm_row_3");
-        lv_obj_set_y(alarm_row_3, 312);
-        lv_obj_set_flag(alarm_row_3, LV_OBJ_FLAG_HIDDEN, true);
-
-        lv_obj_t * alarm_row_4 = alarm_item_create(alarm_list);
-        lv_obj_set_name(alarm_row_4, "alarm_row_4");
-        lv_obj_set_y(alarm_row_4, 416);
-        lv_obj_set_flag(alarm_row_4, LV_OBJ_FLAG_HIDDEN, true);
-
-        lv_obj_t * alarm_empty_icon = lv_label_create(alarm_list_panel);
+        lv_obj_set_style_pad_bottom(alarm_list, 16, 0);
+        lv_obj_set_style_layout(alarm_list, LV_LAYOUT_FLEX, 0);
+        lv_obj_set_style_flex_flow(alarm_list, LV_FLEX_FLOW_COLUMN, 0);
+        lv_obj_set_style_flex_cross_place(alarm_list, LV_FLEX_ALIGN_CENTER, 0);
+        lv_obj_set_style_pad_row(alarm_list, 8, 0);
+        lv_obj_t * alarm_empty_group = lv_obj_create(alarm_list);
+        lv_obj_set_name(alarm_empty_group, "alarm_empty_group");
+        lv_obj_set_width(alarm_empty_group, 342);
+        lv_obj_set_height(alarm_empty_group, 269);
+        lv_obj_set_flag(alarm_empty_group, LV_OBJ_FLAG_SCROLLABLE, false);
+        lv_obj_set_style_bg_opa(alarm_empty_group, (255 * 0 / 100), 0);
+        lv_obj_set_style_border_width(alarm_empty_group, 0, 0);
+        lv_obj_set_style_pad_all(alarm_empty_group, 0, 0);
+        lv_obj_t * alarm_empty_icon = lv_label_create(alarm_empty_group);
         lv_obj_set_name(alarm_empty_icon, "alarm_empty_icon");
-        lv_obj_set_x(alarm_empty_icon, 151);
+        lv_obj_set_x(alarm_empty_icon, 127);
         lv_obj_set_y(alarm_empty_icon, 70);
         lv_obj_set_width(alarm_empty_icon, 88);
         lv_label_set_text(alarm_empty_icon, "");
@@ -157,9 +144,9 @@ lv_obj_t * screen_alarm_create(void)
         lv_obj_set_style_text_color(alarm_empty_icon, lv_color_hex(0x008cff), 0);
         lv_obj_set_style_text_align(alarm_empty_icon, LV_TEXT_ALIGN_CENTER, 0);
 
-        lv_obj_t * alarm_empty = lv_label_create(alarm_list_panel);
+        lv_obj_t * alarm_empty = lv_label_create(alarm_empty_group);
         lv_obj_set_name(alarm_empty, "alarm_empty");
-        lv_obj_set_x(alarm_empty, 24);
+        lv_obj_set_x(alarm_empty, 0);
         lv_obj_set_y(alarm_empty, 154);
         lv_obj_set_width(alarm_empty, 342);
         lv_label_set_text(alarm_empty, "暂无闹钟");
@@ -167,20 +154,46 @@ lv_obj_t * screen_alarm_create(void)
         lv_obj_set_style_text_color(alarm_empty, FG_PRIMARY, 0);
         lv_obj_set_style_text_align(alarm_empty, LV_TEXT_ALIGN_CENTER, 0);
 
-        lv_obj_t * alarm_limit = lv_label_create(alarm_list_panel);
+        lv_obj_t * alarm_row_0 = alarm_item_create(alarm_list);
+        lv_obj_set_name(alarm_row_0, "alarm_row_0");
+        lv_obj_set_flag(alarm_row_0, LV_OBJ_FLAG_HIDDEN, true);
+
+        lv_obj_t * alarm_row_1 = alarm_item_create(alarm_list);
+        lv_obj_set_name(alarm_row_1, "alarm_row_1");
+        lv_obj_set_flag(alarm_row_1, LV_OBJ_FLAG_HIDDEN, true);
+
+        lv_obj_t * alarm_row_2 = alarm_item_create(alarm_list);
+        lv_obj_set_name(alarm_row_2, "alarm_row_2");
+        lv_obj_set_flag(alarm_row_2, LV_OBJ_FLAG_HIDDEN, true);
+
+        lv_obj_t * alarm_row_3 = alarm_item_create(alarm_list);
+        lv_obj_set_name(alarm_row_3, "alarm_row_3");
+        lv_obj_set_flag(alarm_row_3, LV_OBJ_FLAG_HIDDEN, true);
+
+        lv_obj_t * alarm_row_4 = alarm_item_create(alarm_list);
+        lv_obj_set_name(alarm_row_4, "alarm_row_4");
+        lv_obj_set_flag(alarm_row_4, LV_OBJ_FLAG_HIDDEN, true);
+
+        lv_obj_t * alarm_list_status = lv_label_create(alarm_list);
+        lv_obj_set_name(alarm_list_status, "alarm_list_status");
+        lv_obj_set_width(alarm_list_status, 342);
+        lv_obj_set_height(alarm_list_status, 32);
+        lv_obj_set_flag(alarm_list_status, LV_OBJ_FLAG_HIDDEN, true);
+        lv_label_set_text(alarm_list_status, "等待校时");
+        lv_obj_set_style_text_color(alarm_list_status, FG_SECONDARY, 0);
+        lv_obj_set_style_text_align(alarm_list_status, LV_TEXT_ALIGN_CENTER, 0);
+
+        lv_obj_t * alarm_limit = lv_label_create(alarm_list);
         lv_obj_set_name(alarm_limit, "alarm_limit");
-        lv_obj_set_x(alarm_limit, 24);
-        lv_obj_set_y(alarm_limit, 247);
         lv_obj_set_width(alarm_limit, 342);
+        lv_obj_set_height(alarm_limit, 32);
         lv_obj_set_flag(alarm_limit, LV_OBJ_FLAG_HIDDEN, true);
-        lv_label_set_text(alarm_limit, "已达上限：5 个");
-        lv_obj_set_style_text_color(alarm_limit, FG_SECONDARY, 0);
+        lv_label_set_text(alarm_limit, "最多只能设置5个闹钟");
+        lv_obj_set_style_text_color(alarm_limit, FG_PRIMARY, 0);
         lv_obj_set_style_text_align(alarm_limit, LV_TEXT_ALIGN_CENTER, 0);
 
-        lv_obj_t * alarm_add = lv_button_create(alarm_list_panel);
+        lv_obj_t * alarm_add = lv_button_create(alarm_list);
         lv_obj_set_name(alarm_add, "alarm_add");
-        lv_obj_set_x(alarm_add, 120);
-        lv_obj_set_y(alarm_add, 279);
         lv_obj_set_width(alarm_add, 150);
         lv_obj_set_height(alarm_add, 66);
         lv_obj_set_style_bg_color(alarm_add, lv_color_hex(0x008cff), 0);

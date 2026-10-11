@@ -18,13 +18,15 @@ Its OFL and attribution are retained in `ICONS-LICENSE.txt`. It contains only
 the glyphs used by the UI; the Bluetooth mark represents Bluetooth.
 This is an existing icon library, not a collection of custom drawn symbols.
 
-The current subsets were generated using fontTools 4.66.0. The official Editor v2.0.1
+The original subsets were generated using fontTools 4.66.0. The 2026-10-11
+static UI addition for the alarm capacity text used fontTools 4.60.1;
+message and icon subsets were preserved. The official Editor v2.0.1
 converts them to `*_data.c`. That editor requires one explicit contiguous
 `range` for icon fonts; space-separated ranges fail in its converter.
 
 For additions to static UI text or icons, update the glyph lists in
-`scripts/Generate-Ui-Assets.py` and run it with `--static-fonts-only` using
-fontTools 4.66.0. This updates only the static text and icon TTF subsets;
+`scripts/Generate-Ui-Assets.py` and run it with `--static-fonts-only`, recording
+the fontTools version in the relevant evidence. This updates only the static text and icon TTF subsets;
 it does not regenerate notification fonts or images. Check the source TTF
 cmap for every new codepoint, then export and recompile in the official
 editor. Expanding XML `range` or `symbols` cannot restore a glyph already

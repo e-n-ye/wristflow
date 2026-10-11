@@ -1,5 +1,13 @@
 # 可复现构建基线
 
+## 2026-10-11 闹钟列表末尾提示修订构建
+
+沿用 `codex/alarm-usb` / `e5928d25`、既有隔离包装器和官方 SCons。两条提示移入闹钟滚动列表，官方 Pro 2.0.1 / LVGL 9.4.0 GUI 导出成功并保存 100% 预览；实际 LVGL 顶部及滚到底帧按 1:1 核对。受影响 UI 2/2、全主机 CTest 29/29 通过，最终日志 `artifacts/alarm/usb-round3/ctest-scroll-footer-final.log`。Product `artifacts/product/20261011-193101-667/result.json`、UI Demo `artifacts/ui_demo/20261011-193211-417/result.json` 均退出 0、产物校验通过；接续逐项重哈希 357 / 340 份源码及 29 / 22 个产物匹配，SDK / 子模块和工具锁未变。Product 主 BIN 7,663,276 B / `499ac4db1336d88928f9adaaa4e2fea406254b6c74067f2c71e5c1f4b8fb02ea`。本条覆盖下方容量修订版的当前布局证据，旧记录保留其版本；完整镜像与设备观察见 [ALARM 第三轮](ALARM.md#round3)及精简证据的 `scroll_footer_revision`，编译不代替真机验收。
+
+## 2026-10-11 闹钟容量反馈修订构建
+
+基线 `e5928d25`，隔离分支 `codex/alarm-usb`；满五条隐藏加号、独立底部上限文案和“只”字补齐，经官方 Pro 2.0.1 / LVGL 9.4.0 GUI 导出 / 编译成功。受影响 UI 2/2、全主机 CTest 29/29 通过，真实 LVGL 满容量及等待校时帧按 1:1 核对。Product `artifacts/product/20261011-190404-016/result.json` 与 UI Demo `artifacts/ui_demo/20261011-191004-850/result.json` 均退出 0、产物校验通过；357 / 340 份源码及 29 / 22 个产物逐项重哈希匹配，SDK、子模块和工具锁未变。主 BIN 分别为 7,663,068 B 和 7,460,024 B；完整镜像标识及修订版设备进度见 [ALARM 第三轮](ALARM.md#round3)。沿用既有隔离包装器 / 官方 SCons，没有新云端基线；编译结果不代替屏幕与设备验收。
+
 ## 2026-10-11 闹钟第二轮构建
 
 基线 `269c37b`，隔离分支 `codex/alarm-product`；官方 Pro 2.0.1 / LVGL 9.4.0 GUI 导出成功。最终 GCC 15.2.0 / CMake 3.31.4 / Ninja Debug CTest **29/29** 和三个严格 core 用例通过，五张真实 LVGL 状态 / 提醒帧按 1:1 核对。Product 与 UI Demo 使用既有官方 Build / SCons 逻辑均退出 0、产物校验通过，357 / 340 个源和 29 / 22 个产物重哈希一致；SDK / 子模块和工具锁不变。命令、镜像哈希、GUI 再检查限制、失败修复和硬件未验范围见 [ALARM 第二轮](ALARM.md#round2)及[精简证据](evidence/2026-10-11/alarm-round2.json)。没有串口、烧录、设备输入或新云端基线。

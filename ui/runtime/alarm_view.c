@@ -75,16 +75,21 @@ static void render(wristflow_alarm_view_t *view)
     clock_text(view);
     bool empty = view->alarms.count == 0;
     bool full = view->alarms.count == WRISTFLOW_ALARM_CAPACITY;
-    lv_obj_set_flag(named(view, "alarm_list"), LV_OBJ_FLAG_HIDDEN, empty);
-    lv_obj_set_flag(named(view, "alarm_empty"), LV_OBJ_FLAG_HIDDEN, !empty);
-    lv_obj_set_flag(named(view, "alarm_empty_icon"), LV_OBJ_FLAG_HIDDEN, !empty);
+    lv_obj_set_flag(named(view, "alarm_empty_group"), LV_OBJ_FLAG_HIDDEN, !empty);
     bool error = view->failed || view->storage_failed;
     bool status = view->request || error || (view->backend.read && !view->time_valid);
-    bool status_page = view->page == ALARM_LIST || view->page == ALARM_SETTINGS;
-    lv_obj_set_flag(named(view, "alarm_limit"), LV_OBJ_FLAG_HIDDEN, !full || status);
-    lv_obj_set_flag(named(view, "alarm_status"), LV_OBJ_FLAG_HIDDEN, !status || !status_page);
-    lv_label_set_text(named(view, "alarm_status"), view->request ? "保存中" : error ? "保存失败，稍后重试" : "等待校时");
-    lv_obj_set_style_text_color(named(view, "alarm_status"), lv_color_hex(error ? 0xef4770 : 0xb0b3b8), 0);
+    /* The empty-state spacer leaves room for a visible status and add button. */
+    lv_obj_set_height(named(view, "alarm_empty_group"), status ? 216 : 269);
+    lv_obj_set_flag(named(view, "alarm_limit"), LV_OBJ_FLAG_HIDDEN, !full);
+    lv_obj_set_flag(named(view, "alarm_add"), LV_OBJ_FLAG_HIDDEN, full);
+    lv_obj_set_flag(named(view, "alarm_list_status"), LV_OBJ_FLAG_HIDDEN, !status);
+    lv_obj_set_flag(named(view, "alarm_status"), LV_OBJ_FLAG_HIDDEN, !status || view->page != ALARM_SETTINGS);
+    const char *status_text = view->request ? "保存中" : error ? "保存失败，稍后重试" : "等待校时";
+    const char *const status_names[] = {"alarm_list_status", "alarm_status"};
+    for (unsigned i = 0; i < 2; ++i) {
+        lv_label_set_text(named(view, status_names[i]), status_text);
+        lv_obj_set_style_text_color(named(view, status_names[i]), lv_color_hex(error ? 0xef4770 : 0xb0b3b8), 0);
+    }
     lv_obj_set_state(named(view, "alarm_add"), LV_STATE_DISABLED, full || view->request);
     lv_obj_set_state(named(view, "app_back"), LV_STATE_DISABLED, view->request != 0);
     lv_obj_set_state(named(view, "alarm_save"), LV_STATE_DISABLED, view->request != 0);
