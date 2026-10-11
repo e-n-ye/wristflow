@@ -9,6 +9,7 @@
 #include "product_ble.h"
 #include "product_pm.h"
 #include "product_countdown.h"
+#include "product_alarm.h"
 #include "weather_screen.h"
 #include <string.h>
 
@@ -82,7 +83,7 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
         events = wristflow_product_event_wait(RT_WAITING_FOREVER);
         /* Rebuild from service state on every wake: event bits can coalesce.
          * An acknowledged reminder stays pending without repeatedly waking. */
-        reminder = wristflow_ui_shell_countdown_event(product_shell);
+        reminder = wristflow_ui_shell_reminder_event(product_shell);
         if (events & WF_EVENT_PHONE) {
             wristflow_product_pm_background();
             preview = sync_notifications();
@@ -92,7 +93,7 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     }
     wristflow_product_pm_screen(false); /* Hold idle before restoring the display. */
     waiting_for_wake = false;
-    rt_kprintf("[product] wake event=%s\n", events & WF_EVENT_KEY ? "KEY1" : reminder ? "countdown" : preview ? "notification" : "diagnostic");
+    rt_kprintf("[product] wake event=%s\n", events & WF_EVENT_KEY ? "KEY1" : reminder ? "reminder" : preview ? "notification" : "diagnostic");
     wristflow_product_pm_report();
     /* Select the wake destination while dark; expose only its completed frame. */
     defer_brightness = true;
@@ -127,6 +128,7 @@ int main(void)
     wristflow_settings_t settings;
     wristflow_layout_t layout;
     wristflow_product_services_start(&settings, &layout);
+    const wristflow_alarm_port_t *alarm = wristflow_product_alarm_start();
     wristflow_product_ble_start();
     wristflow_watch_snapshot_t snapshot = wristflow_product_services_snapshot();
     RT_ASSERT(littlevgl2rtt_init("lcd") == RT_EOK);
@@ -136,8 +138,8 @@ int main(void)
     rt_device_t lcd = rt_device_find("lcd");
     RT_ASSERT(lcd);
     lv_obj_t *initial = lv_screen_active();
-    wristflow_ui_shell_t *shell = wristflow_product_ui_create_with_countdown(&snapshot, &settings, set_brightness, lcd,
-        &layout, wristflow_product_services_layout, wristflow_product_services_layout_status, NULL, countdown);
+    wristflow_ui_shell_t *shell = wristflow_product_ui_create_with_timers(&snapshot, &settings, set_brightness, lcd,
+        &layout, wristflow_product_services_layout, wristflow_product_services_layout_status, NULL, countdown, alarm);
     RT_ASSERT(shell);
     product_shell = shell;
     wristflow_ui_shell_bind_notification_delete(shell, wristflow_product_ble_delete, NULL);
@@ -194,7 +196,7 @@ int main(void)
         }
         rt_uint32_t events = wristflow_product_event_wait(rt_tick_from_millisecond(LV_CLAMP(1, wait_ms, 20)));
         if (events & WF_EVENT_PM_SAMPLE) wristflow_product_pm_report();
-        if (events & WF_EVENT_COUNTDOWN) wristflow_ui_shell_countdown_event(shell);
+        if (events & (WF_EVENT_ALARM | WF_EVENT_COUNTDOWN)) wristflow_ui_shell_reminder_event(shell);
         if (events & WF_EVENT_PHONE) {
             sync_notifications();
             snapshot = wristflow_product_services_snapshot();

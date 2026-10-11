@@ -7,7 +7,8 @@ wristflow_apps_t *wristflow_apps_create(wristflow_ui_shell_t *shell, lv_obj_t *c
                                       wristflow_brightness_cb_t brightness, void *context,
                                       uint8_t initial_brightness, bool product_mode,
                                       wristflow_menu_layout_t menu_layout,
-                                      const wristflow_countdown_port_t *countdown);
+                                      const wristflow_countdown_port_t *countdown,
+                                      const wristflow_alarm_port_t *alarm);
 uint8_t wristflow_apps_brightness(const wristflow_apps_t *apps);
 wristflow_menu_layout_t wristflow_apps_menu_layout(const wristflow_apps_t *apps);
 void wristflow_apps_set_brightness(wristflow_apps_t *apps, uint8_t brightness);
@@ -19,6 +20,7 @@ void wristflow_apps_bind_home(wristflow_apps_t *apps, lv_obj_t *home);
 void wristflow_apps_home_visible(wristflow_apps_t *apps, bool visible);
 bool wristflow_apps_back(wristflow_apps_t *apps);
 bool wristflow_apps_countdown_event(wristflow_apps_t *apps);
+bool wristflow_apps_reminder_event(wristflow_apps_t *apps);
 bool wristflow_apps_countdown_active(const wristflow_apps_t *apps);
 bool wristflow_apps_alarm_editing(const wristflow_apps_t *apps);
 /* Apps is the sole owner of app screens. The shell binds navigation events only

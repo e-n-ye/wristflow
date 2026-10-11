@@ -51,6 +51,7 @@
             </lv_obj>
             <lv_button name="alarm_days_accept" x="120" y="279" width="150" height="66" style_bg_color="0x008cff" style_radius="33" style_shadow_width="0" style_pad_all="0"><lv_label align="center" text="&#xf00c;" style_text_font="icons_44" /></lv_button>
         </lv_obj>
-        <lv_label name="alarm_error" x="24" y="320" width="342" hidden="true" text="保存失败" style_text_color="#accent_red" style_text_align="center" />
+        <lv_label name="alarm_error" x="24" y="330" width="342" hidden="true" text="保存失败" style_text_color="#accent_red" style_text_align="center" />
+        <lv_label name="alarm_status" x="24" y="330" width="342" hidden="true" text="等待校时" style_text_color="#fg_secondary" style_text_align="center" />
     </view>
 </screen>

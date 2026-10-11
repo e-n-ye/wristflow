@@ -12,9 +12,9 @@
 | 官方 Hello / BLE | 实际路径由 [Build.ps1](../scripts/Build.ps1) 的 `$projects` 定义，位于锁定 SDK 内 | Build 的 `hello` / `ble`；按官方 SCons，不迁移固件到 CMake |
 | 平台无关逻辑 | [core](../core/) 的手写模型、协议、配置与状态；具体消费者由 SConscript / CMakeLists 决定 | 对应 [tests/CMakeLists.txt](../tests/CMakeLists.txt) 的主机用例及集成目标 |
 | UI 行为适配 | [ui/runtime](../ui/runtime/) 手写数据绑定、路由、交互及生命周期 | [UI-RUNTIME](UI-RUNTIME.md)、[UI-INTERACTION](UI-INTERACTION.md) 的相关契约；受影响目标回归 |
-| 闹钟配置 / UI | [alarm 模型](../core/alarm.h) 持有最多五条配置；[alarm_view](../ui/runtime/alarm_view.c) 绑定官方 XML 并管理草稿、启停与删除确认 | [ALARM](ALARM.md)；第一轮仅 Demo / 主机开放，Product 菜单和直接路由阻断；调度、保存和提醒冲突在第二轮接入 |
+| 闹钟配置 / 调度 / 保存 | [alarm](../core/alarm.h) 持有最多五条配置，[alarm_schedule](../core/alarm_schedule.h) 持有日历 / 日期进度；[alarm_store](../core/alarm_store.h) 编码与校验，[Product 服务](../apps/product/src/product_alarm.c) 拥有独立截止和后台保存；[alarm_view](../ui/runtime/alarm_view.c) 拥有草稿与 UI | [ALARM 第二轮](ALARM.md#round2)；Product 注入有效后端才开放，未注入仍阻断；用户操作保存 / 读回 / 发布成功后生效，自动进度异步重试。真实 RTC / Flash / PM 留 USB 验收 |
 | 倒计时模型 / 服务 | [countdown 模型](../core/countdown.h) 不依赖 LVGL；[port](../core/countdown_port.h) 定义命令 / 副本 / 时钟边界，[Product 服务](../apps/product/src/product_countdown.c) 持有任务与独立 RT timer | [COUNTDOWN](COUNTDOWN.md#round2)；纯模型、服务和实际 UI 三层主机检查。Product 组合注入后端后开放入口，未注入则阻断；板上 PM / 输入另验 |
-| 倒计时 UI / 提醒 | [countdown_view](../ui/runtime/countdown_view.c) 具名绑定官方页面；[reminder_host](../ui/runtime/reminder_host.c) 持有一个高优先级覆盖槽，shell 保留原导航 / 显示策略并检查会话 | 同一 XML 用于演示、Product 页面与到期覆盖；不改变生成 C，不把覆盖宿主当作业务 scheduler 或完整多提醒队列 |
+| 计时 UI / 提醒 | [countdown_view](../ui/runtime/countdown_view.c) 与 alarm_view 拥有业务内容；[reminder_queue](../core/reminder_queue.h) 持有最多六条排序 / 合并，[reminders](../ui/runtime/reminders.c) 批次收集和展示；[reminder_host](../ui/runtime/reminder_host.c) 只持有一个覆盖槽 | [ALARM](ALARM.md#round2-implementation)；同刻闹钟先于倒计时、显示队首不抢占，逐条关闭后恢复会话。shell 管导航 / 显示策略，宿主不充当业务 scheduler；XML / 生成物与手写行为分开 |
 | 主机 / 模拟器 | [tests](../tests/) 与 [apps/simulator](../apps/simulator/)；使用 SDK 内 LVGL | [SIMULATOR 启动](SIMULATOR.md#启动)、[Simulate.ps1](../scripts/Simulate.ps1)；主机 CMake 与固件 SCons 分工独立 |
 
 板型、SDK 提交、子模块及工具锁来源以 [sdk.lock.json](../sdk.lock.json) 为准；应用配置源为各 `apps/<目标>/project/` 下实际文件，包括存在时的板型覆盖目录。构建产生的 `.config` / `rtconfig.h` 是结果，不是手工维护配置源。厂商 `vendor/SiFli-SDK` 为固定 gitlink，功能任务不改厂商与子模块；确需进入时先读该目录适用规则。

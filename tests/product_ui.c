@@ -126,7 +126,7 @@ int main(int argc, char **argv)
             assert(slot->size == (p && !s ? WRISTFLOW_CARD_HALF : WRISTFLOW_CARD_QUARTER));
             const wristflow_app_descriptor_t *app = wristflow_app_find(slot->app_id);
             assert(app);
-            assert(strcmp(slot->app_id, "weather") == 0
+            assert((strcmp(slot->app_id, "weather") == 0 || strcmp(slot->app_id, "alarm") == 0)
                 ? app->capability == WRISTFLOW_CAPABILITY_READY
                 : app->capability == WRISTFLOW_CAPABILITY_PLACEHOLDER);
             assert(app->card_sizes & slot->size);

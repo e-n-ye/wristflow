@@ -31,6 +31,7 @@ bool wristflow_countdown_update(wristflow_countdown_t *task, uint32_t now)
 {
     if (!task || task->phase != WRISTFLOW_COUNTDOWN_RUNNING ||
         wristflow_countdown_remaining(task, now) != 0) return false;
+    task->expired_at_ms = task->anchor_ms + task->remaining_ms;
     task->phase = WRISTFLOW_COUNTDOWN_EXPIRED;
     task->remaining_ms = 0;
     task->expiry_pending = true;

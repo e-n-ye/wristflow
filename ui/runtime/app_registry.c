@@ -71,8 +71,8 @@ static const wristflow_app_descriptor_t apps[] = {
         WRISTFLOW_CAPABILITY_PLACEHOLDER, WRISTFLOW_CARD_QUARTER, 0x388bfa,
         "睡眠功能待接入", screen_app_placeholder_create, missing, false},
     {"alarm", "闹钟", "\xef\x83\xb3", "launch_alarm", WRISTFLOW_SURFACE_ALARM,
-        WRISTFLOW_CAPABILITY_PLACEHOLDER, WRISTFLOW_CARD_QUARTER, 0x38bdf8,
-        "闹钟功能待接入", screen_alarm_create, missing, true}
+        WRISTFLOW_CAPABILITY_READY, WRISTFLOW_CARD_QUARTER, 0x38bdf8,
+        "", screen_alarm_create, missing, true}
 };
 
 size_t wristflow_app_count(void) { return sizeof apps / sizeof apps[0]; }

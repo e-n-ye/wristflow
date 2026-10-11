@@ -472,12 +472,22 @@ lv_obj_t * screen_alarm_create(void)
         lv_obj_t * alarm_error = lv_label_create(lv_obj_0);
         lv_obj_set_name(alarm_error, "alarm_error");
         lv_obj_set_x(alarm_error, 24);
-        lv_obj_set_y(alarm_error, 320);
+        lv_obj_set_y(alarm_error, 330);
         lv_obj_set_width(alarm_error, 342);
         lv_obj_set_flag(alarm_error, LV_OBJ_FLAG_HIDDEN, true);
         lv_label_set_text(alarm_error, "保存失败");
         lv_obj_set_style_text_color(alarm_error, ACCENT_RED, 0);
         lv_obj_set_style_text_align(alarm_error, LV_TEXT_ALIGN_CENTER, 0);
+
+        lv_obj_t * alarm_status = lv_label_create(lv_obj_0);
+        lv_obj_set_name(alarm_status, "alarm_status");
+        lv_obj_set_x(alarm_status, 24);
+        lv_obj_set_y(alarm_status, 330);
+        lv_obj_set_width(alarm_status, 342);
+        lv_obj_set_flag(alarm_status, LV_OBJ_FLAG_HIDDEN, true);
+        lv_label_set_text(alarm_status, "等待校时");
+        lv_obj_set_style_text_color(alarm_status, FG_SECONDARY, 0);
+        lv_obj_set_style_text_align(alarm_status, LV_TEXT_ALIGN_CENTER, 0);
 
         the_root = lv_obj_0;
     }

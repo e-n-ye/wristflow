@@ -14,5 +14,7 @@ typedef struct {
     bool (*command)(void *, wristflow_countdown_command_t, uint32_t seconds);
     void (*read)(void *, wristflow_countdown_t *);
     uint32_t (*now)(void *);
+    uint64_t (*now64)(void *);
+    void (*sync)(void *);
 } wristflow_countdown_port_t;
 #endif

@@ -1,0 +1,8 @@
+<component>
+    <view extends="lv_obj" width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_color="#fg_primary">
+        <lv_label x="151" y="65" width="88" text="&#xf0f3;" style_text_font="icons_44" style_text_color="0x008cff" style_text_align="center" />
+        <lv_label name="alarm_reminder_time" x="24" y="161" width="342" text="07:00" style_text_font="metric_56" style_text_align="center" />
+        <lv_label x="24" y="248" width="342" text="闹钟" style_text_font="title_24" style_text_align="center" />
+        <lv_button name="alarm_reminder_close" x="24" y="330" width="342" height="66" style_bg_color="#bg_surface" style_radius="33" style_shadow_width="0" style_pad_all="0"><lv_label align="center" text="关闭" style_text_font="title_24" /></lv_button>
+    </view>
+</component>

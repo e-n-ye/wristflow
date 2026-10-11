@@ -693,7 +693,7 @@ wristflow_ui_shell_t *wristflow_ui_shell_create(const wristflow_ui_shell_config_
     if (config->enable_apps) {
         shell->apps = wristflow_apps_create(shell, shell->controls, brightness_changed, shell,
             config->initial_settings ? config->initial_settings->brightness : 60, config->product_apps,
-            config->initial_settings ? config->initial_settings->menu_layout : WRISTFLOW_MENU_LIST, config->countdown);
+            config->initial_settings ? config->initial_settings->menu_layout : WRISTFLOW_MENU_LIST, config->countdown, config->alarm);
         wristflow_apps_update(shell->apps, &shell->snapshot);
         wristflow_apps_bind_home(shell->apps, shell->home);
     }
@@ -979,7 +979,25 @@ bool wristflow_ui_shell_reminder_active(const wristflow_ui_shell_t *shell)
 { return shell && wristflow_reminder_host_active(shell->reminder); }
 
 bool wristflow_ui_shell_countdown_event(wristflow_ui_shell_t *shell)
-{ return shell && wristflow_apps_countdown_event(shell->apps); }
+{ return wristflow_ui_shell_reminder_event(shell); }
+
+bool wristflow_ui_shell_reminder_event(wristflow_ui_shell_t *shell)
+{ return shell && wristflow_apps_reminder_event(shell->apps); }
+
+bool wristflow_ui_shell_replace_reminder(wristflow_ui_shell_t *shell, lv_obj_t *content)
+{
+    if (!shell || !wristflow_reminder_host_replace(shell->reminder, content, lv_tick_get())) return false;
+    sync_visibility(shell);
+    if (shell->display_timer) display_tick(shell->display_timer);
+    return true;
+}
+void wristflow_ui_shell_wake_reminder(wristflow_ui_shell_t *shell)
+{
+    if (!wristflow_ui_shell_reminder_active(shell)) return;
+    wristflow_reminder_host_wake(shell->reminder, lv_tick_get());
+    sync_visibility(shell);
+    if (shell->display_timer) display_tick(shell->display_timer);
+}
 
 bool wristflow_ui_shell_present_reminder(wristflow_ui_shell_t *shell, lv_obj_t *content)
 {

@@ -8,7 +8,8 @@
 #define WF_EVENT_PM_SAMPLE 4u
 #define WF_EVENT_TEST_WAKE 8u
 #define WF_EVENT_COUNTDOWN 16u
-#define WF_EVENT_ALL       31u
+#define WF_EVENT_ALARM     32u
+#define WF_EVENT_ALL       63u
 
 void wristflow_product_pm_start(void);
 void wristflow_product_event_send(rt_uint32_t events);

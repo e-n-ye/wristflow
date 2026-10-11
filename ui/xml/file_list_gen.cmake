@@ -4,6 +4,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/components/activity_summary_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/alarm_item_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/alarm_option_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/alarm_reminder_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/app_header_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/app_list_item_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/card_container_gen.c
