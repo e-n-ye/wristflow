@@ -20,6 +20,7 @@ void wristflow_apps_home_visible(wristflow_apps_t *apps, bool visible);
 bool wristflow_apps_back(wristflow_apps_t *apps);
 bool wristflow_apps_countdown_event(wristflow_apps_t *apps);
 bool wristflow_apps_countdown_active(const wristflow_apps_t *apps);
+bool wristflow_apps_alarm_editing(const wristflow_apps_t *apps);
 /* Apps is the sole owner of app screens. The shell binds navigation events only
  * when created is true; callers must not retain a screen after it leaves the path. */
 lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surface, bool *created);

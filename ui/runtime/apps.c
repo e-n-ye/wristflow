@@ -5,6 +5,7 @@
 #include "wristflow_ui.h"
 #include "weather_screen.h"
 #include "countdown_view.h"
+#include "alarm_view.h"
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
@@ -16,6 +17,7 @@ struct wristflow_apps {
     lv_timer_t *timer;
     wristflow_stopwatch_t stopwatch;
     wristflow_countdown_view_t *countdown;
+    wristflow_alarm_view_t *alarm;
     wristflow_watch_snapshot_t snapshot;
     wristflow_brightness_cb_t brightness_cb;
     void *context;
@@ -455,6 +457,7 @@ wristflow_apps_t *wristflow_apps_create(wristflow_ui_shell_t *shell, lv_obj_t *c
     apps->context = context;
     apps->product_mode = product_mode;
     if (!product_mode || countdown) apps->countdown = wristflow_countdown_view_create(shell, countdown);
+    if (!product_mode) apps->alarm = wristflow_alarm_view_create();
     apps->menu_layout = menu_layout;
     apps->timer = lv_timer_create(tick, 40, apps);
     lv_timer_pause(apps->timer);
@@ -485,6 +488,7 @@ bool wristflow_apps_allows(const wristflow_apps_t *apps, wristflow_surface_t sur
 {
     const wristflow_app_descriptor_t *app = wristflow_app_for_surface(surface);
     if (surface == WRISTFLOW_SURFACE_COUNTDOWN) return apps && apps->countdown;
+    if (surface == WRISTFLOW_SURFACE_ALARM) return apps && apps->alarm;
     return apps && !(apps->product_mode && app && app->demo_only);
 }
 
@@ -502,9 +506,14 @@ void wristflow_apps_home_visible(wristflow_apps_t *apps, bool visible)
 
 bool wristflow_apps_back(wristflow_apps_t *apps)
 {
+    if (apps && apps->active == WRISTFLOW_SURFACE_ALARM)
+        return wristflow_alarm_view_back(apps->alarm);
     return apps && apps->active == WRISTFLOW_SURFACE_COUNTDOWN &&
         wristflow_countdown_view_back(apps->countdown);
 }
+
+bool wristflow_apps_alarm_editing(const wristflow_apps_t *apps)
+{ return apps && apps->active == WRISTFLOW_SURFACE_ALARM && wristflow_alarm_view_editing(apps->alarm); }
 
 lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surface, bool *created)
 {
@@ -523,6 +532,8 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         root = screen_menu_layout_create();
     else if (surface == WRISTFLOW_SURFACE_COUNTDOWN)
         root = wristflow_countdown_view_screen(apps->countdown);
+    else if (surface == WRISTFLOW_SURFACE_ALARM)
+        root = wristflow_alarm_view_screen(apps->alarm);
     else if (app)
         root = apps->product_mode && app->capability != WRISTFLOW_CAPABILITY_READY
             ? screen_product_placeholder_create() : app->create();
@@ -556,8 +567,8 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         lv_obj_add_event_cb(scroll, menu_touch, LV_EVENT_ALL, apps);
         apps->menu_nearest = UINT32_MAX;
         menu_position(apps, -130, -124);
-    } else if (surface == WRISTFLOW_SURFACE_COUNTDOWN) {
-        /* Countdown owns its bindings; the shell owns navigation and lifetime. */
+    } else if (surface == WRISTFLOW_SURFACE_COUNTDOWN || surface == WRISTFLOW_SURFACE_ALARM) {
+        /* The app adapter owns bindings; the shell owns navigation and lifetime. */
     } else if (surface == WRISTFLOW_SURFACE_STOPWATCH) {
         bind_click(root, "stopwatch_toggle", stopwatch_action, apps);
         bind_click(root, "stopwatch_reset", stopwatch_action, apps);
@@ -659,6 +670,7 @@ void wristflow_apps_update(wristflow_apps_t *apps, const wristflow_watch_snapsho
 {
     if (!apps) return;
     apps->snapshot = *snapshot;
+    wristflow_alarm_view_update(apps->alarm, snapshot);
     wristflow_countdown_view_clock(apps->countdown, snapshot);
     if (apps->active == WRISTFLOW_SURFACE_STOPWATCH && apps->stopwatch.running) {
         wristflow_stopwatch_update(&apps->stopwatch, lv_tick_get());
@@ -691,6 +703,7 @@ static void release_screen(wristflow_apps_t *apps, wristflow_surface_t surface)
     stop_view_effects(apps, surface);
     apps->screens[surface] = NULL;
     if (surface == WRISTFLOW_SURFACE_COUNTDOWN) wristflow_countdown_view_detach(apps->countdown);
+    if (surface == WRISTFLOW_SURFACE_ALARM) wristflow_alarm_view_detach(apps->alarm);
     if (surface == WRISTFLOW_SURFACE_LAUNCHER)
         memset(apps->menu_icons, 0, sizeof apps->menu_icons);
     lv_obj_delete(root);
@@ -713,5 +726,6 @@ void wristflow_apps_destroy(wristflow_apps_t *apps)
     for (unsigned i = 0; i < WRISTFLOW_SURFACE_COUNT; ++i)
         release_screen(apps, (wristflow_surface_t)i);
     wristflow_countdown_view_destroy(apps->countdown);
+    wristflow_alarm_view_destroy(apps->alarm);
     lv_free(apps);
 }

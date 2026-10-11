@@ -342,6 +342,7 @@ static bool session_exempt(wristflow_ui_shell_t *shell)
     wristflow_surface_t surface = shell->navigation.surface;
     return (surface >= WRISTFLOW_SURFACE_COMPONENT_EDITOR && surface <= WRISTFLOW_SURFACE_COMPONENT_TEMPLATES) ||
         (surface == WRISTFLOW_SURFACE_COUNTDOWN && wristflow_apps_countdown_active(shell->apps)) ||
+        wristflow_apps_alarm_editing(shell->apps) ||
         (shell->components ? wristflow_apps_timer_has_data(shell->apps) : wristflow_apps_timer_running(shell->apps));
 }
 

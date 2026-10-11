@@ -1,0 +1,7 @@
+<component>
+    <api><prop name="label" type="string" default="仅一次" /></api>
+    <view extends="lv_button" width="342" height="78" scrollable="false" style_bg_color="0x202124" style_bg_opa="100%" style_border_width="0" style_shadow_width="0" style_pad_all="0" style_radius="22" style_text_color="#fg_primary">
+        <lv_label name="option_label" x="20" y="22" width="264" text="$label" style_text_font="title_24" />
+        <lv_label name="option_check" x="288" y="26" text="&#xf192;" style_text_font="icons_20" style_text_color="0x008cff" hidden="true" />
+    </view>
+</component>

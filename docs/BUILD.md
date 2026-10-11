@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-10-11 闹钟第一轮构建
+
+基线 `654507f`，隔离分支 `codex/alarm-ui`；官方 Pro 2.0.1 / LVGL 9.4.0 GUI 导出成功。GCC 15.2.0 / CMake 3.31.4 / Ninja Debug 主机 CTest 24/24 通过，十二份真实 LVGL 渲染核对完成。UI Demo 与 Product 使用官方 `Build.ps1` / SCons 逻辑，SDK Python 3.13.15、SCons 4.10.1、Arm GCC 14.2.1，均退出 0、产物校验通过；SDK / 子模块与工具锁不变且 SDK 工作树干净。
+
+UI Demo `artifacts/ui_demo/20261011-130622-286/result.json`，328 份源码 / 22 个产物重哈希一致，主 BIN 7,456,024 B / `0e75d0193536c4fc1dfcdbbda84c6b58993a9e74ab16d142ad6604fa16591bb4`；Product `artifacts/product/20261011-130956-683/result.json`，343 份源码 / 29 个产物重哈希一致，主 BIN 7,653,756 B / `bf33d61d547fc368765198a213e3eaf25bd60f5ab7c8b0886d81cd1ec4f4780d`。本机隔离环境复用与包装脚本、主机复现命令及已解决失败见 [ALARM 验证记录](ALARM.md#验证记录)，完整源 / 产物哈希见 [精简证据](evidence/2026-10-11/alarm-round1.json)。既有 SDK / `watch_core` / 链接告警保留，未运行手动云端基线；没有串口、烧录或新增硬件结论。
+
 ## 2026-10-09 D8 队列契约构建
 
 最终验证源码 `codex/weather-d1@83a6bd2d8954b69e3e8536b0f249efb169381e7e`。`cmake -S tests -B artifacts/queue-d8-host -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe`、`cmake --build artifacts/queue-d8-host --parallel 6` 和 CTest 全套退出 0，18/18 通过；随后补代次回绕/失败控制包断流断言并补官方头文件，最终受影响 `phone_queue` 1/1 通过。之后仅 Product 串口诊断拆行，主机所编译模块未改。测试直接编译生产队列函数并连接实际 parser；确定性交错的 IRQ/MQ shim 不等于目标板调度压力实测。
