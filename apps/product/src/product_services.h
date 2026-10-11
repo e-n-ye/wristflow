@@ -3,10 +3,17 @@
 #include "product_state.h"
 #include "component_layout.h"
 #include "weather.h"
+#include "alarm_store.h"
 
 void wristflow_product_services_start(wristflow_settings_t *settings, wristflow_layout_t *layout);
 wristflow_watch_snapshot_t wristflow_product_services_snapshot(void);
 int wristflow_product_services_set_time(uint32_t utc_seconds);
+wristflow_alarm_clock_t wristflow_product_services_time(void);
+uint64_t wristflow_product_services_monotonic(void);
+bool wristflow_product_services_storage_ready(void);
+/* Four bounded keys: payload A/B and matching publication markers. */
+bool wristflow_product_services_alarm_read(unsigned key, uint8_t *record, void *context);
+bool wristflow_product_services_alarm_write(unsigned key, const uint8_t *record, void *context);
 /* Copies preferences; FlashDB writes run on a separate thread after 1.5s idle. */
 void wristflow_product_services_settings(const wristflow_settings_t *settings);
 /* Copies a complete layout immediately; worker writes and verifies independently. */

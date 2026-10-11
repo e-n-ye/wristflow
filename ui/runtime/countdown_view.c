@@ -2,6 +2,7 @@
 #include "countdown.h"
 #include "wristflow_ui.h"
 #include "mount_screen.h"
+#include "reminders.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -9,6 +10,7 @@ struct wristflow_countdown_view {
     wristflow_ui_shell_t *shell;
     wristflow_countdown_t task;
     wristflow_countdown_port_t backend;
+    wristflow_reminders_t *reminders;
     lv_timer_t *timer;
     lv_obj_t *root, *indicator, *alert;
     wristflow_watch_snapshot_t clock;
@@ -125,8 +127,12 @@ static bool observe(wristflow_countdown_view_t *view)
     bool presented = false;
     if (view->task.expiry_pending) {
         if (view->backend.read) {
-            presented = wristflow_ui_shell_present_reminder(view->shell, alert_content(view));
-            if (presented) command(view, WF_COUNTDOWN_ACK, 0);
+            uint64_t at = view->backend.now64 ? view->backend.now64(view->backend.context) : now(view);
+            uint64_t elapsed = (uint32_t)((uint32_t)at - view->task.expired_at_ms);
+            wristflow_reminder_entry_t entry = {.key = {WF_REMINDER_COUNTDOWN, 0},
+                .due_ms = at >= elapsed ? at - elapsed : 0};
+            presented = wristflow_reminders_submit(view->reminders, entry, alert_content(view));
+            if (presented) command(view, WF_COUNTDOWN_ACK, view->task.generation);
         } else {
             wristflow_ui_shell_open(view->shell, WRISTFLOW_SURFACE_COUNTDOWN);
             /* Accepted open can mean a pending stopwatch exit confirmation. */
@@ -134,6 +140,8 @@ static bool observe(wristflow_countdown_view_t *view)
                 command(view, WF_COUNTDOWN_ACK, 0);
         }
     }
+    if (view->backend.read && view->task.phase != WRISTFLOW_COUNTDOWN_EXPIRED)
+        wristflow_reminders_remove(view->reminders, (wristflow_reminder_key_t){WF_REMINDER_COUNTDOWN, 0});
     if (view->task.phase == WRISTFLOW_COUNTDOWN_RUNNING || view->task.expiry_pending)
         lv_timer_resume(view->timer);
     else lv_timer_pause(view->timer);
@@ -141,7 +149,11 @@ static bool observe(wristflow_countdown_view_t *view)
 }
 
 static void tick(lv_timer_t *timer)
-{ observe(lv_timer_get_user_data(timer)); }
+{
+    wristflow_countdown_view_t *view = lv_timer_get_user_data(timer);
+    if (view->backend.read) wristflow_ui_shell_reminder_event(view->shell);
+    else observe(view);
+}
 
 static void wheel_changed(lv_event_t *event)
 {
@@ -169,7 +181,7 @@ static void action(lv_event_t *event)
     }
     if (!strcmp(target, "countdown_cancel")) {
         command(view, WF_COUNTDOWN_CANCEL, 0);
-        if (view->backend.read) wristflow_ui_shell_close_reminder(view->shell);
+        if (view->backend.read) wristflow_reminders_remove(view->reminders, (wristflow_reminder_key_t){WF_REMINDER_COUNTDOWN, 0});
     }
     if (!strcmp(target, "countdown_toggle")) {
         command(view, view->task.phase == WRISTFLOW_COUNTDOWN_PAUSED ? WF_COUNTDOWN_RESUME : WF_COUNTDOWN_PAUSE, 0);
@@ -178,10 +190,11 @@ static void action(lv_event_t *event)
     if (repeat || close) {
         bool accepted = command(view, repeat ? WF_COUNTDOWN_REPEAT : WF_COUNTDOWN_DISMISS, 0);
         render(view);
-        if (accepted && view->backend.read) wristflow_ui_shell_close_reminder(view->shell);
+        if (accepted && view->backend.read) wristflow_reminders_remove(view->reminders, (wristflow_reminder_key_t){WF_REMINDER_COUNTDOWN, 0});
         else if (close && accepted && !wristflow_ui_shell_back(view->shell)) wristflow_ui_shell_home(view->shell);
     }
-    observe(view);
+    if (view->backend.read) wristflow_ui_shell_reminder_event(view->shell);
+    else observe(view);
 }
 
 static void open_countdown(lv_event_t *event)
@@ -191,12 +204,13 @@ static void open_countdown(lv_event_t *event)
 }
 
 wristflow_countdown_view_t *wristflow_countdown_view_create(wristflow_ui_shell_t *shell,
-    const wristflow_countdown_port_t *backend)
+    const wristflow_countdown_port_t *backend, wristflow_reminders_t *reminders)
 {
     if (backend && (!backend->read || !backend->command || !backend->now)) return NULL;
     wristflow_countdown_view_t *view = lv_malloc_zeroed(sizeof(*view));
     LV_ASSERT_MALLOC(view);
     view->shell = shell;
+    view->reminders = reminders;
     if (backend) view->backend = *backend;
     view->custom_seconds = 60;
     wristflow_countdown_init(&view->task);

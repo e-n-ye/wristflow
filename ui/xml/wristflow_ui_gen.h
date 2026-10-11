@@ -275,6 +275,7 @@ void wristflow_ui_init_gen(const char * asset_path);
 #include "components/activity_summary_gen.h"
 #include "components/alarm_item_gen.h"
 #include "components/alarm_option_gen.h"
+#include "components/alarm_reminder_gen.h"
 #include "components/app_header_gen.h"
 #include "components/app_list_item_gen.h"
 #include "components/card_container_gen.h"

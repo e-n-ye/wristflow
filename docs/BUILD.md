@@ -1,5 +1,9 @@
 # 可复现构建基线
 
+## 2026-10-11 闹钟第二轮构建
+
+基线 `269c37b`，隔离分支 `codex/alarm-product`；官方 Pro 2.0.1 / LVGL 9.4.0 GUI 导出成功。最终 GCC 15.2.0 / CMake 3.31.4 / Ninja Debug CTest **29/29** 和三个严格 core 用例通过，五张真实 LVGL 状态 / 提醒帧按 1:1 核对。Product 与 UI Demo 使用既有官方 Build / SCons 逻辑均退出 0、产物校验通过，357 / 340 个源和 29 / 22 个产物重哈希一致；SDK / 子模块和工具锁不变。命令、镜像哈希、GUI 再检查限制、失败修复和硬件未验范围见 [ALARM 第二轮](ALARM.md#round2)及[精简证据](evidence/2026-10-11/alarm-round2.json)。没有串口、烧录、设备输入或新云端基线。
+
 ## 2026-10-11 闹钟第一轮构建
 
 基线 `654507f`，隔离分支 `codex/alarm-ui`；官方 Pro 2.0.1 / LVGL 9.4.0 GUI 导出成功。GCC 15.2.0 / CMake 3.31.4 / Ninja Debug 主机 CTest 24/24 通过，十二份真实 LVGL 渲染核对完成。UI Demo 与 Product 使用官方 `Build.ps1` / SCons 逻辑，SDK Python 3.13.15、SCons 4.10.1、Arm GCC 14.2.1，均退出 0、产物校验通过；SDK / 子模块与工具锁不变且 SDK 工作树干净。

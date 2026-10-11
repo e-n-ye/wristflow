@@ -22,6 +22,7 @@ typedef struct {
     uint32_t remaining_ms;
     uint32_t anchor_ms;
     uint32_t generation;
+    uint32_t expired_at_ms;
     bool expiry_pending;
 } wristflow_countdown_t;
 

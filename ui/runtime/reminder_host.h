@@ -8,6 +8,7 @@ typedef struct wristflow_reminder_host wristflow_reminder_host_t;
 wristflow_reminder_host_t *wristflow_reminder_host_create(void);
 void wristflow_reminder_host_destroy(wristflow_reminder_host_t *host);
 bool wristflow_reminder_host_present(wristflow_reminder_host_t *host, lv_obj_t *content, uint32_t now);
+bool wristflow_reminder_host_replace(wristflow_reminder_host_t *host, lv_obj_t *content, uint32_t now);
 void wristflow_reminder_host_close(wristflow_reminder_host_t *host);
 bool wristflow_reminder_host_active(const wristflow_reminder_host_t *host);
 wristflow_display_phase_t wristflow_reminder_host_phase(const wristflow_reminder_host_t *host, uint32_t now);

@@ -2,6 +2,8 @@
 #include "product_pm.h"
 #include <stddef.h>
 static uint32_t clock_ms, events;
+static uint64_t clock64;
+uint64_t wristflow_product_services_monotonic(void) { return clock64; }
 static unsigned sends;
 static struct rt_timer *timer;
 static struct rt_mutex *mutex;
@@ -27,7 +29,7 @@ void wristflow_product_event_send(rt_uint32_t mask)
 { assert(!mutex->held && mask == WF_EVENT_COUNTDOWN); events |= mask; ++sends; }
 void test_countdown_advance(uint32_t ms, bool dispatch)
 {
-    clock_ms += ms;
+    clock_ms += ms; clock64 += ms;
     if (dispatch && timer && timer->active && clock_ms-timer->at >= timer->ticks) {
         timer->active=false; timer->callback(timer->context);
     }

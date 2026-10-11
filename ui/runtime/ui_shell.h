@@ -7,6 +7,7 @@
 #include "display_policy.h"
 #include "notifications.h"
 #include "countdown_port.h"
+#include "alarm_port.h"
 
 typedef struct wristflow_ui_shell wristflow_ui_shell_t;
 typedef lv_obj_t *(*wristflow_screen_factory_t)(void);
@@ -38,6 +39,7 @@ typedef struct {
     void *layout_context;
     /* Optional independently scheduled backend; absent Product stays gated. */
     const wristflow_countdown_port_t *countdown;
+    const wristflow_alarm_port_t *alarm;
 } wristflow_ui_shell_config_t;
 
 /* One 390x450 default display, called on the LVGL thread after UI resource init.
@@ -93,9 +95,12 @@ bool wristflow_ui_shell_phone_connected(const wristflow_ui_shell_t *shell);
 /* UI-thread event reconciliation is safe with LVGL timers disabled. A mailbox
  * bit is a hint; the synchronized service snapshot is authoritative. */
 bool wristflow_ui_shell_countdown_event(wristflow_ui_shell_t *shell);
+bool wristflow_ui_shell_reminder_event(wristflow_ui_shell_t *shell);
 /* Exclusive reminder slot, separate from navigation and ordinary sleep time.
  * Adapter owns content until shell destruction; close does not delete it. */
 bool wristflow_ui_shell_present_reminder(wristflow_ui_shell_t *shell, lv_obj_t *content);
+bool wristflow_ui_shell_replace_reminder(wristflow_ui_shell_t *shell, lv_obj_t *content);
+void wristflow_ui_shell_wake_reminder(wristflow_ui_shell_t *shell);
 void wristflow_ui_shell_close_reminder(wristflow_ui_shell_t *shell);
 bool wristflow_ui_shell_reminder_active(const wristflow_ui_shell_t *shell);
 

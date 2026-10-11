@@ -1,9 +1,11 @@
 #include "product_services.h"
+#include "product_alarm.h"
 #include <rtthread.h>
 #include <rtdevice.h>
 #include <flashdb.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <sys/time.h>
 
 static struct fdb_kvdb settings_db;
 static struct rt_mutex settings_lock, database_lock, rtc_lock, weather_lock;
@@ -14,6 +16,54 @@ static uint32_t layout_requested, layout_completed, layout_failed;
 static uint32_t requested_at;
 static bool storage_ready, service_ready;
 static rt_device_t rtc;
+static uint32_t rtc_revision, previous_ticks;
+static uint64_t extended_ticks;
+
+/* Under rtc_lock. Alarm's five-minute timer also observes ticks when every
+ * view is asleep, so the extended clock cannot miss a whole 32-bit cycle. */
+static uint64_t monotonic_locked(void)
+{
+    uint32_t now = rt_tick_get();
+    extended_ticks += (uint32_t)(now - previous_ticks); previous_ticks = now;
+    return extended_ticks * 1000U / RT_TICK_PER_SECOND;
+}
+uint64_t wristflow_product_services_monotonic(void)
+{
+    rt_mutex_take(&rtc_lock, RT_WAITING_FOREVER);
+    uint64_t now = monotonic_locked();
+    rt_mutex_release(&rtc_lock); return now;
+}
+wristflow_alarm_clock_t wristflow_product_services_time(void)
+{
+    wristflow_alarm_clock_t clock = {0};
+    rt_mutex_take(&rtc_lock, RT_WAITING_FOREVER);
+    struct timeval value = {0};
+    clock.valid = rtc && rt_device_control(rtc, RT_DEVICE_CTRL_RTC_GET_TIMEVAL, &value) == RT_EOK &&
+        value.tv_sec >= WRISTFLOW_TIME_MIN && value.tv_sec <= WRISTFLOW_TIME_MAX && value.tv_usec >= 0 && value.tv_usec < 1000000;
+    clock.utc = (uint32_t)value.tv_sec; clock.subsecond_ms = (uint16_t)(value.tv_usec / 1000);
+    clock.valid = clock.valid && clock.utc >= WRISTFLOW_TIME_MIN && clock.utc <= WRISTFLOW_TIME_MAX;
+    clock.revision = rtc_revision; clock.monotonic_ms = monotonic_locked();
+    rt_mutex_release(&rtc_lock); return clock;
+}
+bool wristflow_product_services_storage_ready(void) { return storage_ready; }
+static const char *const alarm_keys[] = {"alarm_a", "alarm_b", "alarm_ca", "alarm_cb"};
+bool wristflow_product_services_alarm_read(unsigned key, uint8_t *record, void *context)
+{
+    (void)context;
+    if (!storage_ready || key >= 4) return false;
+    struct fdb_blob blob;
+    size_t size = fdb_kv_get_blob(&settings_db, alarm_keys[key], fdb_blob_make(&blob, record, WRISTFLOW_ALARM_BYTES));
+    return size == WRISTFLOW_ALARM_BYTES && blob.saved.len == WRISTFLOW_ALARM_BYTES;
+}
+bool wristflow_product_services_alarm_write(unsigned key, const uint8_t *record, void *context)
+{
+    (void)context;
+    if (!storage_ready || key >= 4) return false;
+    struct fdb_blob blob;
+    fdb_err_t result = fdb_kv_set_blob(&settings_db, alarm_keys[key], fdb_blob_make(&blob, record, WRISTFLOW_ALARM_BYTES));
+    if (result != FDB_NO_ERR) rt_kprintf("[alarm] FlashDB key=%u result=%d\n", key, result);
+    return result == FDB_NO_ERR;
+}
 
 static uint32_t milliseconds(void)
 {
@@ -212,8 +262,10 @@ int wristflow_product_services_set_time(uint32_t seconds)
     uint32_t readback = 0;
     rt_mutex_take(&rtc_lock, RT_WAITING_FOREVER);
     rt_err_t result = rt_device_control(rtc, RT_DEVICE_CTRL_RTC_SET_TIME, &seconds);
+    ++rtc_revision; /* Also invalidates scheduling if SET/readback is uncertain. */
     if (result == RT_EOK) result = rt_device_control(rtc, RT_DEVICE_CTRL_RTC_GET_TIME, &readback);
     rt_mutex_release(&rtc_lock);
+    wristflow_product_alarm_clock_changed();
     if (result != RT_EOK || readback < seconds || readback - seconds > 1) {
         rt_kprintf("[product] RTC set/readback failed: %d\n", result);
         return -RT_ERROR;

@@ -2,6 +2,7 @@
 
 struct wristflow_reminder_host {
     lv_obj_t *root;
+    lv_obj_t *content;
     uint32_t activity_at;
     bool active, swallow;
 };
@@ -38,16 +39,29 @@ bool wristflow_reminder_host_present(wristflow_reminder_host_t *host, lv_obj_t *
     lv_obj_remove_flag(host->root, LV_OBJ_FLAG_HIDDEN);
     lv_obj_move_foreground(host->root);
     host->active = true;
+    host->content = content;
     host->activity_at = now;
     host->swallow = false;
     reset_input();
     return true;
 }
 
+bool wristflow_reminder_host_replace(wristflow_reminder_host_t *host, lv_obj_t *content, uint32_t now)
+{
+    if (!host || !host->active || !content) return false;
+    if (host->content) lv_obj_add_flag(host->content, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_set_parent(content, host->root); lv_obj_set_pos(content, 0, 0);
+    lv_obj_remove_flag(content, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_EVENT_BUBBLE | LV_OBJ_FLAG_GESTURE_BUBBLE);
+    host->content = content; host->activity_at = now; host->swallow = false;
+    reset_input(); return true;
+}
+
 void wristflow_reminder_host_close(wristflow_reminder_host_t *host)
 {
     if (!host || !host->active) return;
     lv_obj_add_flag(host->root, LV_OBJ_FLAG_HIDDEN);
+    if (host->content) lv_obj_add_flag(host->content, LV_OBJ_FLAG_HIDDEN);
+    host->content = NULL;
     host->active = false;
     reset_input();
 }

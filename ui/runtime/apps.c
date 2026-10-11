@@ -6,6 +6,7 @@
 #include "weather_screen.h"
 #include "countdown_view.h"
 #include "alarm_view.h"
+#include "reminders.h"
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
@@ -18,6 +19,9 @@ struct wristflow_apps {
     wristflow_stopwatch_t stopwatch;
     wristflow_countdown_view_t *countdown;
     wristflow_alarm_view_t *alarm;
+    wristflow_reminders_t *reminders;
+    wristflow_countdown_port_t countdown_port;
+    wristflow_alarm_port_t alarm_port;
     wristflow_watch_snapshot_t snapshot;
     wristflow_brightness_cb_t brightness_cb;
     void *context;
@@ -446,7 +450,8 @@ wristflow_apps_t *wristflow_apps_create(wristflow_ui_shell_t *shell, lv_obj_t *c
                                       wristflow_brightness_cb_t brightness, void *context,
                                       uint8_t initial_brightness, bool product_mode,
                                       wristflow_menu_layout_t menu_layout,
-                                      const wristflow_countdown_port_t *countdown)
+                                      const wristflow_countdown_port_t *countdown,
+                                      const wristflow_alarm_port_t *alarm)
 {
     wristflow_apps_t *apps = lv_malloc_zeroed(sizeof(*apps));
     LV_ASSERT_MALLOC(apps);
@@ -456,8 +461,11 @@ wristflow_apps_t *wristflow_apps_create(wristflow_ui_shell_t *shell, lv_obj_t *c
     apps->brightness_cb = brightness;
     apps->context = context;
     apps->product_mode = product_mode;
-    if (!product_mode || countdown) apps->countdown = wristflow_countdown_view_create(shell, countdown);
-    if (!product_mode) apps->alarm = wristflow_alarm_view_create();
+    apps->reminders = wristflow_reminders_create(shell);
+    if (countdown) apps->countdown_port = *countdown;
+    if (alarm) apps->alarm_port = *alarm;
+    if (!product_mode || countdown) apps->countdown = wristflow_countdown_view_create(shell, countdown, apps->reminders);
+    if (!product_mode || alarm) apps->alarm = wristflow_alarm_view_create_with_backend(shell, alarm, apps->reminders);
     apps->menu_layout = menu_layout;
     apps->timer = lv_timer_create(tick, 40, apps);
     lv_timer_pause(apps->timer);
@@ -493,7 +501,18 @@ bool wristflow_apps_allows(const wristflow_apps_t *apps, wristflow_surface_t sur
 }
 
 bool wristflow_apps_countdown_event(wristflow_apps_t *apps)
-{ return apps && wristflow_countdown_view_refresh(apps->countdown); }
+{ return wristflow_apps_reminder_event(apps); }
+
+bool wristflow_apps_reminder_event(wristflow_apps_t *apps)
+{
+    if (!apps) return false;
+    if (apps->alarm_port.sync) apps->alarm_port.sync(apps->alarm_port.context);
+    if (apps->countdown_port.sync) apps->countdown_port.sync(apps->countdown_port.context);
+    wristflow_reminders_begin(apps->reminders);
+    wristflow_alarm_view_refresh(apps->alarm);
+    wristflow_countdown_view_refresh(apps->countdown);
+    return wristflow_reminders_end(apps->reminders);
+}
 
 bool wristflow_apps_countdown_active(const wristflow_apps_t *apps)
 { return apps && wristflow_countdown_view_active(apps->countdown); }
@@ -725,6 +744,7 @@ void wristflow_apps_destroy(wristflow_apps_t *apps)
     lv_timer_delete(apps->timer);
     for (unsigned i = 0; i < WRISTFLOW_SURFACE_COUNT; ++i)
         release_screen(apps, (wristflow_surface_t)i);
+    wristflow_reminders_destroy(apps->reminders);
     wristflow_countdown_view_destroy(apps->countdown);
     wristflow_alarm_view_destroy(apps->alarm);
     lv_free(apps);

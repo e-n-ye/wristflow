@@ -4,8 +4,12 @@
 #include "ui_shell.h"
 
 typedef struct wristflow_alarm_view wristflow_alarm_view_t;
-/* First-round Demo session owner; no Product backend or expiry polling. */
+typedef struct wristflow_reminders wristflow_reminders_t;
+/* NULL backend retains the local Demo model. */
 wristflow_alarm_view_t *wristflow_alarm_view_create(void);
+wristflow_alarm_view_t *wristflow_alarm_view_create_with_backend(wristflow_ui_shell_t *shell,
+    const wristflow_alarm_port_t *backend, wristflow_reminders_t *reminders);
+void wristflow_alarm_view_refresh(wristflow_alarm_view_t *view);
 lv_obj_t *wristflow_alarm_view_screen(wristflow_alarm_view_t *view);
 void wristflow_alarm_view_update(wristflow_alarm_view_t *view, const wristflow_watch_snapshot_t *clock);
 bool wristflow_alarm_view_back(wristflow_alarm_view_t *view);

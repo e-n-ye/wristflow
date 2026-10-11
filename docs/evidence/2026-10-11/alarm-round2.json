@@ -1,0 +1,228 @@
+{
+  "date": "2026-10-11",
+  "scope": "Alarm round two: Product calendar scheduling, verified persistence and six-source reminder arbitration",
+  "base_commit": "269c37b436d7fb34bb3ef8f51d9c37a755586787",
+  "branch": "codex/alarm-product",
+  "source_identity": "SHA-256 of final local source files used by builds; Git line-ending normalization reviewed separately",
+  "source_sha256": {
+    "apps/product/src/main.c": "6d97ea4857e3d56e52f69b87bf0e78aae995b6ae9fbf93d8fa7e5e3bdac00964",
+    "apps/product/src/product_alarm.c": "f4132355c24cc385c5ae7a12a65d6d307143da94ba5009fb9157bb93950e16ec",
+    "apps/product/src/product_alarm.h": "aaae84145029288c0effcd318c757f6b3af19fb10b44decdcb33d814fb4bd1a2",
+    "apps/product/src/product_countdown.c": "de5dea8972bfe09c445487b8d4cd41c86e8b8183ef15951b79373882b9deb6e2",
+    "apps/product/src/product_pm.h": "852fa4ff6622f24ba07ce402f12adae547b98a2ae4db1ee1500a8cdded57699a",
+    "apps/product/src/product_services.c": "11020a53cc770016907b96d3420345f3e83377039ac276b104c4ced19c427034",
+    "apps/product/src/product_services.h": "15f3080545741f4257bdc6013889fc9b5f82ed656db2445722ce4d86873637f0",
+    "apps/product/src/product_ui.c": "1af93ba430c9218ccba293ae6accf19f87d77f838ac686ef8095e08a6882c2b3",
+    "apps/product/src/product_ui.h": "138cc70039cef90b85bdb757fe56587be093205a1f404ed950f6d15b4c6d777b",
+    "core/alarm_port.h": "9a2478a4e7d438ec72a89b6b27df211b9608f76a22c5226e916d473b864ddec3",
+    "core/alarm_schedule.c": "643598c34387c004696dcc546961c851eeaba9e5d9686151a217162a718d5b46",
+    "core/alarm_schedule.h": "22ba7fcd5ec2b27a01597bee4c52f55beae926997f3801ab71cd3639e2f66ae2",
+    "core/alarm_store.c": "79ea53e545fd0ac59c900104db57f8769a12cc6f669bbf63ca4b78a55f3badd4",
+    "core/alarm_store.h": "cd60c5bbeae0e4db04ed6020cb2efbc1460e5ef5b1f1d29c3520e3c82e575fe2",
+    "core/countdown.c": "2dc715b4d5c69fef65016016e1adafcd008fe15e79d7116770180a048082dc2a",
+    "core/countdown.h": "2551cb030d75aa1952776951f6acfb36874b34456a5c27336a71d1a9eb99d9d9",
+    "core/countdown_port.h": "51349c7afb7f720c68418c958a93c88e693471baad12b58d6e7a0dff4979d0ae",
+    "core/reminder_queue.c": "1ececb639bfa4a49e1976debdfa0b0d78d7743b3ebfae077d69d488d63191a93",
+    "core/reminder_queue.h": "fb49b9ed5640f9ade3b3c92806520011f3f64058588190e328f4a3ae77418c36",
+    "tests/CMakeLists.txt": "ee2f16447a0ddcd9f69f680f94927e686ea482efc3a2234d0d8ccf58fcd6d134",
+    "tests/alarm_schedule.c": "31fc4333204172690c6f607dd22da3702c4ac505fda2e41b759a734dc7546a7f",
+    "tests/alarm_store.c": "4e59ece19270ec7d0b08dda8499448d57ba53838d5a36ec122ea9d6e6cc3e0a4",
+    "tests/product_alarm.c": "951d4673ee421b7f96a909b86b87f2cbb0b9db6287014c33c390d01d5399e812",
+    "tests/product_alarm_ui.c": "c8f91f551d369962beb17f0f961f6d45e3196a4b841722ed5a2c672175aba219",
+    "tests/product_pm.c": "117cccbba7246c0b9a3029ea18b10a8792239c631367a6606dc522ee73461cd5",
+    "tests/product_ui.c": "5c18c308b9959f6a690e4a59c8e427370446f66101b229ff8667e5638cd57e31",
+    "tests/reminder_queue.c": "ceed6a70e5b2599ce3277c0ae39e72c1c33a67d028acb1a97a105a3dac6c342b",
+    "tests/support/alarm/rtthread.h": "f549d34bb923d0bc0f17bf76abc9f8962a3a8dce9b7de9b940db501eeed1914e",
+    "tests/support/countdown/rtthread.c": "a7955047d44eff64d3305c17a1e43173fd9dd5eaa7656978cb424b51eb25464d",
+    "ui/runtime/alarm_view.c": "5a5ba410ff1875ffceeb235db84cec9b3a17747381eddd75c6d078ee3567ac0d",
+    "ui/runtime/alarm_view.h": "968c3851a9eb54c6da1acc304b4e90a0ad8b6bb96346bbab2078bed6fe288513",
+    "ui/runtime/app_registry.c": "98a3cb0d44c9012e4d97e9aca2f2faa5868d3ec91afd64010a3641318ae1b73f",
+    "ui/runtime/apps.c": "5344f9dbe7650595bf52696a866a4eb0776b51de695a0d2e9eb5f0f7b205e93f",
+    "ui/runtime/apps.h": "c820be377ab5d0b41e57a9e638e9e356ace3cea17db9eec3db03961897a11e0f",
+    "ui/runtime/countdown_view.c": "be480f0ac2d4845458a50338b4f0ae5c39494157888a91dd510e760a88b2114b",
+    "ui/runtime/countdown_view.h": "30601354738fc58a7c161000aeea7a9637bef5c5cc9290685d03d37b2a36d5f8",
+    "ui/runtime/reminder_host.c": "2a934603a72c348c9e0f071f4ba4cebadd4dcc14d59d7406ed6a38727473db4c",
+    "ui/runtime/reminder_host.h": "bd03684993308eae3066ffb7b3301a4074f8a2781a7d3c2b1f7ddbc1a85b9f43",
+    "ui/runtime/reminders.c": "b83347059b8841a6270fdf024181c9f32ab3f55c5866b7ea1ee3870b1256bcd7",
+    "ui/runtime/reminders.h": "1213d0f6c4aa626150d2dcef3e95f15b582658c024c7541022a2a6fbf5b1bd1f",
+    "ui/runtime/ui_shell.c": "e70a38beb6a5fd3f4e248a25e410a73a84d7b58ac04336bd60137083a9a909b2",
+    "ui/runtime/ui_shell.h": "6bdd273a87562af9ec18b9fc3f6a286b065f29ee8c3eb0eeb0ce16e8f119510d",
+    "ui/xml/components/alarm_reminder.xml": "ad1427c6aee69455ce1c4ce1c866ea339a7e85a0f7d9e26f6248be9051083d1c",
+    "ui/xml/components/alarm_reminder_gen.c": "25f8df44b556d22e82f1dfa742e9a291f42bb27575f5372d00e3d722509b785c",
+    "ui/xml/components/alarm_reminder_gen.h": "0b7ff7315f4ea7a7d04723680ec9515fd74159311994f7b2ce21b91e9de709fb",
+    "ui/xml/file_list_gen.cmake": "8cf734622443c84bf3e3987687f63a7ac0d03d886d547003b125618de579b9a1",
+    "ui/xml/screens/screen_alarm.xml": "ec819a422f5a3e263342e5977e72eb550c9864488c4556aaf01d4dd0e7b29770",
+    "ui/xml/screens/screen_alarm_gen.c": "6027d3b4e856402786cea54755f426112b416f86be4fe938b9360ff1e8476a73",
+    "ui/xml/wristflow_ui_gen.h": "62267075d3eaaba1a6168cec6f9005f5099bc2a8ea8748ab98d655fadd180faf"
+  },
+  "sdk_lock": "sdk.lock.json",
+  "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+  "sdk_clean_and_submodules_locked": true,
+  "lvgl_version": "9.4.0",
+  "editor_version": "2.0.1",
+  "official_export": {
+    "method": "Existing Pro GUI Ctrl+B",
+    "observed_result": "Project compiled successfully.",
+    "xml_well_formed": [
+      "ui/xml/components/alarm_reminder.xml",
+      "ui/xml/screens/screen_alarm.xml"
+    ],
+    "preview_wasm_sha256": "a4bc26be97d0cfb720a6e7e0be0c0bfe6253404fb1b0cf4e6b9d3d66c8d18647",
+    "new_reminder_100_percent_preview": true,
+    "saved_gui_screenshot_sha256": {
+      "artifacts/alarm/pro-reminder-round2.jpg": "a54bcf22e9fc05cce30552600264eb44c0ea3b598c40eefb541be225ef96c832"
+    },
+    "list_gui_reinspection": "87% preview observed; subsequent refresh blocked by minimized-window/user-input guard. Round-one list geometry retained; new hidden status states checked in actual 390x450 LVGL host frames at 1:1.",
+    "new_chinese_real_glyphs_checked": true,
+    "custom_exporter_used": false,
+    "generated_c_hand_edited": false
+  },
+  "host": {
+    "configure": "cmake -S tests -B artifacts/alarm/host -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe",
+    "build": "cmake --build artifacts/alarm/host --parallel 6",
+    "test": "ctest --test-dir artifacts/alarm/host --output-on-failure --timeout 60",
+    "compiler": "GCC 15.2.0",
+    "cmake": "3.31.4",
+    "generator": "Ninja Debug",
+    "tests_passed": 29,
+    "tests_failed": 0,
+    "exit_code": 0,
+    "log_local": "artifacts/alarm/ctest-final-round2.log",
+    "log_sha256": "51704c1e2575dc25388b48ac13e20ffe9e830e2fdba0e143b63c1b7d76f6e61c",
+    "strict_core_commands": [
+      "D:/msys64/ucrt64/bin/gcc.exe -std=c11 -Wall -Wextra -Werror -I core core/alarm.c core/alarm_schedule.c tests/alarm_schedule.c -o artifacts/alarm/schedule-strict.exe",
+      "D:/msys64/ucrt64/bin/gcc.exe -std=c11 -Wall -Wextra -Werror -I core core/alarm.c core/alarm_schedule.c core/alarm_store.c tests/alarm_store.c -o artifacts/alarm/store-strict.exe",
+      "D:/msys64/ucrt64/bin/gcc.exe -std=c11 -Wall -Wextra -Werror -I core core/reminder_queue.c tests/reminder_queue.c -o artifacts/alarm/queue-strict.exe"
+    ],
+    "strict_core_compile_and_run_exit_codes": [
+      0,
+      0,
+      0
+    ],
+    "render_sha256": {
+      "artifacts/alarm/host/renders/alarm_product_countdown_last.ppm": "0a69a4e03aebf18fe8c2e26e97a2e1c0b2425546811797f0ee221bf8966bed11",
+      "artifacts/alarm/host/renders/alarm_product_failed.ppm": "1cb17c4e312a073989d6a453c979373fc5cd2311126f2df99b959fbd6cfaf20f",
+      "artifacts/alarm/host/renders/alarm_product_first.ppm": "c81f03aa3b5a35e5c2e69282e7d52a40ec8b84d96775ff433134fbe048da9ea6",
+      "artifacts/alarm/host/renders/alarm_product_saving.ppm": "0e9d8a4fea9ee7db10c53c7d746ac74aa6c4cce46d8a8d0f447ff3ed4d828456",
+      "artifacts/alarm/host/renders/alarm_product_waiting.ppm": "541afca8a493e3106eeb7dd1cb817da8e66c5a62b9534de4e029b33049d05dd7"
+    },
+    "preview_local": "artifacts/alarm/alarm-product-contact-sheet.png",
+    "coverage": [
+      "Q8-Q15 calendar, invalid RTC and jumps/watermark",
+      "Partial payload and publication marker writes at every byte, CRC/readback/generation wrap",
+      "Actual Product backend source against deterministic RTC/Flash/RTOS shim",
+      "Prepare racing RTC/expiry and crossing configured minute",
+      "Soft-timer lock contention retries without blocking",
+      "Five same-time alarms before countdown with LVGL timers disabled",
+      "Save/failure/retry, toggle/delete and original draft/session restoration",
+      "Pending coalescing, new-arrival 30-second renewal, DND and notification cache/no replay"
+    ],
+    "limits": "Deterministic shims and actual LVGL pointer input; no target RTOS stress, physical KEY1 or hardware timing proof"
+  },
+  "builds": {
+    "product": {
+      "command": "pwsh -NoProfile -File artifacts/alarm/build-isolated.ps1 -Example product -Jobs 6",
+      "entry_equivalence": "Official Build.ps1 logic; installed environment path and isolated application root overridden only",
+      "result_local": "artifacts/product/20261011-180812-425/result.json",
+      "result_sha256": "e95965b51f254ba068c6d0c74d542219b93ea030d3b7e03383415690a5ac4575",
+      "log_sha256": "000ef8fe1de44913465bb921e573b198a721f2fc659792c49a8ece7f9f1ef2ce",
+      "started_at": "2026-10-11T18:08:12.4364517+08:00",
+      "finished_at": "2026-10-11T18:11:29.6249604+08:00",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "python": "Python 3.13.15",
+      "scons": "SCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+      "source_count": 357,
+      "artifact_count": 29,
+      "all_source_artifact_hashes_rechecked": true,
+      "images_and_map": [
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+          "bytes": 7662724,
+          "sha256": "314080bf2ccb4325f017a9a4c81f8b7e25215ff30c38caee7ac0312f14bdef19"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.map",
+          "bytes": 8180855,
+          "sha256": "72ff4f87b89c7326174b84e98761906fd38c13933ff3b2ab737ce84ea175ce28"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+          "bytes": 11288,
+          "sha256": "af51640961cde2011090b486ecaf0eb36a717a4e7600f7f0c673a930ae148ad8"
+        }
+      ]
+    },
+    "ui_demo": {
+      "command": "pwsh -NoProfile -File artifacts/alarm/build-isolated.ps1 -Example ui_demo -Jobs 6",
+      "entry_equivalence": "Official Build.ps1 logic; installed environment path and isolated application root overridden only",
+      "result_local": "artifacts/ui_demo/20261011-181308-179/result.json",
+      "result_sha256": "e2d82147281cf933e4098d3786a4f1f5ff7d6de8e8c9476da0fec937e72de45e",
+      "log_sha256": "0d0b44763788a84c06acf5e908f087326ec920ecabd2aee20bfcefc8c94291b3",
+      "started_at": "2026-10-11T18:13:08.1876703+08:00",
+      "finished_at": "2026-10-11T18:16:54.4743279+08:00",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "python": "Python 3.13.15",
+      "scons": "SCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+      "source_count": 340,
+      "artifact_count": 22,
+      "all_source_artifact_hashes_rechecked": true,
+      "images_and_map": [
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+          "bytes": 7459688,
+          "sha256": "5fa45583b501ba64b61c0de9a8c21c247df62447cc694b24c78dce5d64e4814e"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/main.map",
+          "bytes": 5166727,
+          "sha256": "82dd02542042a1b33fe1906eb97a340ea86c26ec410662e936a6370be6d6ddb3"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+          "bytes": 11288,
+          "sha256": "6096a17c3b79d01faf10ca9c27e25da40b13081c8dd23d4721e2a98bd07ab672"
+        }
+      ]
+    }
+  },
+  "failures_resolved": [
+    "Unpublished verified payload could be adopted after restart: separate two publication markers added",
+    "Independent creation-time offsets could reorder same-time alarms: shared RTC-subsecond mapping added",
+    "Removing active front could pin unseen next item: clear active before batch sorting",
+    "Automatic storage failure omitted from UI: status propagated",
+    "Storage preparation crossing once time: candidate recalculated before publication",
+    "New screenshot test used wrong display color format: explicit RGB888 and rerendered",
+    "Strict test clock initializer omitted new field: designated initializer used"
+  ],
+  "retained_build_warnings": [
+    "Existing watch_core enum comparison",
+    "SDK/FinSH diagnostics",
+    "Linker RWX segments, newlib I/O stubs and ftab entry"
+  ],
+  "hardware_verified": false,
+  "flashed": false,
+  "device_io_performed": false,
+  "manual_cloud_baseline_run": false,
+  "not_covered": [
+    "RTC subsecond accuracy/drift and actual phone/USB time boundaries",
+    "Physical FlashDB/NOR power-loss atomicity and wear",
+    "Same-version dark-screen wake, physical input, first frame and measured latency",
+    "Sleep current, battery life, sound/vibration, snooze, actual holiday calendar",
+    "General D4/D5 module framework and complete resource trimming"
+  ],
+  "next_bounded_experiment": "Round three: bind merged source and exact three Product images, then USB-only input/time/restart/dark expiry/reminder-session acceptance"
+}

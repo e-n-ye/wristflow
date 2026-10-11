@@ -1,5 +1,6 @@
 #include "product_countdown.h"
 #include "product_pm.h"
+#include "product_services.h"
 
 #if RT_TICK_PER_SECOND != 1000
 #error "The locked SiFli PM compensation and countdown clock require 1000 Hz"
@@ -15,6 +16,8 @@ static bool ready;
 
 static uint32_t monotonic(void *context)
 { (void)context; return (uint32_t)rt_tick_get(); }
+static uint64_t monotonic64(void *context)
+{ (void)context; return wristflow_product_services_monotonic(); }
 
 /* All timer combinations and state access share the same thread mutex.
  * stop cannot retract a callback already selected by the RT timer thread. */
@@ -57,7 +60,8 @@ static bool command(void *context, wristflow_countdown_command_t operation, uint
          * just ran but the running page's click has not yet been dispatched. */
         wristflow_countdown_cancel(&task); accepted = true; break;
     case WF_COUNTDOWN_REPEAT: accepted = wristflow_countdown_repeat(&task, now); break;
-    case WF_COUNTDOWN_ACK: accepted = wristflow_countdown_take_expiry(&task); break;
+    case WF_COUNTDOWN_ACK:
+        accepted = (!seconds || seconds == task.generation) && wristflow_countdown_take_expiry(&task); break;
     case WF_COUNTDOWN_DISMISS:
         if (task.phase == WRISTFLOW_COUNTDOWN_EXPIRED) {
             wristflow_countdown_cancel(&task); accepted = true;
@@ -82,7 +86,7 @@ static void read_task(void *context, wristflow_countdown_t *copy)
 const wristflow_countdown_port_t *wristflow_product_countdown_start(void)
 {
     static const wristflow_countdown_port_t port = {
-        .command = command, .read = read_task, .now = monotonic
+        .command = command, .read = read_task, .now = monotonic, .now64 = monotonic64, .sync = elapsed
     };
     if (!ready) {
         RT_ASSERT(rt_mutex_init(&lock, "wf_count", RT_IPC_FLAG_PRIO) == RT_EOK);

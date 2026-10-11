@@ -56,6 +56,8 @@
 <a id="round2"></a>
 ## 第二轮服务与提醒（2026-10-10）
 
+本节保留当日单倒计时版本证据。2026-10-11 [闹钟第二轮](ALARM.md#round2) 增加统一六条队列、同刻闹钟优先和逐条关闭，倒计时单调时长 / 原时长重来 / 会话恢复契约保持；到期快照增加截止与条件 ACK。该增量通过 29/29 主机及双目标编译，尚无新同版 USB 结论；下文“多提醒冲突未覆盖”只适用于本节历史版本。
+
 从第一轮合并提交 `e6e58be` 进入 `codex/countdown-product`，工作树为 `C:/Users/13984/.codex/worktrees/countdown-product/wristflow`。本轮沿用已导出的 XML / C / 字体，没有新 XML 修改或 Pro 导出；主目录后续 Pro 生成改动保留。实际产物与日志留该工作树 `artifacts/`，源码 / 测试 / 构建绑定见 [精简证据](evidence/2026-10-10/countdown-round2.json)。
 
 - **时钟与调度源码事实**：锁定 SDK 的 `lv_drivers_v9/lvgl_drv.c` 注册 `rt_tick_get_millisecond()`；1000 Hz 下与服务的 `rt_tick_get()` 同源，停 LVGL handler 不停时钟。SDK PM 醒后补偿 RT tick；软 timer 线程的等待进入内核最近截止。当前 SDK `drv_hwtimer.c` 的 `timeout * timer->freq` 是 32 位乘法，因此单次等待限定 300000 tick（8192 Hz 时乘积 2457600000），每段重新检查任务；不改 SDK、不把 24 小时任务一次送入 LPTIM。
