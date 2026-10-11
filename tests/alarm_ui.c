@@ -33,7 +33,8 @@ static void click_obj(lv_obj_t *obj)
     assert(x >= 0 && x < 390 && y >= 0 && y < 450);
     sample(x, y, true); sample(x, y, false); advance(400);
 }
-static void click(const char *name) { click_obj(named(name)); }
+static void click(const char *name)
+{ lv_obj_scroll_to_view(named(name), LV_ANIM_OFF); advance(400); click_obj(named(name)); }
 static lv_obj_t *row(unsigned index, const char *child)
 {
     char name[32]; snprintf(name, sizeof name, "alarm_row_%u", index);
@@ -62,7 +63,10 @@ static void snapshot(const char *name)
     assert(fclose(file) == 0); lv_draw_buf_destroy(buf);
 }
 static void visible(const char *name, bool show)
-{ bool actual=lv_obj_is_visible(named(name)); if (actual!=show) fprintf(stderr,"UI visibility %s: expected %u, got %u\n",name,show,actual); assert(actual==show); }
+{ bool actual=lv_obj_is_visible(named(name)); if (actual!=show) {
+    lv_area_t a;lv_obj_get_coords(named(name),&a);
+    fprintf(stderr,"UI visibility %s: expected %u, got %u; y=%ld..%ld scroll=%ld bottom=%ld\n",name,show,actual,(long)a.y1,(long)a.y2,(long)lv_obj_get_scroll_y(named("alarm_list")),(long)lv_obj_get_scroll_bottom(named("alarm_list")));
+} assert(actual==show); }
 static void wheel(unsigned h, unsigned m)
 {
     lv_roller_set_selected(named("alarm_hours"), h, LV_ANIM_OFF);
@@ -151,13 +155,22 @@ int main(int argc, char **argv)
         }
         click("alarm_save"); text(row(i,"alarm_rule"),rules[i]);
     }
-    assert(lv_obj_has_state(named("alarm_add"),LV_STATE_DISABLED)); visible("alarm_limit",true); snapshot("alarm_full");
-    click("alarm_add"); visible("alarm_list_panel",true);
-    swipe(180,290,180,115); assert(lv_obj_get_scroll_y(named("alarm_list"))>0); reveal("alarm_row_4"); snapshot("alarm_full_more");
+    visible("alarm_add",false); lv_obj_scroll_to_y(named("alarm_list"),0,LV_ANIM_OFF); advance(32);
+    visible("alarm_limit",false);
+    text(named("alarm_limit"),"最多只能设置5个闹钟"); snapshot("alarm_full");
+    lv_obj_send_event(named("alarm_add"),LV_EVENT_SHORT_CLICKED,NULL); visible("alarm_list_panel",true);
+    lv_area_t limit_top,limit_bottom,last_card,viewport;
+    lv_obj_get_coords(named("alarm_limit"),&limit_top); lv_obj_get_coords(named("alarm_list"),&viewport);
+    assert(limit_top.y1>viewport.y2);
+    swipe(180,390,180,110); assert(lv_obj_get_scroll_y(named("alarm_list"))>0); visible("alarm_limit",true);
+    lv_obj_get_coords(named("alarm_limit"),&limit_bottom); lv_obj_get_coords(row(4,NULL),&last_card);
+    assert(last_card.y2<limit_bottom.y1&&limit_bottom.y2<=viewport.y2);
+    assert(limit_top.y1-limit_bottom.y1==lv_obj_get_scroll_y(named("alarm_list")));
+    snapshot("alarm_full_more");
     /* Compacted rows must keep operating on the same committed record. */
     reveal("alarm_row_2"); click_obj(row(2,"alarm_open")); click("alarm_delete"); click("confirm_accept");
     text(row(2,"alarm_time"),"03:03"); text(row(2,"alarm_rule"),"周末（周六、日）");
-    text(row(3,"alarm_time"),"04:04"); assert(!lv_obj_has_state(named("alarm_add"),LV_STATE_DISABLED));
+    text(row(3,"alarm_time"),"04:04"); reveal("alarm_add"); visible("alarm_add",true); visible("alarm_limit",false);
     reveal("alarm_row_2"); click_obj(row(2,"alarm_enabled")); click_obj(row(2,"alarm_open"));
     click("alarm_edit_time"); wheel(6,30); click("alarm_time_accept"); click("alarm_save");
     text(row(2,"alarm_time"),"06:30"); assert(!lv_obj_has_state(row(2,"alarm_enabled"),LV_STATE_CHECKED));
@@ -165,11 +178,12 @@ int main(int argc, char **argv)
     for (unsigned i=3;i<5;++i) {
         click("alarm_add"); wheel(i+4,i+4); click("alarm_time_accept"); click("alarm_save");
     }
-    assert(lv_obj_has_state(named("alarm_add"),LV_STATE_DISABLED));
+    visible("alarm_add",false); reveal("alarm_limit"); visible("alarm_limit",true);
     text(row(2,"alarm_time"),"06:30"); text(row(4,"alarm_time"),"08:08"); reveal("alarm_row_4");
     click_obj(row(4,"alarm_open")); click("alarm_edit_time"); wheel(22,22); click("alarm_time_accept");
     assert(wristflow_ui_shell_key(shell)); advance(400); open(shell);
     text(row(4,"alarm_time"),"08:08"); /* Screen collection discards draft, retains committed model. */
+    visible("alarm_add",false); visible("alarm_limit",false);
     click_obj(row(0,"alarm_open"));
     wristflow_settings_t settings; assert(wristflow_ui_shell_get_settings(shell,&settings)); settings.screen_timeout=5;
     assert(wristflow_ui_shell_configure(shell,&settings)); wristflow_ui_shell_enable_display_policy(shell);

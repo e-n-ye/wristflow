@@ -1,0 +1,526 @@
+{
+  "date": "2026-10-11",
+  "scope": "Alarm round three USB acceptance; previous capacity revision retained, latest evidence in scroll_footer_revision",
+  "base_commit": "e5928d25f514e339ea1e5acf570f07333503705c",
+  "branch": "codex/alarm-usb",
+  "source_identity": "SHA-256 of local final build sources; Git line-ending normalization reviewed separately",
+  "source_sha256": {
+    "scripts/Generate-Ui-Assets.py": "5adca750bb419031bb6c0f69bca34f2624dc6f4d265ae68088286550c60f1660",
+    "tests/alarm_ui.c": "95d408db3ffda06c6258dd8a783753a82cfed9cf6097e0ea319afabd902d826d",
+    "tests/product_alarm_ui.c": "76d3658e7e652b9f4a539a523b5386b68fc05d57b74ce9014f1bf8939cf0d4b0",
+    "ui/runtime/alarm_view.c": "a1dc3d6678a457d87eabfec42dabcf770f7af30c8186c5d9d30f60b3e77c58fd",
+    "ui/xml/globals.xml": "a21aed6c3132f41845f893456dedbfca12b6f910abeacae57d19e9a7581b70d9",
+    "ui/xml/screens/screen_alarm.xml": "b6d75bbf6a00319f0a9db3d2454beff3d7b757eac86ef1f7a22e6dee6925183e",
+    "ui/xml/screens/screen_alarm_gen.c": "8a638dda1eb4958a6e465c553894dc25d467cf9de11597cb46d9eb2c431508ea",
+    "ui/xml/fonts/WristFlowSans-Regular.ttf": "cd5fb6787e18ccc878fbd940ab4d065c3d0e50519e41ddcd8f0112a0955c1cfd",
+    "ui/xml/fonts/body_20_data.c": "227b6f22a70b32dfef36565827b56b92fe8c3747b303abad222c9a4fc9e33eb8",
+    "core/alarm_schedule.c": "643598c34387c004696dcc546961c851eeaba9e5d9686151a217162a718d5b46",
+    "core/alarm_store.c": "79ea53e545fd0ac59c900104db57f8769a12cc6f669bbf63ca4b78a55f3badd4",
+    "core/reminder_queue.c": "1ececb639bfa4a49e1976debdfa0b0d78d7743b3ebfae077d69d488d63191a93",
+    "apps/product/src/product_alarm.c": "1b7e75880476c365ebd5923ffc2581f8115a1e5104c1afdacbf442a89d375fc6",
+    "apps/product/src/product_services.c": "11020a53cc770016907b96d3420345f3e83377039ac276b104c4ced19c427034",
+    "ui/runtime/reminders.c": "9027f6716d2c2b5098cd895ce8c58826e0948606df714a09fc44d2b36bfc1d31",
+    "ui/runtime/reminder_host.c": "2a934603a72c348c9e0f071f4ba4cebadd4dcc14d59d7406ed6a38727473db4c",
+    "ui/runtime/ui_shell.c": "e70a38beb6a5fd3f4e248a25e410a73a84d7b58ac04336bd60137083a9a909b2"
+  },
+  "sdk_lock": "sdk.lock.json",
+  "sdk_lock_sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af",
+  "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+  "sdk_clean_and_submodules_locked": true,
+  "official_export": {
+    "editor": "2.0.1",
+    "lvgl": "9.4.0",
+    "method": "Existing Pro GUI Ctrl+B",
+    "observed_result": "Project compiled successfully",
+    "empty_page_gui_zoom": "100%",
+    "capacity_visual": "Actual 390x450 LVGL host frames at 1:1",
+    "screenshot_local": "artifacts/alarm/usb-round3/pro-capacity-export.jpg",
+    "screenshot_sha256": "6925df8bd6cc7dd677cc9926164e6b6dc6beee8efdd85b6590becc3a73c18a9c",
+    "custom_exporter_used": false,
+    "generated_c_hand_edited": false
+  },
+  "static_font_addition": {
+    "codepoint": "U+53EA",
+    "character": "只",
+    "fonttools": "4.60.1",
+    "python": "3.13.14",
+    "command": "Generate-Ui-Assets.py --static-fonts-only",
+    "message_and_icon_subsets_preserved": true
+  },
+  "host": {
+    "build_command": "cmake --build artifacts/alarm/host --parallel 6",
+    "test_command": "ctest --test-dir artifacts/alarm/host --output-on-failure --timeout 60",
+    "compiler": "GCC 15.2.0",
+    "cmake": "3.31.4",
+    "generator": "Ninja Debug",
+    "affected_tests_passed": 2,
+    "tests_passed": 29,
+    "tests_failed": 0,
+    "test_log_local": "artifacts/alarm/usb-round3/ctest-final.log",
+    "test_log_sha256": "dd97f95f9e76f46b9c8e6c06aeb98a7a9a1bf08234c4c5191a0fa6158e559ebb",
+    "full_waiting_frame_sha256": "290c85e6fb0d2bd94b9c2c3a39332ecd8dddb9709c35bdac58b87d9b16cefb19",
+    "full_scroll_frame_sha256": "ef225193e201f5929470b081ca346092b3eebaf6d97923441f528175ce7c7ea2"
+  },
+  "builds": [
+    {
+      "target": "product",
+      "result_local": "artifacts/product/20261011-190404-016/result.json",
+      "result_sha256": "3c0216cbb5525bb7195cd50a2a56fb9fd7952dcadd0e121b1906c39336eae43b",
+      "build_log_sha256": "082f3efd24331f3633d9130fc34fdc4ebea3a9e49b02f585d3cd252602747ba6",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons_version": "4.10.1",
+      "source_count": 357,
+      "artifact_count": 29,
+      "rehash_passed": true,
+      "images": [
+        {
+          "name": "bootloader.bin",
+          "address": "0x12010000",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "name": "main.bin",
+          "address": "0x12020000",
+          "bytes": 7663068,
+          "sha256": "b5bf2dc8764f79218e63ddc79a4ddc7e4a2a9314105121614ce1c00ce4cd26c2"
+        },
+        {
+          "name": "ftab.bin",
+          "address": "0x12000000",
+          "bytes": 11288,
+          "sha256": "0c352be677373fff64608fa248594e0cac2e0ee8f7a07aa33d4d330d419d97d4"
+        }
+      ]
+    },
+    {
+      "target": "ui_demo",
+      "result_local": "artifacts/ui_demo/20261011-191004-850/result.json",
+      "result_sha256": "93c393da602a4474d688af77d40db903a43942cd882895ab7b3766f44b55e767",
+      "build_log_sha256": "d94e2df57979446044c1ac0e01a6dc1bd756ac43e504f4c577c2432ae169b778",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons_version": "4.10.1",
+      "source_count": 340,
+      "artifact_count": 22,
+      "rehash_passed": true,
+      "images": [
+        {
+          "name": "bootloader.bin",
+          "address": "0x12010000",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "name": "main.bin",
+          "address": "0x12020000",
+          "bytes": 7460024,
+          "sha256": "669f3cf88a177aed8cf6bb22970922987b873bb727dd0a8d18788c45fd7ed72b"
+        },
+        {
+          "name": "ftab.bin",
+          "address": "0x12000000",
+          "bytes": 11288,
+          "sha256": "f52b7903441c29dbc97dce2fc5db4b9ab87419cf7aca7695962fa3680f850344"
+        }
+      ]
+    }
+  ],
+  "hardware": {
+    "conditions": "User confirmed same Huangshan board/display, USB-only, no new modules",
+    "device": "USB-SERIAL CH340 COM5 VID:PID 1A86:7523",
+    "baud": 1000000,
+    "serial_open_dtr": false,
+    "serial_open_rts": false,
+    "original_flash_record_local": "artifacts/flash/product/20261011-184821-933/result.json",
+    "original_flash_main_sha256": "7833c3a30b836b61972a317d833255857a7605b0ddf2f821495808f3c4489c50",
+    "original_version_user_results": [
+      "A1: KEY1 wake/empty alarms/invalid RTC normal",
+      "A2: 07:01 once enabled/waiting; canceled edit retains 07:01",
+      "A3: five records and repeat selections normal; sixth blocked"
+    ],
+    "original_version_records": [
+      "07:01 once enabled",
+      "07:01 daily enabled",
+      "07:02 Mon/Wed/Fri enabled",
+      "07:03 weekdays enabled",
+      "07:04 weekend enabled"
+    ],
+    "original_uart_local": "artifacts/alarm/usb-round3/20261011-185303-200",
+    "revised_flash_record_local": "artifacts/flash/product/20261011-191511-609/result.json",
+    "revised_flash_record_sha256": "c2cafb3789e5de3f3203289a04d4d856809ec1c3f33cc538fc6145edfb71ef98",
+    "revised_flash_exit": 0,
+    "revised_images": [
+      {
+        "name": "bootloader.bin",
+        "address": "0x12010000",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "name": "main.bin",
+        "address": "0x12020000",
+        "bytes": 7663068,
+        "sha256": "b5bf2dc8764f79218e63ddc79a4ddc7e4a2a9314105121614ce1c00ce4cd26c2"
+      },
+      {
+        "name": "ftab.bin",
+        "address": "0x12000000",
+        "bytes": 11288,
+        "sha256": "0c352be677373fff64608fa248594e0cac2e0ee8f7a07aa33d4d330d419d97d4"
+      }
+    ],
+    "revised_uart_local": "artifacts/alarm/usb-round3/20261011-191759-886",
+    "revised_uart_session": 96589,
+    "revised_startup_snapshot_local": "artifacts/alarm/usb-round3/startup-capacity.txt",
+    "revised_startup_snapshot_sha256": "3e10ac618e8867e2af3d01f534a88b926859d5e04f1ad59860c72590e80b88e9",
+    "revised_startup": "Observed alarm restore count=5 generation=10, CO5300/FT6146 initialization and invalid RTC after short RTS pulse; individual contents require user",
+    "revised_screen_acceptance": "User confirmed capacity revision A3 normal; A4 toggle/edit disabled state/cancel and confirm delete normal. Superseded layout; latest version requires separate observations.",
+    "revised_version_user_results": [
+      "A3: five original records restored/enabled, full capacity hides add and shows both messages; user: no abnormalities",
+      "A4: disable weekdays then edit to 07:05 remains disabled; cancel delete returns to editor; confirm weekend deletion once leaves four and restores add; user: all normal"
+    ],
+    "records_after_A4": [
+      "07:01 once enabled",
+      "07:01 daily enabled",
+      "07:02 Mon/Wed/Fri enabled",
+      "07:05 weekdays disabled"
+    ],
+    "historical_prior_revision_remaining": [
+      "Persistence and management on latest scrolling footer version",
+      "controlled time/reboot/expiry",
+      "natural reminder wake/30-second off/KEY1",
+      "multiple reminders/countdown/session restore"
+    ]
+  },
+  "failures": [
+    "First UART collector formatting error: no startup text saved; fixed and separate successful capture retained",
+    "Checkpoint startup snapshot initially rejected ReadAllText file sharing; retried using FileShare.ReadWrite; live UART capture unaffected"
+  ],
+  "not_verified": [
+    "Physical NOR power-loss atomicity",
+    "RTC retention or long-term precision",
+    "current consumption or battery life",
+    "full notifications joint matrix",
+    "C2"
+  ],
+  "manual_cloud_baseline_run": false,
+  "scroll_footer_revision": {
+    "date": "2026-10-11",
+    "user_requirement": "Status and capacity text follow the last alarm card and scroll with the list; add hidden at five and restored below five",
+    "documentation_checks": {
+      "command_local": "python artifacts/alarm/check-docs.py",
+      "utf8_passed": true,
+      "markdown_files": 5,
+      "relative_links_and_anchors_passed": 137,
+      "git_diff_check_passed": true
+    },
+    "source_sha256": {
+      "scripts/Generate-Ui-Assets.py": "5adca750bb419031bb6c0f69bca34f2624dc6f4d265ae68088286550c60f1660",
+      "tests/alarm_ui.c": "64e0b1fdaca8456fbeb210a21356b6465e5350128006ad8cb313e1244e89c18f",
+      "tests/product_alarm_ui.c": "50794a215821881bb9f86a74dda73c2422f498f51b9e3db48383f30071b36ad8",
+      "ui/runtime/alarm_view.c": "ea5cfa0a378550dcc02c14660895c2d594631ea08c93e6f882d756d027895be3",
+      "ui/xml/globals.xml": "a21aed6c3132f41845f893456dedbfca12b6f910abeacae57d19e9a7581b70d9",
+      "ui/xml/screens/screen_alarm.xml": "80f9ae199b16076363800f2fcf53da918fa0c4d12bd9466c25cb6ae74d974ad3",
+      "ui/xml/screens/screen_alarm_gen.c": "a1fa41619bc2a9f5f3c4278dacf55c899a5c02d25d531de404e83dd3c3305139",
+      "ui/xml/fonts/WristFlowSans-Regular.ttf": "cd5fb6787e18ccc878fbd940ab4d065c3d0e50519e41ddcd8f0112a0955c1cfd",
+      "ui/xml/fonts/body_20_data.c": "227b6f22a70b32dfef36565827b56b92fe8c3747b303abad222c9a4fc9e33eb8",
+      "core/alarm_schedule.c": "643598c34387c004696dcc546961c851eeaba9e5d9686151a217162a718d5b46",
+      "core/alarm_store.c": "79ea53e545fd0ac59c900104db57f8769a12cc6f669bbf63ca4b78a55f3badd4",
+      "core/reminder_queue.c": "1ececb639bfa4a49e1976debdfa0b0d78d7743b3ebfae077d69d488d63191a93",
+      "apps/product/src/product_alarm.c": "1b7e75880476c365ebd5923ffc2581f8115a1e5104c1afdacbf442a89d375fc6",
+      "apps/product/src/product_services.c": "11020a53cc770016907b96d3420345f3e83377039ac276b104c4ced19c427034",
+      "ui/runtime/reminders.c": "9027f6716d2c2b5098cd895ce8c58826e0948606df714a09fc44d2b36bfc1d31",
+      "ui/runtime/reminder_host.c": "2a934603a72c348c9e0f071f4ba4cebadd4dcc14d59d7406ed6a38727473db4c",
+      "ui/runtime/ui_shell.c": "e70a38beb6a5fd3f4e248a25e410a73a84d7b58ac04336bd60137083a9a909b2"
+    },
+    "official_export": {
+      "editor": "2.0.1",
+      "lvgl": "9.4.0",
+      "method": "Existing Pro GUI Ctrl+B",
+      "observed_result": "Project compiled successfully",
+      "gui_zoom": "100%",
+      "screenshot_local": "artifacts/alarm/usb-round3/pro-scroll-footer-export.jpg",
+      "screenshot_sha256": "2269093ea90ae2c5e2626175c583e7b3593223fc6bd1b5ee0995c9a6c72df360",
+      "custom_exporter_used": false,
+      "generated_c_hand_edited": false
+    },
+    "host": {
+      "build_command": "cmake --build artifacts/alarm/host --parallel 6",
+      "test_command": "ctest --test-dir artifacts/alarm/host --output-on-failure --timeout 60",
+      "affected_tests_passed": 2,
+      "tests_passed": 29,
+      "tests_failed": 0,
+      "test_log_local": "artifacts/alarm/usb-round3/ctest-scroll-footer-final.log",
+      "test_log_sha256": "3f024b04603ce381af3975eccbf838b04f28807d7867d3b036362eb6a75b27dd",
+      "frames": [
+        {
+          "local": "artifacts/alarm/usb-round3/alarm_product_full_waiting_top-scroll-footer.png",
+          "sha256": "7d6099018b09fcfbe1e239b2dc30ea731dc1190f0026ea93daa723713962339a"
+        },
+        {
+          "local": "artifacts/alarm/usb-round3/alarm_product_full_waiting-scroll-footer.png",
+          "sha256": "37cbc3c054dd40e97b300cb2adf5159446bab292b563e3d8c5851681f28d741e"
+        },
+        {
+          "local": "artifacts/alarm/usb-round3/alarm_product_waiting-scroll-footer.png",
+          "sha256": "441160fa32b05f04ce8ab394a1e30715a354e9eddaf64380c2094f007c8fe872"
+        },
+        {
+          "local": "artifacts/alarm/usb-round3/alarm_full_more-scroll-footer.png",
+          "sha256": "f629daf515e43c9bacba90c831d3a95ea098514abb97411a28d3fad49a1f4e96"
+        }
+      ]
+    },
+    "builds": [
+      {
+        "target": "product",
+        "result_local": "artifacts/product/20261011-193101-667/result.json",
+        "result_sha256": "dbe2d0a0690eb0f68cff97f1e100f82f982a36dfc0b2d0a024b4847a91fb9038",
+        "build_log_sha256": "b8fe9a558d7be90b31a975e65a8b32f0cd79d7acb066424c24005a1c212f6aad",
+        "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+        "python": "Python 3.13.15",
+        "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+        "scons_version": "4.10.1",
+        "source_count": 357,
+        "artifact_count": 29,
+        "rehash_passed": true,
+        "images": [
+          {
+            "name": "bootloader.bin",
+            "address": "0x12010000",
+            "bytes": 58496,
+            "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+          },
+          {
+            "name": "main.bin",
+            "address": "0x12020000",
+            "bytes": 7663276,
+            "sha256": "499ac4db1336d88928f9adaaa4e2fea406254b6c74067f2c71e5c1f4b8fb02ea"
+          },
+          {
+            "name": "ftab.bin",
+            "address": "0x12000000",
+            "bytes": 11288,
+            "sha256": "12de2af0fa8104aeb041bb89c9e09ebfaa69d6202c0dfde35b927251430eed89"
+          }
+        ]
+      },
+      {
+        "target": "ui_demo",
+        "result_local": "artifacts/ui_demo/20261011-193211-417/result.json",
+        "result_sha256": "a6e57df2d1bdebcd95e71e92ed73237c819e37611d922627e6d31a84860aea48",
+        "build_log_sha256": "638e1886ac0ef9d9f9a854192c39af2c86ffaed59556a484141eec90113fcce8",
+        "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+        "python": "Python 3.13.15",
+        "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+        "scons_version": "4.10.1",
+        "source_count": 340,
+        "artifact_count": 22,
+        "rehash_passed": true,
+        "images": [
+          {
+            "name": "bootloader.bin",
+            "address": "0x12010000",
+            "bytes": 58496,
+            "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+          },
+          {
+            "name": "main.bin",
+            "address": "0x12020000",
+            "bytes": 7460240,
+            "sha256": "46cbbeecf71ee192c2f76ad90feb8130f35d34f3e60c83e10375659417ab1ad8"
+          },
+          {
+            "name": "ftab.bin",
+            "address": "0x12000000",
+            "bytes": 11288,
+            "sha256": "fa2308b0105c1441e2158ea5fecf5abca1a0fba4de4fa304cbac7777facb206b"
+          }
+        ]
+      }
+    ],
+    "hardware": {
+      "conditions": "Same user-confirmed Huangshan board/display, USB-only",
+      "device": "USB-SERIAL CH340 COM5 VID:PID 1A86:7523 re-enumerated",
+      "dry_run_passed": true,
+      "flash_record_local": "artifacts/flash/product/20261011-193911-130/result.json",
+      "flash_record_sha256": "f401fbf776144359ec1985d16ea6c06f7c2994e4f478bbf7c3ad36df2eb419ec",
+      "flash_exit": 0,
+      "images": [
+        {
+          "name": "bootloader.bin",
+          "address": "0x12010000",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "name": "main.bin",
+          "address": "0x12020000",
+          "bytes": 7663276,
+          "sha256": "499ac4db1336d88928f9adaaa4e2fea406254b6c74067f2c71e5c1f4b8fb02ea"
+        },
+        {
+          "name": "ftab.bin",
+          "address": "0x12000000",
+          "bytes": 11288,
+          "sha256": "12de2af0fa8104aeb041bb89c9e09ebfaa69d6202c0dfde35b927251430eed89"
+        }
+      ],
+      "uart_local": "artifacts/alarm/usb-round3/20261011-194217-714",
+      "startup_snapshot_local": "artifacts/alarm/usb-round3/startup-scroll-footer.txt",
+      "startup_snapshot_sha256": "eb2d69c8cb7f0e0020d35fc2dff8e0855fc9aa825aab822e77886176c84cc7ff",
+      "serial_open_dtr": false,
+      "serial_open_rts": false,
+      "reset": "Short RTS 150 ms after flash for full startup capture",
+      "startup": "Observed restore=yes count=4 storage=ready; CO5300 and FT6146 initialized; RTC not synchronized",
+      "screen_acceptance": "A5 user confirmed all three checks normal",
+      "final_capture": {
+        "uart.txt": {
+          "local": "artifacts/alarm/usb-round3/20261011-194217-714/uart.txt",
+          "sha256": "a3158ca1541881cfd79f098d8cc202d97c2ca3cb9b31a3a93f7a4ab6357aacbb"
+        },
+        "events.jsonl": {
+          "local": "artifacts/alarm/usb-round3/20261011-194217-714/events.jsonl",
+          "sha256": "57cfdcd1100b6aa9f5cd475c8419d599deaf2b8e97a37515f422800bbaa87199"
+        },
+        "result.json": {
+          "local": "artifacts/alarm/usb-round3/20261011-194217-714/result.json",
+          "sha256": "38ee5b24dc754c805f4ce56a10b3af93af49d1884b4c0ebab80234c4c9c9769a"
+        }
+      },
+      "real_time_restore": {
+        "utc": 1791721402,
+        "confirmed_at": "2026-10-11T20:23:24+08:00",
+        "generation": 43
+      },
+      "final_config_contents": [
+        "07:01 once disabled",
+        "07:05 weekdays disabled",
+        "07:01 daily enabled",
+        "07:02 Mon/Wed/Fri enabled",
+        "07:04 weekend enabled"
+      ],
+      "test_watermark_cleanup": {
+        "reason": "Controlled future test dates retained last_fired_day and suppress real-date scheduling",
+        "user_choice": "Delete/recreate three recurring test alarms preserving time, repeat and enabled states",
+        "status": "Completed by user observation; no further reset or calibration",
+        "user_observation": "Three recurring alarms recreated; all five contents and enabled states correct",
+        "save_log": "request=6..10 generation=49..53 saved; log cannot identify individual configurations",
+        "real_date_scheduling": "Future watermark cleared by delete/recreate contract; no additional natural-expiry experiment performed",
+        "capture": {
+          "local": "artifacts/alarm/usb-round3/20261011-202716-685",
+          "started": "2026-10-11T20:27:16.7450442+08:00",
+          "finished": "2026-10-11T20:31:19.0986078+08:00",
+          "stop_requested": true,
+          "error": null,
+          "serial_open_dtr": false,
+          "serial_open_rts": false,
+          "sha256": {
+            "uart.txt": "4661f17735055a15e94327082ed391b39c07bbd36c25d2ce7eb710cafaa96d7c",
+            "events.jsonl": "1fb278be8b2313415ec89bc60b3acbc028b06faabfaa0a46796b2c0421877ede",
+            "result.json": "a122289806c40927983c40ac1a4ff832abd533044e8ec6d577fccbd500061e27",
+            "actions.jsonl": "2bfa3dbac771432d2dc75eb6e76ec2f9f16abac009106d8c0b18edd0fe43490a"
+          }
+        }
+      }
+    },
+    "failures": [
+      "Initial affected UI runs failed; test scrolling/coordinate handling corrected; final affected and full runs passed",
+      "Previous UART collector process absent on continuation, no close result; old raw log retained, new capture opened after flashing"
+    ],
+    "cases": {
+      "A5": {
+        "recorded_at": "2026-10-11T19:52:31.4306652+08:00",
+        "evidence": "mixed",
+        "summary": "User: three checks normal. Four records restored; added 07:04 weekend enabled as fifth; add hidden, both messages follow last card and scroll without overlap. UART save generation=18.",
+        "uart_local": "artifacts/alarm/usb-round3/20261011-194217-714"
+      },
+      "B1": {
+        "recorded_at": "2026-10-11T19:52:32.4643977+08:00",
+        "evidence": "mixed",
+        "summary": "wf_time 1791672600 set/readback success (local 2026-10-11 Sunday 06:50). User: time valid, waiting hidden, five configs unchanged, no immediate reminder. Initial command sent while asleep had no confirmation; after KEY1 resend confirmed.",
+        "uart_local": "artifacts/alarm/usb-round3/20261011-194217-714"
+      },
+      "B2": {
+        "recorded_at": "2026-10-11T19:52:33.4791262+08:00",
+        "evidence": "mixed",
+        "summary": "wf_time 1791673800 set/readback success (Sunday 07:10), automatic save generation=20. User: no catch-up reminders across 07:01/07:04; once record disabled and retained; daily/custom/weekend remain enabled, weekdays disabled.",
+        "uart_local": "artifacts/alarm/usb-round3/20261011-194217-714"
+      },
+      "B3": {
+        "recorded_at": "2026-10-11T19:52:34.4684524+08:00",
+        "evidence": "mixed",
+        "summary": "RTS 150ms reboot after generation=20 saved. User: all five configs/states restored, no replay, invalid RTC and waiting message; DND enabled, 07:02 custom edit settings active. RTC retention not passed; no root-cause conclusion.",
+        "uart_local": "artifacts/alarm/usb-round3/20261011-194217-714"
+      },
+      "C1C2_first": {
+        "recorded_at": "2026-10-11T19:58:33.8319261+08:00",
+        "evidence": "uart",
+        "summary": "Controlled Monday 07:00:10, set confirmed at 19:51:04+08. Due/save generations 23/24 observed. Screen off at 19:52:25; reminder wake at 19:52:55; off at 19:53:25. User did not observe, so no screen/content/DND acceptance. No commands or injected wake during this natural window.",
+        "uart_local": "artifacts/alarm/usb-round3/20261011-194217-714"
+      },
+      "C3_first": {
+        "recorded_at": "2026-10-11T19:58:34.8513971+08:00",
+        "evidence": "user",
+        "summary": "User KEY1 then closed 07:01 current; next 07:02 appeared; closing it restored original custom-alarm settings editor. User returned to alarm list and retained DND.",
+        "uart_local": "artifacts/alarm/usb-round3/20261011-194217-714"
+      },
+      "C1C2_retry": {
+        "recorded_at": "2026-10-11T20:03:10.0831347+08:00",
+        "evidence": "mixed",
+        "summary": "Controlled Wednesday 07:00 UTC=1791932400, confirmed at 19:57:18+08 after KEY1 resend. User: all three normal under DND, off before first natural expiry, 07:01 auto-wake, 30s off, 07:02 auto-wake retaining 07:01 current. UART reminder wakes 19:58:19/19:59:19, saves generations26/27. No commands/wake injection between calibration and both due observations.",
+        "uart_local": "artifacts/alarm/usb-round3/20261011-194217-714"
+      },
+      "D1": {
+        "recorded_at": "2026-10-11T20:06:51.6403323+08:00",
+        "evidence": "mixed",
+        "summary": "Same-date Wednesday backward set to 07:00:10 UTC=1791932410, readback at 20:00:53+08. Natural passage through 07:01/07:02, no new due/save observed and user saw no reminder. User had enabled keep-bright for this case; therefore no off/wake claim. Separate current-state check confirmed daily/custom/weekend on, once/weekdays off; no manual alarm saves after replan. Keep-bright then disabled.",
+        "uart_local": "artifacts/alarm/usb-round3/20261011-194217-714"
+      },
+      "E0": {
+        "recorded_at": "2026-10-11T20:11:04.0030539+08:00",
+        "evidence": "mixed",
+        "summary": "User re-enabled 07:01 once, others unchanged, keep-bright off and DND on; request3 saved generation31. wf_time1792018740 sets Thursday2026-10-15 06:59 at20:08:59+08, readback success and generation32. E1 user asked to start1min countdown then set custom alarm time draft07:03 without final save; natural window pending.",
+        "uart_local": "artifacts/alarm/usb-round3/20261011-194217-714"
+      },
+      "E1E2": {
+        "recorded_at": "2026-10-11T20:14:55.3662011+08:00",
+        "evidence": "mixed",
+        "summary": "User completed 1min countdown then kept07:03 draft for custom07:02 without final save. Countdown natural reminder first, not preempted by once/daily07:01 due. UART wakes20:10:23 and20:10:59, alarm auto savegeneration33; FlashDB GC warning followed successful save, no failure claimed. User closed countdown then exactlytwo alarm reminders, restored07:03 draft, abandoned to original07:02; once automaticallyoff, dailyon. Equal-time alarm-versus-countdown precedence remains host-only since deadlines here differed.",
+        "uart_local": "artifacts/alarm/usb-round3/20261011-194217-714"
+      },
+      "F1F2": {
+        "recorded_at": "2026-10-11T20:20:07.9749871+08:00",
+        "evidence": "mixed",
+        "summary": "Saturday07:00:10 UTC1792191610 followed natural daily07:01; user saw reminder and retained. Sunday07:00:10 UTC1792278010 followed second natural daily due, saves generations35/37. User one close returned directly to watchface (user says prior session was watchface), no second reminder; coalescing confirmed. Re-bright on second daily not explicitly observed, do not claim separate screen result.",
+        "uart_local": "artifacts/alarm/usb-round3/20261011-194217-714"
+      },
+      "F3_first": {
+        "recorded_at": "2026-10-11T20:21:36.1817969+08:00",
+        "evidence": "user",
+        "summary": "Sunday07:03:20 UTC1792278200; user saw07:04 weekend reminder but dismissed it before reboot. Weekend natural due observed, pending-reboot not verified by this attempt.",
+        "uart_local": "artifacts/alarm/usb-round3/20261011-194217-714"
+      },
+      "F3_final": {
+        "recorded_at": "2026-10-11T20:23:49.474846+08:00",
+        "evidence": "mixed",
+        "summary": "SaturdayOct24 07:03:20 UTC1792796600. Natural weekend reminder wake20:21:49, auto savegeneration41; user agreed leave pending, root reset20:22:20. Restore count5 generation41, invalidRTC; user no old reminder and all5 configs/states normal. Pending reminder queue not restored. Real RTC restored wf_time1791721402, confirmed20:23:24+08 and savedgeneration43; capture stopped normally.",
+        "uart_local": "artifacts/alarm/usb-round3/20261011-194217-714"
+      }
+    },
+    "not_verified": [
+      "RTC retention across RTS reset: not passed",
+      "Physical NOR power-loss atomicity",
+      "RTC subsecond latency or long-term precision",
+      "Current consumption or battery life",
+      "Equal-time alarm/countdown precedence and maximum six-item queue on hardware (host evidence only)",
+      "Identity ordering of same-time alarm items on hardware",
+      "Full notification joint matrix",
+      "C2"
+    ]
+  }
+}
