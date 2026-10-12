@@ -10,6 +10,12 @@
 typedef enum { WF_PHONE_NOTIFY, WF_PHONE_REMOVE, WF_PHONE_TIME, WF_PHONE_GPS_QUERY,
                WF_PHONE_WEATHER, WF_PHONE_REJECT, WF_PHONE_UNKNOWN } wf_phone_event_t;
 typedef void (*wf_phone_callback_t)(wf_phone_event_t event, int32_t id, void *context);
+typedef enum { WF_PHONE_OP_ADD, WF_PHONE_OP_MODIFY, WF_PHONE_OP_REMOVE } wf_phone_op_t;
+typedef enum { WF_PHONE_ADDED, WF_PHONE_UPDATED, WF_PHONE_REMOVED, WF_PHONE_MISSING,
+               WF_PHONE_INVALID_ID, WF_PHONE_INVALID_FIELDS } wf_phone_result_t;
+/* Metadata only. INVALID_ID has no usable id; never expose JSON or message text. */
+typedef void (*wf_phone_trace_callback_t)(wf_phone_op_t op, int32_t id,
+                                         wf_phone_result_t result, void *context);
 /* Single-owner parser. Platform code supplies synchronization for snapshots. */
 typedef struct {
     char line[WF_PHONE_LINE], json[WF_PHONE_LINE * 2];
@@ -25,6 +31,8 @@ typedef struct {
     char weather_location[128];
     wf_phone_callback_t callback;
     void *context;
+    wf_phone_trace_callback_t trace;
+    void *trace_context;
 } wf_phone_t;
 void wf_phone_init(wf_phone_t *phone, wf_phone_callback_t callback, void *context);
 void wf_phone_feed(wf_phone_t *phone, const uint8_t *data, size_t size);

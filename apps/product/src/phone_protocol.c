@@ -11,6 +11,10 @@ static void event(wf_phone_t *p, wf_phone_event_t e, int32_t id)
 {
     if (p->callback) p->callback(e, id, p->context);
 }
+static void trace(wf_phone_t *p, wf_phone_op_t op, int32_t id, wf_phone_result_t result)
+{
+    if (p->trace) p->trace(op, id, result, p->trace_context);
+}
 static void reject(wf_phone_t *p)
 {
     p->rejected++;
@@ -252,28 +256,39 @@ static bool process_json(wf_phone_t *p, cJSON *o)
         p->unknown++; event(p, WF_PHONE_UNKNOWN, 0); return true;
     }
     cJSON *key = cJSON_GetObjectItemCaseSensitive(o, "id");
+    wf_phone_op_t op = !strcmp(t, "notify-") ? WF_PHONE_OP_REMOVE :
+                       !strcmp(t, "notify~") ? WF_PHONE_OP_MODIFY : WF_PHONE_OP_ADD;
     if (!cJSON_IsNumber(key) || !isfinite(key->valuedouble) ||
         key->valuedouble < INT32_MIN || key->valuedouble > INT32_MAX ||
-        key->valuedouble != (double)(int32_t)key->valuedouble) return false;
+        key->valuedouble != (double)(int32_t)key->valuedouble) {
+        trace(p, op, 0, WF_PHONE_INVALID_ID); return false;
+    }
     int32_t id = (int32_t)key->valuedouble;
     if (!strcmp(t, "notify-")) {
-        if (wf_phone_remove(p, id)) p->removed++;
+        bool removed = wf_phone_remove(p, id);
+        if (removed) p->removed++;
+        trace(p, op, id, removed ? WF_PHONE_REMOVED : WF_PHONE_MISSING);
         event(p, WF_PHONE_REMOVE, id); return true;
     }
     int index = find(p, id);
     bool partial = !strcmp(t, "notify~");
-    if (partial && index < 0) return true; /* Do not resurrect a locally deleted message. */
+    if (partial && index < 0) { /* Do not resurrect a locally deleted message. */
+        trace(p, op, id, WF_PHONE_MISSING); return true;
+    }
     wf_phone_message_t next = {0};
     if (partial) next = p->messages[index];
     next.id = id;
     if (!field(o, "src", next.source, sizeof next.source, partial) ||
         !field(o, "title", next.title, sizeof next.title, partial) ||
-        !field(o, "body", next.body, sizeof next.body, partial)) return false;
+        !field(o, "body", next.body, sizeof next.body, partial)) {
+        trace(p, op, id, WF_PHONE_INVALID_FIELDS); return false;
+    }
     if (index >= 0) { wf_phone_remove(p, id); p->updated++; }
     else p->received++;
     if (p->count == WF_PHONE_MESSAGES) --p->count;
     memmove(&p->messages[1], &p->messages[0], p->count * sizeof next);
     p->messages[0] = next; ++p->count;
+    trace(p, op, id, index >= 0 ? WF_PHONE_UPDATED : WF_PHONE_ADDED);
     event(p, WF_PHONE_NOTIFY, id);
     return true;
 }

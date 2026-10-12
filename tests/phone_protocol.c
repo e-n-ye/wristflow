@@ -6,16 +6,53 @@
 #include "support/weather_v2_fixture.h"
 
 static wf_phone_t phone;
-static unsigned time_events, gps_events, weather_events;
+static unsigned time_events, gps_events, weather_events, notify_events, remove_events, reject_events;
 static void observed(wf_phone_event_t e, int32_t id, void *context)
 {
     (void)id; (void)context;
     if (e == WF_PHONE_TIME) ++time_events;
     if (e == WF_PHONE_GPS_QUERY) ++gps_events;
     if (e == WF_PHONE_WEATHER) ++weather_events;
+    if (e == WF_PHONE_NOTIFY) ++notify_events;
+    if (e == WF_PHONE_REMOVE) ++remove_events;
+    if (e == WF_PHONE_REJECT) ++reject_events;
 }
 static void feed(const char *s) { wf_phone_feed(&phone, (const uint8_t *)s, strlen(s)); }
 static const char notice[] = "\x10GB({\"t\":\"notify\",\"id\":-42,\"src\":\"Test\",\"title\":\"\\u4e2d\\u6587\",\"body\":\"\\u6d4b\\u8bd5\\n\\ud83d\\ude42\"})\n";
+static struct { wf_phone_op_t op; int32_t id; wf_phone_result_t result; unsigned count; } traces[8];
+static unsigned trace_count;
+static void traced(wf_phone_op_t op, int32_t id, wf_phone_result_t result, void *context)
+{
+    assert(context == &phone && trace_count < 8);
+    traces[trace_count].op = op; traces[trace_count].id = id;
+    traces[trace_count].result = result; traces[trace_count++].count = phone.count;
+}
+static void test_notification_trace(void)
+{
+    wf_phone_init(&phone, observed, NULL);
+    assert(!phone.trace); /* Disabled unless the owning platform registers it. */
+    phone.trace = traced; phone.trace_context = &phone; trace_count = 0;
+    feed(notice); feed(notice);
+    feed("GB({\"t\":\"notify~\",\"id\":-42,\"body\":\"replacement\"})\n");
+    feed("GB({\"t\":\"notify-\",\"id\":-42})\nGB({\"t\":\"notify-\",\"id\":-42})\n");
+    feed("GB({\"t\":\"notify~\",\"id\":-42,\"body\":\"missing\"})\n");
+    feed("GB({\"t\":\"notify-\",\"id\":\"-42\"})\n");
+    feed("GB({\"t\":\"notify\",\"id\":7,\"body\":false})\n");
+    assert(trace_count == 8 && phone.count == 0);
+    assert(phone.received == 1 && phone.updated == 2 && phone.removed == 1 && phone.rejected == 2);
+    assert(notify_events == 3 && remove_events == 2 && reject_events == 2);
+    const wf_phone_op_t ops[] = {WF_PHONE_OP_ADD, WF_PHONE_OP_ADD, WF_PHONE_OP_MODIFY,
+        WF_PHONE_OP_REMOVE, WF_PHONE_OP_REMOVE, WF_PHONE_OP_MODIFY, WF_PHONE_OP_REMOVE, WF_PHONE_OP_ADD};
+    const wf_phone_result_t results[] = {WF_PHONE_ADDED, WF_PHONE_UPDATED, WF_PHONE_UPDATED,
+        WF_PHONE_REMOVED, WF_PHONE_MISSING, WF_PHONE_MISSING, WF_PHONE_INVALID_ID, WF_PHONE_INVALID_FIELDS};
+    for (unsigned i = 0; i < trace_count; ++i) {
+        assert(traces[i].op == ops[i] && traces[i].result == results[i]);
+        assert(traces[i].id == (i == 6 ? 0 : i == 7 ? 7 : -42));
+        assert(traces[i].count == (i < 3 ? 1U : 0U));
+    }
+    phone.trace = NULL;
+    feed(notice); assert(trace_count == 8 && phone.count == 1 && notify_events == 4);
+}
 static void test_weather_v2(void)
 {
     char frame[600];
@@ -131,6 +168,7 @@ static void test_weather_v2(void)
 }
 int main(void)
 {
+    test_notification_trace();
     /* Every possible two-fragment split, including between escape digits. */
     for (size_t split = 0; split <= strlen(notice); ++split) {
         wf_phone_init(&phone, observed, NULL);

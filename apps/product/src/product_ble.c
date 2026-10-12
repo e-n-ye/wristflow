@@ -32,6 +32,26 @@ static uint8_t cccd[2];
 static bool ready, gps_reply, weather_reply, weather_v2_attempted;
 static uint32_t revision, alert_sequence;
 static int32_t alert_id;
+enum { NOTIFY_TRACE_CAPACITY = 32 };
+typedef struct {
+    wf_phone_op_t op;
+    wf_phone_result_t result;
+    int32_t id;
+    uint32_t tick, generation, sequence, dropped, gaps, stale;
+    unsigned count;
+} notification_trace_t;
+/* phone_lock owns this bounded RAM-only diagnostic; disabled after every boot. */
+static notification_trace_t notify_trace[NOTIFY_TRACE_CAPACITY];
+static unsigned notify_trace_total;
+static bool notify_trace_enabled;
+static void trace_notification(wf_phone_op_t op, int32_t id, wf_phone_result_t result, void *context)
+{
+    (void)context;
+    if (!notify_trace_enabled) return;
+    notification_trace_t *r = &notify_trace[notify_trace_total++ % NOTIFY_TRACE_CAPACITY];
+    *r = (notification_trace_t){op, result, id, (uint32_t)rt_tick_get(), receiver.generation,
+        receiver.sequence, wf_phone_queue_dropped(&sender), receiver.gaps, receiver.stale, phone.count};
+}
 static uint8_t nus_uuid[16] = NUS_UUID(1);
 SIBLES_ADVERTISING_CONTEXT_DECLAR(advertising);
 BLE_GATT_SERVICE_DEFINE_128(attributes) {
@@ -248,6 +268,7 @@ void wristflow_product_ble_start(void)
 {
     RT_ASSERT(rt_mutex_init(&phone_lock, "wf_phone", RT_IPC_FLAG_PRIO) == RT_EOK);
     wf_phone_init(&phone, phone_event, NULL);
+    phone.trace = trace_notification;
     packets = rt_mq_create("wf_ble", sizeof(wf_phone_packet_t), WF_PHONE_QUEUE_DEPTH, RT_IPC_FLAG_FIFO);
     RT_ASSERT(packets);
     wristflow_weather_set_sender(queue_weather, NULL);
@@ -299,9 +320,47 @@ bool wristflow_product_ble_request_weather(void)
 static int wf_ble(int argc, char **argv)
 {
     if (!ready) return -RT_ERROR;
-    if (argc < 2) { rt_kprintf("wf_ble status | list | clear | clear_weather | weather | remove <id>\n"); return -RT_EINVAL; }
+    if (argc < 2) {
+        rt_kprintf("wf_ble status | ids | list | clear | clear_weather | weather | remove <id>\n");
+        rt_kprintf("wf_ble trace on | off | dump\n"); return -RT_EINVAL;
+    }
     rt_mutex_take(&phone_lock, RT_WAITING_FOREVER);
     int result = RT_EOK;
+    if (!strcmp(argv[1], "ids") || !strcmp(argv[1], "trace")) {
+        if (!strcmp(argv[1], "ids") && argc == 2) {
+            rt_kprintf("[ble] ids count=%u revision=%u\n", phone.count, revision);
+            for (unsigned i = 0; i < phone.count; ++i)
+                rt_kprintf("[ble] slot=%u id=%ld\n", i, (long)phone.messages[i].id);
+        } else if (!strcmp(argv[1], "trace") && argc == 3 && !strcmp(argv[2], "on")) {
+            notify_trace_total = 0; notify_trace_enabled = true;
+            rt_kprintf("[ble] trace enabled capacity=%u\n", NOTIFY_TRACE_CAPACITY);
+        } else if (!strcmp(argv[1], "trace") && argc == 3 && !strcmp(argv[2], "off")) {
+            notify_trace_enabled = false;
+            rt_kprintf("[ble] trace disabled total=%u\n", notify_trace_total);
+        } else if (!strcmp(argv[1], "trace") && argc == 3 && !strcmp(argv[2], "dump")) {
+            static const char *ops[] = {"notify", "notify~", "notify-"};
+            static const char *results[] = {"add", "update", "remove", "miss", "invalid-id", "invalid-fields"};
+            /* FinSH owns this output snapshot; UART printing must not block the BLE owner. */
+            static notification_trace_t snapshot[NOTIFY_TRACE_CAPACITY];
+            unsigned total = notify_trace_total;
+            bool enabled = notify_trace_enabled;
+            memcpy(snapshot, notify_trace, sizeof snapshot);
+            rt_mutex_release(&phone_lock);
+            unsigned first = total > NOTIFY_TRACE_CAPACITY ? total - NOTIFY_TRACE_CAPACITY : 0;
+            rt_kprintf("[ble] trace enabled=%u total=%u overwritten=%u\n", enabled, total, first);
+            for (unsigned n = first; n < total; ++n) {
+                const notification_trace_t *r = &snapshot[n % NOTIFY_TRACE_CAPACITY];
+                rt_kprintf("[ble] trace n=%u op=%s id=%ld valid=%u result=%s count=%u tick=%u\n",
+                    n + 1, ops[r->op], (long)r->id, r->result != WF_PHONE_INVALID_ID,
+                    results[r->result], r->count, r->tick);
+                rt_kprintf("[ble] trace n=%u gen=%u seq=%u dropped=%u gaps=%u stale=%u\n",
+                    n + 1, r->generation, r->sequence, r->dropped, r->gaps, r->stale);
+            }
+            return RT_EOK;
+        } else result = -RT_EINVAL;
+        rt_mutex_release(&phone_lock);
+        return result; /* Queries and trace controls do not send a UI/PM event. */
+    }
     if (!strcmp(argv[1], "weather")) {
         bool sent = wristflow_product_ble_request_weather();
         rt_kprintf("[ble] weather request queued=%u\n", sent);
