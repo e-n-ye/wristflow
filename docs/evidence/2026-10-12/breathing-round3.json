@@ -1,7 +1,7 @@
 {
   "date": "2026-10-12",
   "round": 3,
-  "state": "in_progress",
+  "state": "bounded_usb_acceptance_passed",
   "implementation_commit": "bba01b037d148c2662992252eb8ed24c2d746dc8",
   "implementation_tree": "19953c742039caf66ce7987bd712851debf8dc08",
   "worktree": "breathing-product/wristflow",
@@ -141,17 +141,41 @@
         "verified": [
           "notification cached without banner or animation interruption",
           "one-minute countdown covers three-minute breathing",
-          "roughly two-minute cover excludes training time",
+          "roughly two-minute cover followed by still-running training",
           "reminder screen off and KEY1 redisplay",
           "close all reminders resumes inhale and still-running training",
           "notification readable after manual end"
         ],
         "feedback_received_after_capture_close": true,
         "evidence_boundary": "User screen feedback; UART does not establish every R3 action"
+      },
+      {
+        "group": "R4 real alarm covers unanswered exit confirmation",
+        "answer": "闹钟覆盖、KEY1和确认恢复均正常",
+        "verified": [
+          "device time agrees with phone",
+          "one existing alarm adjusted under explicit authorization",
+          "alarm covers pending breathing exit confirmation",
+          "screen off then KEY1 only redisplays reminder",
+          "close all reminders restores pending confirmation with training paused",
+          "cancel confirmation resumes inhale"
+        ],
+        "uart_observed": "Reminder wake 18:01:01; later screen off; KEY1 wake 18:01:44"
+      },
+      {
+        "group": "R5 real restart persistence and inactive session",
+        "pre_reset_answer": "已开始 5 分钟训练",
+        "answer": "5 分钟已保存、未恢复训练、息屏和唤醒均正常",
+        "verified": [
+          "five-minute duration survives restart",
+          "breathing opens at home",
+          "old running training and exit confirmation do not resume",
+          "ordinary page screen-off policy and KEY1 wake work"
+        ]
       }
     ],
     "rotation_visual_verified": true,
-    "hardware_verified": false,
+    "hardware_verified": true,
     "followup_capture": {
       "record": "artifacts/breathing/usb-round3/20261012-171453-049/",
       "launcher_record": "artifacts/breathing/usb-round3/rotation-capture-r4-process.json",
@@ -161,10 +185,61 @@
       "rts": false,
       "automatic_reset": false,
       "limit_seconds": 3600,
-      "closed": false
+      "closed": true,
+      "normal_close": true,
+      "close_reason": "Explicit stop after R4 user feedback",
+      "finished": "2026-10-12T18:03:28.4122377+08:00",
+      "characters_read": 7056,
+      "actions": 2,
+      "process_exit_code": 0,
+      "sha256": {
+        "uart.txt": "5ec0b3496c1e3840022d0531aff66be4e3ba7ab36e5b02f5966c8b22ca853f46",
+        "events.jsonl": "6ea13d5993fb5172447ae644b67cc4bb2fd6937f6d043838b15aec78199507fb",
+        "actions.jsonl": "14327ed025b93419c1fce2f4ac0671ca81e35e20509eefc153664f6d8b1664d9",
+        "result.json": "24893bf904c40b5f477d64522dc57adb08a0447fb2357ba1416bd772b284c023"
+      }
+    },
+    "persistence_capture": {
+      "record": "artifacts/breathing/usb-round3/20261012-180329-447/",
+      "launcher_record": "artifacts/breathing/usb-round3/rotation-capture-r5-process.json",
+      "started": "2026-10-12T18:03:29+08:00",
+      "baud": 1000000,
+      "dtr": false,
+      "rts": false,
+      "automatic_reset": false,
+      "limit_seconds": 3600,
+      "closed": true,
+      "normal_close": true,
+      "close_reason": "Explicit stop after R5 and real UTC readback",
+      "finished": "2026-10-12T18:10:56.5542410+08:00",
+      "characters_read": 6576,
+      "actions": 6,
+      "process_exit_code": 0,
+      "sha256": {
+        "uart.txt": "d90b1c5352397b13afa4db6e571824ab52f1f54fcff41cf7654f5dcd342630b5",
+        "events.jsonl": "a5c94d856dd727e2510b388dc567a4ffc473ebacbbcfdda46fa50f994f3ad0e9",
+        "actions.jsonl": "57116070a5197ba5f7995aa9d8ff44a46b1205d1c02dcdb3e5a16a20a5223383",
+        "result.json": "a9bc3ef3f1dfa8c881ac6145d2fe630f4423f85468426af103c87b74fbf94487"
+      }
+    },
+    "restart_evidence": {
+      "confirmed_minutes": 5,
+      "successful_save_observed_before_reset": true,
+      "reset_count": 1,
+      "reset_at": "2026-10-12T18:05:14.8157818+08:00",
+      "reset_method": "Explicit RTS 150ms",
+      "restored_minutes": 5,
+      "restored_alarm_count": 5,
+      "rtc_retention_tested_or_repaired": false,
+      "current_real_utc_sync_readback": 1791799794,
+      "unacknowledged_utc_writes": [
+        "wf_time 1791799578",
+        "wf_time 1791799655"
+      ],
+      "utc_recovery": "Earlier two writes were issued after screen off without a success reply; user held training screen on, third current-time write returned successful readback"
     }
   },
-  "hardware_acceptance": "not_yet_verified",
+  "hardware_acceptance": "R1-R5 passed for rotation implementation 9f3e285; PR closure remains separate",
   "excluded": [
     "PPG",
     "RTC retention repair",
@@ -172,5 +247,6 @@
     "battery life",
     "full joint matrix"
   ],
-  "alarm_test_authorization": "User permits changing one existing alarm for R4; restoring its prior values is not required. No RTC time jump or deletion authorized."
+  "alarm_test_authorization": "User permits changing one existing alarm for R4; restoring its prior values is not required. No RTC time jump or deletion authorized.",
+  "all_captures_closed": true
 }
