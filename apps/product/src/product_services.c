@@ -165,8 +165,8 @@ static void storage_thread(void *context)
         fdb_err_t result = fdb_kv_set_blob(&settings_db, "preferences", fdb_blob_make(&blob, data, sizeof data));
         retry = result != FDB_NO_ERR;
         if (!retry) saved = next;
-        rt_kprintf("[product] settings %s brightness=%u face=%s result=%d\n",
-                   retry ? "save failed" : "saved", next.brightness, next.face_id, result);
+        rt_kprintf("[product] settings %s brightness=%u face=%s breathing=%u result=%d\n",
+                   retry ? "save failed" : "saved", next.brightness, next.face_id, next.breathing_minutes, result);
     }
 }
 
@@ -205,9 +205,9 @@ void wristflow_product_services_start(wristflow_settings_t *settings, wristflow_
         if (!worker || rt_thread_startup(worker) != RT_EOK) storage_ready = false;
     }
     service_ready = true;
-    rt_kprintf("[product] storage=%s restore=%s brightness=%u face=%s rtc=%s\n",
+    rt_kprintf("[product] storage=%s restore=%s brightness=%u face=%s breathing=%u rtc=%s\n",
         storage_ready ? "ready" : "unavailable", restored ? "yes" : "defaults",
-        settings->brightness, settings->face_id, rtc ? "available" : "missing");
+        settings->brightness, settings->face_id, settings->breathing_minutes, rtc ? "available" : "missing");
 }
 
 void wristflow_product_services_settings(const wristflow_settings_t *settings)

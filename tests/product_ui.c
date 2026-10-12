@@ -99,7 +99,7 @@ int main(int argc, char **argv)
     lv_indev_set_display(input, display);
     lv_indev_set_read_cb(input, read_pointer);
     lv_timer_set_period(lv_indev_get_read_timer(input), 16);
-    wristflow_settings_t settings = {37, "simple", WRISTFLOW_MENU_LIST, true, 10}, chosen;
+    wristflow_settings_t settings = {37, "simple", WRISTFLOW_MENU_LIST, true, 10, false, 1}, chosen;
     wristflow_watch_snapshot_t state = wristflow_product_snapshot(false, 0);
     wristflow_ui_shell_t *shell = wristflow_product_ui_create(&state, &settings, set_brightness, &brightness);
     assert(shell && brightness == 37);
@@ -134,7 +134,7 @@ int main(int argc, char **argv)
     }
     assert(instances == 10 && wristflow_app_count() == 16);
     assert(wristflow_app_find("countdown")->demo_only);
-    assert(wristflow_app_find("breathing")->demo_only);
+    assert(!wristflow_app_find("breathing")->demo_only);
     assert(!wristflow_product_default_page(3) && !wristflow_app_find("missing"));
     wristflow_app_data_t weather_data;
     assert(wristflow_app_read(wristflow_app_find("weather"), &state, &weather_data));

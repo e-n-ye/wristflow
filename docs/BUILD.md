@@ -1,5 +1,9 @@
 # 可复现构建基线
 
+## 2026-10-12 呼吸训练第二轮构建
+
+基线 `5e01d05`，隔离分支 `codex/breathing-product`。最终 GCC 15.2.0／CMake 3.31.4／Ninja Debug CTest **32/32** 和两个严格 core 用例通过，四张实际 LVGL 覆盖／恢复帧已留证。SDK Python 3.13.15／SCons 4.10.1／Arm GCC 14.2.1，Product 与 UI Demo 均退出 0、镜像清单校验通过，383／366 份源码及 29／22 个产物重哈希一致；SDK／子模块锁不变且干净，XML／官方生成输出未变。命令、v6 配置兼容、镜像哈希、失败修复与硬件未验范围见 [BREATHING 第二轮](BREATHING.md#round2)及[精简证据](evidence/2026-10-12/breathing-round2.json)。没有新增云端运行、串口、烧录或设备结论。
+
 ## 2026-10-11 呼吸训练第一轮构建
 
 基线 `f250eb9`，隔离分支 `codex/breathing-ui`。Pro 2.0.1／固定 LVGL 9.4.0 官方 GUI 导出及五页 100% 预览通过；最终 CMake 3.31.4／GCC 15.2.0／Ninja Debug 主机 31/31 与严格 core 通过。Product `artifacts/product/20261011-222319-329/result.json`、UI Demo `artifacts/ui_demo/20261011-222515-154/result.json` 均退出 0、镜像校验通过；383／366 份源码及产物重哈希一致，官方清单 106 份 C 在两端实际编译数据库中全部匹配，字体链接核对通过。Product 主 BIN 7,710,436 B，UI Demo 7,507,392 B。完整哈希、复现方法、失败与最终布局覆盖关系见 [BREATHING](BREATHING.md#第一轮记录)和[精简证据](evidence/2026-10-11/breathing-round1.json)。本机复用已锁定 SDK，Product Base64 从官方 `SIFLI_SDK` 根解析；没有 SDK／子模块升级、手动云端运行、烧录或设备结论。

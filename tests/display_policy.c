@@ -5,6 +5,27 @@
 int main(void)
 {
     wristflow_display_policy_t p;
+    int owner, other;
+    wristflow_display_init(&p, UINT_MAX - 1000U);
+    uint32_t lease_start = p.activity_at;
+    assert(wristflow_display_keep(&p, lease_start, 10));
+    assert(!wristflow_display_acquire(&p, lease_start, &owner, "", 60000));
+    assert(!wristflow_display_acquire(&p, lease_start, &owner, "training", 0));
+    assert(!wristflow_display_acquire(&p, lease_start, &owner, "training", UINT_MAX));
+    assert(wristflow_display_acquire(&p, lease_start, &owner, "training", 60000));
+    assert(!wristflow_display_acquire(&p, lease_start, &other, "other", 1000));
+    assert(!wristflow_display_release(&p, lease_start, &other));
+    assert(!wristflow_display_expired(&p, lease_start + 59999));
+    assert(wristflow_display_expired(&p, lease_start + 60000));
+    /* Expiry is reported; the owner must stop before the lock is released. */
+    wristflow_display_tick(&p, lease_start + 60000, 5, false);
+    assert(p.lease_owner == &owner && p.keep_ms == 600000);
+    assert(wristflow_display_release(&p, lease_start + 60000, &owner));
+    assert(!p.lease_owner && p.keep_ms == 600000);
+    assert(!wristflow_display_release(&p, lease_start + 60000, &owner));
+    assert(wristflow_display_keep(&p, lease_start + 60000, 0));
+    wristflow_display_tick(&p, lease_start + 65000, 5, false);
+    assert(p.phase == WRISTFLOW_DISPLAY_OFF);
     const unsigned timeouts[] = {5, 10, 20, 30, 60};
     for (unsigned i = 0; i < 5; ++i) {
         for (unsigned wrap = 0; wrap < 2; ++wrap) {

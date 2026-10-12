@@ -1,18 +1,18 @@
 # 当前状态
 
 <a id="current"></a>
-## 当前阶段与接续（2026-10-11）
+## 当前阶段与接续（2026-10-12）
 
 本区是活动任务和下一步的唯一权威来源；下方 history、任务书和专题中的历史下一步不构成执行授权。接续先核对工作树、HEAD 和已有改动，再按 [任务索引](../PROJECT_INDEX.md) 读取。
 
-- **本轮范围**：用户 Q12 确认开始呼吸训练第一轮，契约见 [BREATHING](BREATHING.md)。仅官方 XML、独立模型、UI Demo／主机交互动画、双目标编译和 PR 合入；Product 保存、亮屏与提醒联动第二轮，USB 第三轮。
-- **版本与工作区**：闹钟 [PR #46](https://github.com/e-n-ye/wristflow/pull/46) 已回读 MERGED，合入 `f250eb9ed3dd070371eb867a4b4fcf25b5a8b1c8`，fetch／祖先和 tree 核对通过。新隔离工作树 `breathing-ui/wristflow`、`codex/breathing-ui` 从该基线开始；主目录 12 处 Pro 改动及旧 alarm 工作树换行改动保留。
+- **本轮范围**：用户在上一聊天的接续中要求“按计划继续推进”，开始 [呼吸训练第二轮](BREATHING.md)：Product 时长保存、独立有期限亮屏申请、退出确认和消息／提醒生命周期。仅软件验证、双目标编译及 PR 交付；USB 第三轮独立，不自动接 PPG、RTC 修复或设备验收。
+- **版本与工作区**：第一轮 [PR #47](https://github.com/e-n-ye/wristflow/pull/47) 回读 MERGED，基线 `5e01d05cc01a19b06f9ede012f50a78e0e2cdb5c`。新隔离工作树 `breathing-product/wristflow`、`codex/breathing-product` 从最新 `origin/main` 开始；主目录 12 处 Pro 改动、旧工作树与本机证据保留。
 - **已有设备结果**：闹钟第三轮与列表滚动提示已完成，用户重建三条重复闹钟，五条内容与开关正确；已恢复真实时间、正常停止采集。不再次复位。RTC 跨 RTS 保时仍未通过，见 [ALARM](ALARM.md#round3)。
-- **当前证据**：呼吸第一轮模型、五页 XML 与 Demo 交互／动画已实现。Pro 2.0.1／固定 LVGL 9.4.0 官方导出和五页 100% 预览通过；最终主机 31/31、严格 core、Product／UI Demo SCons 编译与镜像校验通过。源／产物重哈希、官方清单与链接字体核对通过，见 [BREATHING 第一轮](BREATHING.md#第一轮记录)与[精简证据](evidence/2026-10-11/breathing-round1.json)。没有本轮设备验证；Product 入口保持 gated。
+- **当前证据**：第二轮 Product 入口、确认时长 v6、独立期限亮屏申请、通知抑制与提醒暂停／恢复已接线。最终主机 **32/32**、严格配置／显示模型、Product／UI Demo SCons 编译与清单校验通过，383／366 个源码及全部产物重哈希匹配；四张实际 LVGL 覆盖帧和独立审查已闭环，见 [第二轮记录](BREATHING.md#round2)与[精简证据](evidence/2026-10-12/breathing-round2.json)。SDK／子模块锁不变且干净；XML／生成资源未变，无本轮设备操作。
 
 ### 当前闭环与唯一下一步
 
-本轮实现与验证已就绪；交付还须最终 PR 审阅、Rebase 合入、MERGED 回读和 fetch／tree 核对，完成情况及集成标识以同轮 PR Closure 或最终交接的回读记录为准。第一轮交付后，唯一下一步为等待用户授权呼吸第二轮 Product 保存、亮屏和通知／提醒生命周期；目前未授权第二轮。只做当前轮，不自动接 PPG、RTC 修复或设备验收。
+第二轮软件验证已完成；交付仍须最终 PR 审阅、Rebase 合入、MERGED 回读与 fetch／tree 核对，集成状态以同轮 PR Closure 或最终交接回读为准。唯一下一步为完成该 PR 闭环；交付后等待用户授权第三轮同版 USB 验收，先核对硬件／电源／端口与镜像及设置版本。软件证据不代替设备输入、Flash、常亮或提醒恢复实测；不自动接 PPG、RTC 修复或功耗实验。
 <a id="history"></a>
 ## 历史摘要的适用边界
 

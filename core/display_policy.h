@@ -7,6 +7,9 @@ typedef enum { WRISTFLOW_DISPLAY_ACTIVE, WRISTFLOW_DISPLAY_DIM, WRISTFLOW_DISPLA
 typedef struct {
     wristflow_display_phase_t phase;
     uint32_t activity_at, off_at, keep_at, keep_ms;
+    void *lease_owner;
+    const char *lease_reason;
+    uint32_t lease_at, lease_ms;
     bool flashlight, swallow_touch;
 } wristflow_display_policy_t;
 
@@ -14,6 +17,12 @@ void wristflow_display_init(wristflow_display_policy_t *policy, uint32_t now);
 void wristflow_display_activity(wristflow_display_policy_t *policy, uint32_t now);
 void wristflow_display_tick(wristflow_display_policy_t *policy, uint32_t now, unsigned timeout, bool flashlight);
 bool wristflow_display_keep(wristflow_display_policy_t *policy, uint32_t now, unsigned minutes);
+/* One bounded foreground lease, independent of the user's keep-awake choice.
+ * The caller must stop the owner before releasing an expired lease. */
+bool wristflow_display_acquire(wristflow_display_policy_t *policy, uint32_t now,
+    void *owner, const char *reason, uint32_t duration_ms);
+bool wristflow_display_expired(const wristflow_display_policy_t *policy, uint32_t now);
+bool wristflow_display_release(wristflow_display_policy_t *policy, uint32_t now, void *owner);
 /* Return true only when this input may reach the UI. Off-screen touch cannot wake yet. */
 bool wristflow_display_touch(wristflow_display_policy_t *policy, uint32_t now, bool pressed);
 bool wristflow_display_key(wristflow_display_policy_t *policy, uint32_t now);

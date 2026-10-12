@@ -5,17 +5,40 @@
 
 enum { HOME, DURATION, TRAINING, CONTROLS, RESULT };
 struct wristflow_breathing_view {
+    wristflow_ui_shell_t *shell;
     lv_obj_t *root, *dialog;
     lv_timer_t *timer;
     wristflow_breathing_t session;
     wristflow_watch_snapshot_t clock;
     lv_point_t ring_center;
     unsigned page, draft;
+    bool covered, holding;
     void (*commit_leave)(void *);
     void *leave_context;
 };
 static const char *const panels[] = {"breathing_home_panel", "breathing_duration_panel",
     "breathing_training_panel", "breathing_controls_panel", "breathing_result_panel"};
+
+static void render(wristflow_breathing_view_t *v);
+
+static void release_awake(wristflow_breathing_view_t *v)
+{
+    if (!v->holding) return;
+    wristflow_ui_shell_release_awake(v->shell, v);
+    v->holding = false;
+}
+
+static void expired(void *owner)
+{
+    wristflow_breathing_view_t *v = owner;
+    wristflow_breathing_update(&v->session, lv_tick_get());
+    /* The lease is a safety deadline even if the animation timer stops. */
+    if (v->session.phase == WRISTFLOW_BREATHING_RUNNING) {
+        wristflow_breathing_end(&v->session);
+        v->page = HOME;
+    }
+    render(v);
+}
 
 static lv_obj_t *named(wristflow_breathing_view_t *v, const char *name)
 {
@@ -26,7 +49,14 @@ static lv_obj_t *named(wristflow_breathing_view_t *v, const char *name)
 
 static void render(wristflow_breathing_view_t *v)
 {
+    if (v->session.phase != WRISTFLOW_BREATHING_RUNNING) release_awake(v);
+    else if (!v->holding) {
+        v->holding = wristflow_ui_shell_acquire_awake(v->shell, v, "breathing training",
+            v->session.minutes * 60000U - v->session.elapsed_ms, expired);
+        if (!v->holding) { wristflow_breathing_end(&v->session); v->page = HOME; }
+    }
     if (!v->root) return;
+    if (v->dialog) lv_obj_set_flag(v->dialog, LV_OBJ_FLAG_HIDDEN, v->covered);
     if (v->session.phase == WRISTFLOW_BREATHING_COMPLETE) v->page = RESULT;
     for (unsigned i = 0; i < 5; ++i)
         lv_obj_set_flag(named(v, panels[i]), LV_OBJ_FLAG_HIDDEN, i != v->page);
@@ -79,8 +109,11 @@ static void action(lv_event_t *event)
         v->page = DURATION;
     } else if (button == named(v, "breathing_duration_confirm")) {
         wristflow_breathing_set_minutes(&v->session, v->draft);
+        wristflow_ui_shell_set_breathing_minutes(v->shell, v->session.minutes);
         v->page = HOME;
     } else if (button == named(v, "breathing_start") || button == named(v, "breathing_restart")) {
+        wristflow_ui_shell_notification_dismiss(v->shell, true);
+        release_awake(v);
         wristflow_breathing_start(&v->session, lv_tick_get());
         v->page = TRAINING;
         lv_timer_reset(v->timer);
@@ -91,12 +124,15 @@ static void action(lv_event_t *event)
     render(v);
 }
 
-wristflow_breathing_view_t *wristflow_breathing_view_create(void)
+wristflow_breathing_view_t *wristflow_breathing_view_create(wristflow_ui_shell_t *shell)
 {
     wristflow_breathing_view_t *v = lv_malloc_zeroed(sizeof(*v));
     LV_ASSERT_MALLOC(v);
+    v->shell = shell;
     wristflow_breathing_init(&v->session);
-    v->draft = 1;
+    wristflow_settings_t settings;
+    if (wristflow_ui_shell_get_settings(shell, &settings)) v->session.minutes = settings.breathing_minutes;
+    v->draft = v->session.minutes;
     v->timer = lv_timer_create(tick, 33, v);
     lv_timer_pause(v->timer);
     return v;
@@ -121,11 +157,30 @@ lv_obj_t *wristflow_breathing_view_screen(wristflow_breathing_view_t *v)
 }
 
 void wristflow_breathing_view_clock(wristflow_breathing_view_t *v, const wristflow_watch_snapshot_t *clock)
-{ if (v) { v->clock = *clock; render(v); } }
+{
+    if (!v) return;
+    v->clock = *clock;
+    wristflow_settings_t settings;
+    if (v->session.phase == WRISTFLOW_BREATHING_IDLE && wristflow_ui_shell_get_settings(v->shell, &settings))
+        v->session.minutes = settings.breathing_minutes;
+    render(v);
+}
+
+bool wristflow_breathing_view_active(const wristflow_breathing_view_t *v)
+{ return v && (v->session.phase == WRISTFLOW_BREATHING_RUNNING || v->session.phase == WRISTFLOW_BREATHING_PAUSED); }
+
+void wristflow_breathing_view_cover(wristflow_breathing_view_t *v, bool covered)
+{
+    if (!v || v->covered == covered) return;
+    v->covered = covered;
+    if (covered) wristflow_breathing_pause(&v->session, lv_tick_get());
+    else if (!v->dialog) wristflow_breathing_resume(&v->session, lv_tick_get());
+    render(v);
+}
 
 bool wristflow_breathing_view_cancel_leave(wristflow_breathing_view_t *v)
 {
-    if (!v || !v->dialog) return false;
+    if (!v || !v->dialog || v->covered) return false;
     lv_obj_delete(v->dialog);
     v->dialog = NULL;
     v->commit_leave = NULL;
@@ -141,6 +196,7 @@ static void cancel(lv_event_t *event)
 static void accept(lv_event_t *event)
 {
     wristflow_breathing_view_t *v = lv_event_get_user_data(event);
+    if (v->covered) return;
     void (*commit)(void *) = v->commit_leave;
     void *context = v->leave_context;
     wristflow_breathing_view_leave(v);
@@ -198,6 +254,7 @@ void wristflow_breathing_view_leave(wristflow_breathing_view_t *v)
     v->dialog = NULL;
     v->commit_leave = NULL;
     v->leave_context = NULL;
+    v->covered = false;
     wristflow_breathing_end(&v->session);
     v->page = HOME;
     lv_timer_pause(v->timer);

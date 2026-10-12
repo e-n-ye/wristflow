@@ -79,6 +79,12 @@ bool wristflow_ui_shell_filter_touch(wristflow_ui_shell_t *shell, bool pressed);
 wristflow_display_phase_t wristflow_ui_shell_display_phase(const wristflow_ui_shell_t *shell);
 bool wristflow_ui_shell_keep_awake(wristflow_ui_shell_t *shell, unsigned minutes);
 unsigned wristflow_ui_shell_keep_minutes(const wristflow_ui_shell_t *shell);
+/* LVGL thread only. Owner/reason must outlive the lease; expiry stops the owner
+ * before release. One foreground lease, separate from user keep-awake. */
+bool wristflow_ui_shell_acquire_awake(wristflow_ui_shell_t *shell, void *owner,
+    const char *reason, uint32_t duration_ms, void (*expired)(void *));
+void wristflow_ui_shell_release_awake(wristflow_ui_shell_t *shell, void *owner);
+bool wristflow_ui_shell_set_breathing_minutes(wristflow_ui_shell_t *shell, unsigned minutes);
 void wristflow_ui_shell_display_retry(wristflow_ui_shell_t *shell);
 /* UI-thread only. The caller supplies a synchronized, bounded copy. Returns
  * true if an off display now needs a notification preview. */

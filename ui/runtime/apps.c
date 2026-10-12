@@ -468,7 +468,7 @@ wristflow_apps_t *wristflow_apps_create(wristflow_ui_shell_t *shell, lv_obj_t *c
     if (alarm) apps->alarm_port = *alarm;
     if (!product_mode || countdown) apps->countdown = wristflow_countdown_view_create(shell, countdown, apps->reminders);
     if (!product_mode || alarm) apps->alarm = wristflow_alarm_view_create_with_backend(shell, alarm, apps->reminders);
-    if (!product_mode) apps->breathing = wristflow_breathing_view_create();
+    apps->breathing = wristflow_breathing_view_create(shell);
     apps->menu_layout = menu_layout;
     apps->timer = lv_timer_create(tick, 40, apps);
     lv_timer_pause(apps->timer);
@@ -548,6 +548,12 @@ bool wristflow_apps_breathing_confirm_leave(wristflow_apps_t *apps, void (*commi
 
 bool wristflow_apps_breathing_cancel_leave(wristflow_apps_t *apps)
 { return apps && wristflow_breathing_view_cancel_leave(apps->breathing); }
+
+bool wristflow_apps_breathing_active(const wristflow_apps_t *apps)
+{ return apps && apps->active == WRISTFLOW_SURFACE_BREATHING && wristflow_breathing_view_active(apps->breathing); }
+
+void wristflow_apps_breathing_cover(wristflow_apps_t *apps, bool covered)
+{ if (apps && apps->active == WRISTFLOW_SURFACE_BREATHING) wristflow_breathing_view_cover(apps->breathing, covered); }
 
 bool wristflow_apps_breathing_gesture(wristflow_apps_t *apps, lv_dir_t direction, bool edge)
 { return apps && apps->active == WRISTFLOW_SURFACE_BREATHING &&

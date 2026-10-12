@@ -1,0 +1,161 @@
+{
+  "date": "2026-10-12",
+  "round": 2,
+  "baseline": "5e01d05cc01a19b06f9ede012f50a78e0e2cdb5c",
+  "branch": "codex/breathing-product",
+  "local_worktree": "breathing-product/wristflow",
+  "settings_schema": {
+    "write_version": 6,
+    "read_versions": [
+      1,
+      2,
+      3,
+      4,
+      6
+    ],
+    "duration_byte": 15,
+    "version_5": "Reserved for separate C2 wrist-wake draft; rejected as on prior main"
+  },
+  "host": {
+    "tests_passed": 32,
+    "tests_total": 32,
+    "seconds": 19.81,
+    "log": "artifacts/breathing/ctest-final-v6.log",
+    "log_sha256": "41c256130c03d9b5911634c080f4cae116a6d77d4c35040e8fb5422e3316cf43",
+    "cmake": "3.31.4",
+    "gcc": "15.2.0",
+    "configuration": "Ninja Debug, pinned SDK LVGL 9.4.0",
+    "strict_core": [
+      "product_state.c + watch_core.c + tests/product_state.c",
+      "display_policy.c + tests/display_policy.c"
+    ],
+    "strict_flags": "-std=c11 -Wall -Wextra -Werror",
+    "cases": [
+      "v1-v4 migration, v5 rejection, v6 bounds/checksum, confirmed duration recreation",
+      "1-5 minute idle brightness, independent global keep-awake, stalled-animation expiry",
+      "six reminders, 30s reminder display-off, >120s cover, active time only, inhale resume",
+      "message cache without banner, notification detail confirmation, original destination",
+      "last close with newly pending producer, unsampled completion, ordinary result retention",
+      "restart, manual end, destroy under reminder cover and timer cleanup"
+    ]
+  },
+  "builds": {
+    "product": {
+      "record": "artifacts/product/20261012-122006-440/result.json",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "sources_rehashed": 383,
+      "artifacts_rehashed": 29,
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": "4.10.1",
+      "firmware": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+      "firmware_bytes": 7711308,
+      "firmware_sha256": "b62d3c438e915219612f0da71d83664c666882d0c2dd5c652061ba62d90de3d6",
+      "images": [
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+          "bytes": 7711308,
+          "sha256": "b62d3c438e915219612f0da71d83664c666882d0c2dd5c652061ba62d90de3d6"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+          "bytes": 11288,
+          "sha256": "f5bab7aa21379927bdb7371ff35e79566aabaa7a33550d5ea70f6b44feccc1fb"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/lcpu/lcpu.bin",
+          "bytes": 5444,
+          "sha256": "03c15186f14aced2ad2c1b7e76f11b29de65b76bc348c3d62b0ec139dedb1dad"
+        }
+      ],
+      "hardware_verified": false
+    },
+    "ui_demo": {
+      "record": "artifacts/ui_demo/20261012-122006-974/result.json",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "sources_rehashed": 366,
+      "artifacts_rehashed": 22,
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": "4.10.1",
+      "firmware": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+      "firmware_bytes": 7508192,
+      "firmware_sha256": "468872163f2cc8168203b2742bb4e2843eb4c7f7a06e3039b6803d0dc3df0f06",
+      "images": [
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+          "bytes": 7508192,
+          "sha256": "468872163f2cc8168203b2742bb4e2843eb4c7f7a06e3039b6803d0dc3df0f06"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+          "bytes": 11288,
+          "sha256": "2d34d511a33dafbd8969741cf2fd6a4528bdf004b3a8fcfd9d31c6c5bdf7b596"
+        }
+      ],
+      "hardware_verified": false
+    }
+  },
+  "validation_source_sha256": {
+    "apps/product/src/product_services.c": "3ff551166611a593463eb281758def2cdad3eea95d2df1fa00c2ad580c5501d9",
+    "core/breathing.c": "458bfe872a89ea86f2d5d8dc0226370833f391d2b580aeeec1da3995ca6a3c85",
+    "core/breathing.h": "20870eaaf63488bae8b7ebd441ea44d67e23090a8986626f90ee3883ad779739",
+    "core/display_policy.c": "729340e9fbc3a84c9da8c6e782dfc5c2fb212302f43ca5714d9dc7eebbfefe39",
+    "core/display_policy.h": "9d610257d342516caa060cd35eae80e8ae3b31de119c686888524cd6f4aa2f25",
+    "core/product_state.c": "2ac7e9e434381d6d4ab64d59e014b5c5a35fc3981feeced014b62f88c15f7ff2",
+    "core/product_state.h": "bf7c4e9b8fe24eded1c81fabfb14d235b6dd28f8481bebc1d6e25f7e4d311cfd",
+    "sdk.lock.json": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af",
+    "tests/CMakeLists.txt": "5a2406a2d8052d5c1822e3d070ea104525d30a1db569c3eed5f0e459f1bd3fc4",
+    "tests/breathing_ui.c": "9faad60987b344dc7b0e8ec0f262fd902e6f0fb25a01d8e76ca1752b545a5c0a",
+    "tests/display_policy.c": "b61fb054cc6480f8f88c3faa1ed5d38b7df46e37c968c63c3c53d3f41d3980a0",
+    "tests/lv_conf.h": "8caf44472e3cc34516abfe24a81837ec48533e7ac290614dad5e176974c09a32",
+    "tests/product_breathing_ui.c": "5c6f966c2961538da71d8314e8174f0f930486843df34ad27efe2ec4251fb0ac",
+    "tests/product_state.c": "fadfb7d9e01bb87093bebb7f5b715d64938e41cb58abbac6e877131dbc2d2d87",
+    "tests/product_ui.c": "9c5bd88f04f51dea44f90eee575606715b7530d026458c883eb3293d1cb91b53",
+    "ui/runtime/app_registry.c": "8051a43cc4cef263a0fe3fa044cfc2c83235151c5be38952c6d0bf27580644b1",
+    "ui/runtime/apps.c": "80746c897781b5a1253cc5c9b743bc8a05a8fc94177e9ac3403c528c88360858",
+    "ui/runtime/apps.h": "0a1ba6dc6458e3263d9f594414e60456374a0791c5f95e1b96f5a92a4da37dc3",
+    "ui/runtime/breathing_view.c": "9d282324afb6764b65989f834d41e41fbaffce3321d3c921a613c45a293e9457",
+    "ui/runtime/breathing_view.h": "310810428264ced4806e9fcc73fe082928d3aaf699d3a97a47750a3b7c618178",
+    "ui/runtime/ui_shell.c": "07badc82171462421b5eeffdafe64448afd59d89d6ca491b3c3fe2dd8f5f6755",
+    "ui/runtime/ui_shell.h": "1963b80b65e3be9352eee38cee453757515e81b82b6a7ea9d4923994b7ffd404"
+  },
+  "preview": {
+    "path": "breathing-round2.png",
+    "sha256": "5034a6abcb71e8590f15d0f1f0e74b70d2a8f26d98034dee81c39638ff61382f",
+    "source": "Actual host LVGL framebuffer; synthetic notification/alarm inputs, not device photos"
+  },
+  "failures_superseded": [
+    "Test used unavailable timer getter; fault injection uses pinned private timer definition",
+    "Test assumed direct Home-to-Breathing route and OFF key return=false; corrected to existing APIs",
+    "Mock initially omitted configured alarms and reused one content slot; filled full configuration",
+    "Review found pre-pause exemption and notification-expiry ordering; fixed and regression tested",
+    "Preliminary builds superseded by final v6 source and artifact verification"
+  ],
+  "hardware_verified": false,
+  "remaining": "Round 3 same-version USB validation; no PPG/RTC repair/current measurement"
+}
