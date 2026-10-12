@@ -81,6 +81,10 @@ static void render(wristflow_breathing_view_t *v)
     lv_obj_t *ring = named(v, "breathing_training_ring");
     lv_obj_set_size(ring, size, size);
     lv_obj_set_pos(ring, v->ring_center.x - size / 2, v->ring_center.y - size / 2);
+    /* Positive arc angles turn clockwise; expansion reverses during exhale. */
+    const char *const layers[] = {"ring_glow", "ring_halo", "ring_line"};
+    for (unsigned i = 0; i < sizeof layers / sizeof layers[0]; ++i)
+        lv_arc_set_rotation(lv_obj_find_by_name(ring, layers[i]), (int32_t)(360U * eased / 1000U));
     if (v->session.phase == WRISTFLOW_BREATHING_RUNNING) lv_timer_resume(v->timer);
     else lv_timer_pause(v->timer);
 }

@@ -1,0 +1,74 @@
+{
+  "date": "2026-10-12",
+  "round": 3,
+  "state": "in_progress",
+  "implementation_commit": "bba01b037d148c2662992252eb8ed24c2d746dc8",
+  "implementation_tree": "19953c742039caf66ce7987bd712851debf8dc08",
+  "worktree": "breathing-product/wristflow",
+  "branch": "codex/breathing-usb",
+  "software_evidence": "breathing-round2.json",
+  "hardware_conditions": {
+    "user_confirmed": "Same Huangshan board and display, USB-only, no added wiring, screen and KEY1 assistance",
+    "enumerated_port": "COM5",
+    "enumerated_device": "USB-SERIAL CH340",
+    "vid_pid": "1A86:7523"
+  },
+  "preflight": {
+    "record": "artifacts/breathing/usb-round3/preflight.json",
+    "product_sources_rehashed": 383,
+    "product_artifacts_rehashed": 29,
+    "sdk_and_submodules_locked_and_clean": true,
+    "dry_run_passed": true
+  },
+  "flash": {
+    "record": "artifacts/flash/product/20261012-124249-071/result.json",
+    "tool": "sftool 0.2.5",
+    "operation": "write_flash --verify, --after soft_reset",
+    "exit_code": 0,
+    "images": [
+      {
+        "name": "bootloader.bin",
+        "address": "0x12010000",
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "name": "main.bin",
+        "address": "0x12020000",
+        "bytes": 7711308,
+        "sha256": "b62d3c438e915219612f0da71d83664c666882d0c2dd5c652061ba62d90de3d6"
+      },
+      {
+        "name": "ftab.bin",
+        "address": "0x12000000",
+        "sha256": "f5bab7aa21379927bdb7371ff35e79566aabaa7a33550d5ea70f6b44feccc1fb"
+      }
+    ],
+    "settings_partition_written": false,
+    "hardware_verified": false
+  },
+  "capture": {
+    "record": "artifacts/breathing/usb-round3/20261012-124551-352/",
+    "baud": 1000000,
+    "dtr": false,
+    "rts": false,
+    "automatic_reset": false,
+    "limit_seconds": 3600,
+    "closed": true,
+    "normal_close": false,
+    "close_reason": "Chat turn interrupted; unified process no longer exists, no result.json; subsequently queued stop was not consumed",
+    "initial_status_command": "wf_pm status",
+    "initial_status_response": "not_yet_observed",
+    "observed": ["KEY1 wake / PM snapshot", "screen on", "successful duration save logs: 3,5,2,3", "later screen off"]
+  },
+  "user_feedback": [],
+  "user_rotation_request": "Inhale clockwise; exhale counterclockwise in addition to expansion/contraction",
+  "rotation_revision": {
+    "software_evidence": "breathing-rotation.json",
+    "product_main_sha256": "ba815750aee00319ae11001ec2504a18905bd8531c26316301c89c6c42ebfbd6",
+    "dry_run_passed": true,
+    "flash": "not_yet_performed",
+    "hardware_verified": false
+  },
+  "hardware_acceptance": "not_yet_verified",
+  "excluded": ["PPG", "RTC retention repair", "power consumption", "battery life", "full joint matrix"]
+}

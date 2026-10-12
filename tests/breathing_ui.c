@@ -71,6 +71,14 @@ static void wheel(unsigned value)
     lv_obj_send_event(named("breathing_minutes"), LV_EVENT_VALUE_CHANGED, NULL);
     advance(32);
 }
+static int32_t rotation(void)
+{
+    lv_obj_t *ring = named("breathing_training_ring");
+    int32_t value = lv_arc_get_rotation(lv_obj_find_by_name(ring, "ring_line"));
+    assert(lv_arc_get_rotation(lv_obj_find_by_name(ring, "ring_glow")) == value);
+    assert(lv_arc_get_rotation(lv_obj_find_by_name(ring, "ring_halo")) == value);
+    return value;
+}
 static unsigned timers(void)
 {
     unsigned count = 0;
@@ -106,7 +114,7 @@ static void glyphs(const lv_font_t *font, const uint32_t *chars, unsigned count)
 
 int main(int argc, char **argv)
 {
-    assert(argc == 2); directory = argv[1];
+    assert(argc == 2 || (argc == 3 && !strcmp(argv[2], "--rotation-preview"))); directory = argv[1];
     lv_init(); lv_tick_set_cb(tick);
     lv_display_t *display = lv_display_create(390, 450);
     lv_display_set_buffers(display, pixels, NULL, sizeof pixels, LV_DISPLAY_RENDER_MODE_PARTIAL);
@@ -150,12 +158,21 @@ int main(int argc, char **argv)
     assert(strcmp(lv_label_get_text(named("breathing_duration_text")), "5分钟") == 0);
     click("breathing_start"); visible("breathing_training_panel", true);
     assert(strcmp(lv_label_get_text(named("breathing_guide")), "吸气") == 0);
+    if (argc == 3) {
+        for (unsigned i = 0; i < 68; ++i) {
+            char name[48]; snprintf(name, sizeof name, "breathing_rotation_%03u", i);
+            snapshot(name); advance(128);
+        }
+        lv_obj_send_event(named("breathing_restart"), LV_EVENT_SHORT_CLICKED, NULL); advance(400);
+    }
+    int32_t initial_rotation = rotation();
     int small = lv_obj_get_width(named("breathing_training_ring"));
     lv_area_t ring_area;
     lv_obj_get_coords(named("breathing_training_ring"), &ring_area);
     assert(ring_area.x1 + ring_area.x2 >= 389 && ring_area.x1 + ring_area.x2 <= 390);
     assert(ring_area.y1 + ring_area.y2 >= 439 && ring_area.y1 + ring_area.y2 <= 440);
     snapshot("breathing_inhale_small"); advance(3000);
+    assert(rotation() > initial_rotation + 180); /* Inhale turns clockwise. */
     assert(lv_obj_get_width(named("breathing_training_ring")) > small + 40);
     lv_obj_get_coords(named("breathing_training_ring"), &ring_area);
     assert(ring_area.x1 + ring_area.x2 >= 389 && ring_area.x1 + ring_area.x2 <= 390);
@@ -166,9 +183,28 @@ int main(int argc, char **argv)
     lv_obj_get_coords(named("breathing_guide"), &guide_area);
     assert(lv_obj_get_width(named("breathing_training_ring")) >= 218);
     assert(guide_area.y1 - ring_area.y2 >= 18);
+    int32_t large_rotation = rotation(); assert(large_rotation >= 350);
     snapshot("breathing_inhale_large"); advance(2200);
     assert(strcmp(lv_label_get_text(named("breathing_guide")), "呼气") == 0);
+    assert(rotation() < large_rotation - 90); /* Exhale turns counterclockwise. */
     snapshot("breathing_exhale");
+    /* At exactly 30s, the fourth inhale reaches 360 degrees, normalized to 0. */
+    lv_obj_send_event(named("breathing_restart"), LV_EVENT_SHORT_CLICKED, NULL);
+    ticks += 29999; lv_timer_handler(); assert(rotation() == 359);
+    ++ticks; assert(wristflow_ui_shell_back(shell)); assert(rotation() == 0);
+    lv_obj_update_layout(lv_screen_active());
+    visible("breathing_exit_confirm", true);
+    lv_obj_send_event(named("confirm_cancel"), LV_EVENT_SHORT_CLICKED, NULL);
+    lv_obj_send_event(named("breathing_restart"), LV_EVENT_SHORT_CLICKED, NULL);
+    ticks += 30001; lv_timer_handler(); assert(rotation() == 359);
+    /* Circular distance stays small across the 360/0 alias at both turnarounds. */
+    lv_obj_send_event(named("breathing_restart"), LV_EVENT_SHORT_CLICKED, NULL);
+    advance(4256); int32_t before_peak = rotation(); advance(64);
+    assert(strcmp(lv_label_get_text(named("breathing_guide")), "呼气") == 0);
+    assert((rotation() - before_peak + 361) % 360 <= 2);
+    advance(4240); int32_t before_cycle = rotation(); advance(64);
+    assert(strcmp(lv_label_get_text(named("breathing_guide")), "吸气") == 0);
+    assert((rotation() - before_cycle + 361) % 360 <= 2);
     swipe(290, 300, 90, 300); visible("breathing_controls_panel", true); snapshot("breathing_controls");
     swipe(41, 300, 280, 300); visible("breathing_training_panel", true);
     assert(!lv_obj_find_by_name(lv_screen_active(), "breathing_exit_confirm"));
@@ -177,14 +213,18 @@ int main(int argc, char **argv)
         swipe((int)edge, 300, 280, 300); visible("breathing_exit_confirm", true);
         snapshot("breathing_exit_confirm");
         swipe(290, 200, 90, 200); visible("breathing_exit_confirm", true);
+        int32_t frozen_rotation = rotation();
         advance(310000); /* Hidden time must not finish a five-minute session. */
+        assert(rotation() == frozen_rotation);
         click("confirm_cancel"); visible("breathing_controls_panel", true);
         assert(strcmp(lv_label_get_text(named("breathing_guide")), "吸气") == 0);
+        assert(rotation() < 40);
         swipe(100, 300, 290, 300);
     }
     swipe(290, 300, 90, 300); click("breathing_restart");
     visible("breathing_training_panel", true);
     assert(strcmp(lv_label_get_text(named("breathing_guide")), "吸气") == 0);
+    assert(rotation() < 40);
     advance(61000); visible("breathing_training_panel", true); /* Retains five-minute duration. */
     swipe(290, 300, 90, 300); click("breathing_end");
     visible("breathing_home_panel", true); visible("breathing_result_panel", false);
