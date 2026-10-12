@@ -82,7 +82,7 @@
     "phone": "iQOO Neo9S Pro+",
     "bridge": "Gadgetbridge Bangle.js/NUS",
     "application": "QQ",
-    "notification_experiment": "pending",
+    "notification_experiment": "complete bounded contrast; same-ID phone update not exercised",
     "capture": "artifacts/notification-trace/20261012-194059-754",
     "early_queries_without_ack": [
       "show_date",
@@ -103,14 +103,343 @@
       "gaps": 0,
       "stale": 0
     },
-    "observations": []
+    "observations": [
+      {
+        "case": "DND popup concern",
+        "user_report": "control-center temporary keep-awake, DND enabled: received in center without popup",
+        "after_dnd_off": "C banner and center both present",
+        "interpretation": "expected behavior; no firmware change"
+      },
+      {
+        "case": "controlled A2",
+        "received_local": "2026-10-12 19:57:00",
+        "op": "notify",
+        "id": 1791710043,
+        "result": "add",
+        "cache_count": 1,
+        "generation": 1,
+        "sequence": 258,
+        "tick": 975184,
+        "user_card_count": 1,
+        "stats": {
+          "added": 21,
+          "updated": 0,
+          "removed": 5,
+          "rejected": 0,
+          "unknown": 0,
+          "dropped": 0,
+          "gaps": 0,
+          "stale": 0
+        }
+      },
+      {
+        "case": "controlled B2 and sender withdrawal",
+        "b2_received_local": "2026-10-12 19:58:59",
+        "b2_id": 1791710044,
+        "withdraw_received_local": "2026-10-12 19:59:36",
+        "withdraw_id": 1791710045,
+        "both_ops": "notify",
+        "both_results": "add",
+        "snapshot_local": "2026-10-12 19:59:58",
+        "snapshot_total": 3,
+        "snapshot_overwritten": 0,
+        "cache_count": 3,
+        "updated_delta": 0,
+        "removed_delta": 0,
+        "user_before": "two cards",
+        "user_after": "new withdrawal notification; original B2 visible",
+        "photos": "A2/B2 visible, withdrawal notification and B2 visible; local only"
+      },
+      {
+        "case": "extra unlabelled notification",
+        "received_local": "2026-10-12 20:00:44",
+        "id": 1791710046,
+        "op": "notify",
+        "result": "add",
+        "cache_count": 4,
+        "source_and_content": "not captured; do not assign to A2/B2"
+      },
+      {
+        "case": "QQ notification shade removal",
+        "received_local": "2026-10-12 20:01:54",
+        "removed_ids": [
+          1791710043,
+          1791710044,
+          1791710045,
+          1791710046
+        ],
+        "missing_old_id": 1791710042,
+        "final_cache_count": 0,
+        "user_report": "A2 B2 withdrawal cards all disappear",
+        "local_watch_delete_requested": false,
+        "stats": {
+          "added": 24,
+          "updated": 0,
+          "removed": 9,
+          "rejected": 0,
+          "unknown": 0
+        }
+      }
+    ],
+    "ready_baseline": {
+      "connected": 1,
+      "subscribed": 1,
+      "generation": 1,
+      "messages": 0,
+      "added": 0,
+      "updated": 0,
+      "removed": 0,
+      "rejected": 0,
+      "unknown": 0,
+      "dropped": 0,
+      "gaps": 0,
+      "stale": 0,
+      "trace_enabled": 1,
+      "trace_total": 0,
+      "trace_overwritten": 0,
+      "ids_count": 0,
+      "phone_time_sync_utc": 1791805681,
+      "phone_time_sync_result": 0,
+      "query_utc": "2026-10-12 11:48:26",
+      "query_local": "2026-10-12 19:48:26",
+      "trace_on_ack_local": "2026-10-12 19:48:51"
+    },
+    "helper_failure": "Empty Value rejected before UART write; no device action",
+    "exploratory": {
+      "total": 49,
+      "trace_overwritten": 17,
+      "combined_dump_ranges": [
+        "1..25",
+        "18..49"
+      ],
+      "combined_complete": true,
+      "add": 20,
+      "update": 0,
+      "remove_hit": 5,
+      "remove_miss": 24,
+      "generation": 1,
+      "queue_errors": 0,
+      "controlled_j4_pass": false,
+      "limit": "unverified exploratory actions and non-protocol cache decreases; not an A/B/withdraw acceptance"
+    },
+    "controlled_trace": {
+      "enabled": 0,
+      "total": 9,
+      "overwritten": 0,
+      "records": [
+        {
+          "n": 1,
+          "op": "notify",
+          "id": 1791710043,
+          "valid": true,
+          "result": "add",
+          "count": 1,
+          "tick": 975184,
+          "generation": 1,
+          "sequence": 258,
+          "dropped": 0,
+          "gaps": 0,
+          "stale": 0
+        },
+        {
+          "n": 2,
+          "op": "notify",
+          "id": 1791710044,
+          "valid": true,
+          "result": "add",
+          "count": 2,
+          "tick": 1094422,
+          "generation": 1,
+          "sequence": 266,
+          "dropped": 0,
+          "gaps": 0,
+          "stale": 0
+        },
+        {
+          "n": 3,
+          "op": "notify",
+          "id": 1791710045,
+          "valid": true,
+          "result": "add",
+          "count": 3,
+          "tick": 1131768,
+          "generation": 1,
+          "sequence": 274,
+          "dropped": 0,
+          "gaps": 0,
+          "stale": 0
+        },
+        {
+          "n": 4,
+          "op": "notify",
+          "id": 1791710046,
+          "valid": true,
+          "result": "add",
+          "count": 4,
+          "tick": 1199395,
+          "generation": 1,
+          "sequence": 286,
+          "dropped": 0,
+          "gaps": 0,
+          "stale": 0
+        },
+        {
+          "n": 5,
+          "op": "notify-",
+          "id": 1791710042,
+          "valid": true,
+          "result": "miss",
+          "count": 4,
+          "tick": 1269024,
+          "generation": 1,
+          "sequence": 288,
+          "dropped": 0,
+          "gaps": 0,
+          "stale": 0
+        },
+        {
+          "n": 6,
+          "op": "notify-",
+          "id": 1791710043,
+          "valid": true,
+          "result": "remove",
+          "count": 3,
+          "tick": 1269031,
+          "generation": 1,
+          "sequence": 290,
+          "dropped": 0,
+          "gaps": 0,
+          "stale": 0
+        },
+        {
+          "n": 7,
+          "op": "notify-",
+          "id": 1791710044,
+          "valid": true,
+          "result": "remove",
+          "count": 2,
+          "tick": 1269036,
+          "generation": 1,
+          "sequence": 292,
+          "dropped": 0,
+          "gaps": 0,
+          "stale": 0
+        },
+        {
+          "n": 8,
+          "op": "notify-",
+          "id": 1791710045,
+          "valid": true,
+          "result": "remove",
+          "count": 1,
+          "tick": 1269055,
+          "generation": 1,
+          "sequence": 294,
+          "dropped": 0,
+          "gaps": 0,
+          "stale": 0
+        },
+        {
+          "n": 9,
+          "op": "notify-",
+          "id": 1791710046,
+          "valid": true,
+          "result": "remove",
+          "count": 0,
+          "tick": 1269059,
+          "generation": 1,
+          "sequence": 296,
+          "dropped": 0,
+          "gaps": 0,
+          "stale": 0
+        }
+      ]
+    },
+    "final_state": {
+      "connected": 1,
+      "subscribed": 1,
+      "generation": 1,
+      "messages": 0,
+      "added": 24,
+      "updated": 0,
+      "removed": 9,
+      "rejected": 0,
+      "unknown": 0,
+      "dropped": 0,
+      "gaps": 0,
+      "stale": 0,
+      "trace_enabled": 0,
+      "trace_total": 9,
+      "trace_overwritten": 0,
+      "query_utc": "2026-10-12 12:02:49",
+      "query_ack_local": "2026-10-12 20:02:48",
+      "no_manual_time_setter": true
+    },
+    "capture_result": {
+      "started": "2026-10-12T19:40:59.7987493+08:00",
+      "finished": "2026-10-12T20:04:01.8151978+08:00",
+      "port": "COM5",
+      "baud": 1000000,
+      "dtr": false,
+      "rts": false,
+      "characters_read": 20260,
+      "actions": 43,
+      "stop_requested": true,
+      "error": null
+    },
+    "capture_hashes": [
+      {
+        "file": "uart.txt",
+        "sha256": "87d7ca38b4c49760b18faafc59349531e0c1a2c622e4594367c9504962021d92"
+      },
+      {
+        "file": "events.jsonl",
+        "sha256": "b74ab0a8288b34d770f5dc4bdba79983993cf690ca79703a4cdc0604c58d5827"
+      },
+      {
+        "file": "actions.jsonl",
+        "sha256": "1c0d902ea3df786cade291489d1c134b52725ab1538989796263904300842236"
+      },
+      {
+        "file": "result.json",
+        "sha256": "78fc82e95df2d1858c1baa5889293f6997dd6ad0ff54227d2814780cfee41bd1"
+      }
+    ],
+    "photos": [
+      {
+        "local_path": "artifacts/notification-trace/photos/a2-b2-visible.jpg",
+        "sha256": "db9a128b500b35c774c0d5a8d88c873a11404b0670221525ef95006403192fad",
+        "public_image": false
+      },
+      {
+        "local_path": "artifacts/notification-trace/photos/withdraw-and-b2-visible.jpg",
+        "sha256": "beff37e7ae52f0aa30474aad30df623ada72a80fe4a6cfaab7b9f7146417c71e",
+        "public_image": false
+      }
+    ],
+    "post_withdraw_queries_without_ack": {
+      "local_window": "2026-10-12 20:00:27..30",
+      "commands": [
+        "wf_ble trace dump",
+        "wf_ble ids",
+        "wf_ble status",
+        "show_date"
+      ],
+      "valid_previous_snapshot": "2026-10-12 19:59:58",
+      "valid_next_snapshot": "2026-10-12 20:02:45"
+    }
   },
-  "conclusion": "No attribution yet; await real phone op/id/cache contrast",
+  "conclusion": "This QQ contrast delivers A2/B2/withdrawal as distinct-ID adds, not same-ID update/removal. Real notify- on notification-shade removal is applied correctly. No firmware ID/cache matching defect reproduced; no claim about historical fault or Android/phone TX cause beyond received semantics.",
   "not_covered": [
     "full J3/J4 matrix",
     "stress/IRQ latency",
     "battery/current/lifetime",
-    "phone APK provenance"
+    "phone APK provenance",
+    "real phone same-ID update",
+    "phone TX and Android callback logs",
+    "unlabelled fourth notification content",
+    "historical J4 root cause"
   ],
-  "next": "wake, connect, verify RTC and enable trace, then QQ A/B and withdraw contrast"
+  "next": "final review and PR rebase delivery; no automatic phone-client implementation",
+  "candidate_commit": "07302bc6a33b234661d45a9189213fea9bd1a367"
 }

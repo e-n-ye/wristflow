@@ -5,7 +5,7 @@
 <a id="notification-trace"></a>
 ## 2026-10-12 通知协议诊断
 
-用户恢复旧 J4 的重复卡片／撤回残留排查，确认原 iQOO Neo9S Pro+／Gadgetbridge／QQ 链路与 USB-only 条件。旧失败缺操作类型和 ID，不能归因。当前 `codex/notification-trace` 基于 `ca6ae012`，仅增加元数据观察，不改变按 ID 更新／删除的语义。
+用户恢复旧 J4 的重复卡片／撤回残留排查，确认原 iQOO Neo9S Pro+／Gadgetbridge／QQ 链路与 USB-only 条件。旧失败缺操作类型和 ID，不能追溯归因。本轮 `codex/notification-trace` 基于 `ca6ae012`，仅增加元数据观察，不改变按 ID 更新／删除的语义。新同版对照定位：A2、B2、聊天撤回提示是三个不同 ID 的新增 notify；手机通知栏移除才发 notify-，固件命中删除。没有复现同 ID 重复入库或收到删除后漏删，不能为聊天撤回文案猜测应删除哪条消息。
 
 `wf_ble trace on` 开始新窗口，默认关闭；最近 32 条通知解析结果只存 RAM，超出时覆盖最旧项并报告 overwritten。`wf_ble trace dump` 输出操作（notify／notify~／notify-）、有效 ID、结果（add／update／remove／miss／invalid-id／invalid-fields）、缓存数量、RT tick、接收代次／包序号及 dropped／gaps／stale。invalid-id 的 id=0 是占位，valid=0；不代表真实协议 ID。未形成可解析通知对象的帧仍由 rejected／unknown 和队列计数诊断，不能仅凭 trace 中没有 remove 断言手机没有发送。回调不输出原始 JSON、来源、标题或正文。
 
@@ -13,9 +13,19 @@
 
 官方 Gadgetbridge 0.94.0 tag 为 `2ee6b3002f250e24328ac91b948bce0b2243a0db`。[NotificationListener](https://codeberg.org/Freeyourgadget/Gadgetbridge/src/tag/0.94.0/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/externalevents/NotificationListener.java#L462) 新建 `NotificationSpec(-1, notification.when)` 并另存 Android key；[NotificationSpec](https://codeberg.org/Freeyourgadget/Gadgetbridge/src/tag/0.94.0/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/model/NotificationSpec.kt#L30) 负 requestedId 使用自增 ID。[BangleJSDeviceSupport](https://codeberg.org/Freeyourgadget/Gadgetbridge/src/tag/0.94.0/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/banglejs/BangleJSDeviceSupport.java#L1500) 发送 notify／notify-，该路径没有发送 notify~。Android 通知移除还受设备 `autoremove_notifications` 设置控制。由此推断重复发布可能产生新 ID，但手机安装包来源、实际操作和本次 ID 尚需现场核对，不能由源码替代真机结论。
 
-最终相关主机 `phone_protocol`／`phone_queue`／`notifications_ui` **3/3** 通过（0.91 秒），包含通知结果观察和原 NOTIFY／REMOVE／REJECT 事件数量断言。Product 官方 SCons 编译退出 0、383 份源码及 29 个产物重哈希匹配；主 BIN 7,712,444 B／`66d5c716…`，最终记录位于隔离工作树 `artifacts/product/20261012-193646-605/result.json`。首次编译期间修订 dump，已重新编译最终源码；dump 在锁内复制静态快照，解锁后输出，避免阻塞 BLE worker。只改 Product 与主机协议测试，UI Demo 不编入该协议／传输源，未新增其编译。锁定 SDK／子模块与工具沿用，设备对照待采集，完整联合矩阵继续保留。
+最终相关主机 `phone_protocol`／`phone_queue`／`notifications_ui` **3/3** 通过（0.91 秒），包含通知结果观察和原 NOTIFY／REMOVE／REJECT 事件数量断言。Product 官方 SCons 编译退出 0、383 份源码及 29 个产物重哈希匹配；主 BIN 7,712,444 B／`66d5c716…`，最终记录位于隔离工作树 `artifacts/product/20261012-193646-605/result.json`。首次编译期间修订 dump，已重新编译最终源码；dump 在锁内复制静态快照，解锁后输出，避免阻塞 BLE worker。只改 Product 与主机协议测试，UI Demo 不编入该协议／传输源，未新增其编译。锁定 SDK／子模块与工具沿用；有界手机对照见下方，完整联合矩阵继续保留。
 
-同一 CH340 COM5 的三镜像 write_flash --verify 退出 0，记录 `artifacts/flash/product/20261012-193805-270/result.json`。UART 采集打开时 DTR／RTS=false，无自动复位；初次 status 显示未连接、缓存及全部计数为零，show_date／trace dump／ids 没有回执，不能算 RTC 或诊断开关查询成功。等待用户常亮与 Gadgetbridge 连接后重新确认，再开启窗口；当前尚无 A/B 或撤回结论。命令、源码和镜像完整标识见 [精简证据](evidence/2026-10-12/notification-trace.json)。
+同一 CH340 COM5 的三镜像 write_flash --verify 退出 0，记录 `artifacts/flash/product/20261012-193805-270/result.json`。UART 采集打开时 DTR／RTS=false，无自动复位；初次 status 显示未连接、缓存及全部计数为零，show_date／trace dump／ids 没有回执，不能算 RTC 或诊断开关查询成功。当时等待用户常亮与 Gadgetbridge 连接后重新确认，再开启窗口。命令、源码和镜像完整标识见 [精简证据](evidence/2026-10-12/notification-trace.json)。
+
+后续用户确认常亮且连接：19:48:00 连接 generation=1、MTU=131，19:48:01 手机真实校时成功；19:48:26 show_date 与电脑当前 UTC 一致，19:48:27 status 连接／订阅均为 1、缓存和通知／队列计数全零。19:48:28 trace 默认关闭，19:48:51 开启、19:48:52 dump 为 enabled=1／total=0／overwritten=0，ids 查询亦成功。候选提交 `07302bc`。一次空 Value 被采集助手参数校验拒绝，未写入 UART，不是设备命令失败。
+
+第一组被用户报告的“不弹消息窗口”打断；随后澄清为控制中心临时常亮、勿扰开启。源码准入先更新缓存，再按勿扰阻止弹窗；临时常亮本身不在抑制条件内。用户关闭勿扰后确认 C 横幅出现且中心有消息，与既有契约一致，不修固件。探索窗口共 49 条（20 add、0 update、5 remove 命中、24 miss），两个快照的并集覆盖 1–49，32 条环的覆盖计数正常。期间操作未逐条核实且缓存发生未由协议移除解释的下降，不能作受控 J4 结论；解析／队列计数均无错误。
+
+19:55:29 重开窗口，基线缓存 0／累计 added=20、updated=0、removed=5。受控 A2 于 19:57:00 收到 `notify id=1791710043`，结果 add／count=1／generation=1／sequence=258；用户确认一张卡。B2 于 19:58:59 收到 `notify id=1791710044`，count=2；聊天撤回于 19:59:36 收到 `notify id=1791710045`，count=3。19:59:58 完整快照只有三条 add，没有 notify~／notify-；用户确认撤回前两卡、撤回后新增提示且 B2 仍可见，两张照片也显示 A2/B2 与撤回提示并存。照片含联系人显示，只保留在忽略的本机 `artifacts/notification-trace/photos/`，不提交正文、标题或原图。
+
+20:00:44 另收到未标注来源／内容的新 notify `1791710046`，独立记录，不强行归入 A2/B2。用户随后只划掉手机通知栏这一组 QQ 通知，并确认三条测试卡都消失。20:01:54 收到旧 ID `1791710042` 的 remove-miss，以及 `1791710043`–`1791710046` 四个命中删除，count 4→0；20:02:47 累计 added=24／updated=0／removed=9，解析／队列计数全零、连接代次仍为 1。新窗口 9 条完整、无覆盖，明确证明这组有效 ID 的协议移除被执行；未知第四条和探索操作不升级成额外应用语义结论。
+
+20:00:27–30 一组息屏查询没有回执，保留为失败采样；19:59:58 的已确认快照和后续唤醒快照用于判断。20:02:44 trace off 回执成功，20:02:48 只读 UTC 为 12:02:49、与当前真实时间一致；20:04:01 采集正常关闭且进程退出，COM5 已释放。本轮结论来自设备接收端元数据与用户观察，Gadgetbridge 源码提供解释；没有采手机 TX／Android 共同日志、核验 APK 来源，不能进一步区分 QQ 重复发布的具体回调，也没有真实同 ID 更新样本。若以后要求同会话合并或聊天撤回自动替换，需手机端提供稳定 ID／原通知关联；这是后续方案，不在本轮按标题或撤回文案删卡。
 
 ## 行为
 
