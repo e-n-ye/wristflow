@@ -1,0 +1,116 @@
+{
+  "date": "2026-10-12",
+  "scope": "QQ notification update/withdraw metadata diagnosis only",
+  "base_commit": "ca6ae012ef01f0bd633d6f3d55df2120f3b5489e",
+  "worktree": "C:/Users/13984/.codex/worktrees/breathing-product/wristflow",
+  "branch": "codex/notification-trace",
+  "source_hashes": [
+    {
+      "path": "apps/product/src/phone_protocol.c",
+      "sha256": "4988a0221d451e4e5e84525061f9a11b548b721f9a6f2b3c4b3658d91a8feb9e"
+    },
+    {
+      "path": "apps/product/src/phone_protocol.h",
+      "sha256": "3ce836463531f11f2d0b5ef8415c1d857299059e184f9137c18bb0bc9edae4d9"
+    },
+    {
+      "path": "apps/product/src/product_ble.c",
+      "sha256": "e7761e5dd41365fbc0cc375899bf095583db7fd6a2a56b965820d543ad9aa353"
+    },
+    {
+      "path": "tests/phone_protocol.c",
+      "sha256": "56685f6a39527bb15490fc46e44501cf197019f792708dcbed45e99ce5765fa8"
+    }
+  ],
+  "host": {
+    "compiler": "GCC 15.2.0",
+    "command": "cmake --build artifacts/breathing/host --parallel 6; ctest --test-dir artifacts/breathing/host -R ^(phone_protocol|phone_queue|notifications_ui)$ --output-on-failure",
+    "passed": 3,
+    "total": 3,
+    "log": "artifacts/notification-trace/ctest-final.log"
+  },
+  "product": {
+    "record": "artifacts/product/20261012-193646-605/result.json",
+    "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+    "exit_code": 0,
+    "artifact_validation_passed": true,
+    "sources_rehashed": 383,
+    "artifacts_rehashed": 29,
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "python": "Python 3.13.15",
+    "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+    "scons": "4.10.1",
+    "images": [
+      {
+        "name": "bootloader.bin",
+        "path": "C:\\Users\\13984\\.codex\\worktrees\\breathing-product\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+        "address": "0x12010000",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "name": "main.bin",
+        "path": "C:\\Users\\13984\\.codex\\worktrees\\breathing-product\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+        "address": "0x12020000",
+        "bytes": 7712444,
+        "sha256": "66d5c71643e475cf91e69cd9bed4fccd850cd2f7bd511e687568751fc3652811"
+      },
+      {
+        "name": "ftab.bin",
+        "path": "C:\\Users\\13984\\.codex\\worktrees\\breathing-product\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+        "address": "0x12000000",
+        "bytes": 11288,
+        "sha256": "30b47850415997cdfe9e6a02ec00fa45c397af7de45b6890a686f8704bed267a"
+      }
+    ]
+  },
+  "flash": {
+    "record": "artifacts/flash/product/20261012-193805-270/result.json",
+    "exit_code": 0,
+    "port": "COM5",
+    "vid_pid": "1A86:7523",
+    "verify": true
+  },
+  "upstream": {
+    "tag": "Gadgetbridge 0.94.0",
+    "commit": "2ee6b3002f250e24328ac91b948bce0b2243a0db",
+    "installed_apk_source_verified": false
+  },
+  "hardware": {
+    "power": "USB only",
+    "same_board_and_screen_user_confirmed": true,
+    "phone": "iQOO Neo9S Pro+",
+    "bridge": "Gadgetbridge Bangle.js/NUS",
+    "application": "QQ",
+    "notification_experiment": "pending",
+    "capture": "artifacts/notification-trace/20261012-194059-754",
+    "early_queries_without_ack": [
+      "show_date",
+      "wf_ble trace dump",
+      "wf_ble ids"
+    ],
+    "baseline_status": {
+      "connected": 0,
+      "subscribed": 0,
+      "generation": 0,
+      "messages": 0,
+      "added": 0,
+      "updated": 0,
+      "removed": 0,
+      "rejected": 0,
+      "unknown": 0,
+      "dropped": 0,
+      "gaps": 0,
+      "stale": 0
+    },
+    "observations": []
+  },
+  "conclusion": "No attribution yet; await real phone op/id/cache contrast",
+  "not_covered": [
+    "full J3/J4 matrix",
+    "stress/IRQ latency",
+    "battery/current/lifetime",
+    "phone APK provenance"
+  ],
+  "next": "wake, connect, verify RTC and enable trace, then QQ A/B and withdraw contrast"
+}

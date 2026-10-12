@@ -2,9 +2,24 @@
 
 2026-09-27。在同一 Product 的 BLE A1 与 PM P1 上继续实现已确认的完整通知 UI；采购已由用户全部下单，待到货。本增量不重置三个月日历、预算或 Gadgetbridge 累计实验上限。
 
+<a id="notification-trace"></a>
+## 2026-10-12 通知协议诊断
+
+用户恢复旧 J4 的重复卡片／撤回残留排查，确认原 iQOO Neo9S Pro+／Gadgetbridge／QQ 链路与 USB-only 条件。旧失败缺操作类型和 ID，不能归因。当前 `codex/notification-trace` 基于 `ca6ae012`，仅增加元数据观察，不改变按 ID 更新／删除的语义。
+
+`wf_ble trace on` 开始新窗口，默认关闭；最近 32 条通知解析结果只存 RAM，超出时覆盖最旧项并报告 overwritten。`wf_ble trace dump` 输出操作（notify／notify~／notify-）、有效 ID、结果（add／update／remove／miss／invalid-id／invalid-fields）、缓存数量、RT tick、接收代次／包序号及 dropped／gaps／stale。invalid-id 的 id=0 是占位，valid=0；不代表真实协议 ID。未形成可解析通知对象的帧仍由 rejected／unknown 和队列计数诊断，不能仅凭 trace 中没有 remove 断言手机没有发送。回调不输出原始 JSON、来源、标题或正文。
+
+`wf_ble ids` 只输出当前缓存顺序和 ID；新查询／trace 控制不发送 UI／PM 事件。`wf_ble status` 保留既有计数，`list` 会输出正文，不用于常规采集。关闭窗口用 `wf_ble trace off`，仍可 dump 保留记录；重启清空并关闭。短窗口内保持连接，不主动删手表缓存；记录 A、B、QQ 撤回提示和手机通知栏移除的时间，分别对照操作／ID／计数。手机通知栏移除与聊天消息撤回是两个不同触发，不能用提示文案猜测应删哪条消息。
+
+官方 Gadgetbridge 0.94.0 tag 为 `2ee6b3002f250e24328ac91b948bce0b2243a0db`。[NotificationListener](https://codeberg.org/Freeyourgadget/Gadgetbridge/src/tag/0.94.0/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/externalevents/NotificationListener.java#L462) 新建 `NotificationSpec(-1, notification.when)` 并另存 Android key；[NotificationSpec](https://codeberg.org/Freeyourgadget/Gadgetbridge/src/tag/0.94.0/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/model/NotificationSpec.kt#L30) 负 requestedId 使用自增 ID。[BangleJSDeviceSupport](https://codeberg.org/Freeyourgadget/Gadgetbridge/src/tag/0.94.0/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/banglejs/BangleJSDeviceSupport.java#L1500) 发送 notify／notify-，该路径没有发送 notify~。Android 通知移除还受设备 `autoremove_notifications` 设置控制。由此推断重复发布可能产生新 ID，但手机安装包来源、实际操作和本次 ID 尚需现场核对，不能由源码替代真机结论。
+
+最终相关主机 `phone_protocol`／`phone_queue`／`notifications_ui` **3/3** 通过（0.91 秒），包含通知结果观察和原 NOTIFY／REMOVE／REJECT 事件数量断言。Product 官方 SCons 编译退出 0、383 份源码及 29 个产物重哈希匹配；主 BIN 7,712,444 B／`66d5c716…`，最终记录位于隔离工作树 `artifacts/product/20261012-193646-605/result.json`。首次编译期间修订 dump，已重新编译最终源码；dump 在锁内复制静态快照，解锁后输出，避免阻塞 BLE worker。只改 Product 与主机协议测试，UI Demo 不编入该协议／传输源，未新增其编译。锁定 SDK／子模块与工具沿用，设备对照待采集，完整联合矩阵继续保留。
+
+同一 CH340 COM5 的三镜像 write_flash --verify 退出 0，记录 `artifacts/flash/product/20261012-193805-270/result.json`。UART 采集打开时 DTR／RTS=false，无自动复位；初次 status 显示未连接、缓存及全部计数为零，show_date／trace dump／ids 没有回执，不能算 RTC 或诊断开关查询成功。等待用户常亮与 Gadgetbridge 连接后重新确认，再开启窗口；当前尚无 A/B 或撤回结论。命令、源码和镜像完整标识见 [精简证据](evidence/2026-10-12/notification-trace.json)。
+
 ## 行为
 
-- 内存最多十条消息，最新在前；同 ID 更新并移到前面，手机撤回后同步移除。列表打开期间更新不会重建正在触摸的行；按下与松开时 ID 不同则取消点击。
+- 内存最多十条消息，最新在前；同 ID 更新并移到前面，收到手机协议 `notify-` 后按 ID 移除。QQ 聊天撤回提示是否产生此操作取决于手机端转发，不能保证仅凭提示删除原消息。列表打开期间更新不会重建正在触摸的行；按下与松开时 ID 不同则取消点击。
 - 表盘下滑进入通知中心，点击卡片查看多行详情；列表和详情可竖直滚动。按用户 2026-09-27 Redmi Watch 4 参考图修订：列表内左滑卡片露出右侧垃圾桶，点击后原位删除；详情页只阅读正文。右滑或点移开的正文收起操作区，同时最多展开一条；消息重排后关闭受影响的操作区，按下/松开 ID 不符不删除。列表底部可清空全部。手表删除仅改本地存储，不向手机发送 DISMISS，断连不清空现存列表，不承诺离线补送。
 - 亮屏收到消息显示三秒顶部横幅，点击后进入中心。消息临近普通熄屏或处于变暗态时仍获得完整显示时长。
 - 息屏且非勿扰时收到消息，先恢复屏幕并等待首帧完成，再显示五秒独立预览。点击预览进入该条详情；上滑或 KEY1 收起并保持亮屏；无操作超时再次关屏。触摸预览会续五秒。
