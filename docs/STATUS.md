@@ -6,7 +6,7 @@
 本区是活动任务和下一步的唯一权威来源；下方 history、任务书和专题中的历史下一步不构成执行授权。接续先核对工作树、HEAD 和已有改动，再按 [任务索引](../PROJECT_INDEX.md) 读取。
 
 - **本轮范围**：用户授权 [呼吸训练第三轮](BREATHING.md#round3)USB 验收，并确认同一黄山派／屏幕、USB-only、无新增接线，可以配合屏幕和 KEY1。现场补充圆环吸气顺时针、呼气逆时针旋转；当前只修订并验证该动态效果，再继续修订版 USB。其余呼吸保存／重启、显示／输入、通知与提醒契约保留，不自动接 PPG、RTC 修复或功耗实验。
-- **版本与工作区**：[PR #48](https://github.com/e-n-ye/wristflow/pull/48) 已 Rebase 合入 `bba01b037d148c2662992252eb8ed24c2d746dc8`，MERGED／fetch／全树核对完成。本轮复用干净的隔离工作树 `breathing-product/wristflow`，从最新 `origin/main` 建立 `codex/breathing-usb`；主目录 12 处 Pro 改动、旧工作树与本机证据保留。
+- **版本与工作区**：[PR #48](https://github.com/e-n-ye/wristflow/pull/48) 已 Rebase 合入 `bba01b037d148c2662992252eb8ed24c2d746dc8`，MERGED／fetch／全树核对完成。本轮复用隔离工作树 `breathing-product/wristflow`，从最新 `origin/main` 建立 `codex/breathing-usb`；主目录 12 处 Pro 改动、旧工作树与本机证据保留。旋转实施 `9f3e285` 已推送至草稿 [PR #49](https://github.com/e-n-ye/wristflow/pull/49)，因第三轮设备反馈尚未完成保留草稿，未合入。
 - **已有设备结果**：闹钟第三轮与列表滚动提示已完成，用户重建三条重复闹钟，五条内容与开关正确；已恢复真实时间、正常停止采集。不再次复位。RTC 跨 RTS 保时仍未通过，见 [ALARM](ALARM.md#round3)。
 - **当前证据**：第二轮已交付，见 [第二轮记录](BREATHING.md#round2)。原版 `bba01b0` 三镜像已写入／verify，日志见 KEY1 唤醒、时长保存成功及息屏；第一组整体操作反馈未取得。聊天中断使首段采集退出且缺正常关闭结果，日志／原镜像保留。旋转手写 view 修订最终 **32/32** 主机通过，实际 LVGL 动画与双目标编译／全部源和产物核对通过，见[旋转软件证据](evidence/2026-10-12/breathing-rotation.json)。设备现已完整写入旋转实施 `9f3e285` 的三镜像／verify；首次连接中断失败后重试成功，见[第三轮记录](BREATHING.md#round3)。修订版第一组设备反馈待取得。
 
