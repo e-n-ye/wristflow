@@ -238,9 +238,9 @@ int main(int argc, char **argv)
     assert(wristflow_ui_shell_home(shell)); advance(32); visible("breathing_exit_confirm", true);
     wristflow_ui_shell_destroy(shell); assert(timers() == baseline);
     shell = create(true);
-    assert(!wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_BREATHING));
     assert(wristflow_ui_shell_key(shell)); advance(400);
-    assert(!lv_obj_find_by_name(lv_screen_active(), "launch_breathing"));
+    assert(lv_obj_find_by_name(lv_screen_active(), "launch_breathing"));
+    open(shell);
     wristflow_ui_shell_destroy(shell); assert(timers() == baseline);
     lv_indev_delete(input); lv_display_delete(display); lv_deinit();
     return 0;

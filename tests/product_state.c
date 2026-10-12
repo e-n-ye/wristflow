@@ -8,13 +8,15 @@ int main(void)
     assert(defaults.brightness == 60 && strcmp(defaults.face_id, "diffusion") == 0);
     assert(defaults.menu_layout == WRISTFLOW_MENU_LIST);
     assert(defaults.face_long_press && defaults.screen_timeout == 10);
-    const wristflow_settings_t chosen = {37, "simple", WRISTFLOW_MENU_GRID, false, 60, true};
+    assert(defaults.breathing_minutes == 1);
+    const wristflow_settings_t chosen = {37, "simple", WRISTFLOW_MENU_GRID, false, 60, true, 5};
     uint8_t record[WRISTFLOW_SETTINGS_BYTES];
     assert(wristflow_settings_encode(&chosen, record));
     wristflow_settings_t restored = defaults;
     assert(wristflow_settings_decode(&restored, record, sizeof record));
     assert(wristflow_settings_equal(&chosen, &restored));
     assert(restored.do_not_disturb);
+    assert(restored.breathing_minutes == 5);
     for (unsigned byte = 0; byte < sizeof record; ++byte) {
         for (unsigned bit = 0; bit < 8; ++bit) {
             record[byte] ^= 1U << bit;
@@ -51,6 +53,35 @@ int main(void)
     for (unsigned i = 0; i < 4; ++i) v3[20+i] = (uint8_t)(hash >> (i*8));
     assert(wristflow_settings_decode(&restored, v3, sizeof v3));
     assert(!restored.do_not_disturb && !restored.face_long_press && restored.screen_timeout == 30 && restored.brightness == 27);
+    assert(restored.breathing_minutes == 1);
+    /* Deployed v4 retains DND and display settings, acquiring default duration. */
+    uint8_t v4[WRISTFLOW_SETTINGS_BYTES];
+    memcpy(v4, v3, sizeof v4); v4[2] = 4; v4[16] = 1;
+    hash = 2166136261U;
+    for (unsigned i = 0; i < 20; ++i) hash = (hash ^ v4[i]) * 16777619U;
+    for (unsigned i = 0; i < 4; ++i) v4[20+i] = (uint8_t)(hash >> (i*8));
+    assert(wristflow_settings_decode(&restored, v4, sizeof v4));
+    assert(restored.do_not_disturb && restored.screen_timeout == 30 && restored.breathing_minutes == 1);
+    /* Never reuse the deployed C2 draft's v5 ID/flag semantics for breathing. */
+    v4[2] = 5; v4[16] = 3;
+    hash = 2166136261U;
+    for (unsigned i = 0; i < 20; ++i) hash = (hash ^ v4[i]) * 16777619U;
+    for (unsigned i = 0; i < 4; ++i) v4[20+i] = (uint8_t)(hash >> (i*8));
+    restored = defaults;
+    assert(!wristflow_settings_decode(&restored, v4, sizeof v4));
+    assert(wristflow_settings_equal(&restored, &defaults));
+    for (unsigned minutes = 0; minutes <= 6; ++minutes) {
+        restored = chosen; restored.breathing_minutes = minutes;
+        assert(wristflow_settings_encode(&restored, record) == (minutes >= 1 && minutes <= 5));
+    }
+    /* A checksummed but out-of-range v6 duration must preserve caller defaults. */
+    assert(wristflow_settings_encode(&chosen, record)); record[15] = 6;
+    hash = 2166136261U;
+    for (unsigned i = 0; i < 20; ++i) hash = (hash ^ record[i]) * 16777619U;
+    for (unsigned i = 0; i < 4; ++i) record[20+i] = (uint8_t)(hash >> (i*8));
+    restored = defaults;
+    assert(!wristflow_settings_decode(&restored, record, sizeof record));
+    assert(wristflow_settings_equal(&restored, &defaults));
     restored.screen_timeout = 6;
     assert(!wristflow_settings_encode(&restored, record));
     restored = chosen;

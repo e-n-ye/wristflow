@@ -34,7 +34,7 @@ static void weather(const wristflow_watch_snapshot_t *snapshot, wristflow_app_da
 /* One identity feeds the menu, the card and its destination. XML owns geometry. */
 static const wristflow_app_descriptor_t apps[] = {
     {"breathing", "呼吸训练", "\xef\x86\x92", "launch_breathing", WRISTFLOW_SURFACE_BREATHING,
-        WRISTFLOW_CAPABILITY_READY, 0, 0x008cff, "", screen_breathing_create, NULL, true},
+        WRISTFLOW_CAPABILITY_READY, 0, 0x008cff, "", screen_breathing_create, NULL, false},
     {"countdown", "倒计时", "\xef\x89\x92", "launch_countdown", WRISTFLOW_SURFACE_COUNTDOWN,
         WRISTFLOW_CAPABILITY_READY, 0, 0x008cff, "", screen_countdown_create, NULL, true},
     {"stopwatch", "秒表", "\xef\x8b\xb2", "launch_stopwatch", WRISTFLOW_SURFACE_STOPWATCH,

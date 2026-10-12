@@ -15,6 +15,28 @@ bool wristflow_display_keep(wristflow_display_policy_t *p, uint32_t now, unsigne
     return true;
 }
 
+bool wristflow_display_acquire(wristflow_display_policy_t *p, uint32_t now,
+    void *owner, const char *reason, uint32_t duration_ms)
+{
+    if (!p || !owner || !reason || !*reason || !duration_ms || duration_ms > INT32_MAX ||
+        (p->lease_owner && p->lease_owner != owner)) return false;
+    p->lease_owner = owner; p->lease_reason = reason;
+    p->lease_at = now; p->lease_ms = duration_ms;
+    wristflow_display_activity(p, now);
+    return true;
+}
+
+bool wristflow_display_expired(const wristflow_display_policy_t *p, uint32_t now)
+{ return p && p->lease_owner && now - p->lease_at >= p->lease_ms; }
+
+bool wristflow_display_release(wristflow_display_policy_t *p, uint32_t now, void *owner)
+{
+    if (!p || !owner || p->lease_owner != owner) return false;
+    p->lease_owner = 0; p->lease_reason = 0; p->lease_ms = 0;
+    wristflow_display_activity(p, now);
+    return true;
+}
+
 void wristflow_display_tick(wristflow_display_policy_t *p, uint32_t now, unsigned timeout, bool flashlight)
 {
     if (p->keep_ms && now - p->keep_at >= p->keep_ms) {
@@ -25,7 +47,7 @@ void wristflow_display_tick(wristflow_display_policy_t *p, uint32_t now, unsigne
         p->flashlight = flashlight;
         wristflow_display_activity(p, now);
     }
-    if (p->flashlight || p->keep_ms || p->phase == WRISTFLOW_DISPLAY_OFF) return;
+    if (p->flashlight || p->keep_ms || p->lease_owner || p->phase == WRISTFLOW_DISPLAY_OFF) return;
     uint32_t idle = now - p->activity_at;
     if (idle >= timeout * 1000U) {
         p->phase = WRISTFLOW_DISPLAY_OFF;

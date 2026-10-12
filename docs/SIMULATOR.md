@@ -16,7 +16,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Simulate.ps1
 
 隔离工作树的子模块未初始化时，主机工程可用 `-DWRISTFLOW_SDK_ROOT=<已按 sdk.lock.json 核验的 SDK checkout>` 指定现有依赖；默认仍为本仓库 `vendor/SiFli-SDK`。该参数只选择依赖路径，不代替锁定版本、子模块与干净状态检查，也不用于切换 LVGL 版本。直接配置 `tests` 时使用独立 `-B` 输出目录，编译后运行该目录的 CTest；需要交互窗口再加 `-DWRISTFLOW_BUILD_SIMULATOR=ON`。脚本启动入口仍使用当前仓库的 SDK。
 
-2026-10-11 的[呼吸训练第一轮](BREATHING.md)在 UI Demo 开放，在 Product 保持 gated；退出确认和动画的主机证据不代表 Product 保存、电源或提醒联动已实现。
+2026-10-11 [呼吸第一轮](BREATHING.md#第一轮记录)在 UI Demo 开放，Product 当时保持 gated；2026-10-12 [第二轮](BREATHING.md#round2)开放 Product 并接入时长保存、亮屏申请和提醒生命周期，32/32 主机与双目标编译通过。主机配置重建和像素不能代替真实 Flash／设备常亮／触摸／提醒恢复，USB 第三轮独立。
 
 ## 本批操作
 

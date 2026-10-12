@@ -21,6 +21,7 @@ typedef struct {
     bool face_long_press;
     uint8_t screen_timeout;
     bool do_not_disturb;
+    uint8_t breathing_minutes;
 } wristflow_settings_t;
 
 bool wristflow_screen_timeout_valid(unsigned seconds);

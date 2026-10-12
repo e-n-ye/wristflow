@@ -53,6 +53,7 @@ struct wristflow_ui_shell {
     wristflow_settings_t preferences;
     wristflow_display_policy_t display;
     lv_timer_t *display_timer;
+    void (*awake_expired)(void *);
     wristflow_brightness_cb_t brightness_cb;
     void *platform_context;
     uint8_t applied_brightness;
@@ -85,6 +86,12 @@ static void apply_brightness(wristflow_ui_shell_t *shell, uint8_t value)
 static void display_tick(lv_timer_t *timer)
 {
     wristflow_ui_shell_t *shell = lv_timer_get_user_data(timer);
+    if (wristflow_display_expired(&shell->display, lv_tick_get())) {
+        void *owner = shell->display.lease_owner;
+        void (*expired)(void *) = shell->awake_expired;
+        if (expired) expired(owner);
+        wristflow_ui_shell_release_awake(shell, owner);
+    }
     if (wristflow_reminder_host_active(shell->reminder)) {
         bool off = wristflow_reminder_host_phase(shell->reminder, lv_tick_get()) == WRISTFLOW_DISPLAY_OFF;
         apply_brightness(shell, off ? 0 : wristflow_apps_brightness(shell->apps));
@@ -316,6 +323,7 @@ static bool confirm_stopwatch_exit(wristflow_ui_shell_t *shell, unsigned action,
 static void breathing_exit_commit(void *context)
 {
     wristflow_ui_shell_t *shell = context;
+    if (shell->breathing_exit == STOPWATCH_EXIT_NOTIFICATION) { commit_notification(shell); return; }
     if (shell->breathing_exit == STOPWATCH_EXIT_BACK) wristflow_ui_shell_back(shell);
     else if (shell->breathing_exit == STOPWATCH_EXIT_HOME) wristflow_ui_shell_home(shell);
     else wristflow_ui_shell_open(shell, shell->breathing_destination);
@@ -365,6 +373,7 @@ static bool session_exempt(wristflow_ui_shell_t *shell)
     return (surface >= WRISTFLOW_SURFACE_COMPONENT_EDITOR && surface <= WRISTFLOW_SURFACE_COMPONENT_TEMPLATES) ||
         (surface == WRISTFLOW_SURFACE_COUNTDOWN && wristflow_apps_countdown_active(shell->apps)) ||
         wristflow_apps_alarm_editing(shell->apps) ||
+        wristflow_apps_breathing_active(shell->apps) ||
         (shell->components ? wristflow_apps_timer_has_data(shell->apps) : wristflow_apps_timer_running(shell->apps));
 }
 
@@ -809,7 +818,6 @@ bool wristflow_ui_shell_configure(wristflow_ui_shell_t *shell, const wristflow_s
 void wristflow_ui_shell_enable_display_policy(wristflow_ui_shell_t *shell)
 {
     if (!shell || shell->display_timer) return;
-    wristflow_display_init(&shell->display, lv_tick_get());
     shell->display_timer = lv_timer_create(display_tick, 50, shell);
 }
 
@@ -844,6 +852,30 @@ bool wristflow_ui_shell_keep_awake(wristflow_ui_shell_t *shell, unsigned minutes
 
 unsigned wristflow_ui_shell_keep_minutes(const wristflow_ui_shell_t *shell)
 { return shell ? shell->display.keep_ms / 60000U : 0; }
+
+bool wristflow_ui_shell_acquire_awake(wristflow_ui_shell_t *shell, void *owner,
+    const char *reason, uint32_t duration_ms, void (*expired)(void *))
+{
+    if (!shell || !expired || !wristflow_display_acquire(&shell->display, lv_tick_get(),
+        owner, reason, duration_ms)) return false;
+    shell->awake_expired = expired;
+    if (shell->ready && !wristflow_ui_shell_reminder_active(shell))
+        apply_brightness(shell, wristflow_apps_brightness(shell->apps));
+    return true;
+}
+
+void wristflow_ui_shell_release_awake(wristflow_ui_shell_t *shell, void *owner)
+{
+    if (shell && wristflow_display_release(&shell->display, lv_tick_get(), owner))
+        shell->awake_expired = NULL;
+}
+
+bool wristflow_ui_shell_set_breathing_minutes(wristflow_ui_shell_t *shell, unsigned minutes)
+{
+    if (!shell || minutes < 1 || minutes > 5) return false;
+    shell->preferences.breathing_minutes = minutes;
+    return true;
+}
 
 void wristflow_ui_shell_display_retry(wristflow_ui_shell_t *shell)
 {
@@ -926,7 +958,8 @@ bool wristflow_ui_shell_notifications(wristflow_ui_shell_t *shell, const wristfl
     shell->phone_connected = connected;
     wristflow_notification_view_update(shell->notifications, snapshot);
     wristflow_apps_update(shell->apps, &shell->snapshot);
-    if (!alert || wristflow_ui_shell_reminder_active(shell) || shell->preferences.do_not_disturb ||
+    if (!alert || wristflow_ui_shell_reminder_active(shell) || wristflow_apps_breathing_active(shell->apps) ||
+        shell->preferences.do_not_disturb ||
         !wristflow_notification_view_contains(shell->notifications, snapshot->alert_id)) return false;
     bool off = shell->display.phase == WRISTFLOW_DISPLAY_OFF;
     bool preview = off || wristflow_notification_view_alert(shell->notifications) == WF_ALERT_PREVIEW;
@@ -989,13 +1022,16 @@ bool wristflow_ui_shell_open_notification(wristflow_ui_shell_t *shell, bool deta
 {
     if (!shell || !shell->notifications || shell->transitioning || wristflow_ui_shell_reminder_active(shell)) return false;
     if (detail && !wristflow_notification_view_contains(shell->notifications, id)) return false;
-    if (lv_obj_find_by_name(lv_screen_active(), "stopwatch_exit_confirm")) return false;
+    if (lv_obj_find_by_name(lv_screen_active(), "stopwatch_exit_confirm") ||
+        lv_obj_find_by_name(lv_screen_active(), "breathing_exit_confirm")) return false;
     /* An explicit tap ends the temporary presentation before showing the same
      * exit confirmations used by KEY1/Back. Cancel leaves the original view. */
     wristflow_notification_view_hide(shell->notifications);
+    shell->notification_detail = detail; shell->notification_id = id;
+    bool breathing_exit = confirm_breathing_exit(shell, STOPWATCH_EXIT_NOTIFICATION, WRISTFLOW_SURFACE_NOTIFICATIONS);
     wristflow_display_activity(&shell->display, lv_tick_get());
     if (shell->display_timer) display_tick(shell->display_timer);
-    shell->notification_detail = detail; shell->notification_id = id;
+    if (breathing_exit) return true;
     if (confirm_stopwatch_exit(shell, STOPWATCH_EXIT_NOTIFICATION, WRISTFLOW_SURFACE_NOTIFICATIONS)) return true;
     if (wristflow_components_confirm_leave(shell->components, commit_notification, shell)) return true;
     commit_notification(shell);
@@ -1035,6 +1071,7 @@ bool wristflow_ui_shell_present_reminder(wristflow_ui_shell_t *shell, lv_obj_t *
     }
     wristflow_notification_view_hide(shell->notifications);
     if (!wristflow_reminder_host_present(shell->reminder, content, lv_tick_get())) return false;
+    wristflow_apps_breathing_cover(shell->apps, true);
     shell->reminder_session_exempt = session_exempt(shell);
     shell->pressed_card = NULL; shell->edge_press = false;
     lv_timer_pause(shell->card_hold);
@@ -1054,7 +1091,7 @@ void wristflow_ui_shell_close_reminder(wristflow_ui_shell_t *shell)
         shell->display.activity_at = shell->display.keep_at + shell->display.keep_ms;
         shell->display.keep_ms = 0;
     }
-    if (shell->display.phase != WRISTFLOW_DISPLAY_OFF && !shell->display.keep_ms &&
+    if (shell->display.phase != WRISTFLOW_DISPLAY_OFF && !shell->display.keep_ms && !shell->display.lease_owner &&
         shell->navigation.surface != WRISTFLOW_SURFACE_FLASHLIGHT &&
         now - shell->display.activity_at >= shell->preferences.screen_timeout * 1000U) {
         shell->display.phase = WRISTFLOW_DISPLAY_OFF;
@@ -1064,6 +1101,7 @@ void wristflow_ui_shell_close_reminder(wristflow_ui_shell_t *shell)
     if (shell->display.phase == WRISTFLOW_DISPLAY_OFF && !shell->reminder_session_exempt)
         restore_after_long_sleep(shell, shell->display.off_at);
     wristflow_components_suspend_confirm(shell->components, false);
+    wristflow_apps_breathing_cover(shell->apps, false);
     wristflow_display_activity(&shell->display, now);
     sync_visibility(shell);
     wristflow_apps_update(shell->apps, &shell->snapshot);
