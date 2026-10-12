@@ -1,0 +1,191 @@
+{
+  "date": "2026-10-12",
+  "baseline": "0bd071d5fafacd9ce351ef5a79847cc81f98fc3a",
+  "branch": "codex/rtc-retention",
+  "worktree": "breathing-product/wristflow",
+  "scope": "One existing-firmware SDK reboot versus one RTS pulse; document findings and reboot procedure",
+  "authorization": {
+    "request": "Try resolving RTC reset retention; inspect provided PDF and official wiki first",
+    "hypothesis": "Battery not connected",
+    "hardware_reply": "仍连接且已停在普通页面，可以配合对照",
+    "restore_wake_reply": "已常亮"
+  },
+  "firmware": {
+    "implementation_commit": "9f3e2858219628c53ff05a28f3a05e20deabed15",
+    "identity_basis": "Last successful flash plus user-confirmed same board; no new flash or full on-device image readback",
+    "last_flash_record": "artifacts/flash/product/20261012-160424-208/result.json",
+    "last_flash_record_sha256": "2ce989f9a176ca74e0f6a9470f42c6658d41c33441db178baf8d73ab1c75bfb4",
+    "images": [
+      {
+        "name": "bootloader.bin",
+        "address": "0x12010000",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "name": "main.bin",
+        "address": "0x12020000",
+        "bytes": 7711380,
+        "sha256": "ba815750aee00319ae11001ec2504a18905bd8531c26316301c89c6c42ebfbd6"
+      },
+      {
+        "name": "ftab.bin",
+        "address": "0x12000000",
+        "bytes": 11288,
+        "sha256": "d6dc83aaed68eea6d25b3295eea0cce8054677961527f3e71bfe1f99941dcf6a"
+      }
+    ],
+    "local_image_rehash_matches": true,
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "project_source_sha256": {
+      "apps/product/src/product_services.c": "3ff551166611a593463eb281758def2cdad3eea95d2df1fa00c2ad580c5501d9"
+    },
+    "sdk_source_sha256": {
+      "rtos/rtthread/bsp/sifli/drivers/drv_rtc.c": "094e4663a85442d376b36fd53e3e6ce93ab0a0c1a1907d23fa73893835bfe416",
+      "rtos/rtthread/bsp/sifli/drivers/drv_common.c": "790a9aacbd2ea0cfc821e18c35e18372933ee41266e0015a96d39eff1a9b91af",
+      "rtos/rtthread/components/drivers/rtc/rtc.c": "77aa9ca41602b546e417744ab50efe51318bd4ca61b8b76f5d2ff1235ef2d0cd",
+      "drivers/hal/bf0_hal_rtc.c": "40fe208589506cb627cd7b39bd5fd851af72dc0c8aa025466a31b9a2de378d88",
+      "drivers/hal/bf0_hal_hlp.c": "777714872332f31af64553be7a6ea9c1f61f3ecd5275b9f0c618a7118ec891e3",
+      "drivers/hal/bf0_hal_pmu.c": "22f2b514ca393b6b10e495d659d0f1efbdfc5c5398d9eb2db2df5878230d78e8",
+      "drivers/Include/bf0_hal_rtc.h": "77efe3b7a27d58dce12506fe880ce2ec1b407b777efca1452645a63a6270f6ff"
+    }
+  },
+  "materials": {
+    "pdf": {
+      "name": "DS5203-SF32LB52-MOD-1技术规格书 V0p2.pdf",
+      "sha256": "472d21c4d5f5f3f584d69b0344b47f873520dd8acf32cdecb390060bb3d77f8a",
+      "version": "DS5203 V0.2",
+      "printed_pages_inspected": [
+        "26-32"
+      ],
+      "supply": "VSYS is supply; VBATS is voltage sensing; no independent RTC battery pin shown",
+      "reference_schematics_are_not_actual_board_proof": true
+    },
+    "epro": {
+      "name": "huangshan-v1.2.epro",
+      "sha256": "61065a6b55fedf6b9a67f69013560476748bb5ac7dd4841563924a358f760a96",
+      "local_worktree": "imu-wrist-wake/wristflow",
+      "entry": "SHEET/bfbe9dd79a064614aebc68082ceec943/2.esch",
+      "internal_title": "黄山派核心板_SCH_V1.3",
+      "filename_version_mismatch": true,
+      "topology": "U19 LP5240HVF IN <- VSYS; EN <- CH_RTS#; OUT -> R1 -> module U1 pin27 VSYS",
+      "evidence": [
+        "2.esch:421,431-438,446,469,534-577",
+        "SYMBOL/00729f1cc2314c10b9561cec1322f83b.esym:12-26",
+        "SYMBOL/55da200dc97041f39cf571d70f2bba98.esym:126-128"
+      ],
+      "actual_board_version_and_population_verified": false
+    },
+    "official_urls": [
+      "https://wiki.lckfb.com/zh-hans/hspi-sf32lb52/lckfb-hspi-sf32lb52/",
+      "https://wiki.lckfb.com/zh-hans/hspi-sf32lb52/hardware/board.html",
+      "https://wiki.lckfb.com/zh-hans/hspi-sf32lb52/lckfb-open-sf32lb52-mod/design-guide-reset.html",
+      "https://wiki.lckfb.com/zh-hans/hspi-sf32lb52/lckfb-hspi-sf32lb52/factory.html",
+      "https://wiki.sifli.com/hardware/SF32-auto-download.html"
+    ],
+    "access_limits": "Some official full-page fetches timed out; SF32 auto-download statement was available in search extraction; open hardware page returned 403. Existing local EPRO used with explicit version caveat."
+  },
+  "source_inspection": {
+    "product_startup": "Reads RTC, no unconditional startup SET_TIME; explicit setters write and read back",
+    "sdk_init": "drv_rtc.c:280-297 selects NORMAL only for cold boot and uninitialized backup, else SKIP",
+    "hal_init": "bf0_hal_rtc.c:73-141 does not overwrite TR/DR; NORMAL clears RTC alarm/wakeup and configures prescaler",
+    "backup": "bf0_hal_hlp.c:307-321 uses RTC BKP registers, not Flash",
+    "software_reboot": "drv_common.c:116-120,785-792 -> HAL_PMU_Reboot; bf0_hal_pmu.c:658 sets PMUC_CR_REBOOT",
+    "wake_log_meaning": "RTC init mode, not reset-cause register or rail measurement"
+  },
+  "hardware": {
+    "conditions": "Same Huangshan board/display, USB only, no new wiring; COM5 CH340 1A86:7523",
+    "uart": "1000000 8N1, no handshake, DTR=false RTS=false before open; single continuous connection",
+    "software_reboot": {
+      "command": "reboot",
+      "at": "2026-10-12T19:05:05.3950629+08:00",
+      "before_query_at": "2026-10-12T19:05:04.4061064+08:00",
+      "before_utc": "2026-10-12 11:05:03",
+      "after_query_at": "2026-10-12T19:05:17.4975502+08:00",
+      "after_utc": "2026-10-12 11:05:16",
+      "init_wake": 1,
+      "product_rtc": "in range",
+      "no_time_write_between": true,
+      "ble_connection_or_time_sync_seen_in_interval": false,
+      "result": "retained in this bounded observation"
+    },
+    "rts_reset": {
+      "at": "2026-10-12T19:05:57.6500929+08:00",
+      "pulse_ms": 150,
+      "last_confirmed_valid_utc_before": "2026-10-12 11:05:16",
+      "immediately_preceding_show_date_acknowledged": false,
+      "after_query_at": "2026-10-12T19:06:09.7864671+08:00",
+      "after_utc": "2000-01-01 00:00:10",
+      "init_wake": 0,
+      "product_rtc": "not synchronized",
+      "result": "time lost, consistent with documented power-reset design"
+    },
+    "restoration": {
+      "unacknowledged_sleep_attempt_utc": 1791803230,
+      "garbled_command_attempt_utc": 1791803309,
+      "garbled_reply": "�wf_time: command not found.",
+      "successful_current_utc": 1791803326,
+      "ack_at": "2026-10-12T19:08:46.9747413+08:00",
+      "query_at": "2026-10-12T19:08:48.9661677+08:00",
+      "query_utc": "2026-10-12 11:08:48",
+      "query_local": "2026-10-12 19:08:48",
+      "user_told_training_can_be_ended": true
+    },
+    "alarm_configuration_edited": false,
+    "alarm_automatic_saved_generations": [
+      64,
+      65,
+      66
+    ],
+    "electrical_measurements": false,
+    "battery_connected": false,
+    "new_flash": false
+  },
+  "capture": {
+    "path": "artifacts/rtc-investigation/20261012-190422-953",
+    "closed_normally": true,
+    "process_running_at_final_check": false,
+    "result": {
+      "started": "2026-10-12T19:04:23.0018604+08:00",
+      "finished": "2026-10-12T19:09:09.6011184+08:00",
+      "port": "COM5",
+      "baud": 1000000,
+      "dtr": false,
+      "rts": false,
+      "characters_read": 7431,
+      "actions": 18,
+      "stop_requested": true,
+      "error": null
+    },
+    "sha256": {
+      "actions.jsonl": "e76d5d9493ddafb34a4403427a4cef531534c312de0fc9f8067556adef08e6b1",
+      "events.jsonl": "346abd498fb615cf9ebe936e8f19fbdae7fcf2c9cd8e0be87a2e37020dae1d35",
+      "result.json": "64155fd394de58bdd5189668dcd8a98b2179a56c81e3bf961e9933dc4af88fcc",
+      "uart.txt": "5c04b12ff2effcc0feb8f9208fdd9fc09dc20378e809ec9e68fa26284aff9e9b"
+    },
+    "helper_sha256": {
+      "Capture-Uart.ps1": "60ba69d92f6f38f19141a8529b1db559e8bca3b81d89925ab3e63b720b429600",
+      "Send-Action.ps1": "09095983190728eb86f60bf6a1d594d0087f6ecd7ac8d9a9719ced74ec13882a"
+    }
+  },
+  "conclusion": "Use existing SDK reboot for ordinary retention-preserving restart under tested USB conditions. RTS is a distinct documented power-reset path; software defect requiring a firmware patch was not established.",
+  "compilation": {
+    "performed_this_round": false,
+    "reason": "Documentation/evidence only; existing firmware tested without source, SDK, configuration or image changes"
+  },
+  "host_tests": {
+    "performed_this_round": false,
+    "reason": "No firmware changes; previous breathing tests are not RTC evidence"
+  },
+  "not_verified": [
+    "actual PCB revision / U19 population / supply voltage waveform",
+    "battery-connected RTS contrast",
+    "PWRKEY long reset",
+    "sftool --after soft_reset equivalence",
+    "complete power-off time retention",
+    "RTC register capture before earliest boot code",
+    "long-term RTC drift",
+    "power / battery life",
+    "full notification / C2 joint matrix"
+  ]
+}
