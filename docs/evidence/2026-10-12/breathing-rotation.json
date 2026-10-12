@@ -135,5 +135,6 @@
     "ui/runtime/ui_shell.h": "1963b80b65e3be9352eee38cee453757515e81b82b6a7ea9d4923994b7ffd404"
   },
   "hardware_evidence": "breathing-round3.json",
-  "hardware_verified": false
+  "hardware_verified": true,
+  "hardware_scope": "User R1-R5 bounded USB acceptance for implementation 9f3e285; approximate manual durations, no precise long-term timing or power measurement"
 }
