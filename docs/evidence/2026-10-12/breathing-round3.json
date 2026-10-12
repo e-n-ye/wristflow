@@ -94,7 +94,19 @@
       "closed": false,
       "initial_status_command": "wf_pm status"
     },
-    "user_feedback": [],
+    "user_feedback": [
+      {
+        "group": "R1 rotation and one-minute natural completion",
+        "answer": "方向、平滑度、常亮和自然结束均正常",
+        "verified": ["clockwise inhale", "counterclockwise exhale", "smooth switching", "screen stays on during one-minute training", "natural result page with heart rate --"]
+      },
+      {
+        "group": "R2 duration draft and manual lifecycle",
+        "answer": "保存、取消、重来、结束和退出确认均正常",
+        "verified": ["confirm three minutes", "cancel five-minute draft retains three", "restart returns to inhale", "manual end returns home without result", "KEY1 exit confirmation pauses animation", "cancel resumes inhale", "confirm leaves breathing"]
+      }
+    ],
+    "rotation_visual_verified": true,
     "hardware_verified": false
   },
   "hardware_acceptance": "not_yet_verified",
