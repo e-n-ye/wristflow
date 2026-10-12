@@ -58,7 +58,12 @@
     "close_reason": "Chat turn interrupted; unified process no longer exists, no result.json; subsequently queued stop was not consumed",
     "initial_status_command": "wf_pm status",
     "initial_status_response": "not_yet_observed",
-    "observed": ["KEY1 wake / PM snapshot", "screen on", "successful duration save logs: 3,5,2,3", "later screen off"]
+    "observed": [
+      "KEY1 wake / PM snapshot",
+      "screen on",
+      "successful duration save logs: 3,5,2,3",
+      "later screen off"
+    ]
   },
   "user_feedback": [],
   "user_rotation_request": "Inhale clockwise; exhale counterclockwise in addition to expansion/contraction",
@@ -91,24 +96,81 @@
       "rts": false,
       "automatic_reset": false,
       "limit_seconds": 3600,
-      "closed": false,
-      "initial_status_command": "wf_pm status"
+      "closed": true,
+      "initial_status_command": "wf_pm status",
+      "normal_close": true,
+      "close_reason": "3600-second limit reached",
+      "finished": "2026-10-12T17:07:30.6204317+08:00",
+      "characters_read": 9349,
+      "actions": 4,
+      "sha256": {
+        "uart.txt": "5350da5b388ea717a7258060f978985843c48469eacc9c26a32aa1a3e8bd8c17",
+        "events.jsonl": "5fd8d1aef307483b299268590105e87be626c42fc827b9b39cf479e02ac864cd",
+        "actions.jsonl": "e7bc5fdf35f4a2d9a06fd7c28730b4d6c258e7ad39ca485a087ebc5223d76527",
+        "result.json": "9f13f3103f5ee64243d3a22b1dd71050ceb588231a6a24b57804f35033509f3a"
+      }
     },
     "user_feedback": [
       {
         "group": "R1 rotation and one-minute natural completion",
         "answer": "方向、平滑度、常亮和自然结束均正常",
-        "verified": ["clockwise inhale", "counterclockwise exhale", "smooth switching", "screen stays on during one-minute training", "natural result page with heart rate --"]
+        "verified": [
+          "clockwise inhale",
+          "counterclockwise exhale",
+          "smooth switching",
+          "screen stays on during one-minute training",
+          "natural result page with heart rate --"
+        ]
       },
       {
         "group": "R2 duration draft and manual lifecycle",
         "answer": "保存、取消、重来、结束和退出确认均正常",
-        "verified": ["confirm three minutes", "cancel five-minute draft retains three", "restart returns to inhale", "manual end returns home without result", "KEY1 exit confirmation pauses animation", "cancel resumes inhale", "confirm leaves breathing"]
+        "verified": [
+          "confirm three minutes",
+          "cancel five-minute draft retains three",
+          "restart returns to inhale",
+          "manual end returns home without result",
+          "KEY1 exit confirmation pauses animation",
+          "cancel resumes inhale",
+          "confirm leaves breathing"
+        ]
+      },
+      {
+        "group": "R3 real notification and countdown long cover",
+        "answer": "通知缓存、提醒覆盖、息屏唤醒和恢复均正常",
+        "verified": [
+          "notification cached without banner or animation interruption",
+          "one-minute countdown covers three-minute breathing",
+          "roughly two-minute cover excludes training time",
+          "reminder screen off and KEY1 redisplay",
+          "close all reminders resumes inhale and still-running training",
+          "notification readable after manual end"
+        ],
+        "feedback_received_after_capture_close": true,
+        "evidence_boundary": "User screen feedback; UART does not establish every R3 action"
       }
     ],
     "rotation_visual_verified": true,
-    "hardware_verified": false
+    "hardware_verified": false,
+    "followup_capture": {
+      "record": "artifacts/breathing/usb-round3/20261012-171453-049/",
+      "launcher_record": "artifacts/breathing/usb-round3/rotation-capture-r4-process.json",
+      "started": "2026-10-12T17:14:53+08:00",
+      "baud": 1000000,
+      "dtr": false,
+      "rts": false,
+      "automatic_reset": false,
+      "limit_seconds": 3600,
+      "closed": false
+    }
   },
   "hardware_acceptance": "not_yet_verified",
-  "excluded": ["PPG", "RTC retention repair", "power consumption", "battery life", "full joint matrix"]
+  "excluded": [
+    "PPG",
+    "RTC retention repair",
+    "power consumption",
+    "battery life",
+    "full joint matrix"
+  ],
+  "alarm_test_authorization": "User permits changing one existing alarm for R4; restoring its prior values is not required. No RTC time jump or deletion authorized."
 }
