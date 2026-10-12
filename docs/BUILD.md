@@ -1,5 +1,9 @@
 # 可复现构建基线
 
+## 2026-10-12 呼吸圆环旋转修订构建
+
+基线 `bba01b0`，隔离分支 `codex/breathing-usb`。沿用锁定 SDK／子模块、GCC 15.2.0／CMake 3.31.4／Ninja Debug，最终 CTest **32/32**（11.83 秒），包括旋转方向、三层一致、精确 360° 归一化及暂停／恢复。SDK Python 3.13.15／SCons 4.10.1／Arm GCC 14.2.1 的 Product 与 UI Demo 均退出 0；383／366 份源码及 29／22 个产物重哈希一致。Product 主 BIN 7,711,380 B，UI Demo 7,508,264 B；既有 SDK／其他文件及链接警告保留，旋转 view 没有编译警告。只改手写 runtime，XML／官方生成输出未变；实际 LVGL 动画、命令、完整镜像哈希及测试修复见 [BREATHING 第三轮](BREATHING.md#round3)与[旋转软件证据](evidence/2026-10-12/breathing-rotation.json)。编译与设备结果分开记录。
+
 ## 2026-10-12 呼吸训练第二轮构建
 
 基线 `5e01d05`，隔离分支 `codex/breathing-product`。最终 GCC 15.2.0／CMake 3.31.4／Ninja Debug CTest **32/32** 和两个严格 core 用例通过，四张实际 LVGL 覆盖／恢复帧已留证。SDK Python 3.13.15／SCons 4.10.1／Arm GCC 14.2.1，Product 与 UI Demo 均退出 0、镜像清单校验通过，383／366 份源码及 29／22 个产物重哈希一致；SDK／子模块锁不变且干净，XML／官方生成输出未变。命令、v6 配置兼容、镜像哈希、失败修复与硬件未验范围见 [BREATHING 第二轮](BREATHING.md#round2)及[精简证据](evidence/2026-10-12/breathing-round2.json)。没有新增云端运行、串口、烧录或设备结论。

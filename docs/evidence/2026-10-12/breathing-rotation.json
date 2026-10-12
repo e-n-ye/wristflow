@@ -1,0 +1,139 @@
+{
+  "date": "2026-10-12",
+  "baseline": "bba01b037d148c2662992252eb8ed24c2d746dc8",
+  "branch": "codex/breathing-usb",
+  "worktree": "breathing-product/wristflow",
+  "request": "Inhale clockwise; exhale counterclockwise alongside scaling",
+  "implementation": "Three existing arc layers share one smoothstep expansion angle, 360 degrees per half-cycle; same 33ms timer",
+  "lvgl": "9.4.0 from locked SDK; positive angle clockwise; 360 normalized to 0",
+  "xml_or_generated_c_changed": false,
+  "host": {
+    "tests_passed": 32,
+    "tests_total": 32,
+    "seconds": 11.83,
+    "log": "artifacts/breathing/ctest-rotation-final.log",
+    "log_sha256": "4fd8ebb2d8e8b0363c81e396302452389acc2f5737ca958ec04d112ffbbdad97",
+    "cases": [
+      "three arc layers aligned",
+      "clockwise inhale / counterclockwise exhale",
+      "0/360 continuity at peak and cycle boundary",
+      "pause freezes angle",
+      "cancel and restart return to inhale",
+      "existing Product lifecycle suite"
+    ],
+    "test_repair": "Exact-peak test initially checked dialog visibility before layout; explicit layout refresh fixes the assertion. Production code unchanged.",
+    "failed_log": "artifacts/breathing/ctest-rotation-exact-peak-failed.log"
+  },
+  "preview": {
+    "path": "breathing-rotation.gif",
+    "sha256": "ec0e3dafb6647d93fbda513ed09be6ae1e26d77fd0f3290c5d54ca289aa293cd",
+    "sampled_frames": 68,
+    "encoded_frames": 67,
+    "sample_interval_ms": 128,
+    "gif_duration_ms": 8700,
+    "source": "Actual host LVGL RGB888 snapshots; GIF palette conversion; not device footage"
+  },
+  "builds": {
+    "product": {
+      "record": "artifacts/product/20261012-154733-516/result.json",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "sources_rehashed": 383,
+      "artifacts_rehashed": 29,
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "python": "3.13.15",
+      "scons": "4.10.1",
+      "compiler": "Arm GCC 14.2.1",
+      "firmware_bytes": 7711380,
+      "firmware_sha256": "ba815750aee00319ae11001ec2504a18905bd8531c26316301c89c6c42ebfbd6",
+      "images": [
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+          "bytes": 7711380,
+          "sha256": "ba815750aee00319ae11001ec2504a18905bd8531c26316301c89c6c42ebfbd6"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+          "bytes": 11288,
+          "sha256": "d6dc83aaed68eea6d25b3295eea0cce8054677961527f3e71bfe1f99941dcf6a"
+        },
+        {
+          "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/lcpu/lcpu.bin",
+          "bytes": 5444,
+          "sha256": "03c15186f14aced2ad2c1b7e76f11b29de65b76bc348c3d62b0ec139dedb1dad"
+        }
+      ]
+    },
+    "ui_demo": {
+      "record": "artifacts/ui_demo/20261012-154733-531/result.json",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "sources_rehashed": 366,
+      "artifacts_rehashed": 22,
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "python": "3.13.15",
+      "scons": "4.10.1",
+      "compiler": "Arm GCC 14.2.1",
+      "firmware_bytes": 7508264,
+      "firmware_sha256": "fc6fa472e6b79bd140d6324b2258b06dbe0604ac9ec425665a6baa5342f888d6",
+      "images": [
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+          "bytes": 7508264,
+          "sha256": "fc6fa472e6b79bd140d6324b2258b06dbe0604ac9ec425665a6baa5342f888d6"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+          "bytes": 11288,
+          "sha256": "058cc3fe5e6bb8bccc2ca7eeb7d8dc09f2cde31f396ea740913b7882ef3d319b"
+        }
+      ]
+    }
+  },
+  "validation_source_sha256": {
+    "apps/product/src/product_services.c": "3ff551166611a593463eb281758def2cdad3eea95d2df1fa00c2ad580c5501d9",
+    "core/breathing.c": "458bfe872a89ea86f2d5d8dc0226370833f391d2b580aeeec1da3995ca6a3c85",
+    "core/breathing.h": "20870eaaf63488bae8b7ebd441ea44d67e23090a8986626f90ee3883ad779739",
+    "core/display_policy.c": "729340e9fbc3a84c9da8c6e782dfc5c2fb212302f43ca5714d9dc7eebbfefe39",
+    "core/display_policy.h": "9d610257d342516caa060cd35eae80e8ae3b31de119c686888524cd6f4aa2f25",
+    "core/product_state.c": "2ac7e9e434381d6d4ab64d59e014b5c5a35fc3981feeced014b62f88c15f7ff2",
+    "core/product_state.h": "bf7c4e9b8fe24eded1c81fabfb14d235b6dd28f8481bebc1d6e25f7e4d311cfd",
+    "sdk.lock.json": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af",
+    "tests/CMakeLists.txt": "5a2406a2d8052d5c1822e3d070ea104525d30a1db569c3eed5f0e459f1bd3fc4",
+    "tests/breathing_ui.c": "c196af798633febc209668eddc5742fffb0a72641d49755f2e01715bf9be9c38",
+    "tests/display_policy.c": "b61fb054cc6480f8f88c3faa1ed5d38b7df46e37c968c63c3c53d3f41d3980a0",
+    "tests/lv_conf.h": "8caf44472e3cc34516abfe24a81837ec48533e7ac290614dad5e176974c09a32",
+    "tests/product_breathing_ui.c": "5c6f966c2961538da71d8314e8174f0f930486843df34ad27efe2ec4251fb0ac",
+    "tests/product_state.c": "fadfb7d9e01bb87093bebb7f5b715d64938e41cb58abbac6e877131dbc2d2d87",
+    "tests/product_ui.c": "9c5bd88f04f51dea44f90eee575606715b7530d026458c883eb3293d1cb91b53",
+    "ui/runtime/app_registry.c": "8051a43cc4cef263a0fe3fa044cfc2c83235151c5be38952c6d0bf27580644b1",
+    "ui/runtime/apps.c": "80746c897781b5a1253cc5c9b743bc8a05a8fc94177e9ac3403c528c88360858",
+    "ui/runtime/apps.h": "0a1ba6dc6458e3263d9f594414e60456374a0791c5f95e1b96f5a92a4da37dc3",
+    "ui/runtime/breathing_view.c": "f38a4e6c3205c5615d4bd59b8c394a26dd44fe6bcb781d38f06710e09b775e1e",
+    "ui/runtime/breathing_view.h": "310810428264ced4806e9fcc73fe082928d3aaf699d3a97a47750a3b7c618178",
+    "ui/runtime/ui_shell.c": "07badc82171462421b5eeffdafe64448afd59d89d6ca491b3c3fe2dd8f5f6755",
+    "ui/runtime/ui_shell.h": "1963b80b65e3be9352eee38cee453757515e81b82b6a7ea9d4923994b7ffd404"
+  },
+  "hardware_evidence": "breathing-round3.json",
+  "hardware_verified": false
+}
