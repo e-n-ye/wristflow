@@ -63,10 +63,38 @@
   "user_feedback": [],
   "user_rotation_request": "Inhale clockwise; exhale counterclockwise in addition to expansion/contraction",
   "rotation_revision": {
+    "implementation_commit": "9f3e2858219628c53ff05a28f3a05e20deabed15",
     "software_evidence": "breathing-rotation.json",
     "product_main_sha256": "ba815750aee00319ae11001ec2504a18905bd8531c26316301c89c6c42ebfbd6",
     "dry_run_passed": true,
-    "flash": "not_yet_performed",
+    "failed_flash_attempts": [
+      {
+        "record": "artifacts/flash/product/20261012-160252-215/result.json",
+        "exit_code": 1,
+        "error": "Device stopped functioning (os error 31) at 28%; write and verify incomplete",
+        "recovery": "CH340 COM5 re-enumerated; user confirmed USB reconnection; same images retried"
+      }
+    ],
+    "flash": {
+      "record": "artifacts/flash/product/20261012-160424-208/result.json",
+      "exit_code": 0,
+      "operation": "write_flash --verify, --after soft_reset",
+      "settings_partition_written": false,
+      "images_match_rotation_build": true
+    },
+    "capture": {
+      "record": "artifacts/breathing/usb-round3/20261012-160730-547/",
+      "launcher_record": "artifacts/breathing/usb-round3/rotation-capture-process.json",
+      "started": "2026-10-12T16:07:30+08:00",
+      "baud": 1000000,
+      "dtr": false,
+      "rts": false,
+      "automatic_reset": false,
+      "limit_seconds": 3600,
+      "closed": false,
+      "initial_status_command": "wf_pm status"
+    },
+    "user_feedback": [],
     "hardware_verified": false
   },
   "hardware_acceptance": "not_yet_verified",
