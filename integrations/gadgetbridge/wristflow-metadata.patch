@@ -1,0 +1,336 @@
+diff --git a/app/build.gradle b/app/build.gradle
+index beda32d..a9ec16d 100644
+--- a/app/build.gradle
++++ b/app/build.gradle
+@@ -1,4 +1,5 @@
+ import com.android.build.api.variant.ResValue
++import com.android.build.api.variant.HostTestBuilder
+ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+ 
+ import java.nio.file.Files
+@@ -147,6 +148,7 @@ android {
+         buildConfigField "String", "GIT_HASH_SHORT", "\"${getGitHashShort()}\""
+         buildConfigField "String", "GIT_DIRTY_STATUS", "\"${getGitDirtyFlag()}\""
+         buildConfigField "boolean", "INTERNET_ACCESS", "false"
++        buildConfigField "boolean", "WRISTFLOW_METADATA", "false"
+ 
+         manifestPlaceholders = [
+             appAuthRedirectScheme: "${applicationId}"
+@@ -204,6 +206,14 @@ android {
+     }
+ 
+     buildTypes {
++        wristflow {
++            initWith debug
++            applicationIdSuffix ".wristflow"
++            versionNameSuffix "-wf-meta1"
++            buildConfigField "boolean", "WRISTFLOW_METADATA", "true"
++            matchingFallbacks = ['debug']
++        }
++
+         //debug {
+         //    minifyEnabled true
+         //    proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+@@ -276,6 +286,13 @@ android {
+ }
+ 
+ androidComponents {
++    beforeVariants(selector().withBuildType("wristflow")) { variantBuilder ->
++        if (variantBuilder.flavorName != "mainline") {
++            variantBuilder.enable = false
++        } else {
++            variantBuilder.hostTests.get(HostTestBuilder.UNIT_TEST_TYPE).enable = true
++        }
++    }
+     onVariants(selector().all()) { variant ->
+         variant.resValues.put(
+             variant.makeResValueKey("string", "applicationId"),
+diff --git a/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/banglejs/BangleJSDeviceSupport.java b/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/banglejs/BangleJSDeviceSupport.java
+index ac2e0a3..5c6484a 100644
+--- a/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/banglejs/BangleJSDeviceSupport.java
++++ b/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/banglejs/BangleJSDeviceSupport.java
+@@ -94,6 +94,7 @@ import de.greenrobot.dao.query.QueryBuilder;
+ import io.wax911.emojify.EmojiManager;
+ import io.wax911.emojify.parser.EmojiParserKt;
+ import nodomain.freeyourgadget.gadgetbridge.GBApplication;
++import nodomain.freeyourgadget.gadgetbridge.BuildConfig;
+ import nodomain.freeyourgadget.gadgetbridge.R;
+ import nodomain.freeyourgadget.gadgetbridge.activities.WakeActivity;
+ import nodomain.freeyourgadget.gadgetbridge.activities.devicesettings.DeviceSettingsPreferenceConst;
+@@ -1512,6 +1513,10 @@ public class BangleJSDeviceSupport extends AbstractBTLESingleDeviceSupport {
+                 mNotificationActions.add(notificationSpec.getId(), actionHandles);
+                 o.put("actions", actionsArray);
+             }
++            if (WristFlowMetadata.enabled(BuildConfig.WRISTFLOW_METADATA, getDevice().getName())) {
++                WristFlowMetadata.addNotification(getContext(), o, notificationSpec.getKey(),
++                        notificationSpec.getWhen(), notificationSpec.getSourceAppId());
++            }
+             uartTxJSON("onNotification", o);
+         } catch (JSONException e) {
+             LOG.info("JSONException: " + e.getLocalizedMessage());
+@@ -2007,6 +2012,9 @@ public class BangleJSDeviceSupport extends AbstractBTLESingleDeviceSupport {
+             o.put("wdir", weatherSpec.getWindDirection());
+             o.put("loc", weatherSpec.getLocation());
+ 
++            if (WristFlowMetadata.enabled(BuildConfig.WRISTFLOW_METADATA, getDevice().getName())) {
++                WristFlowMetadata.addAirQuality(o, weatherSpec.getAirQuality());
++            }
+             uartTxJSON("handleWeather", o);
+         } catch (JSONException e) {
+             LOG.info("JSONException: " + e.getLocalizedMessage());
+@@ -2098,6 +2106,9 @@ public class BangleJSDeviceSupport extends AbstractBTLESingleDeviceSupport {
+             }
+             o.put("d", Base64.encodeToString(weatherData.toByteArray(), Base64.DEFAULT));
+ 
++            if (WristFlowMetadata.enabled(BuildConfig.WRISTFLOW_METADATA, getDevice().getName())) {
++                WristFlowMetadata.addAirQuality(o, weatherSpec.getAirQuality());
++            }
+             uartTxJSON("handleWeatherV2", o);
+         } catch (JSONException e) {
+             LOG.info("JSONException: " + e.getLocalizedMessage());
+diff --git a/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/banglejs/WristFlowMetadata.java b/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/banglejs/WristFlowMetadata.java
+new file mode 100644
+index 0000000..5401498
+--- /dev/null
++++ b/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/banglejs/WristFlowMetadata.java
+@@ -0,0 +1,124 @@
++/* SPDX-License-Identifier: AGPL-3.0-or-later
++ * Copyright (C) 2026 WristFlow contributors */
++package nodomain.freeyourgadget.gadgetbridge.service.devices.banglejs;
++
++import android.content.Context;
++import android.content.SharedPreferences;
++
++import org.json.JSONException;
++import org.json.JSONObject;
++import org.slf4j.Logger;
++import org.slf4j.LoggerFactory;
++
++import java.nio.charset.StandardCharsets;
++import java.security.GeneralSecurityException;
++import java.security.SecureRandom;
++import java.util.Collections;
++import java.util.Set;
++import java.util.WeakHashMap;
++
++import javax.crypto.Mac;
++import javax.crypto.spec.SecretKeySpec;
++
++import nodomain.freeyourgadget.gadgetbridge.model.WeatherSpec;
++
++/** Optional metadata. Legacy IDs, delete/action handling and weather bytes stay intact. */
++final class WristFlowMetadata {
++    private static final Logger LOG = LoggerFactory.getLogger(WristFlowMetadata.class);
++    static final String PREFS = "wristflow_metadata_v1";
++    static final String SALT = "identity_salt";
++    static final String AQI_SCALE = "gadgetbridge-native";
++    private static final char[] HEX = "0123456789abcdef".toCharArray();
++    private static final Set<SharedPreferences> FAILED_STORES =
++            Collections.newSetFromMap(new WeakHashMap<>());
++
++    private WristFlowMetadata() {}
++
++    static boolean enabled(final boolean buildEnabled, final String deviceName) {
++        return buildEnabled && "Bangle.js WristFlow".equals(deviceName);
++    }
++
++    static void addNotification(final Context context, final JSONObject frame,
++                                final String key, final long when, final String sourcePackage) {
++        // An Android key identifies one notification lifecycle, not a proven QQ person ID.
++        if (key == null || key.isEmpty() || key.getBytes(StandardCharsets.UTF_8).length > 2048) {
++            return;
++        }
++        try {
++            final String token = identity(context, key);
++            if (token == null) return;
++            final JSONObject metadata = new JSONObject();
++            metadata.put("v", 1);
++            metadata.put("notification_key", token);
++            metadata.put("when_present", when > 0);
++            if (when > 0) metadata.put("when_ms", when);
++            if (sourcePackage != null && !sourcePackage.isEmpty()
++                    && sourcePackage.getBytes(StandardCharsets.UTF_8).length <= 255) {
++                metadata.put("package", sourcePackage);
++            }
++            frame.put("wf", metadata);
++            // Never log the raw Android key, salt, sender, title or message body here.
++            LOG.info("WF_META notify id={} key={} when_ms={} package={}",
++                    frame.optInt("id"), token, when > 0 ? when : null,
++                    metadata.optString("package", ""));
++        } catch (GeneralSecurityException | JSONException | RuntimeException e) {
++            // Optional diagnostics must not prevent the original notification from being sent.
++            LOG.warn("WF_META notification metadata unavailable ({})", e.getClass().getSimpleName());
++        }
++    }
++
++    static void addAirQuality(final JSONObject frame, final WeatherSpec.AirQuality airQuality) {
++        try {
++            final boolean present = airQuality != null && airQuality.getAqi() >= 0;
++            final JSONObject metadata = new JSONObject();
++            metadata.put("v", 1);
++            metadata.put("aqi_present", present);
++            metadata.put("aqi_scale", AQI_SCALE);
++            if (present) metadata.put("aqi", airQuality.getAqi());
++            frame.put("wf", metadata);
++            LOG.info("WF_META weather v={} aqi_present={} aqi={} scale={}",
++                    frame.optInt("v"), present, present ? airQuality.getAqi() : null, AQI_SCALE);
++        } catch (JSONException | RuntimeException e) {
++            LOG.warn("WF_META weather metadata unavailable ({})", e.getClass().getSimpleName());
++        }
++    }
++
++    private static synchronized String identity(final Context context, final String key)
++            throws GeneralSecurityException {
++        final SharedPreferences preferences = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
++        if (FAILED_STORES.contains(preferences)) return null;
++        String stored = preferences.getString(SALT, null);
++        if (stored == null) {
++            final byte[] generated = new byte[32];
++            new SecureRandom().nextBytes(generated);
++            stored = hex(generated, generated.length);
++            // Persist before using: a failed commit must not create ephemeral group identities.
++            try {
++                if (!preferences.edit().putString(SALT, stored).commit()) {
++                    FAILED_STORES.add(preferences);
++                    return null;
++                }
++            } catch (RuntimeException e) {
++                FAILED_STORES.add(preferences);
++                throw e;
++            }
++        }
++        if (!stored.matches("[0-9a-f]{64}")) return null;
++        final byte[] salt = new byte[32];
++        for (int i = 0; i < salt.length; i++) {
++            salt[i] = (byte) Integer.parseInt(stored.substring(i * 2, i * 2 + 2), 16);
++        }
++        final Mac hmac = Mac.getInstance("HmacSHA256");
++        hmac.init(new SecretKeySpec(salt, "HmacSHA256"));
++        return hex(hmac.doFinal(key.getBytes(StandardCharsets.UTF_8)), 16);
++    }
++
++    private static String hex(final byte[] bytes, final int length) {
++        final char[] result = new char[length * 2];
++        for (int i = 0; i < length; i++) {
++            result[i * 2] = HEX[(bytes[i] & 0xff) >>> 4];
++            result[i * 2 + 1] = HEX[bytes[i] & 15];
++        }
++        return new String(result);
++    }
++}
+diff --git a/app/src/test/java/nodomain/freeyourgadget/gadgetbridge/service/devices/banglejs/WristFlowMetadataTest.java b/app/src/test/java/nodomain/freeyourgadget/gadgetbridge/service/devices/banglejs/WristFlowMetadataTest.java
+new file mode 100644
+index 0000000..9bc3671
+--- /dev/null
++++ b/app/src/test/java/nodomain/freeyourgadget/gadgetbridge/service/devices/banglejs/WristFlowMetadataTest.java
+@@ -0,0 +1,98 @@
++/* SPDX-License-Identifier: AGPL-3.0-or-later
++ * Copyright (C) 2026 WristFlow contributors */
++package nodomain.freeyourgadget.gadgetbridge.service.devices.banglejs;
++
++import static org.junit.Assert.*;
++import static org.mockito.Mockito.*;
++
++import android.app.Application;
++import android.content.Context;
++import android.content.SharedPreferences;
++import org.json.JSONObject;
++import org.junit.Before;
++import org.junit.Test;
++import org.junit.runner.RunWith;
++import org.robolectric.RobolectricTestRunner;
++import org.robolectric.RuntimeEnvironment;
++import org.robolectric.annotation.Config;
++import nodomain.freeyourgadget.gadgetbridge.model.WeatherSpec;
++
++@RunWith(RobolectricTestRunner.class)
++@Config(sdk = 34, application = Application.class)
++public class WristFlowMetadataTest {
++    private Context context;
++
++    @Before public void resetPreferences() {
++        context = RuntimeEnvironment.getApplication();
++        assertTrue(context.getSharedPreferences(WristFlowMetadata.PREFS, 0).edit().clear().commit());
++    }
++
++    @Test public void keepsEntryIdsAndPersistsAnonymousIdentityAcrossUpdates() throws Exception {
++        JSONObject a = new JSONObject("{\"t\":\"notify\",\"id\":11,\"body\":\"A\",\"actions\":[{}]}");
++        JSONObject b = new JSONObject("{\"t\":\"notify\",\"id\":12,\"body\":\"B\"}");
++        WristFlowMetadata.addNotification(context, a, "private-key", 1720000000000L, "com.example.chat");
++        WristFlowMetadata.addNotification(context, b, "private-key", 1720000008000L, "com.example.chat");
++        String token = a.getJSONObject("wf").getString("notification_key");
++        assertTrue(token.matches("[0-9a-f]{32}"));
++        assertFalse(a.toString().contains("private-key"));
++        assertEquals(token, b.getJSONObject("wf").getString("notification_key"));
++        assertEquals(1720000008000L, b.getJSONObject("wf").getLong("when_ms"));
++        assertEquals(11, a.getInt("id")); assertEquals(12, b.getInt("id"));
++        assertEquals("A", a.getString("body")); assertEquals(1, a.getJSONArray("actions").length());
++        JSONObject other = new JSONObject();
++        WristFlowMetadata.addNotification(context, other, "another-key", 0, null);
++        assertNotEquals(token, other.getJSONObject("wf").getString("notification_key"));
++        assertFalse(other.getJSONObject("wf").getBoolean("when_present"));
++        assertFalse(other.getJSONObject("wf").has("when_ms"));
++    }
++
++    @Test public void saltFailureOrMissingKeyLeavesLegacyFrameUsable() throws Exception {
++        JSONObject frame = new JSONObject("{\"t\":\"notify\",\"id\":-42,\"body\":\"A\"}");
++        String original = frame.toString();
++        Context failing = mock(Context.class);
++        SharedPreferences preferences = mock(SharedPreferences.class);
++        SharedPreferences.Editor editor = mock(SharedPreferences.Editor.class);
++        when(failing.getSharedPreferences(WristFlowMetadata.PREFS, 0)).thenReturn(preferences);
++        when(preferences.edit()).thenReturn(editor);
++        when(editor.putString(eq(WristFlowMetadata.SALT), anyString())).thenReturn(editor);
++        when(editor.commit()).thenReturn(false);
++        WristFlowMetadata.addNotification(failing, frame, "key", 1, null);
++        assertEquals(original, frame.toString());
++        // Android can retain a failed commit in memory. Do not use that ephemeral salt later.
++        when(preferences.getString(WristFlowMetadata.SALT, null)).thenReturn("ab".repeat(32));
++        WristFlowMetadata.addNotification(failing, frame, "key", 2, null);
++        assertEquals(original, frame.toString());
++        context.getSharedPreferences(WristFlowMetadata.PREFS, 0).edit()
++                .putString(WristFlowMetadata.SALT, "broken").commit();
++        WristFlowMetadata.addNotification(context, frame, "key", 1, null);
++        WristFlowMetadata.addNotification(context, frame, null, 1, null);
++        WristFlowMetadata.addNotification(context, frame, "x".repeat(2049), 1, null);
++        assertEquals(original, frame.toString());
++    }
++
++    @Test public void missingAqiIsDistinctFromRealZeroWithoutChangingV2Payload() throws Exception {
++        JSONObject frame = new JSONObject("{\"t\":\"weather\",\"v\":2,\"d\":\"unchanged-base64\"}");
++        WristFlowMetadata.addAirQuality(frame, null);
++        assertFalse(frame.getJSONObject("wf").getBoolean("aqi_present"));
++        assertFalse(frame.getJSONObject("wf").has("aqi"));
++        WeatherSpec.AirQuality aqi = new WeatherSpec.AirQuality();
++        WristFlowMetadata.addAirQuality(frame, aqi);
++        assertFalse(frame.getJSONObject("wf").getBoolean("aqi_present"));
++        for (int value : new int[]{0, 47, 700}) {
++            aqi.setAqi(value);
++            WristFlowMetadata.addAirQuality(frame, aqi);
++            assertTrue(frame.getJSONObject("wf").getBoolean("aqi_present"));
++            assertEquals(value, frame.getJSONObject("wf").getInt("aqi"));
++            assertEquals("gadgetbridge-native", frame.getJSONObject("wf").getString("aqi_scale"));
++            assertEquals("unchanged-base64", frame.getString("d"));
++        }
++    }
++
++    @Test public void appliesOnlyToOptedInBuildAndAdvertisedWristFlowName() {
++        assertTrue(WristFlowMetadata.enabled(true, "Bangle.js WristFlow"));
++        assertFalse(WristFlowMetadata.enabled(false, "Bangle.js WristFlow"));
++        assertFalse(WristFlowMetadata.enabled(true, "Bangle.js"));
++        assertFalse(WristFlowMetadata.enabled(true, "WristFlow"));
++        assertFalse(WristFlowMetadata.enabled(true, null));
++    }
++}
+diff --git a/app/src/wristflow/res/values/strings.xml b/app/src/wristflow/res/values/strings.xml
+new file mode 100644
+index 0000000..870d40b
+--- /dev/null
++++ b/app/src/wristflow/res/values/strings.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <string translatable="false" name="pebble_content_provider">nodomain.freeyourgadget.gadgetbridge.wristflow.pebble</string>
++    <string translatable="false" name="app_name">WristFlow 测试版</string>
++    <string translatable="false" name="title_activity_controlcenter">WristFlow 测试版</string>
++</resources>

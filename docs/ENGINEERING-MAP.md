@@ -11,6 +11,7 @@
 | 板级诊断 | [apps/bringup](../apps/bringup/)；自有工程 / 板级集成 | [BRINGUP](BRINGUP.md)；Build 的 `bringup`，不能代替 Product 联合验收 |
 | 官方 Hello / BLE | 实际路径由 [Build.ps1](../scripts/Build.ps1) 的 `$projects` 定义，位于锁定 SDK 内 | Build 的 `hello` / `ble`；按官方 SCons，不迁移固件到 CMake |
 | 平台无关逻辑 | [core](../core/) 的手写模型、协议、配置与状态；具体消费者由 SConscript / CMakeLists 决定 | 对应 [tests/CMakeLists.txt](../tests/CMakeLists.txt) 的主机用例及集成目标 |
+| 手机元数据扩展 | [integrations/gadgetbridge](../integrations/gadgetbridge/) 维护锁定上游的小补丁／测试构建；完整源码与 Android 工具在忽略目录，不能修改厂商 SiFli gitlink | [扩展契约与构建](../integrations/gadgetbridge/README.md)；APK 构建不安装、不烧录，真实手机投递另验 |
 | 呼吸前台引导 | [breathing](../core/breathing.h) 独立单调时钟模型，[breathing_view](../ui/runtime/breathing_view.c) 拥有草稿／动画／训练；apps／shell 管导航、独立期限亮屏申请和提醒覆盖，确认时长通过既有 settings／FlashDB worker 保存 | [BREATHING 第二轮](BREATHING.md#round2)；Product 已开放，32/32 主机与双目标编译通过；无后台训练服务，实际 Flash／输入／亮屏和提醒恢复另做 USB 验收 |
 | UI 行为适配 | [ui/runtime](../ui/runtime/) 手写数据绑定、路由、交互及生命周期 | [UI-RUNTIME](UI-RUNTIME.md)、[UI-INTERACTION](UI-INTERACTION.md) 的相关契约；受影响目标回归 |
 | 闹钟配置 / 调度 / 保存 | [alarm](../core/alarm.h) 持有最多五条配置，[alarm_schedule](../core/alarm_schedule.h) 持有日历 / 日期进度；[alarm_store](../core/alarm_store.h) 编码与校验，[Product 服务](../apps/product/src/product_alarm.c) 拥有独立截止和后台保存；[alarm_view](../ui/runtime/alarm_view.c) 拥有草稿与 UI | [ALARM 第二轮](ALARM.md#round2)；Product 注入有效后端才开放，未注入仍阻断；用户操作保存 / 读回 / 发布成功后生效，自动进度异步重试。真实 RTC / Flash / PM 留 USB 验收 |

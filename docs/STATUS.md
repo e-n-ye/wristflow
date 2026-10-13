@@ -5,17 +5,22 @@
 
 本区是活动任务和下一步的唯一权威来源；下方 history、任务书和专题中的历史下一步不构成执行授权。接续先核对工作树、HEAD 和已有改动，再按 [任务索引](../PROJECT_INDEX.md) 读取。
 
-- **本轮范围**：用户明确按人展示目标：列表显示最新 B，详情按时间保留同一人已接收的 A/B；已完成第一轮手机字段可行性采样。只读核验与文档同步，不改固件／UI、不新增手机客户端工程，不恢复 C2 或功耗矩阵；不同内容的 A/B 不是仅因多卡就认定重复。
-- **版本与工作区**：通知诊断 [PR #51](https://github.com/e-n-ye/wristflow/pull/51) 已 Rebase 合入 `a6255c18`，MERGED／fetch／全树核对完成。复用隔离工作树 `breathing-product/wristflow`，从已 fetch 的该主线建立 `codex/notification-conversations`。主目录 12 处 Pro 改动与旧证据保留；SDK 锁、十条缓存和 USB-only 条件未变。
-- **手机证据**：Gadgetbridge 关于页为 0.94.0／`2ee6b3002 (dirty)`，不据此断言业务源码被改。用户开启 USB 调试后，ADB 成功读取 V2403A／Android 14 的 QQ 白名单元数据；Q3-A/B 的完整匿名 key 与 Android ID 517 相同，通知时间更新。Q3-B 超时不能撤回，改采同人 Q3-C：原 C 保留，另有撤回提示；四条记录共用 groupKey，不能作为按人分组依据。标准消息数组／联系人／会话 extras 未见、shortcut=null；不同人暂无样本。清 QQ 手机通知栏后活动记录归零。详见[数据核验](NOTIFICATION-UI.md#notification-conversations)及[精简证据](evidence/2026-10-13/notification-conversations.json)。
-- **实现边界**：当前协议不传 Android key／通知时间，固件无分组／时间字段。需要独立的归组身份和消息条目，不能共用现有 ID 覆盖丢弃 A。当前 key 只证实本次通知生命周期，通知时间不是已证明的 QQ 发送时间，精确重复识别／撤回关联仍未解决。提取器修订和早期字段解析限度已记录。
-- **验证与收尾**：手机采样完成；五份改动文件 UTF-8、六份快照哈希、十个新增本地链接、元数据关系及隐私白名单、diff 检查通过，主代理与只读审查未发现阻挡。本轮没有编译、烧录、安装 APK 或采手表串口，不能新增 UI／BLE／功耗通过结论。原始通知留在内存，匿名快照与工具只在忽略目录保存，提交精简证据；交付版本与 Rebase 合并／MERGED／fetch 回读见 [PR #52 Closure](https://github.com/e-n-ye/wristflow/pull/52)。
+- **本轮范围**：用户已确认“通知标识／时间＋AQI 转发”。在 Gadgetbridge 上加小补丁并编译独立测试 APK；保留通知／删除 ID，另传匿名通知生命周期 key、来源包名、原通知时间与原生 AQI／存在标记。UV、新天气源、固件分组／历史 UI、AQI 显示、C2 和功耗均不在本轮。
+- **版本与工作区**：[PR #52](https://github.com/e-n-ye/wristflow/pull/52) 已 Rebase 合入 `f8e0c606`，MERGED／fetch／全树核对完成；从该主线建立 `codex/notification-metadata`，继续使用隔离工作树。主目录 12 处 Pro 改动、SDK 锁、十条缓存与 USB-only 保留。上游固定为官方 0.94.0／`2ee6b3002`，完整 commit、构建参数和补丁哈希见 [扩展锁](../integrations/gadgetbridge/upstream.lock.json)。安装版 dirty 不证明业务源码改动。
+- **源码候选**：新增测试构建与 `wf` 扩展，普通构建关闭，只匹配真实广告名 `Bangle.js WristFlow`。匿名身份使用持久盐 HMAC；AQI 保留原来源整数，不能直接按中国／美国 AQI 评级。独立包名与 provider authority 保留原应用。契约、源码许可和构建入口见 [手机扩展](../integrations/gadgetbridge/README.md)。没有改变固件／UI。
+- **源码／编译**：相关协议主机 2/2、Android 辅助类 4/4、测试 APK 构建及签名／独立包名／provider 核对通过。最终补丁和安装包哈希、工具版本、失败修复见 [精简证据](evidence/2026-10-13/notification-metadata.json)。固件／UI／SDK 未改，没有新增固件编译或烧录。
+- **手机／用户观察**：首次 ADB 安装被手机系统拒绝，用户改用同哈希 APK 手动安装；ADB 确认原版 0.94.0 与测试版 0.94.0-wf-meta1 并存及权限开启。用户确认连接、预报／日出日落在重选 Breezy 共享目标后恢复。文件日志的最终 UART TX 报文中，Q4-A/B 共用匿名生命周期 key、保留两个原 ID、通知时间递增；清手机通知栏发出对应两个删除 ID，用户确认手表都消失。真实天气 v1 报文带原生 AQI 126。测试文件日志已关闭并核对偏好为 false。
+- **边界**：TX 日志先于 GATT 入队，不能替代扩展字段接收／存储证据；当前固件忽略 `wf`，按人历史和 AQI 显示尚未实现。用户见原 UV 字段显示，不代表有效性已修。第二联系人、清除重建身份、实际进程重启后的身份、精确撤回关联和最大帧／设备队列压力仍未覆盖；旧采样见[通知专题](NOTIFICATION-UI.md#notification-conversations)。
 
 ### 当前闭环与唯一下一步
 
-本轮只读采样与文档核验完成，交付合并回读由 [PR #52 Closure](https://github.com/e-n-ye/wristflow/pull/52)记录。唯一下一步是确认是否进入限定 Gadgetbridge 元数据扩展：保留原通知／删除 ID，先验证身份与时间，再实施固件按人列表／详情历史；该候选范围尚未启动。不凭昵称或撤回文案合并／删除，不自动开替代 App、C2 或全套矩阵。
+本轮数据和构建闭环已完成，唯一下一步是审阅并按 PR 流程交付，合入结果在 PR／最终交接回读，不把开放 PR 写成已集成。普通 `onSendWeather` 固定 v1，完整预报需手表请求 v2／f=true；源码没有 Bangle.js 天气版本设置。后续固件消费／界面属于下一闭环，需另定范围；不凭昵称或撤回文案合并／删除。
 <a id="history"></a>
 ## 历史摘要的适用边界
+
+### 2026-10-13 通知按人数据核验（已由手机扩展替代活动项）
+
+[PR #52](https://github.com/e-n-ye/wristflow/pull/52)完成只读 QQ 元数据采样与五份文件同步，Rebase 合入 `f8e0c606`，MERGED／fetch／树核对完成。Q3-A/B 共用 Android key、时间更新；撤回样本保留原 C 并新增提示，groupKey 不可当按人身份；标准会话数组等未见、不同人无样本。清通知栏后活动记录归零。六份匿名快照哈希、隐私白名单、UTF-8／链接／diff 检查通过；没有编译、安装、烧录或手表串口操作。完整证据保留在[通知专题](NOTIFICATION-UI.md#notification-conversations)；后续用户已确认仅通知标识／时间＋AQI 的扩展范围。
 
 ### 2026-10-12 通知诊断闭环（已由按人展示核验替代活动项）
 
