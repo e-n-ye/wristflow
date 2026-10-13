@@ -323,6 +323,8 @@ int main(int argc, char **argv)
     lv_color_t aqi_color = lv_obj_get_style_text_color(named(screen, "weather_index_0_value"), 0);
     assert(lv_color_eq(aqi_color, lv_obj_get_style_text_color(named(screen, "weather_index_1_value"), 0)));
     assert(lv_obj_has_flag(named(screen, "weather_sun_position"), LV_OBJ_FLAG_HIDDEN));
+    lv_obj_scroll_to_y(named(screen, "weather_pager"), 4 * 450, LV_ANIM_OFF);
+    advance_ms(32);
     snapshot(argv[1], "weather_v2_product_sun");
     lv_obj_t *first_hour = named(screen, "weather_hour_0");
     text(first_hour, "hour_time", "23:00"); text(first_hour, "hour_temp", "20°");
