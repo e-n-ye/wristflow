@@ -2,8 +2,31 @@
 
 2026-09-27。在同一 Product 的 BLE A1 与 PM P1 上继续实现已确认的完整通知 UI；采购已由用户全部下单，待到货。本增量不重置三个月日历、预算或 Gadgetbridge 累计实验上限。
 
+<a id="notification-conversations"></a>
+## 2026-10-13 按人展示的数据核验（UI 尚未实施）
+
+用户已确认同一个人先发 A、再发 B：列表显示最新 B，点开按时间查看这个人的已接收消息。因此 A/B 两条不同内容不是同一消息重复；历史应保留 A，不能用同 ID 覆盖丢弃。当前缓存仍是全局十条、按协议 ID 管理，详情只读单条；本轮只读采样和同步决定，没有修改固件／UI，也未新增手机应用工程。
+
+手机关于页为 Gadgetbridge **0.94.0／2ee6b3002 (dirty)**。官方 [构建配置](https://codeberg.org/Freeyourgadget/Gadgetbridge/src/tag/0.94.0/app/build.gradle#L90) 以构建时 Git 状态产生 dirty，它不证明通知业务代码被修改；没有核验安装 APK 与 tag 的逐字节一致性。[NotificationListener](https://codeberg.org/Freeyourgadget/Gadgetbridge/src/tag/0.94.0/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/externalevents/NotificationListener.java#L462) 已保存 Android key 和通知 when，但 [BangleJS 发送路径](https://codeberg.org/Freeyourgadget/Gadgetbridge/src/tag/0.94.0/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/banglejs/BangleJSDeviceSupport.java#L1500) 没有把 key／包名／时间转发给固件。源码解释与 10-12 不同 ID 的新增／清通知栏删除样本一致，不把官方源码等同于安装包证明。
+
+用户授权 USB 调试只读核验。官方 Platform-Tools 本机隔离安装，ADB 1.0.41／37.0.1-15733141；手机 V2403A、Android 14／SDK 34。`cmd notification list` 只在内存按完整包名筛选 QQ，再以安全引用的 key 执行 `cmd notification get`；后者不脱敏，因此只保存白名单字段、匿名 key／groupKey、时间和受控标记布尔值，原 key、联系人、正文和设备序列号不提交。未安装 APK、改手机设置、重启或打开手表串口。首次未枚举到手机；用户开启 USB 调试后才取得有效样本。精简记录见 [证据 JSON](evidence/2026-10-13/notification-conversations.json)。
+
+| 样本 | Android 观察 | 支持的结论 |
+|---|---|---|
+| Q3-A → Q3-B，同一联系人 | 两次只有一条 QQ 通知；ID 517／完整 key 匿名值相同，creation 不变，when／update 改变；复查正文仅含受控 B 标记 | 同一活动通知被更新；没有证明跨清除、重建或不同人的身份稳定性 |
+| Q3-C 发送后撤回，同一联系人 | B 超时不能撤回，用户改用 C；原 ID 517 仍含 C，另有 ID 265 的撤回提示；还有未标注 ID 518 与 ID 2147483647。四条 key 不同却共用同一 groupKey | 撤回是另一条提示，未见原消息关联；不能把 Android groupKey 当成按人的分组键。未标注通知不强归到测试联系人 |
+| 划掉这组 QQ 手机通知 | 四条活动记录归零，读取失败为 0 | 手机通知记录确已移除；本轮没有同步采手表／Gadgetbridge TX，不新增固件删除验收 |
+
+撤回样本使用修订提取器，主 notification 与 publicNotification 分块，四条格式均识别；shortcut 均为 null／valid=false，主 extras 未见 `android.messages`、`android.messages.historic`、`android.people.list`、`android.conversationTitle` 或 `android.isGroupConversation`。这是该机型／QQ 场景的白名单字段观察，不证明所有私有 extras 都无关联，也不能推广到所有 QQ 版本。早期 A/B 提取器未分块、未解析 shortcut，A/B 的身份和时间对照仍有效，其“未见字段”不单独作为缺失证明。Android [NotificationRecord](https://android.googlesource.com/platform/frameworks/base/+/android-14.0.0_r1/services/core/java/com/android/server/notification/NotificationRecord.java#490) 的字段格式用于核验提取器；原通知不落盘。
+
+**可行性与剩余边界**：固件目前收不到用于归组的 Android 通知 key，也收不到通知时间；按人历史需要分组身份与独立消息条目，保留每条 A/B，而非把整个会话共用一个现有消息 ID。当前 Android key 只证实本次通知生命周期，when 是通知时间，不保证等于 QQ 发送时间；没有逐条消息 ID，不能保证辨别所有重发或精确撤回。第二位测试联系人暂不可用，跨人隔离／群聊／清除重建仍未验证。
+
+下一轮**方案候选，不是另一份活动队列**：先做限定的 Gadgetbridge 元数据扩展，保留现有通知及删除 ID，另传不含联系人原文的通知身份、来源与通知时间；先验证同人更新、不同人、清除重建和单独撤回提示，不直接变更全局 NotificationSpec ID。证据满足后才接固件分组与 XML 详情历史。分组删除、群聊、时间排序方向／初始滚动及十条容量分配尚未决定；不承诺完整 QQ 聊天记录或凭文案删除。是否进入这一轮以 [STATUS 当前区](STATUS.md#current)及用户新指令为准，Gadgetbridge 累计实验上限不重置。
+
 <a id="notification-trace"></a>
-## 2026-10-12 通知协议诊断
+## 2026-10-12 通知协议诊断（已闭环历史）
+
+本段诊断经 [PR #51](https://github.com/e-n-ye/wristflow/pull/51) Rebase 合入 `a6255c18`，MERGED 与 fetch 已回读。后续用户明确按人展示目标，见[数据核验](#notification-conversations)；本段逐条缓存和诊断结果仍是当时实现证据，不把不同内容的 A/B 认定为同一消息重复。
 
 用户恢复旧 J4 的重复卡片／撤回残留排查，确认原 iQOO Neo9S Pro+／Gadgetbridge／QQ 链路与 USB-only 条件。旧失败缺操作类型和 ID，不能追溯归因。本轮 `codex/notification-trace` 基于 `ca6ae012`，仅增加元数据观察，不改变按 ID 更新／删除的语义。新同版对照定位：A2、B2、聊天撤回提示是三个不同 ID 的新增 notify；手机通知栏移除才发 notify-，固件命中删除。没有复现同 ID 重复入库或收到删除后漏删，不能为聊天撤回文案猜测应删除哪条消息。
 

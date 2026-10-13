@@ -1,0 +1,461 @@
+{
+  "date": "2026-10-13",
+  "scope": "Read-only QQ metadata feasibility and accepted display decision; no UI implementation",
+  "source_base": "a6255c184b1e0e3cfd3fcf94127cc64c9169f4bb",
+  "branch": "codex/notification-conversations",
+  "local_worktree": "C:/Users/13984/.codex/worktrees/breathing-product/wristflow",
+  "user_decision": {
+    "latest_card": "Same person sends A then B: show B in notification list",
+    "detail": "Retain received A/B and show messages from that person in time order",
+    "implemented": false,
+    "global_message_capacity_changed": false,
+    "full_QQ_history_or_offline_backfill_promised": false
+  },
+  "versions": {
+    "gadgetbridge_about_photo": "0.94.0; 2ee6b3002 (dirty)",
+    "official_tag": "2ee6b3002f250e24328ac91b948bce0b2243a0db",
+    "installed_APK_matches_tag_verified": false,
+    "phone_model": "V2403A",
+    "android_release": "14",
+    "sdk": 34,
+    "adb": "1.0.41; 37.0.1-15733141",
+    "platform_tools_download": "https://dl.google.com/android/repository/platform-tools-latest-windows.zip",
+    "platform_tools_zip_sha256": "45f4d63113e895ebde0c90f194099a4676b6ac653bd28d54314a9e022bbc1a99"
+  },
+  "method": {
+    "commands": [
+      "adb devices -l (initially empty; successful authorization after user enabled USB debugging)",
+      "adb -s <phone> shell getprop ro.product.model / ro.build.version.sdk / ro.build.version.release",
+      "adb -s <phone> shell dumpsys notification --package com.tencent.mobileqq (redacted baseline, processed in RAM)",
+      "adb -s <phone> shell 'cmd notification list' (RAM only; exact package segment filter)",
+      "adb -s <phone> shell 'cmd notification get <safely quoted key>' (unredacted; RAM-only whitelist)",
+      "python artifacts/notification-conversations/capture_qq_metadata.py <label>"
+    ],
+    "key_anonymization": "HMAC-SHA256 truncated to 16 hex characters with one private local random salt across this run",
+    "raw_keys_text_contacts_saved": false,
+    "private_device_identity_shared": false,
+    "phone_app_installed_or_settings_written_by_agent": false,
+    "watch_UART_or_flash_used": false,
+    "capture_revisions": {
+      "early_a_b": "No script hash embedded; key/timestamp comparisons retained, missing-extra-field claims not used alone",
+      "b_check_sha256": "65ad79d9e02b1e87f254e05e097b0a5d2fb17b54624205bed32207f9f35c2861",
+      "recall_clear_sha256": "2904684c929428d23e1b12a02bff179a42d92a6c541bfe62b765eae8bcc347f5",
+      "recall_clear_changes": "Separate primary notification from publicNotification; parse AOSP shortcut=<id> found valid? <bool>"
+    },
+    "field_scope": "Standard android.* extras, selected custom field names, key/groupKey, shortcut and record timestamps; not an exhaustive proof about all private extras"
+  },
+  "captures": [
+    {
+      "local_artifact": "artifacts/notification-conversations/qq-baseline-metadata.json",
+      "sha256": "9529967dd48c895bf197f5b72e54204ffe1764f800f162e79b33d4e76e08ce90",
+      "metadata": {
+        "captured_at_local": "2026-10-13T11:23:16.504069+08:00",
+        "command": "adb -s <phone> shell dumpsys notification --package com.tencent.mobileqq",
+        "exit_code": 0,
+        "bytes_in_memory": 13924,
+        "qq_records": [],
+        "raw_dump_saved": false,
+        "redact_default": true
+      }
+    },
+    {
+      "local_artifact": "artifacts/notification-conversations/q3-a-metadata.json",
+      "sha256": "f0fadc19d27753969baf700a412fd99060ee6746e453120ef5dcc63dd98f9b05",
+      "metadata": {
+        "label": "q3-a",
+        "captured_at_local": "2026-10-13T11:25:54.307679+08:00",
+        "model": "V2403A",
+        "sdk": "34",
+        "list_exit_code": 0,
+        "qq_key_count": 1,
+        "record_read_failures": 0,
+        "qq_records": [
+          {
+            "key_anon": "14ba3368fe8ce652",
+            "android_id": 517,
+            "extra_fields": [
+              "android.appInfo",
+              "android.infoText",
+              "android.largeIcon",
+              "android.progress",
+              "android.progressIndeterminate",
+              "android.progressMax",
+              "android.reduced.images",
+              "android.remoteInputHistory",
+              "android.showChronometer",
+              "android.showWhen",
+              "android.subText",
+              "android.text",
+              "android.title"
+            ],
+            "other_field_names": [
+              "shortcut"
+            ],
+            "messaging_style": false,
+            "groupKey_present": true,
+            "groupKey_anon": "14ba3368fe8ce652",
+            "when": 1791861850686,
+            "mCreationTimeMs": 1791861850717,
+            "mUpdateTimeMs": 1791861850717,
+            "mRankingTimeMs": 1791861850686,
+            "structured_message_times": [],
+            "sender_person_field_present": false,
+            "raw_record_saved": false
+          }
+        ],
+        "raw_dump_saved": false,
+        "method": "cmd notification list in RAM; exact QQ package filter; safely quoted get; metadata whitelist"
+      }
+    },
+    {
+      "local_artifact": "artifacts/notification-conversations/q3-b-metadata.json",
+      "sha256": "3b7361f57bb5a3eb933bfc9b1d4696b422770607cdce4191056fb292ac0e989f",
+      "metadata": {
+        "label": "q3-b",
+        "captured_at_local": "2026-10-13T11:26:41.166055+08:00",
+        "model": "V2403A",
+        "sdk": "34",
+        "list_exit_code": 0,
+        "qq_key_count": 1,
+        "record_read_failures": 0,
+        "qq_records": [
+          {
+            "key_anon": "14ba3368fe8ce652",
+            "android_id": 517,
+            "extra_fields": [
+              "android.appInfo",
+              "android.infoText",
+              "android.largeIcon",
+              "android.progress",
+              "android.progressIndeterminate",
+              "android.progressMax",
+              "android.reduced.images",
+              "android.remoteInputHistory",
+              "android.showChronometer",
+              "android.showWhen",
+              "android.subText",
+              "android.text",
+              "android.title"
+            ],
+            "other_field_names": [
+              "shortcut"
+            ],
+            "messaging_style": false,
+            "groupKey_present": true,
+            "groupKey_anon": "14ba3368fe8ce652",
+            "when": 1791861984745,
+            "mCreationTimeMs": 1791861850717,
+            "mUpdateTimeMs": 1791861984771,
+            "mRankingTimeMs": 1791861984745,
+            "structured_message_times": [],
+            "sender_person_field_present": false,
+            "raw_record_saved": false
+          }
+        ],
+        "raw_dump_saved": false,
+        "method": "cmd notification list in RAM; exact QQ package filter; safely quoted get; metadata whitelist"
+      }
+    },
+    {
+      "local_artifact": "artifacts/notification-conversations/q3-b-check-metadata.json",
+      "sha256": "84c4f1fb0555213d55c51c16e6b72ea20dc83e71f10b811cc93c023cd0800cbe",
+      "metadata": {
+        "label": "q3-b-check",
+        "captured_at_local": "2026-10-13T11:28:30.537104+08:00",
+        "model": "V2403A",
+        "sdk": "34",
+        "list_exit_code": 0,
+        "qq_key_count": 1,
+        "record_read_failures": 0,
+        "qq_records": [
+          {
+            "key_anon": "14ba3368fe8ce652",
+            "android_id": 517,
+            "extra_fields": [
+              "android.appInfo",
+              "android.infoText",
+              "android.largeIcon",
+              "android.progress",
+              "android.progressIndeterminate",
+              "android.progressMax",
+              "android.reduced.images",
+              "android.remoteInputHistory",
+              "android.showChronometer",
+              "android.showWhen",
+              "android.subText",
+              "android.text",
+              "android.title"
+            ],
+            "other_field_names": [
+              "shortcut"
+            ],
+            "messaging_style": false,
+            "test_markers_in_text": [
+              "Q3-B"
+            ],
+            "recall_prompt_in_text": false,
+            "groupKey_present": true,
+            "groupKey_anon": "14ba3368fe8ce652",
+            "when": 1791861984745,
+            "mCreationTimeMs": 1791861850717,
+            "mUpdateTimeMs": 1791861984771,
+            "mRankingTimeMs": 1791861984745,
+            "structured_message_times": [],
+            "sender_person_field_present": false,
+            "raw_record_saved": false
+          }
+        ],
+        "raw_dump_saved": false,
+        "capture_script_sha256": "65ad79d9e02b1e87f254e05e097b0a5d2fb17b54624205bed32207f9f35c2861",
+        "method": "cmd notification list in RAM; exact QQ package filter; safely quoted get; metadata whitelist"
+      }
+    },
+    {
+      "local_artifact": "artifacts/notification-conversations/q3-recall-metadata.json",
+      "sha256": "4bd15d3b1206b6902d1775ccae05146bcba746a49028fbaee8dda449556ea6e5",
+      "metadata": {
+        "label": "q3-recall",
+        "captured_at_local": "2026-10-13T11:34:39.700939+08:00",
+        "model": "V2403A",
+        "sdk": "34",
+        "list_exit_code": 0,
+        "qq_key_count": 4,
+        "record_read_failures": 0,
+        "qq_records": [
+          {
+            "key_anon": "abec3c524409a5f6",
+            "android_id": 2147483647,
+            "primary_notification_block_recognized": true,
+            "extra_fields": [
+              "android.appInfo",
+              "android.reduced.images",
+              "android.showWhen"
+            ],
+            "other_field_names": [],
+            "messaging_style": false,
+            "test_markers_in_text": [],
+            "recall_prompt_in_text": false,
+            "groupKey_present": true,
+            "groupKey_anon": "3fb561c2a3989f7d",
+            "shortcut_field_recognized": true,
+            "shortcut_present": false,
+            "shortcut_valid": false,
+            "when": 1791862351792,
+            "mCreationTimeMs": 1791862221420,
+            "mUpdateTimeMs": 1791862221420,
+            "mRankingTimeMs": 1791862351792,
+            "structured_message_times": [],
+            "sender_person_field_present": false,
+            "raw_record_saved": false
+          },
+          {
+            "key_anon": "fd33dcf229289f93",
+            "android_id": 265,
+            "primary_notification_block_recognized": true,
+            "extra_fields": [
+              "android.appInfo",
+              "android.infoText",
+              "android.largeIcon",
+              "android.progress",
+              "android.progressIndeterminate",
+              "android.progressMax",
+              "android.reduced.images",
+              "android.remoteInputHistory",
+              "android.showChronometer",
+              "android.showWhen",
+              "android.subText",
+              "android.text",
+              "android.title"
+            ],
+            "other_field_names": [],
+            "messaging_style": false,
+            "test_markers_in_text": [],
+            "recall_prompt_in_text": true,
+            "groupKey_present": true,
+            "groupKey_anon": "3fb561c2a3989f7d",
+            "shortcut_field_recognized": true,
+            "shortcut_present": false,
+            "shortcut_valid": false,
+            "when": 1791862351792,
+            "mCreationTimeMs": 1791862351800,
+            "mUpdateTimeMs": 1791862351800,
+            "mRankingTimeMs": 1791862351792,
+            "structured_message_times": [],
+            "sender_person_field_present": false,
+            "raw_record_saved": false
+          },
+          {
+            "key_anon": "14ba3368fe8ce652",
+            "android_id": 517,
+            "primary_notification_block_recognized": true,
+            "extra_fields": [
+              "android.appInfo",
+              "android.infoText",
+              "android.largeIcon",
+              "android.progress",
+              "android.progressIndeterminate",
+              "android.progressMax",
+              "android.reduced.images",
+              "android.remoteInputHistory",
+              "android.showChronometer",
+              "android.showWhen",
+              "android.subText",
+              "android.text",
+              "android.title"
+            ],
+            "other_field_names": [],
+            "messaging_style": false,
+            "test_markers_in_text": [
+              "Q3-C"
+            ],
+            "recall_prompt_in_text": false,
+            "groupKey_present": true,
+            "groupKey_anon": "3fb561c2a3989f7d",
+            "shortcut_field_recognized": true,
+            "shortcut_present": false,
+            "shortcut_valid": false,
+            "when": 1791862347941,
+            "mCreationTimeMs": 1791861850717,
+            "mUpdateTimeMs": 1791862347954,
+            "mRankingTimeMs": 1791862347941,
+            "structured_message_times": [],
+            "sender_person_field_present": false,
+            "raw_record_saved": false
+          },
+          {
+            "key_anon": "2d11bcb7bedb0f10",
+            "android_id": 518,
+            "primary_notification_block_recognized": true,
+            "extra_fields": [
+              "android.appInfo",
+              "android.infoText",
+              "android.largeIcon",
+              "android.progress",
+              "android.progressIndeterminate",
+              "android.progressMax",
+              "android.reduced.images",
+              "android.remoteInputHistory",
+              "android.showChronometer",
+              "android.showWhen",
+              "android.subText",
+              "android.text",
+              "android.title"
+            ],
+            "other_field_names": [],
+            "messaging_style": false,
+            "test_markers_in_text": [],
+            "recall_prompt_in_text": false,
+            "groupKey_present": true,
+            "groupKey_anon": "3fb561c2a3989f7d",
+            "shortcut_field_recognized": true,
+            "shortcut_present": false,
+            "shortcut_valid": false,
+            "when": 1791862221142,
+            "mCreationTimeMs": 1791862221171,
+            "mUpdateTimeMs": 1791862221171,
+            "mRankingTimeMs": 1791862221142,
+            "structured_message_times": [],
+            "sender_person_field_present": false,
+            "raw_record_saved": false
+          }
+        ],
+        "raw_dump_saved": false,
+        "capture_script_sha256": "2904684c929428d23e1b12a02bff179a42d92a6c541bfe62b765eae8bcc347f5",
+        "method": "cmd notification list in RAM; exact QQ package filter; safely quoted get; primary notification block; shortcut parse; metadata whitelist"
+      }
+    },
+    {
+      "local_artifact": "artifacts/notification-conversations/q3-clear-metadata.json",
+      "sha256": "a041e29679658712dc1b82db3adcda64e9bbe3c688d1d7c93d76927215af82e1",
+      "metadata": {
+        "label": "q3-clear",
+        "captured_at_local": "2026-10-13T11:35:32.509471+08:00",
+        "model": "V2403A",
+        "sdk": "34",
+        "list_exit_code": 0,
+        "qq_key_count": 0,
+        "record_read_failures": 0,
+        "qq_records": [],
+        "raw_dump_saved": false,
+        "capture_script_sha256": "2904684c929428d23e1b12a02bff179a42d92a6c541bfe62b765eae8bcc347f5",
+        "method": "cmd notification list in RAM; exact QQ package filter; safely quoted get; primary notification block; shortcut parse; metadata whitelist"
+      }
+    }
+  ],
+  "controlled_sequence": [
+    {
+      "step": "Q3-A then Q3-B",
+      "user": "Same QQ contact; QQ not foreground; notifications retained",
+      "result": "One active QQ record each; Android517 and full anonymous key unchanged; creation stable, when/update changed"
+    },
+    {
+      "step": "second-contact isolation",
+      "performed": false,
+      "result": "Not performed: user had no second test contact"
+    },
+    {
+      "step": "recall",
+      "user": "Q3-B could no longer be recalled; original sender sent and recalled Q3-C instead",
+      "result": "Q3-C still present in Android517; separate Android265 recall prompt; four QQ records share one groupKey",
+      "unlabelled_records": [
+        518,
+        2147483647
+      ],
+      "q3_c_before_recall_captured": false
+    },
+    {
+      "step": "phone QQ notification-shade clear",
+      "user": "Cleared this QQ notification group; did not open QQ",
+      "result": "Zero active QQ keys, zero read failures"
+    }
+  ],
+  "source_inspection": {
+    "firmware": [
+      "core/notifications.h:6-19 (global 10 entries, id/source/title/body; no conversation/time metadata)",
+      "apps/product/src/phone_protocol.c:39-50,255-292 (exact-ID update/add/delete)",
+      "ui/runtime/notification_view.c:24-63,121-132 (single-record list/detail)"
+    ],
+    "official_sources": [
+      "https://codeberg.org/Freeyourgadget/Gadgetbridge/src/tag/0.94.0/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/externalevents/NotificationListener.java#L462",
+      "https://codeberg.org/Freeyourgadget/Gadgetbridge/src/tag/0.94.0/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/model/NotificationSpec.kt#L30",
+      "https://codeberg.org/Freeyourgadget/Gadgetbridge/src/tag/0.94.0/app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/banglejs/BangleJSDeviceSupport.java#L1500",
+      "https://codeberg.org/Freeyourgadget/Gadgetbridge/src/tag/0.94.0/app/build.gradle#L90",
+      "https://android.googlesource.com/platform/frameworks/base/+/android-14.0.0_r1/services/core/java/com/android/server/notification/NotificationRecord.java#490",
+      "https://android.googlesource.com/platform/frameworks/base/+/android-14.0.0_r1/services/core/java/com/android/server/notification/NotificationShellCmd.java#323"
+    ],
+    "web_fetch_limitation": "Web open returned Internal Error; official raw source was inspected with Invoke-WebRequest; NotificationRecord lines 476-505,536-551,590-635 rechecked for parsing",
+    "earlier_user_gadgetbridge_log": "Previously inspected during continuation; original user temp path now absent, so no new re-read/hash or independent verification claimed"
+  },
+  "conclusions": [
+    "Current B1 preserves each received event ID; A/B different content is not by itself a duplicate defect",
+    "This A/B sample updates one Android notification lifecycle; Android notification key is not yet proven a durable person/conversation ID",
+    "Recall snapshot retained Q3-C plus a separate recall prompt; no original-message association in checked standard fields",
+    "Observed groupKey is shared by four QQ records; insufficient evidence for person grouping",
+    "Recall primary blocks parsed successfully; no MessagingStyle standard message arrays/people/conversation extras, and shortcut=null/invalid in these four records",
+    "Official BangleJS path omits Android key/package/when; firmware has no grouping/time fields, so latest-card plus history requires separate group metadata and retained message entries"
+  ],
+  "validation": {
+    "source_and_doc_review": "Primary reviewed final affected diff and evidence; read-only review found no P1/P2 blocker; privacy and counts independently checked",
+    "doc_checks": {
+      "UTF8_files": 5,
+      "capture_hashes": 6,
+      "new_local_links": 10,
+      "metadata_invariants": "pass",
+      "privacy_whitelist": "pass",
+      "git_diff_check": "pass"
+    },
+    "firmware_compilation": "Not run: no firmware/UI/SDK source changes",
+    "watch_hardware_acceptance": "Not performed this round; prior 10-12 trace remains separate evidence",
+    "phone_sampling": "Read-only command success and metadata recorded above; no QQ raw dumps retained"
+  },
+  "not_covered": [
+    "Second-contact isolation, group chats and notification clear/recreate identity stability",
+    "QQ versions other than this phone scenario; all private/custom extras",
+    "Real QQ per-message ID, true message send time, precise recall target, exact duplicate detection",
+    "Q3-C snapshot before recall; purpose/sender of unlabelled Android518 and2147483647",
+    "Live Gadgetbridge TX or watch UART correlation in the Q3 round",
+    "Installed APK binary/source equivalence and phone project build/install",
+    "Conversation UI, group deletion, sorting direction/initial scroll, changed capacity or full history"
+  ],
+  "next_bounded_proposal": "Metadata-only Gadgetbridge extension preserving existing event/delete IDs, then validate same/different contact, clear/recreate and separate recall; firmware grouped list/history only after identity evidence and scope decision"
+}
