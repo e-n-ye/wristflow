@@ -1,0 +1,260 @@
+{
+  "date": "2026-10-13",
+  "timezone": "Asia/Shanghai",
+  "scope": "Independent Gadgetbridge test APK: notification lifecycle identity/time and native AQI forwarding only",
+  "worktree": {
+    "branch": "codex/notification-metadata",
+    "base": "f8e0c606b160141f7941aa5b9b78d8c29e32a7ae",
+    "local_artifacts": "artifacts/notification-metadata/ in the isolated task worktree; not committed"
+  },
+  "source": {
+    "lock": "integrations/gadgetbridge/upstream.lock.json",
+    "upstream": {
+      "repository": "https://codeberg.org/Freeyourgadget/Gadgetbridge.git",
+      "tag": "0.94.0",
+      "commit": "2ee6b3002f250e24328ac91b948bce0b2243a0db",
+      "license": "AGPL-3.0-or-later"
+    },
+    "patch": {
+      "file": "wristflow-metadata.patch",
+      "sha256": "7abd89b9ed65115d36931b16444ff292c6ad1929793d426335fb1f8f75bd5cd5"
+    },
+    "patched_upstream_tree": "dc87939c572aac59fa96aaf3840753dbe3169832",
+    "clean_index_patch_check": "PASS",
+    "integration_checkout_lf_and_locked_hashes": "PASS; five staged integration files exported with checkout-index and byte-compared; initial check detected local lock JSON CRLF, normalized without changing fields",
+    "build_script_sha256": "55e94537db5e3bb2658effc7c0aef95a7b2a6337104097012d2f45aad936f5e3",
+    "host_test_source_sha256": "20af5c266a53514495615cb16cbf9087ca07b0162300f637ac27685605abdc8e",
+    "sdk_lock_sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af",
+    "firmware_ui_sdk_changed": false
+  },
+  "build": {
+    "tools": {
+      "variant": "mainlineWristflow",
+      "application_id": "nodomain.freeyourgadget.gadgetbridge.wristflow",
+      "gradle": "9.7.1",
+      "gradle_sha256": "acd53f1edaf02f1a8ff99879f8a34b302661a057d9b063ae9e35b552f804d20a",
+      "agp": "9.3.2",
+      "jdk_major": 21,
+      "sdk_platform": "platforms;android-37.0",
+      "build_tools": "36.0.0"
+    },
+    "jdk": "Temurin 21.0.12.1+1",
+    "gradle_args": [
+      "--no-daemon",
+      "--max-workers=4",
+      "--console=plain",
+      "--stacktrace",
+      ":app:testMainlineWristflowUnitTest",
+      "--tests",
+      "nodomain.freeyourgadget.gadgetbridge.service.devices.banglejs.WristFlowMetadataTest",
+      ":app:assembleMainlineWristflow"
+    ],
+    "exit_code": 0,
+    "run": "20261013-163456-533",
+    "duration": "2m33s",
+    "android_unit_tests": {
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "53.487"
+    },
+    "host_commands": [
+      "cmake --build artifacts/breathing/host --target phone_protocol phone_queue --parallel 6",
+      "ctest --test-dir artifacts/breathing/host -R \"^(phone_protocol|phone_queue)$\" --output-on-failure"
+    ],
+    "host_result": {
+      "exit_code": 0,
+      "passed": 2,
+      "failed": 0
+    },
+    "local_test_download_configuration": {
+      "tracked": false,
+      "scope": "isolated Gradle cache, selected unit-test task only",
+      "purpose": "Robolectric Maven Central URL and forwarding existing task-local proxy options to the test JVM",
+      "repository": "https://repo.maven.apache.org/maven2",
+      "connect_timeout_ms": 15000,
+      "read_timeout_ms": 60000,
+      "init_script_sha256": "9af64a3411ed2e1750f0f9b9c3f538066bfbb01dec33d77631502362faa4dd96"
+    },
+    "manual_actions": "not run; firmware SDK and common build entry unchanged"
+  },
+  "apk": {
+    "apk_sha256": "f844c676003c052a03232c1bf161f31d3560538c1fcfd22ca094bce1036dcee1",
+    "apk_bytes": 38474923,
+    "package": "nodomain.freeyourgadget.gadgetbridge.wristflow",
+    "version_code": 253,
+    "version_name": "0.94.0-wf-meta1",
+    "signature_verify_exit": 0,
+    "certificate_sha256": "58a347892faa5b0881b3d2f61fae30d66e7d6d3519d491c5d35781961a03b86f",
+    "internet_permission": false,
+    "provider_authorities_independent": true,
+    "provider_authorities": [
+      "nodomain.freeyourgadget.gadgetbridge.wristflow.screenshot_provider",
+      "nodomain.freeyourgadget.gadgetbridge.wristflow.androidx-startup",
+      "nodomain.freeyourgadget.gadgetbridge.wristflow.pebble"
+    ],
+    "tests": {
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "53.487"
+    },
+    "patch_sha256": "7abd89b9ed65115d36931b16444ff292c6ad1929793d426335fb1f8f75bd5cd5",
+    "upstream_commit": "2ee6b3002f250e24328ac91b948bce0b2243a0db"
+  },
+  "installation": {
+    "adb_attempt": "INSTALL_FAILED_ABORTED: User rejected permissions",
+    "recovery": "Same-SHA APK transferred to Downloads and manually installed by user",
+    "versions_and_permissions": {
+      "versions": {
+        "nodomain.freeyourgadget.gadgetbridge": "0.94.0",
+        "nodomain.freeyourgadget.gadgetbridge.wristflow": "0.94.0-wf-meta1"
+      },
+      "permissions": {
+        "BLUETOOTH_SCAN": true,
+        "BLUETOOTH_CONNECT": true,
+        "POST_NOTIFICATIONS": true
+      },
+      "notification_listener_enabled": true,
+      "test_running": true
+    },
+    "device": "iQOO Neo9S Pro+ / V2403A / Android 14 SDK 34",
+    "device_name_gate_match": true,
+    "user_confirmed_test_app_connected": true,
+    "original_application_uninstalled_or_cleared": false
+  },
+  "runtime": {
+    "snapshot_sha256": "b85121d5b38c34a96e801d9f83a65f630bb9db3c565689dd5cee3d58b696ffc4",
+    "same_lifecycle_key": true,
+    "legacy_ids_distinct": true,
+    "notification_time_increases": true,
+    "legacy_delete_ids_match": true,
+    "aqi_outgoing": 126,
+    "test_app_file_logging_enabled": false,
+    "notifications": [
+      {
+        "log_time": "17:12:04.186",
+        "id": 1791882725,
+        "wire_bytes": 265,
+        "when_ms": 1791882723688
+      },
+      {
+        "log_time": "17:18:39.104",
+        "id": 1791882726,
+        "wire_bytes": 292,
+        "when_ms": 1791883118773
+      }
+    ],
+    "deletions": [
+      {
+        "log_time": "17:20:15.016",
+        "type": "notify-",
+        "wire_bytes": 37,
+        "id": 1791882725
+      },
+      {
+        "log_time": "17:20:15.019",
+        "type": "notify-",
+        "wire_bytes": 37,
+        "id": 1791882726
+      }
+    ],
+    "weather": [
+      {
+        "log_time": "17:09:36.238",
+        "type": "weather",
+        "wire_bytes": 239,
+        "v": 1,
+        "wf": {
+          "v": 1,
+          "aqi_present": true,
+          "aqi": 126,
+          "aqi_scale": "gadgetbridge-native"
+        }
+      },
+      {
+        "log_time": "17:10:01.369",
+        "type": "weather",
+        "wire_bytes": 239,
+        "v": 1,
+        "wf": {
+          "v": 1,
+          "aqi_present": true,
+          "aqi": 126,
+          "aqi_scale": "gadgetbridge-native"
+        }
+      }
+    ],
+    "boundary": "Phone UART TX log precedes GATT enqueue; user confirmed watch receipt and removal; firmware does not consume wf."
+  },
+  "user_observations": {
+    "forecast_and_sun_times": "Initially missing in independent test app; restored after selecting test app in Breezy Weather data sharing and refreshing/syncing",
+    "uv": "User reported existing UV display present; no UV source/validity modification in this round",
+    "aqi_watch_display": "Still placeholder; current firmware does not consume wf AQI",
+    "q4_b": "User confirmed watch receipt",
+    "clear_phone_notification": "User confirmed both Q4-A and Q4-B disappeared from watch",
+    "file_logging_cleanup": "User confirmed disabled; private preference whitelist readback false"
+  },
+  "snapshots": [
+    {
+      "path": "q4-a-metadata.json",
+      "sha256": "e2dfc4752ee43b0590cc317b5b759c0e5364d51d3d42022e383a615fd7a10414"
+    },
+    {
+      "path": "q4-ab-metadata.json",
+      "sha256": "e5dadf9c9ab81a0c46bb2af5f1bed4d67c0af59e7cf14bf9b8ccbb5f19fb4371"
+    },
+    {
+      "path": "q4-final-metadata.json",
+      "sha256": "b85121d5b38c34a96e801d9f83a65f630bb9db3c565689dd5cee3d58b696ffc4"
+    }
+  ],
+  "failed_attempts": [
+    {
+      "run": "initial upstream checkout",
+      "result": "Windows long-path checkout failure; official source restored in short-path checkout with local core.longpaths"
+    },
+    {
+      "run": "SDK setup",
+      "result": "Incorrect platform package 37 replaced with official platforms;android-37.0"
+    },
+    {
+      "run": "initial wrapper download",
+      "result": "Slow download / duplicate cache lock timeout; official same-version ZIP verified and reused, unfinished downloads preserved"
+    },
+    {
+      "run": "20261013-124717-695",
+      "result": "AGP default did not enable wristflow unit-test task; corrected beforeVariants for this test variant only"
+    },
+    {
+      "run": "20261013-125720-630",
+      "result": "dl.google.com DNS failure; isolated cache network configuration used"
+    },
+    {
+      "run": "20261013-161439-737",
+      "result": "Robolectric runtime download SSL stalled; own verified test worker stopped, bounded selected-task download configuration added; not an assertion failure"
+    },
+    {
+      "run": "logcat capture 20261013-164819",
+      "result": "No WF_META events observed; cause unknown; automatic timeout, not marker stop"
+    },
+    {
+      "run": "UART capture 20261013-165330-160",
+      "result": "Initial wrong diagnostic names followed by correct names but no verified command ACK; no device reception metadata claim; automatic timeout, no reset/flash/time write"
+    }
+  ],
+  "limits": [
+    "Android lifecycle key is not proven cross-clear, cross-contact, group-chat or precise QQ recall identity",
+    "when_ms is Android notification time, not guaranteed QQ message send time",
+    "Persistent salt read/commit paths and same-context updates are unit-tested; process restart is neither simulated nor verified on the phone",
+    "Real AQI UART TX evidence covers weather v1; v2 attachment/d-byte preservation is source/unit evidence, user observed forecast/sun restoration separately",
+    "AQI is native source integer with no unified national scale or freshness guarantee",
+    "UART TX logging precedes GATT writes/queue; watch receipt/removal is user feedback, no wf receive/storage proof",
+    "Real measured GB frames are 239/265/292 bytes including wrapper/LF; maximum-frame and device queue-pressure behavior not tested. Optional metadata adds bytes to the existing 8192-byte line contract; near-limit frames remain a known compatibility boundary",
+    "Ordinary upstream variants disabled extension by source gate; not built in this round",
+    "No firmware build/flash, per-person UI, precise recall, AQI display, new weather source, UV validity or power measurement in this round"
+  ],
+  "privacy": "Only whitelisted anonymous protocol metadata retained; no notification bodies/titles/contact names/raw Android key/salt/device serial/whole phone log/private proxy values committed"
+}

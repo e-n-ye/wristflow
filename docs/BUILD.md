@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-10-13 Gadgetbridge 测试包入口
+
+本轮 Android 扩展与 Product 固件构建分开；方法见 [手机扩展](../integrations/gadgetbridge/README.md)，工具参数来源为[扩展锁](../integrations/gadgetbridge/upstream.lock.json)，不调整 `sdk.lock.json`。编译、测试、失败和真实投递以本轮证据记录为准，现有固件构建方法保留。构建脚本不安装 APK 或烧录。
+
+最终 `20261013-163456-533` 构建退出 0（2m33s），辅助类 Robolectric 4/4、协议相关主机 2/2 通过；APK 0.94.0-wf-meta1／SHA `f844c676…` 的签名、独立包名和三项 provider authority 核对通过。锁定上游加补丁的临时干净 index 应用核对通过。AGP 自定义测试 task、网络 DNS／Robolectric 下载失败均已修正并重跑；测试运行使用已知的独立缓存下载配置，未改变上游依赖版本。命令、配置边界、完整哈希、手动安装及真实数据证据见 [精简记录](evidence/2026-10-13/notification-metadata.json)。没有更换固件工具链或公共构建入口，未新增 Product 编译／烧录或云端基线。
+
 ## 2026-10-12 呼吸圆环旋转修订构建
 
 基线 `bba01b0`，隔离分支 `codex/breathing-usb`。沿用锁定 SDK／子模块、GCC 15.2.0／CMake 3.31.4／Ninja Debug，最终 CTest **32/32**（11.83 秒），包括旋转方向、三层一致、精确 360° 归一化及暂停／恢复。SDK Python 3.13.15／SCons 4.10.1／Arm GCC 14.2.1 的 Product 与 UI Demo 均退出 0；383／366 份源码及 29／22 个产物重哈希一致。Product 主 BIN 7,711,380 B，UI Demo 7,508,264 B；既有 SDK／其他文件及链接警告保留，旋转 view 没有编译警告。只改手写 runtime，XML／官方生成输出未变；实际 LVGL 动画、命令、完整镜像哈希及测试修复见 [BREATHING 第三轮](BREATHING.md#round3)与[旋转软件证据](evidence/2026-10-12/breathing-rotation.json)。编译与设备结果分开记录。

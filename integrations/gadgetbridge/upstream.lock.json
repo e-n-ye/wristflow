@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "upstream": {
+    "repository": "https://codeberg.org/Freeyourgadget/Gadgetbridge.git",
+    "tag": "0.94.0",
+    "commit": "2ee6b3002f250e24328ac91b948bce0b2243a0db",
+    "license": "AGPL-3.0-or-later"
+  },
+  "patch": {
+    "file": "wristflow-metadata.patch",
+    "sha256": "7abd89b9ed65115d36931b16444ff292c6ad1929793d426335fb1f8f75bd5cd5"
+  },
+  "build": {
+    "variant": "mainlineWristflow",
+    "application_id": "nodomain.freeyourgadget.gadgetbridge.wristflow",
+    "gradle": "9.7.1",
+    "gradle_sha256": "acd53f1edaf02f1a8ff99879f8a34b302661a057d9b063ae9e35b552f804d20a",
+    "agp": "9.3.2",
+    "jdk_major": 21,
+    "sdk_platform": "platforms;android-37.0",
+    "build_tools": "36.0.0"
+  },
+  "patched_files": {
+    "app/build.gradle": "9499135bb192bdd7d41f55910290bcea109ed20dcb65ad4392036874fc0f42ba",
+    "app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/banglejs/BangleJSDeviceSupport.java": "e6b43ec5af04419e39fbf43b0f2ba21d679cd9bd50082d86e8dcca2e010b5d5b",
+    "app/src/main/java/nodomain/freeyourgadget/gadgetbridge/service/devices/banglejs/WristFlowMetadata.java": "3810e228c6a07b48a26e0d79e9731b24f811bd8630a5cc46179f7361557a98c9",
+    "app/src/test/java/nodomain/freeyourgadget/gadgetbridge/service/devices/banglejs/WristFlowMetadataTest.java": "82e5ca9515a3ff8c7f840931199bbeab290eaa2e31eef3199b29eaaff87694dd",
+    "app/src/wristflow/res/values/strings.xml": "c4719dcff8640203cc1512d3f4ded0da7430a6e7178c1f77d3fcd6119993fbd9"
+  }
+}

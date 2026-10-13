@@ -1,6 +1,15 @@
 # 天气 UI 与同步分支记录
 
 <a id="weather-regression"></a>
+<a id="weather-aqi-forwarding"></a>
+## 2026-10-13 手机 AQI 转发第一轮
+
+用户确认与通知元数据同包扩展，仅转发现有 `WeatherSpec.airQuality.aqi`，补原天气 v1/v2 的 `wf` 对象并保留二进制 `d`；缺失与真实 0 分开，不换天气源或处理 UV 有效性。`gadgetbridge-native` 表示来源指数未归一化，不能直接解释为中国／美国 AQI 或保证新鲜。契约见 [手机扩展](../integrations/gadgetbridge/README.md)。当前固件仍忽略 AQI 扩展并显示 `--`；解析／模型／页面显示另做闭环，原天气验收不覆盖本扩展真实投递。
+
+独立 0.94.0-wf-meta1 安装后预报／日出日落起初缺失；用户重新在 Breezy Weather 数据共享中选测试版并刷新／同步后确认恢复，随后见原 UV 显示。普通手机天气推送固定 v1，完整预报由手表请求 v2／f=true，源码没有 Bangle.js 天气版本设置。本轮未改此路线或 UV 有效性。
+
+最终测试包文件日志在 17:09:36 与 17:10:01 的真实天气 v1 UART TX 报文均有 `wf={v:1,aqi_present:true,aqi:126,aqi_scale:"gadgetbridge-native"}`，239 B 含包装与换行；手机已生成并安排发送 AQI 扩展。日志位于 GATT 入队前，没有手表接收／存储新字段的回执，现固件的占位符合未消费状态。v2 的附加字段／原 `d` 保留仅有源码及辅助类用例证据，未采到同版 v2 扩展报文；预报恢复是另行用户观察。缺失、真实 0、47、700 已在单元测试覆盖，不用 126 推定统一国家等级。版本、构建和失败见 [精简证据](evidence/2026-10-13/notification-metadata.json)。
+
 ## 2026-10-09 同版天气相关交互验收
 
 同一 `83a6bd2d8954b69e3e8536b0f249efb169381e7e` 完成天气 PR 的必要有界 USB 回归；下方各版证据按原日期保留，其中“等待本版交互 / 保持 Draft”的状态由本节验收判定覆盖。当前活动项只见 [STATUS](STATUS.md#current)，最终交付须以 [集成 PR #38](https://github.com/e-n-ye/wristflow/pull/38) 的 MERGED/merge commit 回读及主线核对为准。

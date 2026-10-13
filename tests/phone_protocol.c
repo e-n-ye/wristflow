@@ -166,6 +166,44 @@ static void test_weather_v2(void)
     assert(!phone.weather.extra.hourly[0].valid && !phone.weather.extra.hourly[23].valid);
     wf_phone_init(&phone, observed, NULL);
 }
+static void test_optional_phone_metadata(void)
+{
+    const char extended[] = "\x10GB({\"t\":\"notify\",\"id\":11,\"src\":\"QQ\",\"body\":\"A\\n\\u4e2d\\u6587\","
+        "\"wf\":{\"v\":1,\"notification_key\":\"0123456789abcdef0123456789abcdef\","
+        "\"package\":\"com.tencent.mobileqq\",\"when_present\":true,\"when_ms\":1720000000000}})\n";
+    /* Metadata is optional: every split must preserve the existing entry and text. */
+    for (size_t split = 0; split <= strlen(extended); ++split) {
+        wf_phone_init(&phone, observed, NULL);
+        wf_phone_feed(&phone, (const uint8_t *)extended, split);
+        wf_phone_feed(&phone, (const uint8_t *)extended + split, strlen(extended) - split);
+        assert(phone.count == 1 && phone.messages[0].id == 11);
+        assert(!strcmp(phone.messages[0].body, "A\n中文"));
+        assert(phone.rejected == 0 && phone.unknown == 0);
+    }
+    feed("GB({\"t\":\"notify\",\"id\":12,\"body\":\"B\",\"wf\":{\"v\":1,"
+        "\"notification_key\":\"0123456789abcdef0123456789abcdef\",\"when_ms\":1720000008000}})\n");
+    assert(phone.count == 2 && phone.received == 2);
+    feed("GB({\"t\":\"notify\",\"id\":12,\"body\":\"B updated\",\"wf\":{\"v\":1}})\n");
+    assert(phone.count == 2 && phone.updated == 1);
+    feed("GB({\"t\":\"notify-\",\"id\":12})\n");
+    assert(phone.count == 1 && phone.messages[0].id == 11);
+    feed("GB({\"t\":\"notify-\",\"id\":11})\n");
+    assert(phone.count == 0 && phone.removed == 2 && phone.rejected == 0 && phone.unknown == 0);
+
+    feed("GB({\"t\":\"weather\",\"v\":1,\"temp\":293,\"wf\":{\"v\":1,"
+        "\"aqi_present\":true,\"aqi\":0,\"aqi_scale\":\"gadgetbridge-native\"}})\n");
+    assert(phone.weather.temp == 20);
+    char frame[600];
+    weather_v2_frame(frame, sizeof frame, weather_v2_wire, sizeof weather_v2_wire, "乐清市");
+    size_t end = strlen(frame) - 3; /* Replace only the closing }) and newline. */
+    int added = snprintf(frame + end, sizeof frame - end, ",\"wf\":{\"v\":1,"
+        "\"aqi_present\":false,\"aqi_scale\":\"gadgetbridge-native\"}})\n");
+    assert(added > 0 && (size_t)added < sizeof frame - end);
+    feed(frame);
+    assert(phone.weather.temp == 20 && phone.weather.extra.hourly[0].temperature == 20);
+    assert(phone.weather.extra.daily[6].valid && !strcmp(phone.weather.city, "乐清市"));
+    assert(phone.rejected == 0 && phone.unknown == 0);
+}
 int main(void)
 {
     test_notification_trace();
@@ -325,6 +363,7 @@ int main(void)
     assert(phone.count == 10 && phone.messages[0].id == 14 && phone.messages[9].id == 5);
     feed("GB({\"t\":\"notify\",\"id\":7,\"body\":\"new\"})\n");
     assert(phone.count == 10 && phone.messages[0].id == 7 && phone.messages[9].id == 5);
+    test_optional_phone_metadata();
     puts("phone_protocol: fragmentation, Unicode, lifecycle, bounds and recovery PASS");
     return 0;
 }
