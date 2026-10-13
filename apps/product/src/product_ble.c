@@ -382,6 +382,8 @@ static int wf_ble(int argc, char **argv)
         rt_kprintf("[ble] weather cached=%u state=%u expired=%u age_known=%u received_utc=%u request=%u remaining_ms=%u\n",
             cached, state, weather.expired, weather.age_known, weather.received_utc, weather.request_state,
             wristflow_weather_request_remaining_ms());
+        rt_kprintf("[ble] weather aqi_valid=%u aqi=%s index=%s\n",
+            phone.weather.aqi_valid, weather.aqi, weather.indices[0].value);
     } else if (!strcmp(argv[1], "list")) {
         for (unsigned i = 0; i < phone.count; ++i)
             rt_kprintf("[ble] id=%ld src=%s title=%s body=%s\n", (long)phone.messages[i].id,
