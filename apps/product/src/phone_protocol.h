@@ -41,6 +41,9 @@ void wf_phone_gap(wf_phone_t *phone);
 /* New connection: partial frames never cross peers; local messages remain. */
 void wf_phone_reconnect(wf_phone_t *phone);
 bool wf_phone_remove(wf_phone_t *phone, int32_t id);
+/* Local conversation deletion; caller holds the owner's lock. notify- remains
+ * an individual original-ID operation. Returns the number removed. */
+unsigned wf_phone_remove_group(wf_phone_t *phone, int32_t id, const wf_phone_metadata_t *expected);
 void wf_phone_clear(wf_phone_t *phone);
 void wf_phone_clear_weather(wf_phone_t *phone);
 #endif

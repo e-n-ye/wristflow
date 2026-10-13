@@ -27,6 +27,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/components/metric_full_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/metric_half_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/notification_banner_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/notification_history_message_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/notification_preview_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/notification_row_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/page_dot_gen.c

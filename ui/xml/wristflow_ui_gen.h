@@ -299,6 +299,7 @@ void wristflow_ui_init_gen(const char * asset_path);
 #include "components/metric_full_gen.h"
 #include "components/metric_half_gen.h"
 #include "components/notification_banner_gen.h"
+#include "components/notification_history_message_gen.h"
 #include "components/notification_preview_gen.h"
 #include "components/notification_row_gen.h"
 #include "components/page_dot_gen.h"

@@ -527,6 +527,33 @@ int main(void)
     assert(phone.count == 10 && phone.messages[0].id == 7 && phone.messages[9].id == 5);
     test_optional_phone_metadata();
     test_notification_metadata_storage();
+    /* Distinct delivery IDs retain history; local group removal is atomic and
+     * distinct from phone notify-, which still removes only its original ID. */
+    wf_phone_clear(&phone);
+    for(int i=1;i<=3;++i) {
+        char s[320]; snprintf(s,sizeof s,
+            "GB({\"t\":\"notify\",\"id\":%d,\"body\":\"history\",\"wf\":{\"v\":1,\"notification_key\":\"%032x\",\"package\":\"com.tencent.mobileqq\",\"when_present\":true,\"when_ms\":%d}})\n",
+            i,i==2?2:1,i*1000); feed(s);
+    }
+    unsigned latest[WF_PHONE_MESSAGES], history[WF_PHONE_MESSAGES];
+    assert(wf_notification_groups(phone.messages,phone.count,latest)==2);
+    assert(phone.messages[latest[0]].id==3&&phone.messages[latest[1]].id==2);
+    assert(wf_notification_history(phone.messages,phone.count,&phone.messages[0],history)==2);
+    assert(phone.messages[history[0]].id==1&&phone.messages[history[1]].id==3);
+    wf_phone_metadata_t expected=phone.messages[0].metadata;
+    feed("GB({\"t\":\"notify-\",\"id\":3})\n");
+    assert(phone.count==2&&phone.messages[0].id==2&&phone.messages[1].id==1);
+    feed("GB({\"t\":\"notify\",\"id\":4,\"wf\":{\"v\":1,\"notification_key\":\"00000000000000000000000000000001\",\"package\":\"com.tencent.mobileqq\",\"when_present\":false}})\n");
+    assert(wf_phone_remove_group(&phone,1,&expected)==2&&phone.count==1&&phone.messages[0].id==2);
+    assert(!wf_phone_remove_group(&phone,1,&expected));
+    expected=phone.messages[0].metadata;
+    feed("GB({\"t\":\"notify~\",\"id\":2,\"wf\":null})\n");
+    assert(!wf_phone_remove_group(&phone,2,&expected)&&phone.count==1);
+    expected=phone.messages[0].metadata;
+    assert(wf_phone_remove_group(&phone,2,&expected)==1&&!phone.count);
+    feed("GB({\"t\":\"notify\",\"id\":5})\nGB({\"t\":\"notify\",\"id\":6})\n");
+    expected=phone.messages[0].metadata;
+    assert(wf_phone_remove_group(&phone,6,&expected)==1&&phone.count==1&&phone.messages[0].id==5);
     test_weather_aqi();
     puts("phone_protocol: fragmentation, Unicode, lifecycle, bounds and recovery PASS");
     return 0;

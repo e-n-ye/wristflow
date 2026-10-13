@@ -49,6 +49,19 @@ bool wf_phone_remove(wf_phone_t *p, int32_t id)
     --p->count;
     return true;
 }
+unsigned wf_phone_remove_group(wf_phone_t *p, int32_t id, const wf_phone_metadata_t *expected)
+{
+    int at = find(p, id);
+    if (at < 0) return 0;
+    if (!expected || !wf_notification_group_key_equal(&p->messages[at].metadata, expected)) return 0;
+    unsigned indices[WF_PHONE_MESSAGES];
+    unsigned count = wf_notification_history(p->messages, p->count, &p->messages[at], indices);
+    /* Record IDs before compaction; later indices otherwise refer to new slots. */
+    int32_t ids[WF_PHONE_MESSAGES];
+    for (unsigned i = 0; i < count; ++i) ids[i] = p->messages[indices[i]].id;
+    for (unsigned i = 0; i < count; ++i) wf_phone_remove(p, ids[i]);
+    return count;
+}
 static int hex(char c)
 {
     if (c >= '0' && c <= '9') return c - '0';

@@ -291,12 +291,12 @@ void wristflow_product_ble_snapshot(wristflow_notifications_snapshot_t *snapshot
     rt_mutex_release(&phone_lock);
 }
 
-void wristflow_product_ble_delete(bool all, int32_t id, void *context)
+void wristflow_product_ble_delete(bool all, int32_t id, const wf_phone_metadata_t *expected, void *context)
 {
     (void)context;
     rt_mutex_take(&phone_lock, RT_WAITING_FOREVER);
     if (all) wf_phone_clear(&phone);
-    else wf_phone_remove(&phone, id);
+    else wf_phone_remove_group(&phone, id, expected);
     ++revision;
     rt_mutex_release(&phone_lock);
     /* Deliberately no NUS transmit: watch deletions are local only. */

@@ -92,7 +92,8 @@ bool wristflow_ui_shell_notifications(wristflow_ui_shell_t *shell,
     const wristflow_notifications_snapshot_t *snapshot);
 void wristflow_ui_shell_bind_notification_delete(wristflow_ui_shell_t *shell,
     wristflow_notification_delete_cb_t callback, void *context);
-void wristflow_ui_shell_delete_notification(wristflow_ui_shell_t *shell, bool all, int32_t id);
+void wristflow_ui_shell_delete_notification(wristflow_ui_shell_t *shell, bool all, int32_t id,
+    const wf_phone_metadata_t *expected);
 bool wristflow_ui_shell_open_notification(wristflow_ui_shell_t *shell, bool detail, int32_t id);
 void wristflow_ui_shell_notification_dismiss(wristflow_ui_shell_t *shell, bool timeout);
 bool wristflow_ui_shell_dnd(const wristflow_ui_shell_t *shell);
