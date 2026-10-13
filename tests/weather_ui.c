@@ -228,6 +228,7 @@ int main(int argc, char **argv)
     text(screen, "weather_range", "--/--");
     text(screen, "weather_condition", "--");
     text(screen, "weather_aqi", "--");
+    text(screen, "weather_index_0_value", "--");
     text(screen, "weather_index_1_value", "--");
     text(screen, "weather_sunrise", "--:--");
     text(screen, "weather_sunset", "--:--");
@@ -236,6 +237,8 @@ int main(int argc, char **argv)
     snapshot(argv[1], "weather_product_partial");
 
     current.temp = 0;
+    current.aqi_valid = true;
+    current.aqi = 0;
     current.humidity_valid = true;
     current.humidity = 0;
     current.high = 26;
@@ -248,6 +251,8 @@ int main(int argc, char **argv)
     wristflow_weather_update(&current, 0);
     wristflow_weather_screen_refresh(screen);
     text(screen, "weather_temp", "0°");
+    text(screen, "weather_aqi", "0");
+    text(screen, "weather_index_0_value", "0");
     text(screen, "weather_range", "26°/18°");
     text(screen, "weather_index_1_value", "0");
     text(screen, "weather_index_2_value", "12 km/h");
@@ -258,6 +263,8 @@ int main(int argc, char **argv)
     ticks += WRISTFLOW_WEATHER_EXPIRY_MS;
     wristflow_weather_screen_refresh(screen);
     text(screen, "weather_update", "天气已过期");
+    text(screen, "weather_aqi", "--");
+    text(screen, "weather_index_0_value", "--");
     text(screen, "weather_temp", "0°");
     assert(!lv_obj_has_flag(named(screen, "weather_pager"), LV_OBJ_FLAG_HIDDEN));
     snapshot(argv[1], "weather_product_stale");
@@ -298,12 +305,23 @@ int main(int argc, char **argv)
     char frame[600];
     wf_phone_init(&phone, NULL, NULL);
     weather_v2_frame(frame, sizeof frame, weather_v2_wire, sizeof weather_v2_wire, "乐清市");
+    size_t frame_end = strlen(frame) - 3;
+    int appended = snprintf(frame + frame_end, sizeof frame - frame_end,
+        ",\"wf\":{\"v\":1,\"aqi_present\":true,\"aqi\":126,\"aqi_scale\":\"gadgetbridge-native\"}})\n");
+    assert(appended > 0 && (size_t)appended < sizeof frame - frame_end);
     wf_phone_feed(&phone, (const uint8_t *)frame, strlen(frame));
     assert(phone.has_weather);
     wristflow_weather_update(&phone.weather, phone.weather_updates);
     wristflow_weather_screen_refresh(screen);
     text(screen, "weather_sunrise", "05:54"); text(screen, "weather_sunset", "17:32");
-    text(screen, "weather_index_3_value", "4.2"); text(screen, "weather_aqi", "--");
+    text(screen, "weather_index_3_value", "4.2"); text(screen, "weather_aqi", "126");
+    text(screen, "weather_index_0_value", "126");
+    lv_obj_scroll_to_y(named(screen, "weather_pager"), 0, LV_ANIM_OFF);
+    advance_ms(32); snapshot(argv[1], "weather_aqi_current");
+    lv_obj_scroll_to_y(named(screen, "weather_pager"), 3 * 450, LV_ANIM_OFF);
+    advance_ms(32); snapshot(argv[1], "weather_aqi_indices");
+    lv_color_t aqi_color = lv_obj_get_style_text_color(named(screen, "weather_index_0_value"), 0);
+    assert(lv_color_eq(aqi_color, lv_obj_get_style_text_color(named(screen, "weather_index_1_value"), 0)));
     assert(lv_obj_has_flag(named(screen, "weather_sun_position"), LV_OBJ_FLAG_HIDDEN));
     snapshot(argv[1], "weather_v2_product_sun");
     lv_obj_t *first_hour = named(screen, "weather_hour_0");
@@ -332,9 +350,12 @@ int main(int argc, char **argv)
     advance_ms(32); snapshot(argv[1], "weather_v2_product_daily");
 
     current.range_valid = false;
+    current.aqi_valid = false;
     wristflow_weather_update(&current, 0);
     wristflow_weather_screen_refresh(screen);
     text(screen, "weather_range", "--/--");
+    text(screen, "weather_aqi", "--");
+    text(screen, "weather_index_0_value", "--");
 
     wristflow_weather_reset();
     wristflow_weather_screen_refresh(screen);

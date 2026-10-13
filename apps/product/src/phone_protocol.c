@@ -164,6 +164,28 @@ static void weather_text(char *dest, size_t capacity, const char *source)
     memcpy(dest, source, length); dest[length] = 0;
 }
 
+static void weather_aqi(cJSON *o, wristflow_phone_weather_t *weather)
+{
+    /* Optional metadata cannot invalidate otherwise usable legacy weather.
+     * Never inherit it: a packet without usable AQI clears the previous value. */
+    cJSON *metadata = cJSON_GetObjectItemCaseSensitive(o, "wf");
+    if (!cJSON_IsObject(metadata)) return;
+    for (cJSON *a = metadata->child; a; a = a->next)
+        for (cJSON *b = a->next; b; b = b->next)
+            if (!strcmp(a->string, b->string)) return;
+    cJSON *version = cJSON_GetObjectItemCaseSensitive(metadata, "v");
+    cJSON *present = cJSON_GetObjectItemCaseSensitive(metadata, "aqi_present");
+    cJSON *scale = cJSON_GetObjectItemCaseSensitive(metadata, "aqi_scale");
+    cJSON *value = cJSON_GetObjectItemCaseSensitive(metadata, "aqi");
+    if (!cJSON_IsNumber(version) || version->valuedouble != 1 || !cJSON_IsTrue(present) ||
+        !cJSON_IsString(scale) || strcmp(scale->valuestring, "gadgetbridge-native") ||
+        !cJSON_IsNumber(value) || !isfinite(value->valuedouble) ||
+        value->valuedouble < 0 || value->valuedouble > INT32_MAX ||
+        floor(value->valuedouble) != value->valuedouble) return;
+    weather->aqi = (uint32_t)value->valuedouble;
+    weather->aqi_valid = true;
+}
+
 static bool process_weather_json(wf_phone_t *p, cJSON *o)
 {
     wristflow_phone_weather_t w = {0};
@@ -231,6 +253,7 @@ static bool process_weather_json(wf_phone_t *p, cJSON *o)
         if (same_location) w.extra = p->weather.extra;
     }
 
+    weather_aqi(o, &w);
     p->weather = w;
     p->has_weather = true;
     p->weather_version = v2 ? 2 : 1;

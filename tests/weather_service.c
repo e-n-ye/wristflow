@@ -89,7 +89,7 @@ int main(void)
     wristflow_weather_request_failed(before_reset);
     snapshot(WRISTFLOW_WEATHER_LOADING, false);
 
-    wristflow_phone_weather_t weather = {.temp = 0, .code = 800};
+    wristflow_phone_weather_t weather = {.temp = 0, .code = 800, .aqi_valid = true, .aqi = 126};
     strcpy(weather.city, "Test");
     weather.extra.forecast_present = true;
     weather.extra.hourly[0] = (wristflow_phone_weather_hour_t){.valid = true, .timestamp = 1791471600U};
@@ -103,6 +103,7 @@ int main(void)
     assert(data.request_state == WRISTFLOW_WEATHER_REQUEST_IDLE);
     assert(!strcmp(data.updated, "刚刚接收"));
     assert(data.temperature_valid && data.temperature == 0);
+    assert(!strcmp(data.aqi, "126") && !strcmp(data.indices[0].value, "126"));
 
     /* UTC corrections have no effect on monotonic age or the original receipt UTC. */
     time_now.utc_seconds = 1791475200U;
@@ -117,25 +118,36 @@ int main(void)
     time_now.monotonic_ms = received + WRISTFLOW_WEATHER_EXPIRY_MS - 1;
     data = snapshot(WRISTFLOW_WEATHER_READY, true);
     assert(data.hourly[0].valid && data.daily[0].valid);
+    assert(!strcmp(data.aqi, "126"));
     ++time_now.monotonic_ms;
     data = snapshot(WRISTFLOW_WEATHER_STALE, true);
     assert(data.expired && !strcmp(data.updated, "天气已过期"));
     assert(data.temperature_valid && !data.hourly[0].valid && !data.daily[0].valid);
     assert(!strcmp(data.sunrise, "--:--"));
+    assert(!strcmp(data.aqi, "--") && !strcmp(data.indices[0].value, "--"));
 
     /* A fresh v1 current update cannot rejuvenate inherited forecasts or solar data. */
     time_now.utc_seconds = 1791475500U;
+    weather.aqi_valid = false;
     wristflow_weather_update(&weather, 0);
     data = snapshot(WRISTFLOW_WEATHER_READY, true);
     assert(data.received_utc == 1791475500U && !data.expired);
+    assert(!strcmp(data.aqi, "--"));
     assert(!data.hourly[0].valid && !data.daily[0].valid && !strcmp(data.sunset, "--:--"));
     uint32_t receipt_utc = data.received_utc;
     time_now.utc_seconds -= 86400;
     data = snapshot(WRISTFLOW_WEATHER_READY, true);
     assert(data.received_utc == receipt_utc && !data.expired);
+    weather.aqi_valid = true;
+    weather.aqi = 0;
     wristflow_weather_update(&weather, WRISTFLOW_WEATHER_FORECAST_UPDATE | WRISTFLOW_WEATHER_SOLAR_UPDATE);
     data = snapshot(WRISTFLOW_WEATHER_READY, true);
     assert(data.hourly[0].valid && !strcmp(data.sunrise, "05:54"));
+    assert(!strcmp(data.aqi, "0") && !strcmp(data.indices[0].value, "0"));
+    weather.aqi = INT32_MAX;
+    wristflow_weather_update(&weather, 0);
+    data = snapshot(WRISTFLOW_WEATHER_READY, true);
+    assert(!strcmp(data.aqi, "2147483647") && !strcmp(data.indices[0].value, "2147483647"));
     assert(wristflow_weather_request_sync());
     wristflow_weather_request_failed(sent_request);
     data = snapshot(WRISTFLOW_WEATHER_READY, true);

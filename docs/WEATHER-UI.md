@@ -1,5 +1,12 @@
 # 天气 UI 与同步分支记录
 
+<a id="weather-aqi-display"></a>
+## 2026-10-13 固件 AQI 接收显示候选
+
+在手机第一轮交付后，只把原生 AQI 接到已有当前天气／指数数值槽。受支持 `wf` 必须为唯一键对象、v=1、aqi_present=true、aqi_scale=gadgetbridge-native，aqi 为 0 至 INT32_MAX 的整数；真实 0 显示 `0`，不按 500 截断、不添加国家等级。缺失／显式 false／未知版本或 scale／坏类型清除本包 AQI，基础天气仍可接收；整包天气无效不发布，保留上次有效快照。
+
+AQI 属于本包当前天气，v1/v2 都解析，不从同城预报 extras 继承；天气缓存只有 RAM，不涉及 FlashDB 记录迁移。共享锁和当前接收年龄沿用；当前天气三小时过期时 AQI 恢复 `--`，没有从旧 AQI 续龄。旧手机下一包无扩展也清除旧值。既有 label 与中性色继续使用，XML／生成物不变；UV 的原实现不在本轮修改。此处是源码契约，编译及 USB 结果待各自记录，活动项只见 STATUS。
+
 <a id="weather-regression"></a>
 <a id="weather-aqi-forwarding"></a>
 ## 2026-10-13 手机 AQI 转发第一轮
