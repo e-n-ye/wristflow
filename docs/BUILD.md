@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-10-13 固件 AQI 接收显示构建
+
+基线 `9b80a46`，隔离分支 `codex/weather-aqi`，固件源码锚点 `c9be245`。协议／队列／天气服务／实际 LVGL 主机 4/4 通过，补整数上界和非有限值断言后协议 1/1 通过；当前页与指数页的 126 实际渲染已检查。使用既有隔离包装器 `artifacts/breathing/build-isolated.ps1 -Example ui_demo|product -Jobs 6` 复用主目录锁定 SDK 与官方 `scons --board=sf32lb52-lchspi-ulp -j6`，没有修改公共构建入口或工具锁。
+
+UI Demo `20261013-190844-717` 与 Product `20261013-191154-343` 均退出 0，383／366 份源码和 29／22 个产物逐项重哈希一致；主 BIN 分别为 Product 7,712,988 B、UI Demo 7,508,312 B。SDK／子模块仍锁定且干净，Python 3.13.15／SCons 4.10.1／Arm GCC 14.2.1；已有 SDK／FinSH／watch_core／链接警告保留。隔离工作树直接 Build 因 SDK 未初始化停在预检查；复用既有包装器后，并行环境导出曾触发 Product 的 WinError 5，改为完成 UI Demo 后顺序编译 Product 即通过，没有重装 SDK。完整镜像哈希、失败和硬件独立状态见 [精简证据](evidence/2026-10-13/weather-aqi.json)及[天气专题](WEATHER-UI.md#weather-aqi-display)。
+
 ## 2026-10-13 Gadgetbridge 测试包入口
 
 本轮 Android 扩展与 Product 固件构建分开；方法见 [手机扩展](../integrations/gadgetbridge/README.md)，工具参数来源为[扩展锁](../integrations/gadgetbridge/upstream.lock.json)，不调整 `sdk.lock.json`。编译、测试、失败和真实投递以本轮证据记录为准，现有固件构建方法保留。构建脚本不安装 APK 或烧录。
