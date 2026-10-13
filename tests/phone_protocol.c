@@ -193,6 +193,7 @@ static void test_optional_phone_metadata(void)
     feed("GB({\"t\":\"weather\",\"v\":1,\"temp\":293,\"wf\":{\"v\":1,"
         "\"aqi_present\":true,\"aqi\":0,\"aqi_scale\":\"gadgetbridge-native\"}})\n");
     assert(phone.weather.temp == 20);
+    assert(phone.weather.aqi_valid && phone.weather.aqi == 0);
     char frame[600];
     weather_v2_frame(frame, sizeof frame, weather_v2_wire, sizeof weather_v2_wire, "乐清市");
     size_t end = strlen(frame) - 3; /* Replace only the closing }) and newline. */
@@ -202,7 +203,65 @@ static void test_optional_phone_metadata(void)
     feed(frame);
     assert(phone.weather.temp == 20 && phone.weather.extra.hourly[0].temperature == 20);
     assert(phone.weather.extra.daily[6].valid && !strcmp(phone.weather.city, "乐清市"));
+    assert(!phone.weather.aqi_valid);
     assert(phone.rejected == 0 && phone.unknown == 0);
+}
+static void test_weather_aqi(void)
+{
+    const char a[] = "\x10GB({\"t\":\"weather\",\"v\":1,\"loc\":\"Test\",\"temp\":293,"
+        "\"wf\":{\"v\":1,\"aqi_present\":true,\"aqi\":126,\"aqi_scale\":\"gadgetbridge-native\"}})\n";
+    for (size_t split = 0; split <= strlen(a); ++split) {
+        wf_phone_init(&phone, observed, NULL);
+        wf_phone_feed(&phone, (const uint8_t *)a, split);
+        wf_phone_feed(&phone, (const uint8_t *)a + split, strlen(a) - split);
+        assert(phone.has_weather && phone.weather.aqi_valid && phone.weather.aqi == 126);
+        assert(phone.rejected == 0);
+    }
+    char frame[700];
+    weather_v2_frame(frame, sizeof frame, weather_v2_wire, sizeof weather_v2_wire, "Test");
+    size_t end = strlen(frame) - 3;
+    int added = snprintf(frame + end, sizeof frame - end, ",\"wf\":{\"v\":1,\"aqi_present\":true,"
+        "\"aqi\":700,\"aqi_scale\":\"gadgetbridge-native\"}})\n");
+    assert(added > 0 && (size_t)added < sizeof frame - end);
+    feed(frame);
+    assert(phone.weather_version == 2 && phone.weather.aqi_valid && phone.weather.aqi == 700);
+    assert(phone.weather.extra.forecast_present && phone.weather.extra.daily[6].valid);
+    feed(a);
+    assert(phone.weather_version == 1 && phone.weather.aqi == 126 && phone.weather.extra.forecast_present);
+    feed("GB({\"t\":\"weather\",\"v\":1,\"temp\":293,\"wf\":{\"v\":1,\"aqi_present\":true,"
+         "\"aqi\":2147483647,\"aqi_scale\":\"gadgetbridge-native\"}})\n");
+    assert(phone.weather.aqi_valid && phone.weather.aqi == INT32_MAX);
+
+    const char *invalid[] = {
+        "null", "[]", "{}",
+        "{\"v\":2,\"aqi_present\":true,\"aqi\":1,\"aqi_scale\":\"gadgetbridge-native\"}",
+        "{\"v\":1,\"aqi_present\":false,\"aqi\":126,\"aqi_scale\":\"gadgetbridge-native\"}",
+        "{\"v\":1,\"aqi_present\":1,\"aqi\":1,\"aqi_scale\":\"gadgetbridge-native\"}",
+        "{\"v\":1,\"aqi_present\":true,\"aqi\":1,\"aqi_scale\":\"unknown\"}",
+        "{\"v\":1,\"aqi_present\":true,\"aqi\":1,\"aqi_scale\":null}",
+        "{\"v\":1,\"aqi_present\":true,\"aqi_scale\":\"gadgetbridge-native\"}",
+        "{\"v\":1,\"aqi_present\":true,\"aqi\":-1,\"aqi_scale\":\"gadgetbridge-native\"}",
+        "{\"v\":1,\"aqi_present\":true,\"aqi\":1.5,\"aqi_scale\":\"gadgetbridge-native\"}",
+        "{\"v\":1,\"aqi_present\":true,\"aqi\":\"126\",\"aqi_scale\":\"gadgetbridge-native\"}",
+        "{\"v\":1,\"aqi_present\":true,\"aqi\":2147483648,\"aqi_scale\":\"gadgetbridge-native\"}",
+        "{\"v\":1,\"aqi_present\":true,\"aqi\":1e999,\"aqi_scale\":\"gadgetbridge-native\"}",
+        "{\"v\":1,\"v\":1,\"aqi_present\":true,\"aqi\":1,\"aqi_scale\":\"gadgetbridge-native\"}"
+    };
+    for (unsigned i = 0; i < sizeof invalid / sizeof invalid[0]; ++i) {
+        feed(a);
+        snprintf(frame, sizeof frame, "GB({\"t\":\"weather\",\"v\":1,\"temp\":294,\"loc\":\"Test\",\"wf\":%s})\n", invalid[i]);
+        feed(frame);
+        assert(!phone.weather.aqi_valid && phone.weather.temp == 21 && phone.rejected == 0);
+    }
+    feed(a);
+    unsigned rejected = phone.rejected;
+    feed("GB({\"t\":\"weather\",\"v\":2,\"d\":\"broken\",\"wf\":{\"aqi_present\":false}})\n");
+    assert(phone.rejected == rejected + 1 && phone.weather.aqi_valid && phone.weather.aqi == 126);
+    feed("GB({\"t\":\"weather\",\"v\":1,\"temp\":293,\"loc\":\"Other\"})\n");
+    assert(!phone.weather.aqi_valid && !phone.weather.extra.forecast_present);
+    feed(a);
+    wf_phone_reconnect(&phone);
+    assert(!phone.has_weather && !phone.weather.aqi_valid);
 }
 int main(void)
 {
@@ -364,6 +423,7 @@ int main(void)
     feed("GB({\"t\":\"notify\",\"id\":7,\"body\":\"new\"})\n");
     assert(phone.count == 10 && phone.messages[0].id == 7 && phone.messages[9].id == 5);
     test_optional_phone_metadata();
+    test_weather_aqi();
     puts("phone_protocol: fragmentation, Unicode, lifecycle, bounds and recovery PASS");
     return 0;
 }

@@ -77,7 +77,7 @@ typedef struct {
     int8_t low;
     char condition[16];
     wristflow_weather_theme_t theme;
-    char aqi[8];
+    char aqi[12];
     wristflow_weather_hour_t hourly[WRISTFLOW_WEATHER_HOURLY_COUNT];
     wristflow_weather_day_t daily[WRISTFLOW_WEATHER_DAILY_COUNT];
     wristflow_weather_index_t indices[WRISTFLOW_WEATHER_INDEX_COUNT];
@@ -119,6 +119,8 @@ typedef struct {
     bool humidity_valid;
     uint8_t uv_tenths;
     bool uv_valid;
+    bool aqi_valid;
+    uint32_t aqi;        /* gadgetbridge-native source integer; no national grade. */
     char wind[12];        /* wind description e.g. "3m/s" or "3级" */
     wristflow_phone_weather_extra_t extra;
 } wristflow_phone_weather_t;

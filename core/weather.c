@@ -316,7 +316,9 @@ bool wristflow_weather_get_current(wristflow_weather_data_t *data, wristflow_wea
     }
     if (solar_old) current.extra.sunrise = current.extra.sunset = 0;
 
-    snprintf(data->indices[0].value, sizeof data->indices[0].value, "--");
+    if (current.aqi_valid && !expired)
+        snprintf(data->indices[0].value, sizeof data->indices[0].value, "%lu", (unsigned long)current.aqi);
+    else snprintf(data->indices[0].value, sizeof data->indices[0].value, "--");
     snprintf(data->indices[0].label, sizeof data->indices[0].label, "空气质量");
     if (current.humidity_valid)
         snprintf(data->indices[1].value, sizeof data->indices[1].value, "%u", current.humidity);
@@ -329,7 +331,7 @@ bool wristflow_weather_get_current(wristflow_weather_data_t *data, wristflow_wea
         snprintf(data->indices[3].value, sizeof data->indices[3].value, "%u.%u", current.uv_tenths / 10U, current.uv_tenths % 10U);
     else snprintf(data->indices[3].value, sizeof data->indices[3].value, "--");
     snprintf(data->indices[3].label, sizeof data->indices[3].label, "紫外线指数");
-    snprintf(data->aqi, sizeof data->aqi, "--");
+    snprintf(data->aqi, sizeof data->aqi, "%s", data->indices[0].value);
     if (current.extra.sunrise) local_time(data->sunrise, current.extra.sunrise);
     else snprintf(data->sunrise, sizeof data->sunrise, "--:--");
     if (current.extra.sunset) local_time(data->sunset, current.extra.sunset);
