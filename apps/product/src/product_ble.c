@@ -321,11 +321,43 @@ static int wf_ble(int argc, char **argv)
 {
     if (!ready) return -RT_ERROR;
     if (argc < 2) {
-        rt_kprintf("wf_ble status | ids | list | clear | clear_weather | weather | remove <id>\n");
+        rt_kprintf("wf_ble status | ids | meta | list | clear | clear_weather | weather | remove <id>\n");
         rt_kprintf("wf_ble trace on | off | dump\n"); return -RT_EINVAL;
     }
     rt_mutex_take(&phone_lock, RT_WAITING_FOREVER);
     int result = RT_EOK;
+    if (!strcmp(argv[1], "meta") && argc == 2) {
+        /* FinSH owns a compact static copy; never print while holding phone_lock.
+         * Only equality and time are exposed, not keys, packages or message text. */
+        static struct {
+            uint64_t when_ms;
+            int32_t id;
+            char key[33];
+            bool valid, when_valid;
+        } snapshot[WF_PHONE_MESSAGES];
+        unsigned count = phone.count;
+        uint32_t version = revision;
+        for (unsigned i = 0; i < count; ++i) {
+            snapshot[i].id = phone.messages[i].id;
+            snapshot[i].when_ms = phone.messages[i].metadata.when_ms;
+            snapshot[i].valid = phone.messages[i].metadata.valid;
+            snapshot[i].when_valid = phone.messages[i].metadata.when_valid;
+            memcpy(snapshot[i].key, phone.messages[i].metadata.notification_key, sizeof snapshot[i].key);
+        }
+        rt_mutex_release(&phone_lock);
+        rt_kprintf("[ble] meta count=%u revision=%u\n", count, version);
+        for (unsigned i = 0; i < count; ++i) {
+            int same = -1;
+            for (unsigned j = 0; snapshot[i].valid && j < i; ++j)
+                if (snapshot[j].valid && !strcmp(snapshot[i].key, snapshot[j].key)) { same = (int)j; break; }
+            rt_kprintf("[ble] meta slot=%u id=%ld valid=%u same_slot=%d when_valid=%u\n",
+                i, (long)snapshot[i].id, snapshot[i].valid, same, snapshot[i].when_valid);
+            /* Two uint32 limbs avoid depending on RT-Thread long-long printf support. */
+            rt_kprintf("[ble] meta slot=%u when_hi=%lu when_lo=%lu\n", i,
+                (unsigned long)(snapshot[i].when_ms >> 32), (unsigned long)(uint32_t)snapshot[i].when_ms);
+        }
+        return RT_EOK;
+    }
     if (!strcmp(argv[1], "ids") || !strcmp(argv[1], "trace")) {
         if (!strcmp(argv[1], "ids") && argc == 2) {
             rt_kprintf("[ble] ids count=%u revision=%u\n", phone.count, revision);
