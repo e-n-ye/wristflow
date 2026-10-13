@@ -22,7 +22,7 @@
     "core/weather.h": "bbf95368fb79b56746e1b27004b2bedfc2971d7ec66771e37e1d840cd7b875b2",
     "tests/phone_protocol.c": "c537178026a3b79f60ce3c5a30ad89c8261ea6d3a0ee527d04bbdb3cf160b2d5",
     "tests/weather_service.c": "d2b230a6ebd026c37dc43c875cf3ac92f27033679d3319b1c3b18aa251020b53",
-    "tests/weather_ui.c": "75bf37d49c890a480ec7865fd2181526e65227714bdcc7c51b03e20d21fa3a6b"
+    "tests/weather_ui.c": "b898ba22e4321d3af3f52991f704a08445698d78ef9a8637760e096293553fe7"
   },
   "host": {
     "compiler": "GCC 15.2.0",
@@ -62,7 +62,24 @@
         "sha256": "a445e8dc336e75ce4ab35a9cb678c154471cd9ba192607e1921eaf89f82b6210",
         "kind": "host LVGL fixture, not hardware"
       }
-    ]
+    ],
+    "post_build_test_revision": {
+      "file": "tests/weather_ui.c",
+      "sha256": "b898ba22e4321d3af3f52991f704a08445698d78ef9a8637760e096293553fe7",
+      "reason": "restore original sunrise/sunset pager position before its named snapshot after new AQI snapshots",
+      "production_source_changed": false,
+      "build_command": "cmake --build artifacts/breathing/host --target weather_ui --parallel 6",
+      "ctest_command": "ctest --test-dir artifacts/breathing/host -R '^weather_ui$' --output-on-failure",
+      "exit_code": 0,
+      "passed": 1,
+      "total": 1,
+      "seconds": 0.67,
+      "render": {
+        "path": "artifacts/weather-aqi/renders/weather_v2_product_sun.png",
+        "sha256": "07633fa374de0a3c4c909800633773a03265d0d7a63842e833e7e8c8ac9c8e9a",
+        "kind": "same host LVGL sunrise/sunset snapshot converted to PNG and visually inspected"
+      }
+    }
   },
   "firmware": {
     "candidate": "c9be24508c3969ba17c3d59b81c17521b2a94c8f",
