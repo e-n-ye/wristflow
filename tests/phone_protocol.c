@@ -233,8 +233,12 @@ static void test_notification_metadata_storage(void)
     feed("GB({\"t\":\"notify~\",\"id\":11,\"body\":\"changed\"})\n");
     assert(!memcmp(&phone.messages[0].metadata, &original, sizeof original));
     /* Invalid base fields reject the whole update, including valid metadata. */
-    feed("GB({\"t\":\"notify~\",\"id\":11,\"body\":false,\"wf\":null})\n");
+    unsigned updates = phone.updated, events = notify_events;
+    feed("GB({\"t\":\"notify~\",\"id\":11,\"body\":false,\"wf\":{\"v\":1,"
+        "\"notification_key\":\"abcdef0123456789abcdef0123456789\",\"when_present\":false}})\n");
     assert(phone.rejected == 1 && !memcmp(&phone.messages[0].metadata, &original, sizeof original));
+    assert(phone.count == 1 && phone.updated == updates && notify_events == events);
+    assert(!strcmp(phone.messages[0].body, "changed"));
     phone.rejected = 0;
     feed_metadata("{\"v\":1," META_KEY ",\"when_present\":false}");
     assert(phone.messages[0].metadata.valid && !phone.messages[0].metadata.when_valid);
