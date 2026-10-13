@@ -9,11 +9,11 @@
 - **版本与工作区**：通知诊断 [PR #51](https://github.com/e-n-ye/wristflow/pull/51) 已 Rebase 合入 `a6255c18`，MERGED／fetch／全树核对完成。复用隔离工作树 `breathing-product/wristflow`，从已 fetch 的该主线建立 `codex/notification-conversations`。主目录 12 处 Pro 改动与旧证据保留；SDK 锁、十条缓存和 USB-only 条件未变。
 - **手机证据**：Gadgetbridge 关于页为 0.94.0／`2ee6b3002 (dirty)`，不据此断言业务源码被改。用户开启 USB 调试后，ADB 成功读取 V2403A／Android 14 的 QQ 白名单元数据；Q3-A/B 的完整匿名 key 与 Android ID 517 相同，通知时间更新。Q3-B 超时不能撤回，改采同人 Q3-C：原 C 保留，另有撤回提示；四条记录共用 groupKey，不能作为按人分组依据。标准消息数组／联系人／会话 extras 未见、shortcut=null；不同人暂无样本。清 QQ 手机通知栏后活动记录归零。详见[数据核验](NOTIFICATION-UI.md#notification-conversations)及[精简证据](evidence/2026-10-13/notification-conversations.json)。
 - **实现边界**：当前协议不传 Android key／通知时间，固件无分组／时间字段。需要独立的归组身份和消息条目，不能共用现有 ID 覆盖丢弃 A。当前 key 只证实本次通知生命周期，通知时间不是已证明的 QQ 发送时间，精确重复识别／撤回关联仍未解决。提取器修订和早期字段解析限度已记录。
-- **验证与收尾**：手机采样完成；五份改动文件 UTF-8、六份快照哈希、十个新增本地链接、元数据关系及隐私白名单、diff 检查通过，主代理与只读审查未发现阻挡。本轮没有编译、烧录、安装 APK 或采手表串口，不能新增 UI／BLE／功耗通过结论。原始通知留在内存，匿名快照与工具只在忽略目录保存，提交精简证据；PR 合并回读待收尾。
+- **验证与收尾**：手机采样完成；五份改动文件 UTF-8、六份快照哈希、十个新增本地链接、元数据关系及隐私白名单、diff 检查通过，主代理与只读审查未发现阻挡。本轮没有编译、烧录、安装 APK 或采手表串口，不能新增 UI／BLE／功耗通过结论。原始通知留在内存，匿名快照与工具只在忽略目录保存，提交精简证据；交付版本与 Rebase 合并／MERGED／fetch 回读见 [PR #52 Closure](https://github.com/e-n-ye/wristflow/pull/52)。
 
 ### 当前闭环与唯一下一步
 
-唯一下一步为完成本轮数据结论／已确认目标的 UTF-8、链接、证据哈希与差异审阅，经 PR Rebase 合入并回读 MERGED／fetch；随后关闭数据核验轮。下一轮候选为保留原通知／删除 ID 的限定 Gadgetbridge 元数据扩展，先验证身份与时间，再实施固件按人列表／详情历史；这是待确认范围，不是已启动任务，不凭昵称或撤回文案合并／删除，不自动开替代 App、C2 或全套矩阵。
+本轮只读采样与文档核验完成，交付合并回读由 [PR #52 Closure](https://github.com/e-n-ye/wristflow/pull/52)记录。唯一下一步是确认是否进入限定 Gadgetbridge 元数据扩展：保留原通知／删除 ID，先验证身份与时间，再实施固件按人列表／详情历史；该候选范围尚未启动。不凭昵称或撤回文案合并／删除，不自动开替代 App、C2 或全套矩阵。
 <a id="history"></a>
 ## 历史摘要的适用边界
 
