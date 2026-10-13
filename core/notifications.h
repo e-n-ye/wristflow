@@ -4,9 +4,17 @@
 #include <stdint.h>
 
 #define WF_PHONE_MESSAGES 10
+/* Optional Android notification lifecycle metadata, not a contact/message ID.
+ * Times are original Unix milliseconds, not synthesized from watch reception. */
+typedef struct {
+    uint64_t when_ms;
+    char notification_key[33], package[256];
+    bool valid, when_valid;
+} wf_phone_metadata_t;
 typedef struct {
     int32_t id;
     char source[161], title[321], body[1601];
+    wf_phone_metadata_t metadata;
 } wf_phone_message_t;
 /* Bounded copy across the phone/UI ownership boundary. Revision includes local
  * deletions; alert_sequence advances only for accepted incoming notifications. */

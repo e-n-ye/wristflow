@@ -79,6 +79,10 @@ static bool receive(int32_t id,const char *title,const char *body)
     memmove(&phone.messages[1],&phone.messages[0],at*sizeof phone.messages[0]);
     phone.messages[0]=(wf_phone_message_t){.id=id}; strcpy(phone.messages[0].source,"QQ");
     strcpy(phone.messages[0].title,title); strcpy(phone.messages[0].body,body);
+    /* Identical lifecycle metadata must not change this round's ID-based rows. */
+    phone.messages[0].metadata=(wf_phone_metadata_t){.valid=true,.when_valid=true,.when_ms=1000+(uint64_t)id};
+    strcpy(phone.messages[0].metadata.notification_key,"0123456789abcdef0123456789abcdef");
+    strcpy(phone.messages[0].metadata.package,"com.tencent.mobileqq");
     phone.alert_id=id; ++phone.alert_sequence; ++phone.revision;
     bool wake=wristflow_ui_shell_notifications(shell,&phone); advance(32); return wake;
 }

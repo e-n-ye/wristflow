@@ -143,6 +143,40 @@ static bool field(cJSON *o, const char *key, char *dest, size_t capacity, bool p
     strcpy(dest, v->valuestring);
     return true;
 }
+static void notification_metadata(cJSON *o, wf_phone_metadata_t *metadata, bool partial)
+{
+    cJSON *wf = cJSON_GetObjectItemCaseSensitive(o, "wf");
+    if (!wf && partial) return; /* Omitted fields in notify~ keep the old value. */
+    memset(metadata, 0, sizeof *metadata);
+    if (!cJSON_IsObject(wf)) return;
+    for (cJSON *a = wf->child; a; a = a->next)
+        for (cJSON *b = a->next; b; b = b->next)
+            if (!strcmp(a->string, b->string)) return;
+    cJSON *version = cJSON_GetObjectItemCaseSensitive(wf, "v");
+    cJSON *key = cJSON_GetObjectItemCaseSensitive(wf, "notification_key");
+    cJSON *package = cJSON_GetObjectItemCaseSensitive(wf, "package");
+    cJSON *present = cJSON_GetObjectItemCaseSensitive(wf, "when_present");
+    cJSON *when = cJSON_GetObjectItemCaseSensitive(wf, "when_ms");
+    if (!cJSON_IsNumber(version) || version->valuedouble != 1 ||
+        !cJSON_IsString(key) || strlen(key->valuestring) != 32 ||
+        !cJSON_IsBool(present)) return;
+    for (unsigned i = 0; i < 32; ++i)
+        if (!((key->valuestring[i] >= '0' && key->valuestring[i] <= '9') ||
+              (key->valuestring[i] >= 'a' && key->valuestring[i] <= 'f'))) return;
+    if (package && (!cJSON_IsString(package) || !package->valuestring[0] ||
+        strlen(package->valuestring) >= sizeof metadata->package)) return;
+    /* JSON numbers must remain exact integers in cJSON's double representation. */
+    if (cJSON_IsTrue(present)) {
+        if (!cJSON_IsNumber(when) || !isfinite(when->valuedouble) ||
+            when->valuedouble < 1 || when->valuedouble > 9007199254740991.0 ||
+            when->valuedouble != (double)(uint64_t)when->valuedouble) return;
+    } else if (when) return;
+    strcpy(metadata->notification_key, key->valuestring);
+    if (package) strcpy(metadata->package, package->valuestring);
+    metadata->valid = true;
+    metadata->when_valid = cJSON_IsTrue(present);
+    if (metadata->when_valid) metadata->when_ms = (uint64_t)when->valuedouble;
+}
 static bool weather_temperature(const cJSON *value, bool kelvin, int8_t *result)
 {
     if (!cJSON_IsNumber(value) || !isfinite(value->valuedouble)) return false;
@@ -306,6 +340,8 @@ static bool process_json(wf_phone_t *p, cJSON *o)
         !field(o, "body", next.body, sizeof next.body, partial)) {
         trace(p, op, id, WF_PHONE_INVALID_FIELDS); return false;
     }
+    /* Bad optional metadata cannot suppress a valid legacy notification. */
+    notification_metadata(o, &next.metadata, partial);
     if (index >= 0) { wf_phone_remove(p, id); p->updated++; }
     else p->received++;
     if (p->count == WF_PHONE_MESSAGES) --p->count;

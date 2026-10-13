@@ -178,6 +178,10 @@ static void test_optional_phone_metadata(void)
         wf_phone_feed(&phone, (const uint8_t *)extended + split, strlen(extended) - split);
         assert(phone.count == 1 && phone.messages[0].id == 11);
         assert(!strcmp(phone.messages[0].body, "A\n中文"));
+        const wf_phone_metadata_t *m = &phone.messages[0].metadata;
+        assert(m->valid && m->when_valid && m->when_ms == UINT64_C(1720000000000));
+        assert(!strcmp(m->notification_key, "0123456789abcdef0123456789abcdef"));
+        assert(!strcmp(m->package, "com.tencent.mobileqq"));
         assert(phone.rejected == 0 && phone.unknown == 0);
     }
     feed("GB({\"t\":\"notify\",\"id\":12,\"body\":\"B\",\"wf\":{\"v\":1,"
@@ -206,6 +210,101 @@ static void test_optional_phone_metadata(void)
     assert(!phone.weather.aqi_valid);
     assert(phone.rejected == 0 && phone.unknown == 0);
 }
+static void feed_metadata(const char *metadata)
+{
+    char frame[1024];
+    int n = snprintf(frame, sizeof frame, "GB({\"t\":\"notify~\",\"id\":11,"
+        "\"body\":\"base accepted\",\"wf\":%s})\n", metadata);
+    assert(n > 0 && (size_t)n < sizeof frame);
+    unsigned before = phone.updated;
+    feed(frame);
+    assert(phone.count == 1 && phone.messages[0].id == 11 && phone.updated == before + 1);
+    assert(!strcmp(phone.messages[0].body, "base accepted"));
+    assert(phone.rejected == 0);
+}
+#define META_KEY "\"notification_key\":\"0123456789abcdef0123456789abcdef\""
+static void test_notification_metadata_storage(void)
+{
+    wf_phone_init(&phone, observed, NULL);
+    feed("GB({\"t\":\"notify\",\"id\":11,\"body\":\"A\",\"wf\":{\"v\":1,"
+        META_KEY ",\"package\":\"com.tencent.mobileqq\",\"when_present\":true,\"when_ms\":1791892254600}})\n");
+    wf_phone_metadata_t original = phone.messages[0].metadata;
+    assert(original.valid && original.when_valid && original.when_ms == UINT64_C(1791892254600));
+    feed("GB({\"t\":\"notify~\",\"id\":11,\"body\":\"changed\"})\n");
+    assert(!memcmp(&phone.messages[0].metadata, &original, sizeof original));
+    /* Invalid base fields reject the whole update, including valid metadata. */
+    feed("GB({\"t\":\"notify~\",\"id\":11,\"body\":false,\"wf\":null})\n");
+    assert(phone.rejected == 1 && !memcmp(&phone.messages[0].metadata, &original, sizeof original));
+    phone.rejected = 0;
+    feed_metadata("{\"v\":1," META_KEY ",\"when_present\":false}");
+    assert(phone.messages[0].metadata.valid && !phone.messages[0].metadata.when_valid);
+    assert(!phone.messages[0].metadata.when_ms && !phone.messages[0].metadata.package[0]);
+    feed_metadata("{\"v\":1," META_KEY ",\"when_present\":true,\"when_ms\":9007199254740991}");
+    assert(phone.messages[0].metadata.when_valid && phone.messages[0].metadata.when_ms == UINT64_C(9007199254740991));
+    const char *invalid[] = {
+        "null", "[]", "true", "{}", "{\"v\":2," META_KEY ",\"when_present\":false}",
+        "{\"v\":\"1\"," META_KEY ",\"when_present\":false}",
+        "{\"v\":1,\"notification_key\":\"short\",\"when_present\":false}",
+        "{\"v\":1,\"notification_key\":\"0123456789ABCDEF0123456789abcdef\",\"when_present\":false}",
+        "{\"v\":1,\"notification_key\":\"0123456789abcdef0123456789abcdeg\",\"when_present\":false}",
+        "{\"v\":1,\"notification_key\":7,\"when_present\":false}",
+        "{\"v\":1," META_KEY "}",
+        "{\"v\":1," META_KEY ",\"package\":null,\"when_present\":false}",
+        "{\"v\":1," META_KEY ",\"package\":\"\",\"when_present\":false}",
+        "{\"v\":1," META_KEY ",\"when_present\":\"true\"}",
+        "{\"v\":1," META_KEY ",\"when_present\":false,\"when_ms\":1791892254600}",
+        "{\"v\":1," META_KEY ",\"when_present\":true}",
+        "{\"v\":1," META_KEY ",\"when_present\":true,\"when_ms\":null}",
+        "{\"v\":1," META_KEY ",\"when_present\":true,\"when_ms\":\"1791892254600\"}",
+        "{\"v\":1," META_KEY ",\"when_present\":true,\"when_ms\":0}",
+        "{\"v\":1," META_KEY ",\"when_present\":true,\"when_ms\":-1}",
+        "{\"v\":1," META_KEY ",\"when_present\":true,\"when_ms\":1791892254600.5}",
+        "{\"v\":1," META_KEY ",\"when_present\":true,\"when_ms\":9007199254740992}",
+        "{\"v\":1," META_KEY ",\"when_present\":true,\"when_ms\":1e999}",
+        "{\"v\":1," META_KEY ",\"v\":1,\"when_present\":false}",
+    };
+    for (unsigned i = 0; i < sizeof invalid / sizeof invalid[0]; ++i) {
+        /* Explicit bad metadata clears a previously usable value, never inherits it. */
+        phone.messages[0].metadata = original;
+        feed_metadata(invalid[i]);
+        assert(!phone.messages[0].metadata.valid && !phone.messages[0].metadata.when_valid);
+        assert(!phone.messages[0].metadata.notification_key[0] && !phone.messages[0].metadata.package[0]);
+        assert(!phone.messages[0].metadata.when_ms);
+    }
+    char package[259] = {0}, metadata[512];
+    for (unsigned i = 0; i < 86; ++i) memcpy(package + 3 * i, "中", 3);
+    for (unsigned n = 255; n <= 258; n += 3) {
+        char saved = package[n]; package[n] = 0;
+        snprintf(metadata, sizeof metadata, "{\"v\":1," META_KEY ",\"package\":\"%s\",\"when_present\":false}", package);
+        feed_metadata(metadata);
+        assert(phone.messages[0].metadata.valid == (n == 255));
+        if (n == 255) assert(strlen(phone.messages[0].metadata.package) == 255);
+        package[n] = saved;
+    }
+    phone.messages[0].metadata = original;
+    feed("GB({\"t\":\"notify\",\"id\":11,\"body\":\"legacy full\"})\n");
+    assert(!phone.messages[0].metadata.valid); /* A full legacy replacement cannot inherit it. */
+    wf_phone_clear(&phone);
+    for (unsigned i = 0; i < 12; ++i) {
+        char frame[256];
+        snprintf(frame, sizeof frame, "GB({\"t\":\"notify\",\"id\":%u,\"body\":\"history\",\"wf\":{\"v\":1,"
+            META_KEY ",\"when_present\":true,\"when_ms\":%u}})\n", i, 1000 + i);
+        feed(frame);
+    }
+    assert(phone.count == 10 && phone.messages[0].id == 11 && phone.messages[9].id == 2);
+    wf_phone_reconnect(&phone); /* Existing entries and their metadata survive reconnect. */
+    assert(phone.count == 10 && phone.messages[9].metadata.when_ms == 1002);
+    feed("GB({\"t\":\"notify~\",\"id\":4,\"body\":\"modified\"})\n");
+    assert(phone.count == 10 && phone.messages[0].id == 4 && phone.messages[0].metadata.when_ms == 1004);
+    feed("GB({\"t\":\"notify-\",\"id\":4,\"wf\":null})\n");
+    assert(phone.count == 9 && phone.messages[0].id == 11 && phone.messages[0].metadata.when_ms == 1011);
+    assert(phone.messages[8].id == 2 && phone.messages[8].metadata.when_ms == 1002);
+    feed("GB({\"t\":\"notify~\",\"id\":4,\"wf\":{\"v\":1," META_KEY ",\"when_present\":false}})\n");
+    assert(phone.count == 9); /* Partial metadata never resurrects a removed ID. */
+    wf_phone_init(&phone, observed, NULL);
+    assert(!phone.count && !phone.messages[0].metadata.valid);
+}
+#undef META_KEY
 static void test_weather_aqi(void)
 {
     const char a[] = "\x10GB({\"t\":\"weather\",\"v\":1,\"loc\":\"Test\",\"temp\":293,"
@@ -423,6 +522,7 @@ int main(void)
     feed("GB({\"t\":\"notify\",\"id\":7,\"body\":\"new\"})\n");
     assert(phone.count == 10 && phone.messages[0].id == 7 && phone.messages[9].id == 5);
     test_optional_phone_metadata();
+    test_notification_metadata_storage();
     test_weather_aqi();
     puts("phone_protocol: fragmentation, Unicode, lifecycle, bounds and recovery PASS");
     return 0;
