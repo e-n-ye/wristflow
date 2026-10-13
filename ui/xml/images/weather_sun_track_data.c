@@ -166,3 +166,4 @@ const lv_image_dsc_t weather_sun_track_data = {
   .data = weather_sun_track_data_map,
   .reserved = NULL,
 };
+

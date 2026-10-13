@@ -7,12 +7,17 @@ typedef struct {
     struct wristflow_notification_view *view;
     lv_obj_t *row;
     int32_t id, pressed_id;
+    uint32_t pressed_revision;
 } message_link_t;
 struct wristflow_notification_view {
     wristflow_ui_shell_t *shell;
     wristflow_notifications_snapshot_t snapshot;
     lv_obj_t *list, *detail, *rows[WF_PHONE_MESSAGES], *clear;
     lv_obj_t *banner, *preview;
+    lv_obj_t *history[WF_PHONE_MESSAGES];
+    int32_t history_ids[WF_PHONE_MESSAGES];
+    unsigned history_count;
+    wf_phone_message_t selection;
     message_link_t links[WF_PHONE_MESSAGES];
     lv_timer_t *timer;
     uint32_t alert_at;
@@ -35,27 +40,70 @@ static void paint(lv_obj_t *root, const wf_phone_message_t *m)
     lv_label_set_text(named(root, "message_title"), m->title);
     lv_label_set_text(named(root, "message_body"), m->body);
 }
-static void detail_refresh(wristflow_notification_view_t *v)
+static void detail_refresh(wristflow_notification_view_t *v, bool entering)
 {
     if (!v->detail) return;
-    const wf_phone_message_t *m = find(v, v->selected);
-    if (m) paint(v->detail, m);
-    else {
-        lv_label_set_text(named(v->detail, "message_source"), "");
-        lv_label_set_text(named(v->detail, "message_title"), "消息已移除");
-        lv_label_set_text(named(v->detail, "message_body"), "");
+    lv_obj_t *scroll = named(v->detail, "notification_scroll");
+    lv_obj_update_layout(scroll);
+    bool at_bottom = lv_obj_get_scroll_bottom(scroll) <= 2;
+    unsigned previous_count = v->history_count;
+    int32_t previous_latest = previous_count ? v->history_ids[previous_count - 1] : 0;
+    int32_t reading_id = 0;
+    int32_t offset = 0;
+    bool reading = false;
+    lv_area_t viewport; lv_obj_get_coords(scroll, &viewport);
+    for (unsigned i = 0; i < v->history_count; ++i) {
+        lv_area_t area; lv_obj_get_coords(v->history[i], &area);
+        if (area.y2 >= viewport.y1) {
+            reading_id = v->history_ids[i]; offset = lv_obj_get_y(v->history[i]) - lv_obj_get_scroll_y(scroll);
+            reading = true; break;
+        }
+    }
+    const wf_phone_message_t *selected = find(v, v->selected);
+    if (selected) {
+        v->selection.id = selected->id;
+        v->selection.metadata = selected->metadata;
+    }
+    unsigned indices[WF_PHONE_MESSAGES];
+    unsigned count = wf_notification_history(v->snapshot.messages, v->snapshot.count, &v->selection, indices);
+    bool latest = entering || (at_bottom && count && (!previous_count ||
+        v->snapshot.messages[indices[count - 1]].id != previous_latest));
+    for (unsigned i = 0; i < WF_PHONE_MESSAGES; ++i) {
+        lv_obj_set_flag(v->history[i], LV_OBJ_FLAG_HIDDEN, i >= (count ? count : 1));
+        if (i < count) {
+            paint(v->history[i], &v->snapshot.messages[indices[i]]);
+            v->history_ids[i] = v->snapshot.messages[indices[i]].id;
+        }
+    }
+    v->history_count = count;
+    if (!count) {
+        lv_label_set_text(named(v->history[0], "message_source"), "");
+        lv_label_set_text(named(v->history[0], "message_title"), "消息已移除");
+        lv_label_set_text(named(v->history[0], "message_body"), "");
+        lv_obj_scroll_to_y(scroll, 0, LV_ANIM_OFF);
+        return;
+    }
+    lv_obj_update_layout(scroll);
+    if (latest) lv_obj_scroll_to_y(scroll, lv_obj_get_y(v->history[count - 1]), LV_ANIM_OFF);
+    else if (reading) for (unsigned i = 0; i < count; ++i) {
+        if (v->history_ids[i] == reading_id) {
+            lv_obj_scroll_to_y(scroll, lv_obj_get_y(v->history[i]) - offset, LV_ANIM_OFF); break;
+        }
     }
 }
 static void list_refresh(wristflow_notification_view_t *v)
 {
     if (!v->list) return;
+    unsigned latest[WF_PHONE_MESSAGES];
+    unsigned count = wf_notification_groups(v->snapshot.messages, v->snapshot.count, latest);
     for (unsigned i = 0; i < WF_PHONE_MESSAGES; ++i) {
-        lv_obj_set_flag(v->rows[i], LV_OBJ_FLAG_HIDDEN, i >= v->snapshot.count);
-        if (i < v->snapshot.count) {
-            if (v->links[i].id != v->snapshot.messages[i].id)
+        lv_obj_set_flag(v->rows[i], LV_OBJ_FLAG_HIDDEN, i >= count);
+        if (i < count) {
+            const wf_phone_message_t *m = &v->snapshot.messages[latest[i]];
+            if (v->links[i].id != m->id)
                 lv_obj_scroll_to_x(v->rows[i], 0, LV_ANIM_OFF);
-            v->links[i].id = v->snapshot.messages[i].id;
-            paint(v->rows[i], &v->snapshot.messages[i]);
+            v->links[i].id = m->id;
+            paint(v->rows[i], m);
         } else lv_obj_scroll_to_x(v->rows[i], 0, LV_ANIM_OFF);
     }
     lv_obj_set_flag(v->clear, LV_OBJ_FLAG_HIDDEN, !v->snapshot.count);
@@ -66,13 +114,16 @@ static void row_event(lv_event_t *e)
     message_link_t *link = lv_event_get_user_data(e);
     if (lv_event_get_code(e) == LV_EVENT_PRESSED) {
         link->pressed_id = link->id;
+        link->pressed_revision = link->view->snapshot.revision;
         /* Keep one exposed action, without replacing the touched row objects. */
         for (unsigned i = 0; i < WF_PHONE_MESSAGES; ++i)
             if (link->view->rows[i] != link->row)
                 lv_obj_scroll_to_x(link->view->rows[i], 0, LV_ANIM_OFF);
-    } else if (lv_event_get_code(e) == LV_EVENT_SHORT_CLICKED && link->pressed_id == link->id) {
+    } else if (lv_event_get_code(e) == LV_EVENT_SHORT_CLICKED && link->pressed_id == link->id &&
+        link->pressed_revision == link->view->snapshot.revision) {
         if (lv_event_get_current_target_obj(e) == named(link->row, "notification_row_delete"))
-            wristflow_ui_shell_delete_notification(link->view->shell, false, link->id);
+            wristflow_ui_shell_delete_notification(link->view->shell, false, link->id,
+                &find(link->view, link->id)->metadata);
         else if (lv_obj_get_scroll_x(link->row) != 0)
             lv_obj_scroll_to_x(link->row, 0, LV_ANIM_ON);
         else wristflow_ui_shell_open_notification(link->view->shell, true, link->id);
@@ -81,7 +132,7 @@ static void row_event(lv_event_t *e)
 static void delete_message(lv_event_t *e)
 {
     wristflow_notification_view_t *v = lv_event_get_user_data(e);
-    wristflow_ui_shell_delete_notification(v->shell, true, 0);
+    wristflow_ui_shell_delete_notification(v->shell, true, 0, NULL);
 }
 static void alert_open(lv_event_t *e)
 {
@@ -121,15 +172,17 @@ wristflow_notification_view_t *wristflow_notification_view_create(wristflow_ui_s
 void wristflow_notification_view_update(wristflow_notification_view_t *v, const wristflow_notifications_snapshot_t *s)
 {
     v->snapshot = *s;
-    list_refresh(v); detail_refresh(v);
+    list_refresh(v); detail_refresh(v, false);
     const wf_phone_message_t *m = find(v, v->alert_id);
     if (v->alert != WF_ALERT_NONE && m) paint(v->alert == WF_ALERT_PREVIEW ? v->preview : v->banner, m);
     else if (v->alert != WF_ALERT_NONE) wristflow_ui_shell_notification_dismiss(v->shell, true);
 }
 void wristflow_notification_view_select(wristflow_notification_view_t *v, int32_t id)
 {
-    v->selected = id; detail_refresh(v);
-    if (v->detail) lv_obj_scroll_to_y(named(v->detail, "notification_scroll"), 0, LV_ANIM_OFF);
+    const wf_phone_message_t *m = find(v, id);
+    if (!m) return;
+    v->selected = id; v->selection.id = id; v->selection.metadata = m->metadata;
+    detail_refresh(v, true);
 }
 lv_obj_t *wristflow_notification_view_screen(wristflow_notification_view_t *v, wristflow_surface_t surface, bool *created)
 {
@@ -159,7 +212,13 @@ lv_obj_t *wristflow_notification_view_screen(wristflow_notification_view_t *v, w
         v->detail = screen_notification_detail_create(); *created = true;
         lv_obj_t *scroll = named(v->detail, "notification_scroll");
         lv_obj_remove_flag(scroll, LV_OBJ_FLAG_SCROLL_CHAIN); lv_obj_set_scroll_dir(scroll, LV_DIR_VER);
-        detail_refresh(v);
+        lv_obj_clean(scroll);
+        for (unsigned i = 0; i < WF_PHONE_MESSAGES; ++i) {
+            v->history[i] = notification_history_message_create(scroll);
+            char name[32]; snprintf(name, sizeof name, "notification_history_%u", i);
+            lv_obj_set_name(v->history[i], name);
+        }
+        detail_refresh(v, true);
     }
     return v->detail;
 }

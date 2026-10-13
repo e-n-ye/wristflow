@@ -71,22 +71,7 @@ lv_obj_t * screen_notification_detail_create(void)
         lv_obj_set_style_pad_bottom(notification_scroll, 20, 0);
         lv_obj_set_style_text_font(notification_scroll, notification_22, 0);
         lv_obj_set_style_text_color(notification_scroll, FG_PRIMARY, 0);
-        lv_obj_t * message_source = lv_label_create(notification_scroll);
-        lv_obj_set_name(message_source, "message_source");
-        lv_obj_set_width(message_source, 342);
-        lv_label_set_text(message_source, "QQ");
-        lv_obj_set_style_text_color(message_source, ACCENT_BLUE, 0);
-
-        lv_obj_t * message_title = lv_label_create(notification_scroll);
-        lv_obj_set_name(message_title, "message_title");
-        lv_obj_set_width(message_title, 342);
-        lv_label_set_text(message_title, "中文通知");
-
-        lv_obj_t * message_body = lv_label_create(notification_scroll);
-        lv_obj_set_name(message_body, "message_body");
-        lv_obj_set_width(message_body, 342);
-        lv_label_set_text(message_body, "这是一条多行中文消息。向上滚动查看完整正文。");
-        lv_obj_set_style_text_color(message_body, FG_SECONDARY, 0);
+        notification_history_message_create(notification_scroll);
 
         the_root = lv_obj_0;
     }

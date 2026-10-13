@@ -16,6 +16,14 @@ typedef struct {
     char source[161], title[321], body[1601];
     wf_phone_metadata_t metadata;
 } wf_phone_message_t;
+/* Valid lifecycle key AND package group different protocol IDs. Legacy or
+ * incomplete metadata stays independent. Call on an owned/locked snapshot. */
+bool wf_notification_same_group(const wf_phone_message_t *a, const wf_phone_message_t *b);
+bool wf_notification_group_key_equal(const wf_phone_metadata_t *a, const wf_phone_metadata_t *b);
+unsigned wf_notification_history(const wf_phone_message_t *messages, unsigned count,
+    const wf_phone_message_t *anchor, unsigned indices[WF_PHONE_MESSAGES]);
+unsigned wf_notification_groups(const wf_phone_message_t *messages, unsigned count,
+    unsigned latest[WF_PHONE_MESSAGES]);
 /* Bounded copy across the phone/UI ownership boundary. Revision includes local
  * deletions; alert_sequence advances only for accepted incoming notifications. */
 typedef struct {
@@ -25,5 +33,6 @@ typedef struct {
     int32_t alert_id;
     bool connected, subscribed;
 } wristflow_notifications_snapshot_t;
-typedef void (*wristflow_notification_delete_cb_t)(bool all, int32_t id, void *context);
+typedef void (*wristflow_notification_delete_cb_t)(bool all, int32_t id,
+    const wf_phone_metadata_t *expected, void *context);
 #endif

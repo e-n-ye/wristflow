@@ -61,12 +61,22 @@ static void capture(const char *name)
     for(unsigned i=0;i<390*450;++i) { uint8_t rgb[]={frame[i*3+2],frame[i*3+1],frame[i*3]}; assert(fwrite(rgb,1,3,f)==3); }
     fclose(f);
 }
-static void remove_local(bool all,int32_t id,void *context)
+static void remove_local(bool all,int32_t id,const wf_phone_metadata_t *expected,void *context)
 {
     (void)context; ++deletes;
     if(all) phone.count=0;
-    else for(unsigned i=0;i<phone.count;++i) if(phone.messages[i].id==id) {
-        memmove(&phone.messages[i],&phone.messages[i+1],(--phone.count-i)*sizeof phone.messages[0]); break;
+    else {
+        const wf_phone_message_t *anchor=NULL;
+        for(unsigned i=0;i<phone.count;++i) if(phone.messages[i].id==id) anchor=&phone.messages[i];
+        if(anchor&&expected&&wf_notification_group_key_equal(&anchor->metadata,expected)) {
+            unsigned history[WF_PHONE_MESSAGES];
+            unsigned count=wf_notification_history(phone.messages,phone.count,anchor,history);
+            int32_t ids[WF_PHONE_MESSAGES];
+            for(unsigned i=0;i<count;++i) ids[i]=phone.messages[history[i]].id;
+            for(unsigned j=0;j<count;++j) for(unsigned i=0;i<phone.count;++i) if(phone.messages[i].id==ids[j]) {
+                memmove(&phone.messages[i],&phone.messages[i+1],(--phone.count-i)*sizeof phone.messages[0]); break;
+            }
+        }
     }
     ++phone.revision; wristflow_ui_shell_notifications(shell,&phone);
 }
@@ -79,9 +89,11 @@ static bool receive(int32_t id,const char *title,const char *body)
     memmove(&phone.messages[1],&phone.messages[0],at*sizeof phone.messages[0]);
     phone.messages[0]=(wf_phone_message_t){.id=id}; strcpy(phone.messages[0].source,"QQ");
     strcpy(phone.messages[0].title,title); strcpy(phone.messages[0].body,body);
-    /* Identical lifecycle metadata must not change this round's ID-based rows. */
+    /* Default fixtures have independent lifecycle keys; grouped cases below
+     * explicitly share a key, matching real A/B/C protocol delivery. */
     phone.messages[0].metadata=(wf_phone_metadata_t){.valid=true,.when_valid=true,.when_ms=1000+(uint64_t)id};
     strcpy(phone.messages[0].metadata.notification_key,"0123456789abcdef0123456789abcdef");
+    snprintf(phone.messages[0].metadata.notification_key,33,"%032x",(unsigned)id);
     strcpy(phone.messages[0].metadata.package,"com.tencent.mobileqq");
     phone.alert_id=id; ++phone.alert_sequence; ++phone.revision;
     bool wake=wristflow_ui_shell_notifications(shell,&phone); advance(32); return wake;
@@ -201,5 +213,48 @@ int main(int argc,char **argv)
     surface(WRISTFLOW_SURFACE_NOTIFICATION_SETTINGS); lv_obj_t *settings_page=lv_screen_active();
     press("notifications_open"); surface(WRISTFLOW_SURFACE_NOTIFICATIONS);
     press("app_back"); surface(WRISTFLOW_SURFACE_NOTIFICATION_SETTINGS); assert(lv_screen_active()==settings_page);
+    /* Real grouped history: A/C share a lifecycle, B remains independent. */
+    home(); wristflow_ui_shell_set_dnd(shell,true); phone.count=0;
+    receive(101,"第一人","历史 A\n第二行\n第三行\n第四行\n第五行\n第六行");
+    wf_phone_metadata_t first=phone.messages[0].metadata;
+    receive(102,"第二人","独立 B");
+    receive(103,"第一人","最新 C\n第二行\n第三行\n第四行\n第五行\n第六行\n第七行\n第八行\n第九行\n第十行\n第十一行\n第十二行");
+    strcpy(phone.messages[0].metadata.notification_key,first.notification_key);
+    ++phone.revision; wristflow_ui_shell_notifications(shell,&phone);
+    wristflow_ui_shell_open_notification(shell,false,0); advance(240);
+    assert(!strncmp(lv_label_get_text(named(named(lv_screen_active(),"notification_0"),"message_body")),"最新 C",strlen("最新 C")));
+    assert(!lv_obj_has_flag(named(lv_screen_active(),"notification_1"),LV_OBJ_FLAG_HIDDEN));
+    assert(lv_obj_has_flag(named(lv_screen_active(),"notification_2"),LV_OBJ_FLAG_HIDDEN)); capture("grouped_list");
+    press("notification_0"); surface(WRISTFLOW_SURFACE_NOTIFICATION_DETAIL);
+    lv_obj_t *scroll=named(lv_screen_active(),"notification_scroll");
+    lv_obj_t *a=named(lv_screen_active(),"notification_history_0"),*c=named(lv_screen_active(),"notification_history_1");
+    assert(!strncmp(lv_label_get_text(named(a,"message_body")),"历史 A",strlen("历史 A")));
+    assert(!strncmp(lv_label_get_text(named(c,"message_body")),"最新 C",strlen("最新 C")));
+    assert(lv_obj_get_y(c)>lv_obj_get_y(a)&&lv_obj_get_scroll_y(scroll)>0); capture("history_latest");
+    lv_obj_scroll_to_y(scroll,10000,LV_ANIM_OFF); advance(32);
+    int32_t reading_bottom=lv_obj_get_scroll_y(scroll);
+    receive(105,"另一组","无关更新不得把长正文跳回开头"); advance(32);
+    assert(lv_obj_get_scroll_y(scroll)==reading_bottom);
+    phone.connected=false; ++phone.revision; wristflow_ui_shell_notifications(shell,&phone); advance(32);
+    assert(lv_obj_get_scroll_y(scroll)==reading_bottom);
+    /* Remove only the unrelated fixture to keep the two-person deletion case. */
+    memmove(&phone.messages[0],&phone.messages[1],(--phone.count)*sizeof phone.messages[0]);
+    ++phone.revision; wristflow_ui_shell_notifications(shell,&phone);
+    lv_obj_scroll_to_y(scroll,0,LV_ANIM_OFF); advance(32); capture("history_oldest");
+    receive(104,"第一人","新到 D");
+    strcpy(phone.messages[0].metadata.notification_key,first.notification_key);
+    ++phone.revision; wristflow_ui_shell_notifications(shell,&phone); advance(32);
+    assert(lv_obj_get_scroll_y(scroll)==0); /* Reading A is not dragged to D. */
+    /* Removal of selected C retains the group's remaining A/D history. */
+    for(unsigned i=0;i<phone.count;++i) if(phone.messages[i].id==103) {
+        memmove(&phone.messages[i],&phone.messages[i+1],(--phone.count-i)*sizeof phone.messages[0]); break;
+    }
+    ++phone.revision; wristflow_ui_shell_notifications(shell,&phone); advance(32);
+    assert(!strcmp(lv_label_get_text(named(c,"message_body")),"新到 D")); capture("history_after_phone_delete");
+    wristflow_ui_shell_back(shell); advance(240);
+    first_row=named(lv_screen_active(),"notification_0");
+    swipe(320,155,100,155); tap(300,155);
+    assert(phone.count==1&&phone.messages[0].id==102); capture("group_deleted");
+    press("notification_clear"); assert(!phone.count);
     wristflow_ui_shell_destroy(shell); puts("notifications_ui: passed"); return 0;
 }

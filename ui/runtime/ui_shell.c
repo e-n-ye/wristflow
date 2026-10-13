@@ -930,8 +930,9 @@ void wristflow_ui_shell_bind_notification_delete(wristflow_ui_shell_t *shell,
     wristflow_notification_delete_cb_t callback, void *context)
 { shell->delete_notification = callback; shell->notification_context = context; }
 
-void wristflow_ui_shell_delete_notification(wristflow_ui_shell_t *shell, bool all, int32_t id)
-{ if (shell->delete_notification) shell->delete_notification(all, id, shell->notification_context); }
+void wristflow_ui_shell_delete_notification(wristflow_ui_shell_t *shell, bool all, int32_t id,
+    const wf_phone_metadata_t *expected)
+{ if (shell->delete_notification) shell->delete_notification(all, id, expected, shell->notification_context); }
 
 bool wristflow_ui_shell_phone_connected(const wristflow_ui_shell_t *shell)
 { return shell && shell->phone_connected; }
