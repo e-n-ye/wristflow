@@ -1,0 +1,311 @@
+{
+  "date": "2026-10-13",
+  "topic": "firmware native AQI consumption and existing labels",
+  "base": "9b80a46f7ace5b4c01277d9815c3fdfdbee77fbb",
+  "source_candidate": "c9be24508c3969ba17c3d59b81c17521b2a94c8f",
+  "local_evidence_worktree": "Codex managed breathing-product/wristflow worktree; daily artifacts are local-only",
+  "scope": {
+    "aqi_scale": "gadgetbridge-native",
+    "range": "integer 0..INT32_MAX",
+    "missing_or_invalid_optional_metadata": "clear AQI, accept otherwise valid weather",
+    "invalid_whole_weather": "retain last valid snapshot",
+    "expiry_seconds": 10800,
+    "colour": "existing neutral foreground",
+    "flashdb_migration": false,
+    "xml_or_generated_changes": false,
+    "apk_rebuilt": false
+  },
+  "source_hashes": {
+    "apps/product/src/phone_protocol.c": "f658072d6842f373ea888d344685beab54cc7297280888760acdc63dbb696927",
+    "apps/product/src/product_ble.c": "4f943c8535b5f8a72e677aef5e5c7cb5e6f59ae88e541b36a361a69b9a9e48cc",
+    "core/weather.c": "a09fc7a2a007b0656cc15ece465acd7f9383972323d4ec16fc21c62b6371bcf6",
+    "core/weather.h": "bbf95368fb79b56746e1b27004b2bedfc2971d7ec66771e37e1d840cd7b875b2",
+    "tests/phone_protocol.c": "c537178026a3b79f60ce3c5a30ad89c8261ea6d3a0ee527d04bbdb3cf160b2d5",
+    "tests/weather_service.c": "d2b230a6ebd026c37dc43c875cf3ac92f27033679d3319b1c3b18aa251020b53",
+    "tests/weather_ui.c": "75bf37d49c890a480ec7865fd2181526e65227714bdcc7c51b03e20d21fa3a6b"
+  },
+  "host": {
+    "compiler": "GCC 15.2.0",
+    "cmake": "3.31.4",
+    "generator": "Ninja Debug",
+    "build_command": "cmake --build artifacts/breathing/host --target phone_protocol phone_queue weather_service weather_ui --parallel 6",
+    "ctest_command": "ctest --test-dir artifacts/breathing/host -R '^(phone_protocol|phone_queue|weather_service|weather_ui)$' --output-on-failure",
+    "passed": 4,
+    "total": 4,
+    "seconds": 0.94,
+    "additional_protocol_run": {
+      "reason": "added INT32_MAX and non-finite assertions",
+      "passed": 1,
+      "total": 1,
+      "seconds": 0.11
+    },
+    "coverage": [
+      "v1/v2 alternation",
+      "every fragment split",
+      "real zero",
+      "INT32_MAX",
+      "invalid/missing/duplicate wf fields",
+      "bad whole weather preserves cache",
+      "city change and reconnect",
+      "three-hour expiry",
+      "no AQI inheritance",
+      "actual LVGL current/index labels and neutral colour"
+    ],
+    "renders": [
+      {
+        "path": "artifacts/weather-aqi/renders/weather_aqi_current.png",
+        "sha256": "1ef58837d02d6c3c0dbf9ba9b77a1832039d4709c3af057687212a0283c5b0f3",
+        "kind": "host LVGL fixture, not hardware"
+      },
+      {
+        "path": "artifacts/weather-aqi/renders/weather_aqi_indices.png",
+        "sha256": "a445e8dc336e75ce4ab35a9cb678c154471cd9ba192607e1921eaf89f82b6210",
+        "kind": "host LVGL fixture, not hardware"
+      }
+    ]
+  },
+  "firmware": {
+    "candidate": "c9be24508c3969ba17c3d59b81c17521b2a94c8f",
+    "builds": [
+      {
+        "example": "product",
+        "record": "artifacts/product/20261013-191154-343/result.json",
+        "started_at": "2026-10-13T19:11:54.3520720+08:00",
+        "finished_at": "2026-10-13T19:15:04.6674440+08:00",
+        "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+        "exit_code": 0,
+        "artifact_validation_passed": true,
+        "source_count": 383,
+        "artifact_count": 29,
+        "rehash_passed": true,
+        "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+        "submodules": [
+          " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+          " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+        ],
+        "python": "Python 3.13.15",
+        "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+        "scons": "SCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+        "images": [
+          {
+            "name": "bootloader.bin",
+            "address": "0x12010000",
+            "bytes": 58496,
+            "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+          },
+          {
+            "name": "main.bin",
+            "address": "0x12020000",
+            "bytes": 7712988,
+            "sha256": "1eb2586941673a0eff62459cd837a0b206c0732e54544b48b0df03f0114cae5e"
+          },
+          {
+            "name": "ftab.bin",
+            "address": "0x12000000",
+            "bytes": 11288,
+            "sha256": "2849c0b8a94108806a6d1f7c813bd7c17270c59ba50b66c6d5505bed25169bc9"
+          }
+        ]
+      },
+      {
+        "example": "ui_demo",
+        "record": "artifacts/ui_demo/20261013-190844-717/result.json",
+        "started_at": "2026-10-13T19:08:44.7287959+08:00",
+        "finished_at": "2026-10-13T19:11:34.5249026+08:00",
+        "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+        "exit_code": 0,
+        "artifact_validation_passed": true,
+        "source_count": 366,
+        "artifact_count": 22,
+        "rehash_passed": true,
+        "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+        "submodules": [
+          " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+          " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+        ],
+        "python": "Python 3.13.15",
+        "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+        "scons": "SCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+        "images": [
+          {
+            "name": "bootloader.bin",
+            "address": "0x12010000",
+            "bytes": 58496,
+            "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+          },
+          {
+            "name": "main.bin",
+            "address": "0x12020000",
+            "bytes": 7508312,
+            "sha256": "eb4bc963d3042a04edc9a0c8c36c2a42d98e821719cf97f1a7953867d47f9801"
+          },
+          {
+            "name": "ftab.bin",
+            "address": "0x12000000",
+            "bytes": 11288,
+            "sha256": "d1072202a9776901a366c8339a53832aa2a0cfb6ea0debf3b05046d796e969a7"
+          }
+        ]
+      }
+    ],
+    "sdk_lock_sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+  },
+  "resolved_failures": [
+    {
+      "action": "direct scripts/Build.ps1 for both isolated targets",
+      "stage": "SDK precheck",
+      "reason": "isolated SDK submodule not initialized",
+      "resolution": "existing isolated wrapper reuses pinned, initialized main SDK; no upgrade"
+    },
+    {
+      "action": "parallel isolated wrapper environment activation",
+      "stage": "Product before SCons",
+      "reason": "WinError 5 replacing shared SDK state file",
+      "resolution": "finish UI Demo, run Product sequentially"
+    },
+    {
+      "action": "host snapshot preview",
+      "reason": "PPM unsupported by viewer, system Python lacks Pillow",
+      "resolution": "bundled Python/Pillow converts same LVGL renders to PNG for inspection"
+    }
+  ],
+  "hardware": {
+    "status": "bounded USB acceptance passed; capture closed normally",
+    "conditions_user_confirmed": "same Huangshan board and screen; USB only; no new wiring; ordinary page; test app connected",
+    "port": {
+      "name": "USB-SERIAL CH340 (COM5)",
+      "vid_pid": "1A86:7523",
+      "status": "OK"
+    },
+    "flash": {
+      "record": "artifacts/flash/product/20261013-191553-554/result.json",
+      "date": "2026-10-13T19:18:32.3965306+08:00",
+      "tool": "sftool 0.2.5",
+      "baud": 500000,
+      "verify": true,
+      "after": "soft_reset",
+      "exit_code": 0,
+      "hashes_match_build": true,
+      "images": [
+        {
+          "name": "bootloader.bin",
+          "address": "0x12010000",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "name": "main.bin",
+          "address": "0x12020000",
+          "bytes": 7712988,
+          "sha256": "1eb2586941673a0eff62459cd837a0b206c0732e54544b48b0df03f0114cae5e"
+        },
+        {
+          "name": "ftab.bin",
+          "address": "0x12000000",
+          "bytes": 11288,
+          "sha256": "2849c0b8a94108806a6d1f7c813bd7c17270c59ba50b66c6d5505bed25169bc9"
+        }
+      ],
+      "log_sha256": "a12c2767c97fb88a5703f8f0c8c0fb49892e793478ec7b50dcec0c84ee0a16f4"
+    },
+    "initial_uart_queries": {
+      "date": "2026-10-13T19:19+08:00",
+      "commands": [
+        "wf_ble status",
+        "show_date"
+      ],
+      "result": "no response while display off; wake requested; no reset or clear command"
+    },
+    "uart": {
+      "record_directory": "artifacts/weather-aqi/20261013-191901-819",
+      "started": "2026-10-13T19:19:01.8740667+08:00",
+      "finished": "2026-10-13T19:25:30.1324924+08:00",
+      "baud": 1000000,
+      "dtr": false,
+      "rts": false,
+      "stop_requested": true,
+      "error": null,
+      "serial_closed": true,
+      "query_snapshots": [
+        {
+          "host_time": "2026-10-13T19:22:42+08:00",
+          "connected": true,
+          "subscribed": true,
+          "aqi_valid": true,
+          "current_aqi": 126,
+          "index_aqi": 126,
+          "expired": false,
+          "received_utc": 1791890316,
+          "request": "IDLE",
+          "rejected": 0,
+          "dropped": 0,
+          "gaps": 0,
+          "stale": 0
+        },
+        {
+          "host_time": "2026-10-13T19:23:43+08:00",
+          "connected": true,
+          "subscribed": true,
+          "aqi_valid": true,
+          "current_aqi": 126,
+          "index_aqi": 126,
+          "expired": false,
+          "received_utc": 1791890599,
+          "request": "IDLE",
+          "rejected": 0,
+          "dropped": 0,
+          "gaps": 0,
+          "stale": 0
+        }
+      ],
+      "explicit_weather_request": {
+        "host_time": "2026-10-13T19:23:20+08:00",
+        "queued": true,
+        "later_snapshot_has_new_received_utc": true,
+        "wire_version_not_observed": true
+      },
+      "final_status_query": "queued after user wake feedback; no additional response before closure, so not treated as post-wake UART proof",
+      "hashes": {
+        "uart.txt": "fd7a7caf2c9196283ee30bf0302b416e89843ca575044b9329905f10a5caa370",
+        "actions.jsonl": "faa1fc4eaff654d5dc1d9ae5810a3432e3d425b5eda7b13668307e00a83a445e",
+        "events.jsonl": "60f47ae13b781785347379c5aed6b93ad196e6803e32448bebfefc8a1141f019",
+        "result.json": "70b89a74beae3a93151c98365e26a0ad213705c74fdff24f0522129d92496b08"
+      }
+    },
+    "rtc": {
+      "command": "show_date",
+      "host_time": "2026-10-13T19:22:42.990+08:00",
+      "device_utc": "2026-10-13T11:22:42Z",
+      "clock_tool_utc": "2026-10-13T11:22:43Z",
+      "result": "current real UTC consistent within one second; no manual time write needed",
+      "reset_retention_claim": false
+    },
+    "user_feedback": [
+      {
+        "group": "real weather",
+        "requested": "current/index AQI agree; forecast and sunrise/sunset normal",
+        "reply": "都正常"
+      },
+      {
+        "group": "reentry and short sleep",
+        "requested": "temporary hold off; reenter weather; AQI 126; about 35s off; KEY1 wake; touch normal",
+        "reply": "正常"
+      }
+    ],
+    "unchanged": [
+      "same test APK 0.94.0-wf-meta1",
+      "phone file logging not reenabled",
+      "no alarm configuration changes",
+      "no new wiring or battery"
+    ]
+  },
+  "unverified": [
+    "three-hour hardware long test",
+    "max frame and device queue pressure",
+    "complete N2 and power/battery",
+    "notification grouping/history/precise recall",
+    "UV validity and source observation freshness",
+    "real missing/zero AQI source on device (host covered)",
+    "independent new extended v2 wire capture"
+  ]
+}
