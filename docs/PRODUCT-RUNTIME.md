@@ -1,5 +1,7 @@
 # 产品固件框架
 
+现行系统的职责图、已实现低功耗机制及测量边界见 [2026-10-14 系统／PM 说明](PM-EVENT-WAKE.md#current-power-system)。下文保留各版本的接入和验收记录；2026-09 的“BLE／PM 关闭”是历史状态，不能据此判断当前 Product。
+
 <a id="rtc-reset-contrast"></a>
 ## 2026-10-12 RTC 软件重启与 RTS 对照
 
