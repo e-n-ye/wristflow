@@ -1,5 +1,15 @@
 # 可复现构建基线
 
+## 2026-10-14 Product 默认禁充与诊断
+
+基线 `e31c8c5`，隔离工作树 `charger-preflight/wristflow`。项目强钩子替换板级默认启充，Product 配置排除 SDK charger；没有改厂商、SDK 锁、UI／生成物或公共构建入口。相关契约、硬件条件与精简证据见[充电前置](CHARGER-PREFLIGHT.md)。
+
+忽略的本地环境适配器调用当前 `scripts/Build.ps1`，最终仍为官方 `scons --board=sf32lb52-lchspi-ulp -j6`；初次和 BUSY 检查后构建退出 0。首候选 `20261014-183434-670` 的钩子误放 Flash，后来改为 retained SRAM；RAM 修正版 `20261014-190310-736` 退出 0，Arm GCC 14.2.1，391 源码／29 产物重哈希一致，主 BIN 7,715,624 B、SHA-256 `3c2985b475467965763ac566f69a5cfb8e0e1d3cd627399727be24fa76e9d1c2`。配置／map／nm 确认项目强 BSP_PowerUpCustom 在 SRAM `0x200033BC`，SDK AW 初始化／使能入口排除；布局脚本通过修正版并拒绝首版 ELF，实际 false 路径无 Flash 调用。独立 bootloader 的 MSP 反汇编另存本机证据，不把 Product 覆盖误套到该镜像。
+
+GCC 15.2.0／Ninja Debug 主机目标 `aw32001_inhibit` 的 CTest 1/1 通过，覆盖传输故障、回读失效和无启充写入。两候选仅 USB 的 KEY1 回归均失败，不能以构建通过代替设备验收；恢复旧 PSRAM 基线后 KEY1 正常。SDK 的固定 BUSY 等待不能用传入 20ms 冒充完整硬件时限，未执行充电台架或电机操作。
+
+独立对照工作树 `charger-compare/wristflow` 从同一基线仅增加晚期 `wf_ceb` 诊断，保留 SDK 初始化与旧 SRAM 钩子；`20261014-193546-001` 构建退出 0，388 源码／29 产物重哈希一致，主 BIN `3abe168d…`。与已验 PSRAM 构建源码对比只多一份诊断源文件。仅 USB 取证复现 CEB=1 下 KEY1 不亮、IDLE 下串口响应及软件唤醒正常；该对照固件不作为生产禁充交付。重新写入 RAM 修正版前再次核对其 391 源码／29 产物，无变更／哈希偏差；没有为未变的固件重复构建。
+
 ## 2026-10-14 Product LVGL PSRAM 堆修复
 
 基线 `a358830`，隔离工作树 `battery-freeze/wristflow` 的 Product [配置](../apps/product/project/proj.conf)启用锁定 SDK 已有的 LVGL PSRAM 私有堆，大小沿用该选项默认的 2048KiB；UI 缓存、XML／生成 C、SDK 锁和厂商源码不变。已有 SRAM 分配断言与本轮证据见[精简记录](evidence/2026-10-14/freeze-diagnostic.json)。
