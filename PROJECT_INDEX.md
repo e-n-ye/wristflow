@@ -13,7 +13,8 @@
 | UI / XML / 字体资源 | [UI-DEMO](docs/UI-DEMO.md)、[UI 交互契约](docs/UI-INTERACTION.md)；先由地图确认源与输出，再定位对应专题，如 [呼吸训练](docs/BREATHING.md)、[闹钟](docs/ALARM.md)、[倒计时](docs/COUNTDOWN.md) |
 | BLE、PM 或产品集成 | [产品入口](docs/PRODUCT-RUNTIME.md)、[BLE](docs/BLE-FIRST-LINK.md)、[PM](docs/PM-EVENT-WAKE.md)，仅选相关域；倒计时后台边界见 [COUNTDOWN 第二轮](docs/COUNTDOWN.md#round2) |
 | 架构、裁剪或风险核查 | [ARCHITECTURE](docs/ARCHITECTURE.md) 相关契约与 [审查债务 §3](docs/ARCHITECTURE-REVIEW.md#3-债务清单全部未关闭)，先核对证据提交 |
-| 下载、真机、功耗 | [HARDWARE](docs/HARDWARE.md) → [FLASHING](docs/FLASHING.md) / [Product 验收](docs/PRODUCT-ACCEPTANCE.md)；步骤不构成授权 |
+| 硬件准备、焊接、电池、功耗与试戴 | [HARDWARE](docs/HARDWARE.md) → [按顺序操作与记录清单](docs/ACCEPTANCE.md#hardware-sequence)；从物料／仪器核对开始，步骤不构成执行授权 |
+| 下载与 Product 真机验收 | [HARDWARE](docs/HARDWARE.md) → [FLASHING](docs/FLASHING.md) / [Product 验收](docs/PRODUCT-ACCEPTANCE.md)；核对实际版本与供电 |
 | 追溯 N0 审计与旧返工 | [首轮验收](docs/handoffs/N0-CODEX-ACCEPTANCE.md)、[旧任务契约](docs/tasks/N0-VERSION-AUDIT.md)；固定历史 SHA 不替代当前核对 |
 | 决定记录写到哪里、整理文档 | [职责与维护](docs/DOCUMENTATION-WORKFLOW.md#responsibilities) |
 | 分支、审阅、PR 与合并 | [CONTRIBUTING](CONTRIBUTING.md)；纯文档只做文档验证，CI 沿用手动基线 |
