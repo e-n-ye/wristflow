@@ -15,9 +15,11 @@
 
 `when_ms` 是 Android 通知时间，不保证等于 QQ 发送时间；没有伪造缺失时间。AQI 存在不代表新鲜、准确或已归一化为中国／美国 AQI。上游模型说明单污染物指数预期 Plume，部分来源使用 WHO 回退；整体 `aqi` 通常为各项最大值，因此本扩展不宣称统一指数标准、不填假值、不按 500 截断。缺失时没有 `aqi` 数值，真实 0 保留。
 
-新增 `WF_META` 日志只包含条目 ID、匿名 token、通知时间、来源包名及 AQI，不记录原 key、盐、联系人或正文。原 Gadgetbridge UART 日志仍可能含原通知正文；采集只在内存提取 `WF_META` 与最终 TX 的类型／ID／版本／`wf` 白名单，不提交整份手机日志。本手机补丁只扩展发送字段，列表归组、详情历史、精确撤回及 AQI 页面显示不在补丁内实现。后续固件的 AQI 消费与既有页面绑定见[固件闭环](../../docs/WEATHER-UI.md#weather-aqi-display)；通知 `wf` 标识／时间仍未在固件保存或用于历史归组。
+新增 `WF_META` 日志只包含条目 ID、匿名 token、通知时间、来源包名及 AQI，不记录原 key、盐、联系人或正文。原 Gadgetbridge UART 日志仍可能含原通知正文；采集只在内存提取 `WF_META` 与最终 TX 的类型／ID／版本／`wf` 白名单，不提交整份手机日志。本手机补丁只扩展发送字段，列表归组、详情历史、精确撤回及 AQI 页面显示不在补丁内实现。后续固件的 AQI 消费与既有页面绑定见[固件闭环](../../docs/WEATHER-UI.md#weather-aqi-display)；通知 `wf` 标识／时间的有界保存、旧手机兼容和两人对照见[固件数据闭环](../../docs/NOTIFICATION-UI.md#notification-metadata-storage)，后续固件列表归组与详情历史的实施及验收见[通知专题](../../docs/NOTIFICATION-UI.md#notification-groups)。
 
 本测试包同版构建、安装共存、真实同一通知生命周期 A/B 与原 ID 删除、天气 v1 AQI 126 的证据见 [精简记录](../../docs/evidence/2026-10-13/notification-metadata.json)。真实 TX 日志先于 GATT 入队，手表收到／清除是用户反馈，不等于新字段存储或显示。普通上游变体、实际进程重启、跨人／清除重建、天气 v2 扩展发送、最大帧与设备队列压力未实测。固件的 8192 B 行缓冲仍是既有约束；附加元数据会增加帧长，接近上限的报文可能丢弃，不保证任意通知兼容。
+
+正文消费边界沿用锁定上游：监听器在 `notification_prefer_long_text=true` 时优先非空 `EXTRA_BIG_TEXT`，否则使用 `EXTRA_TEXT`；BangleJS 发送路径将正文裁到 400 个 UTF-16 code units。2026-10-14 Q8-D 只读实测偏好为 true，QQ 通知正文仅 99 字且没有更长字段，手表照片末尾与该来源一致。本补丁只扩展元数据，无法恢复来源没有提供的聊天文本；精简字段与本地整组删除前后对照见[归组证据](../../docs/evidence/2026-10-13/notification-groups.json)。本次未修改手机包或设置。
 
 ## 取得与构建
 
