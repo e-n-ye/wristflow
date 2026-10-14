@@ -6,7 +6,7 @@
 
 忽略的本地环境适配器调用当前 `scripts/Build.ps1`，最终仍为官方 `scons --board=sf32lb52-lchspi-ulp -j6`；初次和 BUSY 检查后构建退出 0。首候选 `20261014-183434-670` 的钩子误放 Flash，后来改为 retained SRAM；RAM 修正版 `20261014-190310-736` 退出 0，Arm GCC 14.2.1，391 源码／29 产物重哈希一致，主 BIN 7,715,624 B、SHA-256 `3c2985b475467965763ac566f69a5cfb8e0e1d3cd627399727be24fa76e9d1c2`。配置／map／nm 确认项目强 BSP_PowerUpCustom 在 SRAM `0x200033BC`，SDK AW 初始化／使能入口排除；布局脚本通过修正版并拒绝首版 ELF，实际 false 路径无 Flash 调用。独立 bootloader 的 MSP 反汇编另存本机证据，不把 Product 覆盖误套到该镜像。
 
-GCC 15.2.0／Ninja Debug 主机目标 `aw32001_inhibit` 的 CTest 1/1 通过，覆盖传输故障、回读失效和无启充写入。两候选仅 USB 的 KEY1 回归均失败，不能以构建通过代替设备验收；恢复旧 PSRAM 基线后 KEY1 正常。SDK 的固定 BUSY 等待不能用传入 20ms 冒充完整硬件时限，未执行充电台架或电机操作。
+GCC 15.2.0／Ninja 主机目标 `aw32001_inhibit` 的最终 Debug、Release 构建与 CTest 各 1/1 通过，覆盖传输故障、回读失效和无启充写入。收尾已将该目标加入现有 `UNDEBUG`／超时列表，Release 断言保留；命令见精简证据。两候选当时仅 USB 的 KEY1 回归均失败，不能以构建通过代替设备验收；后续同一 RAM 修正版通过仅电池页面／两次 KEY1，有界结论及供电限制见充电前置。SDK 的固定 BUSY 等待不能用传入 20ms 冒充完整硬件时限，未执行充电台架或电机操作。
 
 独立对照工作树 `charger-compare/wristflow` 从同一基线仅增加晚期 `wf_ceb` 诊断，保留 SDK 初始化与旧 SRAM 钩子；`20261014-193546-001` 构建退出 0，388 源码／29 产物重哈希一致，主 BIN `3abe168d…`。与已验 PSRAM 构建源码对比只多一份诊断源文件。仅 USB 取证复现 CEB=1 下 KEY1 不亮、IDLE 下串口响应及软件唤醒正常；该对照固件不作为生产禁充交付。重新写入 RAM 修正版前再次核对其 391 源码／29 产物，无变更／哈希偏差；没有为未变的固件重复构建。
 

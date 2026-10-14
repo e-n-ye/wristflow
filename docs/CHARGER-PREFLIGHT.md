@@ -40,7 +40,7 @@ HAL 传入 20ms 超时，且在已观察到 BUSY 时提前失败；锁定 SDK �
 
 ## 验证和未覆盖项
 
-主机 `aw32001_inhibit` 覆盖原先启充／默认禁充／其他电源位、七个传输故障点、ACK 但写无效、末次 CEB 丢失、空参数。首次 Debug CTest 1/1 通过。它验证事务性质，不覆盖 HAL 时限、GPIO、电源或真实芯片。
+主机 `aw32001_inhibit` 覆盖原先启充／默认禁充／其他电源位、七个传输故障点、ACK 但写无效、末次 CEB 丢失、空参数。首次 Debug CTest 1/1 通过。接续收尾审查发现该目标遗漏现有的 `UNDEBUG`／超时列表，已补入；最终 Debug、Release 的目标构建与 CTest 各 1/1 通过，Release 编译命令确认 `-UNDEBUG` 在 `-DNDEBUG` 之后，断言与事务调用保留。固件源码未变，既有镜像仍对应本轮实现。它验证事务性质，不覆盖 HAL 时限、GPIO、电源或真实芯片。
 
 Product 初次、BUSY 前置检查及 RAM 修正后的构建均退出 0；RAM 修正版 `20261014-190310-736` 的 391 份源码／29 个产物重哈希一致，主 BIN 7,715,624 B、SHA-256 `3c2985b4…`。配置排除 SDK charger，main.elf 的 `BSP_PowerUpCustom` 为 retained SRAM 项目强符号，原弱函数段被丢弃，原 AW 初始化／使能符号不存在。`tests/check_charger_layout.py` 通过修正版并拒绝首版 ELF；实际 false 路径反汇编另行核验。独立 bootloader 的强 HAL_MspInit 反汇编仅关闭 WDT 后返回，没有 BSP_IO_Init／BSP_Power_Up／BSP_PowerUpCustom 符号。准确命令、结果与镜像哈希归入精简证据。未运行云端基线，SDK／工具链／公共构建入口未改。
 
@@ -48,7 +48,7 @@ Product 初次、BUSY 前置检查及 RAM 修正后的构建均退出 0；RAM �
 
 主代理查到首版布局错误：原弱钩子 SRAM `0x20008748`，新覆盖却在 Flash `0x12099c10`；SDK 先调用钩子，随后才解除 NOR Flash DPD。即使 false 路径立即返回，入口取指也依赖休眠 Flash。失败 BIN／ELF／map 已保存。修正版入口 SRAM `0x200033BC`，false 路径只执行 SRAM 内比较、跳转和返回，没有函数调用或 Flash 跳板。
 
-RAM 修正版三镜像 write／verify 与启动禁充位均正常，19:11:54 睡前只读快照为 REG01=0xAC、REG02=0x0F、REG04=0xA3、REG05=0x1A、REG06=0xC0、REG08=0x42、REG09=0x20、REG0B=0x43。REG09=0x20 是未诊断的原始输入故障值，不自动清错或重新启充。19:11:58 自然息屏后，用户报告“现在按key无法唤醒”；没有 KEY／恢复／断言日志，采集正常停止。因此 SRAM 修正没有解决全部故障，不能把首版布局错误当作完整根因；两候选均不得合入。
+RAM 修正版三镜像 write／verify 与启动禁充位均正常，19:11:54 睡前只读快照为 REG01=0xAC、REG02=0x0F、REG04=0xA3、REG05=0x1A、REG06=0xC0、REG08=0x42、REG09=0x20、REG0B=0x43。REG09=0x20 是未诊断的原始输入故障值，不自动清错或重新启充。19:11:58 自然息屏后，用户报告“现在按key无法唤醒”；没有 KEY／恢复／断言日志，采集正常停止。因此 SRAM 修正没有解决全部故障，不能把首版布局错误当作完整根因。当时按仅 USB 的 KEY1 验收条件，两候选均不得合入；后续对照定位供电条件并取得同一 RAM 修正版的仅电池反馈，以本页末尾的有界交付结论取代该临时判定，首版 Flash 布局缺陷仍不通过。
 
 随后仅 USB 下恢复 PR #59 已验 PSRAM BIN `f7e3417b…`，旧工作树 flash 记录 `20261014-192014-655` write／verify 退出 0。19:30:01.458 记录 KEY1，约 308ms 后记录 screen on；用户确认“基线 KEY1 正常”。基线仍有 SDK 自动启充路径，电池必须保持断开。该恢复只证明一次 KEY1 对照正常，不能关闭旧无日志长待机故障。
 
