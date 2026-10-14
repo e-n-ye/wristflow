@@ -163,14 +163,15 @@
       "overlap": false
     },
     "dry_run": "Current scripts/Flash.ps1 checks passed via local path adapter; device not opened for DryRun.",
-    "hardware_result": "Three-image write_flash --verify exited 0 and a controlled startup enabled the private heap; page-combination and sleep/resume acceptance remain pending user feedback.",
+    "hardware_result": "Three-image write_flash --verify exited 0 and a controlled startup enabled the private heap. USB-only original sequence, notification/weather combinations and post-sleep cached-page/touch regressions are user-confirmed normal; final awake heap snapshots match the pre-sleep snapshot. This accepts the bounded reproduced-OOM repair, not historical long-idle faults or battery/power behavior.",
     "flash": {
       "local_record": "artifacts/flash/product/20261014-163413-999/result.json",
       "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/flash-isolated.ps1 -Example product -Port COM5",
       "exit_code": 0,
       "verify_requested": true,
       "main_bin_sha256_matches_candidate": true,
-      "application_behavior_accepted": false,
+      "application_behavior_accepted": true,
+      "application_behavior_acceptance_scope": "Only the USB-only original sequence, cached notification/weather combinations and realized notification/KEY1 sleep-resume sample documented below; not uninterrupted five-minute sleep or battery/motor acceptance.",
       "local_record_sha256": "fd523c0f57996effb1c35f60e484203f87137ce6f1a70164c9c605be38127f18"
     },
     "startup": {
@@ -204,8 +205,9 @@
     "feedback_timing": "Feedback arrived after capture 02 closed and before capture 03 reopened, without a requested reset. Navigation outcome is user feedback; it is not an instrumented per-click trace.",
     "followup_local_directory": "artifacts/freeze-diagnostic/psram-regression-03",
     "cached_notification_and_weather_result": "User reports notification list/detail/history followed by all five weather pages normal for two repetitions",
-    "natural_sleep_resume_result": "pending",
-    "diagnostic_attempts": "Commands sent at 09:00:20 UTC had no immediate response while the device was asleep; the same awake queries at 09:08:12 UTC returned normally. No final post-sleep heap snapshot was obtained before the turn interruption.",
+    "natural_sleep_resume_result": "User confirms post-KEY1 notification history, all five weather pages, touch and return normal in this continuation, answering the predecessor's specific regression question.",
+    "post_sleep_user_feedback_original": "刚才 KEY1 唤醒后，一切正常",
+    "diagnostic_attempts": "Commands sent at 09:00:20 UTC had no immediate response while the device was asleep; the same awake queries at 09:08:12 UTC returned normally. No final post-sleep snapshot was obtained before the earlier interruption. Continuation capture 04 returned final snapshots at 10:01:36 UTC after the user confirmed USB-only temporary keep-awake, without a requested reset.",
     "before_sleep_snapshot": {
       "utc": "2026-10-14T09:08:12.860608+00:00",
       "sram_total_bytes": 291836,
@@ -231,7 +233,7 @@
     "continuous_five_minute_screen_off_proven": false,
     "pm_at_notification_wake": {"enter": 31256, "exit": 31256, "deep_elapsed": 19121, "deep_ticks": 1963826, "max_ticks": 135},
     "pm_delta_since_before_sleep": {"enter": 4285, "exit": 4285, "deep_elapsed": 2886, "deep_ticks": 295813},
-    "pm_limit": "Counters establish SDK DEEP software-path returns during the sample, not exact hardware residency, uninterrupted sleep or current. Notification and KEY1 screen-on are observed; cached page reuse remains pending user feedback.",
+    "pm_limit": "Counters establish SDK DEEP software-path returns during the sample, not exact hardware residency, uninterrupted sleep or current. Notification and KEY1 screen-on are logged; post-KEY1 cached page reuse and touch are accepted from the subsequent user feedback, not an instrumented per-click trace.",
     "post_sleep_key1_utc": "2026-10-14T09:17:10.524820+00:00",
     "post_sleep_screen_on_utc": "2026-10-14T09:17:10.833925+00:00",
     "key1_log_to_screen_on_log_seconds": 0.309105,
@@ -246,22 +248,58 @@
       "uart_sha256": "9323de0b100b22e336c9b4bd5d1d05ea58d5b9078f42b7188af9f33c449903db",
       "events_sha256": "5bada98d6a423f076b02158cbbbf08f69e3e8c0b93b4817212cfd2074952271b",
       "assert_hardfault_or_psram_fallback_seen": false,
-      "limits": "Capture ended normally at its bounded limit after the turn was interrupted. KEY1/screen-on log timing is not physical key-to-photon latency; post-sleep touch, notification/history and weather-page outcome was not received."
+      "limits": "Capture ended normally at its bounded limit after the turn was interrupted. KEY1/screen-on log timing is not physical key-to-photon latency. Post-sleep touch, notification/history and weather-page feedback arrived in the next continuation; it is recorded above separately from this UART capture."
     }
+  },
+  "final_continuation_capture": {
+    "local_directory": "artifacts/freeze-diagnostic/psram-regression-04",
+    "command": "python artifacts/freeze-diagnostic/capture.py --out artifacts/freeze-diagnostic/psram-regression-04 --seconds 240",
+    "reset_requested": false,
+    "started_utc": "2026-10-14T10:00:53.252225+00:00",
+    "user_ready_feedback": "已常亮, in response to the request to keep USB-only with battery disconnected",
+    "queries": ["wf_pm status", "list_thread", "free", "list_memheap", "wf_ble status"],
+    "snapshot": {
+      "utc": "2026-10-14T10:01:36.334925+00:00",
+      "sram_total_bytes": 291836,
+      "sram_used_bytes": 72716,
+      "sram_high_water_bytes": 79956,
+      "psram_pool_bytes": 2097152,
+      "psram_high_water_bytes": 317208,
+      "psram_available_bytes": 1900648,
+      "psram_current_accounted_bytes": 196504,
+      "main_stack_bytes": 8192,
+      "main_stack_high_water_percent": 80,
+      "ble": {"connected": 1, "subscribed": 1, "generation": 3, "messages": 0, "added": 2, "removed": 2, "dropped": 0, "gaps": 0, "stale": 0, "weather_cached": 1},
+      "pm": {"allow": 1, "off": 0, "enter": 77321, "exit": 77321, "deep_elapsed": 45747, "deep_ticks": 4696579},
+      "both_heap_usage_and_peaks_match_before_sleep": true,
+      "limits": "This is a later continuation snapshot, not an immediate post-KEY1 measurement. Available memheap bytes are total free space, not largest contiguous allocation; main stack is a historical estimate. BLE status is a point-in-time snapshot, not continuous connection acceptance."
+    },
+    "closed_utc": "2026-10-14T10:02:14.674343+00:00",
+    "exit_code": 0,
+    "duration_limit_seconds": 240,
+    "actual_duration_seconds": 81.425,
+    "close_reason": "Requested stop after complete final snapshot; COM5 released",
+    "uart_bytes": 2837,
+    "uart_sha256": "70ed6e8c9cfe8265acfe4e809858265341c20517f08d71bec8b0e98a717b53ca",
+    "events_sha256": "2097792514c3fc937ef4c564ba69b04e0f9878f96841c33d8bc6300eeee2ea64",
+    "assert_hardfault_or_psram_fallback_seen": false,
+    "candidate_project_sources_rehashed": 387,
+    "candidate_artifacts_rehashed": 29,
+    "candidate_rehash_mismatches": 0,
+    "limits": "No continuous UART exists between captures 03 and 04. No flash or reset was requested in this continuation; acceptance is limited to observed windows and user operations, not all intervening idle time."
   },
   "source_inspection": {
     "weather": "No confirmed recursive weather/RTC lock, wait for BLE response, or unbounded creation loop was found. Weather creation and refresh retain large nested stack frames and allocate many LVGL objects. Fault-time evidence above proves a glyph draw-buffer allocation assertion; it does not prove stack overflow.",
     "retained_views": "notification_view.c:187-223 caches list and detail screens until destroy (:244-250); apps.c:765 excludes the launcher from normal navigation collection. Reminder contents may coexist with weather. These are reachable additional allocations, not measured OOM evidence.",
     "lvgl_heap": "The fault-capture baseline sets LV_USE_RTTHREAD_MALLOC and BSP_USING_PSRAM but does not set LV_RTTHREAD_USE_PSRAM_PRIVATE_HEAP. external/lvgl_v9/src/stdlib/rtthread/lv_mem_core_rtthread.c:27-32,98,157 therefore selects ordinary rt_malloc from SRAM. This baseline log is a configuration choice, not a PSRAM initialization failure; the later candidate changes the allocator configuration as recorded above.",
     "candidate_allocator": "Locked-SDK private allocations use the registered lv_psram memheap. Allocation failure falls back to rt_malloc and logs only the first fallback; private-pointer realloc does not fall back across heaps. list_memheap reports pool_size, max_used_size and available_size, not the largest contiguous free block. Source inspection does not establish capacity acceptance.",
-    "candidate_deep_retention": "Default DEEP reaches the board PSRAM low-power entry/exit APIs with BSP power parameter false. The HAL distinguishes low-power refresh/half-sleep from deep power-down; no active DPD or heap clearing was found on the scoped path. Retention is a source-supported expectation pending same-firmware device regression, not a measured hardware guarantee.",
+    "candidate_deep_retention": "Default DEEP reaches the board PSRAM low-power entry/exit APIs with BSP power parameter false. The HAL distinguishes low-power refresh/half-sleep from deep power-down; no active DPD or heap clearing was found on the scoped path. The bounded same-firmware cached-page/touch regression is now user-confirmed normal with DEEP software-path counters and final heap snapshots; this is not a retention guarantee for every sleep mode or duration.",
     "key": "A later valid BUTTON_PRESSED still posts KEY while waiting_for_wake even if suppress_wake_click remains set. No confirmed permanent suppression was found. SDK soft timer or UI consumer blockage remains a hypothesis.",
     "uart_limit": "UART AON wake is not enabled; serial silence while asleep alone is not evidence of a freeze.",
     "charger": "aw32001.c:390-403 enables charging before requesting 4215mV and does not explicitly set charge current. This is an unresolved charging constraint, not a demonstrated freeze cause.",
     "pm_mode_correction": "Default DEEP resume calls BSP_Power_Up(false) at middleware/system/bf0_pm.c:1137. The board's true branch is reached at startup/standby; do not assume every ordinary DEEP resume executes charger configuration. HCPU HAL_GetTick uses AON GTIMER rather than an interrupt-driven RT tick."
   },
   "remaining": [
-    "Post-sleep touch/cached-page outcome and final heap snapshots pending; KEY1 completed screen-on in logs. Original menu/weather and notification/weather combinations are user-confirmed; write/verify and allocator startup are recorded separately above",
     "Historical long-idle fault cause and uninterrupted fifteen-minute screen-off not established",
     "No battery-alone supply, simultaneous USB/battery charging, motor pulse, voltage/current waveform or battery-life acceptance",
     "No global OOM recovery or unlimited stability/capacity claim"
