@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-14",
+  "baseline": "e9aacc7d22fbf3ca943e7e2f76bdd2ae57bf7399",
+  "branch": "codex/dual-supply-inhibit",
+  "local_worktree": "C:/Users/13984/.codex/worktrees/charger-limits/wristflow",
+  "scope": "Short supervised battery-first USB simultaneous-connection functional observations while inhibited; no charge enable",
+  "user_goal": "Battery independent supply, USB+battery simultaneous connection with KEY1, and later real charging; not only a KEY1 workaround",
+  "authorization": "User wants battery+USB as soon as possible and explicitly includes charging; replied to explicit short inhibited connection/disconnection steps",
+  "firmware": {
+    "main_sha256": "0794fb9dbed939b0ad325db4db76a27d4fc8365ec15c20c9c1fb9cccd364c9dc",
+    "software_pr": "https://github.com/e-n-ye/wristflow/pull/61",
+    "battery_only_record_pr": "https://github.com/e-n-ye/wristflow/pull/62",
+    "source_build_flash_changes": false,
+    "local_bin_rehash": "matches installed flash record",
+    "prior_evidence": "charger-limits.json"
+  },
+  "conditions": {
+    "instruments_during_trials": "None",
+    "same_battery_original_BAT_connection": "Requested original same battery/BAT wiring; user explicitly states battery connected, responds to battery-kept USB-insertion trial instructions",
+    "pretrial_physical_inspection": "No separate full confirmation to initial inspection question; first trial feedback states no abnormal heat. Do not infer measured temperature or independent physical inspection.",
+    "serial_usb": "Same USB cable provides power and CH340 UART; no battery-alone serial access",
+    "latest_user_supply": "USB removed, battery retained per second response",
+    "multimeter": "User can borrow one, not yet obtained; model/current range/fuse/temperature probe unknown"
+  },
+  "sources": {
+    "datasheet_url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1157/AW32001E.pdf",
+    "datasheet_sha256": "881b345e7ef9dbf39e8ee702d84011279f1c3b50d65e1e88f2885fe1bf14e1a3",
+    "visually_checked_pages": [
+      16,
+      26,
+      30
+    ],
+    "op_sm": "p16 explicitly says VBUS plug-in with CEB1 enables only IN-to-SYS; CEB0 enables charge/Q2",
+    "reset_limits": "p17 POR resets registers. p30 lists software reset, refreshing input without battery, battery reinsertion without VIN as default-mode conditions; no proof that a running battery-first insertion has no transient POR.",
+    "fault_limits": "p26 fault Action says Reset CEB to 0, conflicting with p35 default1/reset table and p30 default description. Neither guaranteed auto-enable nor guaranteed permanent inhibition inferred. Watchdog disabled if REG05[6:5]=00 remains; safety timer fault applies pre/fast charge, not generalized to steady inhibited OPSM.",
+    "read_side_effect": "p29: reading REG09 can clear latches after a fault condition has exited; NTC fault not latched. No explicit fault-clearing write is different from reads having no side effect.",
+    "simulator_requirement": "Instrumented sink-capable simulator was our strong electrical validation strategy, not a manufacturer prerequisite for every brief functional real-battery connection; remains useful for transient/fault proof"
+  },
+  "captures": [
+    {
+      "path": "artifacts/dual-supply-inhibit/trial-01",
+      "command": "python artifacts/dual-supply-inhibit/capture-insertion.py --out artifacts/dual-supply-inhibit/trial-01 --port COM5 --seconds 120",
+      "opened_utc": "2026-10-14T14:13:14.525743+00:00",
+      "closed_utc": "2026-10-14T14:14:26.104148+00:00",
+      "exit_code": 1,
+      "uart_bytes": 4840,
+      "uart_sha256": "da13b8db98c876419641edd395f11dca12498bcbb451ec7beb8bb02c714512aa",
+      "events_sha256": "32cdc0a167aa279bc63bfbdd3418a79f9bcbd6dc57993202085d9098c0246d5e",
+      "explicit_reset_requested": false,
+      "baud": 1000000,
+      "dtr_rts_configured_before_open": true,
+      "dtr_before_open": false,
+      "rts_before_open": false,
+      "boot_banner_utc": "2026-10-14T14:13:14.534983+00:00",
+      "register_snapshot_complete": false,
+      "close_limit": "Trial-01 ended in a serial GetOverlappedResult/PermissionError after user unplugged USB; exit1 is preserved. Trial-02 reached 100s cap and closed exit0 after user-reported USB removal."
+    },
+    {
+      "path": "artifacts/dual-supply-inhibit/trial-02",
+      "command": "python artifacts/dual-supply-inhibit/capture-delayed.py --out artifacts/dual-supply-inhibit/trial-02 --port COM5 --seconds 100",
+      "opened_utc": "2026-10-14T14:17:18.246713+00:00",
+      "closed_utc": "2026-10-14T14:18:58.243690+00:00",
+      "exit_code": 0,
+      "uart_bytes": 5917,
+      "uart_sha256": "eb33e533c3abe5157fde973f22942cf195768ba0bb2ffee20481917bb43dcd71",
+      "events_sha256": "51cc2e16447b0fd4abae9c2003f432925009975d01f3fb1e433a36f45e8fb65a",
+      "explicit_reset_requested": false,
+      "baud": 1000000,
+      "dtr_rts_configured_before_open": true,
+      "dtr_before_open": false,
+      "rts_before_open": false,
+      "boot_banner_utc": "2026-10-14T14:17:18.255487+00:00",
+      "register_snapshot_complete": true,
+      "close_limit": "Reached 100s cap, exit0; user-reported USB removal preceded closure, not continuous dual-supply proof."
+    }
+  ],
+  "trial_01": {
+    "user_result": "已短时同接，KEY1／页面正常，无重启或异常发热，已拔 USB",
+    "interpretation": "Normal short KEY1/pages and no perceived reboot/heat; complete startup present in UART so no-reboot claim not accepted",
+    "early_readback": "verified=1/profile=1; REG01 AC / REG05 1A / REG02 09 / REG04 9B / REG0B43; no complete later snapshot",
+    "observed_key1_wake_utc": "2026-10-14T14:14:14.549409+00:00",
+    "screen_on_utc": "2026-10-14T14:14:14.857257+00:00",
+    "duration": "30s requested; actual connection duration not measured, UART continued longer; do not label as exact30s"
+  },
+  "trial_02": {
+    "user_result": "10 秒之后打开串口时重启，已拔 USB",
+    "serial_detected_utc": "2026-10-14T14:17:08.241105+00:00",
+    "serial_open_after_10s_utc": "2026-10-14T14:17:18.246713+00:00",
+    "boot_banner_utc": "2026-10-14T14:17:18.255487+00:00",
+    "reset_conclusion": "User locates restart at delayed serial-open stage; close time correlation corroborated by boot sequence. DTR/RTS hardware transient/reset wiring not measured; do not claim proven electrical root cause or USB insertion never resets.",
+    "running_snapshot_utc": "2026-10-14T14:17:25.042173+00:00",
+    "registers": {
+      "REG00": "0x8F",
+      "REG01": "0xAC",
+      "REG02": "0x09",
+      "REG03": "0x91",
+      "REG04": "0x9B",
+      "REG05": "0x1A",
+      "REG06": "0xC0",
+      "REG07": "0x38",
+      "REG08": "0x42",
+      "REG09": "0x20",
+      "REG0A": "0x49",
+      "REG0B": "0x43",
+      "REG0C": "0x10"
+    },
+    "decoded": {
+      "ceb": 1,
+      "watchdog_disabled": true,
+      "nominal_mv": 4170,
+      "nominal_ma": 80,
+      "profile_match": true,
+      "pg_stat": 1,
+      "chg_stat": "not charging",
+      "vin_fault_bit": 1,
+      "temperature_mode": "pcb_otp"
+    },
+    "fault_limit": "REG09=20 is input-fault raw/possibly latched; PG1 does not negate its history. No explicit clear-fault write. Not diagnosed as a current bad supply or dismissed as harmless.",
+    "later_query_limit": "Second queries at +16s while screen off had no complete fresh snapshot; later KEY1 wake observed. No continuous register verification.",
+    "duration": "40s requested after insertion; actual physical unplug time not independently measured"
+  },
+  "acceptance": {
+    "short_functional_connection": "User-observed KEY1/pages normal, separate delayed-open trial identifies serial-open-associated reboot; running snapshot inhibited/not charging/matching",
+    "electrical_inhibition_current_measured": false,
+    "voltage_current_cell_temperature_measured": false,
+    "actual_charging": false,
+    "long_term_or_unattended_dual_supply": false,
+    "full_H2": false
+  },
+  "next_bounded_scope": "Identify borrowed multimeter/current measurement and cell temperature capability, then prepare supervised manual fixed-profile charge enable/stop and fault/no-restart checks. No actual enabling in these trials.",
+  "remaining": [
+    "Serial-open reset mechanism/control-line transient; preserve observed reset separately from charger behavior",
+    "Actual BAT voltage and branch current, cell temperature measurement/cutoff, dedicated battery/protection limits before real charging",
+    "Physical inhibit retention across insertion/startup/MCU and charger resets, fault timing, leakage, precharge/termination and long-term use not proven"
+  ]
+}
