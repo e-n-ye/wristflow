@@ -1,5 +1,58 @@
 # Product PM／事件唤醒实验 P1
 
+<a id="current-power-system"></a>
+## 2026-10-14 当前系统与低功耗说明
+
+本节按主线 `e194d06` 的源码核对当前实现；最近上板身份记录为通知版本 `0ddcd89`，本轮未重新读取设备身份、编译、下载或测流。后续历史 P1 的“默认 hold”“BLE 永久等待”不能覆盖本节。现场测量见 [首轮操作单](ACCEPTANCE.md#first-power-session)。
+
+### 系统怎样工作
+
+```mermaid
+flowchart TD
+    Phone[手机 Gadgetbridge 测试版：时间、通知、天气] <-->|BLE| Ble[BLE 队列与解析线程]
+    Ble --> Data[真实数据缓存与有效性]
+    Data --> UI[Product 主线程：LVGL 界面、导航、显示策略]
+    UI --> Store[异步保存：设置、布局、闹钟配置]
+    Clock[RTC 日历时间／单调计时] --> Timer[闹钟与倒计时后台服务]
+    Timer --> Event[事件邮箱]
+    Ble --> Event
+    Key[KEY1 按键] --> Event
+    Event --> UI
+    UI --> PM[应用休眠许可]
+    PM --> SDK[RT-Thread 与固定 SiFli SDK：驱动、BLE、PM]
+    SDK --> HW[黄山派：主控、AMOLED、触摸、Flash 等]
+```
+
+这张图是职责和数据流，不是完整线程清单。`apps/product` 是实际产品，`ui_demo` 是固定数据演示，`bringup` 是诊断目标。板载 RTC 提供日历时间，手机可校时；倒计时使用持续时间／截止状态。FlashDB 保存设置、布局和闹钟配置；通知历史当前在 RAM，不能承诺重启保留。界面有真实通知归组与最多十条消息历史、天气／AQI、秒表、倒计时、闹钟和呼吸引导；具体设备结果按各专题版本记录。心率／血氧等未接入能力仍表示不可用；画出了卡片不等于存在传感器数据。`USB` 是开发条件标记，不是电源自动识别或电池百分比。
+
+### 已经实现的省电机制
+
+| 机制 | 实际行为与来源 |
+|---|---|
+| 自动变暗、息屏 | [display_policy.c](../core/display_policy.c) 按设置推进显示状态；手电筒、临时常亮及呼吸训练等亮屏申请有独立条件。测量要记下这些状态 |
+| 息屏停止 UI 定时处理 | [main.c](../apps/product/src/main.c) 的 `screen_off()` 停 LVGL timers，等 LCD 空闲，关闭触摸／显示，主线程阻塞等待事件；不是继续每 20ms 刷一遍黑画面 |
+| 自动放开深睡限制 | [product_pm.c](../apps/product/src/product_pm.c) 为 `allowed = true`；`hold = !allowed || !display_off`。亮屏及恢复首帧期间持有 idle 请求，屏灭才释放应用自己的请求；其他驱动仍可阻止深睡 |
+| KEY1 与事件恢复 | KEY1 配为 AON 唤醒；手机后台事件、闹钟、倒计时可唤醒处理。事件发生不必亮屏：是否预览由通知／勿扰／当前会话决定。需亮屏时先持锁、恢复显示触摸、画完首帧再提亮 |
+| 后台计时不依赖画面刷新 | [product_countdown.c](../apps/product/src/product_countdown.c) 与 [product_alarm.c](../apps/product/src/product_alarm.c) 使用独立 RT 软 timer 和权威状态；息屏仍可到期，再投递事件给 UI |
+| 减少无意义重画 | 亮屏主循环仍有 1–20ms 事件等待、250ms 数据检查，但时间等字段未变化时不因此重画静态页；息屏不走这个亮屏循环 |
+| 可做 PM 对照 | `wf_pm hold` 暂时阻止应用放行深睡，`wf_pm allow` 恢复；`status`／一次性 `sample` 只提供诊断。它们不是电流表 |
+
+Product 的 [proj.conf](../apps/product/project/proj.conf) 开启 `BSP_USING_PM`、`PM_DEEP_ENABLE` 和 BLE。这里的 Deep 是 SDK 的模式名称：许可打开、软件路径执行、实际驻留、低电流，是不同层次的证据。
+
+### 仍然会唤醒或耗电的部分
+
+- **保存线程每 100ms 检查一次**：[product_services.c](../apps/product/src/product_services.c) 的 `storage_thread()` 仍有 `rt_thread_mdelay(100)`；检查不等于每次写 Flash，但会周期唤醒，适合测完基线后做一次有界优化对照。
+- **BLE 保持连接仍要收发无线包**：Product worker 等消息队列，等候上限由天气请求剩余时间或三小时检查期限决定（[product_ble.c](../apps/product/src/product_ble.c)）；这不等于无线电每三小时才活动。断连时也可能继续广播，应把状态记为“未连接／广播”，不能写“蓝牙关闭”。
+- **后台日程仍有定时检查**：运行中的倒计时按最长五分钟分段；闹钟调度即使没有有效到期项也有最长五分钟等待（[alarm_schedule.c](../core/alarm_schedule.c)）。这些是软件等待上限，不是整板连续睡眠时长。
+- **板级电源有额外负载与联动**：USB 转串口、供电转换及板载器件可能耗电；锁定 SDK 的 LCD 上／下电还操作 3.3V、传感器相关供电和音频 PA。没有测量前不能断言这些器件已全部进入最低电流状态。
+- **未完成整机省电收尾**：没有 MAX30102 采样／LED 关断服务，没有已接入的电机提醒，没有电池充电安全闭环和电量标定；抬腕 C2 未合入本主线，单击触摸唤醒未开放。不能因为没有使用 IMU 就断言其芯片物理断电；BLE 参数、全部驱动约束及常驻负载还未逐项做功耗优化。
+
+### 哪些已经在板上验证，哪些没有
+
+历史 P1 的 USB 实验确认过 PM allow／hold 对软件计数的影响、息屏接收通知、KEY1 多轮恢复；后续通知／倒计时／闹钟／呼吸专题各有其版本的有界 USB 结果，最近通知版也确认短息屏／KEY1 恢复。**尚无电流、脉冲能量、精确深睡驻留、整套当前版本长测或电池续航数据**。PM enter／exit／deep_ticks 含 SDK 准备和恢复路径，不能换算成微安或睡眠占空比。
+
+接下来先回答三个实测问题：同亮度下亮屏与息屏差多少；同样黑屏时 allow 比 hold 少多少；连接、通知／提醒后是否回到原来的息屏读数。答案再决定优先优化存储唤醒、无线连接还是板载负载。首轮分轨结果用于定位；自制 PCB 的选型还需要电池供电、PPG 电气／原始信号、驱动与尺寸证据，打板本身不保证续航达标。
+
 ## 2026-10-10 倒计时截止与事件
 
 下方 P1 为 2026-09 历史版本；现版 PM 启动默认允许息屏自动深睡，亮屏 / 首帧恢复仍持有应用 idle 请求，配置与实现以 `product_pm.c` 为准。本轮新增 `WF_EVENT_COUNTDOWN`，邮箱接收掩码同步纳入；事件只提示主线程读取权威服务状态，不传递“这个位出现几次”的任务计数。
