@@ -1,0 +1,590 @@
+{
+  "date": "2026-10-13",
+  "timezone": "Asia/Shanghai",
+  "scope": "Firmware optional lifecycle metadata storage and two-person device acceptance; grouping/history and exact recall not implemented by this increment",
+  "source_anchor": "a94efc5971514d97af5c836f61821445602f0bcf",
+  "base": "7212b23b2ce0ea09d3fdd98d3ff4aff6851d8a0c",
+  "worktree": "isolated breathing-product/wristflow; branch codex/notification-history",
+  "source_review": {
+    "result": "No blocking issue found in parser, snapshot ownership, diagnostics or original ID deletion",
+    "diagnostic": "wf_ble meta copies compact static metadata under phone_lock and prints only ID/equality/time after unlock",
+    "host_tests": [
+      {
+        "command": "cmake --build artifacts/breathing/host --target phone_protocol phone_queue notifications_ui weather_service weather_ui -j 6",
+        "exit_code": 0
+      },
+      {
+        "command": "ctest --test-dir artifacts/breathing/host -R ^(phone_protocol|phone_queue|notifications_ui|weather_service|weather_ui)$ --output-on-failure",
+        "passed": 5,
+        "total": 5,
+        "seconds": 1.89,
+        "exit_code": 0,
+        "revision": "4df9ff6"
+      },
+      {
+        "command": "cmake --build artifacts/breathing/host --target phone_protocol -j 6; ctest --test-dir artifacts/breathing/host -R ^phone_protocol$ --output-on-failure",
+        "passed": 1,
+        "total": 1,
+        "seconds": 0.12,
+        "exit_code": 0,
+        "revision": "a94efc5",
+        "reason": "review strengthened bad-base atomicity assertion"
+      }
+    ]
+  },
+  "builds": [
+    {
+      "example": "product",
+      "record": "artifacts/product/20261013-195955-112/result.json",
+      "started_at": "2026-10-13T19:59:55.1335593+08:00",
+      "finished_at": "2026-10-13T20:03:14.8850517+08:00",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "source_count": 383,
+      "artifact_count": 29,
+      "rehash_passed": true,
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": [
+        "SCons by Steven Knight et al.:",
+        "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+        "\tSCons path: ['D:\\\\MY_Desk\\\\project\\\\wristflow\\\\.tools\\\\sifli\\\\envs\\\\default\\\\b1ffa931b7485f8607540b6a2f6a9a53bbefe3696b9db68845be1c3c5cff1ab9\\\\python\\\\Lib\\\\site-packages\\\\SCons']",
+        "Copyright (c) 2001 - 2025 The SCons Foundation"
+      ],
+      "images": [
+        {
+          "name": "bootloader.bin",
+          "address": "0x12010000",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "name": "main.bin",
+          "address": "0x12020000",
+          "bytes": 7713964,
+          "sha256": "1a132e3700bd437915b24f6ea45e05c8bc603b239ad41a6ff09ae4b2213a6292"
+        },
+        {
+          "name": "ftab.bin",
+          "address": "0x12000000",
+          "bytes": 11288,
+          "sha256": "277ce1538d4c0eb932904d7351ab46fab69da2ecd885df5f12ce38be952365c8"
+        }
+      ]
+    },
+    {
+      "example": "ui_demo",
+      "record": "artifacts/ui_demo/20261013-200407-252/result.json",
+      "started_at": "2026-10-13T20:04:07.2692183+08:00",
+      "finished_at": "2026-10-13T20:07:18.7196400+08:00",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "source_count": 366,
+      "artifact_count": 22,
+      "rehash_passed": true,
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": [
+        "SCons by Steven Knight et al.:",
+        "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+        "\tSCons path: ['D:\\\\MY_Desk\\\\project\\\\wristflow\\\\.tools\\\\sifli\\\\envs\\\\default\\\\b1ffa931b7485f8607540b6a2f6a9a53bbefe3696b9db68845be1c3c5cff1ab9\\\\python\\\\Lib\\\\site-packages\\\\SCons']",
+        "Copyright (c) 2001 - 2025 The SCons Foundation"
+      ],
+      "images": [
+        {
+          "name": "bootloader.bin",
+          "address": "0x12010000",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "name": "main.bin",
+          "address": "0x12020000",
+          "bytes": 7508312,
+          "sha256": "767bf973f9b6d73fc81ac1bdb9cffeedb221e8ca27dd01c63f4bae8ccc9ea470"
+        },
+        {
+          "name": "ftab.bin",
+          "address": "0x12000000",
+          "bytes": 11288,
+          "sha256": "d1072202a9776901a366c8339a53832aa2a0cfb6ea0debf3b05046d796e969a7"
+        }
+      ]
+    }
+  ],
+  "sdk_lock_sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af",
+  "memory": {
+    "source_anchor": "a94efc5",
+    "baseline_anchor": "c9be245",
+    "static_symbols": {
+      "phone": {
+        "before": 46140,
+        "after": 49184,
+        "growth": 3044,
+        "region": "HCPU SRAM .bss"
+      },
+      "notifications": {
+        "before": 20900,
+        "after": 23944,
+        "growth": 3044,
+        "region": "HCPU SRAM .bss"
+      }
+    },
+    "meta_diagnostic_bytes": 480,
+    "bss_before": 97012,
+    "bss_after": 103596,
+    "bss_growth": 6584,
+    "product_rom_report": {
+      "used": 7772993,
+      "free": 615615,
+      "total": 8388608
+    },
+    "product_ram_report": {
+      "used": 231252,
+      "free": 292012,
+      "total": 523264
+    },
+    "ui_view_snapshot_growth_bytes": 3044,
+    "main_stack_reserved_bytes": 8192,
+    "does_not_measure_runtime_heap_or_stack_peak": true
+  },
+  "flash": {
+    "record": "artifacts/flash/product/20261013-200803-507/result.json",
+    "record_sha256": "14ff9285dc34ed57e1869d66b5d5f5f69c03499d84c91c1cf1bfc3b7642a9d25",
+    "completed": "2026-10-13T20:10:42.3107197+08:00",
+    "board": "sf32lb52-lchspi-ulp",
+    "port": "COM5",
+    "exit_code": 0,
+    "method": "standalone sftool 0.2.5 write_flash --verify, --after soft_reset",
+    "images_match_rehashed_product_build": true,
+    "runtime_acceptance_separate": true
+  },
+  "hardware": {
+    "board_and_screen": "same user-confirmed Huangshan kit",
+    "power": "USB only, no added wiring or battery",
+    "phone": "iQOO V2403A, Android 14, WristFlow test APK 0.94.0-wf-meta1",
+    "serial": {
+      "port": "COM5",
+      "vid_pid": "1A86:7523",
+      "baud": 1000000,
+      "format": "8N1",
+      "dtr": false,
+      "rts": false,
+      "automatic_reset": false
+    },
+    "commands": [
+      "wf_ble status",
+      "wf_ble meta",
+      "show_date"
+    ],
+    "phone_readonly_method": "QQ package filter then cmd notification get; only metadata whitelist saved",
+    "phone_samples": [
+      {
+        "label": "q5-a",
+        "sha256": "680c9ca7077207386ba20e58d468d7d78d9f5a7eb5b8ab6156435648684786f2",
+        "captured_at_utc": "2026-10-13T11:51:19.641695+00:00",
+        "qq_count": 1,
+        "records": [
+          {
+            "android_id": 513,
+            "key_anon": "41d883c0c0a1c138",
+            "groupKey_anon": "41d883c0c0a1c138",
+            "when": 1791892254600,
+            "mCreationTimeMs": 1791892254615,
+            "mUpdateTimeMs": 1791892254615,
+            "is_group_summary": false,
+            "test_markers_in_text": [
+              "Q5-A"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "q5-b-check",
+        "sha256": "46e600ab0c35a7db7171b875c1c7ab726f747a89583a925126fa4af5c4fbfb1f",
+        "captured_at_utc": "2026-10-13T11:54:03.918713+00:00",
+        "qq_count": 3,
+        "records": [
+          {
+            "android_id": 2147483647,
+            "key_anon": "abec3c524409a5f6",
+            "groupKey_anon": "3fb561c2a3989f7d",
+            "when": 1791892337038,
+            "mCreationTimeMs": 1791892337039,
+            "mUpdateTimeMs": 1791892337039,
+            "is_group_summary": true,
+            "test_markers_in_text": []
+          },
+          {
+            "android_id": 513,
+            "key_anon": "41d883c0c0a1c138",
+            "groupKey_anon": "3fb561c2a3989f7d",
+            "when": 1791892254600,
+            "mCreationTimeMs": 1791892254615,
+            "mUpdateTimeMs": 1791892254615,
+            "is_group_summary": false,
+            "test_markers_in_text": [
+              "Q5-A"
+            ]
+          },
+          {
+            "android_id": 514,
+            "key_anon": "2608eceb4d7c169d",
+            "groupKey_anon": "3fb561c2a3989f7d",
+            "when": 1791892336763,
+            "mCreationTimeMs": 1791892336806,
+            "mUpdateTimeMs": 1791892336806,
+            "is_group_summary": false,
+            "test_markers_in_text": [
+              "Q5-B"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "q5-c",
+        "sha256": "c3cbd8af0af3d7e4dde3123e86a11c092dbd3af900f67094b9fdb3a3e62f0bfb",
+        "captured_at_utc": "2026-10-13T11:55:03.833574+00:00",
+        "qq_count": 3,
+        "records": [
+          {
+            "android_id": 2147483647,
+            "key_anon": "abec3c524409a5f6",
+            "groupKey_anon": "3fb561c2a3989f7d",
+            "when": 1791892461527,
+            "mCreationTimeMs": 1791892337039,
+            "mUpdateTimeMs": 1791892337039,
+            "is_group_summary": true,
+            "test_markers_in_text": []
+          },
+          {
+            "android_id": 513,
+            "key_anon": "41d883c0c0a1c138",
+            "groupKey_anon": "3fb561c2a3989f7d",
+            "when": 1791892461527,
+            "mCreationTimeMs": 1791892254615,
+            "mUpdateTimeMs": 1791892461543,
+            "is_group_summary": false,
+            "test_markers_in_text": [
+              "Q5-C"
+            ]
+          },
+          {
+            "android_id": 514,
+            "key_anon": "2608eceb4d7c169d",
+            "groupKey_anon": "3fb561c2a3989f7d",
+            "when": 1791892336763,
+            "mCreationTimeMs": 1791892336806,
+            "mUpdateTimeMs": 1791892336806,
+            "is_group_summary": false,
+            "test_markers_in_text": [
+              "Q5-B"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "q6-a-check",
+        "sha256": "30e30ddd04860e1573a9da00b895c50772ed7dc31e5a0206e94a62221cc2eaa0",
+        "captured_at_utc": "2026-10-13T12:33:57.278662+00:00",
+        "qq_count": 1,
+        "records": [
+          {
+            "android_id": 516,
+            "key_anon": "0ecf193f1fb066ea",
+            "groupKey_anon": "0ecf193f1fb066ea",
+            "when": 1791894750222,
+            "mCreationTimeMs": 1791894735412,
+            "mUpdateTimeMs": 1791894750231,
+            "is_group_summary": false,
+            "test_markers_in_text": [
+              "Q6-A"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "q6-b",
+        "sha256": "4c8cd4885f98e1ca3d6b4db83a5273b687b760d4ba666b6daac78d76739c560e",
+        "captured_at_utc": "2026-10-13T12:35:14.363091+00:00",
+        "qq_count": 3,
+        "records": [
+          {
+            "android_id": 2147483647,
+            "key_anon": "abec3c524409a5f6",
+            "groupKey_anon": "3fb561c2a3989f7d",
+            "when": 1791894871834,
+            "mCreationTimeMs": 1791894861958,
+            "mUpdateTimeMs": 1791894861958,
+            "is_group_summary": true,
+            "test_markers_in_text": []
+          },
+          {
+            "android_id": 516,
+            "key_anon": "0ecf193f1fb066ea",
+            "groupKey_anon": "3fb561c2a3989f7d",
+            "when": 1791894750222,
+            "mCreationTimeMs": 1791894735412,
+            "mUpdateTimeMs": 1791894750231,
+            "is_group_summary": false,
+            "test_markers_in_text": [
+              "Q6-A"
+            ]
+          },
+          {
+            "android_id": 517,
+            "key_anon": "14ba3368fe8ce652",
+            "groupKey_anon": "3fb561c2a3989f7d",
+            "when": 1791894871834,
+            "mCreationTimeMs": 1791894861734,
+            "mUpdateTimeMs": 1791894871842,
+            "is_group_summary": false,
+            "test_markers_in_text": [
+              "Q6-B"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "q6-c",
+        "sha256": "d58ef61859830d6e9db51fd8b702648ded77e2e7db564e7e97ac16bfe543fc86",
+        "captured_at_utc": "2026-10-13T12:36:19.390987+00:00",
+        "qq_count": 3,
+        "records": [
+          {
+            "android_id": 2147483647,
+            "key_anon": "abec3c524409a5f6",
+            "groupKey_anon": "3fb561c2a3989f7d",
+            "when": 1791894955238,
+            "mCreationTimeMs": 1791894861958,
+            "mUpdateTimeMs": 1791894861958,
+            "is_group_summary": true,
+            "test_markers_in_text": []
+          },
+          {
+            "android_id": 516,
+            "key_anon": "0ecf193f1fb066ea",
+            "groupKey_anon": "3fb561c2a3989f7d",
+            "when": 1791894955238,
+            "mCreationTimeMs": 1791894735412,
+            "mUpdateTimeMs": 1791894955292,
+            "is_group_summary": false,
+            "test_markers_in_text": [
+              "Q6-C"
+            ]
+          },
+          {
+            "android_id": 517,
+            "key_anon": "14ba3368fe8ce652",
+            "groupKey_anon": "3fb561c2a3989f7d",
+            "when": 1791894871834,
+            "mCreationTimeMs": 1791894861734,
+            "mUpdateTimeMs": 1791894871842,
+            "is_group_summary": false,
+            "test_markers_in_text": [
+              "Q6-B"
+            ]
+          }
+        ]
+      },
+      {
+        "label": "q6-clear",
+        "sha256": "cfb2407f8e674c262820fb6ded937328f05f9e3946cd7c02e48fa4f8f330e71a",
+        "captured_at_utc": "2026-10-13T12:39:09.714233+00:00",
+        "qq_count": 0,
+        "records": []
+      }
+    ],
+    "watch_snapshots": [
+      {
+        "count": 0,
+        "revision": 5,
+        "entries": []
+      },
+      {
+        "count": 1,
+        "revision": 6,
+        "entries": [
+          {
+            "slot": 0,
+            "id": 1791882734,
+            "valid": true,
+            "same_slot": -1,
+            "when_valid": true,
+            "when_ms": 1791894750222
+          }
+        ]
+      },
+      {
+        "count": 2,
+        "revision": 7,
+        "entries": [
+          {
+            "slot": 0,
+            "id": 1791882735,
+            "valid": true,
+            "same_slot": -1,
+            "when_valid": true,
+            "when_ms": 1791894871834
+          },
+          {
+            "slot": 1,
+            "id": 1791882734,
+            "valid": true,
+            "same_slot": -1,
+            "when_valid": true,
+            "when_ms": 1791894750222
+          }
+        ]
+      },
+      {
+        "count": 3,
+        "revision": 8,
+        "entries": [
+          {
+            "slot": 0,
+            "id": 1791882736,
+            "valid": true,
+            "same_slot": -1,
+            "when_valid": true,
+            "when_ms": 1791894955238
+          },
+          {
+            "slot": 1,
+            "id": 1791882735,
+            "valid": true,
+            "same_slot": -1,
+            "when_valid": true,
+            "when_ms": 1791894871834
+          },
+          {
+            "slot": 2,
+            "id": 1791882734,
+            "valid": true,
+            "same_slot": 0,
+            "when_valid": true,
+            "when_ms": 1791894750222
+          }
+        ]
+      },
+      {
+        "count": 0,
+        "revision": 11,
+        "entries": []
+      }
+    ],
+    "delete_events": [
+      {
+        "id": 1791882734,
+        "remaining": 2,
+        "rejected": 0
+      },
+      {
+        "id": 1791882735,
+        "remaining": 1,
+        "rejected": 0
+      },
+      {
+        "id": 1791882736,
+        "remaining": 0,
+        "rejected": 0
+      }
+    ],
+    "assertions": {
+      "a_and_c_share_lifecycle_key": true,
+      "b_has_different_key": true,
+      "three_original_android_times_equal_saved_uint64_milliseconds": true,
+      "a_and_b_preserved_when_c_arrives": true,
+      "three_original_ids_removed": true,
+      "final_watch_and_android_counts_zero": true,
+      "final_rejected_dropped_gaps_stale_zero": true,
+      "c_accepted_while_screen_off_and_notification_wake_logged": true
+    },
+    "user_feedback": [
+      "Q6-A/B/C received on watch",
+      "KEY1 resume; all three messages viewable after short screen-off",
+      "all Q6 messages disappeared after clearing phone QQ notifications"
+    ],
+    "final_stats": {
+      "added": 3,
+      "updated": 0,
+      "removed": 3,
+      "rejected": 0,
+      "unknown": 0,
+      "dropped": 0,
+      "gaps": 0,
+      "stale": 0
+    },
+    "uart": {
+      "local_record": "artifacts/notification-history/20261013-202909-307",
+      "sha256": "9cb2d1b49e80d54bd41aeb0fc9c41600d2c5b55723ffdfe4e02b1a57e14dd3ff",
+      "events_sha256": "447bc693dcb2be474b69f622f275a1ba709bc65f539e6491f4b0ff10b2a7ee3b",
+      "closed": "2026-10-13T20:39:53.9417060+08:00",
+      "error": null
+    },
+    "raw_android_keys_contacts_text_or_device_serial_committed": false
+  },
+  "failures_and_recovery": [
+    {
+      "kind": "read-only phone baseline",
+      "exit_code": 1,
+      "effect": "No QQ metadata read; user reconnected phone; subsequent baseline succeeded",
+      "hardware_state_changed": false
+    },
+    {
+      "kind": "local CMake path probe",
+      "exit_code": 1,
+      "effect": "Guessed executable path absent; existing PATH CMake reused; all actual builds succeeded",
+      "environment_reinstalled": false
+    },
+    {
+      "kind": "documentation patch anchor",
+      "tool_rejected": true,
+      "effect": "No write occurred; corrected using the previously read section heading"
+    },
+    {
+      "kind": "initial Q5-B marker extraction",
+      "result": "uppercase-only marker not matched",
+      "resolution": "casefold extraction, reread unchanged notification, matched Q5-B",
+      "original_capture_preserved": true
+    },
+    {
+      "kind": "continuation UART helper absent",
+      "resolution": "new capture opened without reset; previous artifacts preserved"
+    },
+    {
+      "kind": "screen-off serial commands unanswered; first status echoed as wwf_ble",
+      "resolution": "KEY1 then repeat; valid status/meta/UTC received; cause of partial echo not proven"
+    },
+    {
+      "kind": "initial Q6-A phone read exit 1, USB device unavailable",
+      "resolution": "user reconnected; q6-a-check read same notification successfully"
+    },
+    {
+      "kind": "empty UART action rejected by local parameter validation",
+      "resolution": "no action queued; regular meta/status queries succeeded"
+    }
+  ],
+  "not_verified": [
+    "permanent contact identity or cross-clear/recreate linkage",
+    "group chats",
+    "exact recall-to-message association",
+    "grouped list/history UI",
+    "maximum-frame or target queue stress",
+    "runtime stack/heap peaks",
+    "sleep current or battery life"
+  ],
+  "local_artifacts": "artifacts/notification-history/, artifacts/product/20261013-195955-112/, artifacts/ui_demo/20261013-200407-252/; ignored local files"
+}

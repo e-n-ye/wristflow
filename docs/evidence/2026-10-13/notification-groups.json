@@ -1,0 +1,569 @@
+{
+  "date": "2026-10-13",
+  "continued_on": "2026-10-14",
+  "timezone": "Asia/Shanghai",
+  "scope": "Notification grouping/history; valid lifecycle key plus source package; global ten messages; whole-group local deletion",
+  "source_anchor": "0ddcd89f9e3a97a05c5059e60edd796c163cb787",
+  "prerequisites": [
+    "4df9ff6",
+    "a94efc5971514d97af5c836f61821445602f0bcf"
+  ],
+  "base": "7212b23b2ce0ea09d3fdd98d3ff4aff6851d8a0c",
+  "worktree": "isolated notification-groups/wristflow; codex/notification-groups",
+  "source_review": "Read-only independent review plus primary review; fixed long-latest-body scroll jump; regression passed",
+  "continuation_review": {
+    "source_anchor": "0ddcd89f9e3a97a05c5059e60edd796c163cb787",
+    "result": "No evidenced merge blocker in grouping/history/local deletion; primary spot-checked locked deletion and history refresh",
+    "requested_agent_model": "gpt-6.1-sol",
+    "requested_reasoning": "medium",
+    "actual_runtime_model_and_reasoning": "Not exposed by the spawn result; request values are not runtime confirmation",
+    "coverage_limits": [
+      "No isolated UI same-ID/revision-only gesture case",
+      "No direct valid key A-to-B or package A-to-B deletion-guard case",
+      "No mixed-group eleventh-item eviction plus scroll integration case"
+    ],
+    "build_rehash": "2026-10-14: 387/370 sources and 29/22 artifacts still match the successful build records; no source edits"
+  },
+  "host": {
+    "command": "ctest --test-dir artifacts/host --output-on-failure",
+    "passed": 33,
+    "total": 33,
+    "seconds": 19.71,
+    "exit_code": 0
+  },
+  "editor": {
+    "version": "Pro 2.0.1 Community",
+    "preview_lvgl": "9.4.0",
+    "firmware_lvgl": "9.4.0",
+    "command": "GUI Ctrl+B Export Code and Recompile",
+    "result": "Project compiled successfully",
+    "first_failure": "Stalled at Cleaning generated files; normal Alt+F4 exit and relaunch; no compiler active",
+    "recovery": "One retry after relaunch succeeded; transient missing-target and tiny_ttf errors preserved",
+    "visual_review": "List/detail at 100%; five real LVGL 390x450 history/group snapshots inspected",
+    "generated_whitespace": "Six unrelated official weather outputs gained EOF blank lines; retained unedited; default diff --check reports these only"
+  },
+  "builds": [
+    {
+      "target": "product",
+      "record": "artifacts/product/20261013-214151-357/result.json",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+      "started_at": "2026-10-13T21:41:51.3755307+08:00",
+      "finished_at": "2026-10-13T21:45:14.1695644+08:00",
+      "exit_code": 0,
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "sdk_changes": [],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": "4.10.1",
+      "source_count": 387,
+      "artifact_count": 29,
+      "all_sources_and_artifacts_rehashed": true,
+      "images": [
+        {
+          "name": "main.bin",
+          "bytes": 7715508,
+          "sha256": "171ba3cbbeaa189b18bf43616f433776945da5f2102a017fced520d3a87929da"
+        },
+        {
+          "name": "bootloader.bin",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "name": "ftab.bin",
+          "bytes": 11288,
+          "sha256": "fefdb3ff52376c812696485e16587f3d5b2eb07b9993f2195e535ea276138223"
+        }
+      ]
+    },
+    {
+      "target": "ui_demo",
+      "record": "artifacts/ui_demo/20261013-215003-613/result.json",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j6",
+      "started_at": "2026-10-13T21:50:03.6248276+08:00",
+      "finished_at": "2026-10-13T21:52:58.3044186+08:00",
+      "exit_code": 0,
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "sdk_changes": [],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": "4.10.1",
+      "source_count": 370,
+      "artifact_count": 22,
+      "all_sources_and_artifacts_rehashed": true,
+      "images": [
+        {
+          "name": "main.bin",
+          "bytes": 7509680,
+          "sha256": "e1ff2d3b108ea619f6e350af48d40f682322d4b183145571939e9f5432c90039"
+        },
+        {
+          "name": "bootloader.bin",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "name": "ftab.bin",
+          "bytes": 11288,
+          "sha256": "cf530452a627e5be665bf5767bfe7d447a54fcf9e21ef8dbffd3979da5233303"
+        }
+      ]
+    }
+  ],
+  "local_evidence": [
+    {
+      "path": "artifacts/lvgl/export-stalled.txt",
+      "sha256": "5ddfbd210ec6abd5d57be71cb81b896d7b316c4432ea6e2fe4c06b182d55e3ff"
+    },
+    {
+      "path": "artifacts/lvgl/export-stalled.png",
+      "sha256": "fd6bdac6fac59272c106bee9c9e1deb0093d84f76298e0a9de6e4dc60bb4350e"
+    },
+    {
+      "path": "artifacts/lvgl/export-success.txt",
+      "sha256": "04db3023c32d5cf45acda2db184665ce7715697ba417a3f234e79a24914d652a"
+    },
+    {
+      "path": "artifacts/lvgl/detail-100.png",
+      "sha256": "b14bdb28c6d8053c556d6f8bd18058e1160285335e4ee777e720cac69bf1b6c5"
+    },
+    {
+      "path": "artifacts/lvgl/list-100.png",
+      "sha256": "9f72ccfe493b2c1caafba07dfbdfc201d6fdc1f15b8da7b59e7c9a4800b197a1"
+    },
+    {
+      "path": "artifacts/host/renders/notify_grouped_list.png",
+      "sha256": "9a36453ffb641eeff3c56e83c2bf761a9d605d92823d10a268dc8e23e73abebe"
+    },
+    {
+      "path": "artifacts/host/renders/notify_history_latest.png",
+      "sha256": "984845ebee92f7aa6e7a90a380f105481710925f571005fcb6fd73a9a0801291"
+    },
+    {
+      "path": "artifacts/host/renders/notify_history_oldest.png",
+      "sha256": "47a95432315883cc0ba0eccb79af6a3c08458a0f322ad2fa9a815e0e6dbd1f10"
+    },
+    {
+      "path": "artifacts/host/renders/notify_history_after_phone_delete.png",
+      "sha256": "47a95432315883cc0ba0eccb79af6a3c08458a0f322ad2fa9a815e0e6dbd1f10"
+    },
+    {
+      "path": "artifacts/host/renders/notify_group_deleted.png",
+      "sha256": "53a969ac74b53805e6a1ae734110b30c95eb707ef643034e50495bfbd632a497"
+    },
+    {
+      "path": "artifacts/ctest-final.log",
+      "sha256": "b6602eaf28bca0b1ada63e3924316b88da608ba4cc0d4007c577771dc6d49b85"
+    }
+  ],
+  "memory": {
+    "product_main_bytes": 7715508,
+    "delta_from_metadata_bin": 1544,
+    "rom_free": 614016,
+    "ram_free": 292012,
+    "runtime_peak_verified": false
+  },
+  "hardware": {
+    "status": "passed_bounded",
+    "source_and_flash_match": true,
+    "record": "artifacts/flash/product/20261013-215642-633/result.json",
+    "port": "COM5",
+    "supply": "USB-only",
+    "new_wiring": false,
+    "q7_partial": {
+      "local_record": "artifacts/usb/20261013-220124-570",
+      "user_confirmed_a_received": true,
+      "a_id": 1791882738,
+      "a_metadata_and_time_valid": true,
+      "unknown": 2,
+      "rejected_dropped_gaps_stale": 0,
+      "b_c_history_and_group_delete_verified": false
+    },
+    "q8": {
+      "local_record": "artifacts/usb/20261014-124848-069",
+      "opened_at": "2026-10-14T12:48:48.1441976+08:00",
+      "baud": 1000000,
+      "dtr": false,
+      "rts": false,
+      "automatic_reset": false,
+      "startup_observed": true,
+      "restart_cause_verified": false,
+      "baseline": "12:49 connected=1 subscribed=1; count=0 revision=2; all diagnostics zero",
+      "watch_snapshots": [
+        {
+          "count": 0,
+          "revision": 2,
+          "entries": []
+        },
+        {
+          "count": 2,
+          "revision": 4,
+          "entries": [
+            {
+              "slot": 0,
+              "id": 1791882772,
+              "valid": true,
+              "same_slot": -1,
+              "when_valid": true,
+              "when_ms": 1791953470272
+            },
+            {
+              "slot": 1,
+              "id": 1791882771,
+              "valid": true,
+              "same_slot": -1,
+              "when_valid": true,
+              "when_ms": 1791953400935
+            }
+          ]
+        },
+        {
+          "count": 3,
+          "revision": 5,
+          "entries": [
+            {
+              "slot": 0,
+              "id": 1791882773,
+              "valid": true,
+              "same_slot": -1,
+              "when_valid": true,
+              "when_ms": 1791953520153
+            },
+            {
+              "slot": 1,
+              "id": 1791882772,
+              "valid": true,
+              "same_slot": -1,
+              "when_valid": true,
+              "when_ms": 1791953470272
+            },
+            {
+              "slot": 2,
+              "id": 1791882771,
+              "valid": true,
+              "same_slot": 0,
+              "when_valid": true,
+              "when_ms": 1791953400935
+            }
+          ]
+        },
+        {
+          "count": 4,
+          "revision": 6,
+          "entries": [
+            {
+              "slot": 0,
+              "id": 1791882774,
+              "valid": true,
+              "same_slot": -1,
+              "when_valid": true,
+              "when_ms": 1791953675215
+            },
+            {
+              "slot": 1,
+              "id": 1791882773,
+              "valid": true,
+              "same_slot": 0,
+              "when_valid": true,
+              "when_ms": 1791953520153
+            },
+            {
+              "slot": 2,
+              "id": 1791882772,
+              "valid": true,
+              "same_slot": -1,
+              "when_valid": true,
+              "when_ms": 1791953470272
+            },
+            {
+              "slot": 3,
+              "id": 1791882771,
+              "valid": true,
+              "same_slot": 0,
+              "when_valid": true,
+              "when_ms": 1791953400935
+            }
+          ]
+        },
+        {
+          "count": 5,
+          "revision": 7,
+          "entries": [
+            {
+              "slot": 0,
+              "id": 1791882775,
+              "valid": true,
+              "same_slot": -1,
+              "when_valid": true,
+              "when_ms": 1791953816940
+            },
+            {
+              "slot": 1,
+              "id": 1791882774,
+              "valid": true,
+              "same_slot": 0,
+              "when_valid": true,
+              "when_ms": 1791953675215
+            },
+            {
+              "slot": 2,
+              "id": 1791882773,
+              "valid": true,
+              "same_slot": 0,
+              "when_valid": true,
+              "when_ms": 1791953520153
+            },
+            {
+              "slot": 3,
+              "id": 1791882772,
+              "valid": true,
+              "same_slot": -1,
+              "when_valid": true,
+              "when_ms": 1791953470272
+            },
+            {
+              "slot": 4,
+              "id": 1791882771,
+              "valid": true,
+              "same_slot": 0,
+              "when_valid": true,
+              "when_ms": 1791953400935
+            }
+          ]
+        },
+        {
+          "count": 1,
+          "revision": 8,
+          "entries": [
+            {
+              "slot": 0,
+              "id": 1791882772,
+              "valid": true,
+              "same_slot": -1,
+              "when_valid": true,
+              "when_ms": 1791953470272
+            }
+          ]
+        }
+      ],
+      "user_feedback": [
+        "Q8-A/B/C received",
+        "Two list cards; first contact card shows C",
+        "A/C history and reopening normal; both short messages fit in one screen, so this alone does not verify scrolling",
+        "D is incomplete; other navigation and reentry checks normal",
+        "Whole first group deleted; B and phone notifications remain",
+        "Temporary hold disabled; screen-off/KEY1, B opening and touch normal"
+      ],
+      "failures_preserved": [
+        "After A while screen off, meta/status/trace commands had no reply",
+        "First trace-on after waking returned replacement-character command-not-found; retry at 12:51:41 enabled trace",
+        "Trace contains C onward only; A/B supported by accepted events and metadata snapshots",
+        "Final screen-off trace-off had no acknowledgement; capture itself closed normally"
+      ],
+      "accepted_ids_in_arrival_order": [
+        1791882771,
+        1791882772,
+        1791882773,
+        1791882774,
+        1791882775
+      ],
+      "labels": {
+        "1791882771": "A",
+        "1791882772": "B",
+        "1791882773": "C",
+        "1791882774": "D",
+        "1791882775": "Later same-group delivery while diagnosing D"
+      },
+      "assertions": {
+        "a_c_and_later_two_entries_share_lifecycle_key": true,
+        "b_has_different_lifecycle_key": true,
+        "per_entry_original_ids_and_notification_times_retained": true,
+        "list_two_cards_and_first_latest_c_user_confirmed": true,
+        "history_navigation_and_reentry_user_normal": true,
+        "whole_first_group_removed_once": true,
+        "four_members_removed_and_b_preserved": true,
+        "phone_qq_records_unchanged_after_watch_local_delete": true,
+        "final_parse_and_queue_errors_zero": true,
+        "screen_hold_disabled_then_short_off_key1_b_and_touch_user_normal": true,
+        "full_original_chat_body_received": false,
+        "maximum_length_body_device_verified": false,
+        "watch_body_byte_identity_measured": false
+      },
+      "final_stats": {
+        "added": 5,
+        "updated": 0,
+        "removed": 0,
+        "rejected": 0,
+        "unknown": 0,
+        "dropped": 0,
+        "gaps": 0,
+        "stale": 0
+      },
+      "source_body_diagnosis": {
+        "before_local_delete": {
+          "captured_at": "2026-10-14T13:00:04.617149+08:00",
+          "operation": "Existing authorization: read-only QQ notification and test-app preference whitelist",
+          "expected_chars": 285,
+          "expected_utf8_bytes": 835,
+          "records": [
+            {
+              "android_id": 2147483647,
+              "key_anon": "abec3c524409a5f6",
+              "primary_recognized": true,
+              "fields": {}
+            },
+            {
+              "android_id": 521,
+              "key_anon": "596dc8c3ff0bd76a",
+              "primary_recognized": true,
+              "fields": {
+                "android.text": {
+                  "present": true,
+                  "type": "String",
+                  "chars": 99,
+                  "utf8_bytes": 285,
+                  "contains_q8_d": true,
+                  "contains_end_marker": false,
+                  "ends_at_photo_suffix": true,
+                  "equals_controlled_text": false,
+                  "sha256": "ef3c10f9363beebc76866ff0d9e00e9463481da32450468b1ffb0def3832e3af"
+                }
+              }
+            },
+            {
+              "android_id": 512,
+              "key_anon": "6126e391fe42f92b",
+              "primary_recognized": true,
+              "fields": {
+                "android.text": {
+                  "present": true,
+                  "type": "String",
+                  "chars": 9,
+                  "utf8_bytes": 17,
+                  "contains_q8_d": false,
+                  "contains_end_marker": false,
+                  "ends_at_photo_suffix": false,
+                  "equals_controlled_text": false,
+                  "sha256": "1d5f49490e1bb0d700fad84860f1b541bfd189f0e5249dfa50105acc2eb4a45d"
+                }
+              }
+            }
+          ],
+          "preference": {
+            "key": "notification_prefer_long_text",
+            "explicit_values": [
+              true
+            ],
+            "default_from_locked_source": true
+          },
+          "raw_notification_keys_names_preferences_or_body_saved": false
+        },
+        "after_local_delete": {
+          "captured_at": "2026-10-14T13:01:53.947712+08:00",
+          "operation": "Existing authorization: read-only QQ notification and test-app preference whitelist",
+          "expected_chars": 285,
+          "expected_utf8_bytes": 835,
+          "records": [
+            {
+              "android_id": 2147483647,
+              "key_anon": "abec3c524409a5f6",
+              "primary_recognized": true,
+              "fields": {}
+            },
+            {
+              "android_id": 521,
+              "key_anon": "596dc8c3ff0bd76a",
+              "primary_recognized": true,
+              "fields": {
+                "android.text": {
+                  "present": true,
+                  "type": "String",
+                  "chars": 99,
+                  "utf8_bytes": 285,
+                  "contains_q8_d": true,
+                  "contains_end_marker": false,
+                  "ends_at_photo_suffix": true,
+                  "equals_controlled_text": false,
+                  "sha256": "ef3c10f9363beebc76866ff0d9e00e9463481da32450468b1ffb0def3832e3af"
+                }
+              }
+            },
+            {
+              "android_id": 512,
+              "key_anon": "6126e391fe42f92b",
+              "primary_recognized": true,
+              "fields": {
+                "android.text": {
+                  "present": true,
+                  "type": "String",
+                  "chars": 9,
+                  "utf8_bytes": 17,
+                  "contains_q8_d": false,
+                  "contains_end_marker": false,
+                  "ends_at_photo_suffix": false,
+                  "equals_controlled_text": false,
+                  "sha256": "1d5f49490e1bb0d700fad84860f1b541bfd189f0e5249dfa50105acc2eb4a45d"
+                }
+              }
+            }
+          ],
+          "preference": {
+            "key": "notification_prefer_long_text",
+            "explicit_values": [
+              true
+            ],
+            "default_from_locked_source": true
+          },
+          "raw_notification_keys_names_preferences_or_body_saved": false
+        },
+        "watch_photo_suffix_matches_android_text": true,
+        "extra_big_text_messages_and_historic_messages_present": false,
+        "locked_bangle_body_limit_utf16_units": 400,
+        "firmware_body_capacity_utf8_bytes_including_nul": 1601,
+        "firmware_over_limit_behavior": "Reject whole notification; no body cropping",
+        "finding": "Android source notification already lacks the original chat suffix; history covers actually delivered notification text",
+        "locked_source_references": [
+          "NotificationListener.java:504 prefer-long-text default; :899-906 choose bigText/text",
+          "BangleJSDeviceSupport.java:1459-1462,1507 crop at 400 UTF-16 units",
+          "apps/product/src/phone_protocol.c:150-156 validate then strcpy",
+          "ui/runtime/notification_view.c:41 full received body label"
+        ],
+        "private_body_keys_names_device_serial_committed": false
+      },
+      "uart_closed": {
+        "started": "2026-10-14T12:48:48.1236558+08:00",
+        "finished": "2026-10-14T13:03:04.3769737+08:00",
+        "port": "COM5",
+        "baud": 1000000,
+        "dtr": false,
+        "rts": false,
+        "characters_read": 15063,
+        "actions": 33,
+        "stop_requested": true,
+        "error": null
+      },
+      "uart_sha256": "e1b218606769786e180b5871ece3994d5cd848ca304045809fb8ad4d2dd1946e",
+      "events_sha256": "c3880f4376779b781db9b2061d767031f905f90326b9d78233275cb3704bdd85",
+      "trace_coverage": "C and following two deliveries only; accepted A/B events and metadata independently retained",
+      "trace_off_acknowledged": false
+    }
+  },
+  "uncovered": [
+    "Group chats",
+    "Cross-clear/recreated lifecycle association",
+    "Exact recall",
+    "Runtime heap/stack peaks",
+    "Power/battery",
+    "Full stability joint matrix/C2",
+    "Complete original QQ long chat text when source notification is abbreviated",
+    "Maximum body/frame device stress"
+  ]
+}

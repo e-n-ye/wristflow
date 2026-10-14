@@ -1,5 +1,17 @@
 # 可复现构建基线
 
+## 2026-10-13 通知归组与历史构建
+
+实现锚点 `0ddcd89`，沿用元数据 `a94efc5` 与锁定 SDK。主机 CMake／Ninja 使用 UCRT64 GCC，完整 CTest 33/33（19.71 秒）；真实 LVGL 覆盖两人 A/B/C、历史排序、入口和阅读位置、手机单 ID 删除、本地整组删除及长正文无关更新。Pro 2.0.1／LVGL 9.4.0 初次 GUI 导出停在清理阶段，正常重开后一次 Ctrl+B 成功，输出 `Project compiled successfully`；实际固件 LVGL 同为 9.4.0。未手改生成 C 或替换 SDK。
+
+顺序运行隔离包装器 `-Example product -Jobs 6`／`-Example ui_demo -Jobs 6`，底层仍为官方 `scons --board=sf32lb52-lchspi-ulp -j6`。Product `20261013-214151-357`、UI Demo `20261013-215003-613` 均退出 0，387／370 份源码与 29／22 个产物逐项重哈希一致，主 BIN 为 7,715,508／7,509,680 B。Product ROM／RAM 余量为 614,016／292,012 B，较前置元数据主 BIN 增加 1,544 B；链接余量不等于运行时 heap／栈峰值。SDK／子模块干净且锁定，Python 3.13.15／SCons 4.10.1／Arm GCC 14.2.1，既有警告保留。日志与图片在本轮隔离工作树的忽略 `artifacts/`，设备结果单独见[通知专题](NOTIFICATION-UI.md#notification-groups)。
+
+## 2026-10-13 通知元数据保存构建
+
+基线 `7212b23`，隔离分支 `codex/notification-history`，源码锚点 `a94efc5`。相关主机协议／队列／通知 UI／天气服务／天气 UI 5/5（1.89 秒），补原子性断言后协议 1/1（0.12 秒）通过。沿用现有隔离包装器，顺序执行 Product、UI Demo 的 `-Jobs 6`，官方 SCons 与 SDK／子模块／工具锁不变；未更换公共入口、重装环境、编译手机 APK 或触碰 XML／官方生成输出。
+
+Product `20261013-195955-112`、UI Demo `20261013-200407-252` 均退出 0；383／366 份源码及 29／22 个产物逐项重哈希匹配，主 BIN 为 7,713,964／7,508,312 B。Product map 中 phone 与 notifications 分别增加 3,044 B，新诊断副本 480 B；含对齐的 `.bss` 增量 6,584 B，主程序 ROM／RAM 报告余量 615,615／292,012 B。Product 主快照仍在静态 SRAM，UI view 的 snapshot 容量增加 3,044 B，主栈预留仍 8,192 B；链接报告不是运行时 heap／栈峰值证明。完整版本、镜像与独立设备结果在[通知专题](NOTIFICATION-UI.md#notification-metadata-storage)记录。既有 SDK／FinSH／watch_core／链接警告保留。
+
 ## 2026-10-13 固件 AQI 接收显示构建
 
 基线 `9b80a46`，隔离分支 `codex/weather-aqi`，固件源码锚点 `c9be245`。协议／队列／天气服务／实际 LVGL 主机 4/4 通过，补整数上界和非有限值断言后协议 1/1 通过；当前页与指数页的 126 实际渲染已检查。最终审阅仅修正 UI 测试的太阳页快照定位，UI 1/1（0.67 秒）重跑通过，固件源码未变。使用既有隔离包装器分别以 `-Example ui_demo -Jobs 6` 和 `-Example product -Jobs 6` 复用主目录锁定 SDK 与官方 `scons --board=sf32lb52-lchspi-ulp -j6`，没有修改公共构建入口或工具锁。
