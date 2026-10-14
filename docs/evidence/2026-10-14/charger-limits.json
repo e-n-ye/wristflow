@@ -201,11 +201,12 @@
       "ble_subscribed": true,
       "limit": "Sequential non-atomic read-only snapshot, not cell temperature measurement or continuous inhibition/electrical proof"
     },
-    "new_candidate_battery_only": false,
-    "candidate_acceptance": "Bounded same-candidate USB startup/readback, software-key menu/weather/touch and notification wake/return passed; electrical dual-supply and full H2 incomplete"
+    "new_candidate_battery_only": true,
+    "candidate_acceptance": "Bounded same-candidate USB startup/readback, software-key menu/weather/touch, notification wake/return and separate battery-alone UI/two KEY1 cycles passed; electrical dual-supply and full H2 incomplete",
+    "latest_known_supply": "Battery alone per user reply after USB removal; preceding USB capture observations retain USB-only boundary"
   },
   "remaining": [
-    "Review and integrate bounded software/USB preparation; next hardware scope is an instrumented sink-capable battery simulator bench, not real battery plus USB",
+    "Battery-alone bounded observations recorded; instrumented sink-capable battery simulator bench remains next dual-supply scope, not real battery plus USB",
     "No instruments: battery simulator/bidirectional sink and suitable voltage/current recording required before real dual-supply trial",
     "Cell temperature observation/cutoff and model/protection limits required before real charging",
     "No proof of ROM/pre-application window, autonomous resets/fault timing, battery current, limits, termination, motor or battery life"
@@ -221,5 +222,32 @@
       "diff_check": "passed"
     },
     "limits": "No new electrical instrumentation or independent fitted-part inspection"
+  },
+  "integration": {
+    "pr": "https://github.com/e-n-ye/wristflow/pull/61",
+    "reviewed_head": "f3b772d85bfc2e5cfe0bf5cef11914bc0649994a",
+    "merge_commit": "87ff265aaf39f820e198c9e33a838ab8d06cdb2d",
+    "state_readback": "MERGED",
+    "merged_at": "2026-10-14T13:41:10Z",
+    "fetch_validation": "origin/main contains merge; full merged tree equals reviewed head"
+  },
+  "battery_only_trial": {
+    "date": "2026-10-14",
+    "authorization": "我没有这个，直接做电池上电吧",
+    "interpretation": "USB removed first, original previously tested BAT connection, battery alone; no real dual supply",
+    "documentation_branch": "codex/battery-only",
+    "documentation_baseline": "87ff265aaf39f820e198c9e33a838ab8d06cdb2d",
+    "firmware_main_sha256": "0794fb9dbed939b0ad325db4db76a27d4fc8365ec15c20c9c1fb9cccd364c9dc",
+    "new_source_build_or_flash": false,
+    "serial_closed_before_trial": true,
+    "instruction_scope": "Remove USB and all other external supply; connect battery by original BAT wiring; observe startup, KEY1 menu, five weather pages, touch/return, two natural screen-off KEY1 wake cycles",
+    "user_result": "仅电池：页面和触摸正常，KEY1 两次唤醒正常",
+    "confirmed_supply": "User response to explicit USB removal and battery-alone steps; no USB/other charging source",
+    "confirmed_ui_path": "startup / KEY1 menu / five weather pages / touch and return",
+    "confirmed_natural_screen_off_key1_cycles": 2,
+    "hardware_result": "passed bounded user-observed battery-alone UI and two KEY1 cycles on same 0794fb9d firmware",
+    "serial_during_battery_trial": false,
+    "limits": "No battery-alone register readback, VBAT/PA34 node measurements, electrical/temperature measurement, BLE reconnection, measured DEEP residency, long-idle reliability, charging or battery-life evidence",
+    "reconnect_usb_rule": "Disconnect battery before connecting USB"
   }
 }
