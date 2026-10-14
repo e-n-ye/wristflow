@@ -203,9 +203,51 @@
     "original_sequence_user_result": "All three repetitions and five pages normal",
     "feedback_timing": "Feedback arrived after capture 02 closed and before capture 03 reopened, without a requested reset. Navigation outcome is user feedback; it is not an instrumented per-click trace.",
     "followup_local_directory": "artifacts/freeze-diagnostic/psram-regression-03",
-    "cached_notification_and_weather_result": "pending",
+    "cached_notification_and_weather_result": "User reports notification list/detail/history followed by all five weather pages normal for two repetitions",
     "natural_sleep_resume_result": "pending",
-    "heap_snapshots": "pending awake command responses"
+    "diagnostic_attempts": "Commands sent at 09:00:20 UTC had no immediate response while the device was asleep; the same awake queries at 09:08:12 UTC returned normally. No final post-sleep heap snapshot was obtained before the turn interruption.",
+    "before_sleep_snapshot": {
+      "utc": "2026-10-14T09:08:12.860608+00:00",
+      "sram_total_bytes": 291836,
+      "sram_used_bytes": 72716,
+      "sram_high_water_bytes": 79956,
+      "psram_pool_bytes": 2097152,
+      "psram_high_water_bytes": 317208,
+      "psram_available_bytes": 1900648,
+      "psram_current_accounted_bytes": 196504,
+      "main_stack_bytes": 8192,
+      "main_stack_high_water_percent": 80,
+      "ble": {"connected": 1, "subscribed": 1, "messages": 1, "dropped": 0, "gaps": 0, "stale": 0},
+      "pm": {"allow": 1, "off": 0, "enter": 26971, "exit": 26971, "deep_elapsed": 16235, "deep_ticks": 1668013},
+      "assert_or_fallback_seen_in_continuation_capture": false,
+      "limits": "memheap availability is total free space, not a maximum contiguous block. Peak covers this candidate run; stack percentage is the RT-Thread historical estimate. Deep counters establish software-path activity, not exact residency or current."
+    },
+    "sleep_started_utc": "2026-10-14T09:08:53.977305+00:00",
+    "sleep_procedure": "User disables temporary keep-awake and returns to ordinary watch face. Planned five-minute passive screen-off was interrupted by a notification after 296.236 seconds; classify the realized sample separately, then request KEY1 and reuse cached notification/weather pages.",
+    "notification_wake_utc": "2026-10-14T09:13:50.213531+00:00",
+    "screen_off_to_notification_wake_seconds": 296.236226,
+    "notification_screen_on_utc": "2026-10-14T09:13:50.521480+00:00",
+    "notification_screen_off_utc": "2026-10-14T09:13:55.277498+00:00",
+    "continuous_five_minute_screen_off_proven": false,
+    "pm_at_notification_wake": {"enter": 31256, "exit": 31256, "deep_elapsed": 19121, "deep_ticks": 1963826, "max_ticks": 135},
+    "pm_delta_since_before_sleep": {"enter": 4285, "exit": 4285, "deep_elapsed": 2886, "deep_ticks": 295813},
+    "pm_limit": "Counters establish SDK DEEP software-path returns during the sample, not exact hardware residency, uninterrupted sleep or current. Notification and KEY1 screen-on are observed; cached page reuse remains pending user feedback.",
+    "post_sleep_key1_utc": "2026-10-14T09:17:10.524820+00:00",
+    "post_sleep_screen_on_utc": "2026-10-14T09:17:10.833925+00:00",
+    "key1_log_to_screen_on_log_seconds": 0.309105,
+    "notification_screen_off_to_key1_seconds": 195.247322,
+    "pm_at_key1": {"enter": 34592, "exit": 34592, "deep_elapsed": 21017, "deep_ticks": 2158515, "max_ticks": 135},
+    "last_screen_off_utc": "2026-10-14T09:17:25.500496+00:00",
+    "capture": {
+      "closed_utc": "2026-10-14T09:20:10.670933+00:00",
+      "exit_code": 0,
+      "duration_limit_seconds": 1200,
+      "uart_bytes": 6210,
+      "uart_sha256": "9323de0b100b22e336c9b4bd5d1d05ea58d5b9078f42b7188af9f33c449903db",
+      "events_sha256": "5bada98d6a423f076b02158cbbbf08f69e3e8c0b93b4817212cfd2074952271b",
+      "assert_hardfault_or_psram_fallback_seen": false,
+      "limits": "Capture ended normally at its bounded limit after the turn was interrupted. KEY1/screen-on log timing is not physical key-to-photon latency; post-sleep touch, notification/history and weather-page outcome was not received."
+    }
   },
   "source_inspection": {
     "weather": "No confirmed recursive weather/RTC lock, wait for BLE response, or unbounded creation loop was found. Weather creation and refresh retain large nested stack frames and allocate many LVGL objects. Fault-time evidence above proves a glyph draw-buffer allocation assertion; it does not prove stack overflow.",
@@ -219,7 +261,7 @@
     "pm_mode_correction": "Default DEEP resume calls BSP_Power_Up(false) at middleware/system/bf0_pm.c:1137. The board's true branch is reached at startup/standby; do not assume every ordinary DEEP resume executes charger configuration. HCPU HAL_GetTick uses AON GTIMER rather than an interrupt-driven RT tick."
   },
   "remaining": [
-    "Cached-view/sleep-resume regressions and heap snapshots pending; original menu/weather and five-page result is user-confirmed, write/verify and allocator startup are recorded separately above",
+    "Post-sleep touch/cached-page outcome and final heap snapshots pending; KEY1 completed screen-on in logs. Original menu/weather and notification/weather combinations are user-confirmed; write/verify and allocator startup are recorded separately above",
     "Historical long-idle fault cause and uninterrupted fifteen-minute screen-off not established",
     "No battery-alone supply, simultaneous USB/battery charging, motor pulse, voltage/current waveform or battery-life acceptance",
     "No global OOM recovery or unlimited stability/capacity claim"
