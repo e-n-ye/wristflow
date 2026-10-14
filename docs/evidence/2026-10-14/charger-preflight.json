@@ -60,6 +60,25 @@
     "exit_code": 0,
     "ctest_passed": 1,
     "ctest_total": 1,
+    "closeout_validation": {
+      "change": "Added aw32001_inhibit to the existing UNDEBUG/TIMEOUT list; firmware sources unchanged",
+      "debug_commands": [
+        "cmake -S tests -B artifacts/charger-host -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/cc.exe -DCMAKE_MAKE_PROGRAM=D:/msys64/ucrt64/bin/ninja.exe -DWRISTFLOW_SDK_ROOT=D:/MY_Desk/project/wristflow/vendor/SiFli-SDK",
+        "cmake --build artifacts/charger-host --target aw32001_inhibit",
+        "ctest --test-dir artifacts/charger-host -R ^aw32001_inhibit$ --output-on-failure"
+      ],
+      "release_commands": [
+        "cmake -S tests -B artifacts/charger-host-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/cc.exe -DCMAKE_MAKE_PROGRAM=D:/msys64/ucrt64/bin/ninja.exe -DWRISTFLOW_SDK_ROOT=D:/MY_Desk/project/wristflow/vendor/SiFli-SDK -DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+        "cmake --build artifacts/charger-host-release --target aw32001_inhibit",
+        "ctest --test-dir artifacts/charger-host-release -R ^aw32001_inhibit$ --output-on-failure"
+      ],
+      "all_command_exit_codes": 0,
+      "debug_ctest": "1/1 passed",
+      "release_ctest": "1/1 passed",
+      "release_flags_verified": "compile_commands.json: -O3 -DNDEBUG -std=gnu11 -UNDEBUG; assertions and transaction calls remain active",
+      "debug_local_log": "artifacts/charger-host/Testing/Temporary/LastTest.log",
+      "release_local_log": "artifacts/charger-host-release/Testing/Temporary/LastTest.log"
+    },
     "coverage": "Previously enabled/POR state/unrelated flags; each of seven transfer failures; ACK without write effect; final lost CEB; null arguments; never-enable write invariant",
     "limits": "Portable protocol test only; no HAL timing, board GPIO, actual charging or UI/PM acceptance"
   },
@@ -82,7 +101,7 @@
     "bootloader_elf_sha256": "c2f4d98ed2051d2b857f6f21dd7cbcb8a6a533b51fd1c6d3c8adda8bff9becdc",
     "product_strong_hook_address": "0x200033BC",
     "bootloader_strong_msp_address": "0x20020300",
-    "ram_fix_result": "build/hash/disassembly passed; corrected device KEY1 validation failed",
+    "ram_fix_result": "build/hash/disassembly passed; USB-only battery-absent KEY1 validation failed at that stage. Later battery_only_trial passed bounded pages/two KEY1 cycles with this same image; USB-only limitation remains",
     "false_return_path": "SRAM cmp at 0x200033C0 -> branch at 0x200033C2 -> SRAM stack cleanup/pop at 0x20003452; no call on false path",
     "resume_callsite": "BSP_Power_Up SRAM 0x20008800 uses direct BL 0x200033BC at 0x20008804; no Flash veneer before NOR restore"
   },
