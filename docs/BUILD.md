@@ -1,5 +1,13 @@
 # 可复现构建基线
 
+## 2026-10-14 Product LVGL PSRAM 堆修复
+
+基线 `a358830`，隔离工作树 `battery-freeze/wristflow` 的 Product [配置](../apps/product/project/proj.conf)启用锁定 SDK 已有的 LVGL PSRAM 私有堆，大小沿用该选项默认的 2048KiB；UI 缓存、XML／生成 C、SDK 锁和厂商源码不变。已有 SRAM 分配断言与本轮证据见[精简记录](evidence/2026-10-14/freeze-diagnostic.json)。
+
+本机复用已注册环境，以忽略的 `artifacts/build-isolated.ps1 -Example product -Jobs 6` 调用本工作树当前 `scripts/Build.ps1`，最终仍为官方 `scons --board=sf32lb52-lchspi-ulp -j6`。Product `artifacts/product/20261014-162842-722/result.json` 退出 0，387 份源码和 29 个产物逐项重哈希一致；Arm GCC 14.2.1／SDK 与子模块锁保持，既有警告保留。没有重装环境、修改公共构建入口或运行不覆盖该 RT-Thread 分配路径的主机用例。
+
+生成配置实际启用私有堆；新 map 把 2MiB 堆放在 `0x60000000`，framebuffer 紧接 `0x60200000`，区域终点 `0x60255b18` 低于锁定板型的 PSRAM 链接上限，未重叠。主 BIN 为 7,717,628 B，SHA-256 `f7e3417b6b867700e00b4840c5c34153065b3a2075b58b9b8ed8d96b96464b7f`。编译／链接不能代替物理容量、DEEP 保持和实际分配验证；本轮三镜像 write／verify 与启动已单独记录，组合页面及休眠回归仍按实际结果验收。
+
 ## 2026-10-13 通知归组与历史构建
 
 实现锚点 `0ddcd89`，沿用元数据 `a94efc5` 与锁定 SDK。主机 CMake／Ninja 使用 UCRT64 GCC，完整 CTest 33/33（19.71 秒）；真实 LVGL 覆盖两人 A/B/C、历史排序、入口和阅读位置、手机单 ID 删除、本地整组删除及长正文无关更新。Pro 2.0.1／LVGL 9.4.0 初次 GUI 导出停在清理阶段，正常重开后一次 Ctrl+B 成功，输出 `Project compiled successfully`；实际固件 LVGL 同为 9.4.0。未手改生成 C 或替换 SDK。
