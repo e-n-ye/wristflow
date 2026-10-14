@@ -3,7 +3,7 @@
 <a id="battery-motor-preparation"></a>
 ## 2026-10-14 电池与电机接入准备
 
-用户已明确把正式功耗测量延期，当前优先电池／电机。本节覆盖下方 USB 粗测方案中“先做测流转接／基线，电池与电机后接”的顺序；下方保留方法和旧条件，不自动执行。活动项与唯一下一步仍见 [STATUS](STATUS.md#current)。本轮调整说明与契约，没有修改固件或操作设备。
+这是同日接线前的准备契约：用户已明确把正式功耗测量延期，优先电池／电机，覆盖下方 USB 粗测方案中“先做测流转接／基线，电池与电机后接”的顺序；下方保留方法和旧条件，不自动执行。后续用户已接电池与 VIB 电机并报告卡死，当前隔离诊断条件见[硬件记录](HARDWARE.md#freeze-diagnostic)，活动项与唯一下一步仍见 [STATUS](STATUS.md#current)。前序调整只有说明与契约，不代表下表软件／电气条件已经通过。
 
 | 当前接入对象 | 软件与资料准备 | 代焊／现场动作 | 最小通过条件 |
 |---|---|---|---|
@@ -240,7 +240,7 @@ H2 的固件核验可与 H3 的无源线束准备并行；电池引出线处理�
 |---|---|
 | [aw32001.c:381–403](https://github.com/OpenSiFli/SiFli-SDK/blob/421126d9f476ed8e2a6f0b0ca28a9f241c182e65/customer/peripherals/charger/aw32001/aw32001.c#L381) | 初始化可能先开启充电、延迟 50ms，再请求 4215mV，且没有显式设恒流；4215mV 能被 15mV 步进精确编码，不等于 4200mV |
 | [aw32001.c:160–211](https://github.com/OpenSiFli/SiFli-SDK/blob/421126d9f476ed8e2a6f0b0ca28a9f241c182e65/customer/peripherals/charger/aw32001/aw32001.c#L160) | 电流写入 `set_chg/8`，同函数的旧值解码却为 `(code+1)*8`；按其公式请求 250 会对应 256mA，仅为源码推算。电压 getter 使用有符号字节右移，须核验原始寄存器，不能只信打印值 |
-| [bsp_power.c:36–88](https://github.com/OpenSiFli/SiFli-SDK/blob/421126d9f476ed8e2a6f0b0ca28a9f241c182e65/customer/boards/sf32lb52-lchspi-ulp_base/bsp_power.c#L36) | 深睡恢复路径有清 CEB 启用充电；需核对所选 Product 的实际编入路径和配置保持，不只测试冷启动 |
+| [bsp_power.c:36–88](https://github.com/OpenSiFli/SiFli-SDK/blob/421126d9f476ed8e2a6f0b0ca28a9f241c182e65/customer/boards/sf32lb52-lchspi-ulp_base/bsp_power.c#L36) | `is_deep_sleep=true` 分支清 CEB 启用充电，在启动／SDK standby 恢复可达；普通 DEEP 恢复实际传 false（`middleware/system/bf0_pm.c:1137`），不能认定每次 DEEP 都执行该分支。仍须核对实际模式、编入路径和配置保持 |
 | [bsp_lcd_tp.c:24–76](https://github.com/OpenSiFli/SiFli-SDK/blob/421126d9f476ed8e2a6f0b0ca28a9f241c182e65/customer/boards/sf32lb52-lchspi-ulp_base/bsp_lcd_tp.c#L24) | 屏幕、3.3V、充电 I²C 和音频 PA 存在联动；黑屏不是整板低功耗或充电配置保持的证据 |
 
 这些事实足以阻止直接沿用旧 USB 固件充电，但尚未证明当前板上实际电流、芯片默认值或各路径均被执行。详细既有约束见 [采购审核](PURCHASE-REVIEW.md#到货后接入条件)。
