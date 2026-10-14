@@ -66,18 +66,23 @@ HAL_RAM_RET_CODE_SECT(wf_charger_power, void BSP_PowerUpCustom(bool is_deep_slee
     if (early_init_status == HAL_OK) {
         __HAL_I2C_ENABLE(&handle);
         const wristflow_aw32001_io_t io = { &handle, early_read, early_write };
-        wristflow_aw32001_inhibit(&io, &early_result);
+        wristflow_aw32001_prepare(&io, &early_result);
     }
     __HAL_I2C_DISABLE(&handle);
 }
 
 void wristflow_product_charger_report(void)
 {
-    rt_kprintf("[charger] early attempted=%u hal=%u result=%u reg=0x%02x verified=%u\n",
+    rt_kprintf("[charger] early attempted=%u hal=%u result=%u reg=0x%02x verified=%u profile=%u\n",
         early_attempted, (unsigned)early_init_status, (unsigned)early_result.error,
-        early_result.error_reg, early_result.inhibit_verified);
+        early_result.error_reg, early_result.inhibit_verified, early_result.profile_verified);
     rt_kprintf("[charger] early REG01=0x%02x REG05=0x%02x; charging policy=inhibit\n",
         early_result.power_on, early_result.timer);
+    rt_kprintf("[charger] early ID=0x%02x REG02=0x%02x REG04=0x%02x REG0b=0x%02x\n",
+        early_result.chip_id, early_result.charge_current,
+        early_result.charge_voltage, early_result.individual);
+    rt_kprintf("[charger] bench request=%umV/%umA; past readback only; charging not authorized\n",
+        (unsigned)WF_AW32001_PROFILE_MV, (unsigned)WF_AW32001_PROFILE_MA);
 }
 
 static int wf_charger(int argc, char **argv)
@@ -94,15 +99,34 @@ static int wf_charger(int argc, char **argv)
         rt_kprintf("[charger] snapshot unavailable: i2c2 absent\n");
         return -RT_ERROR;
     }
-    static const uint8_t registers[] = { 0x01, 0x02, 0x04, 0x05, 0x06, 0x08, 0x09, 0x0b };
+    static const uint8_t registers[] = {
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
+        0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c
+    };
+    uint8_t snapshot[sizeof(registers)] = {0};
     for (unsigned i = 0; i < sizeof(registers); ++i) {
         uint8_t value = 0;
         if (rt_i2c_mem_read(bus, CHARGER_ADDRESS, registers[i], 8, &value, 1) != 1) {
             rt_kprintf("[charger] REG%02x read failed; physical state unconfirmed\n", registers[i]);
             return -RT_ERROR;
         }
+        snapshot[i] = value;
         rt_kprintf("[charger] REG%02x=0x%02x\n", registers[i], value);
     }
+    const uint8_t current = snapshot[2] & 0x3f;
+    unsigned nominal_ma = (snapshot[11] & 0x80) ?
+        ((current & 0x0f) + 1) * 2 : (current + 1) * 8;
+    unsigned nominal_mv = 3600 + (snapshot[4] >> 2) * 15;
+    bool profile = snapshot[10] == 0x49 && (snapshot[1] & 8) &&
+        !(snapshot[5] & 0x60) && !(snapshot[11] & 0x80) &&
+        snapshot[2] == 0x09 && (snapshot[4] & 0xfc) == 0x98;
+    rt_kprintf("[charger] snapshot CEB=%u nominal=%umV/%umA profile_match=%u\n",
+        (snapshot[1] >> 3) & 1, nominal_mv, nominal_ma, profile);
+    const char *temperature_mode = !(snapshot[6] & 0x80) ? "disabled" :
+        (snapshot[7] & 0x80) ? "external_ntc" : "pcb_otp";
+    rt_kprintf("[charger] temperature_mode=%s; no cell temperature measurement\n",
+        temperature_mode);
+    rt_kprintf("[charger] sequential non-atomic snapshot; not continuous protection or permission to charge\n");
     return RT_EOK;
 }
 MSH_CMD_EXPORT(wf_charger, read charger inhibition and raw registers);

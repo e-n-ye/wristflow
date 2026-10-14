@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-14",
+  "baseline": "54aac18d4c2be0461e0cf169eb188475a8effd3b",
+  "local_worktree": "charger-limits/wristflow",
+  "branch": "codex/charger-limits",
+  "scope": "Fixed 4170mV/80mA register preparation while inhibited; no charge enable or motor control",
+  "user_conditions": {
+    "instruments": "None available",
+    "board_reference": "User confirms Huangshan board matches official materials; fitted chip full marking unreadable",
+    "usb_trial_authorization": "已断开电池，仅 USB，可以测试新候选"
+  },
+  "sources": {
+    "datasheet": {
+      "url": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1157/AW32001E.pdf",
+      "local_path": "C:\\Users\\13984\\.codex\\worktrees\\charger-preflight\\wristflow\\artifacts\\charger-preflight\\AW32001E-V1.4.pdf",
+      "sha256": "881b345e7ef9dbf39e8ee702d84011279f1c3b50d65e1e88f2885fe1bf14e1a3",
+      "visually_checked_register_pages": [
+        37,
+        39,
+        40
+      ],
+      "current_code": "0x09, REG02 reset command bits written zero",
+      "voltage_code": "REG04[7:2]=0x98; low bits preserved",
+      "individual_mode": "REG0B[7] cleared; low bits preserved",
+      "id_check": "REG0A=0x49 is a compatibility check, not fitted E/version proof",
+      "fault_boundary": "p26 watchdog/safety timer fault says Reset CEB to 0; not all failures guarantee permanent inhibition"
+    },
+    "official_design": {
+      "local_path": "C:\\Users\\13984\\.codex\\worktrees\\charger-preflight\\wristflow\\artifacts\\charger-preflight\\huangshan-v1.2.epro",
+      "sha256": "61065a6b55fedf6b9a67f69013560476748bb5ac7dd4841563924a358f760a96",
+      "power_sheet": "SHEET/bfbe9dd79a064614aebc68082ceec943/32.esch",
+      "ntc": "U3 e45184 NTC/B1 -> e61845 -> fixed R60 e61805 100kOhm -> e61853 -> VDD/B3",
+      "battery": "CN1 e52275 A1257WR-S-2P, VBAT_S/GND only",
+      "limit": "No cell thermistor signal; chip junction/PCB OTP not proof of cell 10-45C protection; fitted assembly not independently inspected"
+    }
+  },
+  "host_validation": {
+    "compiler": "GCC 15.2.0",
+    "configure_template": "cmake -S tests -B artifacts/charger-host[-release] -G Ninja -DCMAKE_BUILD_TYPE=Debug|Release -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/cc.exe -DCMAKE_MAKE_PROGRAM=D:/msys64/ucrt64/bin/ninja.exe -DWRISTFLOW_SDK_ROOT=D:/MY_Desk/project/wristflow/vendor/SiFli-SDK",
+    "build_template": "cmake --build artifacts/charger-host[-release] --target aw32001_inhibit",
+    "test_template": "ctest --test-dir artifacts/charger-host[-release] -R ^aw32001_inhibit$ --output-on-failure",
+    "debug": "1/1 passed, exit 0",
+    "release": "1/1 passed, exit 0",
+    "coverage": "Existing 7-transfer inhibition; 21 transfer failures; ignored writes; 5 final readback drifts; ID mismatch; all voltage low-bit combinations and divide modes; REG02 reset flags not echoed; unrelated flags preserved; no enable/reset writes",
+    "limits": "Portable transaction only, no electrical or HAL-fault timing proof"
+  },
+  "build": {
+    "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/build-isolated.ps1 -Example product -Jobs 6",
+    "record": "artifacts/product/20261014-211019-125/result.json",
+    "exit_code": 0,
+    "artifact_validation_passed": true,
+    "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+    "sources_rehashed": 391,
+    "artifacts_rehashed": 29,
+    "mismatches": 0,
+    "images": [
+      {
+        "name": "main.bin",
+        "bytes": 7716696,
+        "sha256": "0794fb9dbed939b0ad325db4db76a27d4fc8365ec15c20c9c1fb9cccd364c9dc"
+      },
+      {
+        "name": "main.elf",
+        "bytes": 17783344,
+        "sha256": "a318b755f694d143dfe0a4aea66452106ff94a369cd4075613d03d9e924a1be9"
+      },
+      {
+        "name": "bootloader.bin",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "name": "bootloader.elf",
+        "bytes": 803624,
+        "sha256": "69f5a42cb9304fb0733c392c335820e111095c4a0c4694981c04ac67a5409f1f"
+      },
+      {
+        "name": "ftab.bin",
+        "bytes": 11288,
+        "sha256": "b7768126548ff76d5a43a48852f1c0b1dfb1e46d73325cd8ddf646bc5c1a7954"
+      }
+    ],
+    "superseded_record": "artifacts/product/20261014-210402-423/result.json; diagnostic wording changed during/after build; final incremental record supersedes it",
+    "layout": "tests/check_charger_layout.py passed: strong SRAM 0x200033BC .retm_data; false cmp 0x200033C0 -> 0x2000345A stack add/pop, no call; saved disassembly artifacts/charger-limits/ram-hook.txt",
+    "config": "BSP_USING_CHARGER unset; PM_STANDBY_ENABLE unset; PSRAM private heap retained",
+    "symbols": "Project inhibit/prepare/wf_charger present, no original aw32001_init/charge_enable"
+  },
+  "hardware": {
+    "flash_status": "three images write/verify passed, exit 0",
+    "port": "COM5 USB-SERIAL CH340, VID:PID=1A86:7523",
+    "flash_command": "pwsh -NoProfile -File artifacts/flash-isolated.ps1 -Port COM5",
+    "dry_run": "passed, no device opened by dry run",
+    "new_usb_readback": true,
+    "battery_usb_same_supply": false,
+    "actual_charging": false,
+    "electrical_measurements": false,
+    "flash_record": "artifacts/flash/product/20261014-211544-732/result.json",
+    "flash_record_sha256": "510187d1dbfec73bf98b678111b15f8b81263bbd7fe86c5ada09cc6c7cb3e42c",
+    "supply": "User-confirmed battery disconnected, USB only throughout this candidate trial",
+    "captures": [
+      {
+        "path": "artifacts/charger-limits/usb-01",
+        "baud": 1000000,
+        "dtr_rts_initial": false,
+        "reset": {
+          "method": "RTS",
+          "milliseconds": 150
+        },
+        "opened_utc": "2026-10-14T13:19:06.256599+00:00",
+        "closed_utc": "2026-10-14T13:21:09.356974+00:00",
+        "exit_code": 0,
+        "uart_bytes": 4737,
+        "uart_sha256": "a178aef1827bd80c7bb06ec158a01b5b216182a4e9a745d9a059caf0ca4f140a",
+        "events_sha256": "577b796135540c637cdaf7101a49a385e6efe56d051cab7dcafd48daa4967eaa",
+        "captured_assert_hardfault_psram_fallback": []
+      },
+      {
+        "path": "artifacts/charger-limits/usb-idle-02",
+        "baud": 1000000,
+        "dtr_rts_initial": false,
+        "reset": {
+          "method": "RTS",
+          "milliseconds": 150
+        },
+        "opened_utc": "2026-10-14T13:21:10.183180+00:00",
+        "closed_utc": "2026-10-14T13:32:48.318675+00:00",
+        "exit_code": 0,
+        "uart_bytes": 10854,
+        "uart_sha256": "2ab3a78fd41ef354a23d40e548a8996fbdc3c63b4c650f63607c039e723464c9",
+        "events_sha256": "d4dbb367474a3a81aa45ed6318b0c08ebc308b732582429f0ecda0373716a8c7",
+        "captured_assert_hardfault_psram_fallback": []
+      }
+    ],
+    "serial_closed": true,
+    "startup": {
+      "observed_twice": true,
+      "early_inhibit_verified": true,
+      "early_profile_verified": true,
+      "registers": {
+        "REG01": "0xAC",
+        "REG05": "0x1A",
+        "REG0A": "0x49",
+        "REG02": "0x09",
+        "REG04": "0x9B",
+        "REG0B": "0x43"
+      },
+      "fault_raw": "First startup snapshot REG09=0x20; post-wake REG09=0x00. No fault-clearing command, root cause not measured."
+    },
+    "usb_01_limit": "After natural screen-off software UART wake had no usable response. No-battery KEY1 unavailable; cannot establish freeze or root cause. Capture stopped normally, then controlled RTS reset for usb-idle-02.",
+    "usb_02_control": "wf_pm hold used for lit-screen trial. Initial batched commands included tus: command not found; subsequent separate status queries succeeded. wf_pm allow at 13:27:06 UTC restored DEEP permission before natural screen-off.",
+    "key1": {
+      "user_result": "按下key1没法到菜单",
+      "limit": "No-battery USB-only inhibited KEY1 unavailable for menu entry and wake; not corrected by this change. Prior battery-only KEY1 result belongs to 3c2985b4 firmware."
+    },
+    "ui": {
+      "menu_entry": "Existing wf_pm wake software key event while lit; no touch-menu entry added",
+      "user_result": "已进入菜单，天气五页和触摸正常",
+      "scope": "Bounded user-observed menu/weather navigation and touch; no ten-round joint matrix"
+    },
+    "notification_wake": {
+      "user_result": "通知亮屏，正常",
+      "response_scope": "Reply to natural screen-off then phone notification, with touch/return observation requested",
+      "screen_off_utc": "2026-10-14T13:28:19.441087+00:00",
+      "notification_utc": "2026-10-14T13:28:31.760934+00:00",
+      "screen_on_utc": "2026-10-14T13:28:32.067173+00:00",
+      "pm": {
+        "allow": 1,
+        "enter": 147,
+        "exit": 147,
+        "deep_elapsed": 124,
+        "deep_ticks": 12262,
+        "max_ticks": 104,
+        "wake": "0x80"
+      },
+      "limit": "Software PM path counts only, not measured low-power residency/current or long-idle reliability"
+    },
+    "post_wake_snapshot": {
+      "utc": "2026-10-14T13:29:14.445398+00:00",
+      "registers": {
+        "REG00": "0x8F",
+        "REG01": "0xAC",
+        "REG02": "0x09",
+        "REG03": "0x91",
+        "REG04": "0x9B",
+        "REG05": "0x1A",
+        "REG06": "0xC0",
+        "REG07": "0x38",
+        "REG08": "0x42",
+        "REG09": "0x00",
+        "REG0A": "0x49",
+        "REG0B": "0x43",
+        "REG0C": "0x10"
+      },
+      "ceb": 1,
+      "nominal_mv": 4170,
+      "nominal_ma": 80,
+      "profile_match": true,
+      "temperature_mode": "pcb_otp",
+      "ble_connected": true,
+      "ble_subscribed": true,
+      "limit": "Sequential non-atomic read-only snapshot, not cell temperature measurement or continuous inhibition/electrical proof"
+    },
+    "new_candidate_battery_only": false,
+    "candidate_acceptance": "Bounded same-candidate USB startup/readback, software-key menu/weather/touch and notification wake/return passed; electrical dual-supply and full H2 incomplete"
+  },
+  "remaining": [
+    "Review and integrate bounded software/USB preparation; next hardware scope is an instrumented sink-capable battery simulator bench, not real battery plus USB",
+    "No instruments: battery simulator/bidirectional sink and suitable voltage/current recording required before real dual-supply trial",
+    "Cell temperature observation/cutoff and model/protection limits required before real charging",
+    "No proof of ROM/pre-application window, autonomous resets/fault timing, battery current, limits, termination, motor or battery life"
+  ],
+  "source_review": {
+    "result": "No blocking findings in final code/build identity and final documentation read-only reviews",
+    "scope": "No enable/reset writes, failure flags, retained DEEP false return, fixed candidate register identity and bounded USB/temperature/electrical evidence limits",
+    "primary_spot_checks": "Transaction source inspected; all 391 source and 29 artifact hashes rechecked; flash hash and closed capture records verified",
+    "documentation_checks": {
+      "utf8_files": 11,
+      "new_or_changed_relative_links": 12,
+      "json_valid": true,
+      "diff_check": "passed"
+    },
+    "limits": "No new electrical instrumentation or independent fitted-part inspection"
+  }
+}

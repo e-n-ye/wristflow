@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-10-14 Product 禁充参数准备
+
+从 `54aac18` 的隔离工作树 `charger-limits/wristflow` 构建，Product 冷启动在禁充状态下请求名义 4170mV／80mA；SDK 锁、厂商、UI／生成物和公共构建入口不变。最终官方 SCons 增量构建 `20261014-211019-125` 退出 0，Arm GCC 14.2.1，391 份源码／29 个产物重哈希零差异，BIN 7,716,696 B、SHA-256 `0794fb9dbed939b0ad325db4db76a27d4fc8365ec15c20c9c1fb9cccd364c9dc`。较早 `20261014-210402-423` 后诊断文字变更，最终增量结果取代其交付身份。
+
+GCC 15.2.0／Ninja Debug、Release 的 `aw32001_inhibit` 目标构建及 CTest 各 1/1 通过。链接布局检查通过，强钩子 retained SRAM `0x200033BC`，false 路径只到 SRAM `0x2000345A` 栈恢复／返回；SDK 自动启充入口排除，standby 关闭，PSRAM 私有堆保留。成功编译与 USB 启动／实物电流证据分开，准确命令、产物和后续验收见[本轮证据](evidence/2026-10-14/charger-limits.json)与[充电前置](CHARGER-PREFLIGHT.md)。未运行云端基线，未安排电池＋USB 同接或充电。
+
 ## 2026-10-14 Product 默认禁充与诊断
 
 基线 `e31c8c5`，隔离工作树 `charger-preflight/wristflow`。项目强钩子替换板级默认启充，Product 配置排除 SDK charger；没有改厂商、SDK 锁、UI／生成物或公共构建入口。相关契约、硬件条件与精简证据见[充电前置](CHARGER-PREFLIGHT.md)。
