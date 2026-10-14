@@ -8,6 +8,7 @@
 #include "product_services.h"
 #include "product_ble.h"
 #include "product_pm.h"
+#include "product_charger.h"
 #include "product_countdown.h"
 #include "product_alarm.h"
 #include "weather_screen.h"
@@ -123,6 +124,7 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
 
 int main(void)
 {
+    wristflow_product_charger_report();
     wristflow_product_pm_start();
     const wristflow_countdown_port_t *countdown = wristflow_product_countdown_start();
     wristflow_settings_t settings;
