@@ -1,0 +1,81 @@
+{
+  "date": "2026-10-15",
+  "scope": "Bounded real-device settings/layout persistence acceptance, without charging or destructive failure injection",
+  "branch": "codex/settings-acceptance",
+  "base_commit": "13168baf37d7cc811253b6bd5d293d3344663fa2",
+  "software_pr": "https://github.com/e-n-ye/wristflow/pull/67",
+  "reviewed_source_commit": "45e95e9bb076f04a3dcf5d1ed390aa74b3696b03",
+  "software_evidence": "settings-save.json",
+  "authorization": "User resumed device acceptance and confirmed battery disconnected, USB only, flashing allowed",
+  "preflight": {
+    "source_and_artifact_rehash": "Product 401/29 and UI Demo 372/22 matched existing successful build records; no rebuild or source change this round",
+    "dry_run": "pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/flash-isolated.ps1 -DryRun -Port COM5; passed, no device open",
+    "port": "COM5 USB-SERIAL CH340, VID:PID 1A86:7523; enumerated before flash",
+    "port_discovery": "First Win32_SerialPort snapshot showed only Bluetooth COM3/4; follow-up present PnP and SerialPort names found healthy CH340 COM5",
+    "environment_issue": "Default python has no pyserial; enumeration used Windows PnP and capture reused installed SDK Python, no package installation"
+  },
+  "flash": {
+    "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/flash-isolated.ps1 -Port COM5",
+    "result": "artifacts/flash/product/20261015-201803-892/result.json (local ignored)",
+    "tool": "sftool 0.2.5, SF32LB52/NOR, 500000 baud, write_flash --verify, after soft_reset",
+    "exit_code": 0,
+    "completed_at": "2026-10-15T20:20:43.2017321+08:00",
+    "images": [
+      {"name": "bootloader.bin", "address": "0x12010000", "bytes": 58496, "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"},
+      {"name": "main.bin", "address": "0x12020000", "bytes": 7725544, "sha256": "310ad9fe4a986bd9f9a6d7ba795b7f349ce4acbdb7bbda4304176d1def971478"},
+      {"name": "ftab.bin", "address": "0x12000000", "bytes": 11288, "sha256": "5f32874a6375af7c8ac7920faf16a10f85f226c0538178f0606b41147de812fc"}
+    ]
+  },
+  "capture": {
+    "serial": "1000000 8N1, no flow control, DTR=false RTS=false before opening",
+    "first": "artifacts/power-uart-settings-hw-01.txt; opened 20:20:56.875, hold/status sent without replies; closed normally 20:22:31.938 before next open. No runtime success inferred from missing replies",
+    "second": "artifacts/settings-hw-02.txt and .bin; opened 20:22:57.588, closed normally 20:37:49.722; elapsed 892.138 seconds within 1200s bound; process exit=0, normal=true closed=true, COM5 released",
+    "reset": "USB only, explicit RTS high 150ms at 20:22:57.588; full boot captured at 20:22:59.904",
+    "build_banner": "12ca75a7 is the build-time base banner; device identity established by verified image SHA and matching source/artifact manifests, not banner alone",
+    "startup": "FlashDB storage ready; preferences restore=yes brightness=59 face=diffusion breathing=5; layout restore=yes generation=41 pages=3",
+    "inhibit": "Early verified=1 profile=1, REG01=0xac REG05=0x1a REG02=0x09 REG04=0x9b REG0b=0x43; charging policy=inhibit. Subsequent raw readback matched; REG08=0x42 REG09=0x20 retained as raw, no fault diagnosis or measured-current claim",
+    "rtc": "RTS boot read Jan 1 2000; fresh wf_time 1792067046 acknowledged at 20:24:06.607 and show_date read Thu Oct 15 12:24:06 2026. Post-reboot show_date and wf_pm status sent 20:27:12.848 while off had no replies, not counted as successful RTC/PM queries",
+    "keyword_check": "No assert, HardFault or verified=0 found in final capture; bounded keyword inspection, not a universal anomaly-free claim",
+    "commands": "Installed SDK Python via artifacts/run-settings-uart.ps1 -Port COM5 -Tag settings-hw-02 -Seconds 1200 -Reset; control file uses monotonically changing IDs; initial hold/status/date, explicit UTC synchronization, ordinary reboot, read-only queries, then normal stop; no charger start/stop invoked",
+    "hashes_sha256": {
+      "artifacts/flash/product/20261015-201803-892/result.json": "b91de4f3808c8890d0ed4f15b761effc33ab23b0d9ca1c8432dcd767ffcc16e6",
+      "artifacts/power-uart-settings-hw-01.txt": "995c233cf2a6266f467fd7d6644d8d1269aa2d570f4dc92ee371369e74259fdd",
+      "artifacts/settings-hw-02.txt": "3226f4ababd528da03e8e6b0a4b1f15e2ed5d35d69144db52030ee0c87efaa7d",
+      "artifacts/settings-hw-02.bin": "c8cff67ac5780897ae1677a731b5e7830e73f52ba7ea847d3900ffabf7a123d1",
+      "artifacts/settings-hw-02-summary.json": "8e5e331c000e9de82465fd86ebb4d540282b90dc47925da810ebb6fedd9e29ce"
+    }
+  },
+  "preferences": {
+    "user_feedback_before_reboot": "Displayed saved after requested brightness and face changes",
+    "writes": "preferences request=7/19/20/21/22 verified=1; final at 20:25:48.447",
+    "reboot": "Ordinary SDK reboot sent 20:26:34.890; early inhibit again verified, storage ready restore=yes brightness=40 face=simple at 20:26:37.011",
+    "user_feedback_after_reboot": "40% and simple retained; KEY1 and touch normal",
+    "result": "Passed bounded modified-preferences save/readback/reboot restore and visual feedback"
+  },
+  "layout": {
+    "user_change": "Sleep component replaced with stress",
+    "write": "20:30:57.602 layout request=1 verified=1 generation=42",
+    "unacknowledged_reboot": "20:31:38.290 reboot sent after screen-off, no reboot response; not counted as a completed reboot",
+    "reboot": "User enabled temporary 5-minute keep-awake; ordinary reboot re-sent 20:35:44.404. Early inhibit verified again, layout restore=yes generation=42 pages=3 at 20:35:46.525, brightness=40 face=simple retained",
+    "user_feedback_after_reboot": "Stress card retained in the old sleep position; after natural screen-off KEY1 and touch normal",
+    "result": "Passed bounded single-slot layout write/readback, reboot metadata and user-confirmed component restoration"
+  },
+  "sleep_wake": {
+    "final_boot_observations": [
+      {"screen_off": "20:35:57.904", "key1_wake": "20:36:22.904", "screen_on": "20:36:23.211", "wake_to_on_ms": 307, "pm_enter_exit": "2/2"},
+      {"screen_off": "20:36:47.941", "key1_wake": "20:36:49.367", "screen_on": "20:36:49.674", "wake_to_on_ms": 307, "pm_enter_exit": "4/4"}
+    ],
+    "pm": "allow=1 in final boot wake reports; earlier diagnostic hold cleared by ordinary reboot, temporary keep-awake not persisted",
+    "user_feedback": "Stress card retained; natural screen-off then KEY1, brightness, touch and navigation normal",
+    "limit": "Software DEEP counters and screen path timing, not physical residency/current measurement; writes shown completed before observed screen-off, not pending-save-across-DEEP coverage"
+  },
+  "boundaries": {
+    "latest_power": "Original battery plus USB following startup inhibit verification; USB OK, VBAT about 3962mV; no charge start requested",
+    "not_covered": ["Flash write interruption/power-loss safety", "Actual failed-write manual retry", "Pending preferences across DEEP", "Power/current/temperature/battery-life measurement", "Full J1-J7 or alarm acceptance"],
+    "no_destructive_injection": true
+  },
+  "result": "Bounded normal-save/reboot-restore and related sleep/wake device regression passed; source unchanged, no new compilation or host-test claim this round",
+  "independent_review": "Read-only review independently matched image identity, three complete boots, two acknowledged ordinary reboots, layout generation, wake evidence and missing-reply limitations",
+  "documentation": {"changed_files_checked": 5, "changed_chinese_files_checked": 4, "local_links_checked": 152, "errors": 0, "review": "Independent scoped review of four current documentation sections and evidence card found no material contradiction or blocker"},
+  "delivery": "Final reviewed documentation head, Rebase merge readback and origin/main verification are recorded in this round's PR Closure; active next action only in STATUS current"
+}
