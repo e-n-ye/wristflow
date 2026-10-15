@@ -1,6 +1,7 @@
 #include "watchface.h"
 #include "mount_screen.h"
 #include "wristflow_ui.h"
+#include "product_state.h"
 
 static lv_obj_t *create(lv_obj_t *parent)
 {
@@ -17,10 +18,9 @@ static void update(lv_obj_t *root, const wristflow_watch_snapshot_t *snapshot)
         lv_label_set_text(lv_obj_find_by_name(root, "simple_time"), "--:--");
     else lv_label_set_text_fmt(lv_obj_find_by_name(root, "simple_time"), "%02u:%02u",
                          (unsigned)snapshot->hour_24, (unsigned)snapshot->minute);
-    if (snapshot->battery_unavailable)
-        lv_label_set_text(lv_obj_find_by_name(root, "simple_battery"), "USB");
-    else lv_label_set_text_fmt(lv_obj_find_by_name(root, "simple_battery"), "%u%%",
-                         (unsigned)snapshot->battery_percent);
+    char text[16];
+    wristflow_battery_text(snapshot, text, sizeof text);
+    lv_label_set_text(lv_obj_find_by_name(root, "simple_battery"), text);
 }
 
 const wristflow_watchface_t wristflow_simple_watchface = {

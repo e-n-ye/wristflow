@@ -292,6 +292,20 @@ static void picker_touch(lv_event_t *event)
     }
 }
 
+static void render_power(lv_obj_t *root, const wristflow_watch_snapshot_t *snapshot)
+{
+    if (!root) return;
+    char battery[16];
+    wristflow_battery_text(snapshot, battery, sizeof battery);
+    lv_obj_t *heading = lv_obj_find_by_name(root, "placeholder_state");
+    if (heading) lv_label_set_text(heading, "电压");
+    lv_obj_set_style_text_color(named(root, "placeholder_icon"), lv_color_hex(0x10b981), 0);
+    lv_obj_t *status = named(root, "placeholder_label");
+    lv_obj_set_style_text_font(status, LV_FONT_DEFAULT, 0);
+    lv_label_set_text_fmt(status, "%s\n%s\n--%%", battery,
+                          wristflow_power_input_text(&snapshot->power));
+}
+
 static void sync_brightness(wristflow_apps_t *apps)
 {
     lv_slider_set_value(named(apps->controls, "brightness_slider"), apps->brightness, LV_ANIM_OFF);
@@ -301,8 +315,9 @@ static void sync_brightness(wristflow_apps_t *apps)
         lv_label_set_text_fmt(named(settings, "settings_brightness_value"), "%u%%", (unsigned)apps->brightness);
         lv_obj_set_style_text_font(named(settings, "settings_battery"),
             apps->snapshot.battery_unavailable ? LV_FONT_DEFAULT : body_20, 0);
-        if (apps->snapshot.battery_unavailable) lv_label_set_text(named(settings, "settings_battery"), "USB");
-        else lv_label_set_text_fmt(named(settings, "settings_battery"), "%u%%", (unsigned)apps->snapshot.battery_percent);
+        char text[16];
+        wristflow_battery_text(&apps->snapshot, text, sizeof text);
+        lv_label_set_text(named(settings, "settings_battery"), text);
     }
     lv_obj_t *adjust = apps->screens[WRISTFLOW_SURFACE_BRIGHTNESS_ADJUST];
     if (adjust) {
@@ -659,13 +674,15 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
     } else {
         lv_label_set_text(named(root, "app_title"), app->title);
         lv_label_set_text(named(root, "placeholder_icon"), app->icon);
-        if (apps->product_mode) {
+        if (surface == WRISTFLOW_SURFACE_SYSTEM && apps->snapshot.battery_unavailable) {
+            render_power(root, &apps->snapshot);
+        } else if (apps->product_mode) {
             lv_obj_set_style_text_color(named(root, "placeholder_icon"), lv_color_hex(app->color), 0);
             lv_label_set_text(named(root, "placeholder_label"), app->reason);
         } else if (apps->snapshot.metrics_unavailable) {
             lv_obj_t *status = named(root, "placeholder_label");
             lv_obj_set_style_text_font(status, LV_FONT_DEFAULT, 0);
-            lv_label_set_text(status, surface == WRISTFLOW_SURFACE_SYSTEM ? "USB / No battery" : "--");
+            lv_label_set_text(status, "--");
         }
     }
     return root;
@@ -732,6 +749,8 @@ void wristflow_apps_update(wristflow_apps_t *apps, const wristflow_watch_snapsho
         wristflow_weather_screen_set_time(apps->screens[WRISTFLOW_SURFACE_WEATHER], time_str);
     }
     sync_brightness(apps);
+    if (apps->snapshot.battery_unavailable)
+        render_power(apps->screens[WRISTFLOW_SURFACE_SYSTEM], snapshot);
     if (apps->product_mode) {
         wristflow_settings_refresh(apps->screens[apps->active], apps->active, apps->shell);
         bool awake = wristflow_ui_shell_keep_minutes(apps->shell) != 0;
@@ -740,8 +759,11 @@ void wristflow_apps_update(wristflow_apps_t *apps, const wristflow_watch_snapsho
         lv_obj_set_style_text_color(button, lv_color_white(), 0);
         button = named(apps->controls, "dnd_button");
         lv_obj_set_style_bg_color(button, lv_color_hex(wristflow_ui_shell_dnd(apps->shell) ? 0x38bdf8 : 0x191c20), 0);
-        lv_label_set_text(named(apps->controls, "connection_status"),
-            wristflow_ui_shell_phone_connected(apps->shell) ? "USB · 已连接" : "USB · 未连接");
+        const char *input = !snapshot->power.input_valid ? "USB?" :
+                            snapshot->power.input_good ? "USB+" : "USB-";
+        lv_label_set_text_fmt(named(apps->controls, "connection_status"), "%s · %s",
+            input,
+            wristflow_ui_shell_phone_connected(apps->shell) ? "已连接" : "未连接");
     }
 }
 

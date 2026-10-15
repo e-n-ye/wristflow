@@ -179,7 +179,7 @@ static void unsupported_layout(const wristflow_watch_snapshot_t *state, const wr
     assert(wristflow_ui_shell_navigation(shell)->page_count == 5 && requests == before);
     swipe(320,125,60,125);
     unavailable(current_slot("slot_0"), false); unavailable(current_slot("slot_1"), false);
-    assert(!strcmp(lv_label_get_text(named(current_slot("slot_2"), "value_label")), "USB"));
+    assert(!strcmp(lv_label_get_text(named(current_slot("slot_2"), "value_label")), "--"));
     snapshot("component_unavailable_quarters");
     tap(100,110); surface(WRISTFLOW_SURFACE_HOME);
     tap(280,110); surface(WRISTFLOW_SURFACE_HOME);

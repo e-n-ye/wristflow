@@ -8,6 +8,7 @@
 |---|---|---|
 | 产品集成 | [apps/product](../apps/product/)；`project/SConstruct`、`SConscript`、`proj.conf`、`rtconfig.py` 与 `src/` 由项目维护 | [PRODUCT-RUNTIME](PRODUCT-RUNTIME.md)；Build 的 `product` 目标；联合验收另按版本绑定 |
 | 黄山派禁充前置 | Product `aw32001_inhibit.c/h` 持有禁充／固定参数准备事务和失败结果，`product_charger.c/h` 持有早期板级强钩子与只读 I²C 诊断；Product 配置排除 SDK charger | [充电前置](CHARGER-PREFLIGHT.md)；保留 SDK 锁和原板 GPIO 时序，独立 bootloader、芯片配置与物理充电条件分别核验 |
+| 电源观测与显示 | Product `product_power.c/h` 只读PG／VBAT ADC；`product_power_service.c` 事件线程持有IDLE／快照，UI只请求和复制，`core/power_state` 持有独立有效性 | [电源契约](PRODUCT-RUNTIME.md#power-display-20261015)；不启充、不估算百分比、不新增息屏定时唤醒；插拔／睡醒／电压精度分别验 |
 | 固定数据演示 | [apps/ui_demo](../apps/ui_demo/)；与 Product 共用 core、运行时和生成 UI | Build 的 `ui_demo`；不能用演示值证明产品数据真实性 |
 | 板级诊断 | [apps/bringup](../apps/bringup/)；自有工程 / 板级集成 | [BRINGUP](BRINGUP.md)；Build 的 `bringup`，不能代替 Product 联合验收 |
 | 官方 Hello / BLE | 实际路径由 [Build.ps1](../scripts/Build.ps1) 的 `$projects` 定义，位于锁定 SDK 内 | Build 的 `hello` / `ble`；按官方 SCons，不迁移固件到 CMake |

@@ -34,5 +34,7 @@ bool wristflow_settings_encode(const wristflow_settings_t *settings, uint8_t dat
 bool wristflow_settings_decode(wristflow_settings_t *settings, const uint8_t *data, size_t size);
 /* RTC stores UTC. Product display currently uses a fixed UTC+8 offset. */
 wristflow_watch_snapshot_t wristflow_product_snapshot(bool rtc_read, uint32_t utc_seconds);
+/* Shared compact presentation; Product never substitutes a guessed SOC. */
+void wristflow_battery_text(const wristflow_watch_snapshot_t *snapshot, char *text, size_t size);
 
 #endif
