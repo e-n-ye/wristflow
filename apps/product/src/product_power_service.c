@@ -79,6 +79,7 @@ void wristflow_product_power_screen(bool visible)
 bool wristflow_product_power_start(void)
 {
     if (ready) return true;
+    if (!wristflow_product_power_adc_init()) return false;
     if (rt_event_init(&requests, "wf_pwr", RT_IPC_FLAG_PRIO) != RT_EOK) return false;
     rt_thread_t thread = rt_thread_create("wf_power", worker, RT_NULL, 4096, 24, 10);
     if (!thread) { rt_event_detach(&requests); return false; }

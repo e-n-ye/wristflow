@@ -5,6 +5,7 @@
 
 /* Worker-only device I/O. No timer or charge writes. Publish voltage before PG
  * so a slow I2C observation cannot delay the independent ADC result. */
+bool wristflow_product_power_adc_init(void); /* Startup only, before either worker. */
 wristflow_power_snapshot_t wristflow_product_power_voltage(void);
 void wristflow_product_power_input(wristflow_power_snapshot_t *sample);
 

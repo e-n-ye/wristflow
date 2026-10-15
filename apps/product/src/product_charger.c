@@ -6,7 +6,6 @@
 #include "bsp_board.h"
 #include <rtthread.h>
 #include <rtdevice.h>
-#include <string.h>
 
 #ifdef BSP_USING_CHARGER
 #error "Product charger inhibition requires the SDK charger driver to be excluded"
@@ -81,52 +80,6 @@ void wristflow_product_charger_report(void)
     rt_kprintf("[charger] early ID=0x%02x REG02=0x%02x REG04=0x%02x REG0b=0x%02x\n",
         early_result.chip_id, early_result.charge_current,
         early_result.charge_voltage, early_result.individual);
-    rt_kprintf("[charger] bench request=%umV/%umA; past readback only; charging not authorized\n",
+    rt_kprintf("[charger] bench request=%umV/%umA; past startup readback, not measured limits\n",
         (unsigned)WF_AW32001_PROFILE_MV, (unsigned)WF_AW32001_PROFILE_MA);
 }
-
-static int wf_charger(int argc, char **argv)
-{
-    if (argc != 2 || strcmp(argv[1], "status") != 0) {
-        rt_kprintf("Usage: wf_charger status\n");
-        return -RT_EINVAL;
-    }
-    wristflow_product_charger_report();
-    /* Manual, read-only snapshot through the registered bus mutex. No polling,
-     * fault-triggered enable, or guessed battery percentage/temperature. */
-    struct rt_i2c_bus_device *bus = rt_i2c_bus_device_find("i2c2");
-    if (bus == RT_NULL) {
-        rt_kprintf("[charger] snapshot unavailable: i2c2 absent\n");
-        return -RT_ERROR;
-    }
-    static const uint8_t registers[] = {
-        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
-        0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c
-    };
-    uint8_t snapshot[sizeof(registers)] = {0};
-    for (unsigned i = 0; i < sizeof(registers); ++i) {
-        uint8_t value = 0;
-        if (rt_i2c_mem_read(bus, CHARGER_ADDRESS, registers[i], 8, &value, 1) != 1) {
-            rt_kprintf("[charger] REG%02x read failed; physical state unconfirmed\n", registers[i]);
-            return -RT_ERROR;
-        }
-        snapshot[i] = value;
-        rt_kprintf("[charger] REG%02x=0x%02x\n", registers[i], value);
-    }
-    const uint8_t current = snapshot[2] & 0x3f;
-    unsigned nominal_ma = (snapshot[11] & 0x80) ?
-        ((current & 0x0f) + 1) * 2 : (current + 1) * 8;
-    unsigned nominal_mv = 3600 + (snapshot[4] >> 2) * 15;
-    bool profile = snapshot[10] == 0x49 && (snapshot[1] & 8) &&
-        !(snapshot[5] & 0x60) && !(snapshot[11] & 0x80) &&
-        snapshot[2] == 0x09 && (snapshot[4] & 0xfc) == 0x98;
-    rt_kprintf("[charger] snapshot CEB=%u nominal=%umV/%umA profile_match=%u\n",
-        (snapshot[1] >> 3) & 1, nominal_mv, nominal_ma, profile);
-    const char *temperature_mode = !(snapshot[6] & 0x80) ? "disabled" :
-        (snapshot[7] & 0x80) ? "external_ntc" : "pcb_otp";
-    rt_kprintf("[charger] temperature_mode=%s; no cell temperature measurement\n",
-        temperature_mode);
-    rt_kprintf("[charger] sequential non-atomic snapshot; not continuous protection or permission to charge\n");
-    return RT_EOK;
-}
-MSH_CMD_EXPORT(wf_charger, read charger inhibition and raw registers);

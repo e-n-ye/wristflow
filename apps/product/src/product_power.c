@@ -6,6 +6,15 @@
 #error "Power observation must not enable the SDK automatic charger"
 #endif
 
+static struct rt_mutex voltage_lock;
+static bool voltage_ready;
+bool wristflow_product_power_adc_init(void)
+{
+    if (!voltage_ready)
+        voltage_ready = rt_mutex_init(&voltage_lock, "wf_vbat", RT_IPC_FLAG_PRIO) == RT_EOK;
+    return voltage_ready;
+}
+
 void wristflow_product_power_input(wristflow_power_snapshot_t *sample)
 {
     sample->input_valid = false;
@@ -24,6 +33,10 @@ void wristflow_product_power_input(wristflow_power_snapshot_t *sample)
 wristflow_power_snapshot_t wristflow_product_power_voltage(void)
 {
     wristflow_power_snapshot_t sample = {0};
+    /* Shared by observation and charging workers; SDK locks only the conversion,
+     * not the full open/enable/read/disable/close sequence. */
+    if (!voltage_ready || rt_mutex_take(&voltage_lock, rt_tick_from_millisecond(100)) != RT_EOK)
+        return sample;
     rt_adc_device_t adc = (rt_adc_device_t)rt_device_find("bat1");
     if (adc && rt_device_open((rt_device_t)adc, RT_DEVICE_FLAG_RDONLY) == RT_EOK) {
         rt_uint32_t decimillivolts = 0;
@@ -39,5 +52,6 @@ wristflow_power_snapshot_t wristflow_product_power_voltage(void)
             sample.millivolts = (uint16_t)((decimillivolts + 5U) / 10U);
         }
     }
+    rt_mutex_release(&voltage_lock);
     return sample; /* Failed observations replace old values with unknown. */
 }

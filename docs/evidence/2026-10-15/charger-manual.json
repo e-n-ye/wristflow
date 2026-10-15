@@ -1,0 +1,91 @@
+{
+  "date": "2026-10-15",
+  "scope": "Manual short charging software only; no device access, flashing or charge enable experiment",
+  "base_commit": "719d3e1542b3d5f34d55c495f8f371c00fa5f6fc",
+  "branch": "codex/charger-manual",
+  "local_worktree": "C:/Users/13984/.codex/worktrees/power-status/wristflow",
+  "user_work_preserved": "Main directory remains at 654507f with its 12 pre-existing Pro generated changes",
+  "source_contract": {
+    "startup": "Existing early inhibit/profile preparation and retained SRAM false path unchanged; service initialization performs no charger I/O",
+    "commands": "wf_charger status | stop | start <1..60 seconds>; start/stop enqueue, no shell-thread device I/O",
+    "ownership": "Single wf_charge worker owns session/charger writes/diagnostics; snapshot and command flags copied in short IRQ critical sections",
+    "profile": "Nominal 4170mV/80mA, not measured limits; no reset commands or automatic re-enable",
+    "entry": "Fresh preparation/readbacks, ID, CEB, watchdog, normal termination/safety timer, PG and fault checks; fresh ADC 3500..4100mV is only an experiment admission rule",
+    "monitor": "One-second RTOS event wait while enabled; inactive waits forever. Checks cancel/deadline around each operation and again after bus lock before enable",
+    "exit": "Manual, timeout, input loss, profile drift, fault, regulation, voltage failure/guard or chip completion attempts inhibition; only fresh CEB=1 readback reports inhibited",
+    "unconfirmed": "Stop failure retains IDLE, blocks start and has no autonomous retry; explicit stop may retry. Persistent failed communication may retain IDLE indefinitely",
+    "io": "50ms bounded outer recursive bus mutex acquisition; SDK 5s transfer timeout and BUSY/recovery behavior retained. No hard physical stop deadline claimed",
+    "adc": "Shared project mutex covers open/enable/read/disable/close, 100ms acquisition; initialized before either worker starts",
+    "faults": "REG08 watchdog and REG09[5:0] masks; REG09[7:6] shipping configuration ignored as fault. First observed fault rejects same start; read can clear exited fault latch",
+    "status": "Cached timestamp/validity plus asynchronous inactive raw dump; active status wakes existing monitor and may therefore advance a stop"
+  },
+  "host": {
+    "toolchain": "GCC 15.2.0, CMake 3.31.4, Ninja 1.13.2",
+    "debug_commands": [
+      "cmake --build artifacts/host -j 6",
+      "ctest --test-dir artifacts/host --output-on-failure"
+    ],
+    "debug_log": "Local ignored artifacts/charger-manual-final-all-test.log",
+    "debug_result": "38/38 passed, 10.85 seconds",
+    "release_commands": [
+      "cmake -S tests -B artifacts/charger-manual-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe -DCMAKE_MAKE_PROGRAM=D:/msys64/ucrt64/bin/ninja.exe -DWRISTFLOW_SDK_ROOT=D:/MY_Desk/project/wristflow/vendor/SiFli-SDK",
+      "cmake --build artifacts/charger-manual-release --target aw32001_inhibit aw32001_manual product_charger_service product_power product_power_service -j 6",
+      "ctest --test-dir artifacts/charger-manual-release --output-on-failure -R '^(aw32001_inhibit|aw32001_manual|product_charger_service|product_power|product_power_service)$'"
+    ],
+    "release_log": "Local ignored artifacts/charger-manual-release-test.log",
+    "release_result": "5/5 passed, 0.40 seconds; assertions retained with UNDEBUG",
+    "cases": [
+      "All 32 start-transfer failure points, including failed ACK after hardware write side effect",
+      "Stop injected at every start-transfer point; no enable before admission completes",
+      "All four stop-transfer failures, ignored CEB write, unconfirmed state and explicit recovery",
+      "Five-second I/O delay, elapsed command before dispatch, uint32 clock wrap and timeout without UI",
+      "Profile/termination drift, shipping bits vs first latched fault, input loss, ADC failure/bounds and chip completion",
+      "Command parser, initialization/event/thread/ADC failures, queue failure, start rejection while busy, stop precedence and no autonomous restart/retry",
+      "Outer bus lock deadline/stop injection immediately before final enable; no enable transaction dispatched",
+      "PM retained on unconfirmed stop and released after successful readback; recursive bus lock released on all I/O exits",
+      "ADC full-sequence mutual exclusion and lock-failure unknown result"
+    ]
+  },
+  "firmware": {
+    "sdk": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65, unchanged and clean; lock/submodules unchanged",
+    "toolchain": "Arm GCC 14.2.1, Python 3.13.15, SCons 4.10.1",
+    "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/build-isolated.ps1 -Example product -Jobs 6",
+    "wrapper": "Existing ignored local wrapper loads the main directory's installed SDK environment, then calls current worktree Build.ps1; underlying official scons --board=sf32lb52-lchspi-ulp -j6",
+    "result": "artifacts/product/20261015-164027-232/result.json (local ignored)",
+    "exit_code": 0,
+    "sources_rehashed": 399,
+    "artifacts_rehashed": 29,
+    "manifest_sha256": "501e2cc6dbdb40229313a856c19e1f632d4f9e7fe21e8e27e79a40940937e1f6",
+    "main_bin_sha256": "81e594e33646d0fd1a56e2d4ee291ae72ffd420fe21075c3d35ca608840391d0",
+    "main_bin_bytes": 7724152,
+    "ui_demo": "No compiled source changes; prior build 20261015-135438-944 rehashed 372 sources and 22 artifacts, identical; no redundant build",
+    "configuration": "ADC1 enabled; SDK automatic charger and PM standby disabled; XML/generated/vendor/shared build entry unchanged",
+    "checks": [
+      "python artifacts/verify-power.py: all compiled sources and artifacts rehashed",
+      "python tests/check_charger_layout.py apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.elf: strong hook at 0x200033BC .retm_data",
+      "arm-none-eabi-objdump -d --disassemble=BSP_PowerUpCustom: ordinary DEEP false branch at 0x200033C2 to 0x2000345A stack restore/pop return, no Flash call",
+      "pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/flash-isolated.ps1 -DryRun: three manifests/images valid; device not opened"
+    ],
+    "cloud_baseline": "Not run; SDK/toolchain/shared build inputs unchanged"
+  },
+  "failures_and_review": [
+    "Initial host run 3/4 passed: ignored-enable-write case wrongly asserted no attempted enable. Corrected test to require attempted write, unchanged hardware CEB and failed start; final Debug/Release pass",
+    "Independent read-only review found P2: stop/deadline arriving during bus lock acquisition could still dispatch enable. Added post-acquisition check and two lock-window regression cases; reviewer verified closure",
+    "Initial build introduced signed timeout ternary warning. Changed to explicit rt_int32_t wait; final build contains no new warning from that expression",
+    "git diff --check found trailing blank line in product_charger.c; removed and rebuilt/rehashed final sources; BIN identical",
+    "Existing SDK/FinSH/linker and unrelated watch_core/product_services warnings retained; no claim of warning-free build"
+  ],
+  "hardware": {
+    "performed": false,
+    "device_firmware": "a9918aa2ffe3e48f557d990083e86f53db38b2b4e81913d324cc869f2294d93e",
+    "last_user_confirmed_power": "Battery only, USB removed, original wiring, inhibited",
+    "not_covered": [
+      "New candidate flashing/startup, actual enable/stop current, timed physical cutoff or wake/touch regression",
+      "ADC voltage accuracy against external meter, battery presence, capacity or SOC",
+      "Net battery branch current, cell contact temperature, actual voltage/current limits or termination",
+      "Power/reset/fault retention, runtime stack margin, maximum scheduler/HAL latency, unattended charging or battery life"
+    ]
+  },
+  "documentation_validation": "23 changed files checked as UTF-8, six changed Chinese documents checked for corruption, 259 local links/anchors valid; git diff --check passed",
+  "next_bounded_experiment": "After software PR closure, identify borrowed meter/current/temperature capability and compare battery-terminal voltage with existing display. New firmware flash needs battery disconnected/USB only; actual short charge requires separately confirmed cell/protection-board limits and voltage/net-current/contact-temperature measurements. No automatic device action is authorized by this evidence card."
+}

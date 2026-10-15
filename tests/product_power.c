@@ -10,6 +10,15 @@ static bool open_fail, close_fail, opened;
 static uint8_t chip_id = 0x49, raw_status = 0x42;
 static uint32_t raw_voltage = 38888;
 static unsigned enables, disables, adc_reads, i2c_reads;
+static unsigned mutex_held;
+static bool mutex_fail;
+rt_tick_t rt_tick_from_millisecond(unsigned ms) { return ms; }
+int rt_mutex_init(struct rt_mutex *mutex, const char *name, unsigned flags)
+{ (void)mutex; assert(!strcmp(name, "wf_vbat") && flags == RT_IPC_FLAG_PRIO); return 0; }
+int rt_mutex_take(struct rt_mutex *mutex, int wait)
+{ (void)mutex; assert(wait == 100 && !mutex_held); if (mutex_fail) return -1; ++mutex_held; return 0; }
+int rt_mutex_release(struct rt_mutex *mutex)
+{ (void)mutex; assert(mutex_held); --mutex_held; return 0; }
 static wristflow_power_snapshot_t sample_power(void)
 {
     wristflow_power_snapshot_t value = wristflow_product_power_voltage();
@@ -32,7 +41,7 @@ rt_device_t rt_device_find(const char *name)
 { assert(!strcmp(name, "bat1")); return no_adc ? NULL : &bus; }
 int rt_device_open(rt_device_t dev, unsigned flags)
 {
-    assert(dev == &bus && flags == RT_DEVICE_FLAG_RDONLY && !opened);
+    assert(dev == &bus && flags == RT_DEVICE_FLAG_RDONLY && !opened && mutex_held);
     if (open_fail) return -1;
     opened = true; return RT_EOK;
 }
@@ -56,6 +65,11 @@ size_t rt_device_read(rt_device_t dev, unsigned channel, void *data, size_t size
 
 int main(void)
 {
+    assert(!wristflow_product_power_voltage().voltage_valid);
+    assert(wristflow_product_power_adc_init());
+    mutex_fail = true;
+    assert(!wristflow_product_power_voltage().voltage_valid && !opened && !adc_reads);
+    mutex_fail = false;
     wristflow_power_snapshot_t sample = sample_power();
     assert(sample.input_valid && sample.input_good && sample.voltage_valid && sample.millivolts == 3889);
     assert(enables == 1 && disables == 1 && adc_reads == 1 && i2c_reads == 2);
@@ -109,5 +123,6 @@ int main(void)
     assert(!wristflow_power_equal(&sample, &snapshot.power));
     sample = (wristflow_power_snapshot_t){0};
     assert(!strcmp(wristflow_power_input_text(&sample), "USB ?"));
+    assert(!mutex_held);
     return 0;
 }
