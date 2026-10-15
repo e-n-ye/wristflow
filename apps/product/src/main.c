@@ -9,6 +9,7 @@
 #include "product_ble.h"
 #include "product_pm.h"
 #include "product_charger.h"
+#include "product_power.h"
 #include "product_countdown.h"
 #include "product_alarm.h"
 #include "weather_screen.h"
@@ -22,6 +23,24 @@ static bool defer_brightness;
 static uint8_t wake_brightness;
 /* This bounded phone copy is too large for the main thread's stack. */
 static wristflow_notifications_snapshot_t notifications;
+static wristflow_power_snapshot_t power;
+static rt_tick_t power_sampled;
+
+static wristflow_watch_snapshot_t read_snapshot(bool force_power)
+{
+    if (force_power || rt_tick_get() - power_sampled >= rt_tick_from_millisecond(5000)) {
+        wristflow_product_power_request();
+        power_sampled = rt_tick_get();
+    }
+    wristflow_power_snapshot_t next = wristflow_product_power_snapshot();
+    if (!wristflow_power_equal(&power, &next))
+        rt_kprintf("[power] %s voltage_valid=%u VBAT=%umV; SOC unknown\n",
+                   wristflow_power_input_text(&next), next.voltage_valid, next.millivolts);
+    power = next;
+    wristflow_watch_snapshot_t snapshot = wristflow_product_services_snapshot();
+    snapshot.power = power;
+    return snapshot;
+}
 
 static bool sync_notifications(void)
 {
@@ -76,6 +95,7 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_POWEROFF, NULL) == RT_EOK);
     /* Touch power work is asynchronous and holds its own SDK idle request. */
     rt_kprintf("[product] screen off; notification events active\n");
+    wristflow_product_power_screen(false);
     wristflow_product_pm_screen(true);
     rt_uint32_t events;
     bool preview = false, reminder = false;
@@ -99,7 +119,7 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     /* Select the wake destination while dark; expose only its completed frame. */
     defer_brightness = true;
     if ((!preview && !reminder) || (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))) wristflow_ui_shell_key(product_shell);
-    wristflow_watch_snapshot_t wake_snapshot = wristflow_product_services_snapshot();
+    wristflow_watch_snapshot_t wake_snapshot = read_snapshot(false);
     wristflow_ui_shell_update(product_shell, &wake_snapshot);
     RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_POWERON, NULL) == RT_EOK);
     RT_ASSERT(rt_device_control(touch, RTGRAPHIC_CTRL_POWERON, NULL) == RT_EOK);
@@ -120,6 +140,7 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     defer_brightness = false;
     set_brightness(wake_brightness, lcd);
     rt_kprintf("[product] screen on\n");
+    wristflow_product_power_screen(true); /* Start device work only after the first lit frame. */
 }
 
 int main(void)
@@ -132,7 +153,7 @@ int main(void)
     wristflow_product_services_start(&settings, &layout);
     const wristflow_alarm_port_t *alarm = wristflow_product_alarm_start();
     wristflow_product_ble_start();
-    wristflow_watch_snapshot_t snapshot = wristflow_product_services_snapshot();
+    wristflow_watch_snapshot_t snapshot = read_snapshot(true);
     RT_ASSERT(littlevgl2rtt_init("lcd") == RT_EOK);
     RT_ASSERT(lv_display_get_horizontal_resolution(NULL) == 390);
     RT_ASSERT(lv_display_get_vertical_resolution(NULL) == 450);
@@ -167,8 +188,11 @@ int main(void)
     int32_t key_id = button_init(&key);
     RT_ASSERT(key_id >= 0);
     RT_ASSERT(button_enable(key_id) == SF_EOK);
-    rt_kprintf("[product] Notify B1: RTC=%s, USB, BLE active, PM auto when off\n",
-               snapshot.time_unavailable ? "not synchronized" : "in range");
+    if (!wristflow_product_power_start()) rt_kprintf("[power] service unavailable; display unknown\n");
+    rt_kprintf("[product] RTC=%s, %s, voltage_valid=%u VBAT=%umV, BLE active, PM auto when off\n",
+               snapshot.time_unavailable ? "not synchronized" : "in range",
+               wristflow_power_input_text(&snapshot.power), snapshot.power.voltage_valid,
+               snapshot.power.millivolts);
     uint32_t sampled = lv_tick_get();
     for (;;) {
         uint32_t wait_ms = lv_timer_handler();
@@ -181,13 +205,14 @@ int main(void)
         }
         if (now - sampled >= 250) {
             sync_notifications();
-            wristflow_watch_snapshot_t next = wristflow_product_services_snapshot();
+            wristflow_watch_snapshot_t next = read_snapshot(false);
             lv_obj_t *active = lv_screen_active();
             if (active && lv_obj_get_name(active) && !strcmp(lv_obj_get_name(active), "screen_weather"))
                 wristflow_weather_screen_refresh(active);
             /* RTC polling and settings collection must not redraw static pages. */
             if (next.hour_24 != snapshot.hour_24 || next.minute != snapshot.minute ||
                 next.time_unavailable != snapshot.time_unavailable ||
+                !wristflow_power_equal(&next.power, &snapshot.power) ||
                 next.uptime_seconds / 60 != snapshot.uptime_seconds / 60) {
                 snapshot = next;
                 wristflow_ui_shell_update(shell, &snapshot);
@@ -201,7 +226,7 @@ int main(void)
         if (events & (WF_EVENT_ALARM | WF_EVENT_COUNTDOWN)) wristflow_ui_shell_reminder_event(shell);
         if (events & WF_EVENT_PHONE) {
             sync_notifications();
-            snapshot = wristflow_product_services_snapshot();
+            snapshot = read_snapshot(false);
             wristflow_ui_shell_update(shell, &snapshot);
             lv_obj_t *active = lv_screen_active();
             if (active && lv_obj_get_name(active) && !strcmp(lv_obj_get_name(active), "screen_weather")) {

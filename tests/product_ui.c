@@ -50,7 +50,11 @@ static lv_obj_t *named(lv_obj_t *root, const char *name)
     return obj;
 }
 static void text(lv_obj_t *root, const char *name, const char *value)
-{ assert(strcmp(lv_label_get_text(named(root, name)), value) == 0); }
+{
+    const char *actual = lv_label_get_text(named(root, name));
+    if (strcmp(actual, value)) fprintf(stderr, "%s: expected [%s], got [%s]\n", name, value, actual);
+    assert(strcmp(actual, value) == 0);
+}
 static void glyphs(const lv_font_t *font, const char *string)
 {
     const unsigned char *c = (const unsigned char *)string;
@@ -106,8 +110,15 @@ int main(int argc, char **argv)
     assert(wristflow_ui_shell_navigation(shell)->page_count == 4);
     advance();
     text(lv_screen_active(), "simple_time", "--:--");
-    text(lv_screen_active(), "simple_battery", "USB");
+    text(lv_screen_active(), "simple_battery", "--");
     snapshot(argv[1], "product_unsynced");
+    state.power = (wristflow_power_snapshot_t){true, true, true, 3872};
+    assert(wristflow_ui_shell_update(shell, &state));
+    text(lv_screen_active(), "simple_battery", "3.87V");
+    snapshot(argv[1], "power_simple_voltage");
+    state.power = (wristflow_power_snapshot_t){0};
+    assert(wristflow_ui_shell_update(shell, &state));
+    text(lv_screen_active(), "simple_battery", "--");
     lv_obj_t *home = lv_screen_active();
     lv_obj_t *carousel = named(home, "demo_carousel");
     const char *const expected[3][4] = {
@@ -147,8 +158,7 @@ int main(int argc, char **argv)
         if (!index) continue;
         const wristflow_card_page_t *page = wristflow_product_default_page(index - 1);
         for (unsigned s = 0; s < page->count; ++s)
-            text(named(panel, slot_names[s]), "value_label",
-                 index == 1 && s == 2 ? "USB" : "--");
+            text(named(panel, slot_names[s]), "value_label", "--");
     }
     state = wristflow_product_snapshot(true, WRISTFLOW_TIME_MIN + 60);
     state.uptime_seconds = 3720;
@@ -182,7 +192,8 @@ int main(int argc, char **argv)
                 text(lv_screen_active(), "weather_state_label", "天气更新失败");
             } else {
                 text(lv_screen_active(), "app_title", app->title);
-                text(lv_screen_active(), "placeholder_label", app->reason);
+                text(lv_screen_active(), "placeholder_label",
+                     app->surface == WRISTFLOW_SURFACE_SYSTEM ? "--\nUSB ?\n--%" : app->reason);
             }
             if (!s) {
                 if (strcmp(app->id, "weather") == 0) snprintf(name, sizeof name, "product_weather");
@@ -307,7 +318,20 @@ int main(int argc, char **argv)
     assert(lv_obj_get_child_count(named(lv_screen_active(), "settings_scroll")) == 10);
     assert(wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_SYSTEM));
     advance();
-    text(lv_screen_active(), "placeholder_label", "USB 供电，未接入电池");
+    text(lv_screen_active(), "placeholder_label", "--\nUSB ?\n--%");
+    state.power = (wristflow_power_snapshot_t){true, true, true, 3872};
+    assert(wristflow_ui_shell_update(shell, &state));
+    text(lv_screen_active(), "placeholder_label", "3.87V\nUSB OK\n--%");
+    text(lv_screen_active(), "placeholder_state", "电压");
+    glyphs(title_24, "电压");
+    snapshot(argv[1], "power_battery_usb");
+    state.power.input_good = false;
+    assert(wristflow_ui_shell_update(shell, &state));
+    text(lv_screen_active(), "placeholder_label", "3.87V\nUSB --\n--%");
+    snapshot(argv[1], "power_battery_no_usb");
+    state.power = (wristflow_power_snapshot_t){0};
+    assert(wristflow_ui_shell_update(shell, &state));
+    text(lv_screen_active(), "placeholder_label", "--\nUSB ?\n--%");
     assert(wristflow_ui_shell_back(shell));
     advance();
     assert(wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_BRIGHTNESS_ADJUST)); advance();
@@ -341,7 +365,25 @@ int main(int argc, char **argv)
     assert(wristflow_ui_shell_key(shell)); advance();
     assert(!lv_obj_has_flag(named(lv_screen_active(), "launcher_grid"), LV_OBJ_FLAG_HIDDEN));
     assert(wristflow_ui_shell_key(shell)); advance();
-    text(lv_screen_active(), "battery_label", "USB");
+    text(lv_screen_active(), "battery_label", "--");
+    state.power = (wristflow_power_snapshot_t){true, false, true, 3872};
+    assert(wristflow_ui_shell_update(shell, &state));
+    text(lv_screen_active(), "battery_label", "3.87V");
+    snapshot(argv[1], "power_diffusion_voltage");
+    assert(wristflow_ui_shell_key(shell)); advance();
+    assert(wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_ABOUT)); advance();
+    text(named(lv_screen_active(), "about_power"), "row_detail", "3.87V / USB --");
+    state.power = (wristflow_power_snapshot_t){true, true, true, 3872};
+    assert(wristflow_ui_shell_update(shell, &state));
+    text(named(lv_screen_active(), "about_power"), "row_detail", "3.87V / USB OK");
+    lv_obj_scroll_to_view(named(lv_screen_active(), "about_power"), LV_ANIM_OFF); advance();
+    snapshot(argv[1], "power_about");
+    assert(wristflow_ui_shell_key(shell)); advance();
+    assert(wristflow_ui_shell_open_controls(shell)); advance();
+    text(lv_screen_active(), "connection_status", "USB+ · 未连接");
+    assert(lv_obj_get_height(named(lv_screen_active(), "connection_status")) <= 30);
+    snapshot(argv[1], "power_controls");
+    assert(wristflow_ui_shell_close_controls(shell)); advance();
     assert(!lv_obj_has_flag(named(lv_screen_active(), "hour_artwork"), LV_OBJ_FLAG_HIDDEN));
     snapshot(argv[1], "product_diffusion");
     state = wristflow_product_snapshot(false, 0);

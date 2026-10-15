@@ -232,7 +232,7 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
         row(list, "about_board", "目标设备", "黄山派 / SF32LB52");
         row(list, "about_sdk", "SDK", "2.5.1 / 421126d9");
         row(list, "about_display", "屏幕", "390 x 450");
-        row(list, "about_power", "供电", "USB / 未接入电池");
+        row(list, "about_power", "供电", "-- / USB ?");
         row(list, "about_time", "时间状态", "未校时");
         settings_note_create(list, "硬件版本与实际容量尚未核实。"); break;
     case WRISTFLOW_SURFACE_WAKE_SETTINGS:
@@ -278,6 +278,11 @@ void wristflow_settings_refresh(lv_obj_t *root, wristflow_surface_t surface, wri
             lv_obj_set_flag(named(named(root, value), "row_check"), LV_OBJ_FLAG_HIDDEN, option != selected);
         }
     } else if (surface == WRISTFLOW_SURFACE_ABOUT) {
+        const wristflow_watch_snapshot_t *snapshot = wristflow_ui_shell_snapshot(shell);
+        char battery[16];
+        wristflow_battery_text(snapshot, battery, sizeof battery);
+        snprintf(value, sizeof value, "%s / %s", battery, wristflow_power_input_text(&snapshot->power));
+        label(named(named(root, "about_power"), "row_detail"), value);
         label(named(named(root, "about_time"), "row_detail"),
             wristflow_ui_shell_snapshot(shell)->time_unavailable ? "未校时" : "UTC+8");
     }

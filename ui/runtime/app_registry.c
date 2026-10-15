@@ -2,6 +2,7 @@
 #include "weather.h"
 #include "weather_screen.h"
 #include "wristflow_ui.h"
+#include "product_state.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -13,8 +14,8 @@ static void missing(const wristflow_watch_snapshot_t *snapshot, wristflow_app_da
 
 static void battery(const wristflow_watch_snapshot_t *snapshot, wristflow_app_data_t *data)
 {
-    if (snapshot->battery_unavailable) strcpy(data->value, "USB");
-    else snprintf(data->value, sizeof data->value, "%u%%", snapshot->battery_percent);
+    wristflow_battery_text(snapshot, data->value, sizeof data->value);
+    snprintf(data->reason, sizeof data->reason, "%s", wristflow_power_input_text(&snapshot->power));
 }
 
 static void weather(const wristflow_watch_snapshot_t *snapshot, wristflow_app_data_t *data)
@@ -49,7 +50,7 @@ static const wristflow_app_descriptor_t apps[] = {
         WRISTFLOW_CAPABILITY_READY, 0, 0x616c77, "", screen_face_picker_create, NULL, false},
     {"battery", "电量", "\xef\x89\x80", "launch_system", WRISTFLOW_SURFACE_SYSTEM,
         WRISTFLOW_CAPABILITY_PLACEHOLDER, WRISTFLOW_CARD_QUARTER, 0x10b981,
-        "USB 供电，未接入电池", screen_app_placeholder_create, battery, false},
+        "", screen_app_placeholder_create, battery, false},
     {"flashlight", "手电筒", "\xef\x83\xab", "launch_flashlight", WRISTFLOW_SURFACE_FLASHLIGHT,
         WRISTFLOW_CAPABILITY_READY, 0, 0x8b71bf, "", screen_flashlight_create, NULL, false},
     {"settings", "设置", "\xef\x80\x93", "launch_settings", WRISTFLOW_SURFACE_SETTINGS,

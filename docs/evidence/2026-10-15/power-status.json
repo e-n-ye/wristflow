@@ -1,0 +1,132 @@
+{
+  "date": "2026-10-15",
+  "baseline": "0cfd857c1164eb42f83f7419c72f82caee709cd7",
+  "branch": "codex/power-status",
+  "workspace": "C:/Users/13984/.codex/worktrees/power-status/wristflow",
+  "scope": "Read real AW32001 PG and VBAT ADC into independent valid fields; refresh existing UI; preserve charging inhibition and unknown SOC.",
+  "document_validation": "30 changed files strictly decoded as UTF-8; changed Chinese files checked for replacement/NUL/mojibake markers,278 local links/anchors valid; git diff --check passed. Final scoped consistency review found no conflicting hardware/version claims.",
+  "sdk": "Unchanged sdk.lock.json; clean pinned SDK reused from D:/MY_Desk/project/wristflow/vendor/SiFli-SDK",
+  "source_inspection": {
+    "adc": "SF32LB52X dedicated VBAT channel 7; bat1 normal device read returns 0.1mV after driver calibration/VBAT factor. ADC1 explicitly enabled. Device open/enable/read/disable/close results checked.",
+    "error_api": "Locked RT-Thread rt_adc_read discards convert errors. rt_device_read returns zero on failure and requires an opened device; the Product uses that checked path.",
+    "input": "AW32001E V1.4 page39: REG08 bit1 PG_STAT; identity read from REG0A must equal 0x49. Only read transactions, no charge writes.",
+    "datasheet": "https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1157/AW32001E.pdf",
+    "pcb_source": "Existing official huangshan-v1.2.epro in charger-preflight/wristflow/artifacts/charger-preflight; internal module sheet title is V1.3.",
+    "pcb_lines": [
+      "SYMBOL/55da200dc97041f39cf571d70f2bba98.esym:14-16 identifies module pin61 as VBATS",
+      "PCB/e4947da8b8a84953a988023242fbea49.epcb:4434 module e142 pin61 -> VBAT",
+      "PCB/e4947da8b8a84953a988023242fbea49.epcb:5178 charger e3707 A3 -> VBAT; 5175 A2 -> VSYS_S",
+      "SYMBOL/56105061af6943e2aff7f19d422d3158.esym:34-40 A3=BAT, A2=SYS"
+    ],
+    "pm": "First candidate used synchronous foreground sampling and failed wake regression. See wake_regression and async_candidate for the replacement; no strict real-time I/O deadline claim.",
+    "presence": "Neither PG nor a VBAT node voltage establishes physical battery presence. No percentage estimate or charge-current inference."
+  },
+  "host": {
+    "compiler": "GCC 15.2.0",
+    "cmake": "3.31.4",
+    "ninja": "1.13.2",
+    "configure": "cmake -S tests -B artifacts/host -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe -DWRISTFLOW_SDK_ROOT=D:/MY_Desk/project/wristflow/vendor/SiFli-SDK",
+    "build": "cmake --build artifacts/host -j 6",
+    "test": "ctest --test-dir artifacts/host --output-on-failure",
+    "result": "35/35 passed, 17.64 seconds; final about-page viewport-only test edit followed by product_ui 1/1, 2.08 seconds",
+    "log": "artifacts/host-test-final.log; artifacts/host-ui-test-final.log",
+    "renders": "artifacts/host/renders/power_{simple_voltage,diffusion_voltage,battery_usb,battery_no_usb,about,controls}.{ppm,png}; synthetic test values, not device measurements",
+    "fault_coverage": "Missing bus/ADC, wrong ID, failed ID/status read, ADC open/enable/read/disable/close failures, range guard, zero voltage, independent validity, unknown fallback, 53% demo preservation; UI live update/loss/recovery and single-line control status"
+  },
+  "firmware": {
+    "status": "First synchronous candidate; superseded by async_candidate after failed wake regression",
+    "command": "pwsh -NoProfile -File artifacts/build-isolated.ps1 -Example product -Jobs 6; then -Example ui_demo; wrapper invokes current Build.ps1 with existing official SDK environment",
+    "product": {
+      "result": "artifacts/product/20261015-135417-382/result.json",
+      "exit_code": 0,
+      "sources_rehashed": 395,
+      "artifacts_rehashed": 29,
+      "result_sha256": "815e1b47d965138cf3fa1cf6e6584556c8a6e6a3bfee8f9a2c8a5a0acf7babfc",
+      "main_bytes": 7720624,
+      "main_sha256": "d4f17491699b5fcdebd98b91e5d041a61064a5413c12ef6672e2d3c834679648",
+      "bootloader_sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21",
+      "ftab_sha256": "e64ef064e436da6dc15b6011d7301d13e76f03da51d9f66b1f98516c8d81f62c"
+    },
+    "ui_demo": {
+      "result": "artifacts/ui_demo/20261015-135438-944/result.json",
+      "exit_code": 0,
+      "sources_rehashed": 372,
+      "artifacts_rehashed": 22,
+      "result_sha256": "9c9e760302a67b462b1a0be4d17155348a514549086852643bb07d6360eb227a",
+      "main_bytes": 7510120,
+      "main_sha256": "be7e6848ceb8300ba16695cea469207631176b62481a9bfefd877fc41137c54b"
+    },
+    "layout": "tests/check_charger_layout.py passed; strong hook .retm_data 0x200033BC. Disassembly false compare/branch 0x200033C0/0x200033C2 -> 0x2000345A add sp and pop at 0x2000345C; no call on false path.",
+    "configuration": "ADC1 enabled; SDK charger and PM_STANDBY_ENABLE disabled; no aw32001_init/aw32001_charge_enable linked",
+    "verification": "artifacts/verify-power.py rehashed every recorded project source and artifact; artifacts/power-build-verification.json",
+    "dry_run": "pwsh -NoProfile -File artifacts/flash-isolated.ps1 -DryRun: passed three-image manifest/hash checks without opening device",
+    "cloud": "Not run; no toolchain or SDK change"
+  },
+  "corrections": [
+    "Independent source review found missing ADC device open; fixed paired open/close and added refcount-gate test before final firmware build.",
+    "Initial UI test expected static battery placeholder; updated to assert dynamic observations. Test navigation to About corrected to use launcher route.",
+    "Actual control-center render wrapped USB OK status; shortened compact form to USB+/USB-/USB? and added single-line height assertion.",
+    "MSYS Python lacked Pillow; used installed bundled Python for render conversion without installing packages.",
+    "Initial actual flash hit FastCtx run 120-second timeout and process tree was killed during write. Incomplete attempt and logs preserved; retry runs independently as a background job, same three images. Not counted as success."
+  ],
+  "hardware": {
+    "status": "First candidate three-image write/verify succeeded; real data and UI confirmed, wake regression failed",
+    "user_conditions": "User confirmed battery disconnected/USB-only for flashing, then explicitly reported reconnecting battery and USB together after success.",
+    "port": "Enumerated COM5 USB-SERIAL CH340 VID:PID 1A86:7523, location1-1.1 immediately before flash",
+    "charging": "Early verified/profile=1; after battery connection REG01=0xAC, REG05=0x1A, REG08=0x42, REG09=0x00; CEB=1/profile_match=1. No charge enable command or current measurement.",
+    "flash_result": "artifacts/flash/product/20261015-140213-633/result.json",
+    "flash_result_sha256": "ebfadba0354fea7b11c755c9b6e1b625ecea6c00be0baedcd09e707dde40acc9",
+    "observations": "USB-only VBAT node about177-178mV; after user battery connection 3962-3965mV. User confirmed watchface3.96V, battery page3.96V/USB OK/--%, control center USB+ disconnected. These do not establish voltage accuracy or zero charge current.",
+    "uart": "artifacts/power-uart.bin (exact raw bytes); power-uart.txt has timestamp markers inside chunks, so decode raw for intact content",
+    "uart_sha256": "ed6aa7c139681f0de1a5dd5ed01272babab50f9f98d012af7fa3a31b243f5129",
+    "uart_timestamped_sha256": "8ed70c84ddefb2aeca14ef216c588413aac8a39bc8200dd8b5820946d099f8d0",
+    "capture_close": "Normal 1200-second limit, port closed; no new flash until user reconfirmed USB-only for replacement",
+    "rtc": "show_date returned2000; current wf_time1792044640 acknowledged RTC synchronized. Not a drift test."
+  },
+  "wake_regression": {
+    "user_report": "KEY1 effective with battery, but almost every wake is slow and screen already dim when it appears",
+    "timeline": "2026-10-15T14:10:50.174+08:00 KEY1 event ->14:10:55.199 power USB?/valid voltage ->14:10:55.504 screen on. Repeated wake at14:11:10.468 ->14:11:15.494 power USB?/valid voltage.",
+    "cause": "Main recorded display activity before synchronous PG I/O. Fixed SDK I2C2 timeout5000ms matches the observed5.025s read; it consumes display activity timeout before first frame. ADC remains valid, normal conversion about25ms.",
+    "source_evidence": "Locked drv_i2c.c:825-830,1093 default timeout/HAL call;1204-1210 reset after failure; i2c_core.c:259 waits indefinitely for bus mutex; display_policy.c:51-57,80-84 activity/dim/off rules.",
+    "unknown": "Underlying cause of first I2C read failure after DEEP remains unproven. Driver reset explaining next successful sample is an inference."
+  },
+  "async_candidate": {
+    "implementation": "Product-only4KB event worker. UI enqueue/IRQ-protected snapshot copy contains no device access. Request starts after first lit frame. ADC is published before PG; both results use sleep/wake epoch guards. Off clears snapshots/stops requests; no periodic timer. In-flight I/O may finish while holding IDLE, then releases it; SDK lock is not a strict deadline.",
+    "host": "36/36 passed10.52s, artifacts/host-test-async.log; after explicit rthw include, product_power_service rebuilt and1/1 passed0.09s",
+    "host_log_sha256": "1174b3831ab518aeee89bd805b3479b4503a559a2a9465e7064324e9ba8ac5e6",
+    "regression_test": "Actual worker implementation tested with5-second background PG latency, immediate foreground request/copy, voltage publication before slowPG, coalescing, no off sampling, epoch rejection, paired IDLE and failed-start cleanup.",
+    "product_result": "artifacts/product/20261015-143554-331/result.json",
+    "product_exit": 0,
+    "sources_rehashed": 396,
+    "artifacts_rehashed": 29,
+    "result_sha256": "e5fc1bc541d1d62e893e7bd19482bcfe5d1c3f51a2795dfe939939fa13dd0803",
+    "main_bytes": 7721336,
+    "main_sha256": "a9918aa2ffe3e48f557d990083e86f53db38b2b4e81913d324cc869f2294d93e",
+    "ui_demo": "Unchanged compiled inputs from135438-944; all372 sources and22 artifacts rehashed unchanged, no redundant rebuild",
+    "checks": "Three-image DryRun and retained-SRAM hook check passed; independent source review found no blocking issue, runtime worker-stack margin not yet measured",
+    "compile_correction": "Initial async Product compile rejected missing rt_hw_interrupt prototypes; explicit rthw.h added, final build and service-host rebuild passed",
+    "hardware_status": "Replacement three-image write/verify/startup and bounded dual-supply/wake/battery-only display regression passed. Final device battery-only; charging remains inhibited."
+  },
+  "hardware_v2": {
+    "firmware": "a9918aa2ffe3e48f557d990083e86f53db38b2b4e81913d324cc869f2294d93e",
+    "conditions": "User reconfirmed battery disconnected/USB-only before replacement. Same enumerated COM5 CH3401A86:7523. Original BAT later reconnected with USB; final USB removed after port closed.",
+    "flash_result": "artifacts/flash/product/20261015-143815-009/result.json",
+    "flash_exit": 0,
+    "flash_result_sha256": "4a8bb31109df55ef182a785f050fd01d4ec44bc1fdc991b083a1a3f061fd8177",
+    "startup": "early attempted=1 hal=0 result=0 verified=1 profile=1; REG01=0xAC, REG02=0x09, REG04=0x9B, REG05=0x1A, REG0B=0x43. Startup manual snapshot CEB=1/profile_match=1, REG08=0x42, REG09=0x00.",
+    "wake_hold": [
+      "14:41:49.200 KEY1 ->14:41:49.506 screen on:306ms, allow=0",
+      "14:42:02.392 KEY1 ->14:42:02.699 screen on:307ms, allow=0"
+    ],
+    "wake_auto": "14:42:43.572 allow=1/off=1/own_idle=0;14:42:48.578 deep_elapsed49;14:43:05.831 KEY1 with deep_elapsed217 ->14:43:06.139 screen on:308ms. Software PM-path counts, not exact physical residency/current proof.",
+    "user_auto_feedback": "After explicitly restoring automatic sleep, user confirmed fast KEY1 wake, normal brightness/voltage/touch.",
+    "battery_only_feedback": "After UART closed, user followed requested USB removal with battery retained and confirmed about3.96V, controlUSB-/battery pageUSB --, touch/KEY1 normal. No battery-only live UART.",
+    "uart": "artifacts/power-uart-v2.bin; artifacts/power-uart-v2.txt; capture used1000000 8N1 DTR=false RTS=false, no explicit extra reset",
+    "uart_sha256": "28572321befd7191fd77b9a92ae9f399f7aeabfe682661f9bd23dd1d3b033518",
+    "timestamped_uart_sha256": "3e7c48eff2a6fe9b1a07e28b92e5e32fd59344e99c45aea90b072ee32203cea4",
+    "capture_close": "Normal requested close,197.2745seconds, exit0 and COM5 released before USB removal",
+    "rtc": "Current wf_time1792046563 acknowledged synchronized; no drift/retention inference",
+    "final_supply": "Battery only, original connection; charging not enabled",
+    "limits": "No external voltage-meter comparison, battery current/cell-temperature measurement, charge enable/termination, long-run stability, worker-stack margin, fullN2, power/current/battery-life acceptance"
+  }
+}

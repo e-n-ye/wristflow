@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "power_state.h"
 
 typedef struct {
     uint8_t hour_24;
@@ -13,6 +14,7 @@ typedef struct {
     bool battery_unavailable;
     bool metrics_unavailable;
     uint32_t uptime_seconds;
+    wristflow_power_snapshot_t power;
 } wristflow_watch_snapshot_t;
 
 typedef enum {
