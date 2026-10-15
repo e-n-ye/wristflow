@@ -8,6 +8,7 @@ static rt_tick_t ticks;
 static unsigned irq, idle, adc_calls, input_calls, deleted, detached;
 static bool fail_event, fail_create, fail_start, off_in_adc, off_in_input, cycle_in_input;
 static struct rt_thread fake_thread;
+bool wristflow_product_power_adc_init(void) { return true; }
 rt_base_t rt_hw_interrupt_disable(void) { return irq++; }
 void rt_hw_interrupt_enable(rt_base_t previous) { assert(irq); irq = (unsigned)previous; }
 rt_tick_t rt_tick_get(void) { return ticks; }
