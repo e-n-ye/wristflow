@@ -2,6 +2,15 @@
 
 现行系统的职责图、已实现低功耗机制及测量边界见 [2026-10-14 系统／PM 说明](PM-EVENT-WAKE.md#current-power-system)。下文保留各版本的接入和验收记录；2026-09 的“BLE／PM 关闭”是历史状态，不能据此判断当前 Product。
 
+<a id="power-display-20261015"></a>
+## 2026-10-15 当前接入与电源显示缺口
+
+按 `541d841` 核对：当前 Product 已开启 BLE／基础 PM，接入真实手机通知／归组历史、天气／AQI、倒计时／闹钟和呼吸训练。模块及分版本验证见[现状矩阵](PRODUCT-ACCEPTANCE.md#status-20261015)，活动项仍只见 STATUS；下方“入口和边界”“已实现行为”保留 2026-09-25 初版语境。
+
+当前电池显示尚未接硬件数据：`core/product_state.c` 的 `wristflow_product_snapshot()` 固定 `.battery_unavailable=true`，`product_services.c` 只在该快照上读取 RTC／补运行时间；`ui/runtime/default_watchface.c`、`simple_watchface.c`、`apps.c` 与 `app_registry.c` 将缺失电量显示为 `USB`。电量入口还固定写“USB 供电，未接入电池”，控制中心的 `USB · 已连接／未连接` 只随手机连接标志改变。它们没有自动判断物理 USB、电池接入、实际充放电方向或电量，用户接电池后仍显示 `USB` 是这个缺口的表现。
+
+修正契约：电量未知应显示未知，不从容量标签、充电器设定值或图标产生百分比；只有接入真实检测／采样且数据有效，才显示对应来源或电压。电压采样路径与误差尚待核对，不能先承诺百分比精度。`wf_charger status` 是充电器寄存器诊断，不是 UI 电量后端；名义 4170mV／80mA 与实际值、禁充回读与持续保护分别记录。本轮只定位并整理，没有修改显示、构建或上板。
+
 <a id="rtc-reset-contrast"></a>
 ## 2026-10-12 RTC 软件重启与 RTS 对照
 
