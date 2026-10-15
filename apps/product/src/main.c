@@ -165,6 +165,8 @@ int main(void)
         &layout, wristflow_product_services_layout, wristflow_product_services_layout_status, NULL, countdown, alarm);
     RT_ASSERT(shell);
     product_shell = shell;
+    wristflow_ui_shell_bind_settings_store(shell, wristflow_product_services_settings,
+        wristflow_product_services_settings_status, NULL);
     wristflow_ui_shell_bind_notification_delete(shell, wristflow_product_ble_delete, NULL);
     rt_device_t touch = rt_device_find("touch");
     RT_ASSERT(touch);
@@ -199,8 +201,7 @@ int main(void)
         uint32_t wait_ms = lv_timer_handler();
         uint32_t now = lv_tick_get();
         if (wristflow_ui_shell_display_phase(shell) == WRISTFLOW_DISPLAY_OFF) {
-            if (wristflow_ui_shell_get_settings(shell, &settings))
-                wristflow_product_services_settings(&settings);
+            wristflow_ui_shell_sync_settings_save(shell);
             screen_off(lcd, touch, pointer);
             continue;
         }
@@ -218,8 +219,7 @@ int main(void)
                 snapshot = next;
                 wristflow_ui_shell_update(shell, &snapshot);
             }
-            if (wristflow_ui_shell_get_settings(shell, &settings))
-                wristflow_product_services_settings(&settings);
+            wristflow_ui_shell_sync_settings_save(shell);
             sampled = now;
         }
         rt_uint32_t events = wristflow_product_event_wait(rt_tick_from_millisecond(LV_CLAMP(1, wait_ms, 20)));

@@ -1,0 +1,89 @@
+{
+  "date": "2026-10-15",
+  "scope": "Settings/layout persistence software reliability; user explicitly defers hardware",
+  "base_commit": "12ca75a7ac0311312295d900f5de8bda0764d51e",
+  "branch": "codex/settings-save",
+  "local_worktree": "C:/Users/13984/.codex/worktrees/power-status/wristflow",
+  "source_contract": {
+    "ownership": "product_settings_store.c owns the single wf_store worker, request generations, deadlines and results; product_services.c keeps FlashDB adapters and startup restore",
+    "format": "Preferences v6/24 bytes and existing legacy decoding unchanged; layout A/B format/readback unchanged; no alarm storage change or new power-loss guarantee",
+    "scheduling": "Preferences debounce 1500ms, layout immediate; each request at most three attempts, 5000ms after a failed attempt completes; no pending job means event wait forever",
+    "retry": "Same pending/done preference value reuses ID; new content or explicit failed-value retry obtains new ID/budget. Failed terminal state does not autonomously retry",
+    "concurrency": "Short request mutex, I/O outside it; stale completions cannot change newer status. Failed/partial preference writes invalidate old persisted shadow, including superseded attempts",
+    "success": "Preferences write plus exact length/readback/memcmp/decode equality required; layout uses existing write/readback commit. I/O holds IDLE only during an attempt",
+    "ui": "Product pumps settings at existing 250ms collection and before screen-off. Pending/saved/failed note reuses settings_note, failed note and existing layout overlay are clickable retry. Terminal states stop status queries",
+    "truthfulness": "No backend means no fictional saved hint; request rejection is failed. Failure keeps in-memory choices. No automatic display wake on background completion. No new XML/generated/font assets"
+  },
+  "host": {
+    "toolchain": "GCC 15.2.0 / CMake 3.31.4 / Ninja 1.13.2",
+    "commands": [
+      "cmake --build artifacts/host -j 6",
+      "ctest --test-dir artifacts/host --output-on-failure",
+      "cmake --build artifacts/charger-manual-release --target product_settings_store -j 6",
+      "ctest --test-dir artifacts/charger-manual-release --output-on-failure -R '^product_settings_store$'"
+    ],
+    "debug": "39/39 passed, 19.03 seconds; local ignored artifacts/settings-save-all-host-test.log",
+    "release": "1/1 passed, 0.11 seconds; assertions retained; local ignored artifacts/settings-save-release-test.log",
+    "coverage": [
+      "Idle forever wait and event already set before receive; continuous value debounce without duplicate deadline extension",
+      "Three-attempt limit, terminal quiescence, fresh budget on explicit same-value retry and initialization/event-send failures",
+      "Write/readback failures, corrupted readback, partial failure shadow invalidation and reverting to previous value",
+      "New request during old write, including reverting during in-flight write; old success cannot complete latest request",
+      "Fresh time after slow layout commit, independent channels, uint32 clock/request ID wrap",
+      "Actual LVGL pointer retry for both settings note and layout overlay; pending/done/failed and terminal status-query quiescence",
+      "All seven preference collection paths, rejected requests, view re-entry and no persistence for temporary keep-awake"
+    ],
+    "renders": "Actual LVGL 390x450 local ignored artifacts/host/renders/settings_save_pending.png, settings_save_done.png, settings_save_failed.png; all visually inspected",
+    "glyphs": "Full label glyph checks plus layout retry glyph checks; reused already-compiled notification_22"
+  },
+  "firmware": {
+    "sdk": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65, unchanged and clean; SDK lock/submodule revisions unchanged",
+    "toolchain": "Arm GCC 14.2.1 / Python 3.13.15 / SCons 4.10.1",
+    "commands": [
+      "pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/build-isolated.ps1 -Example product -Jobs 6",
+      "pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/build-isolated.ps1 -Example ui_demo -Jobs 6",
+      "python artifacts/verify-power.py"
+    ],
+    "build_entry": "Existing ignored local wrapper invokes current Build.ps1 with the installed main-directory SDK environment, then official scons --board=sf32lb52-lchspi-ulp -j6; two target builds executed sequentially",
+    "product": {
+      "result": "artifacts/product/20261015-195505-636/result.json (local ignored)",
+      "exit_code": 0,
+      "sources_rehashed": 401,
+      "artifacts_rehashed": 29,
+      "manifest_sha256": "4c08476e45f1b0a40d02b59b00c0a078a1ceb4065ed85d05604e548f7a613ff2",
+      "main_bin_bytes": 7725544,
+      "main_bin_sha256": "310ad9fe4a986bd9f9a6d7ba795b7f349ce4acbdb7bbda4304176d1def971478"
+    },
+    "ui_demo": {
+      "result": "artifacts/ui_demo/20261015-195844-577/result.json (local ignored)",
+      "exit_code": 0,
+      "sources_rehashed": 372,
+      "artifacts_rehashed": 22,
+      "manifest_sha256": "b0d2083f9af73c07c56831c63cb5a1f910b81c26551bac9b20e2c3fcc4faef28",
+      "main_bin_bytes": 7510840,
+      "main_bin_sha256": "b1b2e121615d686e9867630a675b7fe8a4ee934cbb44696bffdd53ea908134ff"
+    },
+    "cloud": "Not run; SDK/toolchain/shared build entry unchanged",
+    "warnings": "Existing watch_core, RTC signedness, SDK, FinSH and linker warnings retained; no warning-free claim"
+  },
+  "failures_and_review": [
+    "Initial related run: storage and existing settings passed, component test failed because it expected autonomous recovery after terminal failure. Replaced with explicit pointer retry and no-query terminal assertions",
+    "Second related run: layout retry passed, settings glyph check failed on U+70B9. Reused existing full Chinese font for settings note and layout failure label; final full suite passed",
+    "Read-only storage/concurrency review found no P1/P2 blocker",
+    "Read-only UI review identified duplicate overlapping failure text; kept only existing clickable overlay for layout failure, and verified fix"
+  ],
+  "documentation": {
+    "changed_files_checked": 23,
+    "changed_chinese_files_checked": 12,
+    "local_links_checked": 261,
+    "errors": 0,
+    "independent_review": "Six affected documents and evidence card reviewed; no material version, validation or active-next-step inconsistency found"
+  },
+  "hardware": {
+    "performed": false,
+    "device_bin_sha256": "a9918aa2ffe3e48f557d990083e86f53db38b2b4e81913d324cc869f2294d93e",
+    "last_confirmed_power": "Battery only, USB removed, charging inhibited, original wiring",
+    "deferred": "New BIN flashing/touch/wake, actual Flash restore and failures, pending save across DEEP, power-loss behavior and power/energy measurements; user currently wants software only"
+  },
+  "delivery": "Final reviewed head and Rebase merge readback are recorded in this round's PR Closure; evidence card is not a second execution queue"
+}

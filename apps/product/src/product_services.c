@@ -1,5 +1,6 @@
 #include "product_services.h"
 #include "product_alarm.h"
+#include "product_settings_store.h"
 #include <rtthread.h>
 #include <rtdevice.h>
 #include <flashdb.h>
@@ -8,12 +9,7 @@
 #include <sys/time.h>
 
 static struct fdb_kvdb settings_db;
-static struct rt_mutex settings_lock, database_lock, rtc_lock, weather_lock;
-static wristflow_settings_t requested, boot_settings;
-static wristflow_layout_t requested_layout;
-static wristflow_layout_store_t layout_store;
-static uint32_t layout_requested, layout_completed, layout_failed;
-static uint32_t requested_at;
+static struct rt_mutex database_lock, rtc_lock, weather_lock;
 static bool storage_ready, service_ready;
 static rt_device_t rtc;
 static uint32_t rtc_revision, previous_ticks;
@@ -63,11 +59,6 @@ bool wristflow_product_services_alarm_write(unsigned key, const uint8_t *record,
     fdb_err_t result = fdb_kv_set_blob(&settings_db, alarm_keys[key], fdb_blob_make(&blob, record, WRISTFLOW_ALARM_BYTES));
     if (result != FDB_NO_ERR) rt_kprintf("[alarm] FlashDB key=%u result=%d\n", key, result);
     return result == FDB_NO_ERR;
-}
-
-static uint32_t milliseconds(void)
-{
-    return (uint32_t)((uint64_t)rt_tick_get() * 1000 / RT_TICK_PER_SECOND);
 }
 
 static void lock_weather(void *context)
@@ -128,54 +119,28 @@ static bool write_layout(unsigned key, const uint8_t *record, void *context)
     return result == FDB_NO_ERR;
 }
 
-static void storage_thread(void *context)
+static bool read_settings(void *context, uint8_t record[WRISTFLOW_SETTINGS_BYTES])
 {
     (void)context;
-    wristflow_settings_t saved = boot_settings;
-    uint32_t last_attempt = 0;
-    bool retry = false;
-    uint32_t layout_attempt = 0, layout_attempt_at = 0;
-    for (;;) {
-        rt_thread_mdelay(100);
-        rt_mutex_take(&settings_lock, RT_WAITING_FOREVER);
-        wristflow_settings_t next = requested;
-        uint32_t changed = requested_at;
-        wristflow_layout_t next_layout = requested_layout;
-        uint32_t layout_id = layout_requested, completed = layout_completed;
-        rt_mutex_release(&settings_lock);
-        uint32_t now = milliseconds();
-        if (layout_id != completed && (layout_id != layout_attempt || now - layout_attempt_at >= 5000)) {
-            layout_attempt = layout_id; layout_attempt_at = now;
-            uint32_t started = milliseconds();
-            bool success = wristflow_layout_commit(&layout_store, &next_layout, read_layout, write_layout, NULL);
-            rt_mutex_take(&settings_lock, RT_WAITING_FOREVER);
-            if (success) layout_completed = layout_id;
-            else layout_failed = layout_id;
-            rt_mutex_release(&settings_lock);
-            rt_kprintf("[product] layout %s request=%u generation=%u pages=%u write_ms=%u\n",
-                success ? "saved" : "save failed", layout_id, layout_store.generation, next_layout.count,
-                milliseconds() - started);
-        }
-        if (wristflow_settings_equal(&saved, &next) || now - changed < 1500 ||
-            (retry && now - last_attempt < 5000)) continue;
-        uint8_t data[WRISTFLOW_SETTINGS_BYTES];
-        struct fdb_blob blob;
-        if (!wristflow_settings_encode(&next, data)) continue;
-        last_attempt = now;
-        fdb_err_t result = fdb_kv_set_blob(&settings_db, "preferences", fdb_blob_make(&blob, data, sizeof data));
-        retry = result != FDB_NO_ERR;
-        if (!retry) saved = next;
-        rt_kprintf("[product] settings %s brightness=%u face=%s breathing=%u result=%d\n",
-                   retry ? "save failed" : "saved", next.brightness, next.face_id, next.breathing_minutes, result);
-    }
+    struct fdb_blob blob;
+    size_t size = fdb_kv_get_blob(&settings_db, "preferences", fdb_blob_make(&blob, record, WRISTFLOW_SETTINGS_BYTES));
+    return size == WRISTFLOW_SETTINGS_BYTES && blob.saved.len == WRISTFLOW_SETTINGS_BYTES;
+}
+static bool write_settings(void *context, const uint8_t record[WRISTFLOW_SETTINGS_BYTES])
+{
+    (void)context;
+    struct fdb_blob blob;
+    fdb_err_t result = fdb_kv_set_blob(&settings_db, "preferences",
+        fdb_blob_make(&blob, record, WRISTFLOW_SETTINGS_BYTES));
+    if (result != FDB_NO_ERR) rt_kprintf("[product] preferences FlashDB result=%d\n", result);
+    return result == FDB_NO_ERR;
 }
 
 void wristflow_product_services_start(wristflow_settings_t *settings, wristflow_layout_t *layout)
 {
     *settings = wristflow_settings_default();
     *layout = wristflow_layout_default();
-    layout_store.active = -1;
-    RT_ASSERT(rt_mutex_init(&settings_lock, "wf_cfg", RT_IPC_FLAG_PRIO) == RT_EOK);
+    wristflow_layout_store_t layout_store = {.active = -1};
     RT_ASSERT(rt_mutex_init(&database_lock, "wf_db", RT_IPC_FLAG_PRIO) == RT_EOK);
     RT_ASSERT(rt_mutex_init(&rtc_lock, "wf_rtc", RT_IPC_FLAG_PRIO) == RT_EOK);
     RT_ASSERT(rt_mutex_init(&weather_lock, "wf_weather", RT_IPC_FLAG_PRIO) == RT_EOK);
@@ -189,20 +154,14 @@ void wristflow_product_services_start(wristflow_settings_t *settings, wristflow_
     bool restored = false;
     if (storage_ready) {
         uint8_t data[WRISTFLOW_SETTINGS_BYTES];
-        struct fdb_blob blob;
-        size_t length = fdb_kv_get_blob(&settings_db, "preferences", fdb_blob_make(&blob, data, sizeof data));
-        if (blob.saved.len == sizeof data)
-            restored = wristflow_settings_decode(settings, data, length);
+        if (read_settings(NULL, data)) restored = wristflow_settings_decode(settings, data, sizeof data);
         bool layout_restored = wristflow_layout_restore(&layout_store, layout, read_layout, NULL);
         rt_kprintf("[product] layout restore=%s generation=%u pages=%u\n",
             layout_restored ? "yes" : "defaults", layout_store.generation, layout->count);
     }
-    requested = *settings;
-    boot_settings = *settings;
-    requested_layout = *layout;
     if (storage_ready) {
-        rt_thread_t worker = rt_thread_create("wf_store", storage_thread, NULL, 6144, 25, 10);
-        if (!worker || rt_thread_startup(worker) != RT_EOK) storage_ready = false;
+        const wristflow_settings_store_io_t backend = {NULL, read_settings, write_settings, read_layout, write_layout};
+        storage_ready = wristflow_product_settings_store_start(settings, restored, &layout_store, &backend);
     }
     service_ready = true;
     rt_kprintf("[product] storage=%s restore=%s brightness=%u face=%s breathing=%u rtc=%s\n",
@@ -210,38 +169,22 @@ void wristflow_product_services_start(wristflow_settings_t *settings, wristflow_
         settings->brightness, settings->face_id, settings->breathing_minutes, rtc ? "available" : "missing");
 }
 
-void wristflow_product_services_settings(const wristflow_settings_t *settings)
+uint32_t wristflow_product_services_settings(const wristflow_settings_t *settings, void *context)
 {
-    if (!storage_ready || !wristflow_settings_valid(settings)) return;
-    rt_mutex_take(&settings_lock, RT_WAITING_FOREVER);
-    if (!wristflow_settings_equal(settings, &requested)) {
-        requested = *settings;
-        requested_at = milliseconds();
-    }
-    rt_mutex_release(&settings_lock);
+    return storage_ready ? wristflow_product_settings_request(settings, context) : 0;
 }
+
+wristflow_save_state_t wristflow_product_services_settings_status(uint32_t request, void *context)
+{ return wristflow_product_settings_status(request, context); }
 
 uint32_t wristflow_product_services_layout(const wristflow_layout_t *layout, void *context)
 {
-    (void)context;
-    if (!storage_ready || !wristflow_layout_valid(layout)) return 0;
-    rt_mutex_take(&settings_lock, RT_WAITING_FOREVER);
-    requested_layout = *layout;
-    if (++layout_requested == 0) ++layout_requested;
-    uint32_t id = layout_requested;
-    rt_mutex_release(&settings_lock);
-    return id;
+    return storage_ready ? wristflow_product_layout_request(layout, context) : 0;
 }
 
 wristflow_save_state_t wristflow_product_services_layout_status(uint32_t request, void *context)
 {
-    (void)context;
-    if (!storage_ready || !request) return WRISTFLOW_SAVE_FAILED;
-    rt_mutex_take(&settings_lock, RT_WAITING_FOREVER);
-    wristflow_save_state_t state = layout_completed == request ? WRISTFLOW_SAVE_DONE :
-        layout_failed == request ? WRISTFLOW_SAVE_FAILED : WRISTFLOW_SAVE_PENDING;
-    rt_mutex_release(&settings_lock);
-    return state;
+    return wristflow_product_layout_status(request, context);
 }
 
 wristflow_watch_snapshot_t wristflow_product_services_snapshot(void)

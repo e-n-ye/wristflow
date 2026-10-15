@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static uint32_t ticks, requests;
+static uint32_t ticks, requests, status_queries;
 static uint8_t pixels[390 * 40 * 4], saved[WRISTFLOW_LAYOUT_BYTES];
 static wristflow_save_state_t save_state;
 static lv_indev_data_t pointer;
@@ -20,7 +20,7 @@ static uint32_t request(const wristflow_layout_t *layout, void *context)
     assert(wristflow_layout_encode(layout, requests, saved)); return requests;
 }
 static wristflow_save_state_t status(uint32_t id, void *context)
-{ (void)context; assert(id == requests); return save_state; }
+{ (void)context; assert(id == requests); ++status_queries; return save_state; }
 static void advance(unsigned ms)
 { for (unsigned i = 0; i < ms; i += 16) { ticks += 16; lv_timer_handler(); } lv_obj_update_layout(lv_screen_active()); }
 static void sample(int x, int y, bool down)
@@ -255,9 +255,21 @@ int main(int argc,char **argv)
     assert(layout->pages[0].slots[1].instance_id!=layout->pages[0].slots[0].instance_id);
     assert(!strcmp(lv_label_get_text(named(lv_screen_active(),"edit_save")),"保存中"));
     save_state=WRISTFLOW_SAVE_FAILED; advance(240);
-    assert(!strcmp(lv_label_get_text(named(lv_screen_active(),"edit_save")),"保存失败，稍后重试"));
+    assert(!strcmp(lv_label_get_text(named(lv_screen_active(),"edit_save")),""));
+    lv_obj_t *retry=named(lv_layer_top(),"layout_save_retry");
+    assert(!lv_obj_has_flag(retry,LV_OBJ_FLAG_HIDDEN));
+    assert(!strcmp(lv_label_get_text(retry),"保存失败，点击重试"));
+    lv_font_glyph_dsc_t glyph;
+    const lv_font_t *font=lv_obj_get_style_text_font(retry,0);
+    assert(lv_font_get_glyph_dsc(font,&glyph,0x70b9,0) && !glyph.is_placeholder);
+    assert(lv_font_get_glyph_dsc(font,&glyph,0x51fb,0) && !glyph.is_placeholder);
+    unsigned queries=status_queries;
+    advance(1000); assert(status_queries==queries); /* Terminal failure stops polling. */
+    click(retry); assert(requests==2);
+    assert(!strcmp(lv_label_get_text(named(lv_screen_active(),"edit_save")),"保存中"));
     save_state=WRISTFLOW_SAVE_DONE; advance(240);
     assert(!strcmp(lv_label_get_text(named(lv_screen_active(),"edit_save")),"已保存"));
+    queries=status_queries; advance(1000); assert(status_queries==queries);
     /* Existing edits exit without a dialog; a tap routes the replacement. */
     tap(195,75); surface(WRISTFLOW_SURFACE_HOME);
     sample(280,110,true); sample(280,110,false); advance(480); surface(WRISTFLOW_SURFACE_HEART);
@@ -273,22 +285,22 @@ int main(int argc,char **argv)
     confirm(false); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
     fill(WRISTFLOW_LAYOUT_FULL); snapshot("component_new_full");
     assert(!strcmp(lv_label_get_text(named(lv_screen_active(),"edit_save")),""));
-    assert(requests==1 && layout->count==3);
+    assert(requests==2 && layout->count==3);
     assert(wristflow_ui_shell_key(shell)); advance(480); confirm(false); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
     assert(wristflow_ui_shell_key(shell)); advance(480); confirm(true); surface(WRISTFLOW_SURFACE_HOME);
-    assert(wristflow_ui_shell_navigation(shell)->page_index==0 && layout->count==3 && requests==1);
+    assert(wristflow_ui_shell_navigation(shell)->page_index==0 && layout->count==3 && requests==2);
     swipe(320,125,60,125); enter();
     tap(385,269); surface(WRISTFLOW_SURFACE_COMPONENT_TEMPLATES);
     press("full"); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
     fill(WRISTFLOW_LAYOUT_FULL);
     press("edit_action"); surface(WRISTFLOW_SURFACE_HOME);
-    assert(layout->count==4 && requests==2 && wristflow_ui_shell_navigation(shell)->page_index==2);
+    assert(layout->count==4 && requests==3 && wristflow_ui_shell_navigation(shell)->page_index==2);
     dots();
     assert(layout->pages[1].template_id==WRISTFLOW_LAYOUT_FULL); snapshot("component_full_page");
     enter(); tap(246,418); confirm(false); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
-    assert(layout->count==4 && requests==2);
+    assert(layout->count==4 && requests==3);
     press("edit_action"); confirm(true); surface(WRISTFLOW_SURFACE_HOME);
-    assert(layout->count==3 && requests==3 && wristflow_ui_shell_navigation(shell)->page_index==1);
+    assert(layout->count==3 && requests==4 && wristflow_ui_shell_navigation(shell)->page_index==1);
     dots();
     const char *types[]={"quarters","top_half","bottom_half"};
     for(unsigned t=0;t<3;++t) {

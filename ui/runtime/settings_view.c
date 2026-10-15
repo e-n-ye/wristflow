@@ -128,6 +128,29 @@ static void unavailable(lv_obj_t *list, const char *name, const char *title, con
 static const unsigned timeouts[] = {5, 10, 20, 30, 60};
 static const unsigned awake_times[] = {0, 5, 10, 15, 20};
 
+static void retry_save(lv_event_t *event)
+{ wristflow_ui_shell_retry_settings_save(lv_event_get_user_data(event)); }
+
+static void refresh_save_note(lv_obj_t *root, wristflow_ui_shell_t *shell)
+{
+    if (!wristflow_ui_shell_has_settings_store(shell)) return;
+    lv_obj_t *list = lv_obj_find_by_name(root, "settings_scroll");
+    if (!list) return;
+    lv_obj_t *note = lv_obj_find_by_name(list, "settings_save_note");
+    if (!note) {
+        note = settings_note_create(list, "");
+        lv_obj_set_style_text_font(note, notification_22, 0); /* Existing full Chinese font. */
+        lv_obj_set_name(note, "settings_save_note");
+        lv_obj_move_to_index(note, 0);
+        lv_obj_add_flag(note, LV_OBJ_FLAG_CLICKABLE);
+        lv_obj_add_event_cb(note, retry_save, LV_EVENT_SHORT_CLICKED, shell);
+    }
+    wristflow_save_state_t state = wristflow_ui_shell_settings_save_state(shell);
+    label(note, state == WRISTFLOW_SAVE_PENDING ? "保存中" :
+        state == WRISTFLOW_SAVE_DONE ? "已保存" : state == WRISTFLOW_SAVE_FAILED ? "保存失败，点击重试" : "");
+    lv_obj_set_flag(note, LV_OBJ_FLAG_HIDDEN, state == WRISTFLOW_SAVE_IDLE);
+}
+
 lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surface_t surface)
 {
     if (surface == WRISTFLOW_SURFACE_SETTINGS) {
@@ -249,6 +272,7 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
 void wristflow_settings_refresh(lv_obj_t *root, wristflow_surface_t surface, wristflow_ui_shell_t *shell)
 {
     if (!root) return;
+    refresh_save_note(root, shell);
     wristflow_settings_t settings;
     if (!wristflow_ui_shell_get_settings(shell, &settings)) return;
     char value[40];

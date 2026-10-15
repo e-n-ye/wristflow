@@ -18,6 +18,8 @@ typedef void (*wristflow_card_update_cb_t)(lv_obj_t *root, unsigned index,
 typedef wristflow_surface_t (*wristflow_card_target_cb_t)(unsigned page, unsigned slot);
 typedef uint32_t (*wristflow_layout_request_cb_t)(const wristflow_layout_t *, void *);
 typedef wristflow_save_state_t (*wristflow_layout_status_cb_t)(uint32_t request, void *);
+typedef uint32_t (*wristflow_settings_request_cb_t)(const wristflow_settings_t *, void *);
+typedef wristflow_save_state_t (*wristflow_settings_status_cb_t)(uint32_t request, void *);
 
 typedef struct {
     const wristflow_watchface_t *watchface;
@@ -67,6 +69,14 @@ const wristflow_navigation_t *wristflow_ui_shell_navigation(const wristflow_ui_s
 const char *wristflow_ui_shell_watchface_id(const wristflow_ui_shell_t *shell);
 /* User preference, not temporary flashlight or power-policy brightness. */
 bool wristflow_ui_shell_get_settings(const wristflow_ui_shell_t *shell, wristflow_settings_t *settings);
+/* UI-thread collection point, including brightness/menu/face changes. Call after
+ * input dispatch and before sleeping; callbacks only enqueue/copy state. */
+void wristflow_ui_shell_bind_settings_store(wristflow_ui_shell_t *, wristflow_settings_request_cb_t,
+    wristflow_settings_status_cb_t, void *context);
+void wristflow_ui_shell_sync_settings_save(wristflow_ui_shell_t *);
+bool wristflow_ui_shell_has_settings_store(const wristflow_ui_shell_t *);
+wristflow_save_state_t wristflow_ui_shell_settings_save_state(const wristflow_ui_shell_t *);
+void wristflow_ui_shell_retry_settings_save(wristflow_ui_shell_t *);
 const wristflow_layout_t *wristflow_ui_shell_layout(const wristflow_ui_shell_t *shell);
 /* Editor commits rebuild the ring outside pointer dispatch on its old cards. */
 void wristflow_ui_shell_rebuild_components(wristflow_ui_shell_t *shell, unsigned selected);

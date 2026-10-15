@@ -14,8 +14,9 @@ bool wristflow_product_services_storage_ready(void);
 /* Four bounded keys: payload A/B and matching publication markers. */
 bool wristflow_product_services_alarm_read(unsigned key, uint8_t *record, void *context);
 bool wristflow_product_services_alarm_write(unsigned key, const uint8_t *record, void *context);
-/* Copies preferences; FlashDB writes run on a separate thread after 1.5s idle. */
-void wristflow_product_services_settings(const wristflow_settings_t *settings);
+/* Copies preferences; bounded retries/readback run on the event-driven worker. */
+uint32_t wristflow_product_services_settings(const wristflow_settings_t *settings, void *context);
+wristflow_save_state_t wristflow_product_services_settings_status(uint32_t request, void *context);
 /* Copies a complete layout immediately; worker writes and verifies independently. */
 uint32_t wristflow_product_services_layout(const wristflow_layout_t *layout, void *context);
 wristflow_save_state_t wristflow_product_services_layout_status(uint32_t request, void *context);

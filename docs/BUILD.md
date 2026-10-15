@@ -1,5 +1,13 @@
 # 可复现构建基线
 
+## 2026-10-15 设置保存可靠性
+
+基于`origin/main@12ca75a`，隔离`codex/settings-save`新增独立保存worker，偏好设置写后核验、按请求代次发布结果、每请求最多三次尝试，空闲事件无限等待；复用现有UI控件和中文字库反馈／手动重试。GCC15.2.0／CMake3.31.4／Ninja1.13.2全主机CTest39/39（19.03秒），保存服务Release1/1（0.11秒）通过；真实LVGL指针覆盖两条重试入口，三态快照及缺字检查通过。首次组件用例因旧自动重试预期失败，修改为终态停查／手动重试；随后字形检查发现缺“点”，复用现有notification_22后通过。
+
+现有本机隔离包装器顺序调用当前`Build.ps1`的Product／UI Demo，底层仍为官方SCons `--board=sf32lb52-lchspi-ulp -j6`，Arm GCC14.2.1／Python3.13.15／SCons4.10.1。Product `20261015-195505-636`退出0、401源码／29产物重哈希一致，主BIN7,725,544B／SHA-256`310ad9fe4a986bd9f9a6d7ba795b7f349ce4acbdb7bbda4304176d1def971478`；UI Demo `20261015-195844-577`退出0、372源码／22产物一致，主BIN7,510,840B／SHA-256`b1b2e121615d686e9867630a675b7fe8a4ee934cbb44696bffdd53ea908134ff`。
+
+SDK／锁／工具链、XML／生成物、记录格式及公共构建入口未改；既有watch_core／RTC signedness／SDK／FinSH／链接警告保留。未运行云端基线、未打开设备、未下载；不能由事件等待或编译推得Flash断电保证、实际唤醒／触摸或功耗数值。接口和边界见[保存契约](PRODUCT-SETTINGS.md#save-reliability-20261015)，准确命令与本机产物记录见[精简证据](evidence/2026-10-15/settings-save.json)。
+
 ## 2026-10-15 手动限时充电软件
 
 从`origin/main@719d3e1`在隔离`codex/charger-manual`实现显式1–60秒启停／后台截止、参数／故障监测、停充未确认和共享ADC同步；不改SDK锁、厂商、公共构建入口、XML或生成物。GCC15.2.0／CMake3.31.4／Ninja1.13.2主机最终38/38（10.85秒），Release相关五目标5/5（0.40秒）通过；覆盖每笔启充传输失败、部分写副作用、stop／截止插入、计时回绕、终止配置／故障位、停止失败保留IDLE，以及拿锁期间到期／取消时不发enable。
