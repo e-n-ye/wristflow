@@ -39,5 +39,6 @@ void wristflow_apps_activate(wristflow_apps_t *apps, wristflow_surface_t surface
 void wristflow_apps_collect(wristflow_apps_t *apps, const wristflow_navigation_t *navigation);
 /* Internal adapter boundary: snapshot is validated and owned by ui_shell. */
 void wristflow_apps_update(wristflow_apps_t *apps, const wristflow_watch_snapshot_t *snapshot);
+void wristflow_apps_refresh_settings_save(wristflow_apps_t *apps);
 void wristflow_apps_destroy(wristflow_apps_t *apps);
 #endif

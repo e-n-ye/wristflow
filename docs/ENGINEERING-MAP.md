@@ -7,6 +7,7 @@
 | 对象 | 事实来源与所有权 | 操作 / 验证入口 |
 |---|---|---|
 | 产品集成 | [apps/product](../apps/product/)；`project/SConstruct`、`SConscript`、`proj.conf`、`rtconfig.py` 与 `src/` 由项目维护 | [PRODUCT-RUNTIME](PRODUCT-RUNTIME.md)；Build 的 `product` 目标；联合验收另按版本绑定 |
+| 偏好设置／布局保存 | `product_settings_store.c/h`独占事件worker、请求代次／截止／有限重试和回读；`product_services.c`持有FlashDB适配／启动恢复，`ui_shell`按变更提交，设置说明与组件失败浮层反馈状态 | [保存契约](PRODUCT-SETTINGS.md#save-reliability-20261015)；格式不改，UI不做I/O；软件失败注入与实际Flash恢复分别验 |
 | 黄山派禁充与手动实验 | Product `aw32001_inhibit.c/h` 持有禁充／固定参数准备，`product_charger.c/h` 持有早期板级强钩子；`aw32001_manual.c/h`持有单所有者会话，`product_charger_service.c`持有命令／监测／诊断与PM约束；Product排除SDK charger | [手动限时契约](CHARGER-PREFLIGHT.md#manual-charge-20261015)；默认禁充，短实验须显式命令；保留SDK锁和板级时序，物理限压／电流／电芯温度与终止另验 |
 | 电源观测与显示 | Product `product_power.c/h` 只读PG／VBAT ADC，ADC完整序列由项目共享mutex同步；`product_power_service.c`事件线程持有IDLE／快照，UI只请求和复制，`core/power_state`持有独立有效性 | [电源契约](PRODUCT-RUNTIME.md#power-display-20261015)；本观测模块不启充、不估算百分比、不新增息屏定时唤醒；手动充电活动的独立监测见上一行 |
 | 固定数据演示 | [apps/ui_demo](../apps/ui_demo/)；与 Product 共用 core、运行时和生成 UI | Build 的 `ui_demo`；不能用演示值证明产品数据真实性 |

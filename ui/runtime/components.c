@@ -178,8 +178,7 @@ wristflow_surface_t wristflow_components_target(wristflow_components_t *c, unsig
 static void save_status(wristflow_components_t *c)
 {
     const char *message = c->save_state == WRISTFLOW_SAVE_PENDING ? "保存中" :
-        c->save_state == WRISTFLOW_SAVE_DONE ? "已保存" :
-        c->save_state == WRISTFLOW_SAVE_FAILED ? "保存失败，稍后重试" : "";
+        c->save_state == WRISTFLOW_SAVE_DONE ? "已保存" : "";
     if (c->screens[0]) lv_label_set_text(named(c->screens[0], "edit_save"), c->draft ? "" : message);
     lv_obj_set_flag(c->failure, LV_OBJ_FLAG_HIDDEN, c->save_state != WRISTFLOW_SAVE_FAILED);
 }
@@ -190,7 +189,7 @@ static void poll(lv_timer_t *timer)
     if (c->request_id && c->status) {
         wristflow_save_state_t state = c->status(c->request_id, c->context);
         if (state != c->save_state) { c->save_state = state; save_status(c); }
-        if (state == WRISTFLOW_SAVE_DONE) lv_timer_pause(timer);
+        if (state == WRISTFLOW_SAVE_DONE || state == WRISTFLOW_SAVE_FAILED) lv_timer_pause(timer);
     }
 }
 
@@ -199,7 +198,14 @@ static void persist(wristflow_components_t *c)
     c->request_id = c->request ? c->request(&c->layout, c->context) : 0;
     c->save_state = c->request_id ? WRISTFLOW_SAVE_PENDING : WRISTFLOW_SAVE_FAILED;
     if (c->request_id) { lv_timer_reset(c->timer); lv_timer_resume(c->timer); }
+    else lv_timer_pause(c->timer);
     save_status(c);
+}
+
+static void retry_layout_save(lv_event_t *event)
+{
+    wristflow_components_t *c = lv_event_get_user_data(event);
+    if (c->save_state == WRISTFLOW_SAVE_FAILED) persist(c);
 }
 
 static void render_editor(wristflow_components_t *c);
@@ -488,6 +494,11 @@ wristflow_components_t *wristflow_components_create(wristflow_ui_shell_t *shell,
     c->layout = wristflow_layout_valid(initial) ? *initial : wristflow_layout_default();
     c->request = request; c->status = status; c->context = context;
     c->failure = layout_save_status_create(lv_layer_top());
+    lv_obj_set_name(c->failure, "layout_save_retry");
+    lv_label_set_text(c->failure, "保存失败，点击重试");
+    lv_obj_set_style_text_font(c->failure, notification_22, 0);
+    lv_obj_add_flag(c->failure, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_add_event_cb(c->failure, retry_layout_save, LV_EVENT_SHORT_CLICKED, c);
     c->timer = lv_timer_create(poll, 200, c);
     lv_timer_pause(c->timer);
     return c;

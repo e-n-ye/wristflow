@@ -11,6 +11,17 @@ static lv_indev_data_t pointer;
 static wristflow_ui_shell_t *shell;
 static const char *renders;
 static bool check_wake_home;
+static bool store_bound, reject_request;
+static unsigned store_requests, store_queries;
+static wristflow_save_state_t store_state;
+static wristflow_settings_t submitted;
+static uint32_t request_settings(const wristflow_settings_t *value, void *context)
+{
+    (void)context; ++store_requests; submitted=*value; store_state=WRISTFLOW_SAVE_PENDING;
+    return reject_request ? 0 : store_requests;
+}
+static wristflow_save_state_t settings_status(uint32_t id, void *context)
+{ (void)context; assert(id==store_requests); ++store_queries; return store_state; }
 static uint32_t tick(void) { return ticks; }
 static void flush(lv_display_t *d, const lv_area_t *a, uint8_t *p) { (void)a; (void)p; lv_display_flush_ready(d); }
 static void read_pointer(lv_indev_t *i, lv_indev_data_t *d)
@@ -28,7 +39,7 @@ static void set_brightness(uint8_t value, void *context)
     brightness = value;
 }
 static void advance(unsigned ms)
-{ for (unsigned i = 0; i < ms; i += 16) { ticks += 16; lv_timer_handler(); } lv_obj_update_layout(lv_screen_active()); }
+{ for (unsigned i = 0; i < ms; i += 16) { ticks += 16; lv_timer_handler(); if(store_bound) wristflow_ui_shell_sync_settings_save(shell); } lv_obj_update_layout(lv_screen_active()); }
 static void jump(unsigned ms) { ticks += ms; lv_timer_handler(); lv_obj_update_layout(lv_screen_active()); }
 static void sample(int x, int y, bool down)
 { pointer.point = (lv_point_t){x,y}; pointer.state = down ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED; advance(16); }
@@ -191,5 +202,47 @@ int main(int argc,char **argv)
     assert(wristflow_settings_decode(&initial,record,sizeof record));
     shell=wristflow_product_ui_create(&state,&initial,set_brightness,NULL); advance(240);
     assert(!wristflow_ui_shell_keep_minutes(shell) && !settings().face_long_press && settings().screen_timeout==5 && brightness==27);
-    wristflow_ui_shell_destroy(shell); shell=NULL; lv_deinit(); return 0;
+    /* Same UI with a real asynchronous contract: never infer persistence from
+     * changing an in-memory toggle or from re-entering the screen. */
+    wristflow_ui_shell_bind_settings_store(shell,request_settings,settings_status,NULL);
+    store_bound=true;
+    key(); open(WRISTFLOW_SURFACE_SETTINGS);
+    assert(!store_requests && lv_obj_has_flag(named(lv_screen_active(),"settings_save_note"),LV_OBJ_FLAG_HIDDEN));
+    press("settings_faces"); press("row_switch");
+    assert(store_requests==1 && submitted.face_long_press);
+    assert(!strcmp(lv_label_get_text(named(lv_screen_active(),"settings_save_note")),"保存中")); snapshot("save_pending");
+    store_state=WRISTFLOW_SAVE_DONE; advance(240);
+    assert(!strcmp(lv_label_get_text(named(lv_screen_active(),"settings_save_note")),"已保存")); snapshot("save_done");
+    unsigned queries=store_queries;
+    advance(1000); assert(store_queries==queries && store_requests==1);
+    back(); press("settings_display"); press("display_timeout"); press("choice_10");
+    assert(store_requests==2 && submitted.screen_timeout==10);
+    store_state=WRISTFLOW_SAVE_FAILED; advance(240);
+    assert(!strcmp(lv_label_get_text(named(lv_screen_active(),"settings_save_note")),"保存失败，点击重试")); snapshot("save_failed");
+    queries=store_queries; advance(1000); assert(store_queries==queries && store_requests==2);
+    back(); back();
+    assert(!strcmp(lv_label_get_text(named(lv_screen_active(),"settings_save_note")),"保存失败，点击重试"));
+    press("settings_save_note"); assert(store_requests==3);
+    store_state=WRISTFLOW_SAVE_DONE; advance(240);
+    assert(!strcmp(lv_label_get_text(named(lv_screen_active(),"settings_save_note")),"已保存"));
+    reject_request=true; press("settings_dnd"); press("row_switch");
+    assert(store_requests==4 && wristflow_ui_shell_settings_save_state(shell)==WRISTFLOW_SAVE_FAILED);
+    reject_request=false; press("settings_save_note"); assert(store_requests==5);
+    /* A newer value supersedes the pending UI request; status is queried only
+     * for the most recently accepted ID. */
+    chosen=settings(); chosen.brightness=42;
+    assert(wristflow_ui_shell_configure(shell,&chosen)); advance(32);
+    assert(store_requests==6 && submitted.brightness==42);
+    assert(wristflow_ui_shell_set_breathing_minutes(shell,3)); advance(32);
+    assert(store_requests==7 && submitted.breathing_minutes==3);
+    store_state=WRISTFLOW_SAVE_DONE; advance(240);
+    assert(wristflow_ui_shell_keep_awake(shell,5)); advance(32);
+    assert(store_requests==7); /* Temporary display policy is not persisted. */
+    back(); press("settings_layout"); press("layout_grid");
+    assert(store_requests==8 && submitted.menu_layout==WRISTFLOW_MENU_GRID);
+    home();
+    assert(wristflow_ui_shell_set_watchface(shell,&wristflow_default_watchface)); advance(240);
+    assert(store_requests==9 && !strcmp(submitted.face_id,"diffusion"));
+    store_state=WRISTFLOW_SAVE_DONE; advance(240);
+    store_bound=false; wristflow_ui_shell_destroy(shell); shell=NULL; lv_deinit(); return 0;
 }

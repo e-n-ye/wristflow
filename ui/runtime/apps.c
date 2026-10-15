@@ -731,6 +731,12 @@ void wristflow_apps_activate(wristflow_apps_t *apps, wristflow_surface_t surface
     }
 }
 
+void wristflow_apps_refresh_settings_save(wristflow_apps_t *apps)
+{
+    if (apps && apps->product_mode)
+        wristflow_settings_refresh(apps->screens[apps->active], apps->active, apps->shell);
+}
+
 void wristflow_apps_update(wristflow_apps_t *apps, const wristflow_watch_snapshot_t *snapshot)
 {
     if (!apps) return;

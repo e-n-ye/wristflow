@@ -51,6 +51,13 @@ struct wristflow_ui_shell {
     bool edge_press;
     lv_point_t edge_origin;
     wristflow_settings_t preferences;
+    wristflow_settings_t submitted_settings;
+    wristflow_settings_request_cb_t save_settings;
+    wristflow_settings_status_cb_t settings_status;
+    void *settings_context;
+    uint32_t settings_request;
+    wristflow_save_state_t settings_save_state;
+    bool settings_retry;
     wristflow_display_policy_t display;
     lv_timer_t *display_timer;
     void (*awake_expired)(void *);
@@ -796,6 +803,48 @@ bool wristflow_ui_shell_get_settings(const wristflow_ui_shell_t *shell, wristflo
     if (!wristflow_settings_valid(&current)) return false;
     *settings = current;
     return true;
+}
+
+void wristflow_ui_shell_bind_settings_store(wristflow_ui_shell_t *shell,
+    wristflow_settings_request_cb_t request, wristflow_settings_status_cb_t status, void *context)
+{
+    if (!shell) return;
+    shell->save_settings = request;
+    shell->settings_status = status;
+    shell->settings_context = context;
+    shell->settings_request = 0;
+    shell->settings_save_state = WRISTFLOW_SAVE_IDLE;
+    shell->settings_retry = false;
+    wristflow_ui_shell_get_settings(shell, &shell->submitted_settings);
+}
+bool wristflow_ui_shell_has_settings_store(const wristflow_ui_shell_t *shell)
+{ return shell && shell->save_settings && shell->settings_status; }
+wristflow_save_state_t wristflow_ui_shell_settings_save_state(const wristflow_ui_shell_t *shell)
+{ return shell ? shell->settings_save_state : WRISTFLOW_SAVE_IDLE; }
+
+void wristflow_ui_shell_sync_settings_save(wristflow_ui_shell_t *shell)
+{
+    if (!wristflow_ui_shell_has_settings_store(shell)) return;
+    wristflow_settings_t value;
+    if (!wristflow_ui_shell_get_settings(shell, &value)) return;
+    bool submitted = shell->settings_retry || !wristflow_settings_equal(&value, &shell->submitted_settings);
+    wristflow_save_state_t previous = shell->settings_save_state;
+    if (submitted) {
+        shell->settings_retry = false;
+        shell->submitted_settings = value;
+        shell->settings_request = shell->save_settings(&value, shell->settings_context);
+        shell->settings_save_state = shell->settings_request ? WRISTFLOW_SAVE_PENDING : WRISTFLOW_SAVE_FAILED;
+    }
+    if (shell->settings_request && shell->settings_save_state == WRISTFLOW_SAVE_PENDING)
+        shell->settings_save_state = shell->settings_status(shell->settings_request, shell->settings_context);
+    if (submitted || previous != shell->settings_save_state)
+        wristflow_apps_refresh_settings_save(shell->apps);
+}
+void wristflow_ui_shell_retry_settings_save(wristflow_ui_shell_t *shell)
+{
+    if (!wristflow_ui_shell_has_settings_store(shell) || shell->settings_save_state != WRISTFLOW_SAVE_FAILED) return;
+    shell->settings_retry = true;
+    wristflow_ui_shell_sync_settings_save(shell);
 }
 
 const wristflow_layout_t *wristflow_ui_shell_layout(const wristflow_ui_shell_t *shell)

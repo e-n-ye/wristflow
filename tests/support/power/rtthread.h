@@ -35,4 +35,5 @@ void rt_kprintf(const char *, ...);
 int rt_mutex_init(struct rt_mutex *, const char *, unsigned);
 int rt_mutex_take(struct rt_mutex *, int);
 int rt_mutex_release(struct rt_mutex *);
+int rt_mutex_detach(struct rt_mutex *);
 #endif
