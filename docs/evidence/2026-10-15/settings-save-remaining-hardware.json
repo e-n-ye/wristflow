@@ -1,0 +1,74 @@
+{
+  "date": "2026-10-15",
+  "scope": "Additional five preferences normal save/reboot restoration on the same installed BIN; no source changes, builds, flashing or charging",
+  "branch": "codex/settings-remaining",
+  "base_commit": "386620270e6f0fd142512ac5da26f1807a8b483e",
+  "previous_pr": "https://github.com/e-n-ye/wristflow/pull/68",
+  "previous_hardware_evidence": "settings-save-hardware.json",
+  "device_bin_sha256": "310ad9fe4a986bd9f9a6d7ba795b7f349ce4acbdb7bbda4304176d1def971478",
+  "authorization": "User asked to continue; informed of the five-preference bounded scope and followed each settings/save/reboot check",
+  "capture": {
+    "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/run-settings-uart.ps1 -Port COM5 -Tag settings-extra-01 -Seconds 1200",
+    "port": "Re-enumerated COM5 USB-SERIAL CH340 1A86:7523; original battery plus USB setup",
+    "serial": "1000000 8N1, no flow control, DTR=false RTS=false before opening, no explicit RTS reset",
+    "log": "artifacts/settings-extra-01.txt (local ignored), plus .bin and -summary.json",
+    "opened_at": "2026-10-15T20:51:59.409+08:00",
+    "closed_at": "2026-10-15T21:07:34.871+08:00",
+    "elapsed_seconds": 935.466637700003,
+    "normal": true,
+    "closed": true,
+    "exit_code": 0,
+    "hashes_sha256": {
+      "artifacts/settings-extra-01.txt": "b40c3e1833754d7ae8b9efb86b1ad83510db3d5f67e0a823ea7bc8faca27db4b",
+      "artifacts/settings-extra-01.bin": "c7a338adc1e1344cd61d06ce0160e4cd741d988a65fd5429eb3656bbd9f0a8ea",
+      "artifacts/settings-extra-01-summary.json": "995ba713d3ef55098f0a52811e1d5c91eec27ed35a4ff739edd3a672f2cf50f8"
+    }
+  },
+  "readbacks": {
+    "running_inhibit": "20:55:42 raw REG01=0xac REG02=0x09 REG04=0x9b REG05=0x1a REG0b=0x43; REG08=0x42 REG09=0x00, charger state idle. Sequential raw read, no measured current/fault-clearance claim",
+    "time_before_reboots": "20:55:42.643 show_date read Thu Oct 15 12:55:42 2026; no time write this round",
+    "initial_queries": "20:52 initial hold/status/date lacked replies; not counted as successful",
+    "unacknowledged_after_first_reboot": "21:00:00 hold/show_date sent while screen off, no replies; not counted as successful hold or post-reboot RTC query"
+  },
+  "group_one": {
+    "selected": {"menu_layout": "grid", "screen_timeout_seconds": 20, "do_not_disturb": true},
+    "before_feedback": "User confirmed multi-column, 20 seconds, DND enabled and saved",
+    "write_readback": "preferences request=1 verified=1 at 20:54:26.647, request=2 at 20:54:30.258, request=3 at 20:57:12.835",
+    "reboot": "20:59:28.174 ordinary SDK reboot, full startup 20:59:30; early inhibit verified; storage ready restore=yes brightness=40 face=simple breathing=5, layout generation=43 pages=3",
+    "after_feedback": "User confirmed all three selections retained",
+    "observability": "Menu layout, timeout and DND are not printed in startup settings line; values confirmed by user UI, not inferred from restore=yes alone",
+    "result": "Passed grouped normal save/reboot restore"
+  },
+  "group_two": {
+    "selected": {"long_press_face_enabled": false, "breathing_minutes": 2},
+    "before_feedback": "User confirmed long press disabled, breathing two minutes and saved",
+    "write_readback": "preferences request=1 verified=1 at 21:02:14.362, request=2 at 21:02:26.454",
+    "missed_reboot": "21:02:54.340 reboot sent while screen off with no boot reply; not counted as completed",
+    "recovery": "User pressed KEY1; local bounded wake-log helper queued diagnostic hold at 21:05:01.002, allow=0 acknowledged, then ordinary reboot re-sent",
+    "reboot": "21:05:21.075 reboot; early inhibit verified and full startup 21:05:23.198 storage ready restore=yes brightness=40 face=simple breathing=2, layout generation=43 pages=3",
+    "after_feedback": "User confirmed long press still disabled and breathing still two minutes",
+    "observability": "Breathing value printed in startup; long-press value confirmed by user UI",
+    "result": "Passed grouped normal save/reboot restore"
+  },
+  "additional_layout": {
+    "user_action": "User initially replaced alarm component with battery, confirmed saved; main clarified component replacement versus application list layout",
+    "write": "20:54:07.820 layout request=1 verified=1 generation=43",
+    "limit": "Two reboot logs restore generation=43/pages=3; no additional user confirmation of that specific card content after reboot, so not a new full component-restore result"
+  },
+  "teardown": {
+    "user_choice_and_feedback": "User restored DND off, long press on, and confirmed saved; other choices remain grid/20 seconds/two minutes",
+    "write_readback": "21:07:00.171 preferences request=1 verified=1, 21:07:03.240 request=2 verified=1",
+    "limit": "No third reboot after teardown; distinguish saved/readback success from a further reboot test",
+    "pm": "Acknowledged diagnostic hold before each effective reboot cleared by reboot; final wake reports allow=1 at 21:05:59.286 and 21:06:56.249. No diagnostic DEEP inhibit left behind",
+    "latest_settings": "brightness40 / simple face / grid / 20 seconds / DND off / long press on / breathing2",
+    "latest_power": "Original battery plus USB, no charge start; COM5 capture closed normally and helper exited"
+  },
+  "boundaries": {
+    "coverage": "Together with PR68, all seven preferences have grouped normal-save and ordinary-reboot observations on BIN310ad9fe; not an exhaustive combination test",
+    "not_covered": ["Actual failed-write manual retry", "Pending preference save across DEEP", "Interrupted-write or power-loss safety", "Full J1-J7", "Electrical or energy/temperature measurements", "New RTC post-reboot query result"],
+    "host_and_firmware": "No source changes; prior successful host/build evidence retained without rerun or new compilation claim"
+  },
+  "review": "Independent read-only capture and four-file documentation reviews found no material contradiction or blocker; unmatched replies and UI-only values explicitly distinguished",
+  "documentation": {"changed_files_checked": 4, "changed_chinese_files_checked": 3, "local_links_checked": 122, "errors": 0},
+  "delivery": "Final reviewed documentation head, PR Rebase merge readback and origin/main check are recorded in this round's PR Closure; active next step only in STATUS current"
+}
