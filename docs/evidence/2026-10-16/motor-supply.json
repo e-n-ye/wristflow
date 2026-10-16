@@ -1,0 +1,110 @@
+{
+  "date": "2026-10-16",
+  "timezone": "Asia/Shanghai",
+  "scope": "LDO3 supply preparation/restoration, USB-only flash and separately authorized single20ms and single100ms functional observations; no automatic motor binding or charging",
+  "base_commit": "585c988921dd44f52e47b064414110195eded4d1",
+  "branch": "codex/motor-supply",
+  "local_worktree": "C:/Users/13984/.codex/worktrees/power-status/wristflow",
+  "authorization": ["User continued LDO3/sharedRGB work; latest physical confirmation remains battery disconnected, computerUSB only", "After new boot preflight user: 已准备观察，单次20ms", "After successful20ms user explicitly requested: 来一个长振，这个短振有点不明显; root selected one100ms, gave3s observation cue, no automatic retry"],
+  "implementation": {
+    "prepare": "Required backend prepare runs with gateLOW and serviceIDLE; capture LDO3 EN/PD/SET, record lease before write, request EN1/PD0 only when needed, verify, wait5000us outside IRQ, verify again; worker rechecks stop/original acceptance deadline beforeON",
+    "off": "Verify GPIO DOR LOW before exact original EN/PD restoration. Preserve SET and unrelated rails; pre-enabled EN1/PD0 borrowed without disabling. EN1/PD1 refused. Preparation failure immediately attempts automaticOFF compensation; successful compensation returnsOFF/releasesIDLE. If LOW/restore still fails or owned-field conflict prevents cleanup, retain responsibility/FAULT/IDLE until successful explicitstop",
+    "concurrency": "Short PMU snapshot/RMW/readback under IRQ; delay/GPIO/PM/printing outside. Not a universal common owner or guarantee against arbitrary direct/concurrent writers; final check-toON race remains with postON cancellation check",
+    "status": "off_latch now combines LOW and resource release checks, not current feedback; false can coexist with GPIO LOW. PREPARE_ERROR appended as8; old reason numbers preserved; maximum status line107B",
+    "rgb": "Actual Product .config line1266 CONFIG_RGB_SK6812MINI_HS_ENABLE unset; board PA32 GPIO/pulldown. Compile guard blocks future RGB enable until common ownership exists; no RGB data/color action or proof of zero LED current",
+    "mapping": "LDO3->VOUT2 design evidence retained in motor-power-readonly.json; unchanged SETcode4 is not measured3.3V",
+    "timing_boundary": "Requested20/100ms includes preparation; no deadline extension, no claim of exact physical HIGH width or independent hardware cutoff",
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "sdk_contract": "HAL_PMU_ConfigPeriLdo(PMU_PERI_LDO3_3V3,true,false) modifies EN/PD only; verify raw to detect HAL_OK/no-op. HAL disable forcesEN0/PD1, so masked original-control restoration is necessary for initialEN0/PD0",
+    "review": "Independent read-only causal source review found no blockers; private20/100ms helper reviews found no pulse bypass or automatic retry. No subagent wrote files or operated device"
+  },
+  "source_sha256": {
+    "apps/product/src/product_motor.c": "3c78cb48ea6d7f1fd0445d51b84bbf007492bccb08b49320ca29852a56cc4bff",
+    "apps/product/src/product_motor.h": "13dbf8e4c92d8c732eac0e600b971ef53059c8dba74ecfaec94e28f467d528fe",
+    "apps/product/src/product_motor_board.c": "39881803b4ea7c8a17e921a11bb322b01dff33edff8f8e6e57fe2d2ea572e2fd",
+    "tests/product_motor.c": "3669853fa1ec6a32f94b71c39754f21019831f96fb928af28a35240152a29a0d",
+    "tests/product_motor_board.c": "002b2a8d27f904634600c913eba36cd1c088eb217463cbbf0d271c86f3bb3635",
+    "tests/support/motor/bf0_hal.h": "adb224e646ce9605e56fb427ca120876687c265d917d1d0dccf47eedae902624",
+    "tests/support/motor/rthw.h": "5bf5e572c9710b62d94790a2101c1920b25e23e005a6507f44876d961d9ccd7d"
+  },
+  "validation": {
+    "host_commands": ["cmake --build artifacts/host --target product_motor product_motor_board --parallel 6; ctest --test-dir artifacts/host -R '^product_motor(_board)?$' --output-on-failure", "cmake --build artifacts/motor-power-release --target product_motor product_motor_board --parallel 6; ctest --test-dir artifacts/motor-power-release -R '^product_motor(_board)?$' --output-on-failure"],
+    "host_tools": "CMake/CTest at C:/Program Files/CMake/bin; Ninja; D:/msys64/ucrt64/bin/gcc.exe15.2.0; retained Debug and Release caches use actual pinned SF32LB52X pmuc.h; Release -UNDEBUG",
+    "final_host": "Debug2/2 pass0.10s; Release2/2 pass0.09s",
+    "coverage": "Prepare stop/deadline/failed side effect and OFF recovery; board64 original EN/PD/SET vectors, pre-enabled borrow, partial write/no-op, other-rail preservation, SET conflicts, LOW failure and restoration retry; original deadline/GPIO/read-only tests retained",
+    "guard": "Expected compile rejection with -DRGB_SK6812MINI_HS_ENABLE; exact #error found; no runtime artifact from this check",
+    "build_command": "pwsh -NoProfile -File artifacts/build-isolated.ps1 -Example product -Jobs 6; unchanged Build.ps1 invokes official scons --board=sf32lb52-lchspi-ulp -j6",
+    "tools": "Python3.13.15, SCons4.10.1, Arm GCC14.2.1; SDK/submodule/tool locks unchanged",
+    "build_record": "artifacts/product/20261016-185159-856/result.json",
+    "build_record_sha256": "65a00ae796906ccaa5938624f86dbe8b5204b5e1c54e479e62d1f6aa680ac470",
+    "build_exit_code": 0,
+    "firmware_sha256": "4df9a03d1dc4efbda10c2c35ad163b16534e21e657d29812c67e219114931acf",
+    "firmware_bytes": 7728496,
+    "product_sources_artifacts_rehashed": [404,29],
+    "ui_demo": "Unchanged compiled sources; retained20261015-195844-577 rehashed372 sources/22 artifacts; no new build/flash",
+    "config": "PM/ADC1 on/tick1000; SDK charger/motor/vibrator, RGB and standby off",
+    "warnings_failures_cloud": "Existing LVGL/watch_core/FinSH/linker warnings retained; no new build/test failures this round; no manual cloud baseline for unchanged SDK/toolchain/build entry"
+  },
+  "flash": {
+    "preflight": "COM5 CH340 VID:PID1A86:7523 re-enumerated; pwsh -NoProfile -File artifacts/flash-isolated.ps1 -DryRun -Port COM5 exit0/no port open",
+    "command": "pwsh -NoProfile -File artifacts/flash-isolated.ps1 -Port COM5",
+    "record": "artifacts/flash/product/20261016-185951-744/result.json",
+    "completed_at": "2026-10-16T19:02:30.9833074+08:00",
+    "exit_code": 0,
+    "tool": "sftool0.2.5, SF32LB52 NOR,500000baud,connect-attempts3,after soft_reset,write_flash --verify",
+    "images": [
+      {"name":"bootloader.bin","address":"0x12010000","bytes":58496,"sha256":"e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"},
+      {"name":"main.bin","address":"0x12020000","bytes":7728496,"sha256":"4df9a03d1dc4efbda10c2c35ad163b16534e21e657d29812c67e219114931acf"},
+      {"name":"ftab.bin","address":"0x12000000","bytes":11288,"sha256":"cb9ce3147cd90b5616aafa58802bded899cfd1df2b34069566f4aed010fadec3"}
+    ],
+    "boundary": "Flash record hardware_verified=false preserved; actual functional observations are separate below; same firmware used for both pulses"
+  },
+  "captures": [
+    {
+      "tag": "motor-supply-01", "requested_ms": 20,
+      "command": "pwsh -NoProfile -File artifacts/run-motor-supply.ps1 -Port COM5 -Tag motor-supply-01 -Reset",
+      "opened_at": "2026-10-16T19:02:42.773+08:00", "closed_at": "2026-10-16T19:03:44.052+08:00", "elapsed_seconds":61.2829834999975,
+      "preflight": "One boot;19:02:45.104 early verified1/profile1 REG01ac REG051a;19:02:47 OFF/reason0/request0/remaining0/off_latch1;19:02:48 PERI_LDO00080719",
+      "pulse": "Only TX19:03:31.122 wf_motor pulse20;19:03:31.130 raw00090719 LDO3 EN1/PD0/code4; ACTIVE/request1/remaining12;19:03:31.144 expired reason1/off_latch1, statusOFF;19:03:31.161 raw00080719 restored;19:03:31.226 stop thenOFF/reason2",
+      "user_feedback": "感觉到短振并停止，没有异常",
+      "cleanup": "STOP/status/power/allow;19:03:43.048 allow1/off1/own_idle0/sdk_idle0; final raw00080719; normal close, helperexit0/closedtrue/COM5released",
+      "closed":true,"normal":true,"boot_banners":1,"pulse_count":1,"pm_allow_after_tx_seen":true,"exit_code":0
+    },
+    {
+      "tag": "motor-long-01", "requested_ms": 100,
+      "command": "pwsh -NoProfile -File artifacts/run-motor-long.ps1 -Port COM5 -Tag motor-long-01 -Reset",
+      "opened_at": "2026-10-16T19:05:45.854+08:00", "closed_at": "2026-10-16T19:06:24.536+08:00", "elapsed_seconds":38.68799129999752,
+      "preflight": "One boot;19:05:48.180 early verified1/profile1 REG01ac REG051a;19:05:50 OFF/reason0/request0/remaining0/off_latch1;19:05:51 PERI_LDO00080719",
+      "pulse": "Only TX19:06:07.667 wf_motor pulse100;19:06:07.675 raw00090719 LDO3 EN1/PD0/code4; ACTIVE/request1/remaining92 then28;19:06:07.770 expired reason1/off_latch1;19:06:07.809 raw00080719 restored;19:06:07.839 statusOFF;19:06:07.879 stopACK reason2, subsequentOFF",
+      "user_feedback": "振感明显，停止正常，没有异常",
+      "cleanup": "STOP/status/power/allow;19:06:23.527 allow1/off1/own_idle0/sdk_idle0; final raw00080719; normal close, helperexit0/closedtrue/COM5released",
+      "closed":true,"normal":true,"boot_banners":1,"pulse_count":1,"pm_allow_after_tx_seen":true,"exit_code":0
+    }
+  ],
+  "capture_contract": "Each1000000baud8N1/no-flow/DTRandRTSfalse before open; explicit150msRTS captures fresh boot; boot/inhibit/OFF/LDO3EN0 gates and<120s window. Separate exclusive persistent attempt markers are written beforeON and retained,20ms marker not removed for user-authorized100ms; no automatic retry/extension, no charge/raw query/supply CLI setter. Finish STOP/status/power/allow,1sRX; exceptionSTOP/allow best effort and unconfirmed",
+  "rtc": "BothRTS captures explicitly set currentUTC and read date:1792148569->FriOct16 11:02:50,1792148752->FriOct16 11:05:53; not drift/persistence acceptance",
+  "hardware_conclusion": "User-observed single20ms and separately requested single100ms start/self-stop confirmed with no reported anomaly. Sampled raw sequence00080719->00090719->00080719 changes only LDO3EN, SET/PD/other bits retained. Each capture one boot/noassert/HardFault/motorFAULT observed. ExpiryOFF precedes laterSTOP, so STOP tests only already-OFF idempotence, not active cancellation",
+  "local_artifacts_sha256": {
+    "artifacts/motor-supply-final-debug.log":"30bd62fc8fcd11d5ff53e77d6bed11f8b169501f8d36c2c31220092764aeeb00",
+    "artifacts/motor-supply-final-release.log":"429a8a30fe856616bbda62ac014e2b59ae1605a13ebc5bd23b9bc120dccf3063",
+    "artifacts/motor-supply-rgb-guard.log":"39be23b6d80950f43f182495984150ab5292bdb79fb84bc0c9a4c46debafe035",
+    "artifacts/motor-supply-rehash.json":"44faa8d76cea07dd88a4ed32870e211b5305ebb750bd53b516c334eaf6fa6995",
+    "artifacts/motor-supply-product-build.log":"aece3fe189360d04ef21fef287700058cf71977d068b465b0ab6b90f5ae8395e",
+    "artifacts/flash/product/20261016-185951-744/result.json":"d9c91c40a5ac94a6f9e931b1909c6f8242ce0ae4422421c65b80e3fde4a8f7f5",
+    "artifacts/motor-supply-01.txt":"9fce81945c2f85e3ff4d44ec90acd974b14ffc9d98ddb952b7c6be7fb5943c33",
+    "artifacts/motor-supply-01.bin":"8fbf760c403e163e847bd5639b10e9cce4ee712c15509a61f559426f91eb0668",
+    "artifacts/motor-supply-01-summary.json":"ea796b6a24c0441a3ba66d48e2632c9e9537408632017567501d4af22ed58372",
+    "artifacts/capture-motor-supply.py":"6dfcef428f2d08f63a1d9062fbd9c4a882090d6b05fce202602475464f315407",
+    "artifacts/run-motor-supply.ps1":"f9638c711e86f054e3d9ffa4491349002e7ba2719e317acc7efea78571b06863",
+    "artifacts/motor-supply-pulse-attempt.json":"830c075c43c26da95166b6d7453e22c2d4e46bd0a69de8eeefafaaab6c2f7ada",
+    "artifacts/motor-long-01.txt":"8d6904a0bd76643ef33aa338855e0c7ca5313e696826e28073028070232bae20",
+    "artifacts/motor-long-01.bin":"ee3382059d9f91018b671f30104d347e3f8ad848ddd2f0fa0afc6f1ed068303b",
+    "artifacts/motor-long-01-summary.json":"e14a2b353bf12f96eaa6d0b34e34d77acefd88dec66150d92cccde41f4c9edcd",
+    "artifacts/capture-motor-long.py":"b0ba8076f55055a76f8e53b8c2edf3a8d1d9f7821ee6484c0d1183cf2577dbd1",
+    "artifacts/run-motor-long.ps1":"943cf5223e0664294ac48752fb2c411f5202a1d84d22e3037996f117c5235f6f",
+    "artifacts/motor-long-pulse-attempt.json":"fa7daf3e2a66b32b12637e8566bce3bce711193faadc23a678672fca8d4c75c8"
+  },
+  "local_artifacts_boundary": "Ignored raw logs/helpers/manifests retained in local worktree only, not repository-distributed links; evidence records source and artifact identity separately from Git merge identity",
+  "not_verified": ["Physical voltage/current/waveform, start/stall peak, shared150mA/R36 load margin, temperature or independent cutoff", "Active earlystop cancellation on device, actual fault recovery, battery-only/combined supply motor operation", "Full currentBIN UI/touch/KEY1/BLE or sleep/wake regression, physicalDEEP/current/battery life", "Continuous charge inhibit/zero charging current or any charge start/termination/cell temperature"],
+  "next_bounded_proposal": "After review/integration, propose active-session explicitstop functional validation before automatic reminder integration; no new pulse authorized by this evidence file"
+}

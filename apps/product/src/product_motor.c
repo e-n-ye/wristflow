@@ -75,7 +75,16 @@ static void step(void)
         turn_off(cancelled ? WRISTFLOW_MOTOR_CANCELLED : WRISTFLOW_MOTOR_EXPIRED);
         return;
     }
-    bool ok = io.set_enabled(io.context, true);
+    bool ok = io.prepare(io.context);
+    level = rt_hw_interrupt_disable();
+    cancelled = sequence != stop_sequence;
+    expired = remaining(rt_tick_get()) <= 0;
+    rt_hw_interrupt_enable(level);
+    if (!ok || cancelled || expired) {
+        turn_off(!ok ? WRISTFLOW_MOTOR_PREPARE_ERROR : cancelled ? WRISTFLOW_MOTOR_CANCELLED : WRISTFLOW_MOTOR_EXPIRED);
+        return;
+    }
+    ok = io.set_enabled(io.context, true);
     level = rt_hw_interrupt_disable();
     cancelled = sequence != stop_sequence;
     expired = remaining(rt_tick_get()) <= 0;
@@ -170,7 +179,7 @@ static bool unavailable(wristflow_motor_reason_t reason)
 bool wristflow_product_motor_start(const wristflow_motor_io_t *backend)
 {
     if (ready) return true;
-    if (!backend || !backend->initialize_off || !backend->set_enabled) return false;
+    if (!backend || !backend->initialize_off || !backend->set_enabled || !backend->prepare) return false;
     io = *backend;
     rt_base_t level = rt_hw_interrupt_disable();
     state = (wristflow_motor_snapshot_t){.state = WRISTFLOW_MOTOR_UNAVAILABLE};
@@ -209,7 +218,7 @@ static int wf_motor(int argc, char **argv)
         wristflow_motor_snapshot_t s = wristflow_product_motor_snapshot();
         rt_kprintf("[motor] state=%s reason=%u request=%lu busy=%u stop_pending=%u\n",
             names[s.state], (unsigned)s.reason, (unsigned long)s.request_id, s.busy, s.stop_pending);
-        rt_kprintf("[motor] requested=%lums remaining=%lums off_latch=%u; GPIO latch only, not measured current\n",
+        rt_kprintf("[motor] requested=%lums remaining=%lums off_latch=%u; LOW/supply checks, not measured current\n",
             (unsigned long)s.requested_ms, (unsigned long)s.remaining_ms, s.off_latched);
         return RT_EOK;
     }
