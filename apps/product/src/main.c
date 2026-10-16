@@ -12,6 +12,7 @@
 #include "product_power.h"
 #include "product_countdown.h"
 #include "product_alarm.h"
+#include "product_motor.h"
 #include "weather_screen.h"
 #include <string.h>
 
@@ -147,6 +148,8 @@ int main(void)
 {
     wristflow_product_charger_report();
     wristflow_product_pm_start();
+    if (!wristflow_product_motor_start(wristflow_product_motor_board_io()))
+        rt_kprintf("[motor] unavailable; manual pulse disabled\n");
     const wristflow_countdown_port_t *countdown = wristflow_product_countdown_start();
     wristflow_settings_t settings;
     wristflow_layout_t layout;
