@@ -1,0 +1,101 @@
+{
+  "date": "2026-10-16",
+  "timezone": "Asia/Shanghai",
+  "scope": "Add one-shot read-only PERI_LDO diagnostic, build/flash and read requests; no new pulse/stop, supply setter, charge start or UI acceptance",
+  "base_commit": "af24263d3f22cd6024648c89b1f45d81ceb0b3e4",
+  "branch": "codex/motor-power-diagnostic",
+  "local_worktree": "C:/Users/13984/.codex/worktrees/power-status/wristflow",
+  "authorization": ["User asked to continue with read-only supply diagnosis", "Before download user confirmed: 仍断开电池、仅接电脑 USB"],
+  "implementation": {
+    "command": "wf_motor_power (no arguments)",
+    "ownership": "Product board backend owns command; existing motor worker/state machine and GPIO initialization unchanged",
+    "read_contract": "Read hwp_pmuc->PERI_LDO once to local raw, decode LDO2/LDO3 EN, PD and voltage code from same word; no setter/GPIO/PM/worker/timer/UI action; invalid argc returns before read",
+    "boundary": "Register requests only; no voltage/current/motor feedback. Firmware retains conservative mapping/voltage/current/motion unverified message; design mapping clarified separately below",
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "sdk_fields": "drivers/cmsis/sf32lb52x/pmuc.h:35,657-674; LDO2 EN8 SET12:9 PD13, LDO3 EN16 SET20:17 PD21",
+    "sdk_semantics": "drivers/hal/bf0_hal_pmu.c:1313-1333 ConfigPeriLdo writes EN/PD, not SET_VOUT; letter-series V33 early return at1293-1297 means setter success alone is not enable proof; no read-clear semantics found for PERI_LDO in scoped SDK source, silicon-level side effects not independently measured"
+  },
+  "mapping_correction": {
+    "superseded_draft": "Initial source incorrectly printed VOUT2=LDO2. Build20261016-161200-228 exit0 with BIN5c8ed73e814c84c52c313e062922f136fc38557d7a9a47abd2e8f0f8726570d4, never flashed; source review/compilation did not validate physical-name mapping",
+    "counter_evidence": "Locked SDK docs/source/zh_CN/app_development/startup_flow.md:77 explicitly associates LDO2 with VDD33_VOUT1",
+    "official_pdf_url": "https://downloads.sifli.com/silicon/DS5203-SF32LB52-MOD-1%E6%8A%80%E6%9C%AF%E8%A7%84%E6%A0%BC%E4%B9%A6%20V0p1.pdf",
+    "direct_design_evidence": "DS5203 V0.1 physicalpage27, U0101-B: LDO2->chip pin22 VDD33_VOUT1; LDO3->chip pin14 VDD33_VOUT2. Module pin17 and EPRO VIB/R36 route are retained in motor-default-off.json",
+    "inspection": "Rendered page27 PMU region with bundled Poppler pdftoppm at600dpi, x0/y1250/W1500/H1800; visual confirms labels and connections. Initial PyMuPDF attempts failed (fitz unavailable), no package installation; Poppler rendering succeeded",
+    "design_mapping_verified": true,
+    "actual_board_voltage_or_assembly_verified": false,
+    "historical_boundary": "Corrects any implied LDO2=VOUT2 association in prior investigation; does not retrospectively establish old BIN rail state or physical result of the unobserved20ms pulse"
+  },
+  "validation": {
+    "host_commands": ["cmake --build artifacts/host --target product_motor product_motor_board --parallel 6; ctest --test-dir artifacts/host -R '^product_motor(_board)?$' --output-on-failure", "cmake -S tests -B artifacts/motor-power-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe -DCMAKE_MAKE_PROGRAM=D:/msys64/ucrt64/bin/ninja.exe -DWRISTFLOW_SDK_ROOT=D:/MY_Desk/project/wristflow/vendor/SiFli-SDK; cmake --build artifacts/motor-power-release --target product_motor product_motor_board --parallel 6; ctest --test-dir artifacts/motor-power-release -R '^product_motor(_board)?$' --output-on-failure"],
+    "final_debug": "2/2 pass,0.12s; artifacts/motor-power-final-debug.log",
+    "final_release": "2/2 pass,0.11s; artifacts/motor-power-final-release.log; -UNDEBUG retains assertions",
+    "coverage": "Use actual pinned pmuc.h with const pointer to reject register writes;64 vectors cover each rail's4 EN/PD combinations and16 codes with opposite other-rail fields, before/after GPIO init, no GPIO/register/state changes, one read, register changes during printing, invalid argc zero reads, each print<128B",
+    "build_command": "pwsh -NoProfile -File artifacts/build-isolated.ps1 -Example product -Jobs 6; invokes unchanged official Build.ps1/SCons with installed primary-checkout SDK",
+    "build_record": "artifacts/product/20261016-182526-656/result.json",
+    "build_record_sha256": "66dadfc50ff64f8fa15bc5f7d44e0fa29497ec2796eabe844ecef2afedc16b2b",
+    "build_exit_code": 0,
+    "firmware_sha256": "a419023ad5fd40545d8b11e3b337e195241b863afce9492693ff50d39a3ecbff",
+    "firmware_bytes": 7727960,
+    "product_sources_artifacts_rehashed": [404,29],
+    "ui_demo": "Compiled source unchanged; retained20261015-195844-577 rehashed372 sources/22 artifacts; no new build or flash",
+    "config": "PM/ADC1 on, tick1000Hz; SDK charger/motor/vibrator and standby off; SDK/submodule/tool locks unchanged",
+    "warnings": "Initial complete build retained LVGL/watch_core warnings; final build retains FinSH export cast and linker RWX/newlib/ftab entry warnings. No vendor warning fixes in scope",
+    "cloud": "Not run; no SDK/toolchain/shared-build change"
+  },
+  "flash": {
+    "preflight": "pwsh -NoProfile -File artifacts/flash-isolated.ps1 -DryRun -Port COM5; exit0, did not open port",
+    "command": "pwsh -NoProfile -File artifacts/flash-isolated.ps1 -Port COM5",
+    "record": "artifacts/flash/product/20261016-182755-665/result.json",
+    "completed_at": "2026-10-16T18:30:34.9758362+08:00",
+    "exit_code": 0,
+    "port": "COM5 CH340 VID:PID1A86:7523, re-enumerated before download",
+    "tool": "sftool0.2.5 SF32LB52/NOR/500000baud connect-attempts3 after soft_reset write_flash --verify",
+    "images": [
+      {"name":"bootloader.bin","address":"0x12010000","bytes":58496,"sha256":"e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"},
+      {"name":"main.bin","address":"0x12020000","bytes":7727960,"sha256":"a419023ad5fd40545d8b11e3b337e195241b863afce9492693ff50d39a3ecbff"},
+      {"name":"ftab.bin","address":"0x12000000","bytes":11288,"sha256":"fe9e43de8ad96bab0edcbbfcf1d333ecb920eec8bc43caba6a664905e0c002d0"}
+    ],
+    "boundary": "Flash record hardware_verified=false preserved; tool write/verify separate from following observations"
+  },
+  "capture": {
+    "command": "pwsh -NoProfile -File artifacts/run-motor-power.ps1 -Port COM5 -Tag motor-power-01 -Reset",
+    "configuration": "1000000 8N1 no flow control, DTR/RTS false before open; explicit150ms RTS reset; 35s bounded capture",
+    "opened_at": "2026-10-16T18:31:19.111+08:00",
+    "closed_at": "2026-10-16T18:31:54.124+08:00",
+    "elapsed_seconds": 35.01837779999914,
+    "closed": true,
+    "normal": true,
+    "pm_allow_after_tx_seen": true,
+    "boot_banners": 1,
+    "exit_code": 0,
+    "commands": ["wf_pm hold","wf_motor status","wf_motor_power","wf_time 1792146687","show_date","wf_motor_power","wf_motor status","wf_pm allow"],
+    "helper_boundary": "Whitelist excludes pulse/stop/supply writes and charger raw status; exclusive persistent capture-attempt marker prevents concurrent reuse; explicit PM/RTC setup separate from read-only diagnostic; summary allow ACK tied to own TX",
+    "startup": "18:31:21.444 verified1/profile1; REG01=ac REG05=1a. Banner buildaf24263d is source base, BIN identity comes from flash SHA",
+    "motor": "18:31:24.112 and18:31:46.136 stateoff/reason0/request0/busy0/stop_pending0, requested0/remaining0/off_latch1; DOR contract only",
+    "power_reads": [
+      {"at":"18:31:25.137+08:00","context":"screen on, diagnostic hold","raw":"0x00080719","ldo2":{"en_req":1,"pd_req":0,"vout_code":3},"ldo3":{"en_req":0,"pd_req":0,"vout_code":4}},
+      {"at":"18:31:45.115+08:00","context":"screen off since18:31:42.808, still diagnostic hold, not DEEP","raw":"0x00080719","ldo2":{"en_req":1,"pd_req":0,"vout_code":3},"ldo3":{"en_req":0,"pd_req":0,"vout_code":4}}
+    ],
+    "conclusion": "Current diagnostic BIN has LDO3 enable request0 at both sampled points; design maps this to VOUT2. Not proof of actual0V, actual motor behavior, old-BIN state or exact physical mapping",
+    "rtc": "wf_time1792146687 ACK at18:31:27.129; show_date18:31:28.141 returned Fri Oct16 10:31:28 2026 UTC. No RTC persistence/drift acceptance",
+    "cleanup": "18:31:47.136 allow1/off1/own_idle0/sdk_idle0; later software enter1/exit1/deep_ticks5000 is not physical residency/current proof;18:31:54.124 CLOSE normal, helper exit0, port released",
+    "faults": "No assert/HardFault or new motor fault seen; no repeated charger raw query, so no full post-boot charger snapshot claim"
+  },
+  "local_artifacts_sha256": {
+    "artifacts/motor-power-final-debug.log":"51f8461a0f60b528adc18e9add50b860ecee7cc6494b3249042d73d3d8227885",
+    "artifacts/motor-power-final-release.log":"80dc319cdc52fde1c3584a9455e1450a5eb6d3a82771446f582c4c8bfe0d4c42",
+    "artifacts/motor-power-final-rehash.json":"f53f653672f1c41ec16e37128db5f7367b6d7a762bf31a761f7027ee240f3dca",
+    "artifacts/motor-power-final-product-build.log":"a10c20694e11c7a98117f517a02ad60a6c0f48504af1e17d26d0cedef37f50a0",
+    "artifacts/flash/product/20261016-182755-665/result.json":"045ce4c4681f6acadc744082ed283b7149a2dc02ed8f094653fce39d4270afbb",
+    "artifacts/motor-power-01.txt":"096f4a4a2490a357b7180364b6d46303a16b4a16502ee0b2e96830d222276cff",
+    "artifacts/motor-power-01.bin":"564a625beefb5b90569a9caa34a2781c6f7a032262e031bbf83243c8228b80f1",
+    "artifacts/motor-power-01-summary.json":"5f8d6e60ff500a8d3a5e18e00affb2ae8543e5d7f6caa7735bf394038e6013c5",
+    "artifacts/capture-motor-power.py":"b0a686c409f33b5c44bb8dd22ef04ceff262ef6e5b3d4c0d70363c854dd865fc",
+    "artifacts/run-motor-power.ps1":"4b7e8d94a2c3e1ee284ee25e00ae310c55e02595d8f7d6c5dc09ccd81ec167f7",
+    "artifacts/motor-ds5203-v0p1.pdf":"ef2e460bc47fe35a6db07c52b6868e6ba9f7e62262c929465f868c37ea491d19",
+    "artifacts/motor-ds5203-ldo-clip.png":"31634b524dced47a13df3a95c914d54df58060cd73710a32214a3921f7db0131"
+  },
+  "local_artifacts_boundary": "Ignored artifacts retained only in worktree above, not repository-distributed links",
+  "not_verified": ["Physical supply voltage/current, actual motor start/stop or pulse width", "Startup/stall peak and VOUT2/R36/sharedRGB load compatibility", "Full current-version UI/touch/KEY1/BLE regression, physical DEEP/current/battery life", "Continuous charge inhibit, zero charging current, charge start/termination or cell temperature"],
+  "next_bounded_proposal": "Design correct LDO3 supply prerequisite and sharedRGB ownership before another separately observed short motor trial; not implemented or actuated here"
+}

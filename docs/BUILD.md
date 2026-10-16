@@ -1,5 +1,13 @@
 # 可复现构建基线
 
+## 2026-10-16 电机供电只读诊断
+
+从`origin/main@af24263`新增Product板级`wf_motor_power`，单次读取PERI_LDO后报告两路LDO请求位；未改motor服务状态机／启停、SDK锁／厂商、XML／生成物、配置或公共构建入口。相关motor／board Debug2/2（0.12秒）、Release2/2（0.11秒）通过，Release保留断言；测试直接用锁定SDK的SF32LB52X pmuc.h，覆盖两路全部EN／PD／code、寄存器／GPIO无写、单次快照与打印期间变化、无效参数零读及128B行长。
+
+初稿误将VOUT2标为LDO2，`20261016-161200-228`虽编译成功但未下载；SDK启动文档及官方DS5203原理图复核后改为两路并列读回，确认设计VOUT2来自LDO3。最终隔离包装器调用官方SCons的`Build.ps1 -Example product -Jobs 6`，`20261016-182526-656`退出0，404源码／29产物重哈希一致，BIN7,727,960B／SHA-256`a419023ad5fd40545d8b11e3b337e195241b863afce9492693ff50d39a3ecbff`；UI Demo编入源码未变，旧372／22重哈希一致，未重复编译。SDK／工具版本与下节相同，既有SDK／FinSH类型转换／链接警告保留，未运行手动云端基线。
+
+用户再确认仅USB后，三镜像DryRun及write／verify退出0；启动禁充／默认OFF与两次LDO请求位回读通过，LDO3 EN=0；PM许可恢复、正常关闭。没有新的pulse、实际电压／电流或UI／KEY1验收。完整命令、清单、修正和硬件边界见[只读诊断证据](evidence/2026-10-16/motor-power-readonly.json)。
+
 ## 2026-10-16 手动限时电机软件
 
 基于`origin/main@600e03b`，隔离`codex/motor-pulse`新增PA20默认OFF、显式1–250ms单脉冲、截止／取消、故障OFF与IDLE约束；不改SDK／锁、公共构建入口、XML／生成物或设置格式。完整主机CTest41/41（17.06秒）通过；补充`rthw.h`后相关Debug2/2（0.10秒）、Release2/2（0.09秒）再验通过，Release保留断言。覆盖截止／stop插入、部分ON失败、OFF失败及启动资源失败组合，GPIO测试核对LOW预装与锁存器语义。

@@ -6,6 +6,8 @@
 
 2026-10-16新增[手动限时电机服务](MOTOR-PULSE.md)：main在消费者启动前请求PA20默认OFF，之后由独立worker处理显式1–250ms脉冲、截止和取消；关闭未确认保留IDLE并拒绝新脉冲。没有自动振动绑定或UI变更，状态读回只表示GPIO锁存器。软件交付阶段未下载；随后仅USB下`cd88555b…`下载verify及[默认OFF观察](MOTOR-PULSE.md#default-off-hardware)通过，再按用户明确授权只发[一次20ms请求](MOTOR-PULSE.md#first-pulse-hardware)，到期／stop后数字OFF有日志。用户未留意，实际振动／停止未确认，不算启振通过；没有重试、新构建或再次烧录。
 
+同日再补[外围LDO只读诊断](MOTOR-PULSE.md#power-read-only)，查询只读一次PERI_LDO，不调用PMU setter／GPIO／启停或新增轮询。诊断版`a419023a…`仅USB下载verify／启动禁充／默认OFF通过；亮屏和息屏hold下两次LDO3使能请求均为0，设计对应VOUT2，实际电压仍未测。没有新的pulse／stop，PM许可已恢复、串口正常关闭；前序20ms振感与当前完整UI／KEY1继续未验，详见[同版证据](evidence/2026-10-16/motor-power-readonly.json)。
+
 <a id="power-display-20261015"></a>
 ## 2026-10-15 真实电源检测与电压显示
 
