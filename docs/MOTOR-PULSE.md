@@ -48,3 +48,12 @@ PR #70合入`c658d55`后，用户继续并确认同款电机／VIB、无万用�
 默认OFF记录PR #71合入`b0aaf3d`后，用户知悉启动峰值及过载／压降风险，明确授权仅USB、人在旁的一次20ms功能试探。沿用`cd88555b…`，未改源码／构建／烧录。独立one-shot采集器发送前独占创建持久化attempt标记，只允许此次20ms；完整启动禁充／默认OFF通过后，12:45:10.193发送一次，读到ACTIVE/request1、12:45:10.216到期reason1／OFF，随后status确认OFF。约104ms补stop后reason2／OFF；收尾另发stop只作关闭复查，不增加ON。
 
 用户回复“刚才没有留意，不清楚”，物理振动／停止未确认。日志中的请求20ms和到期时间不能证明物理脉宽，DOR不能证明实际电压／电流。采集只有一个启动banner、未见assert／HardFault或电机故障日志；息屏后充电器raw复查另有5秒I²C超时，保留失败，不扩为全程禁充或电机故障结论。PM许可恢复、正常关闭与exit0均确认，无自动重试／加长。版本、命令、哈希、未验证供电轨及建议诊断见[单次证据](evidence/2026-10-16/motor-first-pulse.json)；本次授权不关闭上文电气未知项。
+
+<a id="power-read-only"></a>
+## 同日后续：外围LDO只读诊断
+
+`wf_motor_power`只接受无参数调用，在shell线程单次读取`hwp_pmuc->PERI_LDO`，所有输出解码同一局部raw字；报告LDO2和LDO3各自的`en_req`／`pd_req`／`vout_code`，保留矛盾组合，不换算为测得电压。它不经过电机worker，不调用GPIO、PMU setter、启停或PM申请，不创建线程／timer，不自动绑定UI。无效参数在读取前返回错误；每行保持在SDK 128B console buffer内。此入口仅作瞬时寄存器观察，不能确认电机端供电、实际电压／电流、脉宽或停转。
+
+锁定SDK `drivers/cmsis/sf32lb52x/pmuc.h`定义LDO2 EN/SET/PD为bit8／bits12:9／bit13，LDO3为bit16／bits20:17／bit21。初稿错误标注VOUT2=LDO2，虽编译成功但没有下载；`docs/source/zh_CN/app_development/startup_flow.md:77`明确LDO2对应芯片VOUT1，因此修正为两路并列输出。[DS5203 V0.1](https://downloads.sifli.com/silicon/DS5203-SF32LB52-MOD-1%E6%8A%80%E6%9C%AF%E8%A7%84%E6%A0%BC%E4%B9%A6%20V0p1.pdf)物理第27页U0101-B进一步直接标明LDO3→芯片pin14 VDD33_VOUT2；这是设计映射，不代表实物电压。固件保留`mapping/voltage/current/motion unverified`的保守提示，实物映射／输出仍未测。命令没有任何供电使能行为，不能由新入口存在推断前序20ms实际启振。
+
+最终相关Debug／Release各2/2、Product编译和404／29重哈希通过；用户再确认仅USB后下载`a419023a…`，三镜像verify退出0。启动禁充／默认OFF以及亮屏／息屏hold下两次`PERI_LDO=00080719`通过，LDO3 EN0／PD0／code4，未发pulse／stop或供电写入。PM许可恢复、串口正常关闭；实际供电／启停及当前全量UI／KEY1未验。命令、哈希、校时与收尾见[同版记录](evidence/2026-10-16/motor-power-readonly.json)。

@@ -31,3 +31,29 @@ const wristflow_motor_io_t *wristflow_product_motor_board_io(void)
     static const wristflow_motor_io_t backend = {NULL, initialize_off, set_enabled};
     return &backend;
 }
+
+/* One register read only: do not configure the shared motor/RGB supply here.
+ * EN/PD/SET_VOUT are requests, not output-voltage or load-current feedback. */
+static int wf_motor_power(int argc, char **argv)
+{
+    (void)argv;
+    if (argc != 1) {
+        rt_kprintf("wf_motor_power; read-only peripheral LDO register requests\n");
+        return -RT_EINVAL;
+    }
+    uint32_t raw = hwp_pmuc->PERI_LDO;
+    unsigned en2 = (raw & PMUC_PERI_LDO_EN_VDD33_LDO2_Msk) != 0;
+    unsigned pd2 = (raw & PMUC_PERI_LDO_VDD33_LDO2_PD_Msk) != 0;
+    unsigned code2 = (raw & PMUC_PERI_LDO_VDD33_LDO2_SET_VOUT_Msk)
+        >> PMUC_PERI_LDO_VDD33_LDO2_SET_VOUT_Pos;
+    unsigned en3 = (raw & PMUC_PERI_LDO_EN_VDD33_LDO3_Msk) != 0;
+    unsigned pd3 = (raw & PMUC_PERI_LDO_VDD33_LDO3_PD_Msk) != 0;
+    unsigned code3 = (raw & PMUC_PERI_LDO_VDD33_LDO3_SET_VOUT_Msk)
+        >> PMUC_PERI_LDO_VDD33_LDO3_SET_VOUT_Pos;
+    rt_kprintf("[motor-power] PERI_LDO=0x%08lx\n", (unsigned long)raw);
+    rt_kprintf("[motor-power] LDO2 en_req=%u pd_req=%u vout_code=%u\n", en2, pd2, code2);
+    rt_kprintf("[motor-power] LDO3 en_req=%u pd_req=%u vout_code=%u\n", en3, pd3, code3);
+    rt_kprintf("[motor-power] requests only; VOUT2 mapping/voltage/current/motion unverified\n");
+    return RT_EOK;
+}
+MSH_CMD_EXPORT(wf_motor_power, Read-only peripheral LDO requests without enabling the supply or motor);

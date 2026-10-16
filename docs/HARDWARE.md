@@ -1,5 +1,14 @@
 # 黄山派选型复评
 
+<a id="motor-power-readonly-20261016"></a>
+## 2026-10-16 外围LDO只读回读
+
+用户继续后补`wf_motor_power`；再次明确确认仍断开电池、仅电脑USB，诊断版`a419023a…`三镜像write／verify退出0。受控RTS 150ms捕获一个启动，early禁充`verified=1 profile=1`、REG01=ac／REG05=1a，电机默认OFF/request0/off_latch1。18:31:25.137亮屏与18:31:45.115息屏后两次`PERI_LDO=0x00080719`，LDO2为EN1／PD0／code3，LDO3为EN0／PD0／code4；第二次仍有诊断hold，不是DEEP保持实测。
+
+初稿把VOUT2误标为LDO2，虽编译成功但未下载。锁定SDK启动文档明确LDO2→VOUT1；[DS5203 V0.1](https://downloads.sifli.com/silicon/DS5203-SF32LB52-MOD-1%E6%8A%80%E6%9C%AF%E8%A7%84%E6%A0%BC%E4%B9%A6%20V0p1.pdf)物理第27页U0101-B明确LDO3→芯片pin14 VDD33_VOUT2，与模组pin17及下方板路闭合。因此**当前LDO3没有请求使能**是已取得的寄存器事实；实际输出电压、实物映射与电流仍未测，不从EN0直接宣称0V或回填此前20ms没有振动。
+
+查询单次读取同一寄存器字、无PMU setter／GPIO或启停调用。本段采集无pulse／stop、未启充、没有重复charger raw查询，避免额外读取故障锁存；仅保留启动禁充证据。RTC按当前UTC校时且日期读回；18:31:47.136收到allow=1／own_idle0／sdk_idle0，18:31:54.124正常关闭、exit0，COM5释放。后段DEEP计数不代替物理功耗／驻留，显示／触摸／KEY1未新增用户验收。固件、命令、失败修正、原始资料／日志哈希见[精简证据](evidence/2026-10-16/motor-power-readonly.json)。
+
 <a id="motor-first-pulse-20261016"></a>
 ## 2026-10-16 单次20ms功能试探
 
