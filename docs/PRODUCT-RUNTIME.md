@@ -4,9 +4,11 @@
 
 2026-10-15后续设置保存已改为[事件worker与有限重试](PRODUCT-SETTINGS.md#save-reliability-20261015)：偏好设置／布局按请求代次反馈，写后回读才确认成功；Product在现有界面采集点与息屏前提交，UI不调用Flash。旧设置记录格式、闹钟存储及下述充电／电源显示边界保留；本轮不操作设备。
 
-2026-10-16新增[手动限时电机服务](MOTOR-PULSE.md)：main在消费者启动前请求PA20默认OFF，之后由独立worker处理显式1–250ms脉冲、截止和取消；关闭未确认保留IDLE并拒绝新脉冲。没有自动振动绑定或UI变更，状态读回只表示GPIO锁存器。软件交付阶段未下载；随后仅USB下`cd88555b…`下载verify及[默认OFF观察](MOTOR-PULSE.md#default-off-hardware)通过，再按用户明确授权只发[一次20ms请求](MOTOR-PULSE.md#first-pulse-hardware)，到期／stop后数字OFF有日志。用户未留意，实际振动／停止未确认，不算启振通过；没有重试、新构建或再次烧录。
+2026-10-16新增[手动限时电机服务](MOTOR-PULSE.md)：main在消费者启动前请求PA20默认OFF，之后由独立worker处理显式1–250ms脉冲、截止和取消；关闭未确认保留IDLE并拒绝新脉冲。首版没有自动振动绑定或UI变更，状态读回只表示GPIO锁存器。软件交付阶段未下载；随后仅USB下`cd88555b…`下载verify及[默认OFF观察](MOTOR-PULSE.md#default-off-hardware)通过，再按用户明确授权只发[一次20ms请求](MOTOR-PULSE.md#first-pulse-hardware)，到期／stop后数字OFF有日志。用户未留意，实际振动／停止未确认，不算启振通过；该段没有重试、新构建或再次烧录。
 
 同日再补[外围LDO只读诊断](MOTOR-PULSE.md#power-read-only)，查询只读一次PERI_LDO，不调用PMU setter／GPIO／启停或新增轮询。诊断版`a419023a…`仅USB下载verify／启动禁充／默认OFF通过；亮屏和息屏hold下两次LDO3使能请求均为0，设计对应VOUT2，实际电压仍未测。没有新的pulse／stop，PM许可已恢复、串口正常关闭；前序20ms振感与当前完整UI／KEY1继续未验，详见[同版证据](evidence/2026-10-16/motor-power-readonly.json)。
+
+同日从`585c988`扩展[LDO3供电前置](MOTOR-PULSE.md#supply-prepare)：启动OFF不主动开轨，显式pulse在LOW下临时借用LDO3并等待5ms，之后重查取消／原截止，不延时补偿。OFF先核对LOW，再恢复自己改动的EN／PD；借用原开启轨不关闭，保留SET与其他rails。归还失败仍FAULT／IDLE、显式stop可重试。off_latch现为LOW与供电归还的联合检查，非物理断流证明；RGB启用编译阻断。`4df9a03d…`仅USB下载／启动预检与分别授权的20／100ms有界启停通过，用户确认100ms明显、停止正常无异常；两段allow恢复／串口正常关闭，无自动重试或提醒绑定。源码、编译与本版设备结果分别见[供电证据](evidence/2026-10-16/motor-supply.json)，上段EN0仅属旧版采样，电气余量／活动取消／完整UI另验。
 
 <a id="power-display-20261015"></a>
 ## 2026-10-15 真实电源检测与电压显示

@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-10-16 电机LDO3供电前置
+
+基于`585c988`扩展motor prepare及板级LDO3临时借用／精确归还，未改SDK、锁、配置、XML／生成物或公共构建入口。最终相关Debug2/2（0.10秒）／Release2/2（0.09秒）通过，Release保留断言；覆盖准备期间取消／到期、部分写失败、LOW与归还失败重试、原轨借用、SET冲突及其他rail保留。RGB启用编译拒绝与最长107B状态行检查通过，独立源码审查无阻塞。
+
+隔离包装器调用现有`Build.ps1 -Example product -Jobs 6`及官方SCons，`20261016-185159-856`退出0；404源码／29产物重哈希一致，BIN7,728,496B／SHA-256`4df9a03d1dc4efbda10c2c35ad163b16534e21e657d29812c67e219114931acf`。UI Demo编入源码未变，沿用`20261015-195844-577`并重哈希372／22一致，未再编译／下载。SDK／工具版本不变，既有LVGL／watch_core／FinSH／链接警告保留，无本轮失败，不运行手动云端基线。下载与设备观察独立见[供电证据](evidence/2026-10-16/motor-supply.json)，不能由编译推断物理启停或电气余量。
+
 ## 2026-10-16 电机供电只读诊断
 
 从`origin/main@af24263`新增Product板级`wf_motor_power`，单次读取PERI_LDO后报告两路LDO请求位；未改motor服务状态机／启停、SDK锁／厂商、XML／生成物、配置或公共构建入口。相关motor／board Debug2/2（0.12秒）、Release2/2（0.11秒）通过，Release保留断言；测试直接用锁定SDK的SF32LB52X pmuc.h，覆盖两路全部EN／PD／code、寄存器／GPIO无写、单次快照与打印期间变化、无效参数零读及128B行长。

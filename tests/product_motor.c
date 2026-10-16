@@ -6,10 +6,11 @@
 
 static struct rt_thread fake_thread;
 static rt_tick_t ticks;
-static unsigned irq, pm, initializes, ons, offs, events_detached, threads_deleted;
+static unsigned irq, pm, initializes, prepares, ons, offs, events_detached, threads_deleted;
 static bool enabled, fail_init, fail_on, fail_off, fail_event, fail_create, fail_start, fail_send;
 static bool stop_on_hold, expire_on_hold, stop_on_enable, stop_on_disable, replace_on_enable;
 static bool slow_enable, zero_ticks;
+static bool supply, fail_prepare, stop_on_prepare, expire_on_prepare, replace_on_prepare;
 static int32_t recorded_wait;
 static jmp_buf worker_exit;
 rt_base_t rt_hw_interrupt_disable(void) { return irq++; }
@@ -36,6 +37,7 @@ static bool set_enabled(void *context, bool on)
     if (ready) assert(pm == 1 && state.busy);
     else assert(!on); /* Startup cleanup never requests ON. */
     if (on) {
+        assert(supply);
         assert(!state.off_latched); ++ons;
         enabled = true; /* Exercise a partial ON even when the callback fails. */
         if (replace_on_enable) {
@@ -49,7 +51,16 @@ static bool set_enabled(void *context, bool on)
     ++offs;
     if (stop_on_disable) { stop_on_disable = false; assert(wristflow_product_motor_stop()); }
     if (fail_off) return false;
-    enabled = false; return true;
+    enabled = supply = false; return true;
+}
+static bool prepare(void *context)
+{
+    assert(context == &ticks && !irq && pm == 1 && state.busy && !enabled && !state.off_latched);
+    ++prepares; supply = true; /* Include partial preparation on failure. */
+    if (stop_on_prepare) { stop_on_prepare = false; assert(wristflow_product_motor_stop()); }
+    if (expire_on_prepare) { expire_on_prepare = false; ticks = deadline; }
+    if (replace_on_prepare) { replace_on_prepare = false; assert(!wristflow_product_motor_pulse(250)); }
+    return !fail_prepare;
 }
 int rt_event_init(struct rt_event *event, const char *name, unsigned flags)
 {
@@ -79,7 +90,7 @@ static int command(const char *action, const char *value)
 static void check_off(void)
 {
     wristflow_motor_snapshot_t s = wristflow_product_motor_snapshot();
-    assert(s.state == WRISTFLOW_MOTOR_OFF && s.off_latched && !s.busy && !s.stop_pending && !enabled && !pm);
+    assert(s.state == WRISTFLOW_MOTOR_OFF && s.off_latched && !s.busy && !s.stop_pending && !enabled && !supply && !pm);
     assert(wait_ticks() == RT_WAITING_FOREVER);
 }
 static void fresh(void)
@@ -87,16 +98,18 @@ static void fresh(void)
     assert(!pm && !irq);
     ready = idle_held = false;
     state = (wristflow_motor_snapshot_t){0};
-    ticks = initializes = ons = offs = events_detached = threads_deleted = 0;
+    ticks = initializes = prepares = ons = offs = events_detached = threads_deleted = 0;
     enabled = fail_init = fail_on = fail_off = fail_event = fail_create = fail_start = fail_send = false;
     stop_on_hold = expire_on_hold = stop_on_enable = stop_on_disable = replace_on_enable = slow_enable = zero_ticks = false;
+    supply = fail_prepare = stop_on_prepare = expire_on_prepare = replace_on_prepare = false;
     changed.bits = 0;
 }
-static const wristflow_motor_io_t backend = {&ticks, initialize_off, set_enabled};
+static const wristflow_motor_io_t backend = {&ticks, initialize_off, set_enabled, prepare};
 int main(void)
 {
     assert(!wristflow_product_motor_start(NULL));
     wristflow_motor_io_t missing = {0}; assert(!wristflow_product_motor_start(&missing));
+    missing = backend; missing.prepare = NULL; assert(!wristflow_product_motor_start(&missing));
     assert(!wristflow_product_motor_pulse(100) && !wristflow_product_motor_stop() && !ons);
     fresh(); fail_init = true;
     assert(!wristflow_product_motor_start(&backend) && initializes == 1 && offs == 1 && !ons);
@@ -147,6 +160,24 @@ int main(void)
     assert(wristflow_product_motor_pulse(10)); stop_on_hold = true;
     background(); check_off(); assert(ons == calls);
 
+    assert(wristflow_product_motor_pulse(20)); stop_on_prepare = true;
+    background(); check_off(); assert(ons == calls && state.reason == WRISTFLOW_MOTOR_CANCELLED);
+    assert(wristflow_product_motor_pulse(20)); expire_on_prepare = true;
+    background(); check_off(); assert(ons == calls && state.reason == WRISTFLOW_MOTOR_EXPIRED);
+    fail_prepare = true; assert(wristflow_product_motor_pulse(20)); background();
+    check_off(); assert(ons == calls && state.reason == WRISTFLOW_MOTOR_PREPARE_ERROR);
+    fail_prepare = false;
+    assert(wristflow_product_motor_pulse(20)); replace_on_prepare = true;
+    limit = deadline; background();
+    assert(enabled && supply && deadline == limit && state.state == WRISTFLOW_MOTOR_ACTIVE);
+    assert(wristflow_product_motor_stop()); background(); check_off();
+    fail_prepare = fail_off = true; calls = ons;
+    assert(wristflow_product_motor_pulse(20)); background();
+    assert(!enabled && supply && pm == 1 && state.state == WRISTFLOW_MOTOR_FAULT && !state.off_latched && ons == calls);
+    assert(!wristflow_product_motor_pulse(20));
+    fail_prepare = fail_off = false;
+    assert(wristflow_product_motor_stop()); background(); check_off();
+
     assert(wristflow_product_motor_pulse(10)); stop_on_enable = true;
     background(); check_off(); assert(state.reason == WRISTFLOW_MOTOR_CANCELLED);
     assert(wristflow_product_motor_pulse(10)); slow_enable = true;
@@ -182,6 +213,6 @@ int main(void)
     assert(wait_ticks() == 1); ticks = deadline; background(); check_off(); zero_ticks = false;
     assert(command("pulse", "250") == RT_EOK); background();
     assert(command("stop", NULL) == RT_EOK); background(); check_off();
-    puts("product motor deadlines, cancellation, failures, PM and idle wait passed");
+    puts("product motor preparation, deadlines, cancellation, failures, PM and idle wait passed");
     return 0;
 }

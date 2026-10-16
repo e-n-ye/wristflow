@@ -8,8 +8,10 @@
 typedef struct {
     void *context;
     bool (*initialize_off)(void *context);
-    /* Success confirms the backend's digital output contract, not motor current. */
+    /* OFF succeeds only after GPIO LOW and backend resource release checks. */
     bool (*set_enabled)(void *context, bool enabled);
+    /* May enable a supply with the gate LOW; caller rechecks stop/deadline. */
+    bool (*prepare)(void *context);
 } wristflow_motor_io_t;
 
 typedef enum {
@@ -19,12 +21,14 @@ typedef enum {
 typedef enum {
     WRISTFLOW_MOTOR_NONE, WRISTFLOW_MOTOR_EXPIRED, WRISTFLOW_MOTOR_CANCELLED,
     WRISTFLOW_MOTOR_ON_ERROR, WRISTFLOW_MOTOR_OFF_ERROR,
-    WRISTFLOW_MOTOR_INIT_ERROR, WRISTFLOW_MOTOR_RESOURCE_ERROR, WRISTFLOW_MOTOR_WAKE_ERROR
+    WRISTFLOW_MOTOR_INIT_ERROR, WRISTFLOW_MOTOR_RESOURCE_ERROR, WRISTFLOW_MOTOR_WAKE_ERROR,
+    WRISTFLOW_MOTOR_PREPARE_ERROR
 } wristflow_motor_reason_t;
 typedef struct {
     wristflow_motor_state_t state;
     wristflow_motor_reason_t reason;
     uint32_t request_id, requested_ms, remaining_ms;
+    /* Combined backend OFF check, not an independent GPIO/current measurement. */
     bool off_latched, busy, stop_pending;
 } wristflow_motor_snapshot_t;
 
