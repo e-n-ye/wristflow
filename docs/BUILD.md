@@ -6,7 +6,7 @@
 
 本机隔离包装器调用当前`Build.ps1 -Example product -Jobs 6`，底层官方SCons，Arm GCC14.2.1／Python3.13.15／SCons4.10.1。最终Product `20261016-114657-656`退出0，404源码／29产物重哈希一致，BIN7,727,484B／SHA-256`cd88555bbc45aaec41093225c2091b2a8989dc8bb791e4a6e85e8da5e13f9ab5`。UI Demo编入源码未变，沿用`20261015-195844-577`并重哈希372源码／22产物一致。配置PM／ADC1开启、SDK charger／motor／vibrator与standby关闭，tick1000Hz。
 
-首轮Product因缺少中断接口`rthw.h`退出1，补齐后重编译通过；独立审查发现启动补偿OFF失败未持有PM，已修正并补测、复核关闭。既有SDK／watch_core／RTC／FinSH／链接警告保留，新增MSH命令沿用SDK导出宏的类型转换警告。未运行云端基线、烧录、串口或实际启振；设备仍为`310ad9fe…`。具体命令／失败／哈希见[精简证据](evidence/2026-10-16/motor-pulse.json)，行为与物理时限边界见[电机契约](MOTOR-PULSE.md)。
+首轮Product因缺少中断接口`rthw.h`退出1，补齐后重编译通过；独立审查发现启动补偿OFF失败未持有PM，已修正并补测、复核关闭。既有SDK／watch_core／RTC／FinSH／链接警告保留，新增MSH命令沿用SDK导出宏的类型转换警告。软件交付阶段未运行云端基线或操作设备；同日后续沿用此BIN完成仅USB下载verify及默认OFF启动，未新构建或启振，见[硬件记录](evidence/2026-10-16/motor-default-off.json)。具体编译命令／失败／哈希见[精简证据](evidence/2026-10-16/motor-pulse.json)，行为与物理时限边界见[电机契约](MOTOR-PULSE.md)。
 
 ## 2026-10-15 设置保存可靠性
 

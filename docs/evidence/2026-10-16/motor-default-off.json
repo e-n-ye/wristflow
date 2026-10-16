@@ -1,0 +1,169 @@
+{
+  "date": "2026-10-16",
+  "timezone": "Asia/Shanghai",
+  "scope": "Existing motor BIN download and default-OFF startup observation only; no pulse, charge start or new firmware build",
+  "branch": "codex/motor-hardware",
+  "base_commit": "c658d5545928c8b986593f830e862988b811803c",
+  "local_worktree": "C:/Users/13984/.codex/worktrees/power-status/wristflow",
+  "software_pr": "https://github.com/e-n-ye/wristflow/pull/70",
+  "software_evidence": "motor-pulse.json",
+  "authorization": [
+    "User asked to continue.",
+    "User confirmed same purchased two-wire 1027 motor connected at VIB; no multimeter borrowed.",
+    "Bounded this round to flashing, charging-inhibit/default-OFF and related UI checks, explicitly no actuation.",
+    "User confirmed battery disconnected, USB-only, ready to flash."
+  ],
+  "candidate": {
+    "firmware_sha256": "cd88555bbc45aaec41093225c2091b2a8989dc8bb791e4a6e85e8da5e13f9ab5",
+    "previous_device_sha256": "310ad9fe4a986bd9f9a6d7ba795b7f349ce4acbdb7bbda4304176d1def971478",
+    "build_record": "artifacts/product/20261016-114657-656/result.json",
+    "sources_rehashed": 404,
+    "artifacts_rehashed": 29,
+    "dry_run": "pwsh -NoProfile -File artifacts/flash-isolated.ps1 -DryRun -Port COM5",
+    "dry_run_exit_code": 0,
+    "retained_hook": "BSP_PowerUpCustom at 0x200033bc in .retm_data; false path branches to 0x2000345a stack restore/return",
+    "inspection_log": "artifacts/motor-hardware-power-hook.txt"
+  },
+  "flash": {
+    "command": "pwsh -NoProfile -File artifacts/flash-isolated.ps1 -Port COM5",
+    "wrapper": "Existing local ignored wrapper invokes unchanged Flash.ps1, substituting installed primary-checkout sftool path",
+    "tool": "sftool0.2.5, SF32LB52/NOR/500000 baud, connect-attempts3, after soft_reset, write_flash --verify",
+    "port": "Re-enumerated COM5 USB-SERIAL CH340 VID:PID=1A86:7523",
+    "record": "artifacts/flash/product/20261016-120104-790/result.json",
+    "completed_at": "2026-10-16T12:03:44.0741165+08:00",
+    "exit_code": 0,
+    "images": [
+      {
+        "name": "bootloader.bin",
+        "address": "0x12010000",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "name": "main.bin",
+        "address": "0x12020000",
+        "bytes": 7727484,
+        "sha256": "cd88555bbc45aaec41093225c2091b2a8989dc8bb791e4a6e85e8da5e13f9ab5"
+      },
+      {
+        "name": "ftab.bin",
+        "address": "0x12000000",
+        "bytes": 11288,
+        "sha256": "98089a94be73d4de1434e1434814f30524f92cb7949de17d32073d1ae0ddf379"
+      }
+    ],
+    "boundary": "Tool exit0/verify is download evidence; script hardware_verified=false is retained, separate observations follow"
+  },
+  "capture": {
+    "command": "pwsh -NoProfile -File artifacts/run-motor-uart.ps1 -Port COM5 -Tag motor-off-01 -Seconds 600 -Reset",
+    "configuration": "1000000 8N1, no flow control, DTR=false RTS=false before open",
+    "log": "artifacts/motor-off-01.txt",
+    "raw": "artifacts/motor-off-01.bin",
+    "opened_at": "2026-10-16T12:04:02.795+08:00",
+    "closed_at": "2026-10-16T12:09:32.388+08:00",
+    "elapsed_seconds": 329.5965348,
+    "normal": true,
+    "closed": true,
+    "exit_code": 0,
+    "rts": "One explicit 150ms RTS pulse, still USB-only; full startup captured",
+    "command_limit": "Local helper whitelist excludes pulse/start; PM hold initially, scheduled PM allow at60s; explicit foreground time synchronization and software wake only",
+    "identity": "Startup banner says build600e03bf (software build base); BIN identity comes from flash manifest SHA, not that banner",
+    "tx_commands": ["wf_pm hold", "wf_motor status", "wf_charger status", "show_date", "wf_time 1792123473", "wf_pm wake", "wf_pm allow", "show_date"],
+    "hashes_sha256": {
+      "artifacts/motor-off-01.txt": "c52a3ec727ef5f1b28eea3f69d47ea268d1969231be7c45ad4c1884daed13c6c",
+      "artifacts/motor-off-01.bin": "fe75f88aac8c5b2a12be8c79b3a41a9742324b74c46817cce6289c0e8e8125a6",
+      "artifacts/motor-off-01-summary.json": "b612f9583cde9c18f1e124fe7f28625e04b704895ce8995cf007957791983a88",
+      "artifacts/flash/product/20261016-120104-790/result.json": "2f3e5ac224126e085d0333598d8fd8462556f1446f195bed6da441b0132ab1a1"
+    }
+  },
+  "startup": {
+    "charger": "12:04:05.132 early attempted=1 hal=0 result=0 verified=1 profile=1; REG01=ac REG05=1a, policy=inhibit; REG02=09 REG04=9b REG0b=43",
+    "motor": "12:04:07.898 state=off reason=0 request=0 busy=0 stop_pending=0; requested=0ms remaining=0ms off_latch=1",
+    "motor_boundary": "Cached service state and initial digital DOR-latch contract only; no physical pad/current/stop claim, no pulse command",
+    "restored_fields": "layout generation43/pages3; storage ready restore=yes brightness40 face=simple breathing2; alarm count5/generation155",
+    "settings_boundary": "Unprinted menu/timeout/DND/long-press values not newly confirmed by boot log",
+    "raw_charger": "12:04:08.874 sequential raw REG01=ac REG05=1a REG02=09 REG04=9b REG0b=43 REG08=42 REG09=20",
+    "cache_boundary": "wf_charger status sampled=0/at_ms=0 and zero cached registers are unpopulated service state; do not substitute for subsequent sequential raw I/O",
+    "electrical_boundary": "REG09=20 retained as undiagnosed raw input fault value; no zero-current, continuous inhibit, fault-clearance, measured voltage/current/temperature claim"
+  },
+  "rtc": {
+    "before": "12:04:09.865 show_date: Sat Jan1 00:00:05 2000 after this RTS startup",
+    "synchronization": "12:04:33.144 wf_time1792123473; 12:04:33.151 UTC synchronized",
+    "after": "12:05:19.947 show_date: Fri Oct16 04:05:20 2026 (UTC)",
+    "boundary": "Observed reset plus explicit current UTC correction/readback; no generalized reset/sleep cause or long-term accuracy claim"
+  },
+  "software_wake": {
+    "command_at": "2026-10-16T12:05:01.026+08:00",
+    "screen_on_at": "2026-10-16T12:05:01.336+08:00",
+    "elapsed_ms": 310,
+    "boundary": "Software test wake while diagnostic hold was active, not KEY1 or a measured physical DEEP wake",
+    "pm_allow": "12:05:02.897 allow=1; later one-shot sample also allow=1"
+  },
+  "load_preflight": {
+    "user": "Same motor/VIB wiring; no multimeter",
+    "epro_sha256": "61065a6b55fedf6b9a67f69013560476748bb5ac7dd4841563924a358f760a96",
+    "r36_source": "project.json:13153-13180 plus SHEET/bfbe9dd79a064614aebc68082ceec943/14.esch:261-266",
+    "r36_design": "0402WGF510KTCE / 5.1ohm +/-1% / 62.5mW",
+    "conclusion": "Series resistor is not constant-current protection. Design and single-MOS ratings cannot establish actual startup/pulse capability or spare rail capacity. Exact motor specifications or verified limited-current testing remain needed; no forced stall testing or formal microamp baseline."
+  },
+  "ui": {
+    "first_feedback": "User replied that the display had already gone off; first capture does not establish UI acceptance",
+    "second_feedback": "User confirmed normal display and no spontaneous motor vibration during the second USB-only observation",
+    "touch_feedback": "User separately confirmed touch sliding and returning from a page both normal",
+    "result": "Bounded USB-only display/touch/return and no spontaneous vibration observation passed by user feedback",
+    "boundary": "No measured branch-current or temperature claim. KEY1 not tested under the known USB-only limitation. No natural-DEEP/KEY1 regression claim for this BIN."
+  },
+  "second_capture": {
+    "reason": "User could not inspect the first brief software wake because the display was already off; controlled restart for UI observation, no new flashing",
+    "command": "pwsh -NoProfile -File artifacts/run-motor-uart.ps1 -Port COM5 -Tag motor-off-02 -Seconds 600 -Reset -KeepAwake",
+    "opened_at": "2026-10-16T12:11:45.694+08:00",
+    "closed_at": "2026-10-16T12:14:57.521+08:00",
+    "elapsed_seconds": 191.8299551,
+    "normal": true,
+    "closed": true,
+    "exit_code": 0,
+    "reset": "One further explicit150ms RTS under unchanged USB-only conditions; full boot and early inhibit verified=1/profile=1 again",
+    "motor": "12:11:50.696 and12:13:53.070 state=off reason=0 request=0 busy=0 stop_pending=0; off_latch=1, requested/remaining0ms",
+    "rtc": "After this RTS Jan1 2000;12:12:07.275 wf_time1792123927 acknowledged,12:12:39.689 show_date Fri Oct16 04:12:39 2026 UTC",
+    "keep_awake_boundary": "Helper armed wake-after-screen-off only, with bounded hold/allow fallback. No screen-off or extra software-wake command actually occurred in this second capture; configuration is not a claimed wake observation",
+    "tx_commands": ["wf_pm hold", "wf_motor status", "wf_charger status", "show_date", "wf_time 1792123927", "show_date", "wf_motor status", "wf_pm allow"],
+    "pm_allow": "12:14:50.989 allow=1 off=0 own_idle=1 sdk_idle=1; no later hold",
+    "hashes_sha256": {
+      "artifacts/motor-off-02.txt": "0ebf36b00542e9edfa91248d2ae5f8f27a0b7406708bbf13faed1069a627fa04",
+      "artifacts/motor-off-02.bin": "d2d0ebcf09255fa46d7d70d0c995501d302ce255395d5668cc12cf7aac1ba3df",
+      "artifacts/motor-off-02-summary.json": "4058903feed29606c4405da07c648c363e7dfbe8cc3d266f083e18c814ea8a4b"
+    }
+  },
+  "user_product_page": {
+    "source": "User screenshot of the purchased product parameter table; user identifies68-110mA as product-page value, probably operating current",
+    "local_copy": "artifacts/motor-1027-product-params-20261016.jpg",
+    "bytes": 569478,
+    "sha256": "86b9f86c67f7f6d77fb252d54227f1db128f1365b2120f6f5d71640c8c4855b4",
+    "facts": "1027 flat coin motor; diameter10mm/thickness2.7mm; suitableDC2-5V, rated3-3.7V; current68-110mA; about1g",
+    "correction": "The parameter table adds DC2-5V applicable range to the earlier DC3-5V title-only record",
+    "unknowns": "Current row does not state test voltage, operating/startup/stall classification, peak duration or maximum guarantee; user interpretation is not a measured startup bound",
+    "calculation_not_measurement": "Assuming5.1ohm and68/110mA: drop0.3468/0.561V, resistor23.5824/61.71mW; with an ideal3.3V source motor node before MOS/wiring2.9532/2.739V. No claim these are actual board currents/voltages or pulse ratings."
+  },
+  "supply_path_review": {
+    "official_pdf": "https://downloads.sifli.com/silicon/DS5203-SF32LB52-MOD-1%E6%8A%80%E6%9C%AF%E8%A7%84%E6%A0%BC%E4%B9%A6%20V0p1.pdf",
+    "document": "DS5203-SF32LB52-MOD-1 V0.1, official SiFli module datasheet",
+    "local_copy": "artifacts/motor-ds5203-v0p1.pdf",
+    "bytes": 4367174,
+    "sha256": "ef2e460bc47fe35a6db07c52b6868e6ba9f7e62262c929465f868c37ea491d19",
+    "facts": "PDF physical p10 pin17=VDD33_VOUT2; p28 section7.1 and p30 checklist item4: 3.3V LDO output maximum150mA, external load must not exceed capacity; p30 item5 total attached capacitance<=7.4uF",
+    "epro_module_path": "project.json:22594-22610 U1 device1f1d52a5318444688e03f3b52142c47c=SF32LB52-MOD-1-N16R8; PCB:4366-4367 U1 identity and4384 pin17=VDD33_VOUT. Thus board net maps to module VDD33_VOUT2.",
+    "shared_load": "PCB:4934-4937 VDD33_VOUT through R51 to $14N45728; :4455-4460 LED3 pin4 on that net. Sheet14.esch:470-480 R51=0ohm; project.json:24983-24996 LED3=WS2812B-2020. Sheet:484-485 notes static max0.6mA/working max36mA; these are design notes, not measured present LED current.",
+    "scope": "Core PCB direct PAD_NET review found U1pin17/R36/R51 on VDD33_VOUT; no claim of complete module-internal load audit or actual assembly verification",
+    "inference": "If motor were110mA and RGB drew its noted36mA, total146mA is near150mA. This is a budget example, not measured load;110mA is not a verified startup maximum.",
+    "remaining": "Actual motor startup peak compatibility with VDD33_VOUT2/R36 remains unverified. Matching exact startup specifications or a verified current-limited experiment can address it; no formal microamp baseline required.",
+    "source_check": "Independent Sol/medium path review plus primary netlist spot check and local rendering of official PDF p30. Web screenshot timed out; direct official PDF download/render succeeded."
+  },
+  "teardown": {
+    "pm": "Final second-capture allow=1 acknowledged12:14:50.989; no later hold sent",
+    "serial": "Both captures closed normally, latest CLOSE12:14:57.521, helpers exited0, COM5 released",
+    "last_confirmed_power": "Battery disconnected, USB-only; original VIB motor retained; no pulse/charge start",
+    "next_boundary": "Actual short pulse still needs physical driver/load compatibility evidence; no multimeter available, page current68-110mA is not identified as startup maximum. Default-OFF/UI results do not authorize actuation."
+  },
+  "review": "Independent read-only Sol/medium review agrees download identity, boot, inhibit and digital OFF; raw/cache, RTC and physical boundaries explicitly separated",
+  "source_build": "No source or build configuration changes, no new compilation/test run; retained software validation in motor-pulse.json"
+}
