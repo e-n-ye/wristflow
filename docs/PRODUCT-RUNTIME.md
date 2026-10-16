@@ -4,7 +4,7 @@
 
 2026-10-15后续设置保存已改为[事件worker与有限重试](PRODUCT-SETTINGS.md#save-reliability-20261015)：偏好设置／布局按请求代次反馈，写后回读才确认成功；Product在现有界面采集点与息屏前提交，UI不调用Flash。旧设置记录格式、闹钟存储及下述充电／电源显示边界保留；本轮不操作设备。
 
-2026-10-16新增[手动限时电机服务](MOTOR-PULSE.md)：main在消费者启动前请求PA20默认OFF，之后由独立worker处理显式1–250ms脉冲、截止和取消；关闭未确认保留IDLE并拒绝新脉冲。没有自动振动绑定或UI变更，状态读回只表示GPIO锁存器。软件交付阶段未下载；随后用户确认断电池／仅USB，`cd88555b…`下载verify及启动禁充／数字OFF读回通过，尚未启振，见[同版记录](MOTOR-PULSE.md#default-off-hardware)。
+2026-10-16新增[手动限时电机服务](MOTOR-PULSE.md)：main在消费者启动前请求PA20默认OFF，之后由独立worker处理显式1–250ms脉冲、截止和取消；关闭未确认保留IDLE并拒绝新脉冲。没有自动振动绑定或UI变更，状态读回只表示GPIO锁存器。软件交付阶段未下载；随后仅USB下`cd88555b…`下载verify及[默认OFF观察](MOTOR-PULSE.md#default-off-hardware)通过，再按用户明确授权只发[一次20ms请求](MOTOR-PULSE.md#first-pulse-hardware)，到期／stop后数字OFF有日志。用户未留意，实际振动／停止未确认，不算启振通过；没有重试、新构建或再次烧录。
 
 <a id="power-display-20261015"></a>
 ## 2026-10-15 真实电源检测与电压显示

@@ -1,0 +1,92 @@
+{
+  "date": "2026-10-16",
+  "timezone": "Asia/Shanghai",
+  "scope": "One explicitly authorized 20ms request on existing firmware; physical vibration unconfirmed; no retry, duration increase, charge start, firmware source change, build or flash",
+  "branch": "codex/motor-first-pulse",
+  "base_commit": "b0aaf3d9bb3dab8448e54bbe66f3696db4b5d275",
+  "local_worktree": "C:/Users/13984/.codex/worktrees/power-status/wristflow",
+  "previous_hardware_evidence": "motor-default-off.json",
+  "authorization": {
+    "risk_disclosed": "Startup peak unverified; overload or voltage-drop reset remains possible; functional exploration only",
+    "question_scope": "Battery disconnected, USB-only, motor/wires fixed, human present able to unplug USB; read inhibit/OFF, then one20ms, no automatic retry",
+    "user_reply": "仅USB且人在旁，按单次20ms试振",
+    "electrical_conditions_verified": false
+  },
+  "candidate": {
+    "firmware_sha256": "cd88555bbc45aaec41093225c2091b2a8989dc8bb791e4a6e85e8da5e13f9ab5",
+    "identity_basis": "Previous three-image flash/verify manifest, retained here; startup build600e03bf is not the binary hash",
+    "build_record": "artifacts/product/20261016-114657-656/result.json",
+    "rehash_command": "python artifacts/verify-power.py > artifacts/motor-first-rehash.json",
+    "rehash_exit_code": 0,
+    "product_sources_artifacts_rehashed": [404, 29],
+    "ui_demo_sources_artifacts_rehashed": [372, 22],
+    "new_build": false,
+    "new_flash": false,
+    "new_host_tests": false,
+    "prior_tests": "Software PR70: 41/41 full host tests; final affected Debug2/2 and Release2/2. Retained evidence, not rerun in this hardware-only round"
+  },
+  "capture": {
+    "command": "pwsh -NoProfile -File artifacts/run-motor-first.ps1 -Port COM5 -Tag motor-first-01 -Seconds 240 -Reset",
+    "syntax_check": "pwsh -NoProfile -File artifacts/run-motor-first.ps1 -Validate; exit0, no port open",
+    "port": "COM5 USB-SERIAL CH340 VID:PID=1A86:7523",
+    "configuration": "1000000 8N1, no flow control, DTR=false RTS=false before open, one explicit150ms RTS reset",
+    "opened_at": "2026-10-16T12:44:53.533+08:00",
+    "closed_at": "2026-10-16T12:45:37.835+08:00",
+    "elapsed_seconds": 44.3060145999998,
+    "normal": true,
+    "closed": true,
+    "exit_code": 0,
+    "boot_banners": 1,
+    "pulse_tx_count": 1,
+    "stop_tx_count": 2,
+    "helper_guard": "Exclusive persistent attempt marker created before pulse write; hardcoded20ms; preflight and <120s window; write_timeout0.1s/no flush; scheduled status/stop; explicit finish sends stop/status/allow then closes. No automatic ON on startup, retry or increase",
+    "tx_commands": ["wf_pm hold", "wf_motor status", "wf_charger status", "show_date", "wf_time 1792125906", "wf_motor pulse 20", "wf_motor status", "wf_motor status", "wf_motor stop", "wf_motor status", "wf_charger status", "wf_motor stop", "wf_motor status", "wf_pm allow"],
+    "hashes_sha256": {
+      "artifacts/capture-motor-first.py": "8d8bfdc9b9b49bb63b609afa64e5ed8b05a0f55e768f5cd36dd044964cc2bd32",
+      "artifacts/run-motor-first.ps1": "cdb936542f73c63e6f6d7babe2fbde350b32f98e650029324574a97780b6ef7b",
+      "artifacts/motor-first-01.txt": "386bb8c685522a73c893c38f04e3bcd1296b7f5a56585fd454d9ed4ca6e20b6c",
+      "artifacts/motor-first-01.bin": "e6427a2ccd4ce2fb7561b8f1a1ead373d9be48f3c2ee435f0ec86d595bbb39fa",
+      "artifacts/motor-first-01-summary.json": "b02e9931cc0fab024755ac0ae1b5ee4f8890392e102a1d6a8f18a1483f9da824",
+      "artifacts/motor-first-pulse-attempt.json": "be82eb3fe5fb1b04a08db19bbb5788adc5c4266f2da4ba12da1805b1f3bf0bba",
+      "artifacts/motor-first-rehash.json": "ffbd477d2c479a3620fc3e818c84904f585dbc7eda1114f77e786691b32df9b9"
+    },
+    "local_artifacts_boundary": "Ignored local artifacts retained in the worktree above; not repository-distributed files"
+  },
+  "observations": {
+    "startup": "12:44:55.864 early verified=1/profile=1; REG01=ac REG05=1a REG02=09 REG04=9b REG0b=43; 12:44:58.543 motor off/reason0/request0/busy0/stop_pending0, requested0/remaining0/off_latch1",
+    "raw_before": "12:44:59.547 REG01=ac; REG05=1a REG08=42 REG09=00; sequential raw snapshot, not atomic",
+    "cache_boundary": "sampled=0/at_ms=0 and cached zero registers are unpopulated service state; do not substitute for raw I/O",
+    "pulse": "12:45:10.193 TX pulse20; 10.196 active/reason0/request1, requested20ms/remaining20ms/off_latch0; 10.216 worker OFF-latch1/reason1(EXPIRED); 10.265 status off/reason1/request1/remaining0/off_latch1",
+    "stop": "12:45:10.297 TX stop (~104ms after pulse TX); 10.300 OFF-latch1/reason2(CANCELLED); 10.366 status off/reason2/request1/remaining0/off_latch1",
+    "physical_observation_user_reply": "刚才没有留意，不清楚",
+    "physical_vibration_confirmed": false,
+    "physical_stop_confirmed": false,
+    "interpretation": "Unconfirmed physical result, neither pass nor no-vibration failure; no automatic retry",
+    "rtc": "After RTS show_date read Jan1 2000; wf_time synchronized UTC1792125906, later phone synchronization UTC1792125905 also observed. No subsequent show_date readback; not RTC persistence acceptance",
+    "restore": "brightness40/simple/breathing2, layout generation43/pages3; no new user UI confirmation",
+    "later_charger_query_failure": "12:45:22.499 status; after screen-off, 12:45:27.506 I2C bus err/xfer0/1 and reset9clks, raw REG00 failed/snapshot incomplete. No full post-pulse raw snapshot; startup/pre-pulse inhibit readback only, not continuous verification; does not establish motor causality",
+    "fault_boundary": "One startup banner, no assert/HardFault or motor fault log during this capture; not independent reset/display/touch acceptance",
+    "cleanup": "12:45:36.816 final STOP, motor OFF/remaining0/off_latch1; 36.821 PM allow1/off1/own_idle0/sdk_idle0; 37.835 CLOSE normal, helper exit0, COM5 released"
+  },
+  "power_source_inspection": {
+    "result": "No explicit Product VOUT2 enable found; actual state unknown, not proven off",
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "paths_relative_to_sdk": [
+      "drivers/Include/bf0_hal_pmu.h:141 PMU_PERI_LDO2_3V3",
+      "drivers/hal/bf0_hal_pmu.c:1287-1335 ConfigPeriLdo true enables; false sets power-down",
+      "drivers/hal/bf0_hal_pmu.c:221-228,273-280,612-615 LDO2 disable is Hibernate/Shutdown/Reboot SF32LB52X path, not startup-off proof",
+      "drivers/hal/bf0_hal_pmu.c:1342-1410 HAL_PMU_Init SF32LB52X branch has no PERI_LDO enable write; 1495-1502 calibration changes voltage fields",
+      "customer/boards/sf32lb52-lchspi-ulp_base/bsp_init.c:180-188 PSRAM path enables1V8"
+    ],
+    "product": "apps/product/src/product_motor_board.c:9-27 only configures PA20 GPIO; scoped Product source search found no HAL_PMU_ConfigPeriLdo/PERI_LDO enable call",
+    "unknowns": "Boot ROM/reset/default or retained enable state, actual output voltage; no existing dedicated read-only Product shell command identified",
+    "proposed_next_bounded_experiment": "First add/read PMU VOUT2 state without enabling motor, then decide a separately observed short trial; not implemented or executed in this round"
+  },
+  "not_verified": [
+    "Actual motor vibration or stopping, physical pad voltage/pulse width, branch current or supply voltage",
+    "Motor startup/stall peak, shared VOUT2/R36 electrical compatibility, actual assembly and current/thermal margin",
+    "Independent hardware cutoff under CPU fault/reset, sleep retention or physical DEEP, power consumption/battery life",
+    "Full post-pulse charger snapshot, zero charging current, charge start/termination or cell temperature",
+    "Current-version complete UI/touch/KEY1/BLE/settings regression"
+  ]
+}
