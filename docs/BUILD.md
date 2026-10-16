@@ -1,5 +1,13 @@
 # 可复现构建基线
 
+## 2026-10-16 手动限时电机软件
+
+基于`origin/main@600e03b`，隔离`codex/motor-pulse`新增PA20默认OFF、显式1–250ms单脉冲、截止／取消、故障OFF与IDLE约束；不改SDK／锁、公共构建入口、XML／生成物或设置格式。完整主机CTest41/41（17.06秒）通过；补充`rthw.h`后相关Debug2/2（0.10秒）、Release2/2（0.09秒）再验通过，Release保留断言。覆盖截止／stop插入、部分ON失败、OFF失败及启动资源失败组合，GPIO测试核对LOW预装与锁存器语义。
+
+本机隔离包装器调用当前`Build.ps1 -Example product -Jobs 6`，底层官方SCons，Arm GCC14.2.1／Python3.13.15／SCons4.10.1。最终Product `20261016-114657-656`退出0，404源码／29产物重哈希一致，BIN7,727,484B／SHA-256`cd88555bbc45aaec41093225c2091b2a8989dc8bb791e4a6e85e8da5e13f9ab5`。UI Demo编入源码未变，沿用`20261015-195844-577`并重哈希372源码／22产物一致。配置PM／ADC1开启、SDK charger／motor／vibrator与standby关闭，tick1000Hz。
+
+首轮Product因缺少中断接口`rthw.h`退出1，补齐后重编译通过；独立审查发现启动补偿OFF失败未持有PM，已修正并补测、复核关闭。既有SDK／watch_core／RTC／FinSH／链接警告保留，新增MSH命令沿用SDK导出宏的类型转换警告。未运行云端基线、烧录、串口或实际启振；设备仍为`310ad9fe…`。具体命令／失败／哈希见[精简证据](evidence/2026-10-16/motor-pulse.json)，行为与物理时限边界见[电机契约](MOTOR-PULSE.md)。
+
 ## 2026-10-15 设置保存可靠性
 
 基于`origin/main@12ca75a`，隔离`codex/settings-save`新增独立保存worker，偏好设置写后核验、按请求代次发布结果、每请求最多三次尝试，空闲事件无限等待；复用现有UI控件和中文字库反馈／手动重试。GCC15.2.0／CMake3.31.4／Ninja1.13.2全主机CTest39/39（19.03秒），保存服务Release1/1（0.11秒）通过；真实LVGL指针覆盖两条重试入口，三态快照及缺字检查通过。首次组件用例因旧自动重试预期失败，修改为终态停查／手动重试；随后字形检查发现缺“点”，复用现有notification_22后通过。

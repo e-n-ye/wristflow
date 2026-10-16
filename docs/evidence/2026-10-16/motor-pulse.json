@@ -1,0 +1,131 @@
+{
+  "date": "2026-10-16",
+  "timezone": "Asia/Shanghai",
+  "scope": "Product manual motor pulse software only; no flashing, serial session or real actuation",
+  "base_commit": "600e03bf567a9ded71555b6f978067dfe892523a",
+  "branch": "codex/motor-pulse",
+  "local_worktree": "C:/Users/13984/.codex/worktrees/power-status/wristflow",
+  "sdk": {
+    "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "bluetooth": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c",
+    "SiliconSchema": "304658c6edd5497211b7d152932327ce6e4450ff",
+    "vendor_status": "clean; lock and submodule revisions unchanged"
+  },
+  "source_sha256": {
+    "apps/product/src/product_motor.c": "e211f5ffd536af03fe44b1335518ba37d3a7250c297b92c86bf15f79c2267a96",
+    "apps/product/src/product_motor.h": "4dfee337673666c2c341a77dd9c4fbb2beab80d86d8abc12317b012277341950",
+    "apps/product/src/product_motor_board.c": "cce4cf9afdc06248f3b08b26d242e3ead1701c8f36b97fa13905bc9b52d31b1d",
+    "apps/product/src/main.c": "31a891a0fa6d0dcec965c3a86efbacf7475955edae565803fe9eae2fdb4a1067",
+    "tests/product_motor.c": "36955b02633154f48bfe6f7a0a57897f6ecc6de51f26aa4289d7dbde8362bdc8",
+    "tests/product_motor_board.c": "01eaa639757388b5a9512d23da278ccd9311437830738e36ca438e726260d3f6",
+    "tests/CMakeLists.txt": "014cc64aeadbd3b87b0224efe650f9bf9aefab9dbbf2d37a3bf6d5f101668704"
+  },
+  "design_evidence": {
+    "source_url": "https://downloads.sifli.com/hardware/files/documentation/ProPrj_%E7%AB%8B%E5%88%9B%C2%B7%E9%BB%84%E5%B1%B1%E6%B4%BESF32LB52%E5%BC%80%E5%8F%91%E6%9D%BFV1.2%28202504250924%29.epro",
+    "local_archive": "C:/Users/13984/.codex/worktrees/charger-preflight/wristflow/artifacts/charger-preflight/huangshan-v1.2.epro",
+    "archive_sha256": "61065a6b55fedf6b9a67f69013560476748bb5ac7dd4841563924a358f760a96",
+    "method": "Read existing ZIP members in memory with Python zipfile; no design modifications",
+    "pcb_member": "PCB/e4947da8b8a84953a988023242fbea49.epcb",
+    "netlist_facts": [
+      "4404: MCU pin28 PA_20_VIB_PWM; 4877/4876: R37 PA20 to $14N36235",
+      "4121-4125: Q2 pin1 gate $14N36235, pin2 GND, pin3 $14N37208",
+      "4220-4227: MT1 $14N36026, MT2 $14N37208",
+      "4868-4871: R36 $14N36026 to VDD33_VOUT",
+      "4880-4883: R38 gate to GND; 5053-5054: D16 across MT1/MT2",
+      "SHEET/bfbe9dd79a064614aebc68082ceec943/14.esch:295-299 Q2 CJ3134K",
+      "SYMBOL/55a32655b91b4b1584ab299bbadcd4d2.esym:22-31 D3/G1/S2"
+    ],
+    "inference": "PA20 HIGH enables low-side Q2; LOW disables it",
+    "distinction": "Design mapping only; actual assembly, current, pad voltage and sleep/reset behavior unverified",
+    "sdk_facts": [
+      "rtos/rtthread/bsp/sifli/drivers/drv_gpio.h:14-23 GET_PIN(1,20) is PA20",
+      "drivers/Include/bf0_hal_pinmux.h:180-189 HAL_PIN_Set success=0/failure=-1",
+      "drv_gpio.c:191-207 input clears open-drain flag; output enables existing latch",
+      "drivers/hal/bf0_hal_gpio.c:354-363 output reads DOR; :404-425 SF32LB52X write uses DOSR/DOCR",
+      "customer/boards/sf32lb52-lchspi-ulp_base/bsp_pinmux.c:199 PA44 GPIO_A44 VBUS_DET; generic motor 44/45 defaults not reused"
+    ]
+  },
+  "host_validation": [
+    {
+      "command": "cmake --build artifacts/host -j 6 && ctest --test-dir artifacts/host --output-on-failure",
+      "result": "41/41 passed",
+      "seconds": 17.06,
+      "exit_code": 0,
+      "log": "artifacts/motor-host-test.log"
+    },
+    {
+      "command": "cmake --build artifacts/host --target product_motor product_motor_board -j 6 && ctest --test-dir artifacts/host --output-on-failure -R '^product_motor(_board)?$'",
+      "result": "After rthw.h correction: 2/2 passed",
+      "seconds": 0.1,
+      "exit_code": 0,
+      "log": "artifacts/motor-final-host-test.log"
+    },
+    {
+      "command": "cmake --build artifacts/charger-manual-release --target product_motor product_motor_board -j 6 && ctest --test-dir artifacts/charger-manual-release --output-on-failure -R '^product_motor(_board)?$'",
+      "result": "Final Release assertions retained: 2/2 passed",
+      "seconds": 0.09,
+      "exit_code": 0,
+      "log": "artifacts/motor-final-release-test.log"
+    }
+  ],
+  "covered_cases": [
+    "Default OFF, idle infinite event wait and no repeated GPIO I/O",
+    "Strict command duration, reject concurrent pulses, preserve accepted deadline, tick/request/stop sequence wrap",
+    "Expiry before dispatch or during PM acquisition; stop before dispatch/during acquisition/during ON/during OFF",
+    "Partial ON failure, slow ON completion, OFF failure retains PM and refuses pulse; explicit stop recovery",
+    "Event-send failure, init/event/thread create/start failure; OFF failure combinations retain PM until confirmed reinitialization",
+    "PA20 INPUT -> LOW preload -> mux/pulldown -> OUTPUT -> latch read; stale open-drain/HIGH and mux/read failures"
+  ],
+  "reviews": [
+    {
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "scope": "Service concurrency, deadlines, cancellation, failures and tests",
+      "result": "Startup OFF-failure PM gap found, corrected and read-only rechecked; no remaining blocker"
+    },
+    {
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "scope": "Board GPIO mapping, initialization and fixed SDK API semantics",
+      "result": "No blocker; target plus inherited base scope; no physical validation"
+    }
+  ],
+  "failures_and_corrections": [
+    "Review found unavailable startup + compensating OFF failure did not hold PM. Added hold/release contract and four failure-combination tests.",
+    "First Product compile exit1: rt_hw_interrupt_disable/enable implicitly declared. Added explicit rthw.h include; reran relevant Debug and Release tests before final compile.",
+    "OFF failure log originally printed initiating cause; corrected to actual published OFF_ERROR reason."
+  ],
+  "firmware_validation": {
+    "command": "pwsh -NoProfile -File artifacts/build-isolated.ps1 -Example product -Jobs 6",
+    "underlying_command": "scons --board=sf32lb52-lchspi-ulp -j6",
+    "wrapper": "Existing ignored local wrapper activates installed SDK from the primary checkout and invokes this worktree's current Build.ps1; build scripts do not flash",
+    "tools": "Arm GCC14.2.1 / Python3.13.15 / SCons4.10.1; host GCC15.2.0 / CMake3.31.4 / Ninja1.13.2",
+    "exit_code": 0,
+    "artifact_validation_passed": true,
+    "result": "artifacts/product/20261016-114657-656/result.json",
+    "result_sha256": "e9980cc07ef28bf0eeb23c4b2b71c7fe8e9bb92d8f31a4e98a6704c6debd8f15",
+    "sources_rehashed": 404,
+    "artifacts_rehashed": 29,
+    "firmware_bytes": 7727484,
+    "firmware_sha256": "cd88555bbc45aaec41093225c2091b2a8989dc8bb791e4a6e85e8da5e13f9ab5",
+    "config": "1000Hz tick, PM/ADC1 enabled; SDK charger, motor, vibrator and standby disabled",
+    "ui_demo": "Sources unchanged; reused artifacts/ui_demo/20261015-195844-577/result.json with all 372 sources/22 artifacts rehashed unchanged, BIN b1b2e121615d686e9867630a675b7fe8a4ee934cbb44696bffdd53ea908134ff",
+    "warnings": "Known watch_core/SDK LVGL/RTC signedness/FinSH casts/linker warnings remain; the added MSH command uses the same SDK export macro cast",
+    "logs": ["artifacts/motor-product-build.log", "artifacts/motor-product-final-build.log", "artifacts/motor-build-verified.json"],
+    "cloud_baseline": "Not run: SDK, toolchain, shared build entry and UI sources unchanged"
+  },
+  "hardware": {
+    "performed": false,
+    "unchanged_device_bin_sha256": "310ad9fe4a986bd9f9a6d7ba795b7f349ce4acbdb7bbda4304176d1def971478",
+    "last_known_connection": "Original battery + USB, charging inhibited; UART normally closed 2026-10-15 21:07:34.871",
+    "no_new_claims": [
+      "motor start/stop",
+      "pad voltage",
+      "branch current",
+      "temperature",
+      "touch or sleep/wake",
+      "battery life"
+    ],
+    "remaining": "Verify actual board driver/assembly and VIB wiring, motor startup/stall current and 3.3V margin before a separately authorized short pulse. No formal microamp baseline required."
+  }
+}
