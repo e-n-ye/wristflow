@@ -76,7 +76,7 @@
     ]
   },
   "device_interaction": {
-    "status": "First user-observed group passed; KEY1 and charging-screen sleep/wake group pending",
+    "status": "Both bounded user-observed interaction groups passed",
     "serial_closed_before_battery_reconnect": true,
     "power": "Original battery reconnected after unplugging USB; then BAT + USB for presentation checks",
     "user_observations": [
@@ -91,13 +91,28 @@
           "No repeat presentation while USB remained connected for about 30 seconds"
         ],
         "limits": "Grouped user feedback without photos, independent timing or new electrical measurements"
+      },
+      {
+        "group": 2,
+        "reply": "正常",
+        "method": "Original battery retained; physical USB detach/reattach for at least one second as instructed; UART stayed closed",
+        "covered": [
+          "New USB insertion presented charging again",
+          "Short KEY1 at normal brightness returned to the original page without same-cycle replay",
+          "After another new insertion, the charging presentation naturally turned the display off",
+          "First short KEY1 woke the charging presentation; the next short KEY1 returned to the original page"
+        ],
+        "limits": "Grouped user feedback; no independent timing or electrical measurement; DIM first input was not separately targeted"
       }
     ],
     "new_electrical_measurements": false,
-    "pending": ["KEY1 exit at normal brightness", "Charging-screen natural sleep and KEY1 wake then exit", "DIM first-input behavior if observed"]
+    "final_reported_power": "Original BAT + USB, ordinary page after KEY1 exit",
+    "serial_remains_closed": true,
+    "additional_reset_or_flash_after_boot_capture": false,
+    "pending": ["Actual FULL display and no-wake observation", "DIM first-input behavior remains host-test evidence only"]
   },
   "limits": [
-    "USB-only boot does not verify actual touch, KEY1, battery charging or UI appearance",
+    "USB-only boot alone does not verify physical input or appearance; those bounded results come from the later user feedback",
     "Source and compilation evidence remain in charging-ui.json; no new build or tests were needed",
     "FULL display and actual current termination, CV, physical voltage limit and cell temperature remain unverified",
     "No SOC, sleep-current, battery-life, physical DEEP or full joint regression claim"
