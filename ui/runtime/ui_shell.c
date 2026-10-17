@@ -58,6 +58,10 @@ struct wristflow_ui_shell {
     uint32_t settings_request;
     wristflow_save_state_t settings_save_state;
     bool settings_retry;
+    wristflow_vibration_preview_cb_t vibration_preview;
+    wristflow_vibration_cancel_cb_t vibration_cancel;
+    void *vibration_context;
+    uint32_t vibration_request;
     wristflow_display_policy_t display;
     lv_timer_t *display_timer;
     void (*awake_expired)(void *);
@@ -82,6 +86,13 @@ struct wristflow_ui_shell {
 static void gesture(lv_event_t *event);
 static void face_long_press(lv_event_t *event);
 static void commit_notification(void *context);
+
+static void cancel_vibration_preview(wristflow_ui_shell_t *shell)
+{
+    if (shell->vibration_request && shell->vibration_cancel)
+        shell->vibration_cancel(shell->vibration_request, shell->vibration_context);
+    shell->vibration_request = 0;
+}
 
 static void apply_brightness(wristflow_ui_shell_t *shell, uint8_t value)
 {
@@ -111,7 +122,10 @@ static void display_tick(lv_timer_t *timer)
     uint32_t keep_before = shell->display.keep_ms;
     wristflow_display_tick(&shell->display, lv_tick_get(), shell->preferences.screen_timeout,
         shell->navigation.surface == WRISTFLOW_SURFACE_FLASHLIGHT);
-    if (shell->display.phase == WRISTFLOW_DISPLAY_OFF) wristflow_notification_view_hide(shell->notifications);
+    if (shell->display.phase == WRISTFLOW_DISPLAY_OFF) {
+        cancel_vibration_preview(shell);
+        wristflow_notification_view_hide(shell->notifications);
+    }
     apply_brightness(shell, wristflow_display_brightness(&shell->display, wristflow_apps_brightness(shell->apps)));
     if (keep_before != shell->display.keep_ms) wristflow_apps_update(shell->apps, &shell->snapshot);
 }
@@ -214,6 +228,7 @@ static void screen_loaded(lv_event_t *event)
 
 static void transition(wristflow_ui_shell_t *shell, lv_obj_t *screen, lv_screen_load_anim_t animation)
 {
+    if (shell->navigation.surface != WRISTFLOW_SURFACE_VIBRATION_SETTINGS) cancel_vibration_preview(shell);
     /* Controls are retained outside the navigation stack; discard pending prompts on exit. */
     wristflow_settings_dismiss(lv_screen_active());
     wristflow_apps_activate(shell->apps, shell->navigation.surface);
@@ -760,6 +775,7 @@ void wristflow_ui_shell_destroy(wristflow_ui_shell_t *shell)
 {
     if (!shell)
         return;
+    cancel_vibration_preview(shell);
     shell->ready = false;
     sync_visibility(shell);
     lv_timer_delete(shell->cleanup_timer);
@@ -856,11 +872,39 @@ const wristflow_watch_snapshot_t *wristflow_ui_shell_snapshot(const wristflow_ui
 bool wristflow_ui_shell_configure(wristflow_ui_shell_t *shell, const wristflow_settings_t *settings)
 {
     if (!shell || !wristflow_settings_valid(settings)) return false;
+    if (shell->preferences.vibration_mode != settings->vibration_mode) cancel_vibration_preview(shell);
     shell->preferences = *settings;
     if (settings->do_not_disturb && wristflow_notification_view_alert(shell->notifications) != WF_ALERT_NONE)
         wristflow_ui_shell_notification_dismiss(shell, true);
     wristflow_apps_set_brightness(shell->apps, settings->brightness);
     wristflow_display_activity(&shell->display, lv_tick_get());
+    return true;
+}
+
+void wristflow_ui_shell_bind_vibration_preview(wristflow_ui_shell_t *shell,
+    wristflow_vibration_preview_cb_t preview, wristflow_vibration_cancel_cb_t cancel, void *context)
+{
+    if (!shell) return;
+    cancel_vibration_preview(shell);
+    shell->vibration_preview = preview && cancel ? preview : NULL;
+    shell->vibration_cancel = preview && cancel ? cancel : NULL;
+    shell->vibration_context = context;
+}
+bool wristflow_ui_shell_has_vibration_preview(const wristflow_ui_shell_t *shell)
+{ return shell && shell->vibration_preview && shell->vibration_cancel; }
+
+bool wristflow_ui_shell_set_vibration_mode(wristflow_ui_shell_t *shell, wristflow_vibration_mode_t mode)
+{
+    if (!shell || (unsigned)mode >= WRISTFLOW_VIBRATION_COUNT || shell->transitioning ||
+        shell->navigation.surface != WRISTFLOW_SURFACE_VIBRATION_SETTINGS ||
+        shell->display.phase == WRISTFLOW_DISPLAY_OFF || wristflow_ui_shell_reminder_active(shell)) return false;
+    wristflow_settings_t settings;
+    if (!wristflow_ui_shell_get_settings(shell, &settings)) return false;
+    if (settings.vibration_mode == mode) return true;
+    settings.vibration_mode = mode;
+    if (!wristflow_ui_shell_configure(shell, &settings)) return false;
+    if (mode != WRISTFLOW_VIBRATION_OFF && wristflow_ui_shell_has_vibration_preview(shell))
+        shell->vibration_request = shell->vibration_preview(mode, shell->vibration_context);
     return true;
 }
 
@@ -1121,6 +1165,7 @@ bool wristflow_ui_shell_present_reminder(wristflow_ui_shell_t *shell, lv_obj_t *
     }
     wristflow_notification_view_hide(shell->notifications);
     if (!wristflow_reminder_host_present(shell->reminder, content, lv_tick_get())) return false;
+    cancel_vibration_preview(shell);
     wristflow_apps_breathing_cover(shell->apps, true);
     shell->reminder_session_exempt = session_exempt(shell);
     shell->pressed_card = NULL; shell->edge_press = false;

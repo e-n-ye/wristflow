@@ -103,7 +103,7 @@ int main(int argc, char **argv)
     lv_indev_set_display(input, display);
     lv_indev_set_read_cb(input, read_pointer);
     lv_timer_set_period(lv_indev_get_read_timer(input), 16);
-    wristflow_settings_t settings = {37, "simple", WRISTFLOW_MENU_LIST, true, 10, false, 1}, chosen;
+    wristflow_settings_t settings = {37, "simple", WRISTFLOW_MENU_LIST, true, 10, false, 1, WRISTFLOW_VIBRATION_STANDARD}, chosen;
     wristflow_watch_snapshot_t state = wristflow_product_snapshot(false, 0);
     wristflow_ui_shell_t *shell = wristflow_product_ui_create(&state, &settings, set_brightness, &brightness);
     assert(shell && brightness == 37);

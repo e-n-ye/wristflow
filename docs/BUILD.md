@@ -1,5 +1,13 @@
 # 可复现构建基线
 
+## 2026-10-17 振动设置与有界体验
+
+基于`32d3c93`，只改三档设置、v7／24B迁移及既有motor worker的预览两段／GAP和按ID取消；SDK锁、配置、XML／生成物与公共构建入口不变。完整CTest41/41（19.03秒）、补强旧格式默认及configure／提醒／销毁取消后的相关2/2（2.40秒）通过。Release保留断言，相关4/4（1.08秒）及最终补强2/2（1.05秒）通过；实际LVGL指针、字形、档位和底部滚动快照已检查，两个只读源码审查无阻塞。
+
+隔离包装器调用现有`Build.ps1 -Example product/ui_demo -Jobs 6`和官方SCons，两目标均退出0。Product `20261017-141909-762`为7,729,888B／`ce4912c5…`，404源码／29产物重哈希一致；UI Demo `20261017-142351-373`为7,511,608B／`c3e56a4d…`，372源码／22产物一致。Arm GCC14.2.1／Python3.13.15／SCons4.10.1，SDK及子模块固定；既有watch_core枚举、LVGL潜在空指针、product_services符号比较、FinSH和链接／strip警告保留。未运行云端基线。
+
+首次Release调用误用不存在的target，Ninja在编译前退出1，按真实target重跑通过；环境默认Python无Pillow／pyserial，分别复用内置图像环境和已安装SDK串口环境，没有安装依赖。三镜像DryRun通过后，用户确认断电池／仅电脑USB、人在旁；COM5 write／verify退出0，启动禁充、默认OFF及LDO3 EN0已回读。设置体验／关闭停止／普通重启恢复及显示息屏后hold软件亮屏已有用户确认；未验KEY1／物理DEEP。首段错过息屏窗的UART无回执及后续恢复保留，末段allow1、串口正常关闭。命令、完整哈希、失败与分层结果见[本轮证据](evidence/2026-10-17/vibration-settings.json)。
+
 ## 2026-10-16 电机LDO3供电前置
 
 基于`585c988`扩展motor prepare及板级LDO3临时借用／精确归还，未改SDK、锁、配置、XML／生成物或公共构建入口。最终相关Debug2/2（0.10秒）／Release2/2（0.09秒）通过，Release保留断言；覆盖准备期间取消／到期、部分写失败、LOW与归还失败重试、原轨借用、SET冲突及其他rail保留。RGB启用编译拒绝与最长107B状态行检查通过，独立源码审查无阻塞。

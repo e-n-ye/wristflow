@@ -86,7 +86,9 @@ static void choose(lv_event_t *event)
     if (surface == WRISTFLOW_SURFACE_KEEP_AWAKE) {
         if (value) confirm(lv_screen_active(), shell, 1000 + value);
         else wristflow_ui_shell_keep_awake(shell, 0);
-    } else if (value == 60) confirm(lv_screen_active(), shell, value);
+    } else if (surface == WRISTFLOW_SURFACE_VIBRATION_SETTINGS)
+        wristflow_ui_shell_set_vibration_mode(shell, (wristflow_vibration_mode_t)value);
+    else if (value == 60) confirm(lv_screen_active(), shell, value);
     else {
         wristflow_settings_t settings;
         wristflow_ui_shell_get_settings(shell, &settings);
@@ -168,7 +170,8 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
         return root;
     }
     if (surface == WRISTFLOW_SURFACE_BRIGHTNESS_ADJUST) return screen_brightness_adjust_create();
-    if (surface < WRISTFLOW_SURFACE_FACE_MANAGEMENT || surface > WRISTFLOW_SURFACE_WAKE_SETTINGS) return NULL;
+    if ((surface < WRISTFLOW_SURFACE_FACE_MANAGEMENT || surface > WRISTFLOW_SURFACE_WAKE_SETTINGS) &&
+        surface != WRISTFLOW_SURFACE_VIBRATION_SETTINGS) return NULL;
     lv_obj_t *root = screen_settings_list_create();
     lv_obj_t *list = named(root, "settings_scroll");
     lv_obj_remove_flag(list, LV_OBJ_FLAG_SCROLL_CHAIN);
@@ -216,10 +219,27 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
         break;
     case WRISTFLOW_SURFACE_SOUND_SETTINGS:
         title = "声音与振动";
-        settings_note_create(list, "尚未接入振动硬件，声音提醒功能待接入。");
         unavailable(list, "sound_disabled", "声音提醒", "暂未开放");
-        unavailable(list, "vibration_disabled", "振动提醒", "未接入硬件");
+        route(row(list, "vibration_mode", "振动模式", "标准"), WRISTFLOW_SURFACE_VIBRATION_SETTINGS, shell);
+        obj = settings_note_create(list, "声音暂未接入。振动关闭后，仅通过屏幕提醒。");
+        lv_obj_set_style_text_font(obj, notification_22, 0);
         break;
+    case WRISTFLOW_SURFACE_VIBRATION_SETTINGS: {
+        title = "振动模式";
+        static const char *names[] = {"关闭", "标准", "增强"};
+        for (unsigned i = 0; i < WRISTFLOW_VIBRATION_COUNT; ++i) {
+            char name[32]; snprintf(name, sizeof name, "vibration_%u", i);
+            obj = settings_choice_create(list, names[i]); lv_obj_set_name(obj, name);
+            lv_obj_set_style_text_font(lv_obj_get_child(obj, 0), notification_22, 0);
+            lv_obj_set_user_data(obj, (void *)(uintptr_t)i);
+            lv_obj_add_event_cb(obj, choose, LV_EVENT_SHORT_CLICKED, shell);
+        }
+        obj = settings_note_create(list, wristflow_ui_shell_has_vibration_preview(shell) ?
+            "改选后体验振动；增强通过节奏更明显。应用提醒待接入。" :
+            "当前仅保存设置，振动体验暂不可用。应用提醒待接入。");
+        lv_obj_set_style_text_font(obj, notification_22, 0);
+        break;
+    }
     case WRISTFLOW_SURFACE_DND_SETTINGS:
         title = "勿扰模式";
         obj = row(list, "dnd_row", "勿扰模式", "继续接收消息");
@@ -283,6 +303,16 @@ void wristflow_settings_refresh(lv_obj_t *root, wristflow_surface_t surface, wri
         lv_obj_set_state(named(root, "row_switch"), LV_STATE_CHECKED, settings.do_not_disturb);
     else if (surface == WRISTFLOW_SURFACE_NOTIFICATION_SETTINGS)
         label(named(named(root, "notifications_dnd"), "row_detail"), settings.do_not_disturb ? "开启" : "关闭");
+    else if (surface == WRISTFLOW_SURFACE_SOUND_SETTINGS) {
+        static const char *names[] = {"关闭", "标准", "增强"};
+        label(named(named(root, "vibration_mode"), "row_detail"), names[settings.vibration_mode]);
+        lv_obj_set_style_text_font(named(named(root, "vibration_mode"), "row_detail"), notification_22, 0);
+    } else if (surface == WRISTFLOW_SURFACE_VIBRATION_SETTINGS) {
+        for (unsigned i = 0; i < WRISTFLOW_VIBRATION_COUNT; ++i) {
+            snprintf(value, sizeof value, "vibration_%u", i);
+            lv_obj_set_flag(named(named(root, value), "row_check"), LV_OBJ_FLAG_HIDDEN, i != (unsigned)settings.vibration_mode);
+        }
+    }
     else if (surface == WRISTFLOW_SURFACE_DISPLAY_SETTINGS) {
         snprintf(value, sizeof value, "%u%%", settings.brightness);
         label(named(named(root, "display_brightness"), "row_detail"), value);

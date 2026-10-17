@@ -7,10 +7,10 @@
 | 对象 | 事实来源与所有权 | 操作 / 验证入口 |
 |---|---|---|
 | 产品集成 | [apps/product](../apps/product/)；`project/SConstruct`、`SConscript`、`proj.conf`、`rtconfig.py` 与 `src/` 由项目维护 | [PRODUCT-RUNTIME](PRODUCT-RUNTIME.md)；Build 的 `product` 目标；联合验收另按版本绑定 |
-| 偏好设置／布局保存 | `product_settings_store.c/h`独占事件worker、请求代次／截止／有限重试和回读；`product_services.c`持有FlashDB适配／启动恢复，`ui_shell`按变更提交，设置说明与组件失败浮层反馈状态 | [保存契约](PRODUCT-SETTINGS.md#save-reliability-20261015)；格式不改，UI不做I/O；软件失败注入与实际Flash恢复分别验 |
+| 偏好设置／布局保存 | `product_settings_store.c/h`独占事件worker、请求代次／截止／有限重试和回读；`product_services.c`持有FlashDB适配／启动恢复，`ui_shell`按变更提交，设置说明与组件失败浮层反馈状态 | [保存契约](PRODUCT-SETTINGS.md#save-reliability-20261015)；[振动模式](PRODUCT-SETTINGS.md#sound-vibration-settings-20261016)新增v7，仍24B；UI不做I/O，软件迁移与实际Flash恢复分别验 |
 | 黄山派禁充与手动实验 | Product `aw32001_inhibit.c/h` 持有禁充／固定参数准备，`product_charger.c/h` 持有早期板级强钩子；`aw32001_manual.c/h`持有单所有者会话，`product_charger_service.c`持有命令／监测／诊断与PM约束；Product排除SDK charger | [手动限时契约](CHARGER-PREFLIGHT.md#manual-charge-20261015)；默认禁充，短实验须显式命令；保留SDK锁和板级时序，物理限压／电流／电芯温度与终止另验 |
 | 电源观测与显示 | Product `product_power.c/h` 只读PG／VBAT ADC，ADC完整序列由项目共享mutex同步；`product_power_service.c`事件线程持有IDLE／快照，UI只请求和复制，`core/power_state`持有独立有效性 | [电源契约](PRODUCT-RUNTIME.md#power-display-20261015)；本观测模块不启充、不估算百分比、不新增息屏定时唤醒；手动充电活动的独立监测见上一行 |
-| 手动电机诊断 | Product `product_motor.c/h`持有事件worker、准备后的截止／取消检查、故障和IDLE；`product_motor_board.c`持有PA20、LDO3临时借用／恢复及`wf_motor_power`单次只读查询，main仅做默认OFF构造 | [供电与限时契约](MOTOR-PULSE.md#supply-prepare)；RGB启用需先统一供电所有权，不自动接入提醒；LDO请求位／LOW与归还检查和实际供电／负载／断流分别验证 |
+| 电机诊断与设置体验 | Product `product_motor.c/h`持有同一worker、段／组截止、请求ID取消、故障和IDLE；`product_motor_board.c`持有PA20、LDO3借用／恢复及只读查询；main默认OFF构造并绑定设置回调，shell只提交与取消所属预览 | [设置体验](MOTOR-PULSE.md#settings-preview)及[供电契约](MOTOR-PULSE.md#supply-prepare)；RGB启用需先统一供电所有权，尚无应用提醒绑定；软件回读与实际供电／负载／断流分别验证 |
 | 固定数据演示 | [apps/ui_demo](../apps/ui_demo/)；与 Product 共用 core、运行时和生成 UI | Build 的 `ui_demo`；不能用演示值证明产品数据真实性 |
 | 板级诊断 | [apps/bringup](../apps/bringup/)；自有工程 / 板级集成 | [BRINGUP](BRINGUP.md)；Build 的 `bringup`，不能代替 Product 联合验收 |
 | 官方 Hello / BLE | 实际路径由 [Build.ps1](../scripts/Build.ps1) 的 `$projects` 定义，位于锁定 SDK 内 | Build 的 `hello` / `ble`；按官方 SCons，不迁移固件到 CMake |

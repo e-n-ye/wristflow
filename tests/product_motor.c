@@ -11,6 +11,8 @@ static bool enabled, fail_init, fail_on, fail_off, fail_event, fail_create, fail
 static bool stop_on_hold, expire_on_hold, stop_on_enable, stop_on_disable, replace_on_enable;
 static bool slow_enable, zero_ticks;
 static bool supply, fail_prepare, stop_on_prepare, expire_on_prepare, replace_on_prepare;
+static unsigned prepare_delay, off_delay;
+static bool cancel_preview_on_prepare;
 static int32_t recorded_wait;
 static jmp_buf worker_exit;
 rt_base_t rt_hw_interrupt_disable(void) { return irq++; }
@@ -51,12 +53,15 @@ static bool set_enabled(void *context, bool on)
     ++offs;
     if (stop_on_disable) { stop_on_disable = false; assert(wristflow_product_motor_stop()); }
     if (fail_off) return false;
+    ticks += off_delay; off_delay = 0;
     enabled = supply = false; return true;
 }
 static bool prepare(void *context)
 {
     assert(context == &ticks && !irq && pm == 1 && state.busy && !enabled && !state.off_latched);
     ++prepares; supply = true; /* Include partial preparation on failure. */
+    ticks += prepare_delay; prepare_delay = 0;
+    if (cancel_preview_on_prepare) { cancel_preview_on_prepare = false; assert(wristflow_product_motor_cancel_preview(state.request_id)); }
     if (stop_on_prepare) { stop_on_prepare = false; assert(wristflow_product_motor_stop()); }
     if (expire_on_prepare) { expire_on_prepare = false; ticks = deadline; }
     if (replace_on_prepare) { replace_on_prepare = false; assert(!wristflow_product_motor_pulse(250)); }
@@ -102,9 +107,99 @@ static void fresh(void)
     enabled = fail_init = fail_on = fail_off = fail_event = fail_create = fail_start = fail_send = false;
     stop_on_hold = expire_on_hold = stop_on_enable = stop_on_disable = replace_on_enable = slow_enable = zero_ticks = false;
     supply = fail_prepare = stop_on_prepare = expire_on_prepare = replace_on_prepare = false;
+    prepare_delay = off_delay = 0;
+    cancel_preview_on_prepare = false;
     changed.bits = 0;
 }
 static const wristflow_motor_io_t backend = {&ticks, initialize_off, set_enabled, prepare};
+
+static void preview_tests(void)
+{
+    unsigned before = ons;
+    uint32_t id = wristflow_product_motor_preview(false);
+    assert(id && state.preview && state.segments == 1 && state.requested_ms == 100);
+    background(); assert(enabled); ticks = deadline; background(); check_off(); assert(ons == before+1);
+
+    ticks = 5000; before = ons; id = wristflow_product_motor_preview(true);
+    assert(id && group_deadline == 5350 && deadline == 5100);
+    background(); ticks = deadline; background();
+    assert(state.state == WRISTFLOW_MOTOR_GAP && state.off_latched && !enabled && !supply && pm == 1);
+    assert(wait_ticks() == 150 && gap_until == 5250);
+    assert(!wristflow_product_motor_preview(false) && !wristflow_product_motor_pulse(100));
+    ticks = 5249; background(); assert(ons == before+1);
+    ticks = 5250; background(); assert(enabled && state.segment == 2 && deadline == 5350);
+    ticks = deadline; background(); check_off(); assert(ons == before+2);
+
+    /* Actual successful LOW starts the minimum gap, without moving the group end. */
+    ticks = 6000; id = wristflow_product_motor_preview(true); background();
+    ticks = deadline; off_delay = 15; background();
+    assert(gap_until == 6265 && group_deadline == 6350 && wait_ticks() == 150);
+    ticks = gap_until; background(); assert(enabled && wait_ticks() == 85);
+    ticks = deadline; background(); check_off();
+
+    /* Missing a window never replays or grants another full100ms. */
+    before = ons; id = wristflow_product_motor_preview(true); ticks = deadline;
+    background(); check_off(); assert(ons == before);
+    id = wristflow_product_motor_preview(true); prepare_delay = 100;
+    background(); check_off(); assert(ons == before);
+    id = wristflow_product_motor_preview(true); background();
+    ticks = group_deadline - 50; background(); check_off(); assert(ons == before+1);
+    before = ons; id = wristflow_product_motor_preview(true); background(); ticks = deadline; background();
+    ticks = group_deadline; background(); check_off(); assert(ons == before+1);
+    before = ons; id = wristflow_product_motor_preview(true); background(); ticks = deadline; background();
+    ticks = gap_until; prepare_delay = 100; background(); check_off(); assert(ons == before+1);
+
+    /* Matched cancellation covers QUEUED, ACTIVE, GAP and second preparation. */
+    for (unsigned phase = 0; phase < 4; ++phase) {
+        before = ons; id = wristflow_product_motor_preview(true);
+        if (phase) background();
+        if (phase >= 2) { ticks = deadline; background(); }
+        if (phase == 3) { ticks = gap_until; cancel_preview_on_prepare = true; }
+        else assert(wristflow_product_motor_cancel_preview(id));
+        background(); check_off(); assert(ons == before + (phase != 0));
+        ticks += 1000; background(); assert(ons == before + (phase != 0));
+    }
+    uint32_t old = id;
+    id = wristflow_product_motor_preview(true);
+    assert(id != old && !wristflow_product_motor_cancel_preview(old));
+    assert(wristflow_product_motor_cancel_preview(id)); background(); check_off();
+    id = wristflow_product_motor_pulse(100); background();
+    assert(!wristflow_product_motor_cancel_preview(id) && !wristflow_product_motor_cancel_preview(old));
+    assert(enabled && !state.stop_pending); ticks = deadline; background(); check_off();
+
+    /* Any failed segment cleanup discards the remaining sequence and retains IDLE. */
+    for (unsigned segment = 1; segment <= 2; ++segment) {
+        before = ons; id = wristflow_product_motor_preview(true); background();
+        if (segment == 2) { ticks = deadline; background(); ticks = gap_until; background(); }
+        fail_off = true; ticks = deadline; background();
+        assert(state.state == WRISTFLOW_MOTOR_FAULT && pm == 1 && !state.off_latched);
+        ticks += 1000; background(); assert(ons == before+segment);
+        assert(!wristflow_product_motor_preview(true));
+        fail_off = false; assert(wristflow_product_motor_stop()); background(); check_off();
+    }
+    for (unsigned failure = 0; failure < 2; ++failure) {
+        id = wristflow_product_motor_preview(true); background(); ticks = deadline; background();
+        ticks = gap_until; fail_prepare = failure == 0; fail_on = failure == 1;
+        background(); check_off();
+        assert(state.reason == (failure ? WRISTFLOW_MOTOR_ON_ERROR : WRISTFLOW_MOTOR_PREPARE_ERROR));
+        fail_prepare = fail_on = false;
+    }
+    id = wristflow_product_motor_preview(true); background(); ticks = deadline; stop_on_disable = true;
+    before = ons; background(); assert(state.state == WRISTFLOW_MOTOR_OFF && stop_sequence != handled_stop);
+    background(); check_off(); assert(ons == before);
+
+    fail_send = true; assert(!wristflow_product_motor_preview(true)); fail_send = false;
+    background(); check_off();
+    id = wristflow_product_motor_preview(true); background(); ticks = deadline; background();
+    rt_tick_t end = group_deadline; fail_send = true;
+    assert(!wristflow_product_motor_cancel_preview(id) && group_deadline == end); fail_send = false;
+    ticks = gap_until; background(); check_off();
+    state.request_id = UINT32_MAX; ticks = UINT32_MAX-50;
+    assert(wristflow_product_motor_preview(true) == 1); background();
+    ticks = deadline; background(); ticks = gap_until; background();
+    assert(enabled && state.segment == 2); ticks = deadline; background(); check_off();
+    assert(command("pulse", "350") == -RT_EINVAL);
+}
 int main(void)
 {
     assert(!wristflow_product_motor_start(NULL));
@@ -213,6 +308,7 @@ int main(void)
     assert(wait_ticks() == 1); ticks = deadline; background(); check_off(); zero_ticks = false;
     assert(command("pulse", "250") == RT_EOK); background();
     assert(command("stop", NULL) == RT_EOK); background(); check_off();
+    preview_tests();
     puts("product motor preparation, deadlines, cancellation, failures, PM and idle wait passed");
     return 0;
 }

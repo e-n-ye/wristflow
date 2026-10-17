@@ -8,11 +8,14 @@ static wristflow_motor_io_t io;
 static struct rt_event changed;
 static wristflow_motor_snapshot_t state;
 static rt_tick_t deadline;
+static rt_tick_t group_deadline, second_at, gap_until;
 static uint32_t stop_sequence, handled_stop;
 static bool ready, idle_held;
 
 static int32_t remaining(rt_tick_t now) { return (int32_t)(deadline - now); }
 static uint32_t next_id(uint32_t id) { return ++id ? id : 1; }
+static rt_tick_t milliseconds(uint32_t ms)
+{ rt_tick_t ticks = rt_tick_from_millisecond(ms); return ticks ? ticks : 1; }
 static void hold(void)
 {
 #ifdef RT_USING_PM
@@ -32,11 +35,30 @@ static void turn_off(wristflow_motor_reason_t cause)
 {
     rt_base_t level = rt_hw_interrupt_disable();
     uint32_t sequence = stop_sequence;
+    bool next = cause == WRISTFLOW_MOTOR_EXPIRED && state.state == WRISTFLOW_MOTOR_ACTIVE &&
+        state.preview && state.segment == 1 && state.segments == 2;
     state.state = WRISTFLOW_MOTOR_STOPPING;
     state.busy = true;
     rt_hw_interrupt_enable(level);
     hold();
     bool ok = io.set_enabled(io.context, false);
+    level = rt_hw_interrupt_disable();
+    rt_tick_t now = rt_tick_get();
+    rt_tick_t earliest = now + milliseconds(150);
+    if ((int32_t)(second_at - earliest) > 0) earliest = second_at;
+    if (ok && next && sequence == stop_sequence && (int32_t)(group_deadline - earliest) > 0) {
+        handled_stop = sequence;
+        gap_until = earliest;
+        deadline = group_deadline;
+        state.state = WRISTFLOW_MOTOR_GAP;
+        state.off_latched = true;
+        state.reason = WRISTFLOW_MOTOR_EXPIRED;
+        state.busy = false;
+        rt_hw_interrupt_enable(level);
+        rt_kprintf("[motor] preview gap; request=%lu\n", (unsigned long)state.request_id);
+        return; /* Keep IDLE and exclusive ownership through the short gap. */
+    }
+    rt_hw_interrupt_enable(level);
     if (ok) release();
     level = rt_hw_interrupt_disable();
     /* A stop arriving inside OFF I/O remains pending for another worker pass. */
@@ -55,11 +77,16 @@ static void step(void)
 {
     rt_base_t level = rt_hw_interrupt_disable();
     bool stop = stop_sequence != handled_stop;
-    if (stop || (state.state == WRISTFLOW_MOTOR_ACTIVE && remaining(rt_tick_get()) <= 0)) {
+    if (stop || ((state.state == WRISTFLOW_MOTOR_ACTIVE || state.state == WRISTFLOW_MOTOR_GAP) && remaining(rt_tick_get()) <= 0)) {
         state.busy = true;
         rt_hw_interrupt_enable(level);
         turn_off(stop ? WRISTFLOW_MOTOR_CANCELLED : WRISTFLOW_MOTOR_EXPIRED);
         return;
+    }
+    if (state.state == WRISTFLOW_MOTOR_GAP) {
+        if ((int32_t)(gap_until - rt_tick_get()) > 0) { rt_hw_interrupt_enable(level); return; }
+        state.state = WRISTFLOW_MOTOR_QUEUED;
+        state.segment = 2;
     }
     if (state.state != WRISTFLOW_MOTOR_QUEUED) { rt_hw_interrupt_enable(level); return; }
     uint32_t sequence = stop_sequence;
@@ -103,8 +130,12 @@ static int32_t wait_ticks(void)
     rt_base_t level = rt_hw_interrupt_disable();
     int32_t wait = RT_WAITING_FOREVER;
     if (stop_sequence != handled_stop || state.state == WRISTFLOW_MOTOR_QUEUED) wait = 0;
-    else if (state.state == WRISTFLOW_MOTOR_ACTIVE) {
+    else if (state.state == WRISTFLOW_MOTOR_ACTIVE || state.state == WRISTFLOW_MOTOR_GAP) {
         wait = remaining(rt_tick_get());
+        if (state.state == WRISTFLOW_MOTOR_GAP) {
+            int32_t gap = (int32_t)(gap_until - rt_tick_get());
+            if (gap < wait) wait = gap;
+        }
         if (wait < 0) wait = 0;
     }
     rt_hw_interrupt_enable(level);
@@ -120,18 +151,22 @@ static void worker(void *context)
     }
 }
 
-uint32_t wristflow_product_motor_pulse(uint32_t milliseconds)
+static uint32_t submit(uint32_t duration, bool preview, bool enhanced)
 {
-    if (!milliseconds || milliseconds > WRISTFLOW_MOTOR_MAX_MS) return 0;
-    rt_tick_t ticks = rt_tick_from_millisecond(milliseconds);
-    if (!ticks) ticks = 1;
+    if (!duration || duration > WRISTFLOW_MOTOR_MAX_MS) return 0;
+    rt_tick_t ticks = milliseconds(duration);
     rt_base_t level = rt_hw_interrupt_disable();
     if (!ready || state.state != WRISTFLOW_MOTOR_OFF || state.busy || stop_sequence != handled_stop) {
         rt_hw_interrupt_enable(level); return 0;
     }
     state.request_id = next_id(state.request_id);
-    state.requested_ms = milliseconds;
+    state.requested_ms = duration;
     deadline = rt_tick_get() + ticks;
+    second_at = deadline + milliseconds(150);
+    group_deadline = enhanced ? second_at + ticks : deadline;
+    state.preview = preview;
+    state.segment = 1;
+    state.segments = enhanced ? 2 : 1;
     state.state = WRISTFLOW_MOTOR_QUEUED;
     state.reason = WRISTFLOW_MOTOR_NONE;
     uint32_t id = state.request_id;
@@ -142,6 +177,20 @@ uint32_t wristflow_product_motor_pulse(uint32_t milliseconds)
     }
     rt_hw_interrupt_enable(level);
     return id;
+}
+uint32_t wristflow_product_motor_pulse(uint32_t duration) { return submit(duration, false, false); }
+uint32_t wristflow_product_motor_preview(bool enhanced) { return submit(100, true, enhanced); }
+bool wristflow_product_motor_cancel_preview(uint32_t request)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    if (!ready || !request || !state.preview || state.request_id != request ||
+        state.state == WRISTFLOW_MOTOR_OFF || state.state == WRISTFLOW_MOTOR_UNAVAILABLE) {
+        rt_hw_interrupt_enable(level); return false;
+    }
+    stop_sequence = next_id(stop_sequence);
+    bool ok = rt_event_send(&changed, 1) == RT_EOK;
+    rt_hw_interrupt_enable(level);
+    return ok;
 }
 bool wristflow_product_motor_stop(void)
 {
@@ -158,7 +207,7 @@ wristflow_motor_snapshot_t wristflow_product_motor_snapshot(void)
     rt_base_t level = rt_hw_interrupt_disable();
     wristflow_motor_snapshot_t result = state;
     int32_t ticks = remaining(rt_tick_get());
-    result.remaining_ms = (state.state == WRISTFLOW_MOTOR_QUEUED || state.state == WRISTFLOW_MOTOR_ACTIVE) && ticks > 0
+    result.remaining_ms = (state.state == WRISTFLOW_MOTOR_QUEUED || state.state == WRISTFLOW_MOTOR_ACTIVE || state.state == WRISTFLOW_MOTOR_GAP) && ticks > 0
         ? (uint32_t)((uint64_t)(uint32_t)ticks * 1000 / RT_TICK_PER_SECOND) : 0;
     result.stop_pending = stop_sequence != handled_stop;
     rt_hw_interrupt_enable(level);
@@ -214,12 +263,13 @@ bool wristflow_product_motor_start(const wristflow_motor_io_t *backend)
 static int wf_motor(int argc, char **argv)
 {
     if (argc == 2 && !strcmp(argv[1], "status")) {
-        static const char *names[] = {"unavailable", "off", "queued", "active", "stopping", "fault"};
+        static const char *names[] = {"unavailable", "off", "queued", "active", "stopping", "fault", "gap"};
         wristflow_motor_snapshot_t s = wristflow_product_motor_snapshot();
         rt_kprintf("[motor] state=%s reason=%u request=%lu busy=%u stop_pending=%u\n",
             names[s.state], (unsigned)s.reason, (unsigned long)s.request_id, s.busy, s.stop_pending);
         rt_kprintf("[motor] requested=%lums remaining=%lums off_latch=%u; LOW/supply checks, not measured current\n",
             (unsigned long)s.requested_ms, (unsigned long)s.remaining_ms, s.off_latched);
+        rt_kprintf("[motor] preview=%u segment=%u/%u\n", s.preview, s.segment, s.segments);
         return RT_EOK;
     }
     if (argc == 2 && !strcmp(argv[1], "stop")) return wristflow_product_motor_stop() ? RT_EOK : -RT_ERROR;

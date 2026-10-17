@@ -2,6 +2,8 @@
 
 现行系统的职责图、已实现低功耗机制及测量边界见 [2026-10-14 系统／PM 说明](PM-EVENT-WAKE.md#current-power-system)。下文保留各版本的接入和验收记录；2026-09 的“BLE／PM 关闭”是历史状态，不能据此判断当前 Product。
 
+2026-10-17新增[振动设置小闭环](PRODUCT-SETTINGS.md#sound-vibration-settings-20261016)：v7保留24B及旧偏好迁移，main仅在motor构造成功后注入预览／取消回调。UI显式不同改选才请求标准一段／增强两段100ms，段间至少150ms；同一worker持有组截止及GAP，退出／息屏／提醒覆盖取消自己的请求。启动、恢复、保存完成均无ON，声音和各应用事件尚未绑定。主机与双目标编译通过；`ce4912c5…`仅USB下标准／增强、自行停止、关闭活动体验、普通重启保留增强及无自振、显示息屏／hold软件亮屏和触摸返回均获有界确认，未验KEY1／物理DEEP。首段错过息屏窗后的UART无回执及恢复过程保留，收尾allow1、串口正常关闭，详见[本轮证据](evidence/2026-10-17/vibration-settings.json)。
+
 2026-10-15后续设置保存已改为[事件worker与有限重试](PRODUCT-SETTINGS.md#save-reliability-20261015)：偏好设置／布局按请求代次反馈，写后回读才确认成功；Product在现有界面采集点与息屏前提交，UI不调用Flash。旧设置记录格式、闹钟存储及下述充电／电源显示边界保留；本轮不操作设备。
 
 2026-10-16新增[手动限时电机服务](MOTOR-PULSE.md)：main在消费者启动前请求PA20默认OFF，之后由独立worker处理显式1–250ms脉冲、截止和取消；关闭未确认保留IDLE并拒绝新脉冲。首版没有自动振动绑定或UI变更，状态读回只表示GPIO锁存器。软件交付阶段未下载；随后仅USB下`cd88555b…`下载verify及[默认OFF观察](MOTOR-PULSE.md#default-off-hardware)通过，再按用户明确授权只发[一次20ms请求](MOTOR-PULSE.md#first-pulse-hardware)，到期／stop后数字OFF有日志。用户未留意，实际振动／停止未确认，不算启振通过；该段没有重试、新构建或再次烧录。

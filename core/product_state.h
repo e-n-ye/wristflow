@@ -14,6 +14,11 @@ typedef enum {
     WRISTFLOW_MENU_COUNT
 } wristflow_menu_layout_t;
 
+typedef enum {
+    WRISTFLOW_VIBRATION_OFF, WRISTFLOW_VIBRATION_STANDARD, WRISTFLOW_VIBRATION_ENHANCED,
+    WRISTFLOW_VIBRATION_COUNT
+} wristflow_vibration_mode_t;
+
 typedef struct {
     uint8_t brightness;
     char face_id[16];
@@ -22,6 +27,7 @@ typedef struct {
     uint8_t screen_timeout;
     bool do_not_disturb;
     uint8_t breathing_minutes;
+    wristflow_vibration_mode_t vibration_mode;
 } wristflow_settings_t;
 
 bool wristflow_screen_timeout_valid(unsigned seconds);
