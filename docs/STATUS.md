@@ -7,12 +7,13 @@
 
 - **本轮范围**：软件[PR #83](https://github.com/e-n-ye/wristflow/pull/83)已Rebase合入`24b7e7a`，MERGED／merge SHA／fetch及完整树回读完成。复用D盘隔离工作树`wristflow-hardware-meter-plan`，从该主线建立`codex/charging-ui-hardware`记录同版硬件验收；主目录12处Pro改动保留。用户Q1–Q7已确认[充电画面](BASELINE.md#charging-ui-20261017)：暗色未知SOC轮廓／满电全亮、真实时间与状态、插接只弹一次、触屏／KEY1退出恢复原页并继续充电、正常息屏且满电不抢屏。电量检测和设置／长续航页后置。
 - **源码／编译verified**：独立覆盖层、确认充电周期缓存与Product邮箱提示已完成。官方Pro2.0.1／LVGL9.4.0 GUI导出与预览编译成功、100%及真实LVGL四态检查通过；完整主机44/44，最后按住插入Debug1/1与Release相关3/3通过，最终只读审查无新阻断。Product BIN`e9c07669…`／UI Demo`d6422209…`均编译退出0，413／377源码与29／22产物重哈希一致。首轮GUI停滞与测试脚本错误已修复并保留，见[契约／证据](CHARGING-UI.md)。本次硬件接续无源码、SDK或构建变化。
-- **本版下载／启动verified**：用户重新确认断电池／仅电脑USB；413源码／29产物、SDK锁及三镜像DryRun复核通过，COM5首次write+verify退出0。仍仅USB的一次150ms RTS后取得Product／LCD／触摸初始化，ADC约172–178mV时低电压拒绝启充、CEB=1；RTC已按当前UTC校时读回，恢复`allow=1`并自然息屏，22:38:00正常关闭串口。随后用户接回原BAT，对普通页息屏后插USB唤充电画面、正常亮度触摸返回原页及保持USB约30秒不重弹的整组步骤回复“均正常”，记为有界通过；KEY1与充电画面睡醒尚待第二组回报。见[同版硬件证据](evidence/2026-10-17/charging-ui-hardware.json)。
+- **本版下载／启动verified**：用户重新确认断电池／仅电脑USB；413源码／29产物、SDK锁及三镜像DryRun复核通过，COM5首次write+verify退出0。仍仅USB的一次150ms RTS后取得Product／LCD／触摸初始化，ADC约172–178mV时低电压拒绝启充、CEB=1；RTC已按当前UTC校时读回，恢复`allow=1`并自然息屏，22:38:00正常关闭串口。
+- **本版有界交互verified（用户回报）**：接回原BAT后，第一组普通页息屏后插USB唤充电画面、正常亮度触摸返回原页、保持USB约30秒不重弹回复“均正常”；第二组每次拔USB至少1秒重插，正常亮度KEY1退出且不重弹、另次充电画面自然息屏→KEY1先唤醒→再按退出回复“正常”。两组通过，无独立计时或新电气数据，DIM未单独定向验证。最后回报BAT＋USB、普通页面；UART保持关闭，无额外复位或烧录。见[同版硬件证据](evidence/2026-10-17/charging-ui-hardware.json)。
 - **既有设备证据**：上一版输入事件修正版BIN`8a9f7bb6…`的有界拔插／自然息屏／KEY1反馈正常，用户钳表约200mA／±3mA；完整充满、物理限压、CV降流、温度与停流仍未验，不能由新画面或芯片状态补齐。
 
 ### 当前闭环与唯一下一步
 
-同版第一组插入／触摸已通过；唯一下一实验为第二组KEY1正常亮度退出，以及重插后充电画面自然息屏→KEY1先唤醒→再按退出。步骤已发，等待实际回报；UART保持关闭。[草稿PR #84](https://github.com/e-n-ye/wristflow/pull/84)待结果补齐再转ready／审阅合并。电量检测另轮，FULL画面与电气终止仍未验。行为及精简证据入口见[充电画面](CHARGING-UI.md)。
+本轮充电画面下载及两组有界交互已完成，[PR #84](https://github.com/e-n-ye/wristflow/pull/84)按CONTRIBUTING审阅／Rebase合并／远端回读收尾。唯一后续观察为用户之后主动查看时回报是否显示“已充满”；不持续监控、不创建定时任务，不把待观察状态写成已验。电量检测另轮，真实FULL画面／不抢屏及电气终止仍未验；本轮不追加设备操作。行为及精简证据入口见[充电画面](CHARGING-UI.md)。
 
 <a id="history"></a>
 ## 2026-10-17 USB自动充电交付（历史）
