@@ -1,0 +1,147 @@
+{
+  "date": "2026-10-17",
+  "base_commit": "e526a3f6d47cfcc9465e095d6be3ceca4ce27943",
+  "scope": "Charging presentation and exit; SOC and battery/long-endurance settings deferred.",
+  "decisions": {
+    "ring": "Unknown SOC: dark outline; FULL: entire outline cyan; no moving light or synthetic progress",
+    "input": "Touch/KEY1 dismiss only; DIM first input brightens; preserve original page",
+    "cycle": "One presentation per confirmed automatic ACTIVE input cycle; confirmed PG0 rearms",
+    "full": "No new presentation or wake",
+    "control": "Presentation never starts/stops charging"
+  },
+  "sdk": {
+    "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "clean": true,
+    "submodules": {
+      "bluetooth": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c",
+      "SiliconSchema": "304658c6edd5497211b7d152932327ce6e4450ff"
+    }
+  },
+  "visual": {
+    "editor": "LVGL Pro Editor 2.0.1, existing Community license",
+    "preview_lvgl": "9.4.0",
+    "firmware_lvgl": "9.4.0 (actual lv_version.h)",
+    "method": "Official GUI Ctrl+B / Export Code and Recompile",
+    "result": "Project compiled successfully; actual 390x450 at 100% visually checked",
+    "fontTools": "4.66.0 via existing uv offline cache; U+F0E7 added to source subset",
+    "xml_sha256": "081b6e8c10d6bf60b747249e83ff808be50eb6004ea428319d16f9f8b2f7ca3f",
+    "generated_c_sha256": "8832c680aa42e45f8f386dc1edd89eb6117ef4b6b39656b96bd82ec0bf988102",
+    "icon_ttf_sha256": "f9d3725fca7a0e27442f6a05cb82fb445e8089467b3263123263bf57d50444bd",
+    "local_screenshot": "artifacts/charging-ui/pro-100.png",
+    "screenshot_sha256": "34c597ea5c3471c778b05f9cb6d914d9eefde3d1589b094db156be8ebad18136",
+    "local_renders": [
+      "artifacts/charging-ui/unknown_soc.png",
+      "artifacts/charging-ui/full.png",
+      "artifacts/charging-ui/unknown_time.png",
+      "artifacts/charging-ui/fault.png"
+    ],
+    "render_data": "Deterministic host samples, not device observations"
+  },
+  "host": [
+    {
+      "command": "cmake --build artifacts/host -j 6; ctest --test-dir artifacts/host --output-on-failure",
+      "passed": 44,
+      "total": 44,
+      "seconds": 20.42,
+      "log": "artifacts/charging-host-test.log",
+      "sha256": "f7782f805f35caf16a3a24cc5fdf33fe3626ca1cecf358e8b3ddd949f4beeaec"
+    },
+    {
+      "command": "cmake --build artifacts/host --target charging_ui -j 6; ctest --test-dir artifacts/host -R '^charging_ui$' --output-on-failure",
+      "passed": 1,
+      "total": 1,
+      "seconds": 0.66,
+      "note": "Final added held-contact insertion test; production source unchanged after full suite",
+      "log": "artifacts/charging-debug-final-test.log",
+      "sha256": "502055690ed934791c53cf9d71fd91bf63ef1bf34a3c14065f51b47ee6fa63d3"
+    },
+    {
+      "command": "cmake --build artifacts/charge-release --target charging_ui product_charger_service product_pm -j 6; ctest --test-dir artifacts/charge-release -R '^(charging_ui|product_charger_service|product_pm)$' --output-on-failure",
+      "assertions_retained": true,
+      "passed": 3,
+      "total": 3,
+      "seconds": 0.47,
+      "log": "artifacts/charging-release-test.log",
+      "sha256": "5ff4b459c601db3e25ebdb8990ba7cf99dafcbd0e7a69950c0db266f262af2ac"
+    }
+  ],
+  "host_coverage": [
+    "First ACTIVE versus enable-only",
+    "Status IRQ retains identity; PG0 clears; new cycle differs",
+    "Stop accepted before publication cannot issue first presentation",
+    "Getter performs no I/O; publish precedes event with IRQ enabled",
+    "Held contact/release consumed; exit pointer cannot activate underlying stopwatch",
+    "Same cycle cannot reopen after exit/wake/FULL",
+    "DIM first input brightens; OFF wakes without unintended navigation",
+    "Original page retained across long sleep while covered",
+    "Reminder priority; deferred latest ACTIVE retry",
+    "Notification temporary cover and restore",
+    "Breathing pause/resume and pending exit confirmation retention",
+    "Actual generated glyphs, ring geometry/colors, clock/minute/missing-time states"
+  ],
+  "builds": [
+    {
+      "target": "product",
+      "command": "pwsh -NoProfile -File artifacts/build-isolated.ps1 -Example product -Jobs 6",
+      "scons": "scons --board=sf32lb52-lchspi-ulp -j6",
+      "record": "artifacts/product/20261017-220135-981/result.json",
+      "record_sha256": "f1bc69e49814d10000b7284f96e1bbfcc2338a4d9440bc121b92e06c03dbd444",
+      "exit_code": 0,
+      "source_count": 413,
+      "source_manifest_sha256": "2d8b3298c5f3a986278cf7a52a960524b92521e79c885e8786be88d3bd1f63c1",
+      "artifact_count": 29,
+      "all_source_and_artifact_rehashes_match": true,
+      "main_bytes": 7737856,
+      "main_sha256": "e9c076697100ae2ec05b29cbefcad76a341811858b0fac96a744690603bf3a8f"
+    },
+    {
+      "target": "ui_demo",
+      "command": "pwsh -NoProfile -File artifacts/build-isolated.ps1 -Example ui_demo -Jobs 6",
+      "scons": "scons --board=sf32lb52-lchspi-ulp -j6",
+      "record": "artifacts/ui_demo/20261017-220513-489/result.json",
+      "record_sha256": "262272770e9542e406668771b36faa0e1e61157bc7d2d644f673d0a8e2b76d38",
+      "exit_code": 0,
+      "source_count": 377,
+      "source_manifest_sha256": "3d5db935003c3210b657468070bb4192d3da22770ac174c91ee1620534c95c6d",
+      "artifact_count": 22,
+      "all_source_and_artifact_rehashes_match": true,
+      "main_bytes": 7513664,
+      "main_sha256": "d6422209c07a03ffba45e875739db8ceef5d600b4119bc8e6f8bb9b51effaca1"
+    }
+  ],
+  "toolchain": {
+    "python": "3.13.15",
+    "SCons": "4.10.1",
+    "ArmGCC": "14.2.1"
+  },
+  "failures_resolved": [
+    "First GUI export stuck at Cleaning generated files; partial output preserved, editor closed and restarted, second export succeeded",
+    "Lightning absent from original source subset; added U+F0E7 and regenerated with official GUI",
+    "Bundled/default Python lacked fontTools; reused uv offline cached 4.66.0 without changing SDK environment",
+    "Test harness initially bypassed Launcher, compared opaque color as RGB integer, and tried to reparent a screen; corrected harness and passed"
+  ],
+  "review": {
+    "method": "Primary diff review plus read-only cross-module review",
+    "finding_closed": "Exclude stop_pending from first presentation; test core poll -> stop -> publish",
+    "remaining_source_blockers": []
+  },
+  "hardware": {
+    "performed": false,
+    "serial_opened": false,
+    "flashed": false,
+    "new_current_or_voltage_measurement": false,
+    "device_remains": "Previous 8a9f7bb6... firmware evidence; no new UI acceptance",
+    "pending": [
+      "Same-build plug wake and input exit",
+      "Real screen/touch/KEY1 feel and power transitions",
+      "FULL/CV/voltage/temperature/termination current"
+    ],
+    "limits": [
+      "No accurate SOC",
+      "Fast physical detach/reattach without observed PG0 is not distinguishable",
+      "FULL is software/chip state, not independent electrical validation"
+    ]
+  },
+  "official_generated_format": "New charging_panel_gen.c retains the official exporter's blank line at EOF. All other staged files pass normal diff --check; this generated file is checked with only blank-at-eof disabled, without hand-editing generated C.",
+  "cloud_baseline": "Not run; SDK/toolchain/build entry unchanged"
+}

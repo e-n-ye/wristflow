@@ -100,27 +100,30 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     wristflow_product_power_screen(false);
     wristflow_product_pm_screen(true);
     rt_uint32_t events;
-    bool preview = false, reminder = false;
+    bool preview = false, reminder = false, charging = false;
     defer_brightness = true;
     for (;;) {
         events = wristflow_product_event_wait(RT_WAITING_FOREVER);
         /* Rebuild from service state on every wake: event bits can coalesce.
          * An acknowledged reminder stays pending without repeatedly waking. */
         reminder = wristflow_ui_shell_reminder_event(product_shell);
+        wristflow_watch_snapshot_t charge_snapshot = read_snapshot(false);
+        charging = wristflow_ui_shell_charging_event(product_shell, &charge_snapshot);
+        wristflow_ui_shell_update(product_shell, &charge_snapshot);
         if (events & WF_EVENT_PHONE) {
             wristflow_product_pm_background();
             preview = sync_notifications();
         }
         if (events & WF_EVENT_PM_SAMPLE) wristflow_product_pm_report();
-        if (reminder || preview || (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))) break;
+        if (reminder || preview || charging || (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))) break;
     }
     wristflow_product_pm_screen(false); /* Hold idle before restoring the display. */
     waiting_for_wake = false;
-    rt_kprintf("[product] wake event=%s\n", events & WF_EVENT_KEY ? "KEY1" : reminder ? "reminder" : preview ? "notification" : "diagnostic");
+    rt_kprintf("[product] wake event=%s\n", events & WF_EVENT_KEY ? "KEY1" : reminder ? "reminder" : preview ? "notification" : charging ? "charging" : "diagnostic");
     wristflow_product_pm_report();
     /* Select the wake destination while dark; expose only its completed frame. */
     defer_brightness = true;
-    if ((!preview && !reminder) || (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))) wristflow_ui_shell_key(product_shell);
+    if (!charging && ((!preview && !reminder) || (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE)))) wristflow_ui_shell_key(product_shell);
     wristflow_watch_snapshot_t wake_snapshot = read_snapshot(false);
     wristflow_ui_shell_update(product_shell, &wake_snapshot);
     RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_POWERON, NULL) == RT_EOK);
@@ -227,6 +230,7 @@ int main(void)
         if (now - sampled >= 250) {
             sync_notifications();
             wristflow_watch_snapshot_t next = read_snapshot(false);
+            wristflow_ui_shell_charging_event(shell, &next);
             lv_obj_t *active = lv_screen_active();
             if (active && lv_obj_get_name(active) && !strcmp(lv_obj_get_name(active), "screen_weather"))
                 wristflow_weather_screen_refresh(active);
@@ -244,6 +248,11 @@ int main(void)
         rt_uint32_t events = wristflow_product_event_wait(rt_tick_from_millisecond(LV_CLAMP(1, wait_ms, 20)));
         if (events & WF_EVENT_PM_SAMPLE) wristflow_product_pm_report();
         if (events & (WF_EVENT_ALARM | WF_EVENT_COUNTDOWN)) wristflow_ui_shell_reminder_event(shell);
+        if (events & WF_EVENT_CHARGER) {
+            snapshot = read_snapshot(false);
+            wristflow_ui_shell_charging_event(shell, &snapshot);
+            wristflow_ui_shell_update(shell, &snapshot);
+        }
         if (events & WF_EVENT_PHONE) {
             sync_notifications();
             snapshot = read_snapshot(false);

@@ -3,6 +3,7 @@
 #include "product_power.h"
 #include "product_charger_detect.h"
 #include "product_charger_bus.h"
+#include "product_pm.h"
 #include <rtthread.h>
 #include <rthw.h>
 #include <rtdevice.h>
@@ -23,6 +24,8 @@ static bool cached_input_known, cached_input_good, cached_auto_blocked;
 static uint32_t input_epoch, session_input_epoch, cached_input_epoch;
 static uint32_t detect_after_ms;
 static bool auto_preparing;
+static uint32_t auto_cycle, presentation_cycle, cached_presentation_cycle;
+static wristflow_charge_display_t published_charge;
 #define INPUT_SETTLE_MS 150u
 
 static void input_changed(void)
@@ -100,6 +103,25 @@ static void hold(void)
 {
     if (!idle_held) { rt_pm_request(PM_SLEEP_MODE_IDLE); idle_held = true; }
 }
+static wristflow_charge_display_t display_state(const wristflow_charge_session_t *value,
+    bool known, bool good, bool changing)
+{
+    if (value->state == WF_CHARGE_UNCONFIRMED) return WF_POWER_CHARGE_FAULT;
+    if (changing || !known) return WF_POWER_CHARGE_UNKNOWN;
+    if (value->state == WF_CHARGE_ENABLED) {
+        unsigned status = (value->status >> 3) & 3;
+        return good && value->sample_valid && !(value->power & 8) && (status == 1 || status == 2) ?
+            WF_POWER_CHARGE_ACTIVE : WF_POWER_CHARGE_UNKNOWN;
+    }
+    if (value->state == WF_CHARGE_STOPPED) {
+        if (good && value->reason == WF_CHARGE_COMPLETE && value->millivolts >= WF_CHARGE_AUTO_MIN_MV)
+            return WF_POWER_CHARGE_FULL;
+        if (value->reason == WF_CHARGE_MANUAL || value->reason == WF_CHARGE_TIMEOUT || value->reason == WF_CHARGE_INPUT)
+            return WF_POWER_CHARGE_STOPPED;
+        if (value->reason != WF_CHARGE_COMPLETE) return WF_POWER_CHARGE_FAULT;
+    }
+    return WF_POWER_CHARGE_IDLE;
+}
 static void publish(void)
 {
     rt_base_t level = rt_hw_interrupt_disable();
@@ -116,7 +138,16 @@ static void publish(void)
     cached_input_good = input_good;
     cached_auto_blocked = auto_blocked;
     cached_input_epoch = input_epoch;
+    wristflow_charge_display_t charge = display_state(&cached, input_known, input_good, detect_pending);
+    if (charge == WF_POWER_CHARGE_ACTIVE && session.automatic && !presentation_cycle && !stop_pending)
+        presentation_cycle = auto_cycle;
+    bool notify = charge != published_charge || cached_presentation_cycle != presentation_cycle;
+    cached_presentation_cycle = presentation_cycle;
+    published_charge = charge;
     rt_hw_interrupt_enable(level);
+    /* The mailbox is a hint; the synchronized cycle survives coalesced events.
+     * FULL/fault/unplug update an existing view without requesting a new wake. */
+    if (notify) wristflow_product_event_send(WF_EVENT_CHARGER);
 }
 
 static void report(void)
@@ -150,6 +181,7 @@ void wristflow_product_charger_display(wristflow_power_snapshot_t *power)
     wristflow_charge_session_t value = cached;
     bool known = cached_input_known, good = cached_input_good;
     bool changing = detect_pending || input_epoch != cached_input_epoch;
+    power->charge_cycle = cached_presentation_cycle;
     rt_hw_interrupt_enable(level);
     power->charge = WF_POWER_CHARGE_UNKNOWN;
     /* The service/core reason orders are a checked wire mapping, not enum identity. */
@@ -162,21 +194,8 @@ void wristflow_product_charger_display(wristflow_power_snapshot_t *power)
     power->charge_reason = (unsigned)value.reason < sizeof reasons / sizeof *reasons ?
         reasons[value.reason] : WF_POWER_CHARGE_REASON_NONE;
     if (!ready) return;
-    if (value.state == WF_CHARGE_UNCONFIRMED) { power->charge = WF_POWER_CHARGE_FAULT; return; }
-    if (changing) { power->charge_reason = WF_POWER_CHARGE_REASON_NONE; return; }
-    if (!known) return;
-    if (value.state == WF_CHARGE_ENABLED) {
-        unsigned status = (value.status >> 3) & 3;
-        if (good && value.sample_valid && !(value.power & 8) && (status == 1 || status == 2))
-            power->charge = WF_POWER_CHARGE_ACTIVE;
-    } else if (value.state == WF_CHARGE_STOPPED) {
-        if (good && value.reason == WF_CHARGE_COMPLETE && value.millivolts >= WF_CHARGE_AUTO_MIN_MV)
-            power->charge = WF_POWER_CHARGE_FULL;
-        else if (value.reason == WF_CHARGE_MANUAL || value.reason == WF_CHARGE_TIMEOUT || value.reason == WF_CHARGE_INPUT)
-            power->charge = WF_POWER_CHARGE_STOPPED;
-        else if (value.reason != WF_CHARGE_COMPLETE) power->charge = WF_POWER_CHARGE_FAULT;
-        else power->charge = WF_POWER_CHARGE_IDLE;
-    } else power->charge = WF_POWER_CHARGE_IDLE;
+    power->charge = display_state(&value, known, good, changing);
+    if (changing && value.state != WF_CHARGE_UNCONFIRMED) power->charge_reason = WF_POWER_CHARGE_REASON_NONE;
 }
 
 static void detect_input(uint32_t generation)
@@ -206,6 +225,7 @@ static void detect_input(uint32_t generation)
     input_known = true;
     input_good = (status & 2) != 0;
     if (!input_good) {
+        presentation_cycle = 0;
         if (session.state == WF_CHARGE_ENABLED)
             wristflow_charge_stop(&session, &port, WF_CHARGE_INPUT);
         auto_blocked = session.state == WF_CHARGE_UNCONFIRMED;
@@ -217,6 +237,7 @@ static void detect_input(uint32_t generation)
     }
     if (auto_blocked) return;
     auto_blocked = true; /* One attempt per confirmed input cycle. */
+    if (!++auto_cycle) ++auto_cycle; /* Zero means no presentation. */
     session_input_epoch = generation;
     if (((status >> 3) & 3) == 3) {
         wristflow_power_snapshot_t voltage = wristflow_product_power_voltage();

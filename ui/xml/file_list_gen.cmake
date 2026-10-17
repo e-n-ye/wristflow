@@ -14,6 +14,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/components/breathing_ring_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/breathing_training_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/card_container_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/charging_panel_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/component_confirm_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/component_group_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/countdown_indicator_gen.c
