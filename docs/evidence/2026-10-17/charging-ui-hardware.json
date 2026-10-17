@@ -76,7 +76,7 @@
     ]
   },
   "device_interaction": {
-    "status": "Both bounded user-observed interaction groups passed",
+    "status": "Both bounded interaction groups passed; later FULL status text observed by user",
     "serial_closed_before_battery_reconnect": true,
     "power": "Original battery reconnected after unplugging USB; then BAT + USB for presentation checks",
     "user_observations": [
@@ -103,18 +103,26 @@
           "First short KEY1 woke the charging presentation; the next short KEY1 returned to the original page"
         ],
         "limits": "Grouped user feedback; no independent timing or electrical measurement; DIM first input was not separately targeted"
+      },
+      {
+        "observation": "Later FULL status text",
+        "date": "2026-10-17",
+        "reply": "当前已显示已充满",
+        "covered": ["User observed the device displaying 已充满"],
+        "version_basis": "Last verified Product BIN e9c07669...; no subsequent firmware change or download in this task, no new serial identity query",
+        "limits": "Page identity, cyan full ring, automatic wake behavior, exact transition time, charger registers and physical termination current were not reported or measured"
       }
     ],
     "new_electrical_measurements": false,
-    "final_reported_power": "Original BAT + USB, ordinary page after KEY1 exit",
+    "power_at_group2_end": "Original BAT + USB, ordinary page after KEY1 exit; later FULL-text report did not restate wiring or page identity",
     "serial_remains_closed": true,
     "additional_reset_or_flash_after_boot_capture": false,
-    "pending": ["Actual FULL display and no-wake observation", "DIM first-input behavior remains host-test evidence only"]
+    "pending": ["Actual cyan full ring and FULL no-wake observation", "DIM first-input behavior remains host-test evidence only"]
   },
   "limits": [
     "USB-only boot alone does not verify physical input or appearance; those bounded results come from the later user feedback",
     "Source and compilation evidence remain in charging-ui.json; no new build or tests were needed",
-    "FULL display and actual current termination, CV, physical voltage limit and cell temperature remain unverified",
+    "FULL status text was observed; actual current termination, CV, physical voltage limit and cell temperature remain unverified",
     "No SOC, sleep-current, battery-life, physical DEEP or full joint regression claim"
   ]
 }
