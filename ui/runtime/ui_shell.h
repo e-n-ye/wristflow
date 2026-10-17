@@ -20,6 +20,8 @@ typedef uint32_t (*wristflow_layout_request_cb_t)(const wristflow_layout_t *, vo
 typedef wristflow_save_state_t (*wristflow_layout_status_cb_t)(uint32_t request, void *);
 typedef uint32_t (*wristflow_settings_request_cb_t)(const wristflow_settings_t *, void *);
 typedef wristflow_save_state_t (*wristflow_settings_status_cb_t)(uint32_t request, void *);
+typedef uint32_t (*wristflow_vibration_preview_cb_t)(wristflow_vibration_mode_t, void *);
+typedef void (*wristflow_vibration_cancel_cb_t)(uint32_t request, void *);
 
 typedef struct {
     const wristflow_watchface_t *watchface;
@@ -83,6 +85,12 @@ void wristflow_ui_shell_rebuild_components(wristflow_ui_shell_t *shell, unsigned
 bool wristflow_ui_shell_finish_edit(wristflow_ui_shell_t *shell, unsigned selected);
 const wristflow_watch_snapshot_t *wristflow_ui_shell_snapshot(const wristflow_ui_shell_t *shell);
 bool wristflow_ui_shell_configure(wristflow_ui_shell_t *shell, const wristflow_settings_t *settings);
+/* Callbacks enqueue/cancel only. Binding/configuration never starts a preview.
+ * Explicit changed selection on its visible page is the sole preview trigger. */
+void wristflow_ui_shell_bind_vibration_preview(wristflow_ui_shell_t *,
+    wristflow_vibration_preview_cb_t, wristflow_vibration_cancel_cb_t, void *);
+bool wristflow_ui_shell_has_vibration_preview(const wristflow_ui_shell_t *);
+bool wristflow_ui_shell_set_vibration_mode(wristflow_ui_shell_t *, wristflow_vibration_mode_t);
 void wristflow_ui_shell_enable_display_policy(wristflow_ui_shell_t *shell);
 /* Called by the platform's raw pointer read wrapper, before LVGL dispatch. */
 bool wristflow_ui_shell_filter_touch(wristflow_ui_shell_t *shell, bool pressed);

@@ -144,11 +144,20 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     wristflow_product_power_screen(true); /* Start device work only after the first lit frame. */
 }
 
+static uint32_t vibration_preview(wristflow_vibration_mode_t mode, void *context)
+{
+    (void)context;
+    return wristflow_product_motor_preview(mode == WRISTFLOW_VIBRATION_ENHANCED);
+}
+static void vibration_cancel(uint32_t request, void *context)
+{ (void)context; (void)wristflow_product_motor_cancel_preview(request); }
+
 int main(void)
 {
     wristflow_product_charger_report();
     wristflow_product_pm_start();
-    if (!wristflow_product_motor_start(wristflow_product_motor_board_io()))
+    bool motor_ready = wristflow_product_motor_start(wristflow_product_motor_board_io());
+    if (!motor_ready)
         rt_kprintf("[motor] unavailable; manual pulse disabled\n");
     const wristflow_countdown_port_t *countdown = wristflow_product_countdown_start();
     wristflow_settings_t settings;
@@ -171,6 +180,7 @@ int main(void)
     wristflow_ui_shell_bind_settings_store(shell, wristflow_product_services_settings,
         wristflow_product_services_settings_status, NULL);
     wristflow_ui_shell_bind_notification_delete(shell, wristflow_product_ble_delete, NULL);
+    if (motor_ready) wristflow_ui_shell_bind_vibration_preview(shell, vibration_preview, vibration_cancel, NULL);
     rt_device_t touch = rt_device_find("touch");
     RT_ASSERT(touch);
     lv_indev_t *pointer = lv_indev_get_next(NULL);

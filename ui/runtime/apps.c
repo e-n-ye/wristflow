@@ -652,7 +652,8 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         lv_obj_add_event_cb(named(root, "settings_brightness"), brightness_changed, LV_EVENT_VALUE_CHANGED, apps);
         sync_brightness(apps);
     } else if (apps->product_mode && (surface == WRISTFLOW_SURFACE_SETTINGS ||
-        (surface >= WRISTFLOW_SURFACE_FACE_MANAGEMENT && surface <= WRISTFLOW_SURFACE_WAKE_SETTINGS))) {
+        (surface >= WRISTFLOW_SURFACE_FACE_MANAGEMENT && surface <= WRISTFLOW_SURFACE_WAKE_SETTINGS) ||
+        surface == WRISTFLOW_SURFACE_VIBRATION_SETTINGS)) {
         wristflow_settings_refresh(root, surface, apps->shell);
     } else if (surface == WRISTFLOW_SURFACE_SETTINGS) {
         lv_obj_add_event_cb(named(root, "settings_brightness"), brightness_changed, LV_EVENT_VALUE_CHANGED, apps);

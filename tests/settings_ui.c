@@ -15,6 +15,18 @@ static bool store_bound, reject_request;
 static unsigned store_requests, store_queries;
 static wristflow_save_state_t store_state;
 static wristflow_settings_t submitted;
+static unsigned previews, cancellations;
+static uint32_t preview_id;
+static wristflow_vibration_mode_t preview_mode;
+static bool reject_preview;
+static uint32_t preview(wristflow_vibration_mode_t mode, void *context)
+{
+    assert(context == &preview_id && mode != WRISTFLOW_VIBRATION_OFF);
+    ++previews; preview_mode = mode;
+    return reject_preview ? 0 : ++preview_id;
+}
+static void cancel_preview(uint32_t id, void *context)
+{ assert(context == &preview_id && id == preview_id); ++cancellations; }
 static uint32_t request_settings(const wristflow_settings_t *value, void *context)
 {
     (void)context; ++store_requests; submitted=*value; store_state=WRISTFLOW_SAVE_PENDING;
@@ -105,6 +117,8 @@ int main(int argc,char **argv)
     wristflow_settings_t initial=wristflow_settings_default(); initial.brightness=27;
     wristflow_watch_snapshot_t state=wristflow_product_snapshot(false,0);
     shell=wristflow_product_ui_create(&state,&initial,set_brightness,NULL); advance(240);
+    wristflow_ui_shell_bind_vibration_preview(shell,preview,cancel_preview,&preview_id);
+    assert(!previews && !cancellations);
     key(); open(WRISTFLOW_SURFACE_SETTINGS); snapshot("root");
     lv_obj_t *root=lv_screen_active(),*list=named(root,"settings_scroll");
     assert(lv_obj_get_child_count(list)==10);
@@ -120,11 +134,31 @@ int main(int argc,char **argv)
     press("settings_about"); snapshot("about");
     lv_obj_scroll_to_y(named(lv_screen_active(),"settings_scroll"),1000,LV_ANIM_OFF); advance(32); snapshot("about_bottom");
     back(); snapshot("root_bottom");
-    const char *entries[]={"settings_sound","settings_keys","settings_system"};
-    const char *disabled[]={"vibration_disabled","assistant_disabled","reset_disabled"};
-    for(unsigned i=0;i<3;++i) {
+    const char *entries[]={"settings_keys","settings_system"};
+    const char *disabled[]={"assistant_disabled","reset_disabled"};
+    for(unsigned i=0;i<2;++i) {
         press(entries[i]); assert(lv_obj_has_state(named(lv_screen_active(),disabled[i]),LV_STATE_DISABLED)); snapshot(entries[i]); back();
     }
+    press("settings_sound"); snapshot("sound");
+    assert(lv_obj_has_state(named(lv_screen_active(),"sound_disabled"),LV_STATE_DISABLED));
+    press("vibration_mode"); surface(WRISTFLOW_SURFACE_VIBRATION_SETTINGS); snapshot("vibration_standard");
+    assert(!previews && !lv_obj_has_flag(named(named(lv_screen_active(),"vibration_1"),"row_check"),LV_OBJ_FLAG_HIDDEN));
+    press("vibration_1"); assert(!previews); /* Same value and ordinary page refresh never preview. */
+    press("vibration_0"); assert(!previews && settings().vibration_mode==WRISTFLOW_VIBRATION_OFF);
+    snapshot("vibration_off");
+    press("vibration_1"); assert(previews==1 && preview_mode==WRISTFLOW_VIBRATION_STANDARD);
+    press("vibration_2"); assert(previews==2 && cancellations==1 && preview_mode==WRISTFLOW_VIBRATION_ENHANCED);
+    snapshot("vibration_enhanced");
+    lv_obj_scroll_to_y(named(lv_screen_active(),"settings_scroll"),1000,LV_ANIM_OFF);
+    advance(32); snapshot("vibration_bottom");
+    back(); assert(cancellations==2); surface(WRISTFLOW_SURFACE_SOUND_SETTINGS);
+    assert(!strcmp(lv_label_get_text(named(named(lv_screen_active(),"vibration_mode"),"row_detail")),"增强"));
+    press("vibration_mode"); assert(previews==2); press("vibration_0");
+    reject_preview=true; press("vibration_1"); assert(previews==3 && cancellations==2);
+    advance(1000); assert(previews==3); /* Rejected busy preview is not queued/retried. */
+    reject_preview=false; press("vibration_2"); assert(previews==4);
+    press("vibration_0"); assert(cancellations==3 && previews==4); /* Global OFF cancels owned request. */
+    back(); back();
     press("settings_dnd"); press("row_switch"); assert(settings().do_not_disturb); snapshot("dnd_on"); back();
     press("settings_notifications"); snapshot("notifications"); back();
     press("settings_display"); snapshot("display");
@@ -150,6 +184,12 @@ int main(int argc,char **argv)
     assert(wristflow_ui_shell_open_controls(shell)); advance(240); assert(!lv_obj_find_by_name(lv_screen_active(),"settings_confirm"));
     press("keep_awake_button"); press("confirm_accept"); assert(wristflow_ui_shell_keep_minutes(shell)==5); snapshot("control_active");
     wristflow_ui_shell_enable_display_policy(shell);
+    assert(wristflow_ui_shell_keep_awake(shell,0));
+    home(); key(); open(WRISTFLOW_SURFACE_SETTINGS); press("settings_sound"); press("vibration_mode");
+    press("vibration_1"); unsigned before_cancel=cancellations;
+    jump(10050); assert(cancellations==before_cancel+1 && previews==5);
+    key(); assert(previews==5); /* Wake/re-entry does not replay the selection. */
+    home();
     /* Enabling the policy occurs once at startup; establish a fresh fixed countdown. */
     assert(wristflow_ui_shell_keep_awake(shell,5));
     jump(299000); tap(20,20); jump(1000);
@@ -202,6 +242,7 @@ int main(int argc,char **argv)
     assert(wristflow_settings_decode(&initial,record,sizeof record));
     shell=wristflow_product_ui_create(&state,&initial,set_brightness,NULL); advance(240);
     assert(!wristflow_ui_shell_keep_minutes(shell) && !settings().face_long_press && settings().screen_timeout==5 && brightness==27);
+    assert(settings().vibration_mode==WRISTFLOW_VIBRATION_STANDARD && previews==5);
     /* Same UI with a real asynchronous contract: never infer persistence from
      * changing an in-memory toggle or from re-entering the screen. */
     wristflow_ui_shell_bind_settings_store(shell,request_settings,settings_status,NULL);
@@ -243,6 +284,24 @@ int main(int argc,char **argv)
     home();
     assert(wristflow_ui_shell_set_watchface(shell,&wristflow_default_watchface)); advance(240);
     assert(store_requests==9 && !strcmp(submitted.face_id,"diffusion"));
+    key(); open(WRISTFLOW_SURFACE_SETTINGS); press("settings_sound"); press("vibration_mode");
+    press("vibration_2");
+    assert(store_requests==10 && submitted.vibration_mode==WRISTFLOW_VIBRATION_ENHANCED);
+    assert(previews==5); /* Unbound backend still persists the real preference without fake feedback. */
     store_state=WRISTFLOW_SAVE_DONE; advance(240);
-    store_bound=false; wristflow_ui_shell_destroy(shell); shell=NULL; lv_deinit(); return 0;
+    store_bound=false;
+    wristflow_ui_shell_bind_vibration_preview(shell,preview,cancel_preview,&preview_id);
+    before_cancel=cancellations;
+    press("vibration_1"); assert(previews==6);
+    chosen=settings(); chosen.vibration_mode=WRISTFLOW_VIBRATION_ENHANCED;
+    assert(wristflow_ui_shell_configure(shell,&chosen)); advance(32);
+    assert(previews==6 && cancellations==before_cancel+1); /* Restore/configure only cancels. */
+    press("vibration_1"); assert(previews==7);
+    lv_obj_t *reminder=lv_obj_create(lv_layer_top());
+    assert(wristflow_ui_shell_present_reminder(shell,reminder));
+    assert(cancellations==before_cancel+2 && !wristflow_ui_shell_set_vibration_mode(shell,WRISTFLOW_VIBRATION_ENHANCED));
+    wristflow_ui_shell_close_reminder(shell); advance(240); assert(previews==7);
+    press("vibration_2"); assert(previews==8);
+    wristflow_ui_shell_destroy(shell); shell=NULL;
+    assert(cancellations==before_cancel+3); lv_deinit(); return 0;
 }
