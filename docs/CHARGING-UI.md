@@ -26,4 +26,10 @@ Product／UI Demo均编译退出0；分别413／377源码及29／22产物重哈�
 
 首轮GUI仅Code Validation passed，停在Cleaning generated files，保留部分生成物后关闭本次编辑器并重启；重试成功。初始闪电缺字，源裁剪清单新增U+F0E7，离线复用fontTools4.66.0重建图标TTF。第一次bundled／默认Python无fontTools，改用uv离线缓存，不更改SDK环境；无关Sans重新生成已回退。新增主机用例首次漏经Launcher、颜色断言误用带alpha的整数比较、提醒测试对象误建screen，各自失败后改为正常导航、`lv_color_eq`和普通子对象，最终通过；不把这些测试脚本失败解释为设备故障。
 
-源码检查、官方预览／生成、成功编译和硬件验证分别收证。此轮没有串口／烧录／设备输入或充满电流实验；旧约200mA证据不能扩为新固件验收，显示FULL也不能证明实际停流。
+源码检查、官方预览／生成、成功编译和硬件验证分别收证。上述软件交付阶段没有串口／烧录／设备输入或充满电流实验；旧约200mA证据不能扩为新固件验收，显示FULL也不能证明实际停流。
+
+## 同版烧录与硬件接续（2026-10-17）
+
+软件[PR #83](https://github.com/e-n-ye/wristflow/pull/83)已Rebase合入`24b7e7a`并fetch核对完整树与构建源码一致。用户再次确认断电池、仅电脑USB后，Product BIN`e9c07669…`的413源码／29产物、SDK锁及三镜像DryRun复核通过；COM5首次下载write+verify退出0。随后仍仅USB，单次150ms RTS采集取得Product、CO5300及FT6146初始化；无电池ADC约172–178mV时保持`reason=voltage`／CEB=1。RTC复位后按当前UTC校时并读回，`allow=1`后自然息屏，22:38:00正常关闭串口。没有发手动start／stop。
+
+烧录与启动回读已验，接回原BAT后的真实画面、插入唤屏、触摸／KEY1退出和同周期不重弹仍等待用户有界回报；不能以驱动初始化代替实体输入通过。[本次精简证据](evidence/2026-10-17/charging-ui-hardware.json)保存镜像、命令、原始日志哈希与边界；活动下一步仅见STATUS。

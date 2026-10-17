@@ -1,0 +1,90 @@
+{
+  "date": "2026-10-17",
+  "scope": "Same-build charging presentation hardware acceptance; no firmware changes",
+  "source": {
+    "software_pr": "https://github.com/e-n-ye/wristflow/pull/83",
+    "merged_main": "24b7e7a6e3d14fdaa8944baf69787b2e2ce336ac",
+    "local_build_commit": "5d7a2da36bbda9426c3a704c3078f0655c2ce5e7",
+    "full_trees_equal": true,
+    "worktree": "D:/MY_Desk/project/wristflow-hardware-meter-plan",
+    "evidence_branch": "codex/charging-ui-hardware",
+    "primary_user_changes": "12 existing Pro-generated edits preserved in primary worktree"
+  },
+  "preflight": {
+    "user_confirmation": "已断电池，仅电脑 USB，可以烧录",
+    "board": "sf32lb52-lchspi-ulp",
+    "port": "COM5",
+    "port_identity": "USB-SERIAL CH340, VID:PID=1A86:7523, LOCATION=1-1.1",
+    "build_record": "artifacts/product/20261017-220135-981/result.json",
+    "build_record_sha256": "f1bc69e49814d10000b7284f96e1bbfcc2338a4d9440bc121b92e06c03dbd444",
+    "source_rehash_count": 413,
+    "artifact_rehash_count": 29,
+    "all_hashes_match": true,
+    "sdk_and_locked_submodules_clean_and_match": true,
+    "dry_run_command": "pwsh -NoProfile -File artifacts/flash-isolated.ps1 -Port COM5 -DryRun",
+    "dry_run_exit_code": 0
+  },
+  "flash": {
+    "command": "pwsh -NoProfile -File artifacts/flash-isolated.ps1 -Port COM5",
+    "wrapper": "Existing local wrapper changes only project root and sftool location in scripts/Flash.ps1",
+    "wrapper_sha256": "e33674cddf1894bcce078e772c4ce62951e61611ebbfa40dd92123ec9782895e",
+    "tool": "sftool 0.2.5, SF32LB52, NOR, 500000 baud, --connect-attempts 3 --after soft_reset write_flash --verify",
+    "attempts": 1,
+    "exit_code": 0,
+    "completed_at": "2026-10-17T22:37:16.4507722+08:00",
+    "record": "artifacts/flash/product/20261017-223437-268/result.json",
+    "record_sha256": "7410d87d3b20e722b2f0a212f980c9a5a6bbe7025469a06a9307a294ea4dac78",
+    "log": "artifacts/flash/product/20261017-223437-268/sftool.log",
+    "log_sha256": "564d03400ea02fdc33f4441176cb39eb5d65cbe215c0bbf857e5352fc13e82d9",
+    "images": [
+      {"name": "bootloader.bin", "address": "0x12010000", "bytes": 58496, "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"},
+      {"name": "main.bin", "address": "0x12020000", "bytes": 7737856, "sha256": "e9c076697100ae2ec05b29cbefcad76a341811858b0fac96a744690603bf3a8f"},
+      {"name": "ftab.bin", "address": "0x12000000", "bytes": 11288, "sha256": "82f804c46585b32ff9ef4b129092116f52fdc05613291675af4cd6c68ad01d2b"}
+    ],
+    "tool_hardware_verified_field": false
+  },
+  "boot_capture": {
+    "power": "Battery disconnected, PC USB only",
+    "command": "SDK Python artifacts/capture-usb-vin-boot.py charging-ui-boot",
+    "script_sha256": "312fb490c7f5aa0509cdadcc907a4f979d49b0f8f8c34755c617a3b5cfa4500f",
+    "serial": "COM5, 1000000 8N1, no flow control, DTR/RTS false before open",
+    "explicit_reset": "One RTS pulse, 150ms",
+    "opened": "2026-10-17T22:37:35.982923+08:00",
+    "closed": "2026-10-17T22:38:00.144546+08:00",
+    "exit_code": 0,
+    "commands": [
+      {"at": "2026-10-17T22:37:40.223711+08:00", "command": "wf_pm hold"},
+      {"at": "2026-10-17T22:37:41.186975+08:00", "command": "wf_charger status"},
+      {"at": "2026-10-17T22:37:42.183716+08:00", "command": "show_date"},
+      {"at": "2026-10-17T22:37:44.212699+08:00", "command": "wf_time 1792247864"},
+      {"at": "2026-10-17T22:37:45.140959+08:00", "command": "show_date"},
+      {"at": "2026-10-17T22:37:48.200890+08:00", "command": "wf_pm allow"}
+    ],
+    "observed": [
+      "One complete Product boot; CO5300 LCD and FT6146 touch driver initialized",
+      "Early inhibit verified=1 profile=1",
+      "Auto profile REG02=18; PG=1, REG08=42, REG09=00, CEB=1; inhibited reason=voltage with ADC about 172-178mV",
+      "No battery charging claim; no manual start or stop sent",
+      "RTC initially not synchronized / 2000-01-01; synchronized to current UTC then show_date returned 2026-10-17 14:37:45 UTC",
+      "wf_pm allow read back allow=1; natural screen off observed before capture closed",
+      "No assert or HardFault in this bounded capture"
+    ],
+    "local_logs": [
+      {"path": "artifacts/charging-ui-boot.bin", "sha256": "fc106d0a90eb683ec2866a92963dbc98f9e241ba0551da2c5542adfcf8a9336a"},
+      {"path": "artifacts/charging-ui-boot.txt", "sha256": "58c7123cde21cdff16ed858fbbdc6f5ccfd3bb1c26bc62077bac64fdebefe1fb"},
+      {"path": "artifacts/charging-ui-boot.json", "sha256": "154f98b6cb1c7be41b9c89178c55926c663d283ff5318a39256dec1ee0c3d9a7"}
+    ]
+  },
+  "device_interaction": {
+    "status": "Awaiting user feedback after instructed battery reconnect and new USB insertion",
+    "serial_closed_before_battery_reconnect": true,
+    "new_electrical_measurements": false,
+    "pending": ["USB insert wake and real charging presentation", "Touch exit and exact original page", "Same-cycle no replay", "KEY1 exit and dim/sleep behavior"]
+  },
+  "limits": [
+    "USB-only boot does not verify actual touch, KEY1, battery charging or UI appearance",
+    "Source and compilation evidence remain in charging-ui.json; no new build or tests were needed",
+    "FULL display and actual current termination, CV, physical voltage limit and cell temperature remain unverified",
+    "No SOC, sleep-current, battery-life, physical DEEP or full joint regression claim"
+  ]
+}
