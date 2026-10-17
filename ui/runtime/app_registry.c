@@ -15,7 +15,7 @@ static void missing(const wristflow_watch_snapshot_t *snapshot, wristflow_app_da
 static void battery(const wristflow_watch_snapshot_t *snapshot, wristflow_app_data_t *data)
 {
     wristflow_battery_text(snapshot, data->value, sizeof data->value);
-    snprintf(data->reason, sizeof data->reason, "%s", wristflow_power_input_text(&snapshot->power));
+    snprintf(data->reason, sizeof data->reason, "%s", wristflow_power_charge_text(&snapshot->power));
 }
 
 static void weather(const wristflow_watch_snapshot_t *snapshot, wristflow_app_data_t *data)

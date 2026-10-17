@@ -8,7 +8,7 @@ static wristflow_power_snapshot_t cached;
 static bool ready, lit;
 static uint32_t epoch;
 
-/* Eight-byte copy on this HCPU only; never hold this critical section over I/O. */
+/* Short snapshot copy on this HCPU only; never hold this section over I/O. */
 wristflow_power_snapshot_t wristflow_product_power_snapshot(void)
 {
     rt_base_t level = rt_hw_interrupt_disable();

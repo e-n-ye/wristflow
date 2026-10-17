@@ -193,7 +193,7 @@ int main(int argc, char **argv)
             } else {
                 text(lv_screen_active(), "app_title", app->title);
                 text(lv_screen_active(), "placeholder_label",
-                     app->surface == WRISTFLOW_SURFACE_SYSTEM ? "--\nUSB ?\n--%" : app->reason);
+                     app->surface == WRISTFLOW_SURFACE_SYSTEM ? "--\nUSB ?\n状态未知" : app->reason);
             }
             if (!s) {
                 if (strcmp(app->id, "weather") == 0) snprintf(name, sizeof name, "product_weather");
@@ -318,20 +318,37 @@ int main(int argc, char **argv)
     assert(lv_obj_get_child_count(named(lv_screen_active(), "settings_scroll")) == 10);
     assert(wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_SYSTEM));
     advance();
-    text(lv_screen_active(), "placeholder_label", "--\nUSB ?\n--%");
+    text(lv_screen_active(), "placeholder_label", "--\nUSB ?\n状态未知");
     state.power = (wristflow_power_snapshot_t){true, true, true, 3872};
     assert(wristflow_ui_shell_update(shell, &state));
-    text(lv_screen_active(), "placeholder_label", "3.87V\nUSB OK\n--%");
+    text(lv_screen_active(), "placeholder_label", "3.87V\nUSB OK\n状态未知");
     text(lv_screen_active(), "placeholder_state", "电压");
     glyphs(title_24, "电压");
     snapshot(argv[1], "power_battery_usb");
     state.power.input_good = false;
     assert(wristflow_ui_shell_update(shell, &state));
-    text(lv_screen_active(), "placeholder_label", "3.87V\nUSB --\n--%");
+    text(lv_screen_active(), "placeholder_label", "3.87V\nUSB --\n状态未知");
     snapshot(argv[1], "power_battery_no_usb");
     state.power = (wristflow_power_snapshot_t){0};
     assert(wristflow_ui_shell_update(shell, &state));
-    text(lv_screen_active(), "placeholder_label", "--\nUSB ?\n--%");
+    text(lv_screen_active(), "placeholder_label", "--\nUSB ?\n状态未知");
+    glyphs(notification_22, "充电中已充满未充电状态未知充电已停止充电异常手动停止充电超时通信失败参数异常输入变化芯片故障电压保护芯片调节");
+    state.power = (wristflow_power_snapshot_t){.input_valid=true, .input_good=true,
+        .voltage_valid=true, .millivolts=3960, .charge=WF_POWER_CHARGE_ACTIVE};
+    assert(wristflow_ui_shell_update(shell, &state));
+    text(lv_screen_active(), "placeholder_label", "3.96V\nUSB OK\n充电中");
+    snapshot(argv[1], "power_charging");
+    state.power.charge=WF_POWER_CHARGE_FULL;
+    assert(wristflow_ui_shell_update(shell, &state));
+    text(lv_screen_active(), "placeholder_label", "3.96V\nUSB OK\n已充满");
+    snapshot(argv[1], "power_full");
+    state.power.charge=WF_POWER_CHARGE_FAULT;
+    state.power.charge_reason=WF_POWER_CHARGE_REASON_IO;
+    assert(wristflow_ui_shell_update(shell, &state));
+    text(lv_screen_active(), "placeholder_label", "3.96V\nUSB OK\n充电异常\n通信失败");
+    snapshot(argv[1], "power_charge_fault");
+    state.power=(wristflow_power_snapshot_t){0};
+    assert(wristflow_ui_shell_update(shell, &state));
     assert(wristflow_ui_shell_back(shell));
     advance();
     assert(wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_BRIGHTNESS_ADJUST)); advance();
@@ -370,6 +387,15 @@ int main(int argc, char **argv)
     assert(wristflow_ui_shell_update(shell, &state));
     text(lv_screen_active(), "battery_label", "3.87V");
     snapshot(argv[1], "power_diffusion_voltage");
+    state.power.charge=WF_POWER_CHARGE_ACTIVE;
+    assert(wristflow_ui_shell_update(shell, &state));
+    text(lv_screen_active(), "battery_label", "充电");
+    snapshot(argv[1], "power_diffusion_charging");
+    state.power.charge=WF_POWER_CHARGE_FULL;
+    assert(wristflow_ui_shell_update(shell, &state));
+    text(lv_screen_active(), "battery_label", "已满");
+    state.power.charge=WF_POWER_CHARGE_UNKNOWN;
+    assert(wristflow_ui_shell_update(shell, &state));
     assert(wristflow_ui_shell_key(shell)); advance();
     assert(wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_ABOUT)); advance();
     text(named(lv_screen_active(), "about_power"), "row_detail", "3.87V / USB --");

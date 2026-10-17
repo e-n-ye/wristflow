@@ -1,0 +1,137 @@
+{
+  "date": "2026-10-17",
+  "worktree": "D:/MY_Desk/project/wristflow-hardware-meter-plan",
+  "branch": "codex/usb-auto-charge",
+  "base": "979174a41e33a8d6c0f759ada02d5bab14b427cd",
+  "scope": "USB automatic charge and cached UI feedback; no SOC estimate, SDK/vendor/XML/generated changes or device operation",
+  "user_decisions": [
+    "USB insertion automatically charges unless full; screen feedback required; no CLI start required",
+    "After battery image/current discussion, user chose field validation200mA with cell20..45C externally observed",
+    "Battery voltage comparison reportedly within0.01V without raw readings; adjustable source was BAT-connected and is now disconnected"
+  ],
+  "profile": {
+    "startup_and_legacy_manual": "Inhibit first, nominal4170mV/80mA; legacy explicit1..60seconds remains80mA",
+    "automatic": "Still inhibited: directREG02=0x18(200mA), REG03 low4=1(3mA), REG05 low7=0x1c(EN_TERM/EN_TIMER/8h/TERM_TMR0/watchdogOFF); read back full expected profile then enable/verifyCEB",
+    "voltage_policy": "Auto entry3000..4189mV; active<3000 or>=4190 requests stop. Not physical calibrated protection or battery-presence detection",
+    "deadline": "10hours from acceptance including preparation;8h chip safety timer independent. These are backstops, not expected duration",
+    "termination": "ChipCHG_STAT done then workerCEB1 readback and cycle lock; USB system supply stays present. Fixed3.2s deglitch requiresREG0C[6]=0, which is not configured/read here",
+    "temperature": "No cell-temperature input/interlock; fixed boardNTC.200mA field scope20..45C, no automatic low-temperature derating",
+    "source": "AW32001E Sep2023 V1.4 https://m5stack-doc.oss-cn-shenzhen.aliyuncs.com/1157/AW32001E.pdf pp9,21,36..40; user image codex-clipboard-805de803-6f06-4689-99d9-9f69c922acb6.jpg",
+    "current_accuracy": "DatasheetVBAT3.8V,12mA<ICHG<264mA:+/-7%;200mA*1.07=214mA. Not cover-page+/-5% or all-condition proof. ImageLP902030500mAh max0.5C250mA/below20C0.2C100mA not independently matched toZCLP500/protection board"
+  },
+  "service": "Single worker. PA44 both-edge IRQ/AON wake only posts events; startup samples already-present USB. BAT-only event wait; active1s monitor with IDLE. ColdPG1 may start; locked cycle rearms only confirmedPG0 thenPG1. Fault/done/stop/unknown/edge cancel lock cycle; unknown is not unplug. Failed stop retainsUNCONFIRMED/IDLE; unplug cannot erase responsibility. No automatic fault clearing/retry. RawREG09 read may clear exited latches; inactive only",
+  "input_design_sources": [
+    "Locked SDK customer/boards/sf32lb52-lchspi-ulp/hcpu/board.conf:42 and sf32lb52-lchspi-ulp_base/bsp_pinmux.c:199",
+    "Locked SDK customer/peripherals/charger/aw32001/aw32001.c:417..459 detection IRQ/AON path only; its charger initialization excluded",
+    "Official V1.2 EPRO PCB/e4947da8b8a84953a988023242fbea49.epcb:4369/4745/4750: module pad2 PA_44_VBUSDET; design evidence, not actual-board polarity/wake measurement"
+  ],
+  "ui": "No UI I/O. Cached unknown/idle/charging/full/stopped/fault plus reason. Charging requires valid sample/PG/CEB0/precharge-or-charge; full requires done and successful inhibit. Pending input becomes unknown. Existingnotification_22 glyphs and runtime setters; no XML/generated edits",
+  "tests": [
+    {
+      "command": "cmake --build artifacts/host --parallel 6 && ctest --test-dir artifacts/host --output-on-failure",
+      "log": "artifacts/usb-auto-host-final-tests.log",
+      "passed": 42,
+      "total": 42,
+      "seconds": 13.47,
+      "exit_code": 0,
+      "version": "Full automatic/UI candidate before final pending-input/timer/current deltas; targeted followups below"
+    },
+    {
+      "command": "cmake --build artifacts/charge-release --target aw32001_manual product_charger_service product_charger_detect product_ui --parallel 6 && ctest --test-dir artifacts/charge-release -R '^(aw32001_manual|product_charger_service|product_charger_detect|product_ui)$' --output-on-failure",
+      "log": "artifacts/usb-auto-release-delivery-tests.log",
+      "passed": 4,
+      "total": 4,
+      "seconds": 0.62,
+      "exit_code": 0,
+      "version": "Intermediate pre-200mA candidate after input-generation/8h/10h fixes, at80mA; superseded by200mA targeted followups below. Release keeps-UNDEBUG"
+    },
+    {
+      "command": "cmake --build artifacts/host --target aw32001_manual product_charger_service --parallel 6 && ctest --test-dir artifacts/host -R '^(aw32001_manual|product_charger_service)$' --output-on-failure",
+      "log": "artifacts/usb-auto-200-host-tests.log",
+      "passed": 2,
+      "total": 2,
+      "seconds": 0.21,
+      "exit_code": 0,
+      "version": "Final200mA; all38 start-transfer failure/cancel points, current change inhibited, CV/voltage/timer/done,200to80 drift stop, serviceenable-lock+39 edge"
+    },
+    {
+      "command": "cmake --build artifacts/charge-release --target aw32001_manual product_charger_service --parallel 6 && ctest --test-dir artifacts/charge-release -R '^(aw32001_manual|product_charger_service)$' --output-on-failure",
+      "log": "artifacts/usb-auto-200-release-tests.log",
+      "passed": 2,
+      "total": 2,
+      "seconds": 0.16,
+      "exit_code": 0,
+      "version": "Final200mA Release keeps-UNDEBUG"
+    }
+  ],
+  "visual_validation": "Primary viewed actual LVGL contact sheet artifacts/host/renders/charge-ui-contact-sheet.png: charging/full/fault and diffusion watchface charging; all Chinese state/reason glyphs asserted",
+  "review": "Read-only Sol/medium source review found stop+unplug event loss and accepted manual-start event loss; primary fixed and added regression tests. Followup no blocker; pending-input cache corrected to unknown.200mA focused review confirmed0x18, direct write while inhibited, readback beforeenable,38 core transfers and serviceenable-lock+39; no blocker. Primary owns writes/build/Git/device and final acceptance",
+  "failures": [
+    "First full41/42: product_ui still expected old--% text; updated expectation and full42/42 passed",
+    "First Release3/4: NDEBUG erased new detect-test assert expressions, causing segfault; added target to existing-UNDEBUG list, final4/4 passed",
+    "Earlier80mA Product builds succeeded before final policy/UI/current; all superseded and never flashed"
+  ],
+  "build_commands": [
+    "pwsh -NoProfile -File artifacts/build-isolated.ps1 -Example product -Jobs 6",
+    "pwsh -NoProfile -File artifacts/build-isolated.ps1 -Example ui_demo -Jobs 6",
+    "Bundled Python artifacts/verify-usb-auto.py rehashes all recorded project_sources/artifacts",
+    "pwsh -NoProfile -File artifacts/flash-isolated.ps1 -Port COM5 -DryRun",
+    "Bundled Python tests/check_charger_layout.py apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.elf"
+  ],
+  "builds": [
+    {
+      "example": "product",
+      "result": "artifacts/product/20261017-184542-837/result.json",
+      "result_sha256": "4b9d2b3fe73d19d8c0366df7cd947f3987f3f2605f02ff6e866443a36bb87e2a",
+      "sources_rehashed": 406,
+      "artifacts_rehashed": 29,
+      "firmware_sha256": "d74f5c2a9a9f49b400c810ff6a2d861bfc4293daddccc2f84a8e257a6556cb4a",
+      "bytes": 7733568,
+      "exit_code": 0
+    },
+    {
+      "example": "ui_demo",
+      "result": "artifacts/ui_demo/20261017-183338-648/result.json",
+      "result_sha256": "89ea4d99b4cd20c216735caedec0b1e76c54dc9c221d3e8449dcff34a131b917",
+      "sources_rehashed": 372,
+      "artifacts_rehashed": 22,
+      "firmware_sha256": "15bc9bf368d3240dd2f9b1e12c1d76b97f92110f46a9eeef7458fb6b4fc0b870",
+      "bytes": 7512440,
+      "exit_code": 0
+    }
+  ],
+  "tools": {
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "sdk_changes": [],
+    "arm_gcc": "14.2.1",
+    "sdk_python": "3.13.15",
+    "scons": "4.10.1",
+    "host_gcc": "15.2.0",
+    "cloud_baseline": "Not run; SDK/toolchain/public build entry unchanged"
+  },
+  "download_preflight": {
+    "dry_run_exit_code": 0,
+    "dry_run_log": "artifacts/usb-auto-200-flash-dryrun.log",
+    "retained_sram_check_exit_code": 0,
+    "layout_log": "artifacts/usb-auto-200-layout.log",
+    "retained_sram_address": "0x200033bc .retm_data strong BSP_PowerUpCustom",
+    "false_path_disassembly": "artifacts/usb-auto-200-hook-disassembly.txt: cmp r0,0 at0x200033c0; beq0x2000345a then stack restore/pop only, no I/O on false path",
+    "device_opened": false
+  },
+  "document_validation": "git diff --check passed;32 changed/new files decoded strictUTF8 with no replacement/mojibake markers; JSON parsed;14 added relative links/anchors resolved. Independent read-only Luna/low review found pre-200mA Release version-label ambiguity, primary clarified as intermediate/superseded. No hardware/source-profile contradiction found",
+  "hardware": {
+    "performed": false,
+    "flashed": false,
+    "charge_started": false,
+    "latest_preexisting_recorded_firmware": "dd2a9c73f730cefbdefbf01f61ff269a1b3a25d2294c7565e92283d2d482921c",
+    "user_report": "RealZCLP5003.7V500mAh/4.2V battery+USB, adjustable source disconnected,3.96V, zeroed DCclamp resolves~80mA on one battery wire, thermal camera available. Protection-board details and baseline temperature/current not supplied",
+    "pending": "Confirm battery disconnected/USB-only for flash. Then verify startup/UI, fieldBAT+USB automatic200mA/stop at20..45C, and separate actual done/taper/termination evidence",
+    "not_verified": [
+      "Physical current/voltage limit and precise3mA termination",
+      "PA44 actual polarity/noise/deep-wake and IRQ storm behavior",
+      "No-battery false done, full charge duration or long-term stability",
+      "Cell-temperature protection, unattended/full-temperature charging or completeH2",
+      "PhysicalDEEP current, runtime battery life or accurateSOC"
+    ]
+  }
+}

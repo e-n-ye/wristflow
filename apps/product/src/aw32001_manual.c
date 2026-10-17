@@ -1,6 +1,9 @@
 #include "aw32001_manual.h"
 #include <stddef.h>
 
+_Static_assert(WF_CHARGE_AUTO_MA % 8 == 0 && WF_CHARGE_AUTO_CURRENT_CODE <= 63,
+               "automatic charge current must fit REG02 without reset bits");
+
 typedef struct {
     wristflow_charge_session_t *session;
     const wristflow_charge_port_t *port;
@@ -81,9 +84,12 @@ static bool sample(transaction_t *t, bool entry)
         /* REG09 fault bits can clear on read. Reject this first observed value;
          * never read again in the same start attempt to turn it into a pass. */
     }
+    if (s->automatic && !guarded_read(t, 3, &s->termination)) return false;
     if (s->id != 0x49 || (s->power & 8) != (entry ? 8 : 0) ||
-        (s->timer & 0x79) != 0x18 || s->current != 9 ||
-        (s->voltage & 0xfc) != 0x98 || (s->individual & 0x80)) {
+        (s->timer & 0x79) != 0x18 ||
+        s->current != (s->automatic ? WF_CHARGE_AUTO_CURRENT_CODE : WF_AW32001_PROFILE_MA / 8 - 1) ||
+        (s->voltage & 0xfc) != 0x98 || (s->individual & 0x80) ||
+        (s->automatic && ((s->termination & 15) != 1 || (s->timer & 0x7f) != 0x1c))) {
         s->reason = WF_CHARGE_PROFILE;
         return false;
     }
@@ -101,8 +107,10 @@ static bool sample(transaction_t *t, bool entry)
         return false;
     }
     if (!permitted(t)) return false;
-    if (s->millivolts < WF_CHARGE_ENTRY_MIN_MV ||
-        s->millivolts >= (entry ? WF_CHARGE_ENTRY_MAX_MV + 1 : WF_AW32001_PROFILE_MV)) {
+    unsigned minimum = s->automatic ? WF_CHARGE_AUTO_MIN_MV : WF_CHARGE_ENTRY_MIN_MV;
+    unsigned limit = s->automatic ? WF_CHARGE_AUTO_STOP_MV :
+        (entry ? WF_CHARGE_ENTRY_MAX_MV + 1 : WF_AW32001_PROFILE_MV);
+    if (s->millivolts < minimum || s->millivolts >= limit) {
         s->reason = WF_CHARGE_VOLTAGE;
         return false;
     }
@@ -111,13 +119,14 @@ static bool sample(transaction_t *t, bool entry)
     return true;
 }
 
-bool wristflow_charge_begin(wristflow_charge_session_t *s, const wristflow_charge_port_t *p,
-                           unsigned seconds, uint32_t accepted_ms)
+static bool begin_session(wristflow_charge_session_t *s, const wristflow_charge_port_t *p,
+                          unsigned seconds, uint32_t accepted_ms, bool automatic)
 {
     if (!s || !p || !p->io.read || !p->io.write || !p->now_ms || !p->cancelled ||
-        !p->voltage || !seconds || seconds > WF_CHARGE_MAX_SECONDS ||
+        !p->voltage || !seconds || seconds > (automatic ? WF_CHARGE_AUTO_SECONDS : WF_CHARGE_MAX_SECONDS) ||
         s->state == WF_CHARGE_ENABLED || s->state == WF_CHARGE_UNCONFIRMED) return false;
-    *s = (wristflow_charge_session_t){ .deadline_ms = accepted_ms + seconds * 1000U };
+    *s = (wristflow_charge_session_t){ .deadline_ms = accepted_ms + seconds * 1000U,
+                                      .automatic = automatic };
     transaction_t t = { s, p };
     wristflow_aw32001_io_t guarded = { &t, guarded_read, guarded_write };
     wristflow_aw32001_result_t prepared;
@@ -133,6 +142,17 @@ bool wristflow_charge_begin(wristflow_charge_session_t *s, const wristflow_charg
         }
         goto failed;
     }
+    if (automatic) {
+        uint8_t termination, timer;
+        /* AW32001E V1.4 pp36-38: set200mA while inhibited, never echo REG02
+         * reset bits; retain discharge limit, set ITERM=3mA;
+         * EN_TERM=1, EN_TIMER=1, CHG_TMR=8h, TERM_TMR=0, watchdog=off. */
+        if (!guarded_write(&t, 2, WF_CHARGE_AUTO_CURRENT_CODE) ||
+            !guarded_read(&t, 3, &termination) ||
+            !guarded_write(&t, 3, (termination & 0xf0) | 1) ||
+            !guarded_read(&t, 5, &timer) ||
+            !guarded_write(&t, 5, (timer & 0x80) | 0x1c)) goto failed;
+    }
     if (!sample(&t, true)) goto failed;
     if (((s->status >> 3) & 3) == 3) { s->reason = WF_CHARGE_COMPLETE; goto failed; }
     if (!guarded_write(&t, 1, s->power & (uint8_t)~8) ||
@@ -145,6 +165,14 @@ failed:
     wristflow_charge_stop(s, p, s->reason == WF_CHARGE_NONE ? WF_CHARGE_IO : s->reason);
     return false;
 }
+
+bool wristflow_charge_begin(wristflow_charge_session_t *s, const wristflow_charge_port_t *p,
+                           unsigned seconds, uint32_t accepted_ms)
+{ return begin_session(s, p, seconds, accepted_ms, false); }
+
+bool wristflow_charge_begin_auto(wristflow_charge_session_t *s, const wristflow_charge_port_t *p,
+                                uint32_t accepted_ms)
+{ return begin_session(s, p, WF_CHARGE_AUTO_SECONDS, accepted_ms, true); }
 
 void wristflow_charge_poll(wristflow_charge_session_t *s, const wristflow_charge_port_t *p)
 {
