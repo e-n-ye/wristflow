@@ -8,6 +8,7 @@ enum { WF_CHARGE_MAX_SECONDS = 60, WF_CHARGE_ENTRY_MIN_MV = 3500,
        WF_CHARGE_ENTRY_MAX_MV = 4100,
        WF_CHARGE_AUTO_MA = 200,
        WF_CHARGE_AUTO_CURRENT_CODE = WF_CHARGE_AUTO_MA / 8 - 1,
+       WF_CHARGE_INPUT_SETTLE_MS = 150,
        WF_CHARGE_AUTO_SECONDS = 10 * 60 * 60,
        WF_CHARGE_AUTO_MIN_MV = 3000, WF_CHARGE_AUTO_STOP_MV = 4190 };
 typedef enum { WF_CHARGE_IDLE, WF_CHARGE_ENABLED, WF_CHARGE_STOPPED,
@@ -22,6 +23,7 @@ typedef struct {
     uint32_t (*now_ms)(void *context);
     bool (*cancelled)(void *context);
     bool (*voltage)(void *context, uint16_t *millivolts);
+    void (*wait_ms)(void *context, unsigned milliseconds);
 } wristflow_charge_port_t;
 typedef struct {
     wristflow_charge_state_t state;
@@ -34,6 +36,8 @@ typedef struct {
     bool sample_valid;
     bool automatic;
     uint8_t termination;
+    uint8_t entry_fault;
+    bool input_qualified;
 } wristflow_charge_session_t;
 
 /* One worker owns the session and all I/O. Deadline starts at command acceptance,

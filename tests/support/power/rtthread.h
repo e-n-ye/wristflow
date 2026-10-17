@@ -31,6 +31,7 @@ int rt_event_recv(struct rt_event *, unsigned, unsigned, int, rt_uint32_t *);
 rt_thread_t rt_thread_create(const char *, void (*)(void *), void *, unsigned, unsigned, unsigned);
 int rt_thread_startup(rt_thread_t);
 int rt_thread_delete(rt_thread_t);
+int rt_thread_mdelay(rt_int32_t);
 void rt_kprintf(const char *, ...);
 int rt_mutex_init(struct rt_mutex *, const char *, unsigned);
 int rt_mutex_take(struct rt_mutex *, int);

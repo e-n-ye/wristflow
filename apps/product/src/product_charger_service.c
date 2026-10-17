@@ -2,6 +2,7 @@
 #include "aw32001_manual.h"
 #include "product_power.h"
 #include "product_charger_detect.h"
+#include "product_charger_bus.h"
 #include <rtthread.h>
 #include <rthw.h>
 #include <rtdevice.h>
@@ -20,11 +21,17 @@ static uint32_t accepted_ms;
 static bool detect_pending, input_known, input_good, auto_blocked;
 static bool cached_input_known, cached_input_good, cached_auto_blocked;
 static uint32_t input_epoch, session_input_epoch, cached_input_epoch;
+static uint32_t detect_after_ms;
+static bool auto_preparing;
+#define INPUT_SETTLE_MS 150u
 
 static void input_changed(void)
 {
     rt_base_t level = rt_hw_interrupt_disable();
     ++input_epoch;
+    /* INT also pulses for status changes. Coalesce from the first edge so a
+     * stream of pulses cannot postpone the actual PG check indefinitely. */
+    if (!detect_pending) detect_after_ms = rt_tick_get() + INPUT_SETTLE_MS;
     detect_pending = true;
     rt_hw_interrupt_enable(level);
     rt_event_send(&commands, 1);
@@ -35,7 +42,7 @@ static bool cancelled(void *context)
 {
     (void)context;
     rt_base_t level = rt_hw_interrupt_disable();
-    bool value = stop_pending || (session.automatic && input_epoch != session_input_epoch);
+    bool value = stop_pending || (auto_preparing && input_epoch != session_input_epoch);
     rt_hw_interrupt_enable(level);
     return value;
 }
@@ -45,10 +52,21 @@ static bool cancelled(void *context)
  * one HAL operation can still take ~5s (plus BUSY/recovery), not a hard cutoff. */
 static bool transfer(bool write, uint8_t reg, uint8_t *value)
 {
+    uint32_t started = clock_ms(RT_NULL);
     struct rt_i2c_bus_device *bus = rt_i2c_bus_device_find("i2c2");
-    if (!bus || rt_mutex_take(&bus->lock, rt_tick_from_millisecond(50)) != RT_EOK) return false;
-    /* A stop/deadline can arrive while acquiring the bus. Check again before
-     * dispatching enable; inhibition must always remain allowed. */
+    if (!bus || rt_mutex_take(&bus->lock, rt_tick_from_millisecond(50)) != RT_EOK) {
+        rt_kprintf("[charger-io] %s REG%02x phase=%s elapsed_ms=%lu\n", write ? "write" : "read",
+            reg, bus ? "lock" : "missing_bus", (unsigned long)(clock_ms(RT_NULL) - started));
+        return false;
+    }
+    if (!wristflow_product_charger_bus_prepare_locked()) {
+        rt_kprintf("[charger-io] %s REG%02x phase=prepare elapsed_ms=%lu\n", write ? "write" : "read",
+            reg, (unsigned long)(clock_ms(RT_NULL) - started));
+        rt_mutex_release(&bus->lock);
+        return false;
+    }
+    /* Recheck after both lock acquisition and any board-rail settling. Stop
+     * and deadline must prevent enable; inhibition must always remain allowed. */
     if (write && reg == 1 && !(*value & 8) &&
         (cancelled(RT_NULL) || (int32_t)(clock_ms(RT_NULL) - session.deadline_ms) >= 0)) {
         rt_mutex_release(&bus->lock);
@@ -57,6 +75,8 @@ static bool transfer(bool write, uint8_t reg, uint8_t *value)
     bool ok = (write ? rt_i2c_mem_write(bus, 0x49, reg, 8, value, 1) :
                        rt_i2c_mem_read(bus, 0x49, reg, 8, value, 1)) == 1;
     rt_mutex_release(&bus->lock);
+    if (!ok) rt_kprintf("[charger-io] %s REG%02x phase=transfer elapsed_ms=%lu\n",
+        write ? "write" : "read", reg, (unsigned long)(clock_ms(RT_NULL) - started));
     return ok;
 }
 static bool read_reg(void *context, uint8_t reg, uint8_t *value)
@@ -70,8 +90,10 @@ static bool voltage(void *context, uint16_t *mv)
     *mv = value.millivolts;
     return value.voltage_valid;
 }
+static void wait_ms(void *context, unsigned milliseconds)
+{ (void)context; rt_thread_mdelay(milliseconds); }
 static const wristflow_charge_port_t port = {
-    { RT_NULL, read_reg, write_reg }, clock_ms, cancelled, voltage
+    { RT_NULL, read_reg, write_reg }, clock_ms, cancelled, voltage, wait_ms
 };
 
 static void hold(void)
@@ -80,11 +102,16 @@ static void hold(void)
 }
 static void publish(void)
 {
-    bool retain = session.state == WF_CHARGE_ENABLED || session.state == WF_CHARGE_UNCONFIRMED;
-    if (!retain && idle_held) { rt_pm_release(PM_SLEEP_MODE_IDLE); idle_held = false; }
     rt_base_t level = rt_hw_interrupt_disable();
+    bool pending = detect_pending;
+    rt_hw_interrupt_enable(level);
+    bool retain = session.state == WF_CHARGE_ENABLED || session.state == WF_CHARGE_UNCONFIRMED || pending;
+    if (retain) hold();
+    if (!retain && !wristflow_product_charger_bus_release()) retain = true;
+    if (!retain && idle_held) { rt_pm_release(PM_SLEEP_MODE_IDLE); idle_held = false; }
+    level = rt_hw_interrupt_disable();
     cached = session;
-    busy = retain || start_pending || stop_pending;
+    busy = retain || start_pending || stop_pending || detect_pending;
     cached_input_known = input_known;
     cached_input_good = input_good;
     cached_auto_blocked = auto_blocked;
@@ -114,6 +141,7 @@ static void report(void)
     rt_kprintf("[charger] enabled means CEB readback, not measured current; no cell temperature or SOC\n");
     rt_kprintf("[charger] auto_usb=1 input_valid=%u good=%u cycle_locked=%u automatic=%u ITERM_REG03=%02x\n",
         known, good, blocked, value.automatic, value.termination);
+    rt_kprintf("[charger] entry_fault=%02x input_qualified=%u\n", value.entry_fault, value.input_qualified);
 }
 
 void wristflow_product_charger_display(wristflow_power_snapshot_t *power)
@@ -154,27 +182,39 @@ void wristflow_product_charger_display(wristflow_power_snapshot_t *power)
 static void detect_input(uint32_t generation)
 {
     hold();
-    /* Any input edge aborts the old automatic session before new evaluation.
-     * Unknown/edge noise never clears a lock. Only confirmed PG=0 rearms. */
-    if (session.state == WF_CHARGE_ENABLED) {
-        auto_blocked = true;
-        wristflow_charge_stop(&session, &port, WF_CHARGE_INPUT);
-    }
+    /* An INT edge is not a VBUS level. Only confirmed PG=0 rearms a cycle;
+     * PG=1 while active is a status notification, not a new charge session. */
     if (session.state == WF_CHARGE_UNCONFIRMED) return;
     uint8_t id, status;
     if (!read_reg(RT_NULL, 0x0a, &id) || id != 0x49 || !read_reg(RT_NULL, 8, &status)) {
         input_known = false;
         auto_blocked = true;
+        if (session.state == WF_CHARGE_ENABLED)
+            wristflow_charge_stop(&session, &port, WF_CHARGE_IO);
         rt_kprintf("[charger] input unknown; cycle locked, no automatic retry\n");
         return;
     }
     rt_base_t level = rt_hw_interrupt_disable();
     bool stale = input_epoch != generation || stop_pending;
     rt_hw_interrupt_enable(level);
-    if (stale) { auto_blocked = true; return; }
+    if (stale) {
+        /* Keep the newer event, but INT traffic must not starve active fault,
+         * voltage and deadline monitoring while input qualification is stale. */
+        if (session.state == WF_CHARGE_ENABLED) wristflow_charge_poll(&session, &port);
+        return;
+    }
     input_known = true;
     input_good = (status & 2) != 0;
-    if (!input_good) { auto_blocked = false; return; }
+    if (!input_good) {
+        if (session.state == WF_CHARGE_ENABLED)
+            wristflow_charge_stop(&session, &port, WF_CHARGE_INPUT);
+        auto_blocked = session.state == WF_CHARGE_UNCONFIRMED;
+        return;
+    }
+    if (session.state == WF_CHARGE_ENABLED) {
+        wristflow_charge_poll(&session, &port);
+        return;
+    }
     if (auto_blocked) return;
     auto_blocked = true; /* One attempt per confirmed input cycle. */
     session_input_epoch = generation;
@@ -186,7 +226,9 @@ static void detect_input(uint32_t generation)
             WF_CHARGE_COMPLETE : WF_CHARGE_VOLTAGE);
         return;
     }
+    auto_preparing = true;
     wristflow_charge_begin_auto(&session, &port, clock_ms(RT_NULL));
+    auto_preparing = false;
 }
 
 static void raw_snapshot(void)
@@ -210,9 +252,10 @@ static void step(void)
 {
     rt_base_t level = rt_hw_interrupt_disable();
     bool stop = stop_pending, start = start_pending, status = status_pending;
-    bool detect = detect_pending;
+    bool pending = detect_pending;
+    bool detect = pending && (int32_t)(clock_ms(RT_NULL) - detect_after_ms) >= 0 && (!start || stop);
     uint32_t generation = input_epoch;
-    detect_pending = false;
+    if (detect) detect_pending = false;
     unsigned seconds = start_seconds;
     uint32_t accepted = accepted_ms;
     start_pending = status_pending = false;
@@ -220,6 +263,7 @@ static void step(void)
     /* Stop requests coalesce; no queued start survives a stop. */
     if (stop) stop_pending = false;
     rt_hw_interrupt_enable(level);
+    if (pending) hold();
     if (stop) {
         auto_blocked = true;
         hold();
@@ -234,17 +278,10 @@ static void step(void)
             stop_pending = false; /* This coalesced request already attempted inhibition. */
             rt_hw_interrupt_enable(level);
         }
-        /* A plug edge that raced with an accepted manual request is not lost.
-         * The next worker turn confirms input; it cannot extend this request. */
-        if (detect) {
-            level = rt_hw_interrupt_disable();
-            detect_pending = true;
-            rt_hw_interrupt_enable(level);
-            rt_event_send(&commands, 1);
-        }
+        /* Pending input is left for the next turn and cannot extend this request. */
     } else if (detect) {
         detect_input(generation);
-    } else if (session.state == WF_CHARGE_ENABLED) {
+    } else if (!pending && session.state == WF_CHARGE_ENABLED) {
         wristflow_charge_poll(&session, &port);
         if (session.reason == WF_CHARGE_MANUAL) {
             level = rt_hw_interrupt_disable();
@@ -260,15 +297,26 @@ static void step(void)
     if (stop || start || detect || status || session.state != WF_CHARGE_ENABLED) report();
 }
 
+static rt_int32_t worker_wait(void)
+{
+    rt_int32_t wait = session.state == WF_CHARGE_ENABLED ? 1000 : RT_WAITING_FOREVER;
+    rt_base_t level = rt_hw_interrupt_disable();
+    if (detect_pending) {
+        int32_t remaining = (int32_t)(detect_after_ms - clock_ms(RT_NULL));
+        if (remaining < 0) remaining = 0;
+        if (wait == RT_WAITING_FOREVER || remaining < wait) wait = remaining;
+    }
+    rt_hw_interrupt_enable(level);
+    return wait;
+}
+
 static void worker(void *context)
 {
     (void)context;
     for (;;) {
         rt_uint32_t bits;
-        rt_int32_t wait = RT_WAITING_FOREVER;
-        if (session.state == WF_CHARGE_ENABLED) wait = (rt_int32_t)rt_tick_from_millisecond(1000);
         rt_event_recv(&commands, 1, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
-            wait, &bits);
+            worker_wait(), &bits);
         step();
     }
 }

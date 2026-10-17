@@ -127,7 +127,168 @@
     "boot_result": "SFBL and SiFli build 2.5.1 build421126d9; LCD CO5300 and FT6146 touch initialized; USB good=1; no-battery VBAT178mV; automatic=1 cycle_locked=1 reason=voltage; REG02=0x18; charging remained inhibited"
   },
   "document_validation": "git diff --check passed;32 changed/new files decoded strictUTF8 with no replacement/mojibake markers; JSON parsed;14 added relative links/anchors resolved. Independent read-only Luna/low review found pre-200mA Release version-label ambiguity, primary clarified as intermediate/superseded. No hardware/source-profile contradiction found",
+  "input_fault_followup": {
+    "base": "1b1044153425b35e3e0cf71dab63062ff05dacf4",
+    "branch": "codex/usb-charge-input-fault",
+    "original_firmware": "d74f5c2a9a9f49b400c810ff6a2d861bfc4293daddccc2f84a8e257a6556cb4a",
+    "user_report": "BAT+USB,3.96V/USB OK/charge fault/chip fault. No new actual current or temperature supplied",
+    "first_capture": {
+      "log": "artifacts/usb-auto-connected-01.txt",
+      "opened": "2026-10-17T19:45:25.617445+08:00",
+      "closed": "2026-10-17T19:45:41.720386+08:00",
+      "explicit_reset": false,
+      "observed_boot": true,
+      "result": "Complete boot after serial open although DTR/RTS false; fault stop before enable:REG01ac/REG051c/REG0218/REG049b/REG0b43/REG0842/REG0920,automatic1/cycle_locked1. Separate powerADC3959mV; sessionVBAT0 since fault check precedesADC",
+      "command": "wf_charger status at1s, no visible command ACK; likely during boot, not counted as successful raw diagnostic",
+      "limit": "Do not claim serial open is electrically non-disruptive or establish reset circuit root cause"
+    },
+    "second_capture": "artifacts/usb-auto-connected-02.txt empty, asleep with no status ACK; not counted as fresh status",
+    "wake_capture": {
+      "log": "artifacts/usb-auto-connected-03.txt",
+      "opened": "2026-10-17T19:47:50.457432+08:00",
+      "closed": "2026-10-17T19:48:14.240900+08:00",
+      "commands": ["wf_pm hold", "wf_charger status", "wf_pm allow"],
+      "result": "Cached firstfault20 preserved. One later sequentialraw REG0842/REG0900/REG0c10. Still inhibited, no automatic retry/start. allow1/off1/own_idle0/sdk_idle0 ACK then userKEY1 wake; normal close, port released",
+      "limit": "Raw REG09 may clear exited latch;0 is later observation, not erasure of first evidence or proof of transient amplitudes"
+    },
+    "source": "AW32001E V1.4 p18: VIN OVP/UVLO set VIN_FAULT(read clear);p29: exited fault latched until read,NTC exception;p39:bit5 VIN_FAULT=OVP or bad source. PG1 may coexist with historical20; startup/plug UVLO is plausible, not physically proven",
+    "change": "Only automatic pre-enable, first faultlow6==20 and PG1/no watchdog/PPM/thermal with validCEB/profile: retainentry_fault, then two complete clean samples separated150ms each while inhibited, newADC and same inputepoch required; setinput_qualified only after both. Any newfault/edge/stop/deadline/IOfailure aborts and locks. No repeat qualification and no active fault recovery. Missingwait port rejects.300ms is software observation policy, not physical transient guarantee",
+    "tests": [
+      {"configuration":"Debug","command":"cmake --build artifacts/host --target aw32001_manual product_charger_service --parallel 6 && ctest --test-dir artifacts/host -R '^(aw32001_manual|product_charger_service)$' --output-on-failure","log":"artifacts/usb-vin-debug-tests.log","passed":2,"total":2,"seconds":0.15,"exit_code":0},
+      {"configuration":"Release keeps-UNDEBUG","command":"cmake --build artifacts/charge-release --target aw32001_manual product_charger_service --parallel 6 && ctest --test-dir artifacts/charge-release -R '^(aw32001_manual|product_charger_service)$' --output-on-failure","log":"artifacts/usb-vin-release-tests.log","passed":2,"total":2,"seconds":0.12,"exit_code":0}
+    ],
+    "review": "Read-only Sol/medium found no enable bypass. Initially new qualification fault-injection range36..53 missed tail; primary corrected37..56 failure/cancel, asserts56total, service finalenable-lock+57 edge, then Debug/Release passed. REG09 comment clarified exception. No child writes/tests/device/Git",
+    "build": {
+      "command": "pwsh -NoProfile -File artifacts/build-isolated.ps1 -Example product -Jobs 6",
+      "result": "artifacts/product/20261017-195201-254/result.json",
+      "result_sha256": "d890987aadd548f5832100e51be04c4b0af5303f068c71124080dc6e5f3b1faf",
+      "firmware_sha256": "7d366c58b2337c12b6d98ded7c47d52be6a0546dd00671688ab75b3cab57663d",
+      "bytes": 7733728,
+      "sources_rehashed": 406,
+      "artifacts_rehashed": 29,
+      "exit_code": 0,
+      "sdk_changes": [],
+      "ui_demo": "Unchanged source/old15bc9bf3...372sources22artifacts rehashed consistent",
+      "dryrun": "artifacts/usb-vin-flash-dryrun.log exit0; main7d366c58...,bootloadere59d70db...,ftabcbf280bb...",
+      "layout": "artifacts/usb-vin-layout.log exit0 strong0x200033bc .retm_data"
+    },
+    "hardware": {
+      "user_confirmed": "Battery disconnected, computerUSB only; authorized revised flash",
+      "flash_status": "After two stub101 failures, user confirmed USB power cycle with battery disconnected; third attempt wrote/verified all3images exit0",
+      "failed_attempts": [
+        {"result":"artifacts/flash/product/20261017-195519-282/result.json","log":"artifacts/usb-vin-flash.log","tool_exit_code":101,"reason":"Failed to download stub / Failed to connect to the chip"},
+        {"result":"artifacts/flash/product/20261017-195747-826/result.json","log":"artifacts/usb-vin-flash-retry.log","tool_exit_code":101,"reason":"Same stub connection failure; no image verify completed"}
+      ],
+      "flash_result": "artifacts/flash/product/20261017-195900-567/result.json",
+      "flash_log": "artifacts/usb-vin-flash-powercycle.log",
+      "flash_exit_code": 0,
+      "images": [
+        {"name":"bootloader.bin","address":"0x12010000","sha256":"e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"},
+        {"name":"main.bin","address":"0x12020000","sha256":"7d366c58b2337c12b6d98ded7c47d52be6a0546dd00671688ab75b3cab57663d"},
+        {"name":"ftab.bin","address":"0x12000000","sha256":"cbf280bbc69a8f73c1bc1560b4b16fcdbe24095da833d493bc4e9f1057ac3cdd"}
+      ],
+      "boot_log": "artifacts/usb-vin-boot.txt",
+      "boot_helper": "artifacts/capture-usb-vin-boot.py;1M8N1 DTR/RTSfalse then explicit150msRTS;24s bounded capture",
+      "boot": "Earlyverified1/profile1, CO5300/FT6146 initialized; noBAT177mV/REG01ac/REG0218/PG1/fault00/entry_fault00/input_qualified0, reasonvoltage, inhibited. This did not exercise VIN qualification",
+      "rtc": "Read2000-01-01 afterRTS; wf_time1792238525 ACK, read2026-10-17T12:02:06UTC; no persistence/drift claim",
+      "cleanup": "wf_pm allow ACKallow1, later normal screen off; helper closed normally, port released. No start or battery charge",
+      "charge_verified": false,
+      "charge_state_verified": true,
+      "connected_capture": "artifacts/usb-vin-connected-01.txt,20:04:08..20:04:30+08:00; no explicit reset but full boot; entry_fault20/input_qualified1/REG01a4, nextREG0852/fault00/VBAT4014mV then~4025mV; user confirmed charging. No start command",
+      "second_open": "artifacts/usb-vin-connected-time.txt,20:05:34..20:05:44; again full boot without explicit reset and automatic qualification. RTC1792238737 ACK/read12:05:38UTC;allow1/sdk_idle2 while charging and screen lit. Normal close",
+      "later_failure": "User unplug/replugUSB reported delay then charging fault/communication failure. No trace at failure; screen-off timing not noticed. User confirmed USB disconnected/BAT-only. Do not claim stable charge, known stopCEB or measured current",
+      "next": "Superseded by shared-LCD-resource candidate and supervised screen-off charging regression below"
+    }
+  },
+  "lcd_bus_followup": {
+    "scope": "Fix concrete board LCD/charger shared resource conflict; keep200mA/4170mV and VIN qualification; no SDK or UI source change",
+    "source_evidence": [
+      "Locked customer/boards/sf32lb52-lchspi-ulp_base/bsp_lcd_tp.c:33,48..49 drivesPA26LOW and remapsPA10/11 GPIO pull-down onCO5300 LCDoff;64,71..72 restores on LCDon",
+      "Same board bsp_pinmux.c:183..184 assignsPA10/11 to chargerI2C2. drv_lcd.c lcd_hw_close calls boardPowerDown from LCD message task with LCD semaphore and IDLE, not an interrupt-disabled callback; existing charger/power paths do not take that semaphore",
+      "Official V1.2 EPRO PCB/e4947da8b8a84953a988023242fbea49.epcb:4892..4901 R42/R43 pullSCL/SDA up toVCC_3V3. PA26-to-rail full schematic chain not independently closed; no physical glitch/backfeed proof",
+      "SDK drv_i2c.c I2C2timeout5000ms, outer projectbus-lock50ms separate. Driver attemptsHAL_I2C_Reset on transfer failure; it resets controller but does not restore padmux. Reset loop may itself lack a timeout, so software is not a hard physical cutoff"
+    ],
+    "implementation": "product_charger_bus.c/h: worker transfers prepare under i2c2 recursive mutex, lease before partialsetup,PA26HIGH->5ms->I2C mux/pullups. Active/UNCONFIRMED retain; stopped release only cuts shared resources ifLCDoff, otherwise returns ownership without cutting litLCD. Partialprepare/release failure keeps responsibility. Two Product-only linkwraps serializeLCD transitions with samebus; activePowerDown omitsPA26LOW/PA10+11GPIO remap, keeps original other CO5300reset/VADD/audio/LCDpins off steps. PowerUp calls original in same lock. Temporary inactive reads release onpublish; BAT-only event wait no permanentlease. No call-original-down-then-restore rail glitch. New failure logs differentiate bus-missing/lock/prepare/SDKtransfer with elapsedms",
+    "tests": [
+      {"command":"cmake --build artifacts/host --parallel 6 && ctest --test-dir artifacts/host --output-on-failure","log":"artifacts/usb-lcd-full-tests.log","passed":43,"total":43,"seconds":18.75,"exit_code":0},
+      {"command":"cmake --build artifacts/charge-release --target aw32001_manual product_charger_service product_charger_bus --parallel 6 && ctest --test-dir artifacts/charge-release -R '^(aw32001_manual|product_charger_service|product_charger_bus)$' --output-on-failure","log":"artifacts/usb-lcd-release-final-tests.log","passed":3,"total":3,"seconds":0.08,"exit_code":0,"note":"Release keeps-UNDEBUG; GNUwrap path tested. MSVC test alias branch source-only, not executed locally"}
+    ],
+    "review": "Read-only Sol/medium checked lease partialfailure, LCDoff/on parity with locked SDK, shared recursive mutex, bootstrap and LCDsemaphore->I2C lock order; no definite source blocker. Primary owns source/build/device. Electrical PA26/VCC3V3 and real screen-off outcome still require hardware",
+    "failures": [
+      "First related2/3: new service case injected prepare failure before input detection but expected sessionUNCONFIRMED; changed setup to explicit-session preparation failure, related and full suites passed",
+      "First Product20261017-202009-376 failed linking because leading-space stringLINKFLAGS treated as filename. Changed to SCons list, rebuilt successfully; failed output ineligible to flash",
+      "First callsite disassembly lookup omitted compiler .isra.0 suffix; used actual symbol names and verified bothcalltargets. No firmware change needed"
+    ],
+    "build": {
+      "result":"artifacts/product/20261017-202123-999/result.json",
+      "result_sha256":"15cda1deb8e89ec1d8d63712dd17053f8e7c2fdfc9c95a96f85333d26c300916",
+      "firmware_sha256":"9b7595cea292e16f3870a41efce2b1fd68cbc0f6117b32e903ff9d5e4ad12924",
+      "bytes":7734680,"sources_rehashed":408,"artifacts_rehashed":29,"exit_code":0,"sdk_changes":[],
+      "ui_demo":"Unchanged15bc9bf3...372sources22artifacts rehashed",
+      "callsite_proof":"artifacts/usb-lcd-wrapper-disassembly.txt: lcd_hw_open.isra.0 at1207ec4a BL__wrap_BSP_LCD_PowerUp(1209b07c);lcd_hw_close.isra.0 at1207ec06 BL__wrap_BSP_LCD_PowerDown(1209afd8)",
+      "preflight":"artifacts/usb-lcd-flash-dryrun.log and usb-lcd-layout.log exit0"
+    },
+    "hardware": {
+      "user_confirmation":"After communication failure USB disconnected/BAT-only, then user confirmed battery disconnected/computerUSB-only for shared-resource revision flash",
+      "status":"Final da6 shared-resource image wrote/verified all3 exit0. Boot capture later showed BAT~3.98V/CEB0/REG0218 thenREG0852/fault0; user confirmed BAT+USB but reconnect time unknown. Capture failed WinError5, no stable screenoff claim. User subsequently reports unplug/replug leaves stopped/input change; superseded by input_events_followup candidate",
+      "physical_current_verified":false,
+      "next":"See input_events_followup; no new actual current or temperature evidence"
+    },
+    "final_stop_guard": {
+      "change":"Enable cancellation/deadline guard moved after board preparation while still holding bus mutex; test injects stop at finalenable prepare callback (+39). No write-enable permitted after that stop",
+      "debug":"artifacts/usb-lcd-stop-debug-tests.log 3/3,0.09s,exit0",
+      "release":"artifacts/usb-lcd-stop-release-tests.log 3/3,0.12s,exit0",
+      "review":"Read-only Sol/medium confirmed finalguard order/test injection, no blocker",
+      "result":"artifacts/product/20261017-202959-849/result.json",
+      "result_sha256":"51b167939ac72dd63946d5b5e84a7cba3b364bf1f9fd95f8ddba2a59f76ff7d0",
+      "firmware_sha256":"da6a28724731a96d70ce657bddaaa061dbe28db3807233b4d4deec0783987f76",
+      "bytes":7734688,"sources_rehashed":408,"artifacts_rehashed":29,"exit_code":0,
+      "callsite_proof":"artifacts/usb-lcd-delivery-wrapper-disassembly.txt confirms both optimized LCD callers targetwraps",
+      "preflight":"artifacts/usb-lcd-delivery-dryrun.log and usb-lcd-delivery-layout.log exit0",
+      "superseded":"9b7595ce... was written/verified under USB-only and noBAT boot log artifacts/usb-lcd-boot.txt showed169..178mV/CEB1/voltage refusal plus normal screenoff; it lacks final guard and is not final acceptance image",
+      "hardware_status":"artifacts/flash/product/20261017-203315-217/result.json write+verify all3 exit0. artifacts/usb-lcd-delivery-boot.txt opened20:36:23.631+08 explicitRTS150ms; VBAT~3980mV/REG01a4/REG0218 thenREG0852/fault0/~4036..4043mV. RTC1792240591 ACK/read12:36:32UTC;allow1. Capture failed20:36:39 GetOverlappedResult PermissionError13/WinError5; finally closed. User confirmed battery reconnected/BAT+USB afterwards; exact reconnect time unknown, not all-USB-only evidence. Later real unplug/replug stopped/input reason, not passed"
+    }
+  },
+  "input_events_followup": {
+    "user_report":"On da6 firmware initially charging; unplug/replug USB displays stopped/input change. Current BAT+USB confirmed before preparing revision",
+    "source_cause":"Old service cancelled on every PA44 edge and stopped active session before PG read. PA44 carries AW32001 INT/status pulses, not a persistent independent VBUS level; actual waveform not measured",
+    "implementation":"First pending edge anchors150ms coalescing, additional edges do not extend it. Worker finite wait with immediate explicitstop; pending temporarily holdsIDLE. New edge during detection remains pending. PG1+active only polls existing session, no prepare/restart/deadline extension; PG0 stops and rearms only after confirmed inhibition. Readfailure stops/locks; UNCONFIRMED never rearmed. Inputepoch cancellation restricted to entire auto-begin preparation through finalreadback. Stale detection still polls active session so sustainedINT cannot starve fault/ADC/deadline",
+    "tests": {
+      "initial_full":"artifacts/usb-input-full-tests.log Debug43/43,11.31s,exit0 before final stale-active-poll strengthening",
+      "final_debug":"cmake --build artifacts/host --parallel 6 && ctest --test-dir artifacts/host -R 'aw32001_manual|product_charger' --output-on-failure;4/4,0.12s,exit0",
+      "final_release":"cmake --build artifacts/charge-release --parallel 6 && ctest --test-dir artifacts/charge-release -R 'aw32001_manual|product_charger' --output-on-failure;4/4,0.10s,exit0;assertions retained",
+      "coverage":"PG1 pulse bursts do not stop/restart/extend; PG0 stop then PG1 auto-start then extraPG1 pulse remainsactive; immediate stop during150ms; pending duringI/O; uint32tickwrap; active readfailure and UNCONFIRMED; actualactivefault remainslocked; repeated stale detections still sample and stop at originaldeadline"
+    },
+    "review":"Read-only Sol/medium identified stale-detection active-monitor starvation; primary added activepoll on stale and repeated-edge/deadline regression. Final focused review no remaining blocker. Child did no writes/build/device/Git",
+    "document_validation":"Primary:18 changed/new files strictUTF8 and JSON passed,18 added local links/anchors resolved,git diff --check passed. Read-only Luna/low reviewed version/evidence boundaries; primary updated STATUS sole next step after actual flash receipt. No physical current/temperature or runtime acceptance invented",
+    "build": {
+      "command":"pwsh -NoProfile -File artifacts/build-isolated.ps1 -Example product -Jobs 6",
+      "result":"artifacts/product/20261017-204653-924/result.json",
+      "result_sha256":"070dd2bd9e8b5494e99755611cf582a831175b87b90a0cb0d6cda99a7872f11a",
+      "firmware_sha256":"8a9f7bb62088a803a2d05764de1bdbe662e9756b13cebab31ff9b6bf37dd33b5",
+      "bytes":7734872,"sources_rehashed":408,"artifacts_rehashed":29,"exit_code":0,"sdk_changes":[],
+      "verification":"artifacts/verify-usb-input.py -> artifacts/usb-input-verification.json; unchangedUIDemo372sources22artifacts consistent; actualoptimizedLCDcallers targetbothwrappers, strongBSP_PowerUpCustom retained0x200033bc .retm_data in artifacts/usb-input-wrapper-layout.txt",
+      "dryrun":"artifacts/usb-input-flash-dryrun.log exit0",
+      "intermediate":"20261017-204557-937 Product build completed before final stale-poll strengthening; superseded, not flashed"
+    },
+    "hardware": {
+      "user_confirmed":"Battery disconnected/computerUSB-only; explicitly authorized revised flash",
+      "status":"All3 image write+verify completed exit0; no subsequent serial open/extraRTS. User screen unplug/replug and LCDoff regression pending, not yet hardware accepted",
+      "flash_result":"artifacts/flash/product/20261017-205021-141/result.json",
+      "flash_log":"artifacts/usb-input-flash.log",
+      "flash_exit_code":0,
+      "images":[
+        {"name":"bootloader.bin","sha256":"e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"},
+        {"name":"main.bin","sha256":"8a9f7bb62088a803a2d05764de1bdbe662e9756b13cebab31ff9b6bf37dd33b5"},
+        {"name":"ftab.bin","sha256":"7e81624aa35914adb8976da34e576e59f506fb1daa8c37bcc5170f88e7c22793"}
+      ],
+      "physical_current_verified":false,
+      "next":"Without opening serial: reconnectBAT then insertUSB, verify charging; unplugUSB >=1s and reinsert, verify automaticcharging; repeat then naturalLCDoff~30s/KEY1wake and confirm no communicationfault"
+    },
+    "limitations":"150ms policy plus existingI2C transfer waits is not a physical cutoff. A complete unplug/replug shorter than150ms that never yieldsPG0 cannot reliably rearm a fault/full/manualstop cycle. PhysicalINT/deepwake, actual200mA/voltage/temp/taper/done and longterm stability remain unverified"
+  },
   "hardware": {
+    "stage": "Originald74 download/USB-only stage; latest candidate state is input_events_followup.hardware",
     "performed": true,
     "flashed": true,
     "charge_started": false,

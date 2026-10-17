@@ -1,0 +1,13 @@
+#ifndef TEST_CHARGER_BUS_BOARD_H
+#define TEST_CHARGER_BUS_BOARD_H
+#include <stdint.h>
+#define LCD_USING_CO5300 1
+enum { PAD_PA00, PAD_PA01, PAD_PA02, PAD_PA03, PAD_PA04, PAD_PA05,
+       PAD_PA06, PAD_PA07, PAD_PA08, PAD_PA10 = 10, PAD_PA11, PAD_PA42 = 42 };
+enum { GPIO_A0, GPIO_A1, GPIO_A2, GPIO_A3, GPIO_A4, GPIO_A5, GPIO_A6,
+       GPIO_A7, GPIO_A8, GPIO_A10 = 10, GPIO_A11, GPIO_A42 = 42,
+       I2C2_SCL = 110, I2C2_SDA };
+enum { PIN_PULLDOWN, PIN_PULLUP };
+int HAL_PIN_Set(int, int, int, int);
+void BSP_GPIO_Set(uint16_t, uint8_t, int);
+#endif
