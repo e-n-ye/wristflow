@@ -81,8 +81,8 @@ static bool sample(transaction_t *t, bool entry)
                          &s->voltage, &s->individual, &s->status, &s->fault };
     for (unsigned i = 0; i < sizeof regs; ++i) {
         if (!guarded_read(t, regs[i], values[i])) return false;
-        /* REG09 fault bits can clear on read. Reject this first observed value;
-         * never read again in the same start attempt to turn it into a pass. */
+        /* REG09 may clear exited latches on read. Always expose the first fault;
+         * only begin_session may qualify a pure recovered VIN latch before enable. */
     }
     if (s->automatic && !guarded_read(t, 3, &s->termination)) return false;
     if (s->id != 0x49 || (s->power & 8) != (entry ? 8 : 0) ||
@@ -153,7 +153,22 @@ static bool begin_session(wristflow_charge_session_t *s, const wristflow_charge_
             !guarded_read(&t, 5, &timer) ||
             !guarded_write(&t, 5, (timer & 0x80) | 0x1c)) goto failed;
     }
-    if (!sample(&t, true)) goto failed;
+    if (!sample(&t, true)) {
+        /* V1.4 pp18,29: VIN_FAULT latches an earlier UVLO/OVP even after PG
+         * recovers. Preserve that first value; qualify only this entry case,
+         * while CEB stays1. Never recover an active-session or other fault. */
+        if (!automatic || s->reason != WF_CHARGE_FAULT ||
+            (s->fault & 0x3f) != 0x20 || (s->status & 0x87) != 2 || !p->wait_ms)
+            goto failed;
+        s->entry_fault = s->fault;
+        s->reason = WF_CHARGE_NONE;
+        for (unsigned i = 0; i < 2; ++i) {
+            if (!permitted(&t)) goto failed;
+            p->wait_ms(p->io.context, WF_CHARGE_INPUT_SETTLE_MS);
+            if (!permitted(&t) || !sample(&t, true)) goto failed;
+        }
+        s->input_qualified = true;
+    }
     if (((s->status >> 3) & 3) == 3) { s->reason = WF_CHARGE_COMPLETE; goto failed; }
     if (!guarded_write(&t, 1, s->power & (uint8_t)~8) ||
         !guarded_read(&t, 1, &s->power)) goto failed;

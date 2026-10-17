@@ -14,6 +14,31 @@ static bool stop_during_io, adc_fail;
 static bool fail_adc_init;
 static bool fail_detect;
 static unsigned detect_stops;
+static unsigned waits;
+static bool edge_during_wait;
+static bool rail_leased, fail_rail_prepare, fail_rail_release;
+static unsigned stop_prepare_at;
+bool wristflow_product_charger_bus_prepare_locked(void)
+{
+    assert(bus.lock.held && pm);
+    rail_leased = true;
+    if (stop_prepare_at && locks == stop_prepare_at) assert(request_stop());
+    return !fail_rail_prepare;
+}
+bool wristflow_product_charger_bus_release(void)
+{
+    assert(session.state != WF_CHARGE_ENABLED && session.state != WF_CHARGE_UNCONFIRMED);
+    if (fail_rail_release) return false;
+    rail_leased = false;
+    return true;
+}
+int rt_thread_mdelay(rt_int32_t ms)
+{
+    assert(ms == 150 && pm && !bus.lock.held && (regs[1] & 8));
+    ticks += ms; ++waits;
+    if (edge_during_wait) { edge_during_wait = false; input_changed(); }
+    return RT_EOK;
+}
 bool wristflow_product_charger_detect_start(void (*changed)(void))
 { assert(changed == input_changed); return !fail_detect; }
 void wristflow_product_charger_detect_stop(void) { ++detect_stops; }
@@ -53,7 +78,10 @@ static size_t mem(bool write, struct rt_i2c_bus_device *b, unsigned addr,
     if (write) {
         if (reg == 1 && !(*(uint8_t *)data & 8)) ++enables;
         regs[reg] = *(uint8_t *)data;
-    } else *(uint8_t *)data = regs[reg];
+    } else {
+        *(uint8_t *)data = regs[reg];
+        if (reg == 9) regs[9] &= 0xc0;
+    }
     if (stop_during_io) {
         stop_during_io = false;
         assert(request_stop()); /* Foreground command does not touch hardware. */
@@ -82,7 +110,11 @@ rt_thread_t rt_thread_create(const char *name, void (*entry)(void *), void *cont
 }
 int rt_thread_startup(rt_thread_t t) { assert(t==&thread); return fail_thread ? -1 : 0; }
 int rt_thread_delete(rt_thread_t t) { assert(t==&thread); ++deleted; return 0; }
-static void background(void) { commands.bits=0; step(); assert(!irq && !bus.lock.held); }
+static void background(void)
+{
+    if (detect_pending && (int32_t)(ticks - detect_after_ms) < 0) ticks = detect_after_ms;
+    commands.bits=0; step(); assert(!irq && !bus.lock.held);
+}
 static int command(const char *action, const char *duration)
 { char *args[]={"wf_charger",(char *)action,(char *)duration}; return wf_charger(duration ? 3 : 2,args); }
 int main(void)
@@ -95,6 +127,9 @@ int main(void)
     assert(detect_stops == 1);
     fail_detect=true; assert(!wristflow_product_charger_service_start()); fail_detect=false;
     assert(wristflow_product_charger_service_start() && !transfers && !pm);
+    assert(worker_wait()==150);
+    step(); assert(!transfers && pm && detect_pending && worker_wait()==150);
+    ticks+=50; input_changed(); assert(worker_wait()==100); /* No sliding window. */
     regs[1]=0xac; regs[2]=9; regs[4]=0x9b; regs[5]=0x1a; regs[8]=0x42; regs[10]=0x49; regs[11]=0x43;
     regs[8] = 0x40; background(); /* Initial USB-absent check, then no polling. */
     assert(input_known && !input_good && !pm && !auto_blocked);
@@ -149,6 +184,31 @@ int main(void)
     assert(display.charge==WF_POWER_CHARGE_UNKNOWN); /* enable readback alone is not charging */
     regs[8]=0x52; background(); wristflow_product_charger_display(&display);
     assert(display.charge==WF_POWER_CHARGE_ACTIVE);
+    /* Status INT pulses while PG stays high do not stop/restart or extend the
+     * session. This is the unplug/replug user's extra-edge regression. */
+    uint32_t deadline=cached.deadline_ms;
+    before=enables;
+    input_changed(); uint32_t first_due=detect_after_ms;
+    ticks+=40; input_changed(); ticks+=40; input_changed();
+    assert(detect_after_ms==first_due && worker_wait()==70);
+    unsigned reads_before=transfers;
+    step(); assert(transfers==reads_before && cached.state==WF_CHARGE_ENABLED && pm);
+    background(); assert(cached.state==WF_CHARGE_ENABLED && enables==before && cached.deadline_ms==deadline);
+    for (unsigned pulse=0; pulse<3; ++pulse) {
+        input_changed(); background();
+        assert(cached.state==WF_CHARGE_ENABLED && enables==before && cached.deadline_ms==deadline);
+    }
+    /* Repeated edges inside the PG reads leave new work pending, but cannot
+     * starve active samples or the original deadline. */
+    for (unsigned pulse=0; pulse<3; ++pulse) {
+        reads_before=transfers; input_changed(); edge_lock_at=locks+2; background();
+        assert(detect_pending && transfers>reads_before+2 && cached.state==WF_CHARGE_ENABLED);
+    }
+    ticks=deadline; edge_lock_at=locks+2; background(); edge_lock_at=0;
+    assert(cached.reason==WF_CHARGE_TIMEOUT && cached.state==WF_CHARGE_STOPPED && detect_pending && pm);
+    background(); assert(!pm && auto_blocked && enables==before);
+    regs[8]=0x40; input_changed(); background();
+    regs[8]=0x42; input_changed(); background(); regs[8]=0x52; background();
     before=enables; regs[8]=0x5a; background();
     assert(cached.reason==WF_CHARGE_COMPLETE && !pm && auto_blocked);
     wristflow_product_charger_display(&display); assert(display.charge==WF_POWER_CHARGE_FULL);
@@ -171,7 +231,7 @@ int main(void)
     /* Detach during automatic preparation cancels before enable and latches. */
     regs[8]=0x40; input_changed(); background();
     regs[8]=0x42; stop_during_io=true; before=enables; input_changed(); background();
-    assert(enables==before && auto_blocked); background(); assert(!pm);
+    assert(enables==before && stop_pending); background(); assert(!pm && auto_blocked);
     /* Stop wins, but a simultaneous confirmed unplug still rearms the next plug. */
     regs[8]=0x40; input_changed(); assert(command("stop",NULL)==RT_EOK); background();
     assert(!auto_blocked && !pm);
@@ -182,8 +242,73 @@ int main(void)
     regs[8]=0x40; input_changed(); background();
     regs[8]=0x42; before=enables; edge_lock_at=locks+39;
     input_changed(); background();
-    assert(enables==before && cached.state==WF_CHARGE_STOPPED && !pm);
+    assert(enables==before && cached.state==WF_CHARGE_STOPPED && pm && detect_pending);
     edge_lock_at=0; background(); assert(auto_blocked && enables==before && !pm);
+    /* Failed board preparation never enables; unconfirmed stop keeps both
+     * IDLE and rail responsibility, then explicit stop may finish cleanup. */
+    regs[8]=0x40; input_changed(); background();
+    regs[8]=0x42; regs[9]=0; fail_rail_prepare=true; before=enables;
+    assert(command("start","2")==RT_EOK); background();
+    assert(enables==before && cached.state==WF_CHARGE_UNCONFIRMED && pm && rail_leased);
+    fail_rail_prepare=false; assert(command("stop",NULL)==RT_EOK); background();
+    assert(!pm && !rail_leased);
+    fail_rail_release=true; assert(command("stop",NULL)==RT_EOK); background();
+    assert(pm && busy);
+    fail_rail_release=false; assert(command("stop",NULL)==RT_EOK); background();
+    assert(!pm && !busy && !rail_leased);
+    regs[8]=0x40; input_changed(); background();
+    regs[8]=0x42; regs[9]=0; before=enables; stop_prepare_at=locks+39;
+    input_changed(); background();
+    assert(enables==before && cached.state==WF_CHARGE_STOPPED && !pm);
+    stop_prepare_at=0;
+    /* Recovered entry VIN latch qualifies under inhibition, but an input edge
+     * during either wait still cancels without enabling or retrying. */
+    regs[8]=0x40; input_changed(); background();
+    regs[8]=0x42; regs[9]=0x20; before=enables; input_changed(); background();
+    assert(enables==before+1 && pm && cached.input_qualified && cached.entry_fault==0x20 && waits==2);
+    assert(command("stop",NULL)==RT_EOK); background();
+    regs[8]=0x40; input_changed(); background();
+    regs[8]=0x42; regs[9]=0x20; edge_during_wait=true; before=enables; input_changed(); background();
+    assert(enables==before && cached.state==WF_CHARGE_STOPPED && pm && detect_pending);
+    background(); assert(auto_blocked && enables==before && !pm);
+    regs[8]=0x40; input_changed(); background();
+    regs[8]=0x42; regs[9]=0x20; before=enables; edge_lock_at=locks+57;
+    input_changed(); background();
+    assert(enables==before && cached.state==WF_CHARGE_STOPPED && pm && detect_pending);
+    edge_lock_at=0; background(); assert(auto_blocked && enables==before && !pm);
+    /* A real PG0 stops and rearms; the subsequent plug starts exactly once,
+     * and its additional PG1 pulse leaves that new session running. */
+    regs[8]=0x40; input_changed(); background();
+    regs[8]=0x42; input_changed(); background(); assert(pm);
+    regs[8]=0x52; input_changed(); background(); before=enables;
+    regs[8]=0x40; input_changed(); background();
+    assert(cached.reason==WF_CHARGE_INPUT && cached.state==WF_CHARGE_STOPPED && !auto_blocked && !pm);
+    regs[8]=0x42; input_changed(); background();
+    assert(enables==before+1 && cached.state==WF_CHARGE_ENABLED);
+    regs[8]=0x52; input_changed(); background(); assert(enables==before+1 && cached.state==WF_CHARGE_ENABLED);
+    /* Explicit stop does not wait for the input settling window. */
+    input_changed(); assert(command("stop",NULL)==RT_EOK); step();
+    assert(cached.state==WF_CHARGE_STOPPED && cached.reason==WF_CHARGE_MANUAL && detect_pending && pm);
+    background(); assert(!pm && auto_blocked && enables==before+1);
+    /* An edge arriving during PG detection remains pending, then is handled. */
+    regs[8]=0x40; input_changed(); edge_lock_at=locks+2; background();
+    assert(detect_pending && pm); edge_lock_at=0; background(); assert(!auto_blocked && !pm);
+    /* Tick wrap still waits exactly 150ms; a failed active PG read cannot
+     * retain a normal charging indication or clear an unconfirmed stop. */
+    ticks=UINT32_MAX-70; regs[8]=0x42; before=enables; input_changed(); assert(worker_wait()==150);
+    ticks+=149; step(); assert(worker_wait()==1 && enables==before);
+    background(); assert(cached.state==WF_CHARGE_ENABLED);
+    fail_io=true; input_changed(); background();
+    assert(!input_known && auto_blocked && cached.state==WF_CHARGE_UNCONFIRMED && pm);
+    fail_io=false; regs[8]=0x40; input_changed(); background();
+    assert(cached.state==WF_CHARGE_UNCONFIRMED && auto_blocked && pm);
+    assert(command("stop",NULL)==RT_EOK); background(); assert(!pm);
+    /* A genuine active fault is still stopped and locked, never qualified
+     * again by a later PG1 status pulse. */
+    input_changed(); background(); regs[8]=0x42; input_changed(); background();
+    regs[8]=0x52; regs[9]=0x20; before=enables; input_changed(); background();
+    assert(cached.reason==WF_CHARGE_FAULT && cached.state==WF_CHARGE_STOPPED && auto_blocked && !pm);
+    input_changed(); background(); assert(enables==before && auto_blocked && !pm);
     puts("charger worker: asynchronous commands, stop precedence, initialization, PM, recursive lock and fault cleanup passed");
     return 0;
 }

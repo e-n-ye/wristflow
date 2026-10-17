@@ -10,6 +10,9 @@ typedef struct {
     bool cancel, bad_adc, ignore_ceb;
     uint16_t mv;
     uint8_t expected_current;
+    unsigned waits, fault_wait, cancel_wait, delay_wait;
+    uint8_t wait_fault;
+    bool ignore_fault_clear, lose_pg, drift_current;
 } fake_t;
 static bool advance(fake_t *f)
 {
@@ -23,7 +26,7 @@ static bool read_reg(void *context, uint8_t reg, uint8_t *value)
     fake_t *f = context;
     bool ok = advance(f);
     *value = f->regs[reg];
-    if (reg == 9) f->regs[9] &= 0xc0; /* exited faults latch-clear on read */
+    if (reg == 9 && !f->ignore_fault_clear) f->regs[9] &= 0xc0; /* exited faults latch-clear on read */
     return ok;
 }
 static bool write_reg(void *context, uint8_t reg, uint8_t value)
@@ -49,6 +52,17 @@ static uint32_t now(void *context) { return ((fake_t *)context)->now; }
 static bool cancel(void *context) { return ((fake_t *)context)->cancel; }
 static bool voltage(void *context, uint16_t *mv)
 { fake_t *f = context; *mv = f->mv; return !f->bad_adc; }
+static void wait_ms(void *context, unsigned milliseconds)
+{
+    fake_t *f = context;
+    assert(milliseconds == 150 && (f->regs[1] & 8) && !f->enables);
+    ++f->waits; f->now += milliseconds;
+    if (f->waits == f->fault_wait) f->regs[9] |= f->wait_fault;
+    if (f->waits == f->cancel_wait) f->cancel = true;
+    if (f->waits == f->delay_wait) f->now += WF_CHARGE_AUTO_SECONDS * 1000U;
+    if (f->lose_pg) f->regs[8] &= (uint8_t)~2;
+    if (f->drift_current) f->regs[2] = 9;
+}
 static fake_t fresh(void)
 {
     fake_t f = { .now = 100, .mv = 3960, .expected_current = 9 };
@@ -58,7 +72,7 @@ static fake_t fresh(void)
     return f;
 }
 static wristflow_charge_port_t port(fake_t *f)
-{ return (wristflow_charge_port_t){ {f, read_reg, write_reg}, now, cancel, voltage }; }
+{ return (wristflow_charge_port_t){ {f, read_reg, write_reg}, now, cancel, voltage, wait_ms }; }
 static bool begin(fake_t *f, wristflow_charge_session_t *s)
 { wristflow_charge_port_t p = port(f); return wristflow_charge_begin(s, &p, 10, f->now); }
 static bool begin_auto(fake_t *f, wristflow_charge_session_t *s)
@@ -207,6 +221,57 @@ int main(void)
     f.regs[5] ^= 2; poll(&f, &s); assert(s.reason == WF_CHARGE_PROFILE && (f.regs[1] & 8));
     f = fresh(); s = (wristflow_charge_session_t){0}; assert(begin_auto(&f, &s));
     f.regs[2] = 9; poll(&f, &s); assert(s.reason == WF_CHARGE_PROFILE && (f.regs[1] & 8));
+    /* A recovered VIN latch may qualify only before automatic enable, after
+     * two clean spaced samples; retain its evidence instead of hiding it. */
+    f = fresh(); s = (wristflow_charge_session_t){0}; f.regs[9] = 0xe0;
+    assert(begin_auto(&f, &s) && f.waits == 2 && f.enables == 1);
+    assert(f.calls == 56);
+    assert(s.entry_fault == 0xe0 && s.input_qualified && !s.reason && s.sample_valid);
+    assert(f.now >= 400 && s.fault == 0xc0 && !(s.power & 8));
+    f.regs[9] = 0xe0; poll(&f, &s);
+    assert(s.state == WF_CHARGE_STOPPED && s.reason == WF_CHARGE_FAULT && f.waits == 2);
+    for (unsigned fail = 37; fail <= 56; ++fail) {
+        f = fresh(); s = (wristflow_charge_session_t){0}; f.regs[9] = 0x20; f.fail_at = fail;
+        assert(!begin_auto(&f, &s) && s.state == WF_CHARGE_STOPPED && (f.regs[1] & 8));
+        if (fail < 55) assert(!f.enables);
+    }
+    for (unsigned at = 37; at <= 56; ++at) {
+        f = fresh(); s = (wristflow_charge_session_t){0}; f.regs[9] = 0x20; f.cancel_at = at;
+        assert(!begin_auto(&f, &s) && s.reason == WF_CHARGE_MANUAL && s.state == WF_CHARGE_STOPPED);
+        if (at < 55) assert(!f.enables);
+    }
+    const uint8_t no_recover[] = {0x10, 8, 4, 2, 1, 0x28, 0x30};
+    for (unsigned i = 0; i < sizeof no_recover; ++i) {
+        f = fresh(); s = (wristflow_charge_session_t){0}; f.regs[9] = no_recover[i];
+        assert(!begin_auto(&f, &s) && !f.waits && !f.enables);
+    }
+    for (unsigned at = 1; at <= 2; ++at) {
+        f = fresh(); s = (wristflow_charge_session_t){0}; f.regs[9] = 0x20;
+        f.cancel_wait = at; assert(!begin_auto(&f, &s) && s.reason == WF_CHARGE_MANUAL && !f.enables);
+        f = fresh(); s = (wristflow_charge_session_t){0}; f.regs[9] = 0x20;
+        f.delay_wait = at; assert(!begin_auto(&f, &s) && s.reason == WF_CHARGE_TIMEOUT && !f.enables);
+        for (unsigned i = 0; i < sizeof no_recover; ++i) {
+            f = fresh(); s = (wristflow_charge_session_t){0}; f.regs[9] = 0x20;
+            f.fault_wait = at; f.wait_fault = no_recover[i];
+            assert(!begin_auto(&f, &s) && s.reason == WF_CHARGE_FAULT && !f.enables);
+        }
+        f = fresh(); s = (wristflow_charge_session_t){0}; f.regs[9] = 0x20;
+        f.fault_wait = at; f.wait_fault = 0x20;
+        assert(!begin_auto(&f, &s) && s.reason == WF_CHARGE_FAULT && !f.enables);
+    }
+    f = fresh(); s = (wristflow_charge_session_t){0}; f.regs[9] = 0x20; f.ignore_fault_clear = true;
+    assert(!begin_auto(&f, &s) && f.waits == 1 && !f.enables && s.reason == WF_CHARGE_FAULT);
+    f = fresh(); s = (wristflow_charge_session_t){0}; f.regs[9] = 0x20; f.lose_pg = true;
+    assert(!begin_auto(&f, &s) && s.reason == WF_CHARGE_INPUT && !f.enables);
+    f = fresh(); s = (wristflow_charge_session_t){0}; f.regs[9] = 0x20; f.mv = 178;
+    assert(!begin_auto(&f, &s) && s.reason == WF_CHARGE_VOLTAGE && !f.enables);
+    f = fresh(); s = (wristflow_charge_session_t){0}; f.regs[9] = 0x20; f.drift_current = true;
+    assert(!begin_auto(&f, &s) && s.reason == WF_CHARGE_PROFILE && !f.enables);
+    f = fresh(); s = (wristflow_charge_session_t){0}; f.regs[9] = 0x20; f.expected_current = 0x18;
+    p = port(&f); p.wait_ms = NULL;
+    assert(!wristflow_charge_begin_auto(&s, &p, f.now) && s.reason == WF_CHARGE_FAULT && !f.enables);
+    f = fresh(); s = (wristflow_charge_session_t){0}; f.regs[9] = 0x20; f.regs[8] |= 0x80;
+    assert(!begin_auto(&f, &s) && s.reason == WF_CHARGE_FAULT && !f.waits && !f.enables);
     puts("manual charge: per-transfer faults/cancel, deadline/wrap, profile, current-enable and stop readback passed");
     return 0;
 }
