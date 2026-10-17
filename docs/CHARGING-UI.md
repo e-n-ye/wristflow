@@ -32,4 +32,4 @@ Product／UI Demo均编译退出0；分别413／377源码及29／22产物重哈�
 
 软件[PR #83](https://github.com/e-n-ye/wristflow/pull/83)已Rebase合入`24b7e7a`并fetch核对完整树与构建源码一致。用户再次确认断电池、仅电脑USB后，Product BIN`e9c07669…`的413源码／29产物、SDK锁及三镜像DryRun复核通过；COM5首次下载write+verify退出0。随后仍仅USB，单次150ms RTS采集取得Product、CO5300及FT6146初始化；无电池ADC约172–178mV时保持`reason=voltage`／CEB=1。RTC复位后按当前UTC校时并读回，`allow=1`后自然息屏，22:38:00正常关闭串口。没有发手动start／stop。
 
-烧录与启动回读已验，接回原BAT后的真实画面、插入唤屏、触摸／KEY1退出和同周期不重弹仍等待用户有界回报；不能以驱动初始化代替实体输入通过。[本次精简证据](evidence/2026-10-17/charging-ui-hardware.json)保存镜像、命令、原始日志哈希与边界；活动下一步仅见STATUS。
+串口关闭后，用户按拔USB→接回原BAT→记住普通页面→自然息屏→插USB→正常亮度轻触退出→保持USB约30秒的整组步骤回复“均正常”。据此记同版插入唤屏、暗色轮廓／闪电／当前时间与充电中、触摸返回原页及约30秒不重弹为有界通过，没有照片、独立计时或新电气数据。KEY1退出与充电画面自身的自然息屏／唤醒尚待第二组回报；期间不重开UART或复位。[本次精简证据](evidence/2026-10-17/charging-ui-hardware.json)保存镜像、命令、原始日志哈希与边界；活动下一步仅见STATUS。

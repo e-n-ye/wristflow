@@ -76,10 +76,25 @@
     ]
   },
   "device_interaction": {
-    "status": "Awaiting user feedback after instructed battery reconnect and new USB insertion",
+    "status": "First user-observed group passed; KEY1 and charging-screen sleep/wake group pending",
     "serial_closed_before_battery_reconnect": true,
+    "power": "Original battery reconnected after unplugging USB; then BAT + USB for presentation checks",
+    "user_observations": [
+      {
+        "group": 1,
+        "reply": "均正常",
+        "method": "User followed the bounded physical steps; no UART reopened or extra reset",
+        "covered": [
+          "After returning to a familiar ordinary page and natural sleep, USB insertion woke the charging presentation",
+          "Dark green outline, lightning, current time and charging status appeared normally",
+          "One new touch at normal brightness returned to the original page",
+          "No repeat presentation while USB remained connected for about 30 seconds"
+        ],
+        "limits": "Grouped user feedback without photos, independent timing or new electrical measurements"
+      }
+    ],
     "new_electrical_measurements": false,
-    "pending": ["USB insert wake and real charging presentation", "Touch exit and exact original page", "Same-cycle no replay", "KEY1 exit and dim/sleep behavior"]
+    "pending": ["KEY1 exit at normal brightness", "Charging-screen natural sleep and KEY1 wake then exit", "DIM first-input behavior if observed"]
   },
   "limits": [
     "USB-only boot does not verify actual touch, KEY1, battery charging or UI appearance",
