@@ -1,5 +1,9 @@
 # 黄山派选型复评
 
+## 2026-10-17 充电画面同版烧录与启动
+
+用户重新确认同一设备已断电池、仅电脑USB后，已合入PR #83的Product BIN`e9c07669…`在COM5／CH340首次三镜像write+verify退出0。仍仅USB的一次150ms RTS采集取得LCD／FT6146初始化、early禁充及参数回读；ADC约172–178mV，PG=1／CEB=1，自动会话因低电压拒绝启充。RTC重新校时读回后恢复`allow=1`，自然息屏；22:38:00正常关闭串口。尚未取得接回原BAT后的用户交互结果，不将初始化日志当真实触摸／KEY1通过；没有新电流、电压表、温度或终止实验。详情见[同版证据](evidence/2026-10-17/charging-ui-hardware.json)，活动项回[STATUS](STATUS.md#current)。
+
 <a id="battery-field-20261017"></a>
 ## 2026-10-17 用户现场电压与低压启动反馈
 
