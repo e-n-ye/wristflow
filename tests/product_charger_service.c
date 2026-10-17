@@ -8,10 +8,15 @@ static struct rt_i2c_bus_device bus;
 static uint8_t regs[13];
 static rt_tick_t ticks;
 static unsigned irq, pm, transfers, deleted, detached, enables;
-static unsigned locks, expire_lock_at, cancel_lock_at;
+static unsigned locks, expire_lock_at, cancel_lock_at, edge_lock_at;
 static bool fail_event, fail_create, fail_thread, fail_send, fail_lock, fail_io;
 static bool stop_during_io, adc_fail;
 static bool fail_adc_init;
+static bool fail_detect;
+static unsigned detect_stops;
+bool wristflow_product_charger_detect_start(void (*changed)(void))
+{ assert(changed == input_changed); return !fail_detect; }
+void wristflow_product_charger_detect_stop(void) { ++detect_stops; }
 bool wristflow_product_power_adc_init(void) { return !fail_adc_init; }
 rt_base_t rt_hw_interrupt_disable(void) { return irq++; }
 void rt_hw_interrupt_enable(rt_base_t previous) { assert(irq); irq = (unsigned)previous; }
@@ -30,6 +35,7 @@ int rt_mutex_take(struct rt_mutex *m, int wait)
         ++locks;
         if (locks == expire_lock_at) ticks = session.deadline_ms;
         if (locks == cancel_lock_at) assert(request_stop());
+        if (locks == edge_lock_at) input_changed();
     }
     else assert(wait == RT_WAITING_FOREVER);
     ++m->held; return 0;
@@ -86,13 +92,19 @@ int main(void)
     fail_event=true; assert(!wristflow_product_charger_service_start()); fail_event=false;
     fail_create=true; assert(!wristflow_product_charger_service_start() && detached==1); fail_create=false;
     fail_thread=true; assert(!wristflow_product_charger_service_start() && deleted==1 && detached==2); fail_thread=false;
+    assert(detect_stops == 1);
+    fail_detect=true; assert(!wristflow_product_charger_service_start()); fail_detect=false;
     assert(wristflow_product_charger_service_start() && !transfers && !pm);
     regs[1]=0xac; regs[2]=9; regs[4]=0x9b; regs[5]=0x1a; regs[8]=0x42; regs[10]=0x49; regs[11]=0x43;
+    regs[8] = 0x40; background(); /* Initial USB-absent check, then no polling. */
+    assert(input_known && !input_good && !pm && !auto_blocked);
+    regs[8] = 0x42;
     assert(command("start","0") != RT_EOK && command("start","61") != RT_EOK);
     assert(command("start","-1") != RT_EOK && command("start","1abc") != RT_EOK);
-    assert(command("start","99999999999999999999") != RT_EOK && !transfers);
+    unsigned initial_transfers = transfers;
+    assert(command("start","99999999999999999999") != RT_EOK && transfers == initial_transfers);
     fail_send=true; assert(command("start","1") != RT_EOK && !busy); fail_send=false;
-    assert(command("status",NULL)==RT_EOK && !transfers); background();
+    assert(command("status",NULL)==RT_EOK && transfers == initial_transfers); background();
     assert(!pm && !enables && cached.state==WF_CHARGE_IDLE);
     unsigned before=transfers;
     assert(command("start","1")==RT_EOK && command("start","1")!=RT_EOK && transfers==before);
@@ -126,6 +138,52 @@ int main(void)
     cancel_lock_at=0;
     adc_fail=true; assert(command("start","2")==RT_EOK); background();
     assert(cached.reason==WF_CHARGE_VOLTAGE && cached.state==WF_CHARGE_STOPPED && !pm);
+    adc_fail=false;
+    /* Complete confirmed unplug/replug arms exactly one automatic attempt. */
+    regs[8]=0x40; input_changed(); background(); assert(!auto_blocked && !pm);
+    regs[8]=0x42; input_changed(); background();
+    assert(cached.automatic && cached.state==WF_CHARGE_ENABLED && auto_blocked && pm);
+    assert(regs[2]==0x18 && cached.current==0x18); /*200mA, not startup/manual80mA*/
+    wristflow_power_snapshot_t display={0};
+    wristflow_product_charger_display(&display);
+    assert(display.charge==WF_POWER_CHARGE_UNKNOWN); /* enable readback alone is not charging */
+    regs[8]=0x52; background(); wristflow_product_charger_display(&display);
+    assert(display.charge==WF_POWER_CHARGE_ACTIVE);
+    before=enables; regs[8]=0x5a; background();
+    assert(cached.reason==WF_CHARGE_COMPLETE && !pm && auto_blocked);
+    wristflow_product_charger_display(&display); assert(display.charge==WF_POWER_CHARGE_FULL);
+    input_changed(); wristflow_product_charger_display(&display); assert(display.charge==WF_POWER_CHARGE_UNKNOWN);
+    background(); assert(enables==before && !pm); /* PG remains high */
+    wristflow_product_charger_display(&display); assert(display.charge==WF_POWER_CHARGE_FULL);
+    regs[8]=0x40; input_changed(); background();
+    regs[8]=0x42; input_changed(); background(); assert(pm && enables==before+1);
+    assert(command("stop",NULL)==RT_EOK); background();
+    before=enables; input_changed(); background(); assert(!pm && enables==before);
+    /* Unknown input is not unplug and cannot clear a lock. */
+    fail_io=true; input_changed(); background(); assert(!input_known && auto_blocked && !pm);
+    fail_io=false; input_changed(); background(); assert(enables==before && auto_blocked);
+    regs[8]=0x40; input_changed(); background();
+    regs[8]=0x42; input_changed(); background(); assert(pm);
+    fail_lock=true; assert(command("stop",NULL)==RT_EOK); background();
+    assert(cached.state==WF_CHARGE_UNCONFIRMED && pm);
+    regs[8]=0x40; input_changed(); background(); assert(auto_blocked && pm);
+    fail_lock=false; assert(command("stop",NULL)==RT_EOK); background(); assert(!pm);
+    /* Detach during automatic preparation cancels before enable and latches. */
+    regs[8]=0x40; input_changed(); background();
+    regs[8]=0x42; stop_during_io=true; before=enables; input_changed(); background();
+    assert(enables==before && auto_blocked); background(); assert(!pm);
+    /* Stop wins, but a simultaneous confirmed unplug still rearms the next plug. */
+    regs[8]=0x40; input_changed(); assert(command("stop",NULL)==RT_EOK); background();
+    assert(!auto_blocked && !pm);
+    regs[8]=0x42; before=enables; input_changed(); background();
+    assert(enables==before+1 && pm);
+    assert(command("stop",NULL)==RT_EOK); background();
+    /* Edge racing the final enable-lock acquisition prevents enable entirely. */
+    regs[8]=0x40; input_changed(); background();
+    regs[8]=0x42; before=enables; edge_lock_at=locks+39;
+    input_changed(); background();
+    assert(enables==before && cached.state==WF_CHARGE_STOPPED && !pm);
+    edge_lock_at=0; background(); assert(auto_blocked && enables==before && !pm);
     puts("charger worker: asynchronous commands, stop precedence, initialization, PM, recursive lock and fault cleanup passed");
     return 0;
 }

@@ -34,6 +34,7 @@ static wristflow_watch_snapshot_t read_snapshot(bool force_power)
         power_sampled = rt_tick_get();
     }
     wristflow_power_snapshot_t next = wristflow_product_power_snapshot();
+    wristflow_product_charger_display(&next);
     if (!wristflow_power_equal(&power, &next))
         rt_kprintf("[power] %s voltage_valid=%u VBAT=%umV; SOC unknown\n",
                    wristflow_power_input_text(&next), next.voltage_valid, next.millivolts);

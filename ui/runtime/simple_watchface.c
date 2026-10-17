@@ -2,6 +2,7 @@
 #include "mount_screen.h"
 #include "wristflow_ui.h"
 #include "product_state.h"
+#include <stdio.h>
 
 static lv_obj_t *create(lv_obj_t *parent)
 {
@@ -20,6 +21,11 @@ static void update(lv_obj_t *root, const wristflow_watch_snapshot_t *snapshot)
                          (unsigned)snapshot->hour_24, (unsigned)snapshot->minute);
     char text[16];
     wristflow_battery_text(snapshot, text, sizeof text);
+    if (snapshot->power.charge == WF_POWER_CHARGE_ACTIVE || snapshot->power.charge == WF_POWER_CHARGE_FULL ||
+        snapshot->power.charge == WF_POWER_CHARGE_FAULT) {
+        lv_obj_set_style_text_font(lv_obj_find_by_name(root, "simple_battery"), notification_22, 0);
+        snprintf(text, sizeof text, "%s", wristflow_power_charge_text(&snapshot->power));
+    }
     lv_label_set_text(lv_obj_find_by_name(root, "simple_battery"), text);
 }
 

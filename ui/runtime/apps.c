@@ -301,9 +301,13 @@ static void render_power(lv_obj_t *root, const wristflow_watch_snapshot_t *snaps
     if (heading) lv_label_set_text(heading, "电压");
     lv_obj_set_style_text_color(named(root, "placeholder_icon"), lv_color_hex(0x10b981), 0);
     lv_obj_t *status = named(root, "placeholder_label");
-    lv_obj_set_style_text_font(status, LV_FONT_DEFAULT, 0);
-    lv_label_set_text_fmt(status, "%s\n%s\n--%%", battery,
-                          wristflow_power_input_text(&snapshot->power));
+    lv_obj_set_style_text_font(status, notification_22, 0);
+    const char *reason = wristflow_power_charge_reason_text(&snapshot->power);
+    lv_label_set_text_fmt(status, "%s\n%s\n%s%s%s", battery,
+        wristflow_power_input_text(&snapshot->power), wristflow_power_charge_text(&snapshot->power),
+        reason[0] ? "\n" : "", reason);
+    lv_obj_set_style_text_color(status, lv_color_hex(snapshot->power.charge == WF_POWER_CHARGE_FAULT ?
+        0xf87171 : snapshot->power.charge == WF_POWER_CHARGE_ACTIVE ? 0x10b981 : 0xffffff), 0);
 }
 
 static void sync_brightness(wristflow_apps_t *apps)
