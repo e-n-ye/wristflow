@@ -1,0 +1,254 @@
+{
+  "date": "2026-10-17",
+  "worktree": "C:/Users/13984/.codex/worktrees/power-status/wristflow",
+  "branch": "codex/reminder-vibration",
+  "base": "ae68afdcbefadac08963c3e28aeb9929abaa1fcc",
+  "scope": "Alarm/countdown CURRENT displayed reminder only; no sound, notifications/breathing vibration, SDK/XML/generated changes or charging",
+  "user_decision": "Every second one group, STANDARD one100ms / ENHANCED two100ms with at least150ms OFF gap; max30seconds then stop vibration but retain reminder screen",
+  "ownership": "reminders coordinator starts only after present/replace accepts a new displayed occurrence. Shell owns returned requestID and cancels on close/replace/mode change/rebind/destroy. Reused countdown key/content gets fresh ID; queued/coalesced/wake/render/configure/bind never replay. OFF never calls backend; DND does not suppress alarms/countdown",
+  "backend": "Same motor worker owns GPIO/supply I/O. Absolute1s slots and30s deadline from acceptance, first100ms/group100or350ms windows; late work shortens/skips, no catch-up. One latest handoff intent after verified OFF; sticky yielded prevents old continuation even if newer pending is cancelled. CLI original<=250ms window may finish first, consuming reminder budget",
+  "pm_fault": "Bounded reminder session INCLUDING OFF gaps holds IDLE; successful end/cancel releases. Failed OFF atomically drops pending and publishesFAULT, retaining resource responsibility/IDLE. No automatic restart/retry; explicit scoped cancel or diagnostic stop may retry cleanup",
+  "tests": [
+    {
+      "command": "cmake --build artifacts/host --parallel 6; ctest --test-dir artifacts/host --output-on-failure",
+      "passed": 41,
+      "total": 41,
+      "seconds": 11.59,
+      "exit_code": 0
+    },
+    {
+      "command": "cmake --build artifacts/motor-power-release --target product_motor product_alarm_ui settings_ui --parallel 6; ctest --test-dir artifacts/motor-power-release -R '^(product_motor|product_alarm_ui|settings_ui)$' --output-on-failure",
+      "passed": 3,
+      "total": 3,
+      "seconds": 1.36,
+      "exit_code": 0,
+      "assertions": "Release keeps-UNDEBUG"
+    },
+    {
+      "command": "cmake --build artifacts/host --target product_motor --parallel 6; ctest --test-dir artifacts/host -R '^product_motor$' --output-on-failure",
+      "passed": 1,
+      "total": 1,
+      "seconds": 0.09,
+      "exit_code": 0,
+      "reason": "Final stop/expiry entry-window fix and deterministic injection"
+    },
+    {
+      "command": "cmake --build artifacts/motor-power-release --target product_motor --parallel 6; ctest --test-dir artifacts/motor-power-release -R '^product_motor$' --output-on-failure",
+      "passed": 1,
+      "total": 1,
+      "seconds": 0.09,
+      "exit_code": 0
+    }
+  ],
+  "ui": "Actual pinned LVGL9.4 pointer tests: six-source ordering/current-only start, coalescing/wake no replay, DND, OFF, fresh repeat occurrence, cancel/rebind/destroy and rejected backend no retry. Existing exported components and notification_22 only; primary viewed bound sound and vibration bottom-scroll PNGs. Sound note may need natural list scroll for final line; no new visual geometry/resources",
+  "reviews": "Read-only Sol/medium requested for reminder route and motor causality. UI binding review no blocker. Motor review found failed-OFF publication and STOPPING handoff continuation gaps; primary fixed with atomicFAULT and sticky yielded plus regressions, final targeted re-review no blocker. Primary full source review found stop-before-turn_off entry race, reproduced red, fixed and independently re-reviewed; no child writes/tests/device/Git Continuation: Sol/medium read-only source review found no new blocker and verified candidate/source hashes. Luna/low initially could not access worktree under sandbox; subsequently reviewed primary-provided final documentation diff from the accessible workspace. Found one stale parallel next-step sequence in PRODUCT-ACCEPTANCE; primary replaced it with remaining-evidence boundaries, preserving STATUS as sole active-next-step authority. Primary owns final consistency and PR review.",
+  "failures": [
+    "First full host39/41: new UI tests waited32ms for a1SECOND countdown and used settings_list instead of actual settings_scroll. Corrected test setup; related3/3 and full41/41 passed",
+    "Primary stop-window regression injected stop after step expiry decision but before turn_off capture: old code1/1 failed. Entry now converts unhandled EXPIRED stop toCANCELLED; Debug/Release1/1 passed",
+    "Initial Product build succeeded before final stop-entry guard; explicitly superseded, never eligible to flash. Original BIN retained in ignored artifacts; finalProduct rebuilt and rehashed",
+    "Two prior download processes were no longer running on continuation; logs stopped at96% and23%, neither has result.json or verify success. Termination cause is unknown; previous performed:false record corrected. User then reported black screen; no hardware damage conclusion."
+  ],
+  "superseded_product": {
+    "result": "artifacts/product/20261017-150307-886/result.json",
+    "result_sha256": "7ab64987ebdec27ab7de667210fa33c101c964002d093ee662b930e887c2747b",
+    "reported_exit_code": 0,
+    "firmware_sha256": "71b9b66a51668eff8a93a86c052781f106420af4d7d509f3acc008d9bbcd7bef",
+    "retained_copy": "artifacts/reminder-superseded-main.bin",
+    "retained_copy_sha256": "71b9b66a51668eff8a93a86c052781f106420af4d7d509f3acc008d9bbcd7bef",
+    "reason": "Missing final stop/expiry entry-window guard; source snapshot preserved in original result; not flashed"
+  },
+  "builds": [
+    {
+      "example": "product",
+      "result": "artifacts/product/20261017-150950-854/result.json",
+      "result_sha256": "77d8ecab803994e8b1f879ad43fd36e7403fe5d77afbe3dccbb4bb8359118c47",
+      "sources_rehashed": 404,
+      "artifacts_rehashed": 29,
+      "firmware_sha256": "dd2a9c73f730cefbdefbf01f61ff269a1b3a25d2294c7565e92283d2d482921c",
+      "bytes": 7731440,
+      "exit_code": 0,
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "sdk_changes": []
+    },
+    {
+      "example": "ui_demo",
+      "result": "artifacts/ui_demo/20261017-150605-884/result.json",
+      "result_sha256": "4b04338d4905b0199ac3690cab476cd94453b5c01b61040600919f8a02b1ad22",
+      "sources_rehashed": 372,
+      "artifacts_rehashed": 22,
+      "firmware_sha256": "db45179338d8e5a3025d85da05860d084e9dd4eb74be1374638d79dd13a65147",
+      "bytes": 7511904,
+      "exit_code": 0,
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "sdk_changes": []
+    }
+  ],
+  "build_commands": [
+    "pwsh -NoProfile -File artifacts/build-isolated.ps1 -Example product -Jobs 6",
+    "pwsh -NoProfile -File artifacts/build-isolated.ps1 -Example ui_demo -Jobs 6",
+    "python artifacts/verify-power.py",
+    "pwsh -NoProfile -File artifacts/flash-isolated.ps1 -DryRun -Port COM5"
+  ],
+  "tools": {
+    "host_gcc": "15.2.0",
+    "arm_gcc": "14.2.1",
+    "sdk_python": "3.13.15",
+    "scons": "4.10.1",
+    "sftool": "0.2.5"
+  },
+  "hardware": {
+    "performed": true,
+    "flash_verified": true,
+    "status": "Completed bounded functional observations and normal cleanup; recovery verify/startup/display, both short modes/cancel, ENHANCED30-group expiry/retained screen, standalone natural alarm and OFF-screen-only countdown passed within recorded supply boundaries. No mixed-queue hardware claim.",
+    "prior_attempts": [
+      {
+        "directory": "artifacts/flash/product/20261017-151451-205",
+        "last_logged_percent": 96,
+        "verify_complete": false,
+        "result_json_present": false,
+        "exit_code": null,
+        "sha256": {
+          "artifacts/flash/product/20261017-151451-205/sftool.log": "6293ef1d153eb01b0a98d9f05a93b1cc90a885101e1da93063fc16bad7b7b303",
+          "artifacts/reminder-flash.log": "15380164fb56d909fc3d20de75d80fb74b08107e6f920bcfa5d63c9ff5f8aca1"
+        }
+      },
+      {
+        "directory": "artifacts/flash/product/20261017-151850-970",
+        "last_logged_percent": 23,
+        "verify_complete": false,
+        "result_json_present": false,
+        "exit_code": null,
+        "sha256": {
+          "artifacts/flash/product/20261017-151850-970/sftool.log": "991bc9d5d8a13f0e8cbc81fae1feee41cf7961c234f496e4164ba611a1fa0231",
+          "artifacts/reminder-flash-retry.log": "ed28a83b1c34dbeb2f0009c39ead6d611d025ecf2f5cda8d58f9f93afaecba76"
+        }
+      }
+    ],
+    "user_report": "On continuation user reports screen cannot light with or without battery. Cause not established; interrupted firmware is a candidate, not proven hardware damage.",
+    "current_confirmation": "User reconfirmed battery disconnected, computer USB only, motor/wires fixed and user observing before recovery.",
+    "enumeration": "PnP reports USB-SERIAL CH340 (COM5) Status OK; Win32_SerialPort omitted COM5, so that query alone was insufficient.",
+    "recovery_log": "artifacts/reminder-flash-recovery.log",
+    "recovery_result": {
+      "path": "artifacts/flash/product/20261017-153023-876/result.json",
+      "sha256": "205ae7b216d867b7c541feeeade40cac29ffceb14b77528a9501b6c94ed8e946",
+      "exit_code": 0,
+      "images": [
+        {
+          "name": "bootloader.bin",
+          "address": "0x12010000",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "name": "main.bin",
+          "address": "0x12020000",
+          "bytes": 7731440,
+          "sha256": "dd2a9c73f730cefbdefbf01f61ff269a1b3a25d2294c7565e92283d2d482921c"
+        },
+        {
+          "name": "ftab.bin",
+          "address": "0x12000000",
+          "bytes": 11288,
+          "sha256": "6f6e1095eae71ebc9fd7acc7f9517c5f6f0acd083cc0d8360790a58c69a233c8"
+        }
+      ]
+    },
+    "runtime_log": "artifacts/reminder-vibration-01.txt",
+    "runtime": {
+      "opened": "2026-10-17T15:33:59.527+08:00",
+      "rts": "one150ms",
+      "startup": "early verified1/profile1 REG01ac REG051a; motorOFF/request0/off_latch1; LDO3EN0/PD0/code4; CO5300/FT6146 initialized",
+      "rtc": "RTS produced invalidRTC; currentUTC set1792222447 at15:34:07.587, show_date confirmed; not RTC retention acceptance",
+      "pm": "Diagnostic hold/auto software wake active; no physicalDEEP or KEY1 acceptance",
+      "user_observations": [
+        "Display/menu/swipe/back normal, no spontaneous vibration after recovery",
+        "STANDARD countdown reminder and close-stop normal; request2 slots1..5 then reason2/OFF at15:35:58.271",
+        "ENHANCED countdown reminder and close-stop normal; request4 gaps/slots1..6 then reason2/OFF at15:38:55.932"
+      ],
+      "supply": "Flash/startup USB-only confirmed. User later confirmed battery reconnected to use KEY1 during STANDARD. ENHANCED was requested USB-only but VBAT~3962mV during its window, so do not label that observation USB-only; exact reconnect timing not proven. User again confirmed battery disconnected before30s test; VBAT dropped~187/179mV at15:39:05/10. No enabled-charge command.",
+      "thirty_second": {
+        "request_id": 5,
+        "first_gap": "2026-10-17T15:39:55.297+08:00",
+        "final_off": "2026-10-17T15:40:24.555+08:00",
+        "gap_lines": 30,
+        "next_lines": 29,
+        "reason": 1,
+        "off_latch": 1,
+        "user": "Approximately30s self-stop, no restart, retained reminder and normal close all confirmed",
+        "supply": "User confirmed USB-only; surrounding VBAT~177/178mV",
+        "limit": "UART group timestamps and user perception; no measured physical pulse width, current or exact electrical cutoff"
+      },
+      "alarm": {
+        "time": "15:42",
+        "wake_event": "2026-10-17T15:42:00.687+08:00 reminder",
+        "request_id": 6,
+        "first_gap": "2026-10-17T15:42:00.804+08:00",
+        "cancel_off": "2026-10-17T15:42:23.016+08:00",
+        "user": "Alarm screen, enhanced rhythm and close-stop normal",
+        "storage": "request1/generation222 saved15:41:37.116; automatic generation223 saved15:42:00.806 after GC/retry warning",
+        "configuration_after": "User could not remember original setting and explicitly accepted leaving the changed15:42 test alarm; not restored, no claim original content preserved",
+        "queue_limit": "Alarm had already naturally fired by the time15:42 was reported; no simultaneous pending countdown existed. Planned mixed-queue test was not performed."
+      },
+      "global_off": {
+        "user": "Mode OFF saved;5second countdown displayed reminder without vibration, close normal; OFF retained",
+        "storage": "preferences request4 verified1 at15:43:34.326",
+        "backend": "Last reminder request remains6 in final status; no reminder request from the OFF countdown"
+      },
+      "cleanup": {
+        "motor_at": "2026-10-17T15:44:30.474+08:00",
+        "motor": "OFF/reason2/request6/busy0/stop_pending0/remaining0/off_latch1/pending0",
+        "power_at": "2026-10-17T15:44:31.469+08:00",
+        "power": "PERI_LDO00080719; LDO3EN0/PD0/code4",
+        "pm_at": "2026-10-17T15:44:50.034+08:00",
+        "pm": "allow1/off1/own_idle0/sdk_idle0 before close",
+        "closed": "2026-10-17T15:44:53.607+08:00",
+        "normal": true,
+        "helper_exit_code": 0,
+        "port_closed": true,
+        "final_mode": "OFF",
+        "last_user_supply": "Battery disconnected, USB only; surrounding VBAT~177mV",
+        "tail_limit": "Helper sent redundant stop/allow/status/status at close without new status readbacks after release; above acknowledged snapshots are the cleanup evidence."
+      }
+    }
+  },
+  "not_verified": [
+    "Mixed alarm/countdown queue handoff/coalescing, DND, mode-change/rebind/repeat fine boundaries remain host evidence in this loop",
+    "Physical pulse width/voltage/current/temperature/startup/R36/shared rail margin and independent cutoff",
+    "KEY1/physicalDEEP/full joint BLE/UI/current/battery-life acceptance; short battery-connected windows are not electrical qualification",
+    "Audio/music, notification/breathing automatic vibration"
+  ],
+  "local_artifacts_sha256": {
+    "artifacts/reminder-motor-build.log": "35fa4005f8a8b0d4e9a2e811049c4ddb39f458a7f1c26c292649d1f65074b5cb",
+    "artifacts/reminder-motor-tests.log": "c0b77eefb3500951491410cffacffbe34c69f56927a38b45251f8bd79a8ed419",
+    "artifacts/reminder-host-build.log": "90ad6002abb47f3fc6bf3fb43456c661652c8b2086645aa88d9a450b6d83d6a9",
+    "artifacts/reminder-host-tests.log": "b171f753e1b56736dbee96e47415eec2e4a67e275a5b0b58f5909d506c0e9675",
+    "artifacts/reminder-related-build.log": "31ddf18b89a6d0931fcc5cd33a8f706d6640c2a9a5c3049fab32a8811ee9f0f2",
+    "artifacts/reminder-related-tests.log": "1327fd72f94b709d769cb1edf1fcdce3dad9b660e7733a59606992fcfc601e9e",
+    "artifacts/reminder-host-final-build.log": "35fa4005f8a8b0d4e9a2e811049c4ddb39f458a7f1c26c292649d1f65074b5cb",
+    "artifacts/reminder-host-final-tests.log": "eace261524abded597ca5055eafdf6a231123423f83ff0e8c60a7aa85bd6c909",
+    "artifacts/reminder-release-build.log": "ac6110b09f45a15d9568bfb132c3d3f4d22023e6590992deec067d1ecfc68c6f",
+    "artifacts/reminder-release-tests.log": "c1b3a804d75b50e04c179a8efd9068d895b67c4922f3c4ae408e618fb23b7284",
+    "artifacts/reminder-stop-window-build.log": "35fa4005f8a8b0d4e9a2e811049c4ddb39f458a7f1c26c292649d1f65074b5cb",
+    "artifacts/reminder-stop-window-tests.log": "4daea7796c4ee405d46ee66dca7b0753154b0cfc8b0dfc922a3d4de244271ad1",
+    "artifacts/reminder-stop-window-final-build.log": "35fa4005f8a8b0d4e9a2e811049c4ddb39f458a7f1c26c292649d1f65074b5cb",
+    "artifacts/reminder-stop-window-final-tests.log": "7854f55d7ac0208af7fd5ae5733bde12c0af8c334b6177b5f6ce046ee8d2a37a",
+    "artifacts/reminder-stop-window-release-build.log": "35fa4005f8a8b0d4e9a2e811049c4ddb39f458a7f1c26c292649d1f65074b5cb",
+    "artifacts/reminder-stop-window-release-tests.log": "97ff9f913cd50db9ca7a119d591be8b037af92d66a2c952e1707f66e3b2b0738",
+    "artifacts/reminder-product-build.log": "2b1d8f1353381cb012b0de8f98b265abf70f1f55cdca52fed864cee8a722d4bc",
+    "artifacts/reminder-ui-demo-build.log": "954739d38da513b069f5dd6f136188cb5d5a89d6d02c5f87f0fd3126cb9c84c0",
+    "artifacts/reminder-product-final-build.log": "326319fd68125795d629d603f55ac74a564ec04324f2614957119c176e66520f",
+    "artifacts/reminder-build-verification.json": "38db5223ce521fce25826fcdfed9a23e894f00bb430dc740fd4dee0afb380816",
+    "artifacts/reminder-flash-dry-run.log": "bdab66681cd51df7eb60804a84ec3bf5a0db6fda9b34cca322326843f36616f1",
+    "artifacts/host/renders/settings_sound_reminder.ppm": "35d7050d9d3e81493937938810b0bf8c4f7484fbfa1390f59a8f8d02191b848f",
+    "artifacts/host/renders/settings_vibration_reminder.ppm": "95b449779aab4c6dfb32a187e581ad86c5d451cb75da6213af55f4e147f61043",
+    "artifacts/host/renders/settings_vibration_reminder_bottom.ppm": "834324a18f58176dc7074f2d391ea13a843ca7840038ccf150c165d45f72ed76",
+    "artifacts/host/renders/alarm_product_first.ppm": "c81f03aa3b5a35e5c2e69282e7d52a40ec8b84d96775ff433134fbe048da9ea6",
+    "artifacts/host/renders/alarm_product_countdown_last.ppm": "0a69a4e03aebf18fe8c2e26e97a2e1c0b2425546811797f0ee221bf8966bed11",
+    "artifacts/reminder-flash-recovery.log": "5893293ed495720697686f5caaf022d83bdfcd7297114378afe3512333284bb8",
+    "artifacts/flash/product/20261017-153023-876/result.json": "205ae7b216d867b7c541feeeade40cac29ffceb14b77528a9501b6c94ed8e946",
+    "artifacts/flash/product/20261017-153023-876/sftool.log": "f17732b1ad60a6e8d0221bc28ad7291539052d3542db3d9348b40816b7f6cd4e",
+    "artifacts/reminder-vibration-01.txt": "384af172448c6925e31a4b2e3798e700118c476fcc04892a86d858c4598ad59c",
+    "artifacts/reminder-vibration-01.bin": "b928f2b3fccfe9ad7f8420680bac25aa2362ef32655514e24df60a11d8740a94",
+    "artifacts/reminder-vibration-01-summary.json": "e68e999b0c3280cb62ef5eca00a05e77f5756af8c47dc54ef6b60d06cc40c5b2"
+  }
+}

@@ -13,10 +13,26 @@ static bool slow_enable, zero_ticks;
 static bool supply, fail_prepare, stop_on_prepare, expire_on_prepare, replace_on_prepare;
 static unsigned prepare_delay, off_delay;
 static bool cancel_preview_on_prepare;
+static bool cancel_reminder_on_prepare, handoff_on_prepare, handoff_on_disable;
+static bool inject_after_failed_off, inject_off_window;
+static bool cancel_handoff_on_disable;
+static bool stop_before_off_entry;
+static uint32_t handoff_id;
 static int32_t recorded_wait;
 static jmp_buf worker_exit;
 rt_base_t rt_hw_interrupt_disable(void) { return irq++; }
-void rt_hw_interrupt_enable(rt_base_t previous) { assert(irq); irq = (unsigned)previous; }
+void rt_hw_interrupt_enable(rt_base_t previous)
+{
+    assert(irq); irq = (unsigned)previous;
+    if (!irq && stop_before_off_entry && state.state == WRISTFLOW_MOTOR_ACTIVE && state.busy) {
+        stop_before_off_entry = false; assert(wristflow_product_motor_stop());
+    }
+    if (!irq && inject_off_window) {
+        inject_off_window = false;
+        handoff_id = wristflow_product_motor_reminder(true);
+        assert(handoff_id); /* Accept in STOPPING, then atomically discard at FAULT. */
+    }
+}
 rt_tick_t rt_tick_get(void) { return ticks; }
 rt_tick_t rt_tick_from_millisecond(unsigned ms) { return zero_ticks ? 0 : ms; }
 void rt_kprintf(const char *format, ...) { (void)format; }
@@ -52,7 +68,11 @@ static bool set_enabled(void *context, bool on)
     }
     ++offs;
     if (stop_on_disable) { stop_on_disable = false; assert(wristflow_product_motor_stop()); }
-    if (fail_off) return false;
+    if (handoff_on_disable) {
+        handoff_on_disable = false; handoff_id = wristflow_product_motor_reminder(true); assert(handoff_id);
+        if (cancel_handoff_on_disable) { cancel_handoff_on_disable = false; assert(wristflow_product_motor_cancel_reminder(handoff_id)); }
+    }
+    if (fail_off) { if (inject_after_failed_off) { inject_after_failed_off = false; inject_off_window = true; } return false; }
     ticks += off_delay; off_delay = 0;
     enabled = supply = false; return true;
 }
@@ -62,6 +82,8 @@ static bool prepare(void *context)
     ++prepares; supply = true; /* Include partial preparation on failure. */
     ticks += prepare_delay; prepare_delay = 0;
     if (cancel_preview_on_prepare) { cancel_preview_on_prepare = false; assert(wristflow_product_motor_cancel_preview(state.request_id)); }
+    if (cancel_reminder_on_prepare) { cancel_reminder_on_prepare = false; assert(wristflow_product_motor_cancel_reminder(state.request_id)); }
+    if (handoff_on_prepare) { handoff_on_prepare = false; handoff_id = wristflow_product_motor_reminder(false); assert(handoff_id); }
     if (stop_on_prepare) { stop_on_prepare = false; assert(wristflow_product_motor_stop()); }
     if (expire_on_prepare) { expire_on_prepare = false; ticks = deadline; }
     if (replace_on_prepare) { replace_on_prepare = false; assert(!wristflow_product_motor_pulse(250)); }
@@ -109,6 +131,11 @@ static void fresh(void)
     supply = fail_prepare = stop_on_prepare = expire_on_prepare = replace_on_prepare = false;
     prepare_delay = off_delay = 0;
     cancel_preview_on_prepare = false;
+    cancel_reminder_on_prepare = handoff_on_prepare = handoff_on_disable = false;
+    inject_after_failed_off = inject_off_window = false;
+    cancel_handoff_on_disable = false;
+    stop_before_off_entry = false;
+    handoff_id = 0;
     changed.bits = 0;
 }
 static const wristflow_motor_io_t backend = {&ticks, initialize_off, set_enabled, prepare};
@@ -166,6 +193,9 @@ static void preview_tests(void)
     id = wristflow_product_motor_pulse(100); background();
     assert(!wristflow_product_motor_cancel_preview(id) && !wristflow_product_motor_cancel_preview(old));
     assert(enabled && !state.stop_pending); ticks = deadline; background(); check_off();
+    id = wristflow_product_motor_preview(true); background();
+    ticks = deadline; stop_before_off_entry = true; background(); check_off();
+    assert(state.reason == WRISTFLOW_MOTOR_CANCELLED);
 
     /* Any failed segment cleanup discards the remaining sequence and retains IDLE. */
     for (unsigned segment = 1; segment <= 2; ++segment) {
@@ -194,11 +224,154 @@ static void preview_tests(void)
     rt_tick_t end = group_deadline; fail_send = true;
     assert(!wristflow_product_motor_cancel_preview(id) && group_deadline == end); fail_send = false;
     ticks = gap_until; background(); check_off();
-    state.request_id = UINT32_MAX; ticks = UINT32_MAX-50;
+    request_sequence = UINT32_MAX; ticks = UINT32_MAX-50;
     assert(wristflow_product_motor_preview(true) == 1); background();
     ticks = deadline; background(); ticks = gap_until; background();
     assert(enabled && state.segment == 2); ticks = deadline; background(); check_off();
     assert(command("pulse", "350") == -RT_EINVAL);
+}
+static void reminder_tests(void)
+{
+    /* Full budgets run independently of UI callbacks, at their original slots. */
+    for (unsigned enhanced = 0; enhanced < 2; ++enhanced) {
+        ticks += 50000;
+        rt_tick_t start = ticks;
+        unsigned before = ons;
+        uint32_t id = wristflow_product_motor_reminder(enhanced != 0);
+        assert(id && pending_reminder.id == id && !pm && wait_ticks() == 0);
+        background();
+        for (unsigned slot = 0; slot < 30; ++slot) {
+            assert(enabled && state.reminder && !state.preview && state.request_id == id);
+            assert(deadline == start + slot*1000 + 100 && reminder_deadline == start+30000);
+            assert(!wristflow_product_motor_cancel_preview(id));
+            ticks = deadline; background();
+            if (enhanced) {
+                assert(state.state == WRISTFLOW_MOTOR_GAP && !enabled && !supply && pm == 1);
+                ticks = gap_until; background();
+                assert(enabled && state.segment == 2 && deadline == start+slot*1000+350);
+                ticks = deadline; background();
+            }
+            if (slot != 29) {
+                assert(state.state == WRISTFLOW_MOTOR_REMINDER_WAIT && pm == 1 && !enabled && !supply);
+                assert(gap_until == start+(slot+1)*1000);
+                assert(!wristflow_product_motor_preview(true) && !wristflow_product_motor_pulse(10));
+                ticks = gap_until-1; background(); assert(!enabled);
+                ++ticks; background();
+            }
+        }
+        check_off(); assert(ons == before+30*(enhanced+1));
+        ticks = start+40000; background(); check_off();
+        assert(ons == before+30*(enhanced+1));
+    }
+    unsigned before = ons;
+    uint32_t cancelled = wristflow_product_motor_reminder(true); background();
+    ticks = deadline; stop_before_off_entry = true; background(); check_off();
+    assert(cancelled && state.reason == WRISTFLOW_MOTOR_CANCELLED);
+    before = ons;
+    rt_tick_t start = ticks;
+    uint32_t id = wristflow_product_motor_reminder(true);
+    ticks += 100; background();
+    assert(state.state == WRISTFLOW_MOTOR_REMINDER_WAIT && gap_until == start+1000 && ons == before);
+    ticks = start+20110; background();
+    assert(state.state == WRISTFLOW_MOTOR_REMINDER_WAIT && gap_until == start+21000 && ons == before);
+    ticks = gap_until+40; prepare_delay = 60; background();
+    assert(!enabled && ons == before && gap_until == start+22000 && reminder_deadline == start+30000);
+    ticks = start+30000; background(); check_off();
+    id = wristflow_product_motor_reminder(true); ticks += 30000; background(); check_off(); assert(ons == before);
+
+    /* Cancel pending, first ON, short GAP, inter-group wait and second prepare. */
+    for (unsigned phase = 0; phase < 5; ++phase) {
+        id = wristflow_product_motor_reminder(true);
+        if (phase) background();
+        if (phase >= 2) { ticks = deadline; background(); }
+        if (phase == 3) { ticks = gap_until; background(); ticks = deadline; background(); }
+        if (phase == 4) { ticks = gap_until; cancel_reminder_on_prepare = true; }
+        else assert(wristflow_product_motor_cancel_reminder(id));
+        background(); check_off(); before = ons;
+        ticks += 31000; background(); check_off(); assert(ons == before);
+    }
+    id = wristflow_product_motor_reminder(true); background(); ticks = deadline; off_delay = 260; background();
+    assert(state.state == WRISTFLOW_MOTOR_REMINDER_WAIT && gap_until > ticks && !enabled);
+    assert(wristflow_product_motor_cancel_reminder(id)); background(); check_off();
+
+    /* Latest display intent replaces only after OFF; stale tokens stay isolated. */
+    uint32_t preview = wristflow_product_motor_preview(true); background();
+    id = wristflow_product_motor_reminder(true);
+    assert(id != preview && pending_reminder.id == id && !wristflow_product_motor_preview(false));
+    assert(wristflow_product_motor_cancel_preview(preview));
+    background(); assert(!enabled && pending_reminder.id == id); background(); assert(enabled && state.request_id == id);
+    assert(!wristflow_product_motor_cancel_preview(preview));
+    uint32_t old = id;
+    assert(wristflow_product_motor_cancel_reminder(old));
+    id = wristflow_product_motor_reminder(false);
+    uint32_t superseded = id;
+    id = wristflow_product_motor_reminder(true);
+    assert(id != superseded && !wristflow_product_motor_cancel_reminder(superseded));
+    assert(wristflow_product_motor_cancel_reminder(old) && pending_reminder.id == id);
+    background(); background(); assert(enabled && state.request_id == id);
+    assert(!wristflow_product_motor_cancel_reminder(old));
+    assert(wristflow_product_motor_cancel_reminder(id)); background(); check_off();
+
+    /* A handoff during prepare aborts old ON, without resetting the new budget. */
+    id = wristflow_product_motor_reminder(true); handoff_on_prepare = true; before = ons;
+    background(); assert(!enabled && ons == before && pending_reminder.id == handoff_id);
+    background(); assert(enabled && state.request_id == handoff_id);
+    assert(wristflow_product_motor_stop()); background(); check_off();
+
+    /* OFF-in-progress handoff cannot continue an old second segment or next
+     * group, even when the newer display intent is itself cancelled in OFF. */
+    for (unsigned phase = 0; phase < 3; ++phase) {
+        id = wristflow_product_motor_reminder(true); background();
+        if (phase == 1) { ticks = deadline; background(); ticks = gap_until; background(); }
+        before = ons; handoff_on_disable = true; cancel_handoff_on_disable = phase == 2;
+        ticks = deadline; background();
+        assert(state.state == WRISTFLOW_MOTOR_OFF && state.reason == WRISTFLOW_MOTOR_CANCELLED && ons == before);
+        if (phase == 2) { check_off(); ticks += 30000; background(); check_off(); assert(ons == before); }
+        else {
+            assert(pending_reminder.id == handoff_id); background();
+            assert(enabled && state.request_id == handoff_id && ons == before+1);
+            assert(wristflow_product_motor_cancel_reminder(handoff_id)); background(); check_off();
+        }
+    }
+
+    /* CLI keeps its bounded window; late reminder first slots are not replayed. */
+    assert(wristflow_product_motor_pulse(250)); background(); start = ticks;
+    id = wristflow_product_motor_reminder(false); background(); assert(enabled && !state.reminder);
+    ticks = deadline; background(); background();
+    assert(state.state == WRISTFLOW_MOTOR_REMINDER_WAIT && gap_until == start+1000 && reminder_deadline == start+30000);
+    ticks = gap_until; background(); assert(enabled && state.request_id == id);
+    assert(wristflow_product_motor_cancel_reminder(id)); background(); check_off();
+
+    /* Failed OFF drops even a handoff arriving between I/O result and FAULT. */
+    for (unsigned window = 0; window < 2; ++window) {
+        id = wristflow_product_motor_reminder(true); background();
+        fail_off = true; handoff_on_disable = window == 0; inject_after_failed_off = window == 1;
+        ticks = deadline; background();
+        assert(state.state == WRISTFLOW_MOTOR_FAULT && pm == 1 && !pending_reminder.id);
+        assert(wait_ticks() == RT_WAITING_FOREVER && !wristflow_product_motor_snapshot().stop_pending);
+        assert(!wristflow_product_motor_reminder(true)); before = ons;
+        unsigned off_before = offs;
+        ticks += 40000; background(); assert(ons == before && offs == off_before && state.state == WRISTFLOW_MOTOR_FAULT);
+        fail_off = false; assert(wristflow_product_motor_cancel_reminder(id)); background(); check_off();
+        background(); check_off(); assert(ons == before);
+    }
+    for (unsigned failure = 0; failure < 2; ++failure) {
+        id = wristflow_product_motor_reminder(true); fail_prepare = failure == 0; fail_on = failure == 1;
+        background(); check_off(); before = ons; ticks += 40000; background(); assert(ons == before);
+        fail_prepare = fail_on = false;
+    }
+    fail_send = true; assert(!wristflow_product_motor_reminder(true) && !pending_reminder.id); fail_send = false;
+    id = wristflow_product_motor_reminder(true); background(); rt_tick_t end = reminder_deadline;
+    fail_send = true; assert(!wristflow_product_motor_cancel_reminder(id)); fail_send = false;
+    assert(reminder_deadline == end); ticks = deadline; background(); check_off();
+    id = wristflow_product_motor_reminder(true); assert(wristflow_product_motor_stop()); background(); check_off();
+
+    request_sequence = UINT32_MAX; ticks = UINT32_MAX-50;
+    assert(wristflow_product_motor_reminder(true) == 1); background();
+    assert(wristflow_product_motor_snapshot().reminder_remaining_ms == 30000);
+    ticks = deadline; background(); ticks = gap_until; background(); ticks = deadline; background();
+    assert(state.state == WRISTFLOW_MOTOR_REMINDER_WAIT && wait_ticks() == 650);
+    ticks = reminder_deadline; background(); check_off();
 }
 int main(void)
 {
@@ -298,7 +471,7 @@ int main(void)
     fail_send = true; assert(!wristflow_product_motor_stop()); fail_send = false;
     assert(!wristflow_product_motor_pulse(50)); assert(wristflow_product_motor_stop()); background(); check_off();
 
-    state.request_id = UINT32_MAX; stop_sequence = handled_stop = UINT32_MAX;
+    request_sequence = UINT32_MAX; stop_sequence = handled_stop = UINT32_MAX;
     ticks = UINT32_MAX - 10; assert(wristflow_product_motor_pulse(20) == 1);
     background(); assert(wait_ticks() == 20); ticks = deadline - 1;
     assert(wristflow_product_motor_snapshot().remaining_ms == 1);
@@ -309,6 +482,7 @@ int main(void)
     assert(command("pulse", "250") == RT_EOK); background();
     assert(command("stop", NULL) == RT_EOK); background(); check_off();
     preview_tests();
+    reminder_tests();
     puts("product motor preparation, deadlines, cancellation, failures, PM and idle wait passed");
     return 0;
 }

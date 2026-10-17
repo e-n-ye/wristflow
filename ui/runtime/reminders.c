@@ -16,7 +16,10 @@ static void present(wristflow_reminders_t *owner)
     if (content && (content != owner->current || !owner->queue.active)) {
         bool accepted = owner->current ? wristflow_ui_shell_replace_reminder(owner->shell, content) :
             wristflow_ui_shell_present_reminder(owner->shell, content);
-        if (accepted) { owner->current = content; owner->queue.active = true; }
+        if (accepted) {
+            owner->current = content; owner->queue.active = true;
+            wristflow_ui_shell_start_reminder_vibration(owner->shell);
+        }
     } else if (!content && owner->current) {
         wristflow_ui_shell_close_reminder(owner->shell); owner->current = NULL;
     }

@@ -301,6 +301,13 @@ int main(int argc,char **argv)
     assert(wristflow_ui_shell_present_reminder(shell,reminder));
     assert(cancellations==before_cancel+2 && !wristflow_ui_shell_set_vibration_mode(shell,WRISTFLOW_VIBRATION_ENHANCED));
     wristflow_ui_shell_close_reminder(shell); advance(240); assert(previews==7);
+    wristflow_ui_shell_bind_reminder_vibration(shell,preview,cancel_preview,&preview_id);
+    assert(previews==7); /* Binding adds capability text without starting an occurrence. */
+    home();key();open(WRISTFLOW_SURFACE_SETTINGS);press("settings_sound");snapshot("sound_reminder");
+    press("vibration_mode");snapshot("vibration_reminder");
+    lv_obj_t *mode_list=named(lv_screen_active(),"settings_scroll");
+    lv_obj_scroll_to_y(mode_list,LV_COORD_MAX,LV_ANIM_OFF);advance(32);snapshot("vibration_reminder_bottom");
+    lv_obj_scroll_to_y(mode_list,0,LV_ANIM_OFF);advance(32);
     press("vibration_2"); assert(previews==8);
     wristflow_ui_shell_destroy(shell); shell=NULL;
     assert(cancellations==before_cancel+3); lv_deinit(); return 0;

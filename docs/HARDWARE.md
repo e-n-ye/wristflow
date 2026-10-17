@@ -1,5 +1,10 @@
 # 黄山派选型复评
 
+<a id="reminder-recovery-20261017"></a>
+## 2026-10-17 提醒固件下载中断与恢复
+
+最终Product候选`dd2a9c73…`的两次下载日志分别止于96%与23%，没有verify完成或result.json，接续时下载进程均已退出。用户报告有／无电池均不能点亮屏幕；中断固件可能影响启动，尚未确定原因，不能据此宣称硬件损坏。用户再次确认电池断开、仅电脑USB、电机与线固定、人在旁；PnP识别CH340／COM5为OK，完整重写三镜像write／verify退出0；一次受控RTS后禁充verified1／profile1、默认OFF／request0和LDO3 EN0回读通过，用户确认显示／触摸恢复且无自振。标准／增强短提醒及关闭停止均获正常反馈；用户随后说明为使用仅USB禁充时无响应的KEY1接回过电池，标准段约3.96V，增强窗口也约3.96V，不能把两段记为仅USB。用户再次确认断电池后，VBAT回落约0.18V，软件按键辅助后续验收；增强request5随后记录30个GAP、29个next及到期reason1／OFF；用户确认约30秒自停、不重振、画面保留和关闭正常，周边VBAT约0.18V。15:42闹钟单独自然到期／增强／关闭正常，关闭档5秒倒计时仅屏幕且关闭正常；未形成混合队列，不记队列切换真机通过。临时闹钟原设置用户已记不清并接受保留改后记录。末次OFF／busy0／pending0／off_latch1，LDO3 EN0／PD0／code4，allow1／off1／own_idle0／sdk_idle0；15:44:53.607正常关闭、helper退出0、COM5释放，关闭档／仅USB。未发送启充或CLI pulse；电气、物理DEEP／KEY1和全量联合未验。详见[本轮证据](evidence/2026-10-17/reminder-vibration.json)，活动下一步只回[STATUS](STATUS.md#current)。
+
 <a id="vibration-settings-20261017"></a>
 ## 2026-10-17 振动设置有界验收
 

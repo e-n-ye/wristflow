@@ -16,6 +16,18 @@ static const char *directory;
 static unsigned brightness;
 static uint32_t held_alarm;
 static bool cross_sample, reveal_on_release, reveal_pressed;
+static unsigned vibration_starts, vibration_cancels;
+static uint32_t vibration_id;
+static wristflow_vibration_mode_t vibration_mode;
+static bool reject_vibration;
+static uint32_t vibrate(wristflow_vibration_mode_t mode,void*context) {
+    assert(context==&vibration_id&&mode!=WRISTFLOW_VIBRATION_OFF);
+    ++vibration_starts;vibration_mode=mode;
+    return reject_vibration?0:++vibration_id;
+}
+static void cancel_vibration(uint32_t id,void*context) {
+    assert(context==&vibration_id&&id==vibration_id);++vibration_cancels;
+}
 static uint32_t tick(void) { return ticks; }
 static void flush(lv_display_t *d,const lv_area_t*a,uint8_t*p) {
     unsigned w=a->x2-a->x1+1;
@@ -116,6 +128,8 @@ int main(int argc,char**argv) {
     clock_value=(wristflow_alarm_clock_t){.utc=1791673140,.valid=false};
     wristflow_settings_t settings=wristflow_settings_default();wristflow_watch_snapshot_t s={.time_unavailable=true,.battery_unavailable=true};
     unsigned initial=timers();shell=wristflow_product_ui_create_with_timers(&s,&settings,bright,NULL,NULL,NULL,NULL,NULL,&countdown_port,&alarm_port);assert(shell);
+    wristflow_ui_shell_bind_reminder_vibration(shell,vibrate,cancel_vibration,&vibration_id);
+    assert(wristflow_ui_shell_has_reminder_vibration(shell)&&!vibration_starts);
     lv_indev_t*input=lv_indev_create();lv_indev_set_type(input,LV_INDEV_TYPE_POINTER);lv_indev_set_read_cb(input,read_pointer);advance(400);
     wristflow_ui_shell_enable_display_policy(shell);assert(wristflow_ui_shell_key(shell));advance(240);
     assert(wristflow_ui_shell_open(shell,WRISTFLOW_SURFACE_ALARM));advance(240);
@@ -180,6 +194,7 @@ int main(int argc,char**argv) {
     /* An uncommitted editor survives the entire six-reminder sequence. */
     wristflow_ui_shell_reminder_event(shell);click(named(lv_screen_active(),"alarm_row_0"),"alarm_open");lv_obj_t*original=lv_screen_active();
     wristflow_ui_shell_set_dnd(shell,true);
+    assert(!vibration_starts); /* Saved config, editors and DND never start vibration. */
     uint32_t until=60000-(uint32_t)clock_value.monotonic_ms;
     assert(wristflow_countdown_start(&countdown,1,now(NULL)));countdown.remaining_ms=until;countdown.anchor_ms=now(NULL);
     /* The common deadline falls between producer samples. A frozen cutoff
@@ -189,24 +204,58 @@ int main(int argc,char**argv) {
     assert(!wristflow_ui_shell_reminder_event(shell));assert(!wristflow_ui_shell_reminder_active(shell));
     assert(wristflow_ui_shell_reminder_event(shell));assert(!wristflow_ui_shell_reminder_event(shell));lv_timer_enable(true);advance(32);
     assert(wristflow_ui_shell_reminder_active(shell));assert(current_alarm());text(current_alarm(),"alarm_reminder_time","07:00");capture("first");
+    assert(vibration_starts==1&&!vibration_cancels&&vibration_mode==WRISTFLOW_VIBRATION_STANDARD);
     /* B is pending only in the backend when A's release is dispatched. The
      * already-queued C must remain unseen until B has been collected/sorted. */
     lv_obj_t*c=first_hidden_alarm();reveal_on_release=true;click(current_alarm(),"alarm_reminder_close");
     assert(current_alarm()&&current_alarm()!=c);click(current_alarm(),"alarm_reminder_close");assert(current_alarm()==c);
+    assert(vibration_starts==3&&vibration_cancels==2); /* Queued entries start only when displayed. */
     wristflow_notifications_snapshot_t phone={.connected=true,.revision=1,.alert_sequence=1,.alert_id=42,.count=1};phone.messages[0].id=42;
     strcpy(phone.messages[0].source,"QQ");strcpy(phone.messages[0].title,"期间消息");assert(!wristflow_ui_shell_notifications(shell,&phone));
     advance(30100);assert(brightness==0&&wristflow_ui_shell_reminder_active(shell));
+    assert(vibration_starts==3&&vibration_cancels==2); /* No render/UI-timer budget renewal. */
     /* New same-record arrivals coalesce and renew light without preemption. */
     for(unsigned i=0;i<5;++i) { alarms.pending[i]=(wristflow_alarm_pending_t){.alarm=alarms.data.alarms.entries[i],.due_ms=clock_value.monotonic_ms,.sequence=100+i,.active=true}; }
     assert(wristflow_ui_shell_reminder_event(shell));assert(brightness>0);assert(current_alarm());
+    assert(vibration_starts==3&&vibration_cancels==2); /* Coalescing/light wake does not replay the front. */
     /* Old C/D/E precede countdown; newly repeated A/B have later deadlines. */
     for(unsigned i=0;i<3;++i) { lv_obj_t*alert=current_alarm();assert(alert);click(alert,"alarm_reminder_close");assert(lv_screen_active()==original); }
     assert(!current_alarm()&&wristflow_ui_shell_reminder_active(shell));capture("countdown_last");
+    assert(vibration_starts==6&&vibration_cancels==5);
     click(named(lv_layer_top(),"countdown_reminder"),"countdown_close");assert(wristflow_ui_shell_reminder_active(shell));
     for(unsigned i=0;i<2;++i) { assert(current_alarm());click(current_alarm(),"alarm_reminder_close"); }
     assert(!wristflow_ui_shell_reminder_active(shell));
+    assert(vibration_starts==8&&vibration_cancels==8);
     assert(lv_screen_active()==original);text(original,"alarm_title","设置");
     assert(lv_obj_has_flag(named(lv_layer_top(),"notification_banner"),LV_OBJ_FLAG_HIDDEN));
+    /* OFF permits the reminder screen but never requests the hardware. Changing
+     * mode/binding on an already displayed occurrence does not start it late. */
+    assert(wristflow_ui_shell_get_settings(shell,&settings));settings.vibration_mode=WRISTFLOW_VIBRATION_OFF;
+    assert(wristflow_ui_shell_configure(shell,&settings));
+    assert(wristflow_countdown_start(&countdown,1,now(NULL)));advance(1100);
+    assert(wristflow_ui_shell_reminder_active(shell)&&vibration_starts==8);
+    settings.vibration_mode=WRISTFLOW_VIBRATION_ENHANCED;assert(wristflow_ui_shell_configure(shell,&settings));
+    wristflow_ui_shell_wake_reminder(shell);advance(32);assert(vibration_starts==8);
+    click(named(lv_layer_top(),"countdown_reminder"),"countdown_close");assert(!wristflow_ui_shell_reminder_active(shell));
+    assert(wristflow_countdown_start(&countdown,1,now(NULL)));advance(1100);
+    assert(vibration_starts==9&&vibration_mode==WRISTFLOW_VIBRATION_ENHANCED);
+    click(named(lv_layer_top(),"countdown_reminder"),"countdown_repeat");
+    advance(1100);
+    assert(vibration_cancels==9&&vibration_starts==10); /* Fresh occurrence, reused key/content, fresh request. */
+    settings.vibration_mode=WRISTFLOW_VIBRATION_OFF;assert(wristflow_ui_shell_configure(shell,&settings));
+    assert(vibration_cancels==10);
+    settings.vibration_mode=WRISTFLOW_VIBRATION_STANDARD;assert(wristflow_ui_shell_configure(shell,&settings));
+    advance(32);assert(vibration_starts==10);
+    click(named(lv_layer_top(),"countdown_reminder"),"countdown_close");
+    reject_vibration=true;assert(wristflow_countdown_start(&countdown,1,now(NULL)));advance(1100);
+    assert(vibration_starts==11);wristflow_ui_shell_wake_reminder(shell);advance(32);assert(vibration_starts==11);
+    click(named(lv_layer_top(),"countdown_reminder"),"countdown_close");assert(vibration_cancels==10);
+    reject_vibration=false;assert(wristflow_countdown_start(&countdown,1,now(NULL)));advance(1100);
+    assert(vibration_starts==12);wristflow_ui_shell_bind_reminder_vibration(shell,vibrate,cancel_vibration,&vibration_id);
+    assert(vibration_cancels==11&&vibration_starts==12);advance(32);assert(vibration_starts==12);
+    click(named(lv_layer_top(),"countdown_reminder"),"countdown_close");
+    assert(wristflow_countdown_start(&countdown,1,now(NULL)));advance(1100);assert(vibration_starts==13);
     wristflow_ui_shell_destroy(shell);shell=NULL;lv_indev_delete(input);assert(timers()==initial);
+    assert(vibration_cancels==12); /* Destruction cancels the currently owned request once. */
     lv_display_delete(d);lv_deinit();puts("Product alarm UI: save/failure/delete/six-source queue/coalesce/context passed");return 0;
 }
