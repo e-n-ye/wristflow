@@ -62,6 +62,10 @@ struct wristflow_ui_shell {
     wristflow_vibration_cancel_cb_t vibration_cancel;
     void *vibration_context;
     uint32_t vibration_request;
+    wristflow_reminder_vibration_cb_t reminder_vibration;
+    wristflow_vibration_cancel_cb_t reminder_vibration_cancel;
+    void *reminder_vibration_context;
+    uint32_t reminder_vibration_request;
     wristflow_display_policy_t display;
     lv_timer_t *display_timer;
     void (*awake_expired)(void *);
@@ -92,6 +96,12 @@ static void cancel_vibration_preview(wristflow_ui_shell_t *shell)
     if (shell->vibration_request && shell->vibration_cancel)
         shell->vibration_cancel(shell->vibration_request, shell->vibration_context);
     shell->vibration_request = 0;
+}
+static void cancel_reminder_vibration(wristflow_ui_shell_t *shell)
+{
+    if (shell->reminder_vibration_request && shell->reminder_vibration_cancel)
+        shell->reminder_vibration_cancel(shell->reminder_vibration_request, shell->reminder_vibration_context);
+    shell->reminder_vibration_request = 0;
 }
 
 static void apply_brightness(wristflow_ui_shell_t *shell, uint8_t value)
@@ -777,6 +787,7 @@ void wristflow_ui_shell_destroy(wristflow_ui_shell_t *shell)
         return;
     cancel_vibration_preview(shell);
     shell->ready = false;
+    cancel_reminder_vibration(shell);
     sync_visibility(shell);
     lv_timer_delete(shell->cleanup_timer);
     lv_timer_delete(shell->card_hold);
@@ -872,7 +883,10 @@ const wristflow_watch_snapshot_t *wristflow_ui_shell_snapshot(const wristflow_ui
 bool wristflow_ui_shell_configure(wristflow_ui_shell_t *shell, const wristflow_settings_t *settings)
 {
     if (!shell || !wristflow_settings_valid(settings)) return false;
-    if (shell->preferences.vibration_mode != settings->vibration_mode) cancel_vibration_preview(shell);
+    if (shell->preferences.vibration_mode != settings->vibration_mode) {
+        cancel_vibration_preview(shell);
+        cancel_reminder_vibration(shell); /* A mode change never replays the same occurrence. */
+    }
     shell->preferences = *settings;
     if (settings->do_not_disturb && wristflow_notification_view_alert(shell->notifications) != WF_ALERT_NONE)
         wristflow_ui_shell_notification_dismiss(shell, true);
@@ -892,6 +906,26 @@ void wristflow_ui_shell_bind_vibration_preview(wristflow_ui_shell_t *shell,
 }
 bool wristflow_ui_shell_has_vibration_preview(const wristflow_ui_shell_t *shell)
 { return shell && shell->vibration_preview && shell->vibration_cancel; }
+
+void wristflow_ui_shell_bind_reminder_vibration(wristflow_ui_shell_t *shell,
+    wristflow_reminder_vibration_cb_t request, wristflow_vibration_cancel_cb_t cancel, void *context)
+{
+    if (!shell) return;
+    cancel_reminder_vibration(shell);
+    shell->reminder_vibration = request && cancel ? request : NULL;
+    shell->reminder_vibration_cancel = request && cancel ? cancel : NULL;
+    shell->reminder_vibration_context = context;
+}
+bool wristflow_ui_shell_has_reminder_vibration(const wristflow_ui_shell_t *shell)
+{ return shell && shell->reminder_vibration && shell->reminder_vibration_cancel; }
+void wristflow_ui_shell_start_reminder_vibration(wristflow_ui_shell_t *shell)
+{
+    if (!shell || !wristflow_ui_shell_reminder_active(shell)) return;
+    cancel_reminder_vibration(shell);
+    if (shell->preferences.vibration_mode != WRISTFLOW_VIBRATION_OFF && wristflow_ui_shell_has_reminder_vibration(shell))
+        shell->reminder_vibration_request = shell->reminder_vibration(shell->preferences.vibration_mode,
+            shell->reminder_vibration_context);
+}
 
 bool wristflow_ui_shell_set_vibration_mode(wristflow_ui_shell_t *shell, wristflow_vibration_mode_t mode)
 {
@@ -1179,6 +1213,7 @@ bool wristflow_ui_shell_present_reminder(wristflow_ui_shell_t *shell, lv_obj_t *
 void wristflow_ui_shell_close_reminder(wristflow_ui_shell_t *shell)
 {
     if (!wristflow_ui_shell_reminder_active(shell)) return;
+    cancel_reminder_vibration(shell);
     uint32_t now = lv_tick_get();
     /* Advance the covered page's ORIGINAL policy, with exact logical deadlines
      * rather than treating closing/waking a reminder as new page activity. */

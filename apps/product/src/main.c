@@ -151,6 +151,10 @@ static uint32_t vibration_preview(wristflow_vibration_mode_t mode, void *context
 }
 static void vibration_cancel(uint32_t request, void *context)
 { (void)context; (void)wristflow_product_motor_cancel_preview(request); }
+static uint32_t reminder_vibration(wristflow_vibration_mode_t mode, void *context)
+{ (void)context; return wristflow_product_motor_reminder(mode == WRISTFLOW_VIBRATION_ENHANCED); }
+static void reminder_vibration_cancel(uint32_t request, void *context)
+{ (void)context; (void)wristflow_product_motor_cancel_reminder(request); }
 
 int main(void)
 {
@@ -181,6 +185,7 @@ int main(void)
         wristflow_product_services_settings_status, NULL);
     wristflow_ui_shell_bind_notification_delete(shell, wristflow_product_ble_delete, NULL);
     if (motor_ready) wristflow_ui_shell_bind_vibration_preview(shell, vibration_preview, vibration_cancel, NULL);
+    if (motor_ready) wristflow_ui_shell_bind_reminder_vibration(shell, reminder_vibration, reminder_vibration_cancel, NULL);
     rt_device_t touch = rt_device_find("touch");
     RT_ASSERT(touch);
     lv_indev_t *pointer = lv_indev_get_next(NULL);

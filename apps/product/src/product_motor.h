@@ -17,7 +17,7 @@ typedef struct {
 typedef enum {
     WRISTFLOW_MOTOR_UNAVAILABLE, WRISTFLOW_MOTOR_OFF, WRISTFLOW_MOTOR_QUEUED,
     WRISTFLOW_MOTOR_ACTIVE, WRISTFLOW_MOTOR_STOPPING, WRISTFLOW_MOTOR_FAULT,
-    WRISTFLOW_MOTOR_GAP
+    WRISTFLOW_MOTOR_GAP, WRISTFLOW_MOTOR_REMINDER_WAIT
 } wristflow_motor_state_t;
 typedef enum {
     WRISTFLOW_MOTOR_NONE, WRISTFLOW_MOTOR_EXPIRED, WRISTFLOW_MOTOR_CANCELLED,
@@ -33,6 +33,8 @@ typedef struct {
     bool off_latched, busy, stop_pending;
     bool preview;
     uint8_t segment, segments;
+    bool reminder;
+    uint32_t reminder_remaining_ms, pending_reminder;
 } wristflow_motor_snapshot_t;
 
 /* Product main calls start before consumers; concurrent constructors are unsupported.
@@ -46,6 +48,13 @@ uint32_t wristflow_product_motor_pulse(uint32_t milliseconds);
 uint32_t wristflow_product_motor_preview(bool enhanced);
 /* Only cancels the matching preview; stale handles cannot stop CLI pulses. */
 bool wristflow_product_motor_cancel_preview(uint32_t request);
+/* Current displayed reminder only: one group/second, at most30s from acceptance.
+ * STANDARD100ms, ENHANCED100/at least150gap/100ms. The worker holds IDLE for
+ * this bounded session, including OFF gaps. No UI timer or deadline refresh.
+ * One latest handoff intent may replace a cancelled preview/reminder after
+ * verified OFF; a CLI pulse completes its original window first. FAULT rejects. */
+uint32_t wristflow_product_motor_reminder(bool enhanced);
+bool wristflow_product_motor_cancel_reminder(uint32_t request);
 bool wristflow_product_motor_stop(void);
 wristflow_motor_snapshot_t wristflow_product_motor_snapshot(void);
 const wristflow_motor_io_t *wristflow_product_motor_board_io(void);

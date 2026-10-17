@@ -221,7 +221,9 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
         title = "声音与振动";
         unavailable(list, "sound_disabled", "声音提醒", "暂未开放");
         route(row(list, "vibration_mode", "振动模式", "标准"), WRISTFLOW_SURFACE_VIBRATION_SETTINGS, shell);
-        obj = settings_note_create(list, "声音暂未接入。振动关闭后，仅通过屏幕提醒。");
+        obj = settings_note_create(list, wristflow_ui_shell_has_reminder_vibration(shell) ?
+            "声音暂未接入。闹钟与倒计时按振动模式提醒，关闭后仅屏幕提醒。" :
+            "声音暂未接入。提醒仅通过屏幕显示。");
         lv_obj_set_style_text_font(obj, notification_22, 0);
         break;
     case WRISTFLOW_SURFACE_VIBRATION_SETTINGS: {
@@ -235,7 +237,8 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
             lv_obj_add_event_cb(obj, choose, LV_EVENT_SHORT_CLICKED, shell);
         }
         obj = settings_note_create(list, wristflow_ui_shell_has_vibration_preview(shell) ?
-            "改选后体验振动；增强通过节奏更明显。应用提醒待接入。" :
+            (wristflow_ui_shell_has_reminder_vibration(shell) ? "改选后体验振动；闹钟与倒计时使用此模式。" :
+            "改选后体验振动；增强通过节奏更明显。应用提醒待接入。") :
             "当前仅保存设置，振动体验暂不可用。应用提醒待接入。");
         lv_obj_set_style_text_font(obj, notification_22, 0);
         break;

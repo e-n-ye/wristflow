@@ -22,6 +22,7 @@ typedef uint32_t (*wristflow_settings_request_cb_t)(const wristflow_settings_t *
 typedef wristflow_save_state_t (*wristflow_settings_status_cb_t)(uint32_t request, void *);
 typedef uint32_t (*wristflow_vibration_preview_cb_t)(wristflow_vibration_mode_t, void *);
 typedef void (*wristflow_vibration_cancel_cb_t)(uint32_t request, void *);
+typedef uint32_t (*wristflow_reminder_vibration_cb_t)(wristflow_vibration_mode_t, void *);
 
 typedef struct {
     const wristflow_watchface_t *watchface;
@@ -91,6 +92,12 @@ void wristflow_ui_shell_bind_vibration_preview(wristflow_ui_shell_t *,
     wristflow_vibration_preview_cb_t, wristflow_vibration_cancel_cb_t, void *);
 bool wristflow_ui_shell_has_vibration_preview(const wristflow_ui_shell_t *);
 bool wristflow_ui_shell_set_vibration_mode(wristflow_ui_shell_t *, wristflow_vibration_mode_t);
+/* Bind never starts/replays an existing reminder. The queue coordinator calls
+ * start only after a different displayed occurrence has been accepted. */
+void wristflow_ui_shell_bind_reminder_vibration(wristflow_ui_shell_t *,
+    wristflow_reminder_vibration_cb_t, wristflow_vibration_cancel_cb_t, void *);
+bool wristflow_ui_shell_has_reminder_vibration(const wristflow_ui_shell_t *);
+void wristflow_ui_shell_start_reminder_vibration(wristflow_ui_shell_t *);
 void wristflow_ui_shell_enable_display_policy(wristflow_ui_shell_t *shell);
 /* Called by the platform's raw pointer read wrapper, before LVGL dispatch. */
 bool wristflow_ui_shell_filter_touch(wristflow_ui_shell_t *shell, bool pressed);
