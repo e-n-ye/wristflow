@@ -273,7 +273,7 @@
     },
     "hardware": {
       "user_confirmed":"Battery disconnected/computerUSB-only; explicitly authorized revised flash",
-      "status":"All3 image write+verify completed exit0; no subsequent serial open/extraRTS. User screen unplug/replug and LCDoff regression pending, not yet hardware accepted",
+      "status":"All3 image write+verify completed exit0; no subsequent serial open/extraRTS. User replied phenomena normal to requested unplug>=1s/replug repeated and naturalLCDoff~30s/KEY1 regression; bounded UI observation accepted, no independentUART/waveform or per-cycle timing record",
       "flash_result":"artifacts/flash/product/20261017-205021-141/result.json",
       "flash_log":"artifacts/usb-input-flash.log",
       "flash_exit_code":0,
@@ -282,10 +282,19 @@
         {"name":"main.bin","sha256":"8a9f7bb62088a803a2d05764de1bdbe662e9756b13cebab31ff9b6bf37dd33b5"},
         {"name":"ftab.bin","sha256":"7e81624aa35914adb8976da34e576e59f506fb1daa8c37bcc5170f88e7c22793"}
       ],
-      "physical_current_verified":false,
-      "next":"Without opening serial: reconnectBAT then insertUSB, verify charging; unplugUSB >=1s and reinsert, verify automaticcharging; repeat then naturalLCDoff~30s/KEY1wake and confirm no communicationfault"
+      "physical_current_verified":true,
+      "physical_current_scope":"User-reported clamp reading at one field operating point, not precision calibration or full-condition current-limit acceptance",
+      "current_measurement":{
+        "source":"User: 使用电流钳表测试，确实是200mA，波动在+-3mA左右，可能是正常的测量误差",
+        "approximate_mA":200,
+        "reported_variation_mA":3,
+        "method":"Prior confirmation: zeroed DCclamp on one independent battery wire, realBAT+USB with adjustablesource disconnected. No new independent raw capture",
+        "interpretation":"Consistent with nominal200mA and evidence of actual field charge current; variation may include instrument uncertainty and real regulation, not established exclusively as measurement error",
+        "missing":"Synchronized batteryterminalvoltage, numerictemperature, duration, instrumentaccuracy and rawsample series"
+      },
+      "next":"Under agreed20..45C fieldconditions record voltage/current/surface temperature approaching4170mV, CVtaper then chipdone/UI-full and poststop baseline. Coarseclamp cannot precisely verify3mA termination"
     },
-    "limitations":"150ms policy plus existingI2C transfer waits is not a physical cutoff. A complete unplug/replug shorter than150ms that never yieldsPG0 cannot reliably rearm a fault/full/manualstop cycle. PhysicalINT/deepwake, actual200mA/voltage/temp/taper/done and longterm stability remain unverified"
+    "limitations":"150ms policy plus existingI2C transfer waits is not a physical cutoff. A complete unplug/replug shorter than150ms that never yieldsPG0 cannot reliably rearm a fault/full/manualstop cycle. PhysicalINT/deepwake, fullconditioncurrentaccuracy, voltage/temp/taper/done and longterm stability remain unverified; only the reported~200mA fieldpoint and boundedUI regression are newly accepted"
   },
   "hardware": {
     "stage": "Originald74 download/USB-only stage; latest candidate state is input_events_followup.hardware",
