@@ -55,6 +55,11 @@ wristflow_ui_shell_t *wristflow_ui_shell_create(const wristflow_ui_shell_config_
 void wristflow_ui_shell_destroy(wristflow_ui_shell_t *shell);
 bool wristflow_ui_shell_update(wristflow_ui_shell_t *shell,
                               const wristflow_watch_snapshot_t *snapshot);
+/* Reconcile the synchronized charging cycle on the UI thread, even with LVGL
+ * timers stopped. True only for a newly accepted presentation (may need wake).
+ * The caller then updates the ordinary snapshot; no I/O or charge control. */
+bool wristflow_ui_shell_charging_event(wristflow_ui_shell_t *, const wristflow_watch_snapshot_t *);
+bool wristflow_ui_shell_charging_active(const wristflow_ui_shell_t *);
 /* Replaces only face instances, preserving card objects and navigation state.
  * A failed create keeps all old instances and the selected face unchanged. */
 bool wristflow_ui_shell_set_watchface(wristflow_ui_shell_t *shell,

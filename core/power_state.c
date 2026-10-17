@@ -4,7 +4,8 @@ bool wristflow_power_equal(const wristflow_power_snapshot_t *a, const wristflow_
 {
     return a->input_valid == b->input_valid && a->input_good == b->input_good &&
         a->voltage_valid == b->voltage_valid && a->millivolts == b->millivolts &&
-        a->charge == b->charge && a->charge_reason == b->charge_reason;
+        a->charge == b->charge && a->charge_reason == b->charge_reason &&
+        a->charge_cycle == b->charge_cycle;
 }
 
 const char *wristflow_power_charge_text(const wristflow_power_snapshot_t *power)

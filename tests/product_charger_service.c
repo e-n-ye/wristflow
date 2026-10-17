@@ -18,6 +18,9 @@ static unsigned waits;
 static bool edge_during_wait;
 static bool rail_leased, fail_rail_prepare, fail_rail_release;
 static unsigned stop_prepare_at;
+static unsigned ui_events;
+void wristflow_product_event_send(rt_uint32_t bits)
+{ assert(!irq && bits == WF_EVENT_CHARGER); ++ui_events; }
 bool wristflow_product_charger_bus_prepare_locked(void)
 {
     assert(bus.lock.held && pm);
@@ -182,8 +185,11 @@ int main(void)
     wristflow_power_snapshot_t display={0};
     wristflow_product_charger_display(&display);
     assert(display.charge==WF_POWER_CHARGE_UNKNOWN); /* enable readback alone is not charging */
+    assert(!display.charge_cycle);
     regs[8]=0x52; background(); wristflow_product_charger_display(&display);
     assert(display.charge==WF_POWER_CHARGE_ACTIVE);
+    uint32_t first_cycle = display.charge_cycle;
+    assert(first_cycle && ui_events);
     /* Status INT pulses while PG stays high do not stop/restart or extend the
      * session. This is the unplug/replug user's extra-edge regression. */
     uint32_t deadline=cached.deadline_ms;
@@ -197,6 +203,7 @@ int main(void)
     for (unsigned pulse=0; pulse<3; ++pulse) {
         input_changed(); background();
         assert(cached.state==WF_CHARGE_ENABLED && enables==before && cached.deadline_ms==deadline);
+        wristflow_product_charger_display(&display); assert(display.charge_cycle == first_cycle);
     }
     /* Repeated edges inside the PG reads leave new work pending, but cannot
      * starve active samples or the original deadline. */
@@ -208,13 +215,18 @@ int main(void)
     assert(cached.reason==WF_CHARGE_TIMEOUT && cached.state==WF_CHARGE_STOPPED && detect_pending && pm);
     background(); assert(!pm && auto_blocked && enables==before);
     regs[8]=0x40; input_changed(); background();
+    wristflow_product_charger_display(&display); assert(!display.charge_cycle);
     regs[8]=0x42; input_changed(); background(); regs[8]=0x52; background();
+    wristflow_product_charger_display(&display); uint32_t full_cycle = display.charge_cycle;
+    assert(full_cycle && full_cycle != first_cycle);
     before=enables; regs[8]=0x5a; background();
     assert(cached.reason==WF_CHARGE_COMPLETE && !pm && auto_blocked);
     wristflow_product_charger_display(&display); assert(display.charge==WF_POWER_CHARGE_FULL);
+    assert(display.charge_cycle == full_cycle);
     input_changed(); wristflow_product_charger_display(&display); assert(display.charge==WF_POWER_CHARGE_UNKNOWN);
     background(); assert(enables==before && !pm); /* PG remains high */
     wristflow_product_charger_display(&display); assert(display.charge==WF_POWER_CHARGE_FULL);
+    assert(display.charge_cycle == full_cycle);
     regs[8]=0x40; input_changed(); background();
     regs[8]=0x42; input_changed(); background(); assert(pm && enables==before+1);
     assert(command("stop",NULL)==RT_EOK); background();
@@ -309,6 +321,14 @@ int main(void)
     regs[8]=0x52; regs[9]=0x20; before=enables; input_changed(); background();
     assert(cached.reason==WF_CHARGE_FAULT && cached.state==WF_CHARGE_STOPPED && auto_blocked && !pm);
     input_changed(); background(); assert(enables==before && auto_blocked && !pm);
+    /* Stop accepted after a first ACTIVE poll but before publication cannot
+     * create a new presentation, even though inhibition runs next turn. */
+    regs[8]=0x40; input_changed(); background();
+    regs[8]=0x42; input_changed(); background();
+    regs[8]=0x52; wristflow_charge_poll(&session,&port);
+    assert(command("stop",NULL)==RT_EOK); publish();
+    before=transfers; wristflow_product_charger_display(&display);
+    assert(!display.charge_cycle && transfers==before); background(); assert(!pm);
     puts("charger worker: asynchronous commands, stop precedence, initialization, PM, recursive lock and fault cleanup passed");
     return 0;
 }

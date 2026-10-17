@@ -1,0 +1,10 @@
+<component>
+    <view name="charging_panel" width="390" height="450" scrollable="false" clickable="true" style_bg_color="0x000000" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_color="0xffffff">
+        <lv_obj name="charging_ring" x="24" y="24" width="342" height="402" scrollable="false" clickable="false" style_bg_opa="0%" style_border_width="12" style_border_color="0x163b38" style_radius="70" style_pad_all="0" />
+        <lv_obj x="163" y="8" width="64" height="56" scrollable="false" clickable="false" style_bg_color="0x000000" style_bg_opa="100%" style_border_width="0" style_pad_all="0">
+            <lv_label name="charging_bolt" align="center" text="&#xf0e7;" style_text_font="icons_44" style_text_color="0x00dfc0" />
+        </lv_obj>
+        <lv_label name="charging_clock" x="40" y="172" width="310" height="100" text="21:10" style_text_font="clock_80" style_text_align="center" />
+        <lv_label name="charging_state" x="60" y="284" width="270" text="充电中" style_text_font="notification_22" style_text_align="center" />
+    </view>
+</component>

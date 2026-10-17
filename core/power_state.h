@@ -22,6 +22,9 @@ typedef struct {
     uint16_t millivolts;
     wristflow_charge_display_t charge;
     wristflow_charge_display_reason_t charge_reason;
+    /* First confirmed automatic ACTIVE in an input cycle; zero after confirmed
+     * unplug. Status IRQs never allocate a new identity. Not persistent. */
+    uint32_t charge_cycle;
 } wristflow_power_snapshot_t;
 
 bool wristflow_power_equal(const wristflow_power_snapshot_t *a, const wristflow_power_snapshot_t *b);

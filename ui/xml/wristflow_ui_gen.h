@@ -286,6 +286,7 @@ void wristflow_ui_init_gen(const char * asset_path);
 #include "components/breathing_ring_gen.h"
 #include "components/breathing_training_gen.h"
 #include "components/card_container_gen.h"
+#include "components/charging_panel_gen.h"
 #include "components/component_confirm_gen.h"
 #include "components/component_group_gen.h"
 #include "components/countdown_indicator_gen.h"

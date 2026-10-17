@@ -5,6 +5,7 @@
 #include "settings_view.h"
 #include "notification_view.h"
 #include "reminder_host.h"
+#include "charging_view.h"
 #include "weather_screen.h"
 #include "wristflow_ui.h"
 #include <string.h>
@@ -78,6 +79,8 @@ struct wristflow_ui_shell {
     wristflow_surface_t breathing_destination;
     wristflow_notification_view_t *notifications;
     wristflow_reminder_host_t *reminder;
+    wristflow_charging_view_t *charging;
+    bool charging_swallow;
     bool reminder_session_exempt;
     wristflow_notification_delete_cb_t delete_notification;
     void *notification_context;
@@ -90,6 +93,30 @@ struct wristflow_ui_shell {
 static void gesture(lv_event_t *event);
 static void face_long_press(lv_event_t *event);
 static void commit_notification(void *context);
+static void sync_visibility(wristflow_ui_shell_t *shell);
+
+bool wristflow_ui_shell_charging_active(const wristflow_ui_shell_t *shell)
+{ return shell && wristflow_charging_view_active(shell->charging); }
+
+static void cover_charging(wristflow_ui_shell_t *shell)
+{
+    wristflow_charging_view_cover(shell->charging, wristflow_ui_shell_reminder_active(shell) ||
+        wristflow_notification_view_alert(shell->notifications) != WF_ALERT_NONE);
+}
+
+static void charging_closed(wristflow_ui_shell_t *shell)
+{
+    bool covered = wristflow_ui_shell_reminder_active(shell);
+    wristflow_apps_breathing_cover(shell->apps, covered);
+    wristflow_components_suspend_confirm(shell->components, covered);
+    sync_visibility(shell);
+}
+
+static void dismiss_charging(wristflow_ui_shell_t *shell)
+{
+    wristflow_charging_view_dismiss(shell->charging);
+    charging_closed(shell);
+}
 
 static void cancel_vibration_preview(wristflow_ui_shell_t *shell)
 {
@@ -114,6 +141,7 @@ static void apply_brightness(wristflow_ui_shell_t *shell, uint8_t value)
 static void display_tick(lv_timer_t *timer)
 {
     wristflow_ui_shell_t *shell = lv_timer_get_user_data(timer);
+    cover_charging(shell);
     if (wristflow_display_expired(&shell->display, lv_tick_get())) {
         void *owner = shell->display.lease_owner;
         void (*expired)(void *) = shell->awake_expired;
@@ -131,7 +159,7 @@ static void display_tick(lv_timer_t *timer)
     }
     uint32_t keep_before = shell->display.keep_ms;
     wristflow_display_tick(&shell->display, lv_tick_get(), shell->preferences.screen_timeout,
-        shell->navigation.surface == WRISTFLOW_SURFACE_FLASHLIGHT);
+        shell->navigation.surface == WRISTFLOW_SURFACE_FLASHLIGHT && !wristflow_ui_shell_charging_active(shell));
     if (shell->display.phase == WRISTFLOW_DISPLAY_OFF) {
         cancel_vibration_preview(shell);
         wristflow_notification_view_hide(shell->notifications);
@@ -174,6 +202,7 @@ static void sync_visibility(wristflow_ui_shell_t *shell)
 {
     int32_t x = lv_obj_get_scroll_x(shell->carousel);
     bool home_visible = shell->ready && !shell->transitioning && !wristflow_ui_shell_reminder_active(shell) &&
+                        !wristflow_ui_shell_charging_active(shell) &&
                         shell->navigation.surface == WRISTFLOW_SURFACE_HOME;
     wristflow_apps_home_visible(shell->apps, home_visible && shell->navigation.page_index == 0 && x == PAGE_WIDTH);
     for (unsigned int i = 0; i < slot_count(shell); ++i) {
@@ -401,6 +430,7 @@ bool wristflow_ui_shell_home(wristflow_ui_shell_t *shell)
 
 static bool session_exempt(wristflow_ui_shell_t *shell)
 {
+    if (wristflow_ui_shell_charging_active(shell)) return true;
     wristflow_surface_t surface = shell->navigation.surface;
     return (surface >= WRISTFLOW_SURFACE_COMPONENT_EDITOR && surface <= WRISTFLOW_SURFACE_COMPONENT_TEMPLATES) ||
         (surface == WRISTFLOW_SURFACE_COUNTDOWN && wristflow_apps_countdown_active(shell->apps)) ||
@@ -433,6 +463,10 @@ bool wristflow_ui_shell_key(wristflow_ui_shell_t *shell)
         bool pass = wristflow_display_key(&shell->display, lv_tick_get());
         display_tick(shell->display_timer);
         if (!pass) return true;
+    }
+    if (wristflow_ui_shell_charging_active(shell)) {
+        dismiss_charging(shell);
+        return true;
     }
     if (!shell || !shell->apps || shell->transitioning || lv_obj_is_scrolling(shell->carousel)) return false;
     if (dismiss_stopwatch_exit()) return true;
@@ -593,6 +627,33 @@ bool wristflow_ui_shell_update(wristflow_ui_shell_t *shell,
         }
     }
     return true;
+}
+
+bool wristflow_ui_shell_charging_event(wristflow_ui_shell_t *shell,
+    const wristflow_watch_snapshot_t *snapshot)
+{
+    if (!shell || !wristflow_snapshot_valid(snapshot)) return false;
+    bool was_active = wristflow_ui_shell_charging_active(shell);
+    bool opened = wristflow_charging_view_update(shell->charging, snapshot,
+        !shell->transitioning && !wristflow_ui_shell_reminder_active(shell) &&
+        wristflow_notification_view_alert(shell->notifications) == WF_ALERT_NONE);
+    if (was_active && !wristflow_ui_shell_charging_active(shell)) charging_closed(shell);
+    if (opened) {
+        cancel_vibration_preview(shell);
+        shell->pressed_card = NULL; shell->edge_press = false;
+        lv_timer_pause(shell->card_hold);
+        wristflow_components_suspend_confirm(shell->components, true);
+        wristflow_apps_breathing_cover(shell->apps, true);
+        shell->charging_swallow = true;
+        for (lv_indev_t *input = lv_indev_get_next(NULL); input; input = lv_indev_get_next(input)) {
+            lv_indev_reset(input, NULL); lv_indev_wait_release(input);
+        }
+        wristflow_display_activity(&shell->display, lv_tick_get());
+        sync_visibility(shell);
+    }
+    cover_charging(shell);
+    if (shell->display_timer) display_tick(shell->display_timer);
+    return opened;
 }
 
 static void card_clicked(lv_event_t *event)
@@ -757,6 +818,7 @@ wristflow_ui_shell_t *wristflow_ui_shell_create(const wristflow_ui_shell_config_
     }
     shell->controls = config->controls();
     shell->reminder = wristflow_reminder_host_create();
+    shell->charging = wristflow_charging_view_create();
     if (config->product_apps) shell->notifications = wristflow_notification_view_create(shell);
     if (config->enable_apps) {
         shell->apps = wristflow_apps_create(shell, shell->controls, brightness_changed, shell,
@@ -796,6 +858,7 @@ void wristflow_ui_shell_destroy(wristflow_ui_shell_t *shell)
     /* Loading without animation completes/cancels any pending LVGL screen load. */
     lv_screen_load(lv_obj_create(NULL));
     wristflow_notification_view_destroy(shell->notifications);
+    wristflow_charging_view_destroy(shell->charging);
     wristflow_apps_destroy(shell->apps);
     wristflow_reminder_host_destroy(shell->reminder);
     wristflow_components_destroy(shell->components);
@@ -950,13 +1013,24 @@ void wristflow_ui_shell_enable_display_policy(wristflow_ui_shell_t *shell)
 
 bool wristflow_ui_shell_filter_touch(wristflow_ui_shell_t *shell, bool pressed)
 {
-    if (!shell || !shell->display_timer) return true;
+    if (!shell) return true;
+    if (shell->charging_swallow) {
+        if (!pressed) shell->charging_swallow = false;
+        return false;
+    }
+    if (!shell->display_timer) return true;
     if (wristflow_ui_shell_reminder_active(shell)) {
         bool pass = wristflow_reminder_host_touch(shell->reminder, lv_tick_get(), pressed);
         display_tick(shell->display_timer);
         return pass;
     }
     bool pass = wristflow_display_touch(&shell->display, lv_tick_get(), pressed);
+    if (pass && pressed && wristflow_ui_shell_charging_active(shell) &&
+        wristflow_notification_view_alert(shell->notifications) == WF_ALERT_NONE) {
+        shell->charging_swallow = true;
+        dismiss_charging(shell);
+        pass = false;
+    }
     if (pressed && pass) wristflow_notification_view_activity(shell->notifications);
     display_tick(shell->display_timer);
     return pass;
@@ -1150,6 +1224,7 @@ bool wristflow_ui_shell_open_notification(wristflow_ui_shell_t *shell, bool deta
 {
     if (!shell || !shell->notifications || shell->transitioning || wristflow_ui_shell_reminder_active(shell)) return false;
     if (detail && !wristflow_notification_view_contains(shell->notifications, id)) return false;
+    if (wristflow_ui_shell_charging_active(shell)) dismiss_charging(shell);
     if (lv_obj_find_by_name(lv_screen_active(), "stopwatch_exit_confirm") ||
         lv_obj_find_by_name(lv_screen_active(), "breathing_exit_confirm")) return false;
     /* An explicit tap ends the temporary presentation before showing the same
@@ -1230,8 +1305,8 @@ void wristflow_ui_shell_close_reminder(wristflow_ui_shell_t *shell)
     wristflow_reminder_host_close(shell->reminder);
     if (shell->display.phase == WRISTFLOW_DISPLAY_OFF && !shell->reminder_session_exempt)
         restore_after_long_sleep(shell, shell->display.off_at);
-    wristflow_components_suspend_confirm(shell->components, false);
-    wristflow_apps_breathing_cover(shell->apps, false);
+    wristflow_components_suspend_confirm(shell->components, wristflow_ui_shell_charging_active(shell));
+    wristflow_apps_breathing_cover(shell->apps, wristflow_ui_shell_charging_active(shell));
     wristflow_display_activity(&shell->display, now);
     sync_visibility(shell);
     wristflow_apps_update(shell->apps, &shell->snapshot);
