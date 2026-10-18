@@ -1,5 +1,11 @@
 # 黄山派选型复评
 
+## 2026-10-18 电压估算版下载与仅USB启动
+
+用户重新确认同一黄山派／屏幕、已断电池、仅电脑USB、接线固定且人在旁；已合入PR #86／`42a29f5`的Product BIN`fc4d6703…`在COM5／CH340首次三镜像write+verify退出0。415源码／29产物及SDK锁复核一致；retained SRAM强钩子与false返回路径检查通过，没有重新构建或改充电参数。
+
+仍仅USB的一次150ms RTS启动捕获确认Product、CO5300和FT6146初始化，early禁充verified1／profile1；无电池VBAT约172–178mV，自动逻辑因低电压禁充，电量估算有效性为0。一次status含顺序raw寄存器读取，REG09可能清已退出故障锁存，不将其与缓存或物理停流混同。RTC从2000重新校时至当前UTC并读回，allow恢复1后自然息屏；13:59:57正常关闭串口。没有手动start／stop，BAT显示与万用表对照反馈尚未收到；首次烧录／启动通过不能替代本版真实百分比、触摸、SOC精度或终止电流验收。详见[本版硬件证据](evidence/2026-10-18/battery-estimate-hardware.json)，活动项回STATUS。
+
 ## 2026-10-17 充电画面同版烧录与启动
 
 用户重新确认同一设备已断电池、仅电脑USB后，已合入PR #83的Product BIN`e9c07669…`在COM5／CH340首次三镜像write+verify退出0。仍仅USB的一次150ms RTS采集取得LCD／FT6146初始化、early禁充及参数回读；ADC约172–178mV，PG=1／CEB=1，自动会话因低电压拒绝启充。RTC重新校时读回后恢复`allow=1`，自然息屏；22:38:00正常关闭串口。
