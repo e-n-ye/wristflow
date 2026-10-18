@@ -1,0 +1,82 @@
+{
+  "date": "2026-10-18",
+  "software_pr": "https://github.com/e-n-ye/wristflow/pull/86",
+  "software_merge_commit": "42a29f50733c646dd7423cec2d161aad854f08fb",
+  "software_tree_matches_validated_head": "9f75bc8fa70a28d33ec77a9af75d671b422d0243",
+  "branch": "codex/battery-estimate-hardware",
+  "local_worktree": "D:/MY_Desk/project/wristflow-hardware-meter-plan",
+  "authorization": "User freshly confirmed same Huangshan board/screen, battery disconnected, PC USB only, wiring secured and person present: 已断电池，仅电脑 USB，可以烧录",
+  "preflight": {
+    "port": "COM5, USB-SERIAL CH340, USB VID:PID=1A86:7523, LOCATION=1-1.1",
+    "source_count_rehashed": 415,
+    "artifact_count_rehashed": 29,
+    "all_match": true,
+    "sdk_and_locked_submodules_clean_and_match": true,
+    "dry_run_command": "pwsh -NoProfile -File artifacts/flash-isolated.ps1 -Port COM5 -DryRun",
+    "dry_run_exit_code": 0
+  },
+  "linked_image_check_during_flash": "tests/check_charger_layout.py passed: strong BSP_PowerUpCustom at 0x200033BC .retm_data; objdump false path branches to SRAM add/pop return without calls",
+  "flash": {
+    "command": "pwsh -NoProfile -File artifacts/flash-isolated.ps1 -Port COM5",
+    "wrapper": "Existing local wrapper changes only root and sftool location in scripts/Flash.ps1",
+    "sftool": "0.2.5, SF32LB52 NOR, 500000 baud, --connect-attempts 3 --after soft_reset write_flash --verify",
+    "attempts": 1,
+    "exit_code": 0,
+    "completed": "2026-10-18T13:59:17.0889901+08:00",
+    "record": "artifacts/flash/product/20261018-135637-935/result.json",
+    "record_sha256": "946283fde2172a835cd6576c655a8edb0eca8f8fe37c9848dfc515ca6333c6f6",
+    "log": "artifacts/flash/product/20261018-135637-935/sftool.log",
+    "log_sha256": "46f616f19d3472316d54673e111cf3d916723d52c72909716c4ca791d65f2e90",
+    "images": [
+      {"name": "bootloader.bin", "address": "0x12010000", "bytes": 58496, "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"},
+      {"name": "main.bin", "address": "0x12020000", "bytes": 7740016, "sha256": "fc4d67037bb1d4b07cf2d38c6b5bd7298952e3b68b129e8bdc1c1377a92d1111"},
+      {"name": "ftab.bin", "address": "0x12000000", "bytes": 11288, "sha256": "5a050352a4500061e9f754bcfbc631c731f4a23c8ee3413d751eeb4e04b20391"}
+    ]
+  },
+  "boot_capture": {
+    "power": "Battery disconnected, PC USB only",
+    "command": "SDK Python artifacts/capture-usb-vin-boot.py battery-estimate-boot",
+    "script_sha256": "312fb490c7f5aa0509cdadcc907a4f979d49b0f8f8c34755c617a3b5cfa4500f",
+    "serial": "COM5, 1000000 8N1, no flow control, DTR/RTS false before open",
+    "explicit_reset": "One RTS pulse, 150ms",
+    "opened": "2026-10-18T13:59:33.199798+08:00",
+    "closed": "2026-10-18T13:59:57.359249+08:00",
+    "exit_code": 0,
+    "commands": [
+      {"at": "2026-10-18T13:59:37.354058+08:00", "command": "wf_pm hold"},
+      {"at": "2026-10-18T13:59:38.411842+08:00", "command": "wf_charger status"},
+      {"at": "2026-10-18T13:59:39.390843+08:00", "command": "show_date"},
+      {"at": "2026-10-18T13:59:41.451745+08:00", "command": "wf_time 1792303181"},
+      {"at": "2026-10-18T13:59:42.382993+08:00", "command": "show_date"},
+      {"at": "2026-10-18T13:59:45.404703+08:00", "command": "wf_pm allow"}
+    ],
+    "facts": [
+      "Product boot, CO5300 ID0x331100 and FT6146 initialization observed; driver initialization is not touch acceptance",
+      "Early inhibit verified=1/profile=1; no-battery automatic path state=inhibited reason=voltage, CEB=1, REG02=0x18",
+      "Power ADC177-178mV, estimate_valid=0; this is a battery-disconnected node sample, not a measured cell voltage or independent screen observation",
+      "RTC initially2000/not synchronized, set to current UTC and show_date returned2026-10-18 05:59:42UTC",
+      "allow=1 read back and natural screen-off before normal serial close",
+      "No assert or HardFault observed in this bounded capture"
+    ],
+    "status_read_boundary": "One wf_charger status printed sequential raw registers including REG09, which may clear exited fault latches; cached state and raw readback are distinct. No manual start/stop was sent and no battery was connected during capture.",
+    "local_logs": [
+      {"path": "artifacts/battery-estimate-boot.bin", "sha256": "330a009f48648bb2cce5d8d7bc1b42a6e0bb9ba008dfe689f5ee74b36daed80b"},
+      {"path": "artifacts/battery-estimate-boot.txt", "sha256": "037ce6cbb93c8584f10e8135b40898f94b7376d4cb7170d220e65a41a7b05531"},
+      {"path": "artifacts/battery-estimate-boot.json", "sha256": "4bbd151d419c9793c97320b4d96b1d0a96d32d0a1b007cbfbb9057589227890b"}
+    ]
+  },
+  "user_battery_ui_feedback": "Pending; two questions issued after serial close for BAT-only percent/UI voltage/meter reading and USB presentation/exit/sleep/wake recovery",
+  "verification": {
+    "flash_and_usb_only_boot": true,
+    "no_battery_estimate_rejection": true,
+    "battery_percentage_ui_hardware": false,
+    "meter_comparison": false,
+    "soc_accuracy_or_curve_calibration": false,
+    "physical_charge_termination": false
+  },
+  "failures": [],
+  "local_check_note": "First evidence-check script used the Windows GBK default to read UTF-8 JSON and failed decoding; explicit UTF-8 succeeded. Files were valid UTF-8 and unchanged; no device failure or retry.",
+  "serial_remains_closed": true,
+  "additional_reset_or_flash_after_capture": false,
+  "next_bounded_experiment": "Collect requested BAT/display/meter and insert/sleep/wake feedback without reopening serial or continuous monitoring; distinguish UI correctness, voltage agreement and SOC calibration."
+}
