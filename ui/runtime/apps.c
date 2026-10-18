@@ -455,6 +455,7 @@ static void create_product_menu(wristflow_apps_t *apps, lv_obj_t *root)
     for (size_t i = 0; i < wristflow_app_count(); ++i) {
         const wristflow_app_descriptor_t *entry = wristflow_app_at(i);
         if (entry->surface == WRISTFLOW_SURFACE_FACE_PICKER ||
+            entry->surface == WRISTFLOW_SURFACE_SYSTEM ||
             !wristflow_apps_allows(apps, entry->surface)) continue;
         unsigned index = apps->menu_count++;
         LV_ASSERT(index < WRISTFLOW_SURFACE_COUNT);

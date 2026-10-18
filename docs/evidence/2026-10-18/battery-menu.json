@@ -1,0 +1,117 @@
+{
+  "date": "2026-10-18",
+  "base_commit": "bbc346b9dac2dae6924f8fe6a3f6692287cc9f64",
+  "branch": "codex/battery-page-acceptance",
+  "scope": "Record prior BIN7b4c5768 photo and grouped normal UI feedback; remove battery only from Product list/grid menus, retain component and Settings entry.",
+  "decision": "用户明确应用菜单不需要电池app入口，仅保留组件和设置→电池；其他卡片返回、睡醒KEY1和USB状态刷新步骤均正常，原反馈只对应旧BIN。",
+  "implementation": "One Product menu filter excludes WRISTFLOW_SURFACE_SYSTEM alongside existing FACE_PICKER exclusion. Registry, READY/card capability, global allows, Settings route and page binding remain. Demo independent illustrative menu unchanged.",
+  "local_worktree": "D:/MY_Desk/project/wristflow-hardware-meter-plan",
+  "changed_sources": [
+    {
+      "path": "ui/runtime/apps.c",
+      "sha256": "c5829c02ca5b09da2f3a2b6ea11d026257effa77d2a81e9ce533ecb85c97778d"
+    },
+    {
+      "path": "tests/product_ui.c",
+      "sha256": "b2049fcc384f669fc7a5f0f3b7406392a885e8d12adf29d811726a9ced8ffee3"
+    }
+  ],
+  "host": {
+    "tools": "UCRT64 GCC15.2.0, CMake4.2.3, Ninja1.13.2; D:/msys64/ucrt64/bin prepended to PATH",
+    "debug": {
+      "command": "cmake --build artifacts/host --target product_ui component_editor ui_apps settings_ui ui_navigation ui_shell_lifecycle -j6 && ctest --test-dir artifacts/host -R '^(product_ui|component_editor|ui_apps|settings_ui|ui_navigation|ui_shell_lifecycle)$' --output-on-failure",
+      "passed": 6,
+      "total": 6,
+      "seconds": 7.5,
+      "log": {
+        "path": "artifacts/battery-page/menu-host-test.log",
+        "sha256": "4fe6b362bfe4b4b3c2cd826907df700936a8d3a63d634f063b9d01f5f3b8b861"
+      }
+    },
+    "release": {
+      "command": "cmake --build artifacts/charge-release --target product_ui -j6 && ctest --test-dir artifacts/charge-release -R '^product_ui$' --output-on-failure",
+      "passed": 1,
+      "total": 1,
+      "seconds": 0.8,
+      "log": {
+        "path": "artifacts/battery-page/menu-release-test.log",
+        "sha256": "d96e467e55d2c9ccf6e26c76dbcc6d8c530b581fa3749c1d848c3eba4dadb5aa"
+      }
+    },
+    "coverage": "Both Product list/grid omit launch_system; menu count and all remaining click/return paths; Settings battery entry uses actual pointer click. Existing component battery route, settings return/lifetime/KEY1 paths retained."
+  },
+  "xml_and_generation": "Unchanged from officially exported/validated page; no GUI export required for this runtime-only menu filter.",
+  "builds": [
+    {
+      "example": "product",
+      "run": "20261018-152731-871",
+      "result": {
+        "path": "artifacts/product/20261018-152731-871/result.json",
+        "sha256": "2a3a14757f148e14daf284a2373a415ecb471c4c28272c0b1319559e1b5750fb"
+      },
+      "command": "pwsh -NoProfile -File artifacts/build-isolated.ps1 -Example product -Jobs 6; calls current scripts/Build.ps1 and official scons --board=sf32lb52-lchspi-ulp -j6",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "source_count_rehashed": 419,
+      "artifact_count_rehashed": 29,
+      "firmware": {
+        "bytes": 7761984,
+        "sha256": "ce007a7eeca21b80b34ba8e3099230d2c5e85b1e5caa164561567e85fc9b3c59"
+      },
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": "4.10.1"
+    },
+    {
+      "example": "ui_demo",
+      "run": "20261018-152755-060",
+      "result": {
+        "path": "artifacts/ui_demo/20261018-152755-060/result.json",
+        "sha256": "06cf9b80a8de89e220362e1e2545edcf39b5268540584f33ca15cb8faeae0448"
+      },
+      "command": "pwsh -NoProfile -File artifacts/build-isolated.ps1 -Example ui_demo -Jobs 6; calls current scripts/Build.ps1 and official scons --board=sf32lb52-lchspi-ulp -j6",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "source_count_rehashed": 383,
+      "artifact_count_rehashed": 22,
+      "firmware": {
+        "bytes": 7535936,
+        "sha256": "8966481daab7bfc8081fb9c03a447247403e10e6ae81149c90afcd095da0e29b"
+      },
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": "4.10.1"
+    }
+  ],
+  "review": "Primary scoped diff/real-frame and source/artifact/SDK checks; independent read-only review found no blocker. No descriptor-wide refactor or global route exclusion.",
+  "hardware_verified": false,
+  "offline_flash_preflight": {
+    "command": "pwsh -NoProfile -File artifacts/flash-isolated.ps1 -Port COM5 -DryRun",
+    "exit_code": 0,
+    "log": {
+      "path": "artifacts/battery-page/menu-dryrun.log",
+      "sha256": "8206d23c928c94449f8b81e34c02219830a3bb235f806a96c0e39fc4c2fee629"
+    },
+    "device_opened": false,
+    "retained_hook_check": "tests/check_charger_layout.py passed: strong BSP_PowerUpCustom at0x200033BC .retm_data"
+  },
+  "device_operations": [],
+  "device_version": "Last downloaded BIN7b4c5768; prior photo/group acceptance remains in battery-page-hardware.json. New menu candidate not flashed.",
+  "next_bounded_experiment": "After confirming same device, battery disconnected and PC USB only, flash exact new Product candidate and check no battery in list/grid while Settings/component entry and return remain. No automatic device operation.",
+  "failures": [],
+  "sdk_locked_clean": true,
+  "actual_lvgl_frames": [
+    {
+      "path": "artifacts/battery-page/menu-product_list.png",
+      "sha256": "bd472bf11cc594f93e04d70a826419f43afbf8dc4914cc0a88114b0d8a6f0cc6"
+    },
+    {
+      "path": "artifacts/battery-page/menu-product_grid.png",
+      "sha256": "8c34b998dc1d55936607ebe85d1cad16f618097647d10736ef44a0b863fb4b5b"
+    },
+    {
+      "path": "artifacts/battery-page/menu-power_estimate.png",
+      "sha256": "602fe3255d94e20d22a5c5e6dd1eca31d245372648d3e102df87b64125cf9783"
+    }
+  ]
+}

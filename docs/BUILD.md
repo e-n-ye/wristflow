@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-10-18 电池入口修订
+
+按用户决定仅在Product菜单过滤SYSTEM，电池组件／设置路由和READY保持；XML／生成物／资源不变。真实指针设置入口、列表／三列无电池及已有组件／返回／生命周期相关Debug6/6（7.50秒）、Release Product UI1/1（0.80秒）通过；实际LVGL列表／三列画面检查和只读审查无阻断。
+
+既有隔离包装器调用当前`Build.ps1 -Example product/ui_demo -Jobs 6`和官方SCons，Product `20261018-152731-871`／7,761,984B／`ce007a7e…`，UI Demo `20261018-152755-060`／7,535,936B／`8966481d…`，均退出0、419／383源码及29／22产物重哈希一致，SDK／子模块锁固定干净。完整命令／哈希见[入口修订证据](evidence/2026-10-18/battery-menu.json)；没有新下载或硬件结论，先前BIN`7b4c5768…`的用户正常反馈单列在[硬件记录](evidence/2026-10-18/battery-page-hardware.json)。
+
 ## 2026-10-18 正式电池主页面
 
 `codex/battery-page`基于`46a2c23`新增独立官方XML及80px数字字体，复用电源快照，不改SDK／充电控制。Pro2.0.1／LVGL9.4.0重新GUI导出与100%预览、真实LVGL七态／字形／`~100%`边界通过；Debug完整CTest45/45、Release相关7/7。首轮旧PLACEHOLDER断言失败，更新正式页READY预期后通过。
