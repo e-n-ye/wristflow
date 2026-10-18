@@ -1,0 +1,135 @@
+{
+  "date": "2026-10-18",
+  "software_pr": "https://github.com/e-n-ye/wristflow/pull/89",
+  "software_merge_commit": "71fc7168da75e4760e7e483b8c88ddd3424cf3d5",
+  "software_tree_matches_validated_head": "23616c2fcd3fdf812848e6e25d6f07c70483af5b",
+  "branch": "codex/battery-page-hardware",
+  "local_worktree": "D:/MY_Desk/project/wristflow-hardware-meter-plan",
+  "authorization": "User continued hardware round and freshly confirmed same Huangshan board/screen, battery disconnected, PC USB only, wiring fixed and person present: 已断电池，仅电脑 USB，可以烧录. Scope included one boot check.",
+  "no_source_or_new_build": true,
+  "preflight": {
+    "port": "COM5, USB-SERIAL CH340, VID:PID=1A86:7523, LOCATION=1-1.1; enumeration only before approval",
+    "source_count_rehashed": 419,
+    "artifact_count_rehashed": 29,
+    "hashes_match": true,
+    "sdk_and_locked_submodules_clean_and_match": true,
+    "dry_run_command": "pwsh -NoProfile -File artifacts/flash-isolated.ps1 -Port COM5 -DryRun",
+    "dry_run_exit_code": 0,
+    "dry_run_log": {
+      "path": "artifacts/battery-page/flash-dryrun.log",
+      "sha256": "5b7a5d2ca47943b7a3ef6972a612261c552a9923845caafc52c19660a91de3f6"
+    },
+    "retained_hook": "tests/check_charger_layout.py passed: strong BSP_PowerUpCustom at 0x200033BC .retm_data; objdump false path beq to 0x2000345A add/pop return, without calls",
+    "retained_disassembly": {
+      "path": "artifacts/battery-page/retained-hook.asm",
+      "sha256": "6d4e786c72b67ff84fba9fd268fec08a41bf411176c29d2c31ad4b205dcee240"
+    }
+  },
+  "flash": {
+    "command": "pwsh -NoProfile -File artifacts/flash-isolated.ps1 -Port COM5",
+    "wrapper": "Existing ignored wrapper changes only project root and sftool path in current scripts/Flash.ps1",
+    "sftool": "0.2.5; SF32LB52 NOR; 500000 baud; --connect-attempts 3 --after soft_reset write_flash --verify",
+    "attempts": 1,
+    "exit_code": 0,
+    "completed": "2026-10-18T15:13:22.1905622+08:00",
+    "record": {
+      "path": "artifacts/flash/product/20261018-151042-498/result.json",
+      "sha256": "e087e090220667e4090f0c2a0222cdb2534d4be087561c4b41986a7a8ea483be"
+    },
+    "log": {
+      "path": "artifacts/flash/product/20261018-151042-498/sftool.log",
+      "sha256": "127f247a339360985a25e2854ff85230a6f7c792c929af4da7ec457d3704541a"
+    },
+    "images": [
+      {
+        "name": "bootloader.bin",
+        "address": "0x12010000",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "name": "main.bin",
+        "address": "0x12020000",
+        "bytes": 7761984,
+        "sha256": "7b4c57688543b3df0176cc46dad7884706297b3607fdf5a256b28e5ec9a06f61"
+      },
+      {
+        "name": "ftab.bin",
+        "address": "0x12000000",
+        "bytes": 11288,
+        "sha256": "4bb030e3e1b15b39e6027c283148f7555eaf75297880a74f974b7bbbfd301c6d"
+      }
+    ],
+    "scope": "Manifest's three images only; no whole-chip erase or explicit settings partition write. Firmware boot logged existing settings/layout/alarm restore and autonomous alarm saves."
+  },
+  "boot_capture": {
+    "power": "Battery disconnected, PC USB only throughout capture",
+    "command": "SDK Python artifacts/capture-usb-vin-boot.py battery-page-boot",
+    "script": {
+      "path": "artifacts/capture-usb-vin-boot.py",
+      "sha256": "312fb490c7f5aa0509cdadcc907a4f979d49b0f8f8c34755c617a3b5cfa4500f"
+    },
+    "serial": "COM5, 1000000 8N1, no flow control, DTR/RTS false before open",
+    "explicit_reset": "One 150ms RTS pulse",
+    "exit_code": 0,
+    "opened": "2026-10-18T15:13:44.110912+08:00",
+    "closed": "2026-10-18T15:14:08.359244+08:00",
+    "commands": [
+      {
+        "at": "2026-10-18T15:13:48.354211+08:00",
+        "command": "wf_pm hold"
+      },
+      {
+        "at": "2026-10-18T15:13:49.324879+08:00",
+        "command": "wf_charger status"
+      },
+      {
+        "at": "2026-10-18T15:13:50.330199+08:00",
+        "command": "show_date"
+      },
+      {
+        "at": "2026-10-18T15:13:52.299232+08:00",
+        "command": "wf_time 1792307632"
+      },
+      {
+        "at": "2026-10-18T15:13:53.268365+08:00",
+        "command": "show_date"
+      },
+      {
+        "at": "2026-10-18T15:13:56.311863+08:00",
+        "command": "wf_pm allow"
+      }
+    ],
+    "facts": [
+      "Product boot and CO5300 ID0x331100 / FT6146 initialization observed; no assertion or HardFault observed in this bounded capture.",
+      "Early inhibit verified=1/profile=1; no-battery automatic path state=inhibited reason=voltage; REG01=0xac (CEB=1), REG02=0x18, cycle_locked=1.",
+      "Battery-disconnected ADC node about172-178mV, estimate_valid=0; neither a measured cell voltage nor independent screen observation.",
+      "RTC initially2000/not synchronized, synchronized using current UTC1792307632 and show_date returned2026-10-18 07:13:53UTC.",
+      "wf_pm allow restored allow=1; natural display-off observed before normal serial close at15:14:08+08:00."
+    ],
+    "status_read_boundary": "One wf_charger status includes sequential raw REG09 read, which may clear exited fault latches. Cached state, raw values and physical current are distinct. No manual charger start/stop.",
+    "local_logs": [
+      {
+        "path": "artifacts/battery-page-boot.bin",
+        "sha256": "75fd5b916ac6e4f71dbcab3f8d56c4f5d55a520eb66eb05afba0f7ebc0c586dd"
+      },
+      {
+        "path": "artifacts/battery-page-boot.txt",
+        "sha256": "5c079422a75e055cda850d77dc369fc54e9aff9041245c1917a80dd61ca9e2ce"
+      },
+      {
+        "path": "artifacts/battery-page-boot.json",
+        "sha256": "ab0b210f6c4e05a9e12837b48d132168d80d6a09f21d49301332127561dd7ad7"
+      }
+    ]
+  },
+  "user_ui_feedback": {
+    "status": "pending",
+    "requested": "Unplug USB, reconnect original battery, KEY1 wake, Settings > battery: percentage/UI voltage, glyph/layout and touch return. Later check card/list routes, USB state refresh and ordinary sleep/wake."
+  },
+  "failures": [],
+  "local_check_note": "Bundled artifact Python lacks pyserial; port enumeration reused installed SDK Python, with no installation or port opening at that stage.",
+  "serial_remains_closed": true,
+  "limits": "Successful flash/verify and driver initialization do not prove actual new-page touch/display acceptance, calibrated SOC, cell-voltage accuracy, charge termination, physical sleep current or battery life. FULL/FAULT visuals retain host evidence only; no induced faults or charge experiment.",
+  "next_bounded_experiment": "Await requested on-screen feedback on this exact BIN; no extra reset/flash or continuous monitoring."
+}
