@@ -124,7 +124,7 @@
     ]
   },
   "user_ui_feedback": {
-    "status": "first display feedback received; final route/wake/USB group pending",
+    "status": "bounded display/card-return/wake/USB group reported normal on BIN7b4c5768; user requested separate Product menu removal",
     "version_basis": "Last verified Product BIN7b4c57688543b3df0176cc46dad7884706297b3607fdf5a256b28e5ec9a06f61; no subsequent firmware, UART, reset or flash changes.",
     "first_group": {
       "requested": "Unplug USB, reconnect original battery, KEY1 wake, Settings > battery: percentage/UI voltage, glyph/layout and touch return.",
@@ -148,11 +148,16 @@
       "limits": "User reports general normality after the requested battery-only steps; actual wiring is not independently inferred from the photo. Photo alone cannot prove touch return, screen refresh, wake, calibrated99% SOC or measured cell voltage."
     },
     "final_group_requested": "Open battery page from battery card and app menu and return; natural sleep on battery page then KEY1 wake and inspect restoration; keep original battery, insert USB, exit charging overlay and reopen battery page, check USB input valid and charging-state update.",
-    "final_group_result": "pending"
+    "final_group_result": {
+      "raw_answer": "应用菜单 不需要电池这个app入口，他只是可以作为一个组件，以及从设置页面的电池进入即可\n其他均正常",
+      "normal_reported": ["Battery card entry and return", "Natural sleep on battery page then KEY1 restores page and values", "Original battery retained, insert USB, exit charging overlay and reopen battery page: input valid and charging-state update"],
+      "menu_decision": "Remove battery from Product app menu; keep battery as a component and Settings > battery entry. The app-menu step is superseded, not recorded as passed.",
+      "limits": "User grouped normality, no independent timing or additional numeric/photo/electrical record. Applies only to the last downloaded BIN7b4c5768; later menu-removal candidate requires its own validation."
+    }
   },
   "failures": [],
   "local_check_note": "Bundled artifact Python lacks pyserial; port enumeration reused installed SDK Python, with no installation or port opening at that stage.",
   "serial_remains_closed": true,
-  "limits": "First photo proves a bounded visible new-page state; touch/route/refresh/wake group remains pending. No calibrated SOC, measured cell-voltage accuracy, charge termination, physical sleep current or battery-life conclusion. FULL/FAULT visuals retain host evidence only; no induced faults or charge experiment.",
-  "next_bounded_experiment": "Await final requested card/menu return, battery-page sleep/wake and USB update feedback on this exact BIN; serial remains closed, no extra reset/flash or continuous monitoring."
+  "limits": "Photo and grouped user report support bounded new-page display/card-return/wake/USB acceptance on BIN7b4c5768. Menu-entry step was superseded by the user's removal decision. No calibrated SOC, measured cell-voltage accuracy, charge termination, physical sleep current or battery-life conclusion. FULL/FAULT visuals retain host evidence only; no induced faults or charge experiment.",
+  "next_bounded_experiment": "Implement and validate the user's Product battery-menu removal in a separate software candidate; retain this device evidence only for BIN7b4c5768. Serial stays closed, no automatic reset/flash or continuous monitoring."
 }

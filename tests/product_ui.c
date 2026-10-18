@@ -255,11 +255,13 @@ int main(int argc, char **argv)
       unsigned available = 0;
       for (size_t i = 0; i < wristflow_app_count(); ++i) {
           const wristflow_app_descriptor_t *app = wristflow_app_at(i);
-          if (!app->demo_only && app->surface != WRISTFLOW_SURFACE_FACE_PICKER) ++available;
+          if (!app->demo_only && app->surface != WRISTFLOW_SURFACE_FACE_PICKER &&
+              app->surface != WRISTFLOW_SURFACE_SYSTEM) ++available;
       }
       assert(lv_obj_get_child_count(menu) == available);
       assert(!lv_obj_find_by_name(menu, "launch_countdown"));
       assert(!lv_obj_find_by_name(menu, "launch_alarm"));
+      assert(!lv_obj_find_by_name(menu, "launch_system"));
       assert(!lv_obj_find_by_name(menu, wristflow_app_for_surface(WRISTFLOW_SURFACE_FACE_PICKER)->launcher_name));
       snapshot(argv[1], layout ? "product_grid" : "product_list");
       swipe(90, 10, 300, 10);
@@ -273,7 +275,8 @@ int main(int argc, char **argv)
       assert(lv_screen_active() == launcher);
       for (size_t i = 0; i < wristflow_app_count(); ++i) {
         const wristflow_app_descriptor_t *app = wristflow_app_at(i);
-        if (app->surface == WRISTFLOW_SURFACE_FACE_PICKER || app->demo_only) continue;
+        if (app->surface == WRISTFLOW_SURFACE_FACE_PICKER ||
+            app->surface == WRISTFLOW_SURFACE_SYSTEM || app->demo_only) continue;
         lv_obj_t *icon = named(menu, app->launcher_name);
         int initial_width = lv_obj_get_width(icon);
         for (unsigned tries = 0; tries < 12; ++tries) {
@@ -320,7 +323,9 @@ int main(int argc, char **argv)
     assert(wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_SETTINGS));
     advance();
     assert(lv_obj_get_child_count(named(lv_screen_active(), "settings_scroll")) == 10);
-    assert(wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_SYSTEM));
+    lv_obj_scroll_to_view(named(lv_screen_active(), "settings_battery"), LV_ANIM_OFF); advance();
+    click(named(lv_screen_active(), "settings_battery"));
+    assert(wristflow_ui_shell_navigation(shell)->surface == WRISTFLOW_SURFACE_SYSTEM);
     advance();
     text(lv_screen_active(), "battery_percent", "--%");
     text(lv_screen_active(), "battery_voltage", "--");
