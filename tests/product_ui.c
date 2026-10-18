@@ -137,7 +137,8 @@ int main(int argc, char **argv)
             assert(slot->size == (p && !s ? WRISTFLOW_CARD_HALF : WRISTFLOW_CARD_QUARTER));
             const wristflow_app_descriptor_t *app = wristflow_app_find(slot->app_id);
             assert(app);
-            assert((strcmp(slot->app_id, "weather") == 0 || strcmp(slot->app_id, "alarm") == 0)
+            assert((strcmp(slot->app_id, "weather") == 0 || strcmp(slot->app_id, "alarm") == 0 ||
+                strcmp(slot->app_id, "battery") == 0)
                 ? app->capability == WRISTFLOW_CAPABILITY_READY
                 : app->capability == WRISTFLOW_CAPABILITY_PLACEHOLDER);
             assert(app->card_sizes & slot->size);
@@ -190,10 +191,13 @@ int main(int argc, char **argv)
             if (strcmp(app->id, "weather") == 0) {
                 text(lv_screen_active(), "weather_temp", "--");
                 text(lv_screen_active(), "weather_state_label", "天气更新失败");
+            } else if (app->surface == WRISTFLOW_SURFACE_SYSTEM) {
+                text(lv_screen_active(), "app_title", "电池");
+                text(lv_screen_active(), "battery_percent", "--%");
+                text(lv_screen_active(), "battery_voltage", "--");
             } else {
                 text(lv_screen_active(), "app_title", app->title);
-                text(lv_screen_active(), "placeholder_label",
-                     app->surface == WRISTFLOW_SURFACE_SYSTEM ? "--\nUSB ?\n状态未知" : app->reason);
+                text(lv_screen_active(), "placeholder_label", app->reason);
             }
             if (!s) {
                 if (strcmp(app->id, "weather") == 0) snprintf(name, sizeof name, "product_weather");
@@ -318,47 +322,85 @@ int main(int argc, char **argv)
     assert(lv_obj_get_child_count(named(lv_screen_active(), "settings_scroll")) == 10);
     assert(wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_SYSTEM));
     advance();
-    text(lv_screen_active(), "placeholder_label", "--\nUSB ?\n状态未知");
+    text(lv_screen_active(), "battery_percent", "--%");
+    text(lv_screen_active(), "battery_voltage", "--");
+    text(lv_screen_active(), "battery_status", "状态未知");
+    text(lv_screen_active(), "battery_input", "USB 输入未知");
+    text(lv_screen_active(), "battery_source", "暂无法估算电量");
+    assert(!lv_obj_find_by_name(lv_screen_active(), "placeholder_label"));
+    assert(lv_obj_get_style_text_font(named(lv_screen_active(), "battery_percent"),0)==battery_80);
+    lv_point_t battery_size;
+    lv_text_get_size(&battery_size,"~100%",battery_80,0,0,LV_COORD_MAX,LV_TEXT_FLAG_NONE);
+    assert(battery_size.x<=272&&battery_size.y<=112);
+    glyphs(battery_80,"~0123456789%--");
+    glyphs(notification_22,"电压估算，仅供参考暂无法估算电量演示数据USB 输入有效无效未知");
+    lv_font_glyph_dsc_t battery_glyph;
+    assert(lv_font_get_glyph_dsc(icons_20,&battery_glyph,0xf0e7,0)&&!battery_glyph.is_placeholder);
+    assert(lv_font_get_glyph_dsc(icons_20,&battery_glyph,0xf240,0)&&!battery_glyph.is_placeholder);
     state.power = (wristflow_power_snapshot_t){true, true, true, 3872};
     assert(wristflow_ui_shell_update(shell, &state));
-    text(lv_screen_active(), "placeholder_label", "3.87V\nUSB OK\n状态未知");
-    text(lv_screen_active(), "placeholder_state", "电量");
-    glyphs(title_24, "电量");
+    text(lv_screen_active(), "battery_percent", "--%");
+    text(lv_screen_active(), "battery_voltage", "3.87V");
+    text(lv_screen_active(), "battery_input", "USB 输入有效");
+    text(lv_screen_active(), "app_title", "电池");
     snapshot(argv[1], "power_battery_usb");
     state.power.input_good = false;
     assert(wristflow_ui_shell_update(shell, &state));
-    text(lv_screen_active(), "placeholder_label", "3.87V\nUSB --\n状态未知");
+    text(lv_screen_active(), "battery_input", "USB 输入无效");
     snapshot(argv[1], "power_battery_no_usb");
     state.power = (wristflow_power_snapshot_t){0};
     assert(wristflow_ui_shell_update(shell, &state));
-    text(lv_screen_active(), "placeholder_label", "--\nUSB ?\n状态未知");
+    text(lv_screen_active(), "battery_voltage", "--");
+    text(lv_screen_active(), "battery_input", "USB 输入未知");
     glyphs(notification_22, "充电中已充满未充电状态未知充电已停止充电异常手动停止充电超时通信失败参数异常输入变化芯片故障电压保护芯片调节");
     state.power = (wristflow_power_snapshot_t){.input_valid=true, .input_good=true,
         .voltage_valid=true, .millivolts=3960, .charge=WF_POWER_CHARGE_ACTIVE};
     assert(wristflow_ui_shell_update(shell, &state));
-    text(lv_screen_active(), "placeholder_label", "3.96V\nUSB OK\n充电中");
+    text(lv_screen_active(), "battery_status", "充电中");
+    text(lv_screen_active(), "battery_voltage", "3.96V");
     snapshot(argv[1], "power_charging");
     state.power.charge=WF_POWER_CHARGE_FULL;
     assert(wristflow_ui_shell_update(shell, &state));
-    text(lv_screen_active(), "placeholder_label", "3.96V\nUSB OK\n已充满");
+    text(lv_screen_active(), "battery_status", "已充满");
+    text(lv_screen_active(), "battery_percent", "--%");
     snapshot(argv[1], "power_full");
     state.power.charge=WF_POWER_CHARGE_FAULT;
     state.power.charge_reason=WF_POWER_CHARGE_REASON_IO;
     assert(wristflow_ui_shell_update(shell, &state));
-    text(lv_screen_active(), "placeholder_label", "3.96V\nUSB OK\n充电异常\n通信失败");
+    text(lv_screen_active(), "battery_status", "充电异常");
+    text(lv_screen_active(), "battery_reason", "通信失败");
+    assert(lv_color_eq(lv_obj_get_style_border_color(named(lv_screen_active(),"battery_badge"),0),lv_color_hex(0xf87171)));
     snapshot(argv[1], "power_charge_fault");
     state.power.charge=WF_POWER_CHARGE_ACTIVE; state.power.charge_reason=WF_POWER_CHARGE_REASON_NONE;
     state.power.estimate_valid=true; state.power.estimated_percent=59;
     wristflow_product_apply_power(&state,&state.power);
     assert(wristflow_ui_shell_update(shell,&state));
-    text(lv_screen_active(),"placeholder_label","~59% / 3.96V\nUSB OK\n充电中\n电压估算");
-    glyphs(notification_22,"估算电量电压"); snapshot(argv[1],"power_estimate");
+    text(lv_screen_active(),"battery_percent","~59%");
+    text(lv_screen_active(),"battery_voltage","3.96V");
+    text(lv_screen_active(),"battery_status","充电中");
+    text(lv_screen_active(),"battery_reason","");
+    text(lv_screen_active(),"battery_source","电压估算，仅供参考");
+    state.time_unavailable=true; assert(wristflow_ui_shell_update(shell,&state));
+    text(lv_screen_active(),"battery_time","--:--");
+    state.time_unavailable=false; state.hour_24=21; state.minute=12;
+    assert(wristflow_ui_shell_update(shell,&state));
+    text(lv_screen_active(),"battery_time","21:12");
+    snapshot(argv[1],"power_estimate");
+    state.power.charge=WF_POWER_CHARGE_FULL; state.power.estimated_percent=100;
+    wristflow_product_apply_power(&state,&state.power); assert(wristflow_ui_shell_update(shell,&state));
+    text(lv_screen_active(),"battery_percent","~100%");
+    text(lv_screen_active(),"battery_status","已充满");
+    snapshot(argv[1],"power_estimate_full");
+    state.power.charge=WF_POWER_CHARGE_ACTIVE;
     state.power.estimated_percent=61; wristflow_product_apply_power(&state,&state.power);
     assert(wristflow_ui_shell_update(shell,&state));
-    text(lv_screen_active(),"placeholder_label","~61% / 3.96V\nUSB OK\n充电中\n电压估算");
+    text(lv_screen_active(),"battery_percent","~61%");
+    text(lv_screen_active(),"battery_status","充电中");
     state.power.estimate_valid=false; wristflow_product_apply_power(&state,&state.power);
     assert(wristflow_ui_shell_update(shell,&state));
-    text(lv_screen_active(),"placeholder_label","3.96V\nUSB OK\n充电中");
+    text(lv_screen_active(),"battery_percent","--%");
+    text(lv_screen_active(),"battery_voltage","3.96V");
+    text(lv_screen_active(),"battery_source","暂无法估算电量");
     state.power=(wristflow_power_snapshot_t){0};
     wristflow_product_apply_power(&state,&state.power);
     assert(wristflow_ui_shell_update(shell, &state));

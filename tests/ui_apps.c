@@ -276,6 +276,8 @@ int main(int argc, char **argv)
     track_view(&settings_lifetime);
     click("settings_battery");
     surface(shell, WRISTFLOW_SURFACE_SYSTEM);
+    assert(!strcmp(lv_label_get_text(named("battery_percent")),"53%"));
+    assert(!strcmp(lv_label_get_text(named("battery_source")),"演示数据"));
     track_view(&battery_lifetime);
     assert(settings_lifetime.unloaded == 1 && settings_lifetime.deleted == 0);
     assert(wristflow_ui_shell_navigation(shell)->history_count == 3);

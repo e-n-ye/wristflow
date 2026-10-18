@@ -292,28 +292,36 @@ static void picker_touch(lv_event_t *event)
     }
 }
 
-static void render_power(lv_obj_t *root, const wristflow_watch_snapshot_t *snapshot)
+static void render_power(lv_obj_t *root, const wristflow_watch_snapshot_t *snapshot, bool product_mode)
 {
     if (!root) return;
     char battery[16];
-    wristflow_battery_text(snapshot, battery, sizeof battery);
-    lv_obj_t *heading = lv_obj_find_by_name(root, "placeholder_state");
-    if (heading) lv_label_set_text(heading, "电量");
-    lv_obj_set_style_text_color(named(root, "placeholder_icon"), lv_color_hex(0x10b981), 0);
-    lv_obj_t *status = named(root, "placeholder_label");
-    lv_obj_set_style_text_font(status, notification_22, 0);
-    const char *reason = wristflow_power_charge_reason_text(&snapshot->power);
-    char reading[40];
-    unsigned centivolts = (snapshot->power.millivolts+5U)/10U;
-    if (snapshot->power.estimate_valid)
-        snprintf(reading, sizeof reading, "%s / %u.%02uV", battery,
-            centivolts/100U, centivolts%100U);
-    else snprintf(reading, sizeof reading, "%s", battery);
-    lv_label_set_text_fmt(status, "%s\n%s\n%s%s%s%s", reading,
-        wristflow_power_input_text(&snapshot->power), wristflow_power_charge_text(&snapshot->power),
-        reason[0] ? "\n" : "", reason, snapshot->power.estimate_valid ? "\n电压估算" : "");
-    lv_obj_set_style_text_color(status, lv_color_hex(snapshot->power.charge == WF_POWER_CHARGE_FAULT ?
-        0xf87171 : snapshot->power.charge == WF_POWER_CHARGE_ACTIVE ? 0x10b981 : 0xffffff), 0);
+    if (snapshot->battery_unavailable) snprintf(battery, sizeof battery, "--%%");
+    else wristflow_battery_text(snapshot, battery, sizeof battery);
+    lv_label_set_text(named(root, "battery_percent"), battery);
+    const wristflow_power_snapshot_t *power = &snapshot->power;
+    bool charging = power->charge == WF_POWER_CHARGE_ACTIVE || power->charge == WF_POWER_CHARGE_FULL;
+    lv_color_t color = lv_color_hex(power->charge == WF_POWER_CHARGE_FAULT ? 0xf87171 :
+        charging ? 0x00dfc0 : 0xa7adb5);
+    lv_obj_set_style_border_color(named(root, "battery_badge"), color, 0);
+    lv_obj_t *icon = named(root, "battery_icon");
+    lv_label_set_text(icon, charging ? "\xef\x83\xa7" : "\xef\x89\x80");
+    lv_obj_set_style_text_color(icon, color, 0);
+    lv_obj_t *status = named(root, "battery_status");
+    lv_label_set_text(status, wristflow_power_charge_text(power));
+    lv_obj_set_style_text_color(status, color, 0);
+    lv_label_set_text(named(root, "battery_reason"), wristflow_power_charge_reason_text(power));
+    lv_obj_t *voltage = named(root, "battery_voltage");
+    if (power->voltage_valid) {
+        unsigned centivolts = (power->millivolts+5U)/10U;
+        lv_label_set_text_fmt(voltage, "%u.%02uV", centivolts/100U, centivolts%100U);
+    } else lv_label_set_text(voltage, "--");
+    lv_label_set_text(named(root, "battery_input"), !power->input_valid ? "USB 输入未知" :
+        power->input_good ? "USB 输入有效" : "USB 输入无效");
+    lv_label_set_text(named(root, "battery_source"), !product_mode ? "演示数据" :
+        power->estimate_valid ? "电压估算，仅供参考" : "暂无法估算电量");
+    if (snapshot->time_unavailable) lv_label_set_text(named(root, "battery_time"), "--:--");
+    else lv_label_set_text_fmt(named(root, "battery_time"), "%02u:%02u", snapshot->hour_24, snapshot->minute);
 }
 
 static void sync_brightness(wristflow_apps_t *apps)
@@ -682,12 +690,12 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         if (apps->snapshot.time_unavailable) snprintf(time_str, sizeof time_str, "--:--");
         else snprintf(time_str, sizeof time_str, "%02u:%02u", apps->snapshot.hour_24, apps->snapshot.minute);
         wristflow_weather_screen_set_time(root, time_str);
+    } else if (surface == WRISTFLOW_SURFACE_SYSTEM) {
+        render_power(root, &apps->snapshot, apps->product_mode);
     } else {
         lv_label_set_text(named(root, "app_title"), app->title);
         lv_label_set_text(named(root, "placeholder_icon"), app->icon);
-        if (surface == WRISTFLOW_SURFACE_SYSTEM && (apps->product_mode || apps->snapshot.battery_unavailable)) {
-            render_power(root, &apps->snapshot);
-        } else if (apps->product_mode) {
+        if (apps->product_mode) {
             lv_obj_set_style_text_color(named(root, "placeholder_icon"), lv_color_hex(app->color), 0);
             lv_label_set_text(named(root, "placeholder_label"), app->reason);
         } else if (apps->snapshot.metrics_unavailable) {
@@ -766,8 +774,7 @@ void wristflow_apps_update(wristflow_apps_t *apps, const wristflow_watch_snapsho
         wristflow_weather_screen_set_time(apps->screens[WRISTFLOW_SURFACE_WEATHER], time_str);
     }
     sync_brightness(apps);
-    if (apps->product_mode || apps->snapshot.battery_unavailable)
-        render_power(apps->screens[WRISTFLOW_SURFACE_SYSTEM], snapshot);
+    render_power(apps->screens[WRISTFLOW_SURFACE_SYSTEM], snapshot, apps->product_mode);
     if (apps->product_mode) {
         wristflow_settings_refresh(apps->screens[apps->active], apps->active, apps->shell);
         bool awake = wristflow_ui_shell_keep_minutes(apps->shell) != 0;
