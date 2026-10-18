@@ -219,6 +219,7 @@ extern lv_font_t * notification_22;
 extern lv_font_t * body_20;
 extern lv_font_t * title_24;
 extern lv_font_t * metric_56;
+extern lv_font_t * battery_80;
 extern lv_font_t * guide_40;
 extern lv_font_t * clock_80;
 extern lv_font_t * value_36;
@@ -318,6 +319,7 @@ void wristflow_ui_init_gen(const char * asset_path);
 #include "components/tile_quarter_gen.h"
 #include "screens/screen_alarm_gen.h"
 #include "screens/screen_app_placeholder_gen.h"
+#include "screens/screen_battery_gen.h"
 #include "screens/screen_breathing_gen.h"
 #include "screens/screen_brightness_adjust_gen.h"
 #include "screens/screen_component_editor_gen.h"

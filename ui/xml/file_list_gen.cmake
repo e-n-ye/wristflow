@@ -44,6 +44,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_grid_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_half_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_quarter_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/fonts/battery_80_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/body_20_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/clock_80_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/guide_40_data.c
@@ -69,6 +70,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/images/weather_sun_track_data.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_alarm_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_app_placeholder_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_battery_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_breathing_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_brightness_adjust_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_component_editor_gen.c

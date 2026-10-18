@@ -1,0 +1,224 @@
+{
+  "date": "2026-10-18",
+  "base_commit": "46a2c237fec9ad985718ba15ad30dab015fa2f42",
+  "branch": "codex/battery-page",
+  "scope": "Formal battery main page; existing snapshot binding only. No algorithm, charging control, PM, SDK or device changes.",
+  "local_evidence_worktree": "D:/MY_Desk/project/wristflow-hardware-meter-plan",
+  "local_artifacts_note": "Paths under artifacts are ignored local evidence, not committed downloadable attachments.",
+  "sdk": {
+    "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "submodules": {
+      "middleware/bluetooth": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c",
+      "tools/SiliconSchema": "304658c6edd5497211b7d152932327ce6e4450ff"
+    },
+    "clean_and_locked": true,
+    "firmware_lvgl": "9.4.0"
+  },
+  "official_export": {
+    "editor": "LVGL Pro Editor 2.0.1",
+    "preview_lvgl": "9.4.0",
+    "operation": "Official GUI Ctrl+B / Export Code and Recompile; final screenshot reports Project compiled successfully.",
+    "zoom": "100%",
+    "screenshot": {
+      "path": "artifacts/battery-page/pro-100.png",
+      "bytes": 221838,
+      "sha256": "14e53fc1b8e81602a21ce8444be09cd7a93dc7719cec7e640b7806fec3c50653"
+    },
+    "xml_format_valid": true
+  },
+  "changed_source_files": [
+    {
+      "path": "ui/xml/screens/screen_battery.xml",
+      "bytes": 2081,
+      "sha256": "77cbfdb489873e35ec1dec9aa5351340dc7f673d10c50f5da94002269a0b24e7"
+    },
+    {
+      "path": "ui/xml/screens/screen_battery_gen.c",
+      "bytes": 7441,
+      "sha256": "59625c89b5f2cfe03938c11b7da55607769aee317d83d2910b009f4c9911dfb0"
+    },
+    {
+      "path": "ui/xml/screens/screen_battery_gen.h",
+      "bytes": 736,
+      "sha256": "6bf31b0f42471620ed3882311b7d650b3f660bcb2f01b94f9136030b5bc06e51"
+    },
+    {
+      "path": "ui/xml/fonts/battery_80_data.c",
+      "bytes": 134474,
+      "sha256": "963dc325cab04423115c9515dbda79feb57856e4d5c03486e0ff99e0947f246f"
+    },
+    {
+      "path": "ui/xml/globals.xml",
+      "bytes": 8316,
+      "sha256": "373e2f047ddad4646827547561b91094fc696a6561c5ce1e878bf4a8bae26173"
+    },
+    {
+      "path": "ui/xml/file_list_gen.cmake",
+      "bytes": 6510,
+      "sha256": "f61fc2864cc380c8d575e39fb14f19890664a524b13bf2631b711f643387f4aa"
+    },
+    {
+      "path": "ui/xml/wristflow_ui_gen.c",
+      "bytes": 10786,
+      "sha256": "20ca579bef01b3b627103411417c9d8320d84bc29fe228ec379603c656beb000"
+    },
+    {
+      "path": "ui/xml/wristflow_ui_gen.h",
+      "bytes": 9222,
+      "sha256": "da628ae28b921cd5d02a7a4b58d29206a5668bfb32ec556b9667b78729fd172a"
+    },
+    {
+      "path": "ui/runtime/apps.c",
+      "bytes": 40448,
+      "sha256": "cf2ed672b7b85298b48477185c5e805a12f178818eb993672cdd15ff5aaeeb08"
+    },
+    {
+      "path": "ui/runtime/app_registry.c",
+      "bytes": 6727,
+      "sha256": "eaa9a59b97bc468b9cb704047c6088bf2cbf9f8016526ee4bb7146674cd4b891"
+    },
+    {
+      "path": "tests/product_ui.c",
+      "bytes": 28436,
+      "sha256": "ed54c9dc0d4c8a6dcc2a74c0224fabd9736f1f13d981bd0fb5b16f291a60df85"
+    },
+    {
+      "path": "tests/ui_apps.c",
+      "bytes": 16720,
+      "sha256": "56ea4546991794dd78a55c0976b7a6dbc2ac60074e5c932a7ccb7930e20274a9"
+    }
+  ],
+  "host_tools": {
+    "compiler": "UCRT64 GCC 15.2.0",
+    "cmake": "4.2.3",
+    "ninja": "1.13.2",
+    "path_prefix": "D:/msys64/ucrt64/bin"
+  },
+  "host_tests": [
+    {
+      "configuration": "Debug",
+      "configure": "cmake -S tests -B artifacts/host -G Ninja -DWRISTFLOW_SDK_ROOT=D:/MY_Desk/project/wristflow/vendor/SiFli-SDK (existing Debug cache)",
+      "command": "cmake --build artifacts/host -j6; ctest --test-dir artifacts/host --output-on-failure",
+      "passed": 45,
+      "total": 45,
+      "seconds": 21.55,
+      "log": {
+        "path": "artifacts/battery-page-host-test.log",
+        "bytes": 4802,
+        "sha256": "35e0fafbe37d3a79a48719ddfb8d7897f00978ac1f913c23a8239d8a63cb7f73"
+      }
+    },
+    {
+      "configuration": "Release",
+      "configure": "cmake -S tests -B artifacts/charge-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DWRISTFLOW_SDK_ROOT=D:/MY_Desk/project/wristflow/vendor/SiFli-SDK",
+      "command": "cmake --build artifacts/charge-release --target product_ui ui_apps component_editor settings_ui ui_navigation ui_shell_lifecycle charging_ui -j6; ctest --test-dir artifacts/charge-release -R '^(product_ui|ui_apps|component_editor|settings_ui|ui_navigation|ui_shell_lifecycle|charging_ui)$' --output-on-failure",
+      "passed": 7,
+      "total": 7,
+      "seconds": 3.45,
+      "log": {
+        "path": "artifacts/battery-page-release-test.log",
+        "bytes": 849,
+        "sha256": "c665a2c9e429eff2f32d4de1c0827a9db992ffdde4086c32eccb1880faff1a6c"
+      }
+    }
+  ],
+  "actual_lvgl_render": {
+    "source": "Existing product_ui executable uses official generated C and lv_snapshot_take; values are host test fixtures.",
+    "states": [
+      {
+        "path": "artifacts/battery-page/power_battery_usb.png",
+        "bytes": 11818,
+        "sha256": "fe3cc55ea36e64e59cd1cc8cf60ea7ad07dbbaed83b67fe8ad7ad388ac8bb23c"
+      },
+      {
+        "path": "artifacts/battery-page/power_battery_no_usb.png",
+        "bytes": 11817,
+        "sha256": "ff9dffd65c9b98787952f088839d57954cad2a5d5e45211993794b513831ce8f"
+      },
+      {
+        "path": "artifacts/battery-page/power_charging.png",
+        "bytes": 11054,
+        "sha256": "0f84681b2bcfcfa5a7a607ef28451c084b28b6f22976b8d862b30eab6260c1f0"
+      },
+      {
+        "path": "artifacts/battery-page/power_full.png",
+        "bytes": 11195,
+        "sha256": "ec79bdd889bac2d40680c7eefa447998516eb9956adcd3a40b1428158f85dfad"
+      },
+      {
+        "path": "artifacts/battery-page/power_charge_fault.png",
+        "bytes": 12581,
+        "sha256": "1c20527ff97f1a600656bef88518381b74fa839edd1e495b39b47b28a292b9f1"
+      },
+      {
+        "path": "artifacts/battery-page/power_estimate.png",
+        "bytes": 12431,
+        "sha256": "602fe3255d94e20d22a5c5e6dd1eca31d245372648d3e102df87b64125cf9783"
+      },
+      {
+        "path": "artifacts/battery-page/power_estimate_full.png",
+        "bytes": 12452,
+        "sha256": "7e401fbb3396ea6fba4c1e235b08a9a9f85fffa79e6e91ed4a9eab96365cfaf5"
+      }
+    ],
+    "review": "390x450 frames inspected for glyphs, overlap and bounds; ~100% sizing and required glyphs asserted. Unknown SOC remains --% even with valid node voltage or FULL text. USB three-state text and time unknown/update, entry/return/lifetime covered by host tests."
+  },
+  "builds": [
+    {
+      "example": "product",
+      "run_id": "20261018-142914-525",
+      "result": {
+        "path": "artifacts/product/20261018-142914-525/result.json",
+        "bytes": 96429,
+        "sha256": "8383a087724d7764d6f74eb571448e733f504f25e899aaf5f8bab2731b93941d"
+      },
+      "command": "pwsh -NoProfile -File artifacts/build-isolated.ps1 -Example product -Jobs 6 (calls current scripts/Build.ps1 and official scons --board=sf32lb52-lchspi-ulp -j6)",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "source_files_rehashed": 419,
+      "artifacts_rehashed": 29,
+      "firmware": {
+        "bytes": 7761984,
+        "sha256": "7b4c57688543b3df0176cc46dad7884706297b3607fdf5a256b28e5ec9a06f61"
+      },
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": "4.10.1",
+      "new_page_and_font_compiled_and_linked": true
+    },
+    {
+      "example": "ui_demo",
+      "run_id": "20261018-143009-422",
+      "result": {
+        "path": "artifacts/ui_demo/20261018-143009-422/result.json",
+        "bytes": 86998,
+        "sha256": "6ea7f5938305e21b1d9374f619bb8833cf137a7b0edc163088e83ec1365c197a"
+      },
+      "command": "pwsh -NoProfile -File artifacts/build-isolated.ps1 -Example ui_demo -Jobs 6 (calls current scripts/Build.ps1 and official scons --board=sf32lb52-lchspi-ulp -j6)",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "source_files_rehashed": 383,
+      "artifacts_rehashed": 22,
+      "firmware": {
+        "bytes": 7535928,
+        "sha256": "f85674e0947add95aa77d8c0f45db971efc3fb2c738213e44adc504bdf89a9cc"
+      },
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": "4.10.1",
+      "new_page_and_font_compiled_and_linked": true
+    }
+  ],
+  "failures_and_resolutions": [
+    "First visual export inherited a dark text color on the voltage card; XML explicit foreground styles corrected, followed by official re-export/recompile and 100% review.",
+    "First related product_ui test failed the historical battery PLACEHOLDER capability assertion. READY is required for the formal page; corrected assertion then passed single test, full Debug and related Release runs.",
+    "Continuation evidence probes first had a shell backslash syntax error, then queried the isolated empty SDK submodule path and saw the outer repository. Corrected to the actual SDK used by the existing build wrapper; SDK and submodule locks/cleanliness passed. No source or device changes resulted.",
+    "Staged git diff --check reported a blank line at EOF in the untouched official screen_battery_gen.c output. Preserved the generated file: normal whitespace checks cover all other files; this one file is checked with only blank-at-eof disabled. No generated-code hand edit or production change."
+  ],
+  "review": "Primary diff, source/hash, generated list/compile/map and visual review completed; independent read-only runtime/test review found no blocker. Demo existing fixed snapshot uses 53% with no estimate service; hypothetical demo estimate injection is not an actual path.",
+  "hardware_verified": false,
+  "device_operations": [],
+  "hardware_boundary": "Last device firmware remains battery-estimate fc4d6703; prior hardware results do not validate the new layout. No UART/reset/flash/measurement this round.",
+  "next_bounded_experiment": "In a separate authorized round, confirm device, battery-disconnected USB-only flashing conditions and exact candidate, then validate settings/card/list entry, return, updates and ordinary sleep/wake on hardware. No SOC calibration or electrical termination/lifetime claim.",
+  "source_correspondence": "All current firmware source/artifact hashes match the successful build results; changed runtime/test/generated files predate the passing full-host log. Continuation changed documentation only."
+}
