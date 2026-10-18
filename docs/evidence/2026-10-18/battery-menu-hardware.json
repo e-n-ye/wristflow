@@ -1,0 +1,144 @@
+{
+  "date": "2026-10-18",
+  "software_pr": "https://github.com/e-n-ye/wristflow/pull/91",
+  "software_merge_commit": "dfe26b1821c4c28e579f600f3d1cd82d6159aeda",
+  "software_tree_matches_validated_head": "0d506a283078171e046c088e7cec4f720f190416",
+  "branch": "codex/battery-menu-hardware",
+  "local_worktree": "D:/MY_Desk/project/wristflow-hardware-meter-plan",
+  "authorization": "User freshly confirmed same device, battery disconnected, PC USB only, fixed wiring/person present and allowed exact menu candidate flash plus one startup check: 已断电池，仅电脑 USB，可以烧录.",
+  "no_new_source_or_build": true,
+  "preflight": {
+    "port": "COM5, current USB-SERIAL CH340 enumeration, VID:PID1A86:7523, LOCATION1-1.1; no serial port opened by enumeration",
+    "source_count_rehashed": 419,
+    "artifact_count_rehashed": 29,
+    "all_match": true,
+    "sdk_and_submodules_locked_clean": true,
+    "dry_run": {
+      "command": "pwsh -NoProfile -File artifacts/flash-isolated.ps1 -Port COM5 -DryRun",
+      "exit_code": 0,
+      "log": {
+        "path": "artifacts/battery-page/menu-hardware-dryrun.log",
+        "sha256": "8206d23c928c94449f8b81e34c02219830a3bb235f806a96c0e39fc4c2fee629"
+      }
+    },
+    "retained_hook": "Strong BSP_PowerUpCustom at0x200033BC .retm_data; false branch goes directly to0x2000345A add/pop return without calls",
+    "disassembly": {
+      "path": "artifacts/battery-page/menu-retained-hook.asm",
+      "sha256": "6d4e786c72b67ff84fba9fd268fec08a41bf411176c29d2c31ad4b205dcee240"
+    }
+  },
+  "flash": {
+    "command": "pwsh -NoProfile -File artifacts/flash-isolated.ps1 -Port COM5",
+    "wrapper": "Existing local wrapper changes only project root and sftool location in scripts/Flash.ps1; tool intentionally reused from primary checkout, all images from isolated worktree",
+    "tool": "sftool0.2.5, SF32LB52 NOR, 500000 baud, --connect-attempts3 --after soft_reset write_flash --verify",
+    "attempts": 1,
+    "exit_code": 0,
+    "completed": "2026-10-18T15:40:20.0639895+08:00",
+    "record": {
+      "path": "artifacts/flash/product/20261018-153740-641/result.json",
+      "sha256": "3ea423ffe19a23c66854d56f5a7156391c0b17f9523e0beab1c629ea458c4866"
+    },
+    "log": {
+      "path": "artifacts/flash/product/20261018-153740-641/sftool.log",
+      "sha256": "c556f42bff5426f0a523b6a7486b990f61835b8609160eeb757950fe2fe0dff5"
+    },
+    "images": [
+      {
+        "name": "bootloader.bin",
+        "address": "0x12010000",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "name": "main.bin",
+        "address": "0x12020000",
+        "bytes": 7761984,
+        "sha256": "ce007a7eeca21b80b34ba8e3099230d2c5e85b1e5caa164561567e85fc9b3c59"
+      },
+      {
+        "name": "ftab.bin",
+        "address": "0x12000000",
+        "bytes": 11288,
+        "sha256": "4bb030e3e1b15b39e6027c283148f7555eaf75297880a74f974b7bbbfd301c6d"
+      }
+    ],
+    "scope": "Manifest three images only, no whole-chip erase or explicit settings partition write; autonomous firmware restoration/saves are separate boot activity"
+  },
+  "boot_capture": {
+    "command": "Installed SDK Python artifacts/capture-usb-vin-boot.py battery-menu-boot",
+    "script": {
+      "path": "artifacts/capture-usb-vin-boot.py",
+      "sha256": "312fb490c7f5aa0509cdadcc907a4f979d49b0f8f8c34755c617a3b5cfa4500f"
+    },
+    "power": "Battery disconnected, PC USB only throughout capture",
+    "serial": "COM5, 1000000 8N1, no flow control, DTR/RTS=false before open",
+    "explicit_reset": "One150ms RTS pulse",
+    "opened": "2026-10-18T15:40:51.465344+08:00",
+    "closed": "2026-10-18T15:41:15.629498+08:00",
+    "exit_code": 0,
+    "commands": [
+      {
+        "at": "2026-10-18T15:40:55.732576+08:00",
+        "command": "wf_pm hold"
+      },
+      {
+        "at": "2026-10-18T15:40:56.664943+08:00",
+        "command": "wf_charger status"
+      },
+      {
+        "at": "2026-10-18T15:40:57.656946+08:00",
+        "command": "show_date"
+      },
+      {
+        "at": "2026-10-18T15:40:59.727267+08:00",
+        "command": "wf_time 1792309259"
+      },
+      {
+        "at": "2026-10-18T15:41:00.638529+08:00",
+        "command": "show_date"
+      },
+      {
+        "at": "2026-10-18T15:41:03.706775+08:00",
+        "command": "wf_pm allow"
+      }
+    ],
+    "facts": [
+      "Product, CO5300 ID0x331100 and FT6146 initialized; layout/settings/alarm restoration logged. No assertion or HardFault observed in bounded capture.",
+      "Early inhibit verified=1/profile=1; no-battery automatic path inhibited/reason voltage, REG01=0xac (CEB=1), REG02=0x18, cycle_locked=1.",
+      "Battery-disconnected ADC node172-178mV, estimate_valid=0. This is not a measured cell voltage or independent screen observation.",
+      "RTC initially2000/not synchronized; synchronized using current UTC1792309259, show_date read back2026-10-18 07:41:00UTC.",
+      "allow restored1, natural display-off logged before normal serial close at15:41:15+08:00."
+    ],
+    "status_boundary": "One wf_charger status includes sequential raw REG09 read which may clear exited fault latches. Cached state, raw readback and physical current are distinct; no manual start/stop.",
+    "logs": [
+      {
+        "path": "artifacts/battery-menu-boot.bin",
+        "sha256": "dd389ae90bb074277e4d086ff9b45d02e38e6c54ef9403d8c2a9f7b849d93b14"
+      },
+      {
+        "path": "artifacts/battery-menu-boot.txt",
+        "sha256": "ad4c184fa16e572099efd5a0f3e5bb6f301634d113caf4269370d2ad28764a55"
+      },
+      {
+        "path": "artifacts/battery-menu-boot.json",
+        "sha256": "809a389b3943ee03d8160e84a0364b01544cace17abbfd6f9fb33600e59e7157"
+      }
+    ]
+  },
+  "user_ui_feedback": {
+    "status": "bounded menu/entry/return acceptance reported normal",
+    "version_basis": "Last downloaded exact Product BINce007a7e; no later firmware, UART, reset or flash changes.",
+    "requested": "请拔 USB、接回原电池，检查应用菜单中已没有“电池”，再从“设置 → 电池”和电量组件各进入一次并返回，是否都正常？",
+    "raw_answer": "均正常",
+    "accepted": [
+      "Product menu has no battery item",
+      "Settings battery entry and return",
+      "Battery component entry and return"
+    ],
+    "limits": "Grouped user report; no new photo, numeric or independent timing record. Separate list/grid switching, sleep/wake or USB refresh were not requested on this BIN; broader prior-BIN feedback remains versioned separately."
+  },
+  "failures": [],
+  "serial_remains_closed": true,
+  "limits": "Flash/verify and boot checks plus grouped user report support only the specified menu/entry/return acceptance on BINce007a7e. Both list/grid absence is host-tested; separate hardware layout switching was not requested. Prior BIN7b4c5768 sleep/wake/USB/photo evidence remains separate. No SOC calibration, cell-voltage measurement, charge termination, physical DEEP/current or battery-life evidence.",
+  "next_bounded_experiment": "Authorized battery-page/menu scope complete. No device experiment in progress; serial closed, no extra reset/flash or continuous monitoring. Await a separately scoped user request."
+}

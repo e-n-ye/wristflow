@@ -4,7 +4,9 @@
 
 按用户决定仅在Product菜单过滤SYSTEM，电池组件／设置路由和READY保持；XML／生成物／资源不变。真实指针设置入口、列表／三列无电池及已有组件／返回／生命周期相关Debug6/6（7.50秒）、Release Product UI1/1（0.80秒）通过；实际LVGL列表／三列画面检查和只读审查无阻断。
 
-既有隔离包装器调用当前`Build.ps1 -Example product/ui_demo -Jobs 6`和官方SCons，Product `20261018-152731-871`／7,761,984B／`ce007a7e…`，UI Demo `20261018-152755-060`／7,535,936B／`8966481d…`，均退出0、419／383源码及29／22产物重哈希一致，SDK／子模块锁固定干净。完整命令／哈希见[入口修订证据](evidence/2026-10-18/battery-menu.json)；没有新下载或硬件结论，先前BIN`7b4c5768…`的用户正常反馈单列在[硬件记录](evidence/2026-10-18/battery-page-hardware.json)。
+既有隔离包装器调用当前`Build.ps1 -Example product/ui_demo -Jobs 6`和官方SCons，Product `20261018-152731-871`／7,761,984B／`ce007a7e…`，UI Demo `20261018-152755-060`／7,535,936B／`8966481d…`，均退出0、419／383源码及29／22产物重哈希一致，SDK／子模块锁固定干净。完整命令／哈希见[入口修订证据](evidence/2026-10-18/battery-menu.json)；软件轮没有设备操作，先前BIN`7b4c5768…`的用户正常反馈单列在[原版硬件记录](evidence/2026-10-18/battery-page-hardware.json)。
+
+同日PR #91合入`dfe26b1`后，无新源码／编译；419源码／29产物及锁／DryRun／retained钩子重核，用户确认断电池仅USB后COM5首次write+verify退出0。一次仅USB启动、禁充／估算无效、校时读回及allow恢复／自然息屏后15:41:15关闭串口；用户对菜单无电池、设置／组件进入及返回回复“均正常”。[同BIN下载／入口证据](evidence/2026-10-18/battery-menu-hardware.json)只关闭受影响路径，不补新SOC或电气结论。
 
 ## 2026-10-18 正式电池主页面
 

@@ -5,15 +5,16 @@
 
 本区是活动任务和下一步的唯一权威来源；下方 history、任务书和专题中的历史下一步不构成执行授权。接续先核对工作树、HEAD 和已有改动，再按 [任务索引](../PROJECT_INDEX.md) 读取。
 
-- **当前授权**：软件PR #89／`71fc716`及下载记录PR #90／`bbc346b`均MERGED／fetch核对。用户现明确Product应用菜单不要电池，仅保留组件和设置入口；复用D盘隔离工作树`codex/battery-page-acceptance`记录反馈并完成此入口修订。主目录12处用户Pro改动保留，不改算法、XML／生成物或充电控制，不操作设备。
+- **当前授权闭环完成**：电池入口修订及原版反馈PR #91已Rebase合入`dfe26b1`，MERGED／fetch及完整树与验证head一致。用户重新确认断电池／仅USB后，精确Product BIN`ce007a7e…`下载及一次启动检查已完成，随后菜单无电池、设置／组件入口及返回均获“均正常”。复用D盘隔离工作树`codex/battery-menu-hardware`记录本版验收；主目录12处用户Pro改动保留，无新源码／编译或充电参数修改。
 - **软件闭环完成**：独立官方XML页面及80px数字字体、SYSTEM稳定路由与已有快照绑定完成。Pro2.0.1／LVGL9.4.0重新导出编译、100%及真实LVGL状态／字形／数字边界检查通过；完整主机45/45、Release相关7/7。Product BIN`7b4c5768…`／UI Demo`f85674e0…`均编译退出0，419／383源码及29／22产物重哈希一致，独立审查无阻断。按CONTRIBUTING交付，合并回读见PR／最终交接。[契约与证据](BATTERY-PAGE.md)。
-- **本版下载／仅USB启动verified**：419源码／29产物、实际SDK／子模块锁、三镜像DryRun及retained SRAM检查通过；COM5首次write+verify退出0。一次150ms RTS后Product／CO5300／FT6146初始化及early禁充有日志，断电池节点约172–178mV时估算有效性0、低电压拒充。RTC校时读回，allow恢复1并自然息屏，15:14:08正常关闭串口；一次status包含可清退出故障锁存的REG09 raw读取，无手动充电启停。[本版证据](evidence/2026-10-18/battery-page-hardware.json)。
+- **原页BIN`7b4c5768…`下载／仅USB启动verified**：419源码／29产物、实际SDK／子模块锁、三镜像DryRun及retained SRAM检查通过；COM5首次write+verify退出0。一次150ms RTS后Product／CO5300／FT6146初始化及early禁充有日志，断电池节点约172–178mV时估算有效性0、低电压拒充。RTC校时读回，allow恢复1并自然息屏，15:14:08正常关闭串口；一次status包含可清退出故障锁存的REG09 raw读取，无手动充电启停。[原版证据](evidence/2026-10-18/battery-page-hardware.json)。
 - **旧BIN有界显示／交互通过**：用户照片显示`~99%／4.16V／未充电／USB 输入无效`及15:20、估算说明，版面正常；最后一组要求取消应用菜单入口，并对其他卡片返回／电池页息屏KEY1／USB输入与充电状态刷新回复“均正常”。仅对应BIN`7b4c5768…`，无独立计时、表测或新UART／复位／下载。
-- **入口修订软件通过**：Product菜单创建跳过SYSTEM，保留battery注册／组件／设置路由；相关Debug6/6、Release Product UI1/1和实际列表／三列渲染通过。Product BIN`ce007a7e…`／UI Demo`8966481d…`编译退出0，419／383源码及29／22产物重哈希一致，SDK固定干净，独立审查无阻断。[精简证据](evidence/2026-10-18/battery-menu.json)。新候选尚未下载。
+- **入口修订软件通过**：Product菜单创建跳过SYSTEM，保留battery注册／组件／设置路由；相关Debug6/6、Release Product UI1/1和实际列表／三列渲染通过。Product BIN`ce007a7e…`／UI Demo`8966481d…`编译退出0，419／383源码及29／22产物重哈希一致，SDK固定干净，独立审查无阻断。[精简证据](evidence/2026-10-18/battery-menu.json)。
+- **本版下载／启动及有界入口verified**：419源码／29产物、SDK锁／三镜像DryRun／retained钩子重核通过；COM5首次write+verify退出0。一次150ms RTS仅USB启动确认驱动初始化、early禁充及无电池172–178mV估算无效，RTC校时读回、allow恢复1后自然息屏，15:41:15关闭串口。用户随后对拔USB接回原BAT后的菜单无电池、设置／组件各进入及返回回复“均正常”；新BIN未单独验证两种菜单布局切换或重做睡醒／USB刷新，不继承旧版结论。[本版证据](evidence/2026-10-18/battery-menu-hardware.json)。
 
 ### 当前闭环与唯一下一步
 
-入口修订按CONTRIBUTING审阅交付后，对精确新候选另核断电池／仅USB下载条件，再检查菜单无电池且设置／组件仍可进入。串口保持关闭，未确认前不复位／烧录，不持续监控或创建定时任务。
+本轮正式电池页、菜单入口修订和受影响真机闭环已完成，按CONTRIBUTING收尾记录；无活动设备实验，串口保持关闭。后续功能由用户另行指定，不自行展开长续航／优化、SOC校准、充放电或功耗实验，不持续监控或创建定时任务。
 
 <a id="history"></a>
 ## 2026-10-18 电压估算及有界显示交付（历史）

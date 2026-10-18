@@ -96,8 +96,8 @@
     "retained_hook_check": "tests/check_charger_layout.py passed: strong BSP_PowerUpCustom at0x200033BC .retm_data"
   },
   "device_operations": [],
-  "device_version": "Last downloaded BIN7b4c5768; prior photo/group acceptance remains in battery-page-hardware.json. New menu candidate not flashed.",
-  "next_bounded_experiment": "After confirming same device, battery disconnected and PC USB only, flash exact new Product candidate and check no battery in list/grid while Settings/component entry and return remain. No automatic device operation.",
+  "device_version": "At software-validation time, device still ran BIN7b4c5768; prior photo/group acceptance remains in battery-page-hardware.json. Later exact-BINce007a7e flash/entry feedback is recorded separately in battery-menu-hardware.json.",
+  "next_bounded_experiment": "Historical software follow-up completed by the later battery-menu-hardware.json record. Current active scope and next step only in STATUS current.",
   "failures": [],
   "sdk_locked_clean": true,
   "actual_lvgl_frames": [
