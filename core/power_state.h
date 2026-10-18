@@ -25,6 +25,10 @@ typedef struct {
     /* First confirmed automatic ACTIVE in an input cycle; zero after confirmed
      * unplug. Status IRQs never allocate a new identity. Not persistent. */
     uint32_t charge_cycle;
+    /* Identity/time of an actual ADC completion, not of a UI read or PG update. */
+    uint32_t voltage_sequence, voltage_sampled_ms;
+    bool estimate_valid;
+    uint8_t estimated_percent;
 } wristflow_power_snapshot_t;
 
 bool wristflow_power_equal(const wristflow_power_snapshot_t *a, const wristflow_power_snapshot_t *b);

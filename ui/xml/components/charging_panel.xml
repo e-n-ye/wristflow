@@ -5,6 +5,8 @@
             <lv_label name="charging_bolt" align="center" text="&#xf0e7;" style_text_font="icons_44" style_text_color="0x00dfc0" />
         </lv_obj>
         <lv_label name="charging_clock" x="40" y="172" width="310" height="100" text="21:10" style_text_font="clock_80" style_text_align="center" />
-        <lv_label name="charging_state" x="60" y="284" width="270" text="充电中" style_text_font="notification_22" style_text_align="center" />
+        <lv_label name="charging_percent" x="60" y="278" width="270" height="48" text="~59%" style_text_font="value_36" style_text_align="center" />
+        <lv_label name="charging_state" x="60" y="333" width="270" text="充电中" style_text_font="notification_22" style_text_align="center" />
+        <lv_label name="charging_hint" x="60" y="368" width="270" text="估算电量" style_text_font="notification_22" style_text_align="center" style_text_color="0xa7adb5" />
     </view>
 </component>

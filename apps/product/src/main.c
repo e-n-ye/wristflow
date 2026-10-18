@@ -10,6 +10,7 @@
 #include "product_pm.h"
 #include "product_charger.h"
 #include "product_power.h"
+#include "battery_estimate.h"
 #include "product_countdown.h"
 #include "product_alarm.h"
 #include "product_motor.h"
@@ -26,6 +27,7 @@ static uint8_t wake_brightness;
 static wristflow_notifications_snapshot_t notifications;
 static wristflow_power_snapshot_t power;
 static rt_tick_t power_sampled;
+static wristflow_battery_estimator_t battery_estimator;
 
 static wristflow_watch_snapshot_t read_snapshot(bool force_power)
 {
@@ -35,12 +37,15 @@ static wristflow_watch_snapshot_t read_snapshot(bool force_power)
     }
     wristflow_power_snapshot_t next = wristflow_product_power_snapshot();
     wristflow_product_charger_display(&next);
+    wristflow_battery_estimate(&battery_estimator, &next,
+        (uint32_t)((uint64_t)rt_tick_get()*1000U/RT_TICK_PER_SECOND));
     if (!wristflow_power_equal(&power, &next))
-        rt_kprintf("[power] %s voltage_valid=%u VBAT=%umV; SOC unknown\n",
-                   wristflow_power_input_text(&next), next.voltage_valid, next.millivolts);
+        rt_kprintf("[power] %s voltage_valid=%u VBAT=%umV; estimate_valid=%u SOC~%u%%\n",
+                   wristflow_power_input_text(&next), next.voltage_valid, next.millivolts,
+                   next.estimate_valid, next.estimated_percent);
     power = next;
     wristflow_watch_snapshot_t snapshot = wristflow_product_services_snapshot();
-    snapshot.power = power;
+    wristflow_product_apply_power(&snapshot, &power);
     return snapshot;
 }
 

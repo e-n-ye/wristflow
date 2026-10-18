@@ -15,6 +15,7 @@
 | 架构、裁剪或风险核查 | [ARCHITECTURE](docs/ARCHITECTURE.md) 相关契约与 [审查债务 §3](docs/ARCHITECTURE-REVIEW.md#3-债务清单全部未关闭)，先核对证据提交 |
 | 硬件准备、焊接、电池、功耗与试戴 | [HARDWARE](docs/HARDWARE.md) → [电池与电机接入准备](docs/ACCEPTANCE.md#battery-motor-preparation)；[测流方法](docs/ACCEPTANCE.md#first-power-session)／[完整清单](docs/ACCEPTANCE.md#hardware-sequence)仅存契约，活动顺序回 STATUS |
 | 电机控制的软件边界与诊断 | [手动限时电机](docs/MOTOR-PULSE.md)；真实引脚／驱动与负载条件见HARDWARE，当前活动项回STATUS |
+| 电量算法、估算百分比及充电进度环 | [电压估算契约](docs/BATTERY-ESTIMATE.md)及[充电画面](docs/CHARGING-UI.md)；来源／软件验证与本电池校准分别判断，活动项回STATUS |
 | 听懂当前系统与低功耗做到了哪里 | [当前系统／PM 说明](docs/PM-EVENT-WAKE.md#current-power-system)；区分当前源码、分版本 USB 证据与尚未测得的电流／续航 |
 | 下载与 Product 真机验收 | [HARDWARE](docs/HARDWARE.md) → [FLASHING](docs/FLASHING.md) / [Product 验收](docs/PRODUCT-ACCEPTANCE.md)；核对实际版本与供电 |
 | 追溯 N0 审计与旧返工 | [首轮验收](docs/handoffs/N0-CODEX-ACCEPTANCE.md)、[旧任务契约](docs/tasks/N0-VERSION-AUDIT.md)；固定历史 SHA 不替代当前核对 |
