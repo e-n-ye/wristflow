@@ -65,11 +65,40 @@
       {"path": "artifacts/battery-estimate-boot.json", "sha256": "4bbd151d419c9793c97320b4d96b1d0a96d32d0a1b007cbfbb9057589227890b"}
     ]
   },
-  "user_battery_ui_feedback": "Pending; two questions issued after serial close for BAT-only percent/UI voltage/meter reading and USB presentation/exit/sleep/wake recovery",
+  "user_battery_ui_feedback": {
+    "date": "2026-10-18",
+    "version_basis": "Last verified BIN fc4d67037bb1d4b07cf2d38c6b5bd7298952e3b68b129e8bdc1c1377a92d1111; no later firmware change, flash or serial access",
+    "battery_only": {
+      "steps": "User instructed to unplug USB, reconnect original battery, wake with KEY1, then view Settings > battery",
+      "raw_answer": "①~91%\n②4.04V；\n③无表\n时间变成 --:--，但我已进行连接同步",
+      "estimated_percent": 91,
+      "ui_voltage_v": 4.04,
+      "meter_voltage_v": null,
+      "time": "User observed --:-- after power reconnection, then reported connection synchronization; no independent readback or RTC retention test"
+    },
+    "usb_presentation": {
+      "steps": "Keep original battery, natural sleep on ordinary page, insert USB, compare ring/numeric estimate, touch to return and observe no repeat in same connection",
+      "raw_answer": "充电显示~94%，百分比环大致一致，其他无问题，约5秒后估算值是否恢复  指的是什么",
+      "estimated_percent": 94,
+      "ring_matches_approximately": true,
+      "other_requested_interactions_reported_normal": true,
+      "usb_ui_voltage_v": null,
+      "limits": "No photo, independent timing, simultaneous USB voltage, current or cell temperature supplied; 91-to94 change is not calibrated SOC gain or a diagnosed curve-transition effect"
+    },
+    "wake_recovery": {
+      "clarification": "After ordinary-page natural sleep, KEY1 wake should restore an estimated percentage with fresh sampling; same numeric value is not required",
+      "raw_answer": "恢复正常，不需要5s，几乎开屏就有显示",
+      "passed": true,
+      "timing": "User qualitative observation: almost immediately visible on wake, not an instrumented millisecond result"
+    },
+    "scope": "Bounded display/interaction acceptance passed by user report; no new device access, physical voltage comparison or SOC calibration"
+  },
   "verification": {
     "flash_and_usb_only_boot": true,
     "no_battery_estimate_rejection": true,
-    "battery_percentage_ui_hardware": false,
+    "battery_percentage_ui_hardware": true,
+    "usb_ring_touch_return_no_repeat_user_report": true,
+    "key_wake_percentage_recovery_user_report": true,
     "meter_comparison": false,
     "soc_accuracy_or_curve_calibration": false,
     "physical_charge_termination": false
@@ -78,5 +107,5 @@
   "local_check_note": "First evidence-check script used the Windows GBK default to read UTF-8 JSON and failed decoding; explicit UTF-8 succeeded. Files were valid UTF-8 and unchanged; no device failure or retry.",
   "serial_remains_closed": true,
   "additional_reset_or_flash_after_capture": false,
-  "next_bounded_experiment": "Collect requested BAT/display/meter and insert/sleep/wake feedback without reopening serial or continuous monitoring; distinguish UI correctness, voltage agreement and SOC calibration."
+  "next_bounded_experiment": "Current display/interaction round complete. When a meter is available, propose simultaneous battery-terminal/UI voltage and estimate records at distinct natural voltage points; not authorized as a new device experiment here. SOC curve calibration and charge termination remain separate. No continuous monitoring."
 }
