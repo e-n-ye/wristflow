@@ -100,10 +100,19 @@ wristflow_watch_snapshot_t wristflow_product_snapshot(bool rtc_read, uint32_t ut
     return snapshot;
 }
 
+void wristflow_product_apply_power(wristflow_watch_snapshot_t *snapshot,
+    const wristflow_power_snapshot_t *power)
+{
+    snapshot->power = *power;
+    snapshot->battery_unavailable = !power->estimate_valid;
+    snapshot->battery_percent = power->estimate_valid ? power->estimated_percent : 0;
+}
+
 void wristflow_battery_text(const wristflow_watch_snapshot_t *snapshot, char *text, size_t size)
 {
     if (!snapshot->battery_unavailable)
-        snprintf(text, size, "%u%%", (unsigned)snapshot->battery_percent);
+        snprintf(text, size, "%s%u%%", snapshot->power.estimate_valid ? "~" : "",
+            (unsigned)snapshot->battery_percent);
     else if (snapshot->power.voltage_valid) {
         unsigned centivolts = (snapshot->power.millivolts + 5U) / 10U;
         snprintf(text, size, "%u.%02uV", centivolts / 100U, centivolts % 100U);

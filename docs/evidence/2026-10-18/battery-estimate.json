@@ -1,0 +1,101 @@
+{
+  "date": "2026-10-18",
+  "base_commit": "d9cb2945350e95040f95a432bee14e13032aa663",
+  "branch": "codex/battery-estimate",
+  "local_worktree": "D:/MY_Desk/project/wristflow-hardware-meter-plan",
+  "scope": "Voltage estimate, existing displays and proportional charging outline; no new settings/endurance pages or charger control changes.",
+  "source": {
+    "algorithm": "Independent C, 21 vendor points per mode, linear interpolation, per-ADC 3:1 IIR, 2-point hysteresis, 15s validity, voltage cap99, valid FULL100",
+    "reference": "SiFli-SDK customer/boards/sf32lb52-lchspi-ulp_base/battery_table.c, every 5% point",
+    "units": "0.1mV; locked SDK battery_calculator.md example states 38000 // 3.8V",
+    "calibrated_for_cell": false,
+    "core_c_sha256": "b18b35bb2e37fefa8fc67a3fde138deca36f5f5f88e72d801ed24cd9ab40f71d",
+    "core_h_sha256": "6c64ced9d92d64e715d72e7b87b36379238d9fcd87246cfda93af5a28171429c"
+  },
+  "sdk": {
+    "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "clean": true,
+    "bluetooth": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c",
+    "SiliconSchema": "304658c6edd5497211b7d152932327ce6e4450ff"
+  },
+  "visual": {
+    "editor": "LVGL Pro Editor 2.0.1, existing Community license",
+    "lvgl": "9.4.0",
+    "method": "Official GUI Ctrl+B export/recompile; Project compiled successfully; 100% 390x450 preview",
+    "xml_sha256": "03c5e8b1e2c2d681628c42422de065e5c03224964fd821b7bf33ef69d35de830",
+    "generated_c_sha256": "7639a2a6d59d8e4bb47336ee3335b28097cf85d18d01f3a471b58d545e8cb554",
+    "local_screenshot": "artifacts/battery-estimate/pro-100.png",
+    "screenshot_sha256": "2bd0b743f51b2194613665e368e7e7559416a4d6385b53ec377d8fdae5a2cde7",
+    "local_contact_sheet": "artifacts/battery-estimate/charging-contact.png",
+    "contact_sheet_sha256": "2118140d3a2585006662f070dd2731cf5f4cf025b2750ea9608810634476d3da",
+    "local_power_page": "artifacts/battery-estimate/power-estimate.png",
+    "power_page_sha256": "9b03a510145b55321ed4b6eb3efe9017150b373f59724eaa8bb2f39182109623",
+    "checked": "Actual LVGL unknown/0/1/25/50/59/99/FULL/expired-FULL/fault frames, nondecreasing edge pixels, glyphs, layout and state updates; host data, not device observations"
+  },
+  "host": [
+    {
+      "command": "cmake -S tests -B artifacts/host -G Ninja -DWRISTFLOW_SDK_ROOT=D:/MY_Desk/project/wristflow/vendor/SiFli-SDK; cmake --build artifacts/host -j6; ctest --test-dir artifacts/host --output-on-failure",
+      "passed": 45, "total": 45, "seconds": 21.21,
+      "log": "artifacts/battery-host-test.log",
+      "sha256": "3184b103b075b5ec9c5fd224a40f27aa5f8192d82685eac2a13cb8b9828d5c11"
+    },
+    {
+      "command": "cmake -S tests -B artifacts/charge-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DWRISTFLOW_SDK_ROOT=D:/MY_Desk/project/wristflow/vendor/SiFli-SDK; cmake --build artifacts/charge-release --target battery_estimate product_power_service product_power product_state product_ui charging_ui -j6; ctest --test-dir artifacts/charge-release -R '^(battery_estimate|product_power_service|product_power|product_state|product_ui|charging_ui)$' --output-on-failure",
+      "assertions_retained": true,
+      "passed": 6, "total": 6, "seconds": 1.11,
+      "log": "artifacts/battery-release-test.log",
+      "sha256": "b9324bc293e5f36562c7023c38e5dea91173ab97fe43a986f516cf10eb393401"
+    },
+    {
+      "command": "cmake --build artifacts/host --target charging_ui -j6; ctest --test-dir artifacts/host -R '^charging_ui$' --output-on-failure",
+      "note": "Final FULL-to-invalid outline fix and actual edge-pixel regression",
+      "passed": 1, "total": 1, "seconds": 0.83,
+      "log": "artifacts/battery-final-debug-test.log",
+      "sha256": "0501165fa372dcd8690ae71a0c298cc501b471f59c36260be2b58c8e7efb7fd8"
+    },
+    {
+      "command": "cmake --build artifacts/charge-release --target charging_ui -j6; ctest --test-dir artifacts/charge-release -R '^charging_ui$' --output-on-failure",
+      "assertions_retained": true,
+      "passed": 1, "total": 1, "seconds": 0.47,
+      "log": "artifacts/battery-final-release-test.log",
+      "sha256": "04e161856d486aabbebdc4a9acdc8799ec2b43c3cf580a0b85654fdb8f95ac5c"
+    }
+  ],
+  "builds": [
+    {
+      "target": "product",
+      "command": "pwsh -NoProfile -File artifacts/build-isolated.ps1 -Example product -Jobs 6",
+      "record": "artifacts/product/20261018-133643-575/result.json",
+      "record_sha256": "c388f18e9676fcda18002a65590265fc1b82afa1c59a35041285c69ae074ebdb",
+      "exit_code": 0, "source_count": 415, "artifact_count": 29,
+      "all_source_and_artifact_rehashes_match": true,
+      "main_bytes": 7740016,
+      "main_sha256": "fc4d67037bb1d4b07cf2d38c6b5bd7298952e3b68b129e8bdc1c1377a92d1111"
+    },
+    {
+      "target": "ui_demo",
+      "command": "pwsh -NoProfile -File artifacts/build-isolated.ps1 -Example ui_demo -Jobs 6",
+      "record": "artifacts/ui_demo/20261018-133804-427/result.json",
+      "record_sha256": "6a4955125505ff1331bb14b41fb982d83ded393373aa47d30fc55e543aff3d85",
+      "exit_code": 0, "source_count": 379, "artifact_count": 22,
+      "all_source_and_artifact_rehashes_match": true,
+      "main_bytes": 7513952,
+      "main_sha256": "067caa99e9470c71ce76047ae4a0862b88de14f21748be2ac34594401044e887"
+    }
+  ],
+  "toolchain": "Python3.13.15, SCons4.10.1, ArmGCC14.2.1; host GNU15.2.0, CMake3.31.4, Ninja",
+  "review": {
+    "method": "Primary diff/visual review plus read-only independent table/unit and lifecycle/UI review",
+    "resolved": ["UNKNOWN/FAULT cannot select discharge curve", "FULL outline now requires valid estimate; invalid sample keeps charge text but clears numeric progress"],
+    "final_blockers": []
+  },
+  "failures_and_limits": [
+    "First firmware build job was explicitly stopped when final UI review found invalid-FULL outline issue; final builds above supersede it; no device was accessed",
+    "First contact-sheet conversion had a Python syntax error; corrected local conversion succeeded; no source or device effect",
+    "Existing watch_core/SDK FinSH/product_services and linker/newlib warnings remain; no new estimator/drawing warning observed",
+    "No cloud baseline requested for this feature increment"
+  ],
+  "hardware_verified": false,
+  "device_operations": "None: no serial, reset, flash, charging command or measurement this round",
+  "next_bounded_experiment": "After confirming actual device/power conditions, flash this exact candidate and compare UI voltage/estimate with battery-terminal meter readings at a few distinct points; validate unplug/sleep/wake recovery. This is ADC/display verification, not SOC curve calibration or charge termination evidence. No continuous manual monitoring."
+}

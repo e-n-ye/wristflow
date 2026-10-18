@@ -7,6 +7,7 @@ static struct rt_event requests;
 static wristflow_power_snapshot_t cached;
 static bool ready, lit;
 static uint32_t epoch;
+static uint32_t voltage_sequence;
 
 /* Short snapshot copy on this HCPU only; never hold this section over I/O. */
 wristflow_power_snapshot_t wristflow_product_power_snapshot(void)
@@ -38,6 +39,11 @@ static void sample_once(void)
 #endif
     rt_tick_t started = rt_tick_get();
     wristflow_power_snapshot_t next = wristflow_product_power_voltage();
+    if (next.voltage_valid) {
+        if (!++voltage_sequence) ++voltage_sequence;
+        next.voltage_sequence = voltage_sequence;
+        next.voltage_sampled_ms = (uint32_t)((uint64_t)rt_tick_get()*1000U/RT_TICK_PER_SECOND);
+    }
     if (publish(&next, generation)) {
         wristflow_product_power_input(&next);
         publish(&next, generation);

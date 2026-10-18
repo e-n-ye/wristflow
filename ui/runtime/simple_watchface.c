@@ -21,11 +21,15 @@ static void update(lv_obj_t *root, const wristflow_watch_snapshot_t *snapshot)
                          (unsigned)snapshot->hour_24, (unsigned)snapshot->minute);
     char text[16];
     wristflow_battery_text(snapshot, text, sizeof text);
-    if (snapshot->power.charge == WF_POWER_CHARGE_ACTIVE || snapshot->power.charge == WF_POWER_CHARGE_FULL ||
-        snapshot->power.charge == WF_POWER_CHARGE_FAULT) {
+    if (snapshot->battery_unavailable && (snapshot->power.charge == WF_POWER_CHARGE_ACTIVE ||
+        snapshot->power.charge == WF_POWER_CHARGE_FULL || snapshot->power.charge == WF_POWER_CHARGE_FAULT)) {
         lv_obj_set_style_text_font(lv_obj_find_by_name(root, "simple_battery"), notification_22, 0);
         snprintf(text, sizeof text, "%s", wristflow_power_charge_text(&snapshot->power));
     }
+    lv_obj_set_style_text_color(lv_obj_find_by_name(root, "simple_battery"),
+        lv_color_hex(snapshot->power.charge == WF_POWER_CHARGE_FAULT ? 0xf87171 :
+        snapshot->power.charge == WF_POWER_CHARGE_ACTIVE || snapshot->power.charge == WF_POWER_CHARGE_FULL ?
+        0x00dfc0 : 0xa7adb5), 0);
     lv_label_set_text(lv_obj_find_by_name(root, "simple_battery"), text);
 }
 

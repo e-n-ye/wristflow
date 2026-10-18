@@ -47,6 +47,8 @@ void wristflow_product_power_input(wristflow_power_snapshot_t *value)
      * I/O and can sleep/wake; fresh independent voltage is already published. */
     wristflow_power_snapshot_t interim = wristflow_product_power_snapshot();
     assert(interim.voltage_valid && interim.millivolts == 3964 && !interim.input_valid);
+    assert(interim.voltage_sequence && interim.voltage_sequence == value->voltage_sequence);
+    assert(interim.voltage_sampled_ms == value->voltage_sampled_ms && interim.voltage_sampled_ms == ticks);
     rt_tick_t before = ticks;
     wristflow_product_power_request();
     assert(rt_tick_get() == before);
@@ -73,8 +75,11 @@ int main(void)
     run_background();
     assert(ticks == 5025 && adc_calls == 1 && input_calls == 1);
     assert(wristflow_product_power_snapshot().input_good);
+    assert(wristflow_product_power_snapshot().voltage_sequence==1);
+    assert(wristflow_product_power_snapshot().voltage_sampled_ms==25);
     wristflow_product_power_screen(false);
     assert(!wristflow_product_power_snapshot().voltage_valid);
+    assert(!wristflow_product_power_snapshot().voltage_sequence);
     run_background(); /* A queued old request cannot sample while off. */
     assert(adc_calls == 1 && !requests.bits);
     ticks += 60000; wristflow_product_power_request(); run_background();

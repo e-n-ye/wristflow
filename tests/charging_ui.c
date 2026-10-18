@@ -41,6 +41,17 @@ static void capture(const char *name)
     for (unsigned i=0;i<390*450;++i) { uint8_t rgb[]={frame[i*3+2],frame[i*3+1],frame[i*3]}; assert(fwrite(rgb,1,3,f)==3); }
     fclose(f);
 }
+static unsigned cyan_ring_pixels(void)
+{
+    unsigned count=0;
+    for (unsigned y=20;y<430;++y) for (unsigned x=20;x<370;++x) {
+        if (x>=160&&x<=230&&y<70) continue; /* Fixed lightning is not progress. */
+        if (x>48&&x<342&&y>70&&y<400) continue;
+        const uint8_t *p=frame+(y*390+x)*3;
+        if (p[2]<30&&p[1]>180&&p[0]>150) ++count;
+    }
+    return count;
+}
 int main(int argc,char **argv)
 {
     assert(argc==2); renders=argv[1]; lv_init(); lv_tick_set_cb(tick);
@@ -67,7 +78,24 @@ int main(int argc,char **argv)
     assert(lv_font_get_glyph_dsc(icons_44,&glyph,0xf0e7,0));
     const uint32_t words[]={0x5145,0x7535,0x4e2d,0x5df2,0x6ee1,0x5f02,0x5e38,0x672a,0x77e5};
     for (unsigned i=0;i<sizeof words/sizeof *words;++i) assert(lv_font_get_glyph_dsc(notification_22,&glyph,words[i],0));
-    capture("unknown_soc"); state.minute=11; assert(!sync());
+    capture("unknown_soc"); assert(!strcmp(lv_label_get_text(named(lv_layer_top(),"charging_percent")),"--%"));
+    const unsigned percentages[]={0,1,25,50,59,99}; unsigned previous_pixels=0;
+    state.power.estimate_valid=true;
+    for (unsigned i=0;i<sizeof percentages/sizeof *percentages;++i) {
+        state.power.estimated_percent=(uint8_t)percentages[i]; assert(!sync());
+        char expected[20]; snprintf(expected,sizeof expected,"~%u%%",percentages[i]);
+        assert(!strcmp(lv_label_get_text(named(lv_layer_top(),"charging_percent")),expected));
+        assert(!strcmp(lv_label_get_text(named(lv_layer_top(),"charging_hint")),"估算电量"));
+        char name[24]; snprintf(name,sizeof name,"percent_%u",percentages[i]); capture(name);
+        unsigned pixels=cyan_ring_pixels();
+        assert(pixels>=previous_pixels);
+        if (percentages[i]>=25) assert(pixels>previous_pixels);
+        previous_pixels=pixels;
+    }
+    state.power.estimate_valid=false; state.power.estimated_percent=0; assert(!sync());
+    assert(!strcmp(lv_label_get_text(named(lv_layer_top(),"charging_percent")),"--%"));
+    assert(!strcmp(lv_label_get_text(named(lv_layer_top(),"charging_hint")),"电量未知"));
+    state.minute=11; assert(!sync());
     assert(!strcmp(lv_label_get_text(named(lv_layer_top(),"charging_clock")),"21:11"));
     tap(); assert(!visible()&&!wristflow_ui_shell_charging_active(shell));
     assert(lv_screen_active()==original&&!strcmp(lv_label_get_text(named(original,"stopwatch_time")),"00:00"));
@@ -83,14 +111,22 @@ int main(int argc,char **argv)
     assert(wristflow_ui_shell_key(shell)&&!visible()&&lv_screen_active()==original);
     state.power.charge_cycle=4; assert(sync());
     state.power.charge=WF_POWER_CHARGE_FULL; assert(!sync()&&visible());
+    state.power.estimate_valid=true; state.power.estimated_percent=100; assert(!sync());
+    assert(!strcmp(lv_label_get_text(named(lv_layer_top(),"charging_percent")),"~100%"));
     assert(lv_color_eq(lv_obj_get_style_border_color(ring,0),lv_color_hex(0x00dfc0)));
     assert(!strcmp(lv_label_get_text(named(lv_layer_top(),"charging_state")),"已充满")); capture("full");
+    state.power.estimate_valid=false; state.power.estimated_percent=0; assert(!sync());
+    assert(!strcmp(lv_label_get_text(named(lv_layer_top(),"charging_percent")),"--%"));
+    assert(!strcmp(lv_label_get_text(named(lv_layer_top(),"charging_state")),"已充满"));
+    assert(lv_color_eq(lv_obj_get_style_border_color(ring,0),lv_color_hex(0x163b38)));
+    capture("full_expired"); assert(cyan_ring_pixels()==0);
     jump(11000); assert(wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_OFF&&brightness==0);
     assert(!sync()&&brightness==0); /* FULL must not wake. */
     jump(125000); assert(wristflow_ui_shell_key(shell)); assert(visible()&&lv_screen_active()==original);
     assert(wristflow_ui_shell_key(shell)&&!visible()&&lv_screen_active()==original);
     assert(!sync()&&!visible());
     state.power.charge_cycle=5; state.power.charge=WF_POWER_CHARGE_ACTIVE; assert(sync());
+    state.power.estimate_valid=false; state.power.estimated_percent=0; assert(!sync());
     state.power.charge=WF_POWER_CHARGE_UNKNOWN; assert(!sync()&&visible());
     state.time_unavailable=true; assert(!sync());
     assert(!strcmp(lv_label_get_text(named(lv_layer_top(),"charging_clock")),"--:--")); capture("unknown_time");

@@ -29,12 +29,15 @@ static void update(lv_obj_t *root, const wristflow_watch_snapshot_t *snapshot)
     lv_obj_set_style_text_font(battery, snapshot->battery_unavailable ? LV_FONT_DEFAULT : body_20, 0);
     char text[16];
     wristflow_battery_text(snapshot, text, sizeof text);
-    if (snapshot->power.charge == WF_POWER_CHARGE_ACTIVE || snapshot->power.charge == WF_POWER_CHARGE_FULL ||
-        snapshot->power.charge == WF_POWER_CHARGE_FAULT) {
+    if (snapshot->battery_unavailable && (snapshot->power.charge == WF_POWER_CHARGE_ACTIVE ||
+        snapshot->power.charge == WF_POWER_CHARGE_FULL || snapshot->power.charge == WF_POWER_CHARGE_FAULT)) {
         lv_obj_set_style_text_font(battery, notification_22, 0);
         snprintf(text, sizeof text, "%s", snapshot->power.charge == WF_POWER_CHARGE_ACTIVE ? "充电" :
             snapshot->power.charge == WF_POWER_CHARGE_FULL ? "已满" : "异常");
     }
+    lv_obj_set_style_text_color(battery, lv_color_hex(snapshot->power.charge == WF_POWER_CHARGE_FAULT ?
+        0xf87171 : snapshot->power.charge == WF_POWER_CHARGE_ACTIVE ||
+        snapshot->power.charge == WF_POWER_CHARGE_FULL ? 0x00dfc0 : 0xffffff), 0);
     lv_label_set_text(battery, text);
 }
 
