@@ -1,0 +1,36 @@
+<screen>
+    <view name="game_page" width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_color="#fg_primary" style_text_font="notification_22">
+        <app_header title="2048" />
+        <lv_button name="game_restart" x="286" y="22" width="80" height="42" style_bg_color="0x29251f" style_bg_opa="100%" style_border_width="0" style_shadow_width="0" style_radius="14" style_pad_all="0">
+            <lv_label align="center" text="重来" style_text_color="0xf2c56b" />
+        </lv_button>
+        <lv_label name="game_score" x="35" y="73" width="158" height="34" text="得分 0" style_text_color="0xf2c56b" />
+        <lv_label name="game_best" x="199" y="73" width="156" height="34" text="最高 0" style_text_align="right" style_text_color="#fg_secondary" />
+        <lv_obj name="game_board" x="35" y="112" width="320" height="320" scrollable="false" clickable="true" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0">
+            <game_tile name="game_tile_0" x="0" y="0" number="2" />
+            <game_tile name="game_tile_1" x="82" y="0" number="" tile_color="0x191c20" />
+            <game_tile name="game_tile_2" x="164" y="0" number="4" tile_color="0xead6ac" />
+            <game_tile name="game_tile_3" x="246" y="0" number="8" tile_color="0xeea365" />
+            <game_tile name="game_tile_4" x="0" y="82" number="16" tile_color="0xec8354" />
+            <game_tile name="game_tile_5" x="82" y="82" number="32" tile_color="0xe8664d" />
+            <game_tile name="game_tile_6" x="164" y="82" number="64" tile_color="0xdf4c42" />
+            <game_tile name="game_tile_7" x="246" y="82" number="128" tile_color="0xe3bf58" />
+            <game_tile name="game_tile_8" x="0" y="164" number="256" tile_color="0xd8ad3e" />
+            <game_tile name="game_tile_9" x="82" y="164" number="512" tile_color="0xc99b2b" />
+            <game_tile name="game_tile_10" x="164" y="164" number="1024" tile_color="0xbc8820" />
+            <game_tile name="game_tile_11" x="246" y="164" number="2048" tile_color="0xefd068" />
+            <game_tile name="game_tile_12" x="0" y="246" number="" tile_color="0x191c20" />
+            <game_tile name="game_tile_13" x="82" y="246" number="2" />
+            <game_tile name="game_tile_14" x="164" y="246" number="" tile_color="0x191c20" />
+            <game_tile name="game_tile_15" x="246" y="246" number="4" tile_color="0xead6ac" />
+        </lv_obj>
+        <lv_obj name="game_overlay" width="390" height="450" hidden="true" scrollable="false" clickable="true" style_bg_color="0x000000" style_bg_opa="80%" style_border_width="0" style_radius="0" style_pad_all="0">
+            <lv_obj x="35" y="123" width="320" height="230" scrollable="false" style_bg_color="0x24211c" style_bg_opa="100%" style_border_width="1" style_border_color="0x645333" style_radius="24" style_pad_all="0">
+                <lv_label name="game_message" x="16" y="25" width="288" text="重新开始？" style_text_align="center" />
+                <lv_label name="game_detail" x="16" y="75" width="288" text="本局进度将清空" style_text_align="center" style_text_color="#fg_secondary" />
+                <lv_button name="game_cancel" x="16" y="145" width="136" height="58" style_bg_color="0x3b3831" style_bg_opa="100%" style_border_width="0" style_shadow_width="0" style_radius="16"><lv_label name="game_cancel_text" align="center" text="继续" style_text_color="#fg_primary" /></lv_button>
+                <lv_button name="game_confirm" x="168" y="145" width="136" height="58" style_bg_color="0xf2c56b" style_bg_opa="100%" style_border_width="0" style_shadow_width="0" style_radius="16"><lv_label name="game_confirm_text" align="center" text="重来" style_text_color="0x262018" /></lv_button>
+            </lv_obj>
+        </lv_obj>
+    </view>
+</screen>

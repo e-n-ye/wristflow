@@ -7,6 +7,7 @@
 #include "countdown_view.h"
 #include "alarm_view.h"
 #include "breathing_view.h"
+#include "game_2048_view.h"
 #include "reminders.h"
 #include <stdint.h>
 #include <string.h>
@@ -21,6 +22,7 @@ struct wristflow_apps {
     wristflow_countdown_view_t *countdown;
     wristflow_alarm_view_t *alarm;
     wristflow_breathing_view_t *breathing;
+    wristflow_2048_view_t *game;
     wristflow_reminders_t *reminders;
     wristflow_countdown_port_t countdown_port;
     wristflow_alarm_port_t alarm_port;
@@ -503,6 +505,7 @@ wristflow_apps_t *wristflow_apps_create(wristflow_ui_shell_t *shell, lv_obj_t *c
     if (!product_mode || countdown) apps->countdown = wristflow_countdown_view_create(shell, countdown, apps->reminders);
     if (!product_mode || alarm) apps->alarm = wristflow_alarm_view_create_with_backend(shell, alarm, apps->reminders);
     apps->breathing = wristflow_breathing_view_create(shell);
+    apps->game = wristflow_2048_view_create(shell);
     apps->menu_layout = menu_layout;
     apps->timer = lv_timer_create(tick, 40, apps);
     lv_timer_pause(apps->timer);
@@ -565,6 +568,8 @@ void wristflow_apps_home_visible(wristflow_apps_t *apps, bool visible)
 
 bool wristflow_apps_back(wristflow_apps_t *apps)
 {
+    if (apps && apps->active == WRISTFLOW_SURFACE_GAME_2048)
+        return wristflow_2048_view_back(apps->game);
     if (apps && apps->active == WRISTFLOW_SURFACE_BREATHING)
         return wristflow_breathing_view_back(apps->breathing);
     if (apps && apps->active == WRISTFLOW_SURFACE_ALARM)
@@ -593,6 +598,10 @@ bool wristflow_apps_breathing_gesture(wristflow_apps_t *apps, lv_dir_t direction
 { return apps && apps->active == WRISTFLOW_SURFACE_BREATHING &&
     wristflow_breathing_view_gesture(apps->breathing, direction, edge); }
 
+bool wristflow_apps_game_gesture(wristflow_apps_t *apps, lv_dir_t direction, bool edge, lv_point_t origin)
+{ return apps && apps->active == WRISTFLOW_SURFACE_GAME_2048 &&
+    wristflow_2048_view_gesture(apps->game, direction, edge, origin); }
+
 lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surface, bool *created)
 {
     if (created) *created = false;
@@ -614,6 +623,8 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         root = wristflow_alarm_view_screen(apps->alarm);
     else if (surface == WRISTFLOW_SURFACE_BREATHING)
         root = wristflow_breathing_view_screen(apps->breathing);
+    else if (surface == WRISTFLOW_SURFACE_GAME_2048)
+        root = wristflow_2048_view_screen(apps->game);
     else if (app)
         root = apps->product_mode && app->capability != WRISTFLOW_CAPABILITY_READY
             ? screen_product_placeholder_create() : app->create();
@@ -647,7 +658,7 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         lv_obj_add_event_cb(scroll, menu_touch, LV_EVENT_ALL, apps);
         apps->menu_nearest = UINT32_MAX;
         menu_position(apps, -130, -124);
-    } else if (surface == WRISTFLOW_SURFACE_COUNTDOWN || surface == WRISTFLOW_SURFACE_ALARM || surface == WRISTFLOW_SURFACE_BREATHING) {
+    } else if (surface == WRISTFLOW_SURFACE_COUNTDOWN || surface == WRISTFLOW_SURFACE_ALARM || surface == WRISTFLOW_SURFACE_BREATHING || surface == WRISTFLOW_SURFACE_GAME_2048) {
         /* The app adapter owns bindings; the shell owns navigation and lifetime. */
     } else if (surface == WRISTFLOW_SURFACE_STOPWATCH) {
         bind_click(root, "stopwatch_toggle", stopwatch_action, apps);
@@ -801,6 +812,7 @@ static void release_screen(wristflow_apps_t *apps, wristflow_surface_t surface)
     if (surface == WRISTFLOW_SURFACE_COUNTDOWN) wristflow_countdown_view_detach(apps->countdown);
     if (surface == WRISTFLOW_SURFACE_ALARM) wristflow_alarm_view_detach(apps->alarm);
     if (surface == WRISTFLOW_SURFACE_BREATHING) wristflow_breathing_view_detach(apps->breathing);
+    if (surface == WRISTFLOW_SURFACE_GAME_2048) wristflow_2048_view_detach(apps->game);
     if (surface == WRISTFLOW_SURFACE_LAUNCHER)
         memset(apps->menu_icons, 0, sizeof apps->menu_icons);
     lv_obj_delete(root);
@@ -826,5 +838,6 @@ void wristflow_apps_destroy(wristflow_apps_t *apps)
     wristflow_countdown_view_destroy(apps->countdown);
     wristflow_alarm_view_destroy(apps->alarm);
     wristflow_breathing_view_destroy(apps->breathing);
+    wristflow_2048_view_destroy(apps->game);
     lv_free(apps);
 }

@@ -25,6 +25,7 @@ void wristflow_apps_breathing_cover(wristflow_apps_t *apps, bool covered);
 bool wristflow_apps_breathing_confirm_leave(wristflow_apps_t *apps, void (*commit)(void *), void *context);
 bool wristflow_apps_breathing_cancel_leave(wristflow_apps_t *apps);
 bool wristflow_apps_breathing_gesture(wristflow_apps_t *apps, lv_dir_t direction, bool edge);
+bool wristflow_apps_game_gesture(wristflow_apps_t *apps, lv_dir_t direction, bool edge, lv_point_t origin);
 bool wristflow_apps_countdown_event(wristflow_apps_t *apps);
 bool wristflow_apps_reminder_event(wristflow_apps_t *apps);
 bool wristflow_apps_countdown_active(const wristflow_apps_t *apps);

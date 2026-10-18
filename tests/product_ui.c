@@ -144,7 +144,8 @@ int main(int argc, char **argv)
             assert(app->card_sizes & slot->size);
         }
     }
-    assert(instances == 10 && wristflow_app_count() == 16);
+    assert(instances == 10 && wristflow_app_count() == 17);
+    assert(wristflow_app_find("game_2048")->capability == WRISTFLOW_CAPABILITY_READY);
     assert(wristflow_app_find("countdown")->demo_only);
     assert(!wristflow_app_find("breathing")->demo_only);
     assert(!wristflow_product_default_page(3) && !wristflow_app_find("missing"));
