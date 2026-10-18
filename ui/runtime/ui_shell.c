@@ -538,7 +538,9 @@ static void gesture(lv_event_t *event)
         shell->navigation.surface == WRISTFLOW_SURFACE_FACE_PICKER)
         return;
     bool handled = false;
-    if (wristflow_apps_breathing_gesture(shell->apps, direction, shell->edge_press))
+    if (wristflow_apps_game_gesture(shell->apps, direction, shell->edge_press, shell->edge_origin))
+        handled = true;
+    else if (wristflow_apps_breathing_gesture(shell->apps, direction, shell->edge_press))
         handled = true;
     else if (shell->navigation.surface == WRISTFLOW_SURFACE_NOTIFICATIONS && direction == LV_DIR_TOP &&
         lv_obj_get_scroll_y(lv_obj_find_by_name(lv_screen_active(), "notification_list")) == 0)

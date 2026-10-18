@@ -1,0 +1,6 @@
+<component>
+    <api><prop name="number" type="string" default="2" /><prop name="tile_color" type="color" default="0xede4d6" /></api>
+    <view extends="lv_obj" width="74" height="74" scrollable="false" clickable="false" style_bg_color="$tile_color" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="12" style_text_color="0x40382f" style_text_font="title_24">
+        <lv_label name="game_number" align="center" text="$number" />
+    </view>
+</component>

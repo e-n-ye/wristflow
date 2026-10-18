@@ -21,6 +21,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/components/countdown_preset_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/editor_card_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/face_thumbnail_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/game_tile_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/launcher_icon_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/layout_block_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/layout_option_gen.c
@@ -81,6 +82,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_countdown_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_face_picker_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_flashlight_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_game_2048_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_launcher_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_layout_picker_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_menu_layout_gen.c

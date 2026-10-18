@@ -19,6 +19,7 @@
 | 平台无关逻辑 | [core](../core/) 的手写模型、协议、配置与状态；具体消费者由 SConscript / CMakeLists 决定 | 对应 [tests/CMakeLists.txt](../tests/CMakeLists.txt) 的主机用例及集成目标 |
 | 手机元数据扩展 | [integrations/gadgetbridge](../integrations/gadgetbridge/) 维护锁定上游的小补丁／测试构建；完整源码与 Android 工具在忽略目录，不能修改厂商 SiFli gitlink | [扩展契约与构建](../integrations/gadgetbridge/README.md)；APK 构建不安装、不烧录，真实手机投递另验 |
 | 通知归组与历史 | [notifications](../core/notifications.c) 只计算身份与排序；[phone_protocol](../apps/product/src/phone_protocol.c) 持有原 ID 缓存，Product BLE 在共同锁内执行整组本地删除；[notification_view](../ui/runtime/notification_view.c) 持有固定列表行、历史和阅读位置 | [通知契约](NOTIFICATION-UI.md#notification-groups)；历史 XML 组件经官方 GUI 导出，手机原 ID 删除与手表整组删除分开验证 |
+| 2048前台游戏 | `core/game_2048.c/h`拥有规则与随机模型，`ui/runtime/game_2048_view.c/h`持有跨离页的RAM棋局与绑定，XML页面／方块组件经官方Pro导出，apps／shell拥有菜单、导航与手势分发 | [2048契约](GAME-2048.md)；无后台服务、Flash保存或亮屏申请，硬件手感另验 |
 | 呼吸前台引导 | [breathing](../core/breathing.h) 独立单调时钟模型，[breathing_view](../ui/runtime/breathing_view.c) 拥有草稿／动画／训练；apps／shell 管导航、独立期限亮屏申请和提醒覆盖，确认时长通过既有 settings／FlashDB worker 保存 | [BREATHING 第二轮](BREATHING.md#round2)；Product 已开放，32/32 主机与双目标编译通过；无后台训练服务，实际 Flash／输入／亮屏和提醒恢复另做 USB 验收 |
 | UI 行为适配 | [ui/runtime](../ui/runtime/) 手写数据绑定、路由、交互及生命周期 | [UI-RUNTIME](UI-RUNTIME.md)、[UI-INTERACTION](UI-INTERACTION.md) 的相关契约；受影响目标回归 |
 | 充电画面 | `ui/xml/components/charging_panel.xml`及官方输出持有视觉，`charging_view.c/h`持有已接受周期、真实显示绑定及比例路径绘制，shell协调覆盖／输入／恢复；Product charger worker发布`charge_cycle`与邮箱提示，main在亮／息屏协调 | [充电画面](CHARGING-UI.md)及[估算接入](BATTERY-ESTIMATE.md)；视图不启停充电，未知暗环、有效估算按比例、有效FULL全亮但不主动唤屏；编译／主机与硬件分开验 |

@@ -75,7 +75,9 @@ static const wristflow_app_descriptor_t apps[] = {
         "睡眠功能待接入", screen_app_placeholder_create, missing, false},
     {"alarm", "闹钟", "\xef\x83\xb3", "launch_alarm", WRISTFLOW_SURFACE_ALARM,
         WRISTFLOW_CAPABILITY_READY, WRISTFLOW_CARD_QUARTER, 0x38bdf8,
-        "", screen_alarm_create, missing, true}
+        "", screen_alarm_create, missing, true},
+    {"game_2048", "2048", "\xef\x80\x8a", "launch_game_2048", WRISTFLOW_SURFACE_GAME_2048,
+        WRISTFLOW_CAPABILITY_READY, 0, 0xd8ad3e, "", screen_game_2048_create, NULL, false}
 };
 
 size_t wristflow_app_count(void) { return sizeof apps / sizeof apps[0]; }

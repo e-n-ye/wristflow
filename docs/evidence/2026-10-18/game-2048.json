@@ -1,0 +1,120 @@
+{
+  "date": "2026-10-18",
+  "base_commit": "996b9f71956592a3a1ec2669102a1bcc8d13d40c",
+  "branch": "codex/game-2048",
+  "scope": "Standalone foreground 2048; RAM state retained until reboot; no flash or device operations",
+  "official_export": {
+    "editor": "2.0.1 Community",
+    "preview_lvgl": "9.4.0",
+    "firmware_lvgl": "9.4.0",
+    "result": "Project compiled successfully; 100% preview inspected",
+    "local_screenshot": "artifacts/game-2048/pro-export-final.jpg"
+  },
+  "builds": [
+    {
+      "example": "product",
+      "result": "artifacts/product/20261018-215348-956/result.json",
+      "result_sha256": "75254e467f0088454c80d9a165e96188ed33b6420b474b121db5bc237b81845a",
+      "source_count": 429,
+      "artifact_count": 29,
+      "firmware_bytes": 7767936,
+      "firmware_sha256": "de21700f8ebb77ea1f7e0126f2244d334ece1554c08df558051f3c089b0e12f5",
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "exit_code": 0
+    },
+    {
+      "example": "ui_demo",
+      "result": "artifacts/ui_demo/20261018-215430-184/result.json",
+      "result_sha256": "6e1c5bbd0ef535511bc2c0dde44b11c35dcce79f17e5988229de468cf5c8f6f5",
+      "source_count": 393,
+      "artifact_count": 22,
+      "firmware_bytes": 7541896,
+      "firmware_sha256": "9620634239fed39da8887ef82461e92681e0e2e990afeb65b5438090f61dce7a",
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "exit_code": 0
+    }
+  ],
+  "tests": [
+    {
+      "path": "artifacts/game-2048/host-tests-verified.log",
+      "sha256": "bed04907c948f880bcf746c521ce23994cebfe3bf6eb8cb65c381b98015c2972",
+      "result": "100% tests passed, 0 tests failed out of 47"
+    },
+    {
+      "path": "artifacts/game-2048/release-tests-verified.log",
+      "sha256": "a30315119490594a8688bbc849e0c66d9d4043e0fb43d41da10ba194dd7c5ed4",
+      "result": "100% tests passed, 0 tests failed out of 5"
+    },
+    {
+      "path": "artifacts/game-2048/direction-test.log",
+      "sha256": "0fa4c1a31a745711925f9f26272bad1a990f0f57b4b819aa304fb917479874d2",
+      "result": "100% tests passed, 0 tests failed out of 1"
+    },
+    {
+      "path": "artifacts/game-2048/direction-release-test.log",
+      "sha256": "c2f1f3e6b22a97c924e9cb2a5c5750209761f25f9b3c00213241ad759a3899f5",
+      "result": "100% tests passed, 0 tests failed out of 1"
+    },
+    {
+      "path": "artifacts/game-2048/core-strict.log",
+      "sha256": "3be420bcaef92c7ca3a188ac11ed6a087e5d0b1e34503af23ea2f311891c853a",
+      "result": "2048: rules, four directions, RNG, win/continue, saturation; 12315 valid / 302 invalid / 100 losses"
+    }
+  ],
+  "source_hashes": {
+    "core/game_2048.c": "73c74163e472106c5257fb64a5c427369400217a4e2880dae9f63564db68e9d3",
+    "core/game_2048.h": "1f59d307030d0d50210ee867611db83cbff278ef7e73db11c2928978d4042c23",
+    "core/watch_core.h": "0c5f966f8cdae39f3ea0befe64d746a592663b6bf49ec4e62d633795a448d9f4",
+    "tests/game_2048.c": "f8e18a46c83e1c938844e54af2b8c97fb078e3a4e6197706e97313e62da505a0",
+    "tests/game_2048_ui.c": "b7cfb151dfbc85dc3d6bbf2478d543f0268eb5e0ef87808654c7c395f1b6cc68",
+    "tests/product_ui.c": "8ae33e758e146c17c5df8990757aa47c78506a2d4f1bc5c49810802d0261957f",
+    "ui/runtime/app_registry.c": "79a3bb46d071b94c4efa6888d26dd775fd57560f0260c548745c8b9dd39227b0",
+    "ui/runtime/apps.c": "aab196b398ac18c8552f9983b8a9f5ad6d50dce2244ede052e2aaa1edcb3caf6",
+    "ui/runtime/apps.h": "714f1038cfce91d9c28dd60863177e86e1ee2286b058366af446838cccad9a6f",
+    "ui/runtime/game_2048_view.c": "cf346f47409114c3f421b05ad121f8b880e9c5b01f849101017f2e14718b48ef",
+    "ui/runtime/game_2048_view.h": "a97ed7472361d7f2cdc0a5c0db432f58824593ebbcf9063de40213edc16a322a",
+    "ui/runtime/ui_shell.c": "5967ac92df2513fee44b035bd6906133df84b85b1d005cf7ef718c4f171d19f6",
+    "ui/xml/components/game_tile.xml": "3f28f355f6a0da082afc9580e3ff77ebda43b832881988c14e0f9d9a986e1c68",
+    "ui/xml/components/game_tile_gen.c": "6ffaacd4e145dec4f0c97e02812637b11a35a829e5abbc9a94c4f15e3587c009",
+    "ui/xml/components/game_tile_gen.h": "116e6603f78ed637655043881d851337a24773d0e4e65fb26e3979164c63bfc5",
+    "ui/xml/screens/screen_game_2048.xml": "b32dad26cada3a7a71b4f920be1bbb25e3e46bb908068b39c71d6ba85acef3a2",
+    "ui/xml/screens/screen_game_2048_gen.c": "223e5971a3669af581f5e9ff0d76102e4661fb8dafb4028a66a9d3b495455a4f",
+    "ui/xml/screens/screen_game_2048_gen.h": "9dc09cfab0d8bc3bda8bf14da8b0b2797864187ce820c4a9fd8ed65cc8590ea7",
+    "ui/xml/wristflow_ui_gen.h": "8b96fdff8dadb9b1e58f68e79f2958f3700876a8f8142983bac93bde673f8e0e"
+  },
+  "snapshot_hashes": {
+    "artifacts/host/renders/2048-menu-grid.ppm": "cbc5c138444f516ad71367770d2b13d745bcd0915e933ecd6ae9da4e760768e9",
+    "artifacts/host/renders/2048-menu-list.ppm": "cbc5c138444f516ad71367770d2b13d745bcd0915e933ecd6ae9da4e760768e9",
+    "artifacts/host/renders/2048-over.ppm": "08e0a947ccf4f18ec1facf18de6bfbc90ebf04c5ce637980160e665986373010",
+    "artifacts/host/renders/2048-play.ppm": "2a5fdd0815f514a0069d27e5734f2d5eeda6ec7d762f03abaabd26e7b81c2520",
+    "artifacts/host/renders/2048-restart.ppm": "03449bae5274d6f98e210415d0a84815574d917056b608a31a09cfaecde54d21",
+    "artifacts/host/renders/2048-start.ppm": "3a7a85db35364bbd42fc5e82414768b9e9bc466bbb9b675e7423001c8ccaf7b1",
+    "artifacts/host/renders/2048-values.ppm": "c77be94af1c412b4c0222dda5e8afeb522949e0c1b63dcf5c83073b76a4184a5",
+    "artifacts/host/renders/2048-win.ppm": "fc8b71d4f45608e5f22ac0348aaa75e113db9418255f6893339097a1d60f5432"
+  },
+  "text_validation": {
+    "files": 26,
+    "relative_links": 258,
+    "utf8": true,
+    "xml": true,
+    "whitespace": "Default check passes except official new generated C EOF blank lines; only those two files checked with -blank-at-eof"
+  },
+  "local_evidence_only": true,
+  "failures_and_repairs": [
+    "Initial test fixtures/cadence/navigation assumptions corrected",
+    "Existing app count updated from 16 to 17",
+    "Score label height increased to 34 and officially re-exported",
+    "ARM short-enum lower-bound warning fixed using unsigned range validation",
+    "Nonexistent system pwsh replaced with the existing task-configured executable"
+  ],
+  "hardware": {
+    "verified": false,
+    "serial_opened": false,
+    "flashed": false,
+    "reset": false
+  },
+  "remaining": [
+    "On-device swipe feel and affected lifecycle regression",
+    "Game and best score intentionally reset on reboot"
+  ]
+}
