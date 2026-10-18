@@ -124,12 +124,35 @@
     ]
   },
   "user_ui_feedback": {
-    "status": "pending",
-    "requested": "Unplug USB, reconnect original battery, KEY1 wake, Settings > battery: percentage/UI voltage, glyph/layout and touch return. Later check card/list routes, USB state refresh and ordinary sleep/wake."
+    "status": "first display feedback received; final route/wake/USB group pending",
+    "version_basis": "Last verified Product BIN7b4c57688543b3df0176cc46dad7884706297b3607fdf5a256b28e5ec9a06f61; no subsequent firmware, UART, reset or flash changes.",
+    "first_group": {
+      "requested": "Unplug USB, reconnect original battery, KEY1 wake, Settings > battery: percentage/UI voltage, glyph/layout and touch return.",
+      "raw_answer": "应该是正常的",
+      "photo": {
+        "local_attachment": "C:/Users/13984/AppData/Local/Temp/codex-clipboard-d1c1d956-79b9-4009-8acd-a62e2dd6d9a4.jpg",
+        "bytes": 160045,
+        "sha256": "7d8367c52e41ccd7ca13e11e9e4e12df1a185769c9f534f882c50f4790ecaa93",
+        "availability": "User chat attachment; local temporary path, image not committed to repository."
+      },
+      "visible_facts": {
+        "title": "电池",
+        "time": "15:20",
+        "estimated_percent": "~99%",
+        "ui_voltage": "4.16V",
+        "charge_text": "未充电",
+        "usb_input_text": "USB 输入无效",
+        "source_text": "电压估算，仅供参考",
+        "layout": "Visible title, time, battery icon, percentage, status, voltage/input card and source text are complete with no obvious overlap or missing glyphs in this photo."
+      },
+      "limits": "User reports general normality after the requested battery-only steps; actual wiring is not independently inferred from the photo. Photo alone cannot prove touch return, screen refresh, wake, calibrated99% SOC or measured cell voltage."
+    },
+    "final_group_requested": "Open battery page from battery card and app menu and return; natural sleep on battery page then KEY1 wake and inspect restoration; keep original battery, insert USB, exit charging overlay and reopen battery page, check USB input valid and charging-state update.",
+    "final_group_result": "pending"
   },
   "failures": [],
   "local_check_note": "Bundled artifact Python lacks pyserial; port enumeration reused installed SDK Python, with no installation or port opening at that stage.",
   "serial_remains_closed": true,
-  "limits": "Successful flash/verify and driver initialization do not prove actual new-page touch/display acceptance, calibrated SOC, cell-voltage accuracy, charge termination, physical sleep current or battery life. FULL/FAULT visuals retain host evidence only; no induced faults or charge experiment.",
-  "next_bounded_experiment": "Await requested on-screen feedback on this exact BIN; no extra reset/flash or continuous monitoring."
+  "limits": "First photo proves a bounded visible new-page state; touch/route/refresh/wake group remains pending. No calibrated SOC, measured cell-voltage accuracy, charge termination, physical sleep current or battery-life conclusion. FULL/FAULT visuals retain host evidence only; no induced faults or charge experiment.",
+  "next_bounded_experiment": "Await final requested card/menu return, battery-page sleep/wake and USB update feedback on this exact BIN; serial remains closed, no extra reset/flash or continuous monitoring."
 }
