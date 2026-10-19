@@ -22,4 +22,5 @@ Complete this section after review and merge, in this PR description or the fina
 - Merge blocker, if any (version, reason and next action):
 - GitHub readback: MERGED, mergedAt and mergeCommit:
 - After fetch: origin/main contains the merge commit and expected changes:
+- Primary worktree: local main equals origin/main, main checked out and clean; otherwise exact sync blocker and next action (CONTRIBUTING.md#local-main-sync):
 - Hardware acceptance still pending:

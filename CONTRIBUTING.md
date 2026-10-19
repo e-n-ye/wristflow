@@ -10,7 +10,7 @@
 4. 创建面向 `main` 的 PR，按模板记录源码检查、编译证据、硬件验证及剩余风险。
 5. 主代理审阅 PR 最终差异、最新 head 与验证证据；验证必须对应实际源码版本。CI 不随 PR 或 push 自动运行，无 Checks 是日常 PR 的正常状态。需要干净环境证据时，在 Actions 的 `Firmware` 工作流中选择分支手动运行 `Build baselines`，把对应提交和结果写入 PR，并在该次检查成功后合并；其他独立工作可继续。源码在验证后改变时，重新验证受影响行为。
 6. 主代理在本次交付中执行 Rebase and merge，并用已审阅的 head 限定合并对象。PR 为草稿、验证失败或有真实阻断时先处理；无法处理则写明版本、原因及下一步。不能只创建 PR 就宣布完成，也不能为收尾忽略阻断。
-7. 合并后从 GitHub 回读 `state=MERGED`、`mergeCommit` 和 `mergedAt`，再 fetch 并确认远端 `main` 包含合并提交及预期变更；向用户报告 PR、合并提交和剩余验收。Rebase 后提交号可能改变，核对实际差异，不能只看本地旧 head。PR 创建、合并和硬件通过是三个不同状态。
+7. 合并后从 GitHub 回读 `state=MERGED`、`mergeCommit` 和 `mergedAt`，再 fetch 并确认远端 `main` 包含合并提交及预期变更；随后按[本地主线同步](#local-main-sync)快进主工作目录的本地 `main`，核对它与 `origin/main` 相同且工作树干净。向用户报告 PR、合并提交、本地同步结果和剩余验收；同步受阻时单独交接原因，不把远端已合入写成本地已同步。Rebase 后提交号可能改变，核对实际差异，不能只看本地旧 head。PR 创建、合并和硬件通过是三个不同状态。
 8. 按文档同步工作流保留交接记录，再从最新 `origin/main` 开下一项分支。存在未提交改动时保留原工作树并在隔离工作树继续。不直接向 `main` 推送日常修改，不强推，不为合并自动删除用户工作树或分支。
 
 首次基线初始化是上述分支流程的唯一初始例外。main 仍要求通过 PR，禁止强推和删除；不再要求自动 CI 状态，因为工作流只响应手动触发。个人项目不要求额外审批人数，但合并前仍须检查差异。
@@ -56,9 +56,30 @@ git merge-base --is-ancestor <回读的mergeSHA> origin/main
 git show --stat <回读的mergeSHA>
 ```
 
-回读不是 `MERGED`、祖先检查非零或变更不符时，交付仍未完成，定位后继续处理。若远端基线前进导致冲突，在主题分支 merge 最新 `origin/main`，解决冲突、审阅并补齐受影响验证后正常 push；不用 force-push。合并记录补入 PR 描述或最终交接，不为回填每个合并状态再创建一个文档 PR。
+回读不是 `MERGED`、祖先检查非零或变更不符时，交付仍未完成，定位后继续处理。远端核对通过后继续完成下节本地同步。若远端基线前进导致冲突，在主题分支 merge 最新 `origin/main`，解决冲突、审阅并补齐受影响验证后正常 push；不用 force-push。合并记录补入 PR 描述或最终交接，不为回填每个合并状态再创建一个文档 PR。
 
 本节变更只做文档检查和 CLI 只读核验，不新增本机固件编译或硬件证据。下一次 PR 沿用解析后的路径，验证创建及最新提交检查查询；`.tools/` 二进制不提交，其他机器不假设拥有此版本目录。
+
+<a id="local-main-sync"></a>
+### 本地主线同步（PR 收尾必做）
+
+远端合并不会自动移动本地 `main`。每次 PR 收尾都先用 `git worktree list --porcelain` 定位主工作目录，核对该目录的分支、HEAD、全部未提交改动及本地 `main` 独有提交。仅当目录干净、`main` 可快进，且该目录已检出 `main` 或本轮已合并且无未推送工作的主题分支时，才在该目录切回 `main` 并快进；不切换其他任务的分支或工作树。
+
+完成远端回读和 fetch 后，以下命令中的路径替换为实际主工作目录；切换前须完成上述分支归属检查。任一步失败就停止同步并保留现场：
+
+```bash
+primary_worktree='/absolute/path/to/primary/worktree'
+test -z "$(git -C "$primary_worktree" status --porcelain=v1)" || exit 1
+git -C "$primary_worktree" merge-base --is-ancestor main origin/main || exit 1
+git -C "$primary_worktree" switch main || exit 1
+git -C "$primary_worktree" merge --ff-only origin/main || exit 1
+test "$(git -C "$primary_worktree" rev-parse main)" = "$(git -C "$primary_worktree" rev-parse origin/main)" || exit 1
+test -z "$(git -C "$primary_worktree" status --porcelain=v1)" || exit 1
+git -C "$primary_worktree" status --short --branch
+git -C "$primary_worktree" rev-parse HEAD
+```
+
+以本地 `main == origin/main`、检出分支为 `main` 且工作树干净作为成功证据；不是只执行 fetch 或看到“Already up to date”就算同步。若有未提交改动、本地独有提交、其他任务占用或快进失败，不自动 stash、丢弃、reset、强制移动分支或删除工作树。记录目录、分支、HEAD、远端 SHA、阻塞及下一步，明确“远端已集成，本地同步受阻”；后续有必要的独立工作从最新 `origin/main` 使用隔离工作树。同步结果或例外写入本轮 PR 描述或最终交接，不另开回填 PR。
 
 ## 最小云端检查
 
