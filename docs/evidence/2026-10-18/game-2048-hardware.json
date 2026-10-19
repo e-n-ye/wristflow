@@ -1,0 +1,194 @@
+{
+  "date": "2026-10-18",
+  "software_pr": "https://github.com/e-n-ye/wristflow/pull/93",
+  "software_merge_commit": "7a8cc9925b561826c4153a1b75c769228550e581",
+  "branch": "codex/game-2048-usb",
+  "local_worktree": "D:\\MY_Desk\\project\\wristflow-hardware-meter-plan",
+  "authorization": "User: 继续，当前仅usb，电池未接，烧录吧",
+  "no_new_source_or_build": true,
+  "preflight": {
+    "at": "2026-10-18T22:08:46.709191+08:00",
+    "product_build": "artifacts\\product\\20261018-215348-956\\result.json",
+    "firmware_sha256": "de21700f8ebb77ea1f7e0126f2244d334ece1554c08df558051f3c089b0e12f5",
+    "source_count": 429,
+    "artifact_count": 29,
+    "bytes": 7767936,
+    "all_rehashed": true,
+    "port": "COM5",
+    "description": "USB-SERIAL CH340 (COM5)",
+    "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+    "serial_opened": false
+  },
+  "sdk_and_submodules_locked_clean": true,
+  "dry_run": {
+    "exit_code": 0,
+    "record": {
+      "path": "artifacts/game-2048/usb-dryrun.log",
+      "sha256": "c2cdf3d81a78e1b96416bfa087c296cfac30a24f226e7c36940e0a353b8b047a"
+    }
+  },
+  "retained_hook": {
+    "address": "0x200033bc",
+    "section": ".retm_data",
+    "false_branch": "cmp r0,#0; beq 0x2000345a; add sp,#80; pop return without calls",
+    "record": {
+      "path": "artifacts/game-2048/usb-retained-hook.asm",
+      "sha256": "eb2e4c8032b8faf5169838676c4b0b947d3b270f7f744adfe695a6bb21e63c79"
+    }
+  },
+  "flash": {
+    "attempts": 1,
+    "exit_code": 0,
+    "completed": "2026-10-18T22:11:44.7798219+08:00",
+    "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/flash-isolated.ps1 -Port COM5",
+    "sftool_command": "D:/MY_Desk/project/wristflow/.tools/sifli/tools/sftool/0.2.5/sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify D:\\MY_Desk\\project\\wristflow-hardware-meter-plan\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 D:\\MY_Desk\\project\\wristflow-hardware-meter-plan\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 D:\\MY_Desk\\project\\wristflow-hardware-meter-plan\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+    "record": {
+      "path": "artifacts/flash/product/20261018-220904-888/result.json",
+      "sha256": "21d21ccbd91c82d365fb1ac77a434e6d815a386c1d9a005e5f182840f6da293a"
+    },
+    "log": {
+      "path": "artifacts/flash/product/20261018-220904-888/sftool.log",
+      "sha256": "85307b6e26b58b6389bed7be5b7c3917eae0d2a467c099ba6efd994adc5cc7d6"
+    },
+    "images": [
+      {
+        "name": "bootloader.bin",
+        "address": "0x12010000",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "name": "main.bin",
+        "address": "0x12020000",
+        "bytes": 7767936,
+        "sha256": "de21700f8ebb77ea1f7e0126f2244d334ece1554c08df558051f3c089b0e12f5"
+      },
+      {
+        "name": "ftab.bin",
+        "address": "0x12000000",
+        "bytes": 11288,
+        "sha256": "d68d47509024b1ad169aaafc767a84d20544d9603ee993c2bbd26b021e6ef15f"
+      }
+    ],
+    "scope": "Manifest three images only; no whole-chip erase or explicit settings partition write"
+  },
+  "first_capture": {
+    "opened": "2026-10-18T22:11:59.273312+08:00",
+    "port": "COM5",
+    "explicit_reset": "RTS150ms",
+    "commands": [
+      {
+        "at": "2026-10-18T22:12:03.525485+08:00",
+        "command": "wf_pm hold"
+      },
+      {
+        "at": "2026-10-18T22:12:04.457715+08:00",
+        "command": "wf_charger status"
+      },
+      {
+        "at": "2026-10-18T22:12:05.436273+08:00",
+        "command": "show_date"
+      }
+    ],
+    "closed": "2026-10-18T22:12:06.918089+08:00",
+    "exit_code": 1,
+    "error": "GetOverlappedResult failed: PermissionError(13), WinError 5",
+    "raw": {
+      "path": "artifacts/game-2048/usb-boot.bin",
+      "sha256": "42ee148816cd412f7f4c831c97814c22d9fe0a0b4da8fd8991f43085546eb1e2"
+    },
+    "log": {
+      "path": "artifacts/game-2048/usb-boot.txt",
+      "sha256": "e32dfc36649e43d1ebb078ce1d3ec12aef3f0f81a4145e6c636bf12b661f6728"
+    },
+    "error_log": {
+      "path": "artifacts/game-2048/usb-boot-console.log",
+      "sha256": "118f4f4361765db6449e3dc6d9053ced168c15df8539c647b5ed384126e4addc"
+    }
+  },
+  "recovery_capture": {
+    "port": "COM5",
+    "explicit_reset": false,
+    "commands": [
+      {
+        "at": "2026-10-18T22:14:11.103154+08:00",
+        "command": "wf_pm allow"
+      },
+      {
+        "at": "2026-10-18T22:14:13.087109+08:00",
+        "command": "wf_pm hold"
+      },
+      {
+        "at": "2026-10-18T22:14:14.116174+08:00",
+        "command": "show_date"
+      },
+      {
+        "at": "2026-10-18T22:14:16.034561+08:00",
+        "command": "wf_time 1792332856"
+      },
+      {
+        "at": "2026-10-18T22:14:18.129021+08:00",
+        "command": "show_date"
+      },
+      {
+        "at": "2026-10-18T22:14:19.043081+08:00",
+        "command": "wf_pm allow"
+      },
+      {
+        "at": "2026-10-18T22:14:20.027877+08:00",
+        "command": "wf_pm status"
+      }
+    ],
+    "opened": "2026-10-18T22:14:10.022127+08:00",
+    "closed": "2026-10-18T22:14:28.069277+08:00",
+    "exit_code": 0,
+    "serial": "1000000 8N1, no flow control, DTR/RTS=false before open",
+    "startup_observed_again": true,
+    "reset_cause": "Unknown; opening serial correlated with a new full boot, no explicit reset in recovery",
+    "raw": {
+      "path": "artifacts/game-2048/usb-recovery.bin",
+      "sha256": "e254150fe0092d0b3458b698b3806432b7c598bcaef9f7ab1bbe4e26f0ffb407"
+    },
+    "log": {
+      "path": "artifacts/game-2048/usb-recovery.txt",
+      "sha256": "a1faaa5f6a46c58a5c3dcc797c2d8ff5399a8422fdb63713cd9a09ecc350e4cd"
+    },
+    "helper": {
+      "path": "artifacts/game-2048/recover-usb.py",
+      "sha256": "0395b9c24401fd996de9fc1bd17b05291088eae1b46cc4c2eaebd2a00cd5cb82"
+    }
+  },
+  "observed": {
+    "product_boot": true,
+    "lcd_co5300_init": true,
+    "touch_ft6146_init": true,
+    "early_inhibit_verified": true,
+    "profile_verified": true,
+    "charge_state": "inhibited / voltage",
+    "vbat_adc_valid_samples_mV": [
+      95,
+      177,
+      178,
+      177
+    ],
+    "estimate_valid": false,
+    "rtc_sync_utc": 1792332856,
+    "rtc_readback_utc": "Sun Oct 18 14:14:18 2026",
+    "final_pm_allow": 1,
+    "final_pm_off": 0,
+    "serial_closed": true,
+    "restored_settings": "brightness55 / diffusion / breathing2; layout generation48, 3 pages; 5 alarms",
+    "notes": "Autonomous alarm restore/progress saves were observed; no explicit settings writes were issued"
+  },
+  "user_screen_feedback": {
+    "received_date": "2026-10-19",
+    "answer": "正常显示表盘或界面",
+    "display_normal": true,
+    "scope": "User observation of watchface or interface only; no 2048 input acceptance"
+  },
+  "not_verified": [
+    "Actual 2048 menu/swipes/return/sleep on device",
+    "Physical current, temperature, SOC or battery life",
+    "Continuous reboot-free serial operation; first capture failed and reopening accompanied another boot"
+  ]
+}
