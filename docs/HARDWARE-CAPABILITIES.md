@@ -105,3 +105,5 @@ wf_imu stop              # 优先取消待办／活动实验；故障时显式�
 低功耗路径只完成源码依据核对：锁定SDK`drv_i2c.c`每笔传输申请／释放IDLE，event timeout注册thread timer，PM按下一timer设tickless唤醒并补偿tick；Product普通DEEP的PowerUpCustom直接返回，基础板PowerDownCustom为空，没有源码证据该路径主动关闭PA30。服务每次读取前恢复PA39／40 mux并配置I2C3，完整序列短持IDLE，正常等待释放，停止未确认保留FAULT责任；亮屏1秒／息屏60秒是新读取负载，不等于已测低功耗。
 
 本轮没有接IMU中断或新的AON事件。只读核查的官方V1.2 EPRO显示INT1接PA31、INT2 NC；精确器件驱动含step／overflow及INT2转INT1能力，PA31具备52X AON源码条件，但实装引脚、清源和睡醒未验，不以此冒充中断接入证据。详细出处见[软件证据](evidence/2026-10-19/native-daily-steps.json)。原生计数跨DEEP保持、I2C恢复、精度与新增耗电仍须本版有界上板验证；不回填成算法效果已经通过。
+
+随后同版Product`4cd7c09b…`三镜像verify／启动／RTC通过，日常phase2／valid1／两次total0／错误0。关闭串口后，用户报告15秒静置0→0，两组各人工50单脚步为0→57、息屏后57→113；证明链路有增量，不是原生算法不足的对比证据。额外动作、完整窗口控制及佩戴适配尚缺，保留现有硬件算法／参数；没有软件替代、小时桶或中断接入。物理DEEP、60秒定时、精度及耗电仍未证明，[硬件证据](evidence/2026-10-19/native-daily-steps-hardware.json)保留边界。
