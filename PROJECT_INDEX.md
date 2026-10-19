@@ -8,6 +8,7 @@
 | 核对目标、范围、预算和既有决定 | [BASELINE](docs/BASELINE.md) 对应主题；长期方向见 [架构 §1–2](docs/ARCHITECTURE.md#1-目的输入与适用范围) |
 | 安排阶段、判断依赖和停止条件 | [架构任务卡 §4](docs/ARCHITECTURE-REVIEW.md#4-后续任务卡与顺序)；同版矩阵见 [Product 验收](docs/PRODUCT-ACCEPTANCE.md)，活动项回 STATUS |
 | 找工程、配置、手写与生成边界 | [工程地图](docs/ENGINEERING-MAP.md)；术语按需查 [CONTEXT](CONTEXT.md) |
+| 选择硬件内置能力、驱动或自研算法 | [硬件能力选择与验证](docs/HARDWARE-CAPABILITIES.md)；型号／接线回 HARDWARE，活动项回 STATUS |
 | 环境与 SCons 固件构建 | [BUILD 当前机器入口](docs/BUILD.md#当前机器直接使用)、[SDK 锁](sdk.lock.json)；已有环境不重装 |
 | 主机测试与模拟器 | [SIMULATOR](docs/SIMULATOR.md)、[测试工程](tests/CMakeLists.txt) |
 | UI / XML / 字体资源 | [UI-DEMO](docs/UI-DEMO.md)、[UI 交互契约](docs/UI-INTERACTION.md)；先由地图确认源与输出，再定位对应专题，如 [充电画面](docs/CHARGING-UI.md)、[呼吸训练](docs/BREATHING.md)、[闹钟](docs/ALARM.md)、[倒计时](docs/COUNTDOWN.md)、[2048](docs/GAME-2048.md) |

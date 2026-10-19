@@ -1,0 +1,105 @@
+{
+  "date": "2026-10-19",
+  "scope": "hardware-first selection gate and explicit bounded native pedometer diagnostic; no recognition algorithm, UI, daily accumulation or wrist wake",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/imu-embedded-foundation",
+  "base_commit": "ba6a93cf6b7deae7a8002056b0a7828c7d86cf58",
+  "hardware_verified": false,
+  "device_access_performed": false,
+  "sources": {
+    "apps/product/src/imu_pedometer.c": "02c0a4828a7c14ef4f96a7a7de140f9047366345b199c5e7fd0fccebc947feb0",
+    "apps/product/src/imu_pedometer.h": "5b5b71438da48a4784b5a5b0d2924b8b712ea859df01d3eff19c08c2b1398e2a",
+    "apps/product/src/product_imu_diag.c": "5a6a7a3b1020ba4a2411b3bbbcd9b64ea9f2c848daee8737ab71ecb5ecf44306",
+    "apps/product/src/product_imu_diag.h": "66f24fefda3e24e567aabf7995c52a25e61fc85083946aa1a22428528e6c1d8c",
+    "apps/product/src/main.c": "a7726aafef4e9910b529defa0244e8a53ac3b53b35020596255fff557b39d30f",
+    "tests/imu_pedometer.c": "347e66504de5810c8a5d7317e5574ea9863d9da24114bd072277b6c04a44593e",
+    "tests/product_imu_diag.c": "88cfa789e484cd6d73cecf63e72b50b14106bebf128f42cc300fd1eab1b5f2dc",
+    "tests/CMakeLists.txt": "151876a6c6a0e9cbf3bf49e5b45efe0e8eaaa1ae2129d33d1ae6a77f1ab9637b",
+    "tests/support/imu/rtdevice.h": "50d054a31de0b84c87340636414f199d82eb8edcf9339d8037e7c9995e0a36ab",
+    "tests/support/imu/board.h": "5d7c96684bdaa978850a42c64649f1fdf9b59c32b83bf043c4243fb2eaa42819"
+  },
+  "basis": {
+    "sdk_lock": "sdk.lock.json",
+    "sdk_commit_verified_clean": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "sdk_submodules_verified": {
+      "middleware/bluetooth": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c",
+      "tools/SiliconSchema": "304658c6edd5497211b7d152932327ce6e4450ff"
+    },
+    "board_reference": "https://wiki.lckfb.com/zh-hans/hspi-sf32lb52/hardware/board.html",
+    "register_recipe": "ST AN5130 Rev 1 section 6.1, printed pages 50-52",
+    "application_note": "https://www.st.com/content/ccc/resource/technical/document/application_note/group0/90/41/09/82/24/d9/4f/29/DM00472670/files/DM00472670.pdf/jcr%3Acontent/translations/en.DM00472670.pdf",
+    "dedicated_driver_inspection_commit": "6735cd1f6ea9208084f2e7dc69605250bc532ac6",
+    "old_c2_inspected_only": "9815dca1be939e0d45fa312452b6070381d26633",
+    "choice": "Use native step counter; do not port old software pose recognition. SDK/ST wrapper defects are not evidence of poor silicon algorithm performance.",
+    "audit_limit": "Scoped IMU, battery, charger, RTC and touch inspection; not an exhaustive hardware-capability audit. No device comparison has established native wrist or step effectiveness."
+  },
+  "host": {
+    "compiler": "MSYS2 UCRT64 GCC 15.2.0 Rev13",
+    "cmake": "4.2.3",
+    "ninja": "1.13.2",
+    "configure_commands": [
+      "cmake -S tests -B artifacts/host/imu-embedded-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug",
+      "cmake -S tests -B artifacts/host/imu-embedded-release -G Ninja -DCMAKE_BUILD_TYPE=Release"
+    ],
+    "final_commands": [
+      "cmake --build artifacts/host/imu-embedded-debug --parallel 6",
+      "ctest --test-dir artifacts/host/imu-embedded-debug --output-on-failure --timeout 60",
+      "cmake --build artifacts/host/imu-embedded-release --target imu_pedometer product_imu_diag --parallel 6",
+      "ctest --test-dir artifacts/host/imu-embedded-release -R '^(imu_pedometer|product_imu_diag)$' --output-on-failure --timeout 60"
+    ],
+    "debug": { "passed": 49, "failed": 0, "seconds": 12.73 },
+    "release_related": { "passed": 2, "failed": 0, "seconds": 0.17 },
+    "exit_code": 0,
+    "local_log": "C:/Users/13984/.fastctx/jobs/j-72zlnb/output.log",
+    "local_log_sha256": "514df3903f2da22119fa059bf06cacbaa70793f50b269e0ac9660c020d5b5aea",
+    "coverage": [
+      "Pure backend and actual Product worker source with RT interface substitutes; assertions retained in Release",
+      "No default I/O; explicit unique-address probe; malformed and duplicate requests rejected",
+      "AN5130 bank/defaults/reset sequence, counter rollover and bounded incoherence handling",
+      "Deadline wrap, live configuration deadline, stop priority and cancellation during preparation",
+      "Transport and readback failures remain FAULT even when cancellation coincides and subsequent cleanup succeeds",
+      "Idle event wait, no status I/O, failed-stop IDLE ownership and explicit recovery"
+    ]
+  },
+  "firmware": {
+    "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Build.ps1 -Example product -Jobs 6",
+    "run_id": "20261019-163846-091",
+    "exit_code": 0,
+    "artifact_validation_passed": true,
+    "python": "3.13.15",
+    "scons": "4.10.1",
+    "compiler": "Arm GNU Toolchain 14.2.Rel1, GCC 14.2.1 20241119",
+    "local_result": "artifacts/product/20261019-163846-091/result.json",
+    "local_result_sha256": "2267aa7c51a06789e4f3d87f21c88872b6abc5cd487ed49a0fdf93881e36385b",
+    "local_log": "C:/Users/13984/.fastctx/jobs/j-8es2t2/output.log",
+    "local_log_sha256": "ef1d267766e7f190cc6507c75fca548c1bd22c3b5e64d84ba384d6a1b0238225",
+    "project_sources_rehashed": 433,
+    "artifacts_rehashed": 29,
+    "hash_mismatches": 0,
+    "bin_sha256": "2ebd08a10c0be6644315e9a512b5f9298fd3d1d09bdb95316e758cf96c960fbe",
+    "bin_bytes": 7770956,
+    "elf_sha256": "b20ee8d267485bdb20da1ddf1b078da63e9c83346c005ea860a6531c265756f6",
+    "warnings": ["RWX LOAD segment", "ftab missing dfu image warning", "ftab newlib syscall and entry-symbol linker warnings"],
+    "ui_demo": "Not rebuilt: no UI, shared core, generated output or target configuration changed.",
+    "superseded_candidate": "Product 20261019-162751-130 exited 0 before final failure-cause/readback fixes; not the final tested candidate. Earlier host runs likewise superseded."
+  },
+  "review_findings_fixed": [
+    "Cancellation in bus preparation could reach later enable: persistent stop intent and between-stage checks added.",
+    "Configuration used a stale deadline: active budget now starts immediately before first ODR write and checks live clock.",
+    "Cancellation could hide an I/O or readback failure: observed errors take precedence and remain FAULT; regression cases added."
+  ],
+  "remote_branch_cleanup": [
+    {"branch": "codex/weather-d1", "pr": 37, "state_before": "CLOSED", "tip_before": "28e8be5092459ab2a34b97d4f1276b76e653591e", "superseded_by_pr": 38},
+    {"branch": "codex/next-stage-plan", "pr": 24, "state_before": "CLOSED", "tip_before": "4e2fc527803b2645dea07d390683594acf456045", "superseded_by_pr": 28},
+    {"branch": "codex/watchface-design", "pr": 12, "state_before": "CLOSED", "tip_before": "59bb03096c83ba97f33f121da249454d655100ff", "superseded_by_pr": 28},
+    {"branch": "codex/huangshan-first-bringup", "pr": 11, "state_before": "CLOSED", "tip_before": "779d67367f614c79cb58c56b34e4f7432a6841e0", "superseded_by_pr": 28}
+  ],
+  "cleanup_result": "Each remote ref SHA and worktree occupancy checked, individually deleted, absence read back. Open draft #30/#39, all local branches and worktrees retained.",
+  "remaining": [
+    "Reconfirm current board, USB/battery and exact firmware before separately authorized device access.",
+    "Agree bounded stationary, continuous walking and non-walking hand-motion samples; compare actual reference counts to native counter with recorded configuration and duration.",
+    "Native algorithm accuracy, wrist-worn suitability and physical stop latency are unverified. In-flight I2C is not interruptible by the software deadline.",
+    "No wrist-wake, GPIO/AON integration, UI, persistence, daily count, automatic brightness or compass implemented in this round.",
+    "No current, sleep, battery-life or charging validation; shared sensor supply remains enabled after explicit diagnostic I/O."
+  ]
+}
