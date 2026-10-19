@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-19",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/daily-steps-persistence",
+  "base_main": "0d67f9215aacb6b8f41c53f6ed299aecbd563d67",
+  "authorization": "User continued the previously deferred reboot-persistence round and selected 每分钟有变化才保存（推荐）. No serial/flash operation in this software round.",
+  "scope": "Same UTC+8 day's partial native-step total checkpoint/recovery; hourly buckets, goals, other metrics, custom recognition and precision changes excluded",
+  "implementation": {
+    "model": "Boot-only one-shot daily seed; first successful native sample with valid matching date and UTC not before saved observation adopts total and establishes new native baseline. No reboot-gap delta, raw native counter, monotonic clock, sample version or RTC revision restored",
+    "clock_rules": "Unknown RTC waits; wrong-day/future records consumed without adoption; later date rollback cannot reinject. Same-day correction retains known count but drops uncertain delta and rebases a future coverage timestamp",
+    "record": "Independent FlashDB steps_a/steps_b;32B WFST/v1 little-endian, generation/day/total/coverage UTC/saved UTC and CRC32. Newest serial generation selected, invalid/ambiguous records rejected. Inactive-slot write then exact-length/full-byte readback",
+    "cadence": "First valid offer establishes60-second window. Normal successful write sets next allowed window60seconds later; changed data becomes due at max(now,next_window), continuous samples do not postpone. Unchanged totals do not write. Saving deadline competes with native polling; STOP/FAULT can finish prior known checkpoint",
+    "failure": "Three attempts at most,5seconds between failures, then indefinite wait until explicit wf_steps save or reboot; new samples do not renew failed budget. Current counting independent; status copies cached fields without storage I/O",
+    "recovery_command": "wf_steps save requests asynchronous current checkpoint/retry without resetting sensor. Original stop/retry still invalidates/restarts daily0 and does not reload old seed; new0 checkpoints normally",
+    "resources": "Existing sole IMU worker also owns checkpoint I/O, outside IRQ critical section under temporary IDLE. Configured stack2048->6144B (+4096B), no extra worker. No measured stack peak, power, flash endurance or lossless power-failure guarantee"
+  },
+  "host": {
+    "build_debug": "cmake --build artifacts/host/native-steps-debug --config Debug -j 6",
+    "ctest_debug": "ctest --test-dir artifacts/host/native-steps-debug -C Debug --output-on-failure",
+    "debug": {"passed":52,"total":52,"seconds":22.74,"log":"artifacts/steps-persistence-debug-final2-ctest.log","sha256":"63927914c2b627f063e1d7ec17add7e522ca98a707a42692c4d56764379d2a26"},
+    "build_release": "cmake --build artifacts/host/native-steps-release --config Release --target steps_store daily_steps product_imu_diag activity_ui product_ui -j 6",
+    "ctest_release": "ctest --test-dir artifacts/host/native-steps-release -C Release -R '^(steps_store|daily_steps|product_imu_diag|activity_ui|product_ui)$' --output-on-failure",
+    "release": {"passed":5,"total":5,"seconds":1.52,"log":"artifacts/steps-persistence-release-final2-ctest.log","sha256":"cebc8044d83a66d8175a81dc1d1958d1e3712e5a1453eb4e25517afbc5a4ef3a"},
+    "final_type_fix": "After the full tests, explicitly cast RT_WAITING_FOREVER to rt_tick_t in new wait comparison to remove new signedness warning. Rebuilt Product and actual worker Debug/Release; each worker1/1 passed, all other code unchanged",
+    "final_worker_debug": {"log":"artifacts/steps-persistence-worker-final3-debug-ctest.log","sha256":"301bb5e5eb669cee7dc733b00edb410cd155be012f523bd973a13a79ba80b697"},
+    "final_worker_release": {"log":"artifacts/steps-persistence-worker-final3-release-ctest.log","sha256":"de0f75bc463bf07d07ded4c2a9bd3c9c88f14f8893b1371a47203a27ae8a5c24"},
+    "coverage": ["same-day seed once/no first-sample delta", "unknown RTC waiting, wrong date/future rejection and date rollback", "same-day correction before coverage start", "CRC/short record/version/reserved byte damage and single-slot fallback", "generation wrap/equal conflict/half-range ambiguity", "continuous changes do not postpone deadline or failure budget", "60second screen-off sample need not debounce another minute", "write/readback failures, three-attempt cap and explicit retry", "actual worker status without Flash I/O", "actual worker early save deadline, STOP/FAULT pending checkpoint, explicit retry0 and unavailable-storage counting", "real LVGL activity/component regression"]
+  },
+  "builds": [
+    {
+      "example":"product",
+      "command":"pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Build.ps1 -Example product -Jobs 6",
+      "scons":"scons --board=sf32lb52-lchspi-ulp -j6",
+      "result":"artifacts/product/20261019-212437-661/result.json",
+      "result_sha256":"2ed94daec18e0407f65f31af8c0ca0aa16fedb147376660e4d184e4fdf4a8214",
+      "exit_code":0,"sources_exact":459,"artifacts_rehashed":29,
+      "main_bytes":7793904,"main_sha256":"e7cca57247f78ef99dee8ccdfaf49c67944f89deb0944fdb9311c210dcc6eba6",
+      "map_symbols":["wristflow_daily_steps_seed","wristflow_steps_store_restore","wristflow_steps_store_process","wristflow_product_services_steps_write"]
+    },
+    {
+      "example":"ui_demo",
+      "command":"pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Build.ps1 -Example ui_demo -Jobs 6",
+      "scons":"scons --board=sf32lb52-lchspi-ulp -j6",
+      "result":"artifacts/ui_demo/20261019-212258-850/result.json",
+      "result_sha256":"0adfc92033d105b82f68f99211287a28e23d9381a9266b6fe82e87d4083e8bbc",
+      "exit_code":0,"sources_exact":418,"artifacts_rehashed":22,
+      "main_bytes":7560536,"main_sha256":"fe351303f22de7f5b68e9a2d08dd8062453a9d05a9a39ce635f60dfd2fe33876"
+    }
+  ],
+  "tools": {"python":"3.13.15","scons":"4.10.1","arm_gcc":"14.2.1 / Arm14.2.Rel1","sdk":"421126d9f476ed8e2a6f0b0ca28a9f241c182e65","submodules":["middleware/bluetooth@4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c","tools/SiliconSchema@304658c6edd5497211b7d152932327ce6e4450ff"],"lock":"unchanged, SDK/submodules matched and clean"},
+  "review": "Independent read-only source review found same-day backward-clock coverage issue; fixed and tested. Primary found120second screen-off checkpoint cadence; corrected and independently reviewed. Latest code review has no known blocker",
+  "superseded_builds": ["Product20261019-212028-286 exit0; initial candidate superseded by cadence change, not final evidence", "Product20261019-212232-801 completed0, superseded by explicit tick-type comparison fix; existing SDK shell casts/linker warnings retained"],
+  "hardware": {"performed":false,"last_device_image":"4cd7c09b63c43649cdd71bafbb9864c9f4401375f941632ec8ae9b4a9842dee7","boundary":"Old113 count/UI observation is not new Flash persistence verification; no serial, reboot or flashing in this round"},
+  "unverified":["actual FlashDB checkpoint/reboot restore", "physical power loss/atomicity, wear and write-time bounds", "RTC reset/re-sync/cross-day restoration on device", "physical DEEP and persistence across it", "precision/wrist suitability, current and battery life"],
+  "next":"Merge reviewed software PR and synchronize primary main; next bounded device round should save and confirm same-day checkpoint, ordinary reboot/unknown RTC gating, resume count and retry0 boundaries on the exact new image"
+}
