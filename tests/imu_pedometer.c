@@ -150,5 +150,15 @@ int main(void)
     assert(!begin(&b, &d, 5000, 1000));
     assert(!b.enabled && d.snapshot.ended == WF_IMU_DEADLINE && d.snapshot.stop_verified);
     stopped(&b);
+    init(&b,&d); assert(wf_imu_pedometer_probe(&d));
+    assert(wf_imu_pedometer_begin_continuous(&d));
+    unsigned resets=b.resets;
+    b.count=42; b.now=600000;
+    wf_imu_pedometer_poll(&d,b.now);
+    assert(d.continuous && d.snapshot.phase==WF_IMU_RUNNING && d.snapshot.steps==42);
+    assert(b.resets==resets); /* Sampling never resets or restarts the native detector. */
+    b.user[0x19]=0;
+    wf_imu_pedometer_poll(&d,600001);
+    assert(d.snapshot.phase==WF_IMU_FAULT && d.snapshot.stop_verified && !d.continuous);
     return 0;
 }

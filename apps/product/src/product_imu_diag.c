@@ -1,5 +1,7 @@
 #include "product_imu_diag.h"
 #include "imu_pedometer.h"
+#include "product_steps.h"
+#include "product_services.h"
 #include <rtthread.h>
 #include <rthw.h>
 #include <rtdevice.h>
@@ -11,7 +13,7 @@
 #error "Product native IMU diagnostic requires BSP_USING_I2C3"
 #endif
 
-enum { EV_COMMAND = 1, EV_STOP = 2 };
+enum { EV_COMMAND = 1, EV_STOP = 2, EV_DAILY_START = 4, EV_SCREEN = 8 };
 enum command { CMD_NONE, CMD_PROBE, CMD_STEPS };
 static struct rt_event work;
 static struct rt_i2c_bus_device *bus;
@@ -22,6 +24,12 @@ static unsigned seconds;
 static uint8_t address;
 static bool ready, occupied, hold;
 static volatile bool cancel_requested;
+static bool daily_mode, daily_retry_pending, daily_lit = true;
+static wristflow_daily_steps_t daily;
+static wristflow_steps_snapshot_t daily_cached;
+static bool prepare_bus(void);
+static bool probe(void);
+static wristflow_steps_clock_t daily_clock(void);
 
 static uint32_t now_ms(void)
 { return (uint32_t)((uint64_t)rt_tick_get() * 1000U / RT_TICK_PER_SECOND); }
@@ -51,11 +59,85 @@ static void publish(void)
     /* A failed stop keeps ownership/IDLE until an explicit successful stop. */
     bool unresolved = device.identified && !device.snapshot.stop_verified &&
         device.snapshot.phase == WF_IMU_FAULT;
-    gate(active || unresolved);
+    gate((active && !daily_mode) || unresolved);
     rt_base_t level = rt_hw_interrupt_disable();
     cached = device.snapshot;
+    if (daily_mode) {
+        daily_cached = daily.snapshot;
+        daily_retry_pending = false;
+    }
     occupied = active || unresolved || pending != CMD_NONE;
     rt_hw_interrupt_enable(level);
+}
+
+wristflow_steps_snapshot_t wristflow_product_steps_snapshot(void)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    wristflow_steps_snapshot_t value = daily_cached;
+    rt_hw_interrupt_enable(level);
+    if (value.observation.native_source) {
+        wristflow_steps_clock_t clock = daily_clock();
+        if (!clock.valid || clock.monotonic_ms < value.observation.sampled_ms ||
+            clock.monotonic_ms - value.observation.sampled_ms > WRISTFLOW_STEPS_MAX_GAP_MS ||
+            clock.revision != value.observation.clock_revision ||
+            ((uint64_t)clock.utc + 28800U) / 86400U != value.observation.local_day)
+            value.metric.total_valid = false;
+    }
+    return value;
+}
+
+void wristflow_product_steps_screen(bool visible)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    daily_lit = visible;
+    if (ready && daily_mode) rt_event_send(&work, EV_SCREEN);
+    rt_hw_interrupt_enable(level);
+}
+
+void wristflow_product_steps_clock_changed(void)
+{ if (ready && daily_mode) rt_event_send(&work, EV_SCREEN); }
+
+static wristflow_steps_clock_t daily_clock(void)
+{
+    wristflow_alarm_clock_t clock = wristflow_product_services_time();
+    return (wristflow_steps_clock_t){.monotonic_ms = clock.monotonic_ms,
+        .utc = clock.utc, .revision = clock.revision, .valid = clock.valid};
+}
+
+static void daily_work(rt_uint32_t events)
+{
+    gate(true);
+    if (events & EV_STOP) {
+        if (device.identified && (!prepare_bus() ||
+            !wf_imu_pedometer_stop(&device, now_ms(), WF_IMU_USER_STOP))) {
+            device.snapshot.phase = WF_IMU_FAULT;
+            device.snapshot.stop_verified = false;
+        }
+        wristflow_daily_steps_invalidate(&daily);
+        cancel_requested = false;
+    } else if (events & EV_DAILY_START) {
+        /* Recovery is explicit, serialized, and never power-cycles PA30.
+         * Previously known totals are not silently mixed with a reset count. */
+        uint32_t version = daily.snapshot.observation.version;
+        wristflow_daily_steps_init(&daily);
+        daily.snapshot.observation.version = version;
+        bool prepared = prepare_bus();
+        if (prepared && device.identified && device.snapshot.phase == WF_IMU_FAULT)
+            prepared = wf_imu_pedometer_stop(&device, now_ms(), WF_IMU_USER_STOP);
+        bool ok = prepared && probe() && wf_imu_pedometer_begin_continuous(&device);
+        if (!ok) wristflow_daily_steps_invalidate(&daily);
+    } else if (device.snapshot.phase == WF_IMU_RUNNING) {
+        if (prepare_bus()) wf_imu_pedometer_poll(&device, now_ms());
+        else {
+            device.snapshot.phase = WF_IMU_FAULT;
+            device.snapshot.counter_valid = device.snapshot.stop_verified = false;
+        }
+    }
+    if (device.snapshot.phase == WF_IMU_RUNNING && device.snapshot.counter_valid) {
+        if (!wristflow_daily_steps_observe(&daily, device.snapshot.steps, daily_clock()))
+            (void)wf_imu_pedometer_stop(&device, now_ms(), WF_IMU_IO_FAILURE);
+    } else if (daily.snapshot.metric.total_valid) wristflow_daily_steps_invalidate(&daily);
+    publish(); /* Releases this owner's IDLE unless stopping remains unconfirmed. */
 }
 static bool prepare_bus(void)
 {
@@ -113,13 +195,30 @@ static void worker(void *context)
     for (;;) {
         rt_tick_t wait = RT_WAITING_FOREVER;
         if (device.snapshot.phase == WF_IMU_RUNNING) {
-            uint32_t elapsed = now_ms() - device.snapshot.started_ms;
-            uint32_t remaining = elapsed >= device.snapshot.duration_ms ? 1 : device.snapshot.duration_ms - elapsed;
-            wait = rt_tick_from_millisecond(remaining < 1000 ? remaining : 1000);
+            if (daily_mode) {
+                rt_base_t level = rt_hw_interrupt_disable();
+                unsigned interval = daily_lit ? 1000U : 60000U;
+                rt_hw_interrupt_enable(level);
+                wristflow_steps_clock_t clock = daily_clock();
+                if (clock.valid) {
+                    uint32_t boundary = (86400U - (clock.utc + 28800U) % 86400U) * 1000U;
+                    if (boundary < interval) interval = boundary;
+                }
+                wait = rt_tick_from_millisecond(interval);
+            } else {
+                uint32_t elapsed = now_ms() - device.snapshot.started_ms;
+                uint32_t remaining = elapsed >= device.snapshot.duration_ms ? 1 : device.snapshot.duration_ms - elapsed;
+                wait = rt_tick_from_millisecond(remaining < 1000 ? remaining : 1000);
+            }
             if (!wait) wait = 1;
         }
         rt_uint32_t events = 0;
-        rt_event_recv(&work, EV_COMMAND | EV_STOP, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, wait, &events);
+        rt_event_recv(&work, EV_COMMAND | EV_STOP | EV_DAILY_START | EV_SCREEN,
+            RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, wait, &events);
+        if (daily_mode) {
+            daily_work(events);
+            continue;
+        }
         rt_base_t level = rt_hw_interrupt_disable();
         enum command command = pending;
         unsigned span = seconds;
@@ -149,6 +248,10 @@ static void worker(void *context)
 static void wf_imu(int argc, char **argv)
 {
     if (argc == 2 && !strcmp(argv[1], "status")) { report(); return; }
+    if (daily_mode) {
+        rt_kprintf("[imu-steps] daily owner active; diagnostics cannot reset or stop it; wf_steps status|stop|retry\n");
+        return;
+    }
     if (!ready) { rt_kprintf("[imu-steps] worker unavailable\n"); return; }
     if (argc == 2 && !strcmp(argv[1], "stop")) {
         rt_base_t level = rt_hw_interrupt_disable();
@@ -182,16 +285,46 @@ static void wf_imu(int argc, char **argv)
 }
 MSH_CMD_EXPORT(wf_imu, bounded native step-counter diagnostic);
 
-bool wristflow_product_imu_diag_start(void)
+static void wf_steps(int argc, char **argv)
 {
-    if (ready) return true;
+    if (!ready || !daily_mode) { rt_kprintf("[steps] daily service unavailable\n"); return; }
+    if (argc == 2 && !strcmp(argv[1], "status")) {
+        wristflow_steps_snapshot_t s = wristflow_product_steps_snapshot();
+        report();
+        rt_kprintf("[steps] valid=%u total=%lu day=%lu utc=%lu version=%lu native=%u partial=1 volatile=1\n",
+            s.metric.total_valid, (unsigned long)s.metric.total, (unsigned long)s.observation.local_day,
+            (unsigned long)s.observation.utc, (unsigned long)s.observation.version, s.observation.native_count);
+        return;
+    }
+    rt_base_t level = rt_hw_interrupt_disable();
+    if (argc == 2 && !strcmp(argv[1], "stop")) {
+        cancel_requested = true;
+        rt_event_send(&work, EV_STOP);
+    } else if (argc == 2 && !strcmp(argv[1], "retry") &&
+        cached.phase != WF_IMU_RUNNING && !cancel_requested && !daily_retry_pending) {
+        daily_retry_pending = true;
+        rt_event_send(&work, EV_DAILY_START);
+    }
+    rt_hw_interrupt_enable(level);
+}
+MSH_CMD_EXPORT(wf_steps, native daily steps status or explicit stop/retry with a new baseline);
+
+static bool start(bool daily_service)
+{
+    if (ready) return daily_mode == daily_service;
     if (rt_event_init(&work, "wf_imu", RT_IPC_FLAG_PRIO) != RT_EOK) return false;
     wf_imu_pedometer_init(&device, (wf_imu_io_t){NULL, read_reg, write_reg, io_clock, io_cancelled});
+    daily_mode = daily_service;
+    wristflow_daily_steps_init(&daily);
     rt_thread_t thread = rt_thread_create("wf_imu", worker, NULL, 2048, 24, 10);
     if (!thread) { rt_event_detach(&work); return false; }
+    ready = true;
+    if (daily_mode) { daily_retry_pending = true; rt_event_send(&work, EV_DAILY_START); }
     if (rt_thread_startup(thread) != RT_EOK) {
+        ready = false;
         rt_thread_delete(thread); rt_event_detach(&work); return false;
     }
-    ready = true;
     return true;
 }
+bool wristflow_product_imu_diag_start(void) { return start(false); }
+bool wristflow_product_steps_start(void) { return start(true); }

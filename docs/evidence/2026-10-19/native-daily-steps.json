@@ -1,0 +1,107 @@
+{
+  "date": "2026-10-19",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "base_commit": "ba92169778679253c5f2798d9d66879ef9d3f10b",
+  "branch": "codex/native-daily-steps",
+  "authorization": "User requested the step interface and chose runtime daily steps first, restart persistence next round. Existing UTC+8 day boundary, invalid clock stays unknown, other activity metrics unchanged.",
+  "scope": "Native LSM6DS3TR-C counter -> single Product owner -> attributable runtime daily total -> existing steps detail and component. No software motion detector, Flash persistence, hourly history, goal editing, other health algorithm or device operations.",
+  "hardware_choice": {
+    "device": "Existing board LSM6DS3TR-C embedded16-bit step counter",
+    "configuration": "Same AN5130 reference26Hz +/-2g, bankA threshold0x10/debounce0x6e, CTRL10=0x14 as the prior bounded device observation; no retuning or replacement algorithm",
+    "prior_evidence": "docs/evidence/2026-10-19/imu-native-pedometer-hardware.json: stationary15s counted0; exploratory battery window counted70 with imprecise manual reference, not accuracy acceptance",
+    "current_result": "Software integration only; no new claim of wrist suitability or accuracy",
+    "ownership": "Existing product_imu_diag.c worker exclusively owns device/bus; continuous and bounded diagnostic modes are mutually exclusive. Product uses continuous startup. Destructive wf_imu commands rejected in daily mode; explicit wf_steps stop/retry retains cleanup responsibility."
+  },
+  "contract": {
+    "calendar": "Fixed UTC+8; only valid2026..2099 RTC observations publish a total. Runtime start/first valid time/new day/date rollback starts a zero baseline. Same-day clock revision or drift over2s drops the ambiguous interval and preserves earlier known total. Invalid-to-valid time starts a new baseline. No attribution of cross-day deltas.",
+    "continuity": "H-L-H native read after bank/XL/CTRL10 checks. uint16 modular difference only within a nondecreasing extended monotonic interval <=300000ms; delta bound ceil(elapsed_ms*26/1000)+32 rejects untrustworthy discontinuity rather than clipping it. uint32 total saturates. This is not step recognition or accuracy calibration and cannot detect all possible resets retaining configuration.",
+    "metadata": "Native source, version, sample monotonic time/UTC, local day, clock revision, raw count and coverage start; partial_day=true. Short shared critical-section copy. Getter rechecks current clock/day/revision/age before exposing total_valid.",
+    "display": "Only STEPS metric populated. Targets/hour masks and other metrics stay unknown. Main compares total/validity to refresh existing LVGL adapters. No layout, XML or semantic generated output change.",
+    "schedule": "Awake1s, screen off60s, shortened near midnight; screen and clock events request an immediate observation. Only prepare/read/cleanup sequences hold this service's IDLE request; healthy waits release it. Unconfirmed stop retains FAULT/IDLE until explicit recovery. Sensor runs autonomously between reads."
+  },
+  "pm_source_basis": {
+    "sdk": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "i2c": "rtos/rtthread/bsp/sifli/drivers/drv_i2c.c:1057-1061,1212-1215 holds/releases IDLE per transfer;1328-1351 configures I2C3 clock/HAL",
+    "timer": "rtos/rtthread/src/ipc.c:1196-1208 registers event wait thread timer; rtos/rtthread/components/drivers/pm/pm.c:460-480,489-496 uses next timeout for tickless wake and compensates ticks",
+    "power": "sf32lb52-lchspi-ulp_base/bsp_power.c PowerDownCustom empty; Product product_charger.c ordinary-DEEP PowerUpCustom returns without cold setup. No inspected source actively powers down PA30 on this path; actual rail/counter continuity remains unverified.",
+    "interrupt_research_only": "Official V1.2 EPRO SHA25661065a6b55fedf6b9a67f69013560476748bb5ac7dd4841563924a358f760a96, source URL in2026-10-16/motor-pulse.json. SHEET/bfbe9dd79a064614aebc68082ceec943/33.esch U13 INT1 -> PA31, INT2 NC; exact-device ST6735cd1 header defines step/overflow/int2_on_int1. No pin/AON interrupt implementation or device validation in this change."
+  },
+  "host": {
+    "environment": "MSYS2 UCRT64 GCC15.2.0, CMake4.2.3, Ninja1.13.2; pinned SDK LVGL9.4.0",
+    "debug_commands": [
+      "export PATH=\"/d/msys64/ucrt64/bin:$PATH\"",
+      "cmake -S tests -B artifacts/host/native-steps-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug",
+      "cmake --build artifacts/host/native-steps-debug --parallel 6",
+      "ctest --test-dir artifacts/host/native-steps-debug --output-on-failure --timeout 60"
+    ],
+    "debug_result": "51/51 passed,22.10seconds",
+    "debug_log": "artifacts/native-steps-debug-final-ctest.log",
+    "debug_sha256": "f8e194f92d88de8de9981e703c7d1ba9edd9a67b027addfd17aefb2a885939b9",
+    "release_commands": [
+      "cmake -S tests -B artifacts/host/native-steps-release -G Ninja -DCMAKE_BUILD_TYPE=Release",
+      "cmake --build artifacts/host/native-steps-release --parallel 6 --target daily_steps imu_pedometer product_imu_diag activity_ui product_ui",
+      "ctest --test-dir artifacts/host/native-steps-release -R '^(daily_steps|imu_pedometer|product_imu_diag|activity_ui|product_ui)$' --output-on-failure --timeout 60"
+    ],
+    "release_result": "5/5 passed,1.54seconds; new pure/worker tests retain assertions under Release",
+    "release_log": "artifacts/native-steps-release-ctest.log",
+    "release_sha256": "2c8c8a9d539bbe4983c9aebf94b00f0e5bf0a2725528a4636aba2f65e53ddd98",
+    "coverage": ["native continuous mode does not reset on reads", "bounded diagnostic behavior retained", "diagnostic/daily owner exclusion", "runtime stop/retry coalescing and setup cancellation", "normal waiting releases IDLE; failed cleanup retains it", "awake1s/off60s sampling", "RTC invalid/revision/day gate before worker publish", "UTC+8 midnight/date rollback/native16-bit wrap", "inclusive300000ms gap, monotonic64 over raw32-bit wrap, saturation and abnormal jump", "same-day revision/undetected RTC drift drops ambiguous delta", "actual LVGL detail and external component update from daily model while goals/hourly/other metrics remain unknown"],
+    "snapshot": "artifacts/native-steps-live.png",
+    "snapshot_sha256": "5a5abd01c2c6eeebb9f7745a5e8a691751003ba73eb626a1a1ed34e511a04b19",
+    "snapshot_boundary": "48 in this actual LVGL render is host input, not device-measured steps."
+  },
+  "builds": [
+    {
+      "example": "product",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Build.ps1 -Example product -Jobs 6",
+      "result": "artifacts/product/20261019-202037-031/result.json",
+      "result_sha256": "d9b47235cba1b3c74cd16ca3021632df357b2d7123a207fc7e25df433688b6d1",
+      "exit_code": 0,
+      "source_count": 457,
+      "source_byte_exact": 443,
+      "source_eol_only": 14,
+      "artifact_count": 29,
+      "firmware_bytes": 7791648,
+      "firmware_sha256": "4cd7c09b63c43649cdd71bafbb9864c9f4401375f941632ec8ae9b4a9842dee7",
+      "map": "wristflow_product_steps_start, wristflow_product_steps_snapshot and wristflow_daily_steps_observe present"
+    },
+    {
+      "example": "ui_demo",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Build.ps1 -Example ui_demo -Jobs 6",
+      "result": "artifacts/ui_demo/20261019-202351-168/result.json",
+      "result_sha256": "eea9416e63790a3228ceb3deae474c28629984d77c473eab395c8f465402fdd2",
+      "exit_code": 0,
+      "source_count": 416,
+      "source_byte_exact": 416,
+      "source_eol_only": 0,
+      "artifact_count": 22,
+      "firmware_bytes": 7560536,
+      "firmware_sha256": "cedcc9812b3301d9fc8d43162f36893417438edfa53818a008c586881c4c8338"
+    }
+  ],
+  "source_hashes": {
+    "core/activity.h": "2555e551d7d04533d0235e30de1ff667cf07c87e770f511c8d93dc5bdbc71199",
+    "core/daily_steps.c": "40b344d5d08b5fa52880cb7328e53cbc401e17ccc46bc55ba2d3cb4f70e475c8",
+    "core/daily_steps.h": "2bbc03f3edfa5d4cce2495593eedc793ff01cd20db84ae4104ab1327670f8338",
+    "apps/product/src/product_imu_diag.c": "7cde03aaf48f096313f9d247b508bf23dc1b060c2321055459c14c7108228dab",
+    "apps/product/src/imu_pedometer.c": "e050b99b69c52d7744a9f32ecbe878ebe25760a1dd0af8e3040dc5e4be834126",
+    "apps/product/src/main.c": "5756cd541a6caf15ab5f3fa9220dd4c4dba3a3879ba95f2d51ae6915f4b99715",
+    "apps/product/src/product_services.c": "211eb583d62a3c77fc4582d6b9ad5a9216d523df821127768f8ee573449c1a1e",
+    "tests/daily_steps.c": "2179c1250dbd166361d4f0e7b00058f76f56c0082bd14b738d5c7201156f9328",
+    "tests/product_imu_diag.c": "10acd0c11eefa905975cb4f3e600b7101b076d5e8318840902212e07b72f8fae",
+    "tests/activity_ui.c": "f18a37689311a07ef990abe42196287235ec702fe7c15c1e3b2a514696c3bb22"
+  },
+  "failures_and_review": [
+    "Independent source review found stale-day/revision cache validity at the output; getter now rechecks current clock identity and age, worker tests cover the asynchronous-publication window.",
+    "First combined UI run51tests had1failure after a newly added snapshot intentionally changed scroll offset. Test restores its original offset before existing preservation assertions; final51/51 passed.",
+    "Initial exact-byte source rehash found generated-file LF/CRLF changes. All14 affected Product sources are content-identical after newline normalization; no semantic XML/generated change. All29/22 binary artifacts rehashed exactly.",
+    "Two independent gpt-6.1-sol/medium read-only reviews: after the cache fix, no confirmed remaining production blocker. Primary reviewed source, actual LVGL render and final evidence."
+  ],
+  "toolchain": "Python3.13.15 / SCons4.10.1 / ArmGCC14.2.1; official SCons --board=sf32lb52-lchspi-ulp -j6",
+  "sdk_lock": "Unchanged; SDK and pinned submodules clean and matched by Build.ps1",
+  "warnings": "Existing SDK/watch_core/FinSH/linker warnings retained;14 Product and3 Demo warning lines, none in new daily_steps/product_imu_diag/imu_pedometer sources",
+  "cloud": "Not run: no SDK/toolchain/public build entry change",
+  "hardware_verified": false,
+  "device_operations": "None: no serial, flashing, reset or new sampling during this software round",
+  "next_bounded_experiment": "After software delivery and device authorization/power confirmation: flash exact candidate, verify initial valid zero, fixed-orientation fully counted single-foot walking, screen-off native count continuation/I2C recovery and existing entry/return behavior. Accuracy and current remain distinct."
+}

@@ -88,6 +88,7 @@ bool wf_imu_pedometer_stop(wf_imu_pedometer_t *d, uint32_t now, wf_imu_end_t rea
 {
     if (!d->identified) return false;
     d->budget_active = false;
+    d->continuous = false;
     d->snapshot.ended = reason;
     d->snapshot.stop_verified = stop_hardware(d);
     bool valid = d->snapshot.stop_verified && counter(d, now);
@@ -97,10 +98,11 @@ bool wf_imu_pedometer_stop(wf_imu_pedometer_t *d, uint32_t now, wf_imu_end_t rea
     return d->snapshot.stop_verified;
 }
 
-bool wf_imu_pedometer_begin(wf_imu_pedometer_t *d, uint32_t now, uint32_t duration)
+static bool begin(wf_imu_pedometer_t *d, uint32_t now, uint32_t duration, bool continuous)
 {
     if (!d->identified || !d->io.now_ms || d->snapshot.phase == WF_IMU_RUNNING ||
-        d->snapshot.phase == WF_IMU_FAULT || duration < 1000 || duration > 120000) return false;
+        d->snapshot.phase == WF_IMU_FAULT || (!continuous && (duration < 1000 || duration > 120000))) return false;
+    d->continuous = continuous;
     uint32_t initial_errors = d->snapshot.io_errors;
     d->snapshot.started_ms = now;
     d->snapshot.duration_ms = duration;
@@ -119,7 +121,7 @@ bool wf_imu_pedometer_begin(wf_imu_pedometer_t *d, uint32_t now, uint32_t durati
     /* Preparation precedes the experiment's active budget. From the first ODR
      * write onward, check the live deadline and cancellation between stages. */
     d->snapshot.started_ms = d->io.now_ms(d->io.context);
-    d->budget_active = true;
+    d->budget_active = !continuous;
     /* 26Hz +/-2g; FUNC_EN + PEDO_EN. Reset bit is NOT self-clearing. */
     if (!configure(d, XL, 0x20) || !configure(d, CTRL10, 0x14) ||
         !configure(d, CTRL10, 0x16) || !configure(d, CTRL10, 0x14) ||
@@ -135,13 +137,26 @@ fail:
     return false;
 }
 
+bool wf_imu_pedometer_begin(wf_imu_pedometer_t *d, uint32_t now, uint32_t duration)
+{ return begin(d, now, duration, false); }
+
+bool wf_imu_pedometer_begin_continuous(wf_imu_pedometer_t *d)
+{ return d->io.now_ms && begin(d, d->io.now_ms(d->io.context), 0, true); }
+
 void wf_imu_pedometer_poll(wf_imu_pedometer_t *d, uint32_t now)
 {
     if (d->snapshot.phase != WF_IMU_RUNNING) return;
     if (d->io.cancelled && d->io.cancelled(d->io.context))
         (void)wf_imu_pedometer_stop(d, now, WF_IMU_USER_STOP);
-    else if (now - d->snapshot.started_ms >= d->snapshot.duration_ms)
+    else if (!d->continuous && now - d->snapshot.started_ms >= d->snapshot.duration_ms)
         (void)wf_imu_pedometer_stop(d, now, WF_IMU_DEADLINE);
-    else if (!counter(d, now))
-        (void)wf_imu_pedometer_stop(d, now, WF_IMU_IO_FAILURE);
+    else {
+        /* Detect lost configuration/power before interpreting a counter reset
+         * as wraparound. This never resets the count during observation. */
+        uint8_t bank, xl, control;
+        bool configured = !d->continuous || (read_byte(d, BANK, &bank) && bank == 0 &&
+            read_byte(d, XL, &xl) && xl == 0x20 && read_byte(d, CTRL10, &control) && control == 0x14);
+        if (!configured || !counter(d, now))
+            (void)wf_imu_pedometer_stop(d, now, WF_IMU_IO_FAILURE);
+    }
 }

@@ -26,6 +26,7 @@ typedef struct {
     wf_imu_steps_snapshot_t snapshot;
     bool identified;
     bool budget_active;
+    bool continuous;
 } wf_imu_pedometer_t;
 
 /* One caller owns the device and register bank. No recognition algorithm here:
@@ -33,6 +34,9 @@ typedef struct {
 void wf_imu_pedometer_init(wf_imu_pedometer_t *, wf_imu_io_t);
 bool wf_imu_pedometer_probe(wf_imu_pedometer_t *);
 bool wf_imu_pedometer_begin(wf_imu_pedometer_t *, uint32_t now_ms, uint32_t duration_ms);
+/* One explicit reset when the single owner enters daily mode, then read-only
+ * counter observations. Diagnostic begin retains its 1..120 second limit. */
+bool wf_imu_pedometer_begin_continuous(wf_imu_pedometer_t *);
 void wf_imu_pedometer_poll(wf_imu_pedometer_t *, uint32_t now_ms);
 bool wf_imu_pedometer_stop(wf_imu_pedometer_t *, uint32_t now_ms, wf_imu_end_t);
 #endif
