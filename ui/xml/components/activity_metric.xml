@@ -1,0 +1,23 @@
+<component>
+    <api>
+        <prop name="title" type="string" default="步数" />
+        <prop name="icon" type="string" default="&#xf70c;" />
+        <prop name="accent" type="color" default="0xe2db48" />
+        <prop name="unit" type="string" default="步" />
+    </api>
+    <view extends="lv_obj" width="342" height="410" scrollable="false" clickable="false" style_bg_color="#bg_surface" style_bg_opa="100%" style_border_width="0" style_radius="24" style_pad_all="0" style_text_font="notification_22" style_text_color="#fg_primary">
+        <lv_obj x="20" y="18" width="44" height="44" scrollable="false" clickable="false" style_bg_color="$accent" style_bg_opa="20%" style_border_width="0" style_radius="22" style_pad_all="0">
+            <lv_label align="center" text="$icon" style_text_font="icons_20" style_text_color="$accent" />
+        </lv_obj>
+        <lv_label x="78" y="22" width="250" text="$title" style_text_font="title_24" />
+        <lv_obj x="20" y="78" width="302" height="1" scrollable="false" clickable="false" style_bg_color="0x363b43" style_bg_opa="100%" style_border_width="0" style_pad_all="0" />
+        <lv_label name="metric_value" x="20" y="100" width="216" text="--" style_text_font="metric_56" />
+        <lv_label name="metric_unit" x="244" y="126" width="80" text="$unit" style_text_color="#fg_secondary" />
+        <lv_label name="metric_goal" x="20" y="178" width="302" text="目标 --" style_text_color="#fg_secondary" />
+        <lv_label name="chart_max" x="162" y="222" width="160" text="--" style_text_font="body_20" style_text_align="right" style_text_color="#fg_secondary" />
+        <activity_plot name="metric_plot" x="20" y="254" />
+        <lv_label x="20" y="372" text="0" style_text_font="body_20" style_text_color="#fg_secondary" />
+        <lv_label x="152" y="372" text="12" style_text_font="body_20" style_text_color="#fg_secondary" />
+        <lv_label x="296" y="372" text="24" style_text_font="body_20" style_text_color="#fg_secondary" />
+    </view>
+</component>

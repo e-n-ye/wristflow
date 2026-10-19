@@ -1,6 +1,7 @@
 #include "components.h"
 #include "app_registry.h"
 #include "wristflow_ui.h"
+#include "activity_view.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -110,17 +111,7 @@ static void paint(lv_obj_t *card, const wristflow_component_t *component,
         lv_label_set_text(detail, data.reason);
         lv_obj_set_style_text_color(detail, component->variant ? lv_color_white() : lv_color_hex(0xa7adb5), 0);
     }
-    /* Activity's three missing metrics keep the same information in both colors. */
-    if (!strcmp(app->id, "activity") && lv_obj_find_by_name(card, "activity_ring_0")) {
-        for (unsigned i = 0; i < 3; ++i) {
-            char name[32]; snprintf(name, sizeof name, "activity_ring_%u", i);
-            lv_obj_set_style_arc_color(named(card, name),
-                component->variant ? lv_color_hex(0xffffff) : lv_color_hex(i == 0 ? 0x593820 : i == 1 ? 0x4c491f : 0x183f50), LV_PART_MAIN);
-        }
-        lv_obj_set_style_text_color(named(card, "value_label"), fg, 0);
-        lv_obj_set_style_text_color(named(card, "activity_value_1"), component->variant ? lv_color_white() : lv_color_hex(0xe2db48), 0);
-        lv_obj_set_style_text_color(named(card, "activity_value_2"), component->variant ? lv_color_white() : lv_color_hex(0x38bdf8), 0);
-    }
+    wristflow_activity_card(card, component, snapshot);
 }
 
 static lv_obj_t *make_card(lv_obj_t *parent, const wristflow_component_t *slot,
@@ -130,7 +121,8 @@ static lv_obj_t *make_card(lv_obj_t *parent, const wristflow_component_t *slot,
     if (slot->size == WRISTFLOW_CARD_QUARTER)
         card = card_container_create(parent, "", "--", "", lv_color_hex(0x191c20),
             lv_color_white(), lv_color_white(), lv_color_white());
-    else if (slot->size == WRISTFLOW_CARD_FULL) card = product_metric_full_create(parent);
+    else if (slot->size == WRISTFLOW_CARD_FULL) card = supported_app(slot) && !strcmp(slot->app_id, "activity")
+        ? activity_full_create(parent) : product_metric_full_create(parent);
     else if (supported_app(slot) && !strcmp(slot->app_id, "activity")) card = activity_summary_create(parent);
     else card = metric_half_create(parent, "", "--", "", "", lv_color_hex(0x191c20), lv_color_white(), lv_color_white());
     paint(card, slot, snapshot);

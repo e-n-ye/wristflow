@@ -72,6 +72,8 @@ lv_obj_t * activity_summary_create(lv_obj_t * parent)
         lv_obj_set_name(value_label, "value_label");
         lv_obj_set_x(value_label, 20);
         lv_obj_set_y(value_label, 38);
+        lv_obj_set_width(value_label, 125);
+        lv_label_set_long_mode(value_label, LV_LABEL_LONG_MODE_DOTS);
         lv_label_set_text(value_label, "--");
         lv_obj_set_style_text_font(value_label, value_36, 0);
         lv_obj_set_style_text_color(value_label, ACCENT_ORANGE, 0);
@@ -80,6 +82,8 @@ lv_obj_t * activity_summary_create(lv_obj_t * parent)
         lv_obj_set_name(activity_value_1, "activity_value_1");
         lv_obj_set_x(activity_value_1, 20);
         lv_obj_set_y(activity_value_1, 78);
+        lv_obj_set_width(activity_value_1, 125);
+        lv_label_set_long_mode(activity_value_1, LV_LABEL_LONG_MODE_DOTS);
         lv_label_set_text(activity_value_1, "--");
         lv_obj_set_style_text_font(activity_value_1, value_36, 0);
         lv_obj_set_style_text_color(activity_value_1, lv_color_hex(0xe2db48), 0);
@@ -88,6 +92,8 @@ lv_obj_t * activity_summary_create(lv_obj_t * parent)
         lv_obj_set_name(activity_value_2, "activity_value_2");
         lv_obj_set_x(activity_value_2, 20);
         lv_obj_set_y(activity_value_2, 118);
+        lv_obj_set_width(activity_value_2, 125);
+        lv_label_set_long_mode(activity_value_2, LV_LABEL_LONG_MODE_DOTS);
         lv_label_set_text(activity_value_2, "--");
         lv_obj_set_style_text_font(activity_value_2, value_36, 0);
         lv_obj_set_style_text_color(activity_value_2, ACCENT_BLUE, 0);

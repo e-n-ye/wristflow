@@ -1,0 +1,102 @@
+{
+  "date": "2026-10-19",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "base_commit": "eabe3bae46dc6ac9a389e2508c1e1ee97f0d45f8",
+  "branch": "codex/activity-page",
+  "scope": "Five activity component identities share one continuous vertical detail page. Product has no activity producer; missing data stays unknown. Daily native pedometer integration is deferred.",
+  "official_export": {
+    "editor": "LVGL Pro Editor 2.0.1 Community",
+    "preview_lvgl": "9.4.0",
+    "firmware_lvgl": "9.4.0",
+    "action": "GUI Export Code and Recompile",
+    "result": "Project compiled successfully; 100% activity and data-information pages inspected",
+    "output": "artifacts/activity-pro/official-preview-output-final.txt",
+    "output_sha256": "623bdf54ad2ddbde9f7f381229cff48b96799f3f8666cb1df395e69839ce5960",
+    "screenshots": ["artifacts/activity-pro/overview-final-100.png", "artifacts/activity-pro/info-100.png"],
+    "generated_sync": "Four new component C files and two screen C files are in the official manifest; chart maximum geometry, summary dots and overview goal dots match XML. Source changes after final export are tests and documentation only."
+  },
+  "host": {
+    "environment": "Existing MSYS2 UCRT64 GCC 15.2.0, CMake 4.2.3, Ninja 1.13.2; pinned SDK LVGL",
+    "debug_commands": [
+      "export PATH=\"/d/msys64/ucrt64/bin:$PATH\"",
+      "cmake -S tests -B artifacts/host/activity-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug",
+      "cmake --build artifacts/host/activity-debug --parallel 6",
+      "ctest --test-dir artifacts/host/activity-debug --output-on-failure --timeout 60"
+    ],
+    "debug_result": "50/50 passed, 25.19 seconds",
+    "debug_log": "artifacts/activity-debug-final-ctest.log",
+    "debug_log_sha256": "2e66ea5519494ab12e1031643c24009345683a765923eadbaf4e9526113ae22e",
+    "release_commands": [
+      "cmake -S tests -B artifacts/host/activity-release -G Ninja -DCMAKE_BUILD_TYPE=Release",
+      "cmake --build artifacts/host/activity-release --parallel 6 --target activity_ui product_ui ui_apps ui_shell_lifecycle settings_ui",
+      "ctest --test-dir artifacts/host/activity-release -R '^(activity_ui|product_ui|ui_apps|ui_shell_lifecycle|settings_ui)$' --output-on-failure --timeout 60"
+    ],
+    "release_result": "5/5 passed, 2.78 seconds; activity_ui explicitly retains assertions",
+    "release_log": "artifacts/activity-release-ctest.log",
+    "release_log_sha256": "77ded4a65d016a28968300750afa7c09517aa94af2bcd60f4550f2fba627fd14",
+    "final_boundary": {
+      "change": "Added maximum-value overview screenshot and single-line height assertion after the full run; no production source change",
+      "command": "cmake --build artifacts/host/activity-{debug,release} --parallel 6 --target activity_ui; ctest --test-dir artifacts/host/activity-{debug,release} -R '^activity_ui$' --output-on-failure --timeout 60 (each configuration run separately)",
+      "result": "Debug 1/1 and Release 1/1 passed",
+      "debug_log": "artifacts/activity-boundary-ctest.log",
+      "debug_log_sha256": "ccae1d40b1c32a96b59404d81cec57bbb538394406df002695f517e49591a68a",
+      "release_log": "artifacts/activity-boundary-release-ctest.log",
+      "release_log_sha256": "95babed6f73cb6cd5949255b26f55de49f3f615fa4bc786c01051c75744c3703"
+    },
+    "coverage": ["five component routes and one Product launcher entry", "pointer scrolling, no snap and stable intermediate position after inertia", "information return restores parent position, reopening resets to overview", "missing versus real zero, independent total/goal validity, zero goal", "invalid hourly outlier ignored, progress saturates, uint32 maximum text and chart geometry", "all page glyphs", "reminder overlay restoration, DIM first-touch suppression, short sleep restoration and long sleep home"],
+    "render_directory": "artifacts/host/activity-debug/renders",
+    "contact_sheet": "artifacts/activity-preview.png",
+    "contact_sheet_sha256": "31537ea5ed938679d5bc80723ca600d13f0135e3b35844d9ab0bca0e25f5a9d8",
+    "render_note": "Actual lv_snapshot_take frames. Sample values are test fixtures, not measured Product activity."
+  },
+  "builds": [
+    {
+      "example": "product",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Build.ps1 -Example product -Jobs 6",
+      "result": "artifacts/product/20261019-192724-164/result.json",
+      "result_sha256": "bea7154366112a34c67fd90a522ca87d1380c9a1993495dba00c0e10e6bacb6d",
+      "source_count": 454,
+      "artifact_count": 29,
+      "firmware_bytes": 7789596,
+      "firmware_sha256": "18db19846e4b61467ddfb119607dc54cd1eeae3553c32b757516100e3b0b42dc",
+      "exit_code": 0
+    },
+    {
+      "example": "ui_demo",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Build.ps1 -Example ui_demo -Jobs 6",
+      "result": "artifacts/ui_demo/20261019-192948-540/result.json",
+      "result_sha256": "897309f68d22ea23be17a5b79556a4138b709917ee725bc484722d1f7a8f4106",
+      "source_count": 414,
+      "artifact_count": 22,
+      "firmware_bytes": 7560536,
+      "firmware_sha256": "dd64fd0046653b1edbdb4f8626f199e8c6f3292089cea2245eb684201a57d1d0",
+      "exit_code": 0
+    }
+  ],
+  "build_verification": {
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "sdk_and_submodules": "Pinned lock unchanged, checked clean by Build.ps1",
+    "toolchain": "Python 3.13.15 / SCons 4.10.1 / Arm GCC 14.2.1",
+    "hashes": "All recorded production sources and artifacts rehashed successfully for both targets",
+    "map": "Both target maps contain screen_activity_create, screen_activity_info_create, activity_full_create and wristflow_activity_render",
+    "warnings": "Existing SDK/FinSH/linker warnings retained; no new activity source warning observed",
+    "cloud": "Not run: daily UI iteration, no SDK/toolchain/public build entry change"
+  },
+  "key_source_hashes": {
+    "core/activity.h": "ddee6823ba6fc83ce823cf30210cdcd0935e23ee371521fbcf12caa64b7601f7",
+    "ui/runtime/activity_view.c": "08c76c034383d22138e00ba7f5289bed3dd58e2900b108360b252cdc3506e119",
+    "tests/activity_ui.c": "84cc8691731ecc6034381d10263a14a8c4127ef937269a0556fedc062e8a8272",
+    "tests/product_ui.c": "31bda02ab72616d1ccab32ef064e9f4519bc8fa705e6430635baa379c82b0130"
+  },
+  "failures_and_corrections": [
+    "Initial test 49/50: old launcher expectation; test revised to use current launcher path.",
+    "Scroll stability initially checked before LVGL inertia ended; bounded wait for lv_obj_is_scrolling added.",
+    "Lifecycle test compile error: touch filter was called with four arguments; corrected to existing two-argument API.",
+    "Lifecycle test attempted direct app navigation from HOME; corrected to open launcher first, matching current navigation contract.",
+    "Luna resource-audit agent disconnected due to server overload; primary checked manifest and bindings, existing Sol reviewer checked final XML/generated snippets. No model fallback."
+  ],
+  "review": "Primary inspected final behavior, render and production diff; independent gpt-6.1-sol/medium read-only review found no confirmed production defect and final test/generated snippet recheck had no blocker. Changed UTF-8/Markdown paths and XML checked. Git index line endings normalized with core.autocrlf=true without changing working source bytes. Standard diff --check only reports the six new official generated C EOF blank lines; scoped check with blank-at-eof disabled passes, preserving official output.",
+  "hardware_verified": false,
+  "device_operations": "None: no serial open, sampling, flashing, reset or power experiment",
+  "next_bounded_experiment": "After software delivery, propose same-version visual/continuous-scroll/five-entry hardware acceptance; confirm current authorization and power before device operations. Daily sampling and algorithm acceptance remain separate."
+}

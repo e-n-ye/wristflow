@@ -8,6 +8,7 @@
 #include "alarm_view.h"
 #include "breathing_view.h"
 #include "game_2048_view.h"
+#include "activity_view.h"
 #include "reminders.h"
 #include <stdint.h>
 #include <string.h>
@@ -66,6 +67,20 @@ static void back(lv_event_t *event)
 {
     wristflow_apps_t *apps = lv_event_get_user_data(event);
     wristflow_ui_shell_back(apps->shell);
+}
+
+static void activity_info(lv_event_t *event)
+{
+    wristflow_apps_t *apps = lv_event_get_user_data(event);
+    wristflow_ui_shell_open(apps->shell, WRISTFLOW_SURFACE_ACTIVITY_INFO);
+}
+
+static void activity_scroll(lv_obj_t *root, const char *name)
+{
+    lv_obj_t *scroll = named(root, name);
+    lv_obj_set_scroll_dir(scroll, LV_DIR_VER);
+    lv_obj_set_scroll_snap_y(scroll, LV_SCROLL_SNAP_NONE);
+    lv_obj_remove_flag(scroll, LV_OBJ_FLAG_SCROLL_CHAIN);
 }
 
 static void launch(lv_event_t *event)
@@ -456,7 +471,7 @@ static void create_product_menu(wristflow_apps_t *apps, lv_obj_t *root)
     apps->menu_count = 0;
     for (size_t i = 0; i < wristflow_app_count(); ++i) {
         const wristflow_app_descriptor_t *entry = wristflow_app_at(i);
-        if (entry->surface == WRISTFLOW_SURFACE_FACE_PICKER ||
+        if (entry->component_only || entry->surface == WRISTFLOW_SURFACE_FACE_PICKER ||
             entry->surface == WRISTFLOW_SURFACE_SYSTEM ||
             !wristflow_apps_allows(apps, entry->surface)) continue;
         unsigned index = apps->menu_count++;
@@ -625,6 +640,8 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         root = wristflow_breathing_view_screen(apps->breathing);
     else if (surface == WRISTFLOW_SURFACE_GAME_2048)
         root = wristflow_2048_view_screen(apps->game);
+    else if (surface == WRISTFLOW_SURFACE_ACTIVITY_INFO)
+        root = screen_activity_info_create();
     else if (app)
         root = apps->product_mode && app->capability != WRISTFLOW_CAPABILITY_READY
             ? screen_product_placeholder_create() : app->create();
@@ -640,6 +657,7 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         apps->menu_count = 0;
         for (size_t i = 0; i < wristflow_app_count(); ++i) {
             const wristflow_app_descriptor_t *entry = wristflow_app_at(i);
+            if (entry->component_only) continue;
             lv_obj_t *icon = lv_obj_find_by_name(root, entry->launcher_name);
             if (!icon) continue; /* Demo XML chooses its visible entries. */
             unsigned index = apps->menu_count++;
@@ -702,6 +720,10 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         if (apps->snapshot.time_unavailable) snprintf(time_str, sizeof time_str, "--:--");
         else snprintf(time_str, sizeof time_str, "%02u:%02u", apps->snapshot.hour_24, apps->snapshot.minute);
         wristflow_weather_screen_set_time(root, time_str);
+    } else if (surface == WRISTFLOW_SURFACE_ACTIVITY || surface == WRISTFLOW_SURFACE_ACTIVITY_INFO) {
+        activity_scroll(root, surface == WRISTFLOW_SURFACE_ACTIVITY ? "activity_scroll" : "activity_info_scroll");
+        if (surface == WRISTFLOW_SURFACE_ACTIVITY) bind_click(root, "activity_info", activity_info, apps);
+        wristflow_activity_render(root, &apps->snapshot);
     } else if (surface == WRISTFLOW_SURFACE_SYSTEM) {
         render_power(root, &apps->snapshot, apps->product_mode);
     } else {
@@ -787,6 +809,8 @@ void wristflow_apps_update(wristflow_apps_t *apps, const wristflow_watch_snapsho
     }
     sync_brightness(apps);
     render_power(apps->screens[WRISTFLOW_SURFACE_SYSTEM], snapshot, apps->product_mode);
+    wristflow_activity_render(apps->screens[WRISTFLOW_SURFACE_ACTIVITY], snapshot);
+    wristflow_activity_render(apps->screens[WRISTFLOW_SURFACE_ACTIVITY_INFO], snapshot);
     if (apps->product_mode) {
         wristflow_settings_refresh(apps->screens[apps->active], apps->active, apps->shell);
         bool awake = wristflow_ui_shell_keep_minutes(apps->shell) != 0;

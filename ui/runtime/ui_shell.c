@@ -401,6 +401,9 @@ static bool confirm_breathing_exit(wristflow_ui_shell_t *shell, unsigned action,
 
 bool wristflow_ui_shell_open(wristflow_ui_shell_t *shell, wristflow_surface_t surface)
 {
+    /* Retain old API destinations while all activity components share one page. */
+    if (surface == WRISTFLOW_SURFACE_STEPS || surface == WRISTFLOW_SURFACE_STANDING)
+        surface = WRISTFLOW_SURFACE_ACTIVITY;
     if (!shell || !shell->apps || shell->transitioning || wristflow_ui_shell_reminder_active(shell)) return false;
     if (!wristflow_apps_allows(shell->apps, surface)) return false;
     if (surface != shell->navigation.surface &&

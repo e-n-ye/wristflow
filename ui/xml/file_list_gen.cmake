@@ -1,6 +1,10 @@
 list(
   APPEND
   LV_EDITOR_PROJECT_SOURCES
+  ${CMAKE_CURRENT_LIST_DIR}/components/activity_full_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/activity_metric_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/activity_plot_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/activity_rings_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/activity_summary_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/alarm_item_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/alarm_option_gen.c
@@ -69,6 +73,8 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/images/hour_12_data.c
   ${CMAKE_CURRENT_LIST_DIR}/images/hour_unknown_data.c
   ${CMAKE_CURRENT_LIST_DIR}/images/weather_sun_track_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_activity_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_activity_info_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_alarm_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_app_placeholder_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_battery_gen.c
