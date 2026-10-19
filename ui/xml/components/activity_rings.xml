@@ -1,0 +1,20 @@
+<component>
+    <styles>
+        <style name="ring_progress" arc_width="22" arc_rounded="true" />
+        <style name="no_knob" bg_opa="0%" pad_all="0" />
+        <style name="calorie_progress" arc_color="0xf97316" />
+        <style name="steps_progress" arc_color="0xe2db48" />
+        <style name="minutes_progress" arc_color="0x38bdf8" />
+    </styles>
+    <view extends="lv_obj" width="342" height="150" scrollable="false" clickable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0">
+        <lv_arc name="activity_ring_0" x="26" y="0" width="290" height="290" clickable="false" value="0" bg_start_angle="180" bg_end_angle="360" style_arc_width="22" style_arc_color="0x492819">
+            <style name="ring_progress" selector="indicator" /><style name="calorie_progress" selector="indicator" /><style name="no_knob" selector="knob" />
+        </lv_arc>
+        <lv_arc name="activity_ring_1" x="56" y="30" width="230" height="230" clickable="false" value="0" bg_start_angle="180" bg_end_angle="360" style_arc_width="22" style_arc_color="0x3d3b1a">
+            <style name="ring_progress" selector="indicator" /><style name="steps_progress" selector="indicator" /><style name="no_knob" selector="knob" />
+        </lv_arc>
+        <lv_arc name="activity_ring_2" x="86" y="60" width="170" height="170" clickable="false" value="0" bg_start_angle="180" bg_end_angle="360" style_arc_width="22" style_arc_color="0x163847">
+            <style name="ring_progress" selector="indicator" /><style name="minutes_progress" selector="indicator" /><style name="no_knob" selector="knob" />
+        </lv_arc>
+    </view>
+</component>

@@ -274,6 +274,10 @@ void wristflow_ui_init_gen(const char * asset_path);
  **********************/
 
 /*Include all the widgets, components and screens of this library*/
+#include "components/activity_full_gen.h"
+#include "components/activity_metric_gen.h"
+#include "components/activity_plot_gen.h"
+#include "components/activity_rings_gen.h"
 #include "components/activity_summary_gen.h"
 #include "components/alarm_item_gen.h"
 #include "components/alarm_option_gen.h"
@@ -318,6 +322,8 @@ void wristflow_ui_init_gen(const char * asset_path);
 #include "components/tile_grid_gen.h"
 #include "components/tile_half_gen.h"
 #include "components/tile_quarter_gen.h"
+#include "screens/screen_activity_gen.h"
+#include "screens/screen_activity_info_gen.h"
 #include "screens/screen_alarm_gen.h"
 #include "screens/screen_app_placeholder_gen.h"
 #include "screens/screen_battery_gen.h"

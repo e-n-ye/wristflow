@@ -1,0 +1,12 @@
+<component>
+    <view extends="tile_full" style_bg_color="#bg_surface" style_bg_opa="100%" style_radius="#radius_lg">
+        <lv_label name="caption_label" x="24" y="18" text="活力指标" style_text_font="title_24" style_text_color="#fg_secondary" />
+        <activity_rings y="62" />
+        <lv_label name="value_label" x="18" y="236" width="98" text="--" long_mode="dots" style_text_font="value_36" style_text_align="center" style_text_color="0xf97316" />
+        <lv_label name="activity_value_1" x="122" y="236" width="98" text="--" long_mode="dots" style_text_font="value_36" style_text_align="center" style_text_color="0xe2db48" />
+        <lv_label name="activity_value_2" x="226" y="236" width="98" text="--" long_mode="dots" style_text_font="value_36" style_text_align="center" style_text_color="0x38bdf8" />
+        <lv_label x="18" y="296" width="98" text="千卡" style_text_font="body_20" style_text_align="center" style_text_color="#fg_secondary" />
+        <lv_label x="122" y="296" width="98" text="步" style_text_font="body_20" style_text_align="center" style_text_color="#fg_secondary" />
+        <lv_label x="226" y="296" width="98" text="分钟" style_text_font="body_20" style_text_align="center" style_text_color="#fg_secondary" />
+    </view>
+</component>

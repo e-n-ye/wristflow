@@ -1,0 +1,29 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_text_font="notification_22" style_text_color="#fg_primary">
+        <lv_obj name="activity_scroll" width="390" height="450" scrollbar_mode="off" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_pad_bottom="24" style_radius="0" style_text_color="#fg_primary">
+            <app_header title="活力指标" />
+            <lv_label name="activity_time" x="284" y="30" width="82" text="--:--" style_text_font="body_20" style_text_align="right" />
+            <lv_obj name="activity_overview" x="24" y="82" width="342" height="344" scrollable="false" clickable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_text_color="#fg_primary">
+                <activity_rings name="overview_rings" />
+                <lv_label x="20" y="158" text="&#xf06d;" style_text_font="icons_44" style_text_color="0xf97316" />
+                <lv_label name="overview_calories" x="80" y="154" width="136" text="--" style_text_font="value_36" />
+                <lv_label name="overview_goal_0" x="222" y="170" width="120" long_mode="dots" text="/ --" style_text_font="body_20" style_text_color="#fg_secondary" />
+                <lv_label x="20" y="222" text="&#xf70c;" style_text_font="icons_44" style_text_color="0xe2db48" />
+                <lv_label name="overview_steps" x="80" y="218" width="136" text="--" style_text_font="value_36" />
+                <lv_label name="overview_goal_1" x="222" y="234" width="120" long_mode="dots" text="/ --" style_text_font="body_20" style_text_color="#fg_secondary" />
+                <lv_label x="20" y="286" text="&#xf017;" style_text_font="icons_44" style_text_color="0x38bdf8" />
+                <lv_label name="overview_minutes" x="80" y="282" width="136" text="--" style_text_font="value_36" />
+                <lv_label name="overview_goal_2" x="222" y="298" width="120" long_mode="dots" text="/ --" style_text_font="body_20" style_text_color="#fg_secondary" />
+            </lv_obj>
+            <activity_metric name="activity_calories" x="24" y="450" title="卡路里" icon="&#xf06d;" accent="0xf97316" unit="千卡" />
+            <activity_metric name="activity_steps" x="24" y="876" title="步数" icon="&#xf70c;" accent="0xe2db48" unit="步" />
+            <activity_metric name="activity_minutes" x="24" y="1302" title="中高强度活动" icon="&#xf017;" accent="0x38bdf8" unit="分钟" />
+            <activity_metric name="activity_standing" x="24" y="1728" title="站立" icon="&#xf183;" accent="0x10d6b0" unit="小时" />
+            <lv_button name="activity_info" x="24" y="2154" width="342" height="76" style_bg_color="#bg_surface" style_bg_opa="100%" style_radius="24" style_border_width="0" style_shadow_width="0" style_pad_all="0">
+                <lv_label x="24" align="left_mid" text="&#xf05a;" style_text_font="icons_20" style_text_color="#accent_blue" />
+                <lv_label x="66" align="left_mid" text="数据说明" style_text_font="title_24" />
+                <lv_label x="298" align="left_mid" text="&#xf054;" style_text_font="icons_20" style_text_color="#fg_secondary" />
+            </lv_button>
+        </lv_obj>
+    </view>
+</screen>

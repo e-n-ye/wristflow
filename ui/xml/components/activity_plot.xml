@@ -1,0 +1,32 @@
+<component>
+    <view extends="lv_obj" width="302" height="110" scrollable="false" clickable="false" style_bg_color="0x121519" style_bg_opa="100%" style_border_width="0" style_radius="6" style_pad_all="0">
+        <lv_obj x="0" y="0" width="1" height="110" scrollable="false" clickable="false" style_bg_color="0x363b43" style_bg_opa="100%" style_border_width="0" style_pad_all="0" />
+        <lv_obj x="150" y="0" width="1" height="110" scrollable="false" clickable="false" style_bg_color="0x363b43" style_bg_opa="100%" style_border_width="0" style_pad_all="0" />
+        <lv_obj x="301" y="0" width="1" height="110" scrollable="false" clickable="false" style_bg_color="0x363b43" style_bg_opa="100%" style_border_width="0" style_pad_all="0" />
+        <lv_obj name="hour_0" x="3" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_1" x="15" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_2" x="27" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_3" x="39" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_4" x="51" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_5" x="63" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_6" x="75" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_7" x="87" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_8" x="99" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_9" x="111" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_10" x="123" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_11" x="135" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_12" x="147" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_13" x="159" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_14" x="171" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_15" x="183" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_16" x="195" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_17" x="207" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_18" x="219" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_19" x="231" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_20" x="243" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_21" x="255" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_22" x="267" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_obj name="hour_23" x="279" y="108" width="7" height="2" hidden="true" scrollable="false" clickable="false" style_bg_opa="100%" style_border_width="0" style_radius="2" style_pad_all="0" />
+        <lv_label name="chart_empty" align="center" text="暂无数据" style_text_font="notification_22" style_text_color="#fg_secondary" />
+    </view>
+</component>

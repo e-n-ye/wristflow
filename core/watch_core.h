@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "power_state.h"
+#include "activity.h"
 
 typedef struct {
     uint8_t hour_24;
@@ -15,6 +16,7 @@ typedef struct {
     bool metrics_unavailable;
     uint32_t uptime_seconds;
     wristflow_power_snapshot_t power;
+    wristflow_activity_snapshot_t activity;
 } wristflow_watch_snapshot_t;
 
 typedef enum {
@@ -58,6 +60,7 @@ typedef enum {
     WRISTFLOW_SURFACE_BREATHING,
     WRISTFLOW_SURFACE_VIBRATION_SETTINGS,
     WRISTFLOW_SURFACE_GAME_2048,
+    WRISTFLOW_SURFACE_ACTIVITY_INFO,
     WRISTFLOW_SURFACE_COUNT
 } wristflow_surface_t;
 

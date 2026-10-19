@@ -40,11 +40,24 @@ void wristflow_demo_start(void)
         screen_tile_heart_rate_create, screen_tile_activity_create,
         screen_tile_system_create, screen_tile_full_create
     };
-    const wristflow_ui_shell_config_t config = {
+    wristflow_ui_shell_config_t config = {
         .watchface = &wristflow_default_watchface, .cards = cards, .card_count = sizeof(cards) / sizeof(cards[0]),
         .controls = screen_control_center_create, .initial_snapshot = {.hour_24 = 22, .minute = 48, .battery_percent = 53},
         .enable_apps = true, .set_brightness = brightness_cb, .platform_context = platform_context
     };
+    /* UI-only sample data. This source is not compiled into Product. */
+    static const uint32_t totals[] = {186, 4286, 18, 7};
+    static const uint32_t goals[] = {400, 6000, 30, 12};
+    for (unsigned i = 0; i < WRISTFLOW_ACTIVITY_METRICS; ++i) {
+        wristflow_activity_metric_t *metric = &config.initial_snapshot.activity.metrics[i];
+        metric->total = totals[i]; metric->goal = goals[i];
+        metric->total_valid = metric->goal_valid = true;
+        metric->hours_valid = 0x7ffffU;
+        metric->hourly[8] = i == 1 ? 1280 : i == 0 ? 56 : i == 2 ? 6 : 1;
+        metric->hourly[12] = i == 1 ? 1632 : i == 0 ? 70 : i == 2 ? 7 : 1;
+        metric->hourly[18] = i == 1 ? 1374 : i == 0 ? 60 : i == 2 ? 5 : 1;
+        if (i == 3) for (unsigned h = 13; h < 17; ++h) metric->hourly[h] = 1;
+    }
     lv_obj_t *initial = lv_screen_active();
     shell = wristflow_ui_shell_create(&config);
     LV_ASSERT(shell);

@@ -138,13 +138,13 @@ int main(int argc, char **argv)
             const wristflow_app_descriptor_t *app = wristflow_app_find(slot->app_id);
             assert(app);
             assert((strcmp(slot->app_id, "weather") == 0 || strcmp(slot->app_id, "alarm") == 0 ||
-                strcmp(slot->app_id, "battery") == 0)
+                strcmp(slot->app_id, "battery") == 0 || app->surface == WRISTFLOW_SURFACE_ACTIVITY)
                 ? app->capability == WRISTFLOW_CAPABILITY_READY
                 : app->capability == WRISTFLOW_CAPABILITY_PLACEHOLDER);
             assert(app->card_sizes & slot->size);
         }
     }
-    assert(instances == 10 && wristflow_app_count() == 17);
+    assert(instances == 10 && wristflow_app_count() == 19);
     assert(wristflow_app_find("game_2048")->capability == WRISTFLOW_CAPABILITY_READY);
     assert(wristflow_app_find("countdown")->demo_only);
     assert(!wristflow_app_find("breathing")->demo_only);
@@ -196,6 +196,9 @@ int main(int argc, char **argv)
                 text(lv_screen_active(), "app_title", "电池");
                 text(lv_screen_active(), "battery_percent", "--%");
                 text(lv_screen_active(), "battery_voltage", "--");
+            } else if (app->surface == WRISTFLOW_SURFACE_ACTIVITY) {
+                text(lv_screen_active(), "app_title", "活力指标");
+                text(lv_screen_active(), "overview_steps", "--");
             } else {
                 text(lv_screen_active(), "app_title", app->title);
                 text(lv_screen_active(), "placeholder_label", app->reason);
@@ -236,7 +239,8 @@ int main(int argc, char **argv)
     /* Each registry icon and label has an actual glyph in the exported fonts. */
     for (size_t i = 0; i < wristflow_app_count(); ++i) {
         const wristflow_app_descriptor_t *app = wristflow_app_at(i);
-        assert(wristflow_app_for_surface(app->surface) == app);
+        assert(wristflow_app_for_surface(app->surface) ==
+            (app->component_only ? wristflow_app_find("activity") : app));
         for (size_t j = 0; j < i; ++j) assert(strcmp(wristflow_app_at(j)->id, app->id));
         const unsigned char *icon = (const unsigned char *)app->icon;
         uint32_t cp = ((icon[0] & 15) << 12) | ((icon[1] & 63) << 6) | (icon[2] & 63);
@@ -256,7 +260,7 @@ int main(int argc, char **argv)
       unsigned available = 0;
       for (size_t i = 0; i < wristflow_app_count(); ++i) {
           const wristflow_app_descriptor_t *app = wristflow_app_at(i);
-          if (!app->demo_only && app->surface != WRISTFLOW_SURFACE_FACE_PICKER &&
+          if (!app->demo_only && !app->component_only && app->surface != WRISTFLOW_SURFACE_FACE_PICKER &&
               app->surface != WRISTFLOW_SURFACE_SYSTEM) ++available;
       }
       assert(lv_obj_get_child_count(menu) == available);
@@ -276,7 +280,7 @@ int main(int argc, char **argv)
       assert(lv_screen_active() == launcher);
       for (size_t i = 0; i < wristflow_app_count(); ++i) {
         const wristflow_app_descriptor_t *app = wristflow_app_at(i);
-        if (app->surface == WRISTFLOW_SURFACE_FACE_PICKER ||
+        if (app->component_only || app->surface == WRISTFLOW_SURFACE_FACE_PICKER ||
             app->surface == WRISTFLOW_SURFACE_SYSTEM || app->demo_only) continue;
         lv_obj_t *icon = named(menu, app->launcher_name);
         int initial_width = lv_obj_get_width(icon);

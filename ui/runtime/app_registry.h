@@ -30,6 +30,7 @@ typedef struct wristflow_app_descriptor {
     lv_obj_t *(*create)(void);
     void (*read)(const wristflow_watch_snapshot_t *, wristflow_app_data_t *);
     bool demo_only;
+    bool component_only;
 } wristflow_app_descriptor_t;
 
 typedef struct {

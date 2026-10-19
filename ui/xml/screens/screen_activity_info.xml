@@ -1,0 +1,18 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_text_font="notification_22" style_text_color="#fg_primary">
+        <app_header title="数据说明" />
+        <lv_label name="activity_time" x="284" y="30" width="82" text="--:--" style_text_font="body_20" style_text_align="right" />
+        <lv_obj name="activity_info_scroll" x="24" y="82" width="342" height="348" scrollbar_mode="off" style_layout="flex" style_flex_flow="column" style_bg_opa="0%" style_border_width="0" style_radius="0" style_pad_all="0" style_pad_row="16" style_pad_bottom="24" style_text_color="#fg_primary">
+            <lv_label width="342" text="步数" style_text_font="title_24" style_text_color="0xe2db48" />
+            <lv_label width="342" text="每只脚落地一次算一步，左右脚各落地一次共两步。这里展示当日累计及各时段的步数。" />
+            <lv_label width="342" text="卡路里" style_text_font="title_24" style_text_color="0xf97316" />
+            <lv_label width="342" text="活动消耗的能量，以千卡显示。它属于估算值，不等于全天总消耗。" />
+            <lv_label width="342" text="中高强度活动" style_text_font="title_24" style_text_color="0x38bdf8" />
+            <lv_label width="342" text="达到活动强度条件的累计时长，以分钟显示。步数不直接等于活动时长。" />
+            <lv_label width="342" text="站立" style_text_font="title_24" style_text_color="0x10d6b0" />
+            <lv_label width="342" text="记录当日有起身活动的小时数，不代表持续站立的时长。" />
+            <lv_label width="342" text="数据与目标" style_text_font="title_24" />
+            <lv_label width="342" text="未测得或尚无来源的数据以 -- 显示，真实的零值显示为 0。图表横轴是一天的 0 至 24 时，只显示已有记录的时段。目标用于展示完成进度。" />
+        </lv_obj>
+    </view>
+</screen>
