@@ -7,6 +7,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef BSP_USING_I2C3
+#error "Product native IMU diagnostic requires BSP_USING_I2C3"
+#endif
+
 enum { EV_COMMAND = 1, EV_STOP = 2 };
 enum command { CMD_NONE, CMD_PROBE, CMD_STEPS };
 static struct rt_event work;
@@ -56,14 +60,19 @@ static void publish(void)
 static bool prepare_bus(void)
 {
     bus = rt_i2c_bus_device_find("i2c3");
-    if (!bus) return false;
+    if (!bus) {
+        rt_kprintf("[imu-steps] bus i2c3 unavailable\n");
+        return false;
+    }
     HAL_PIN_Set(PAD_PA39, I2C3_SDA, PIN_PULLUP, 1);
     HAL_PIN_Set(PAD_PA40, I2C3_SCL, PIN_PULLUP, 1);
     /* Shared LTR/MMC/IMU supply: enable for I/O, never power-cycle on exit. */
     BSP_GPIO_Set(30, 1, 1);
     rt_thread_mdelay(10);
     struct rt_i2c_configuration config = {0, 0, 50, 100000};
-    return rt_i2c_configure(bus, &config) == RT_EOK;
+    int result = rt_i2c_configure(bus, &config);
+    if (result != RT_EOK) rt_kprintf("[imu-steps] bus configure failed=%d\n", result);
+    return result == RT_EOK;
 }
 static bool probe(void)
 {

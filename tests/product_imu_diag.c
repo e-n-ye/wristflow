@@ -12,6 +12,7 @@ static rt_tick_t ticks;
 static unsigned irq, idle, reads, writes, rounds, deleted, detached;
 static int failing_reg = -1;
 static bool fail_event, fail_create, fail_start;
+static bool fail_bus_find, fail_bus_config;
 static bool stop_in_prepare;
 static struct rt_thread thread;
 static struct rt_i2c_bus_device fake_bus;
@@ -60,9 +61,9 @@ void HAL_PIN_Set(unsigned pin, unsigned function, unsigned pull, unsigned cpu)
 void BSP_GPIO_Set(unsigned pin, unsigned value, unsigned cpu)
 { assert(pin == 30 && value == 1 && cpu == 1 && idle && !irq); }
 struct rt_i2c_bus_device *rt_i2c_bus_device_find(const char *name)
-{ assert(!strcmp(name, "i2c3") && idle && !irq); return &fake_bus; }
+{ assert(!strcmp(name, "i2c3") && idle && !irq); return fail_bus_find ? NULL : &fake_bus; }
 int rt_i2c_configure(struct rt_i2c_bus_device *b, struct rt_i2c_configuration *cfg)
-{ assert(b == &fake_bus && cfg->timeout == 50 && cfg->max_hz == 100000); return 0; }
+{ assert(b == &fake_bus && cfg->timeout == 50 && cfg->max_hz == 100000); return fail_bus_config ? -1 : 0; }
 size_t rt_i2c_mem_read(struct rt_i2c_bus_device *b, unsigned addr, unsigned reg,
     unsigned bits, void *out, size_t length)
 {
@@ -107,6 +108,11 @@ int main(void)
     cmd("steps", "2"); assert(pending == CMD_NONE);
     cmd("probe", NULL); cmd("stop", NULL); cmd("probe", NULL);
     assert(pending == CMD_NONE); cycle(); assert(!reads && !writes && !idle);
+    fail_bus_find = true; cmd("probe", NULL); cycle();
+    assert(cached.phase == WF_IMU_UNPROBED && !reads && !writes && !idle);
+    fail_bus_find = false; fail_bus_config = true; cmd("probe", NULL); cycle();
+    assert(cached.phase == WF_IMU_UNPROBED && !reads && !writes && !idle);
+    fail_bus_config = false;
     user_regs[0x0f] = 0x6a;
     cmd("probe", NULL); cycle();
     assert(cached.phase == WF_IMU_READY && !writes && !idle);

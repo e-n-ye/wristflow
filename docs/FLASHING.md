@@ -4,7 +4,9 @@
 
 ## Product 重启与 RTC（2026-10-12 对照）
 
-串口采用 `1000000 8N1`、无流控，打开前显式设 DTR／RTS=false，不自动复位。无参数 `show_date` 只读查询 UTC；已授权的普通重启可发送 SDK `reboot`，本次现有固件在 USB-only 下保时通过。RTS 是独立的电源复位路径，本次复现 RTC 回到 2000 年；USB 线仍插着不等于模组供电连续。下载工具的 `--after soft_reset` 也不能未经验证等同于这次 SDK `reboot`。
+串口采用 `1000000 8N1`、无流控，打开前显式设 DTR／RTS=false，普通查询不主动切换复位线。该应用层设置不能保证驱动打开端口时没有RTS／DTR瞬态：[pySerial官方说明](https://pyserial.readthedocs.io/en/latest/pyserial_api.html#serial.Serial.open)明确保留该风险。[SiFli官方自检指南](https://wiki.sifli.com/self-check/SF32LB52x-HW-Self-Check.html)列出黄山派首次连接串口触发复位／打开串口关机的情形，建议在对应端口属性→端口设置→高级中勾选“禁用Modem流控”。须核对实际驱动选项，设置后以稳定供电下的开关串口对照验证；不能把`rtscts=False`当成该驱动选项已经生效。
+
+无参数 `show_date` 只读查询 UTC；已授权的普通重启可发送 SDK `reboot`，2026-10-12现有固件在USB-only下保时通过。RTS是独立的复位路径，当时复现RTC回到2000年；USB线仍插着、或脚本未显式复位，都不能独立证明运行连续。下载工具的`--after soft_reset`也不能未经验证等同于SDK `reboot`。2026-10-19电池计步回读时，未显式切换RTS仍观察到完整冷启动／RTC归零，原RAM实验无效；具体驱动设置及前后对照回[IMU专题](HARDWARE-CAPABILITIES.md)，不凭该关联直接宣布原因已证实。
 
 实际下载或 RTS 后检查时间，RTC 无效时用 `wf_time <当前 UTC Unix 秒数>` 校时并核对成功回执／只读读回；息屏发送无回执不算成功，应在用户唤醒后重新取得真实 UTC 再发。不要回填旧采样值作为当前时间。此次只进行了两种重启对照与收尾校时，没有构建或下载；详细版本和边界见 [Product RTC](PRODUCT-RUNTIME.md#rtc-reset-contrast)。以下下载入口和历史流程保留原适用范围。
 

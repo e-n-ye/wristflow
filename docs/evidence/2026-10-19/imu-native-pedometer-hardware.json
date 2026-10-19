@@ -1,0 +1,154 @@
+{
+  "date": "2026-10-19",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/imu-native-hardware",
+  "base_commit": "8d3d2e1029aa1adb92a14e7a1c868455e19f7193",
+  "scope": "Native pedometer configuration repair, bounded device observations and serial-reset mitigation; no custom recognition algorithm or daily steps UI",
+  "authorization": "User requested device testing; initially confirmed USB only, no battery, loose motor wire secured; later selected the original battery for natural walking and confirmed both supplies before arming.",
+  "source_inspection": {
+    "failure": "Initial candidate had BSP_USING_I2C3 unset; probe returned accepted=0 before address reads. Board defaults enable I2C1/2/4 only.",
+    "repair": "Enable I2C3 in Product proj.conf, compile-reject missing BSP_USING_I2C3, report missing bus/configuration failure separately.",
+    "unchanged": "Native AN5130 register recipe, SDK lock/submodules, generated UI, threshold 0x10 and debounce 0x6e unchanged.",
+    "source_sha256": {
+      "apps/product/project/proj.conf": "cd58f21d9c48622ca4299bd343e76559c4d4acdedf0599b95c040156156bdc0e",
+      "apps/product/src/product_imu_diag.c": "f131c38dbd2ad7192a52c91f4622410bf6064529fab45e29167cf7b66bffcef5",
+      "tests/product_imu_diag.c": "90d15b05c916784a64ba4b8e800343683c0a07a9aa8cee884d140a17e74c87d6",
+      "tests/CMakeLists.txt": "e7753aa1cda4bc5df58feeec2c1b68f936b0c740d0012afbe4416a9b1f097bdf"
+    }
+  },
+  "host_validation": {
+    "commands": [
+      "cmake --build artifacts/host/imu-embedded-debug --parallel 6",
+      "ctest --test-dir artifacts/host/imu-embedded-debug --output-on-failure --timeout 60",
+      "cmake --build artifacts/host/imu-embedded-release --target imu_pedometer product_imu_diag --parallel 6",
+      "ctest --test-dir artifacts/host/imu-embedded-release -R '^(imu_pedometer|product_imu_diag)$' --output-on-failure --timeout 60",
+      "gcc -fsyntax-only apps/product/src/product_imu_diag.c -Itests/support/imu -Itests/support/power -Iapps/product/src"
+    ],
+    "debug": { "passed": 49, "failed": 0, "seconds": 16.92 },
+    "release_related": { "passed": 2, "failed": 0, "seconds": 0.12 },
+    "missing_i2c3_guard": { "expected_exit": 1, "observed_exit": 1, "diagnostic": "Product native IMU diagnostic requires BSP_USING_I2C3" },
+    "new_coverage": "Missing bus and configuration failure perform no sensor transfers, release IDLE and allow a later successful probe.",
+    "versions": "CMake 4.2.3, MSYS2 UCRT64 GCC 15.2.0, Ninja 1.13.2",
+    "local_log": "C:/Users/13984/.fastctx/jobs/j-ls023c/output.log",
+    "local_log_sha256": "f2d87676f9061909edccc74c123e69b51f60b635e2ef6d688c4de8bedae25664"
+  },
+  "compilation": {
+    "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Build.ps1 -Example product -Jobs 6",
+    "run_id": "20261019-170220-315",
+    "exit_code": 0,
+    "sdk_commit_clean": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "sdk_and_submodules_match_lock": true,
+    "versions": "Python 3.13.15; SCons 4.10.1; Arm GNU Toolchain 14.2.Rel1, GCC 14.2.1",
+    "actual_configuration": "BSP_USING_I2C3=y; BSP_I2C3_USING_DMA unset",
+    "sources_rehashed": 433,
+    "artifacts_rehashed": 29,
+    "hash_mismatches": 0,
+    "bin_bytes": 7771108,
+    "bin_sha256": "cb5e73c8043fd0a541045e3ccbf9ec597c2fd7c4d5fe6d54ef507cd8d7c6d1ef",
+    "elf_sha256": "8b738d69449503bf527a920c33d97c4b6525e025eb9e2034c2003b7a195168b6",
+    "local_result": "artifacts/product/20261019-170220-315/result.json",
+    "local_result_sha256": "88d7cf35f666d0f04db76b443323860220f947f334da805d7faaf1ece4654239",
+    "local_log_sha256": "73cc144f95a46b382bfe47cf8600aa5e0b990fc109140a33cda14bfb34e23627",
+    "retained_hook": "BSP_PowerUpCustom 0x200033bc in .retm_data; false branch to 0x2000345a returns without Flash calls",
+    "retained_hook_local_record": "artifacts/imu-native/fixed-retained-hook.asm",
+    "retained_hook_sha256": "6f10a5e080fa3b25b9fbfdc690f3409138b1cb964b727efb7e2d8b4fa034067e",
+    "ui_demo": "Not rebuilt: no shared core, UI/generated output or UI Demo configuration change."
+  },
+  "flash": {
+    "port": "COM5, CH340, VID:PID 1A86:7523, location 1-1.1",
+    "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Flash.ps1 -Example product -Port COM5",
+    "preflight": "Manifest three images, hashes, SDK lock and retained hook checked; DryRun passed before each write. No whole-chip erase or explicit settings partition write.",
+    "initial_candidate": {
+      "bin_sha256": "2ebd08a10c0be6644315e9a512b5f9298fd3d1d09bdb95316e758cf96c960fbe",
+      "sources": "429 raw-byte matches; four new IMU source files differ only in LF/CRLF after Git checkout",
+      "local_result": "artifacts/flash/product/20261019-165617-635/result.json",
+      "local_result_sha256": "e09929ef8b14481daa844edac162327f36fa245b5377326074b1a5d9bedb830c",
+      "exit_code": 0,
+      "device_result": "Startup and early inhibit verified, low-voltage refusal with no battery; probe failed because I2C3 was not registered. No step experiment."
+    },
+    "fixed_candidate": {
+      "local_result": "artifacts/flash/product/20261019-170535-461/result.json",
+      "local_result_sha256": "739aa29bae9fb34fb493c0f8dfce824381ff6eb66d7d4eddc8de1c4f6228c368",
+      "exit_code": 0,
+      "bootloader_sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21",
+      "main_sha256": "cb5e73c8043fd0a541045e3ccbf9ec597c2fd7c4d5fe6d54ef507cd8d7c6d1ef",
+      "ftab_sha256": "383f643b48aa8585399299a12e792515d0bf7fc3ae269c6017e3c0d85aa4f6a3"
+    }
+  },
+  "device_observations": {
+    "probe": "Only address 0x6a matched WHO_AM_I=0x6a; 0x6b did not match and the SDK logged NACK/recovery during that address probe. The diagnostic io_errors counter covers owned configuration/counter I/O, not this candidate NACK. Expected part comes from board BOM, not unique WHO identification.",
+    "static_usb": {
+      "user_confirmed_stationary": true,
+      "duration_ms": 15000,
+      "started_ms": 80305,
+      "ended_sample_ms": 95305,
+      "native_count": 0,
+      "phase": 3,
+      "end": 2,
+      "counter_valid": true,
+      "stop_verified": true,
+      "io_errors": 0,
+      "incoherent_reads": 0
+    },
+    "first_battery_attempt": "Native counter armed for 120s, but reconnection capture contained SFBL, full cold startup, RTC January 2000 and phase=UNPROBED. Cached experiment was lost; sample invalid, no accuracy conclusion.",
+    "battery_sample_after_modem_setting": {
+      "started_at": "2026-10-19T18:42:52.888302+08:00",
+      "duration_ms": 120000,
+      "started_ms": 608256,
+      "initial_native_count": 0,
+      "reconnected_sample_ms": 682337,
+      "reconnected_native_count": 70,
+      "ended_sample_ms": 728256,
+      "final_native_count": 70,
+      "phase": 3,
+      "end": 2,
+      "counter_valid": true,
+      "stop_verified": true,
+      "io_errors": 0,
+      "incoherent_reads": 0,
+      "restart_observed": false,
+      "rtc_and_started_ms_continuous": true,
+      "human_reference": "用户澄清按左右脚一组计一次，约30组即约60个单脚步；出门、返回及操作不严谨，完整采样窗口没有独立逐步计数。",
+      "interpretation": "Exploratory only. Preserve raw 70; neither 30 nor an exact 60 is a controlled full-window ground truth. The earlier 10-step/16.7% arithmetic must not be treated as an accuracy result.",
+      "accuracy_error_rate": null
+    }
+  },
+  "serial_reset_investigation": {
+    "before_setting": "Two BAT+USB sessions had zero received bytes even after user confirmed a lit screen; RTS pulse requested in one also yielded no bytes. Transmitted stop/allow commands in these sessions were not acknowledged.",
+    "battery_power_observation": "User confirmed screen could display/wake during battery-only walking.",
+    "voltage_causality": "Low-VBAT inhibited charging and successful UART/probe/static test coexisted in USB-only sessions. Selected charger paths show no direct UART reconfiguration/reboot call; this does not exclude indirect PM or electrical effects.",
+    "official_reference": "https://wiki.sifli.com/self-check/SF32LB52x-HW-Self-Check.html",
+    "pyserial_reference": "https://pyserial.readthedocs.io/en/latest/pyserial_api.html#serial.Serial.open",
+    "driver": "WCH CH340 3.9.2024.9, pySerial 3.5",
+    "setting": "User enabled Disable Modem flow control in COM5 advanced properties; read-only registry confirmed DisableModemOutHandShake=1. The value was absent in the earlier scoped query.",
+    "after_setting": "Stable-power open retained RTC and cache; subsequent battery/USB reconnection retained RUNNING start=608256 and native count. Neither capture contained SFBL; no explicit RTS pulse was requested.",
+    "causal_limit": "Observed mitigation supports the documented RTS opening mechanism; no oscilloscope trace or exhaustive USB/PM test establishes every reset cause."
+  },
+  "local_uart_records": [
+    {"session": "usb-session-01", "sha256": "32a99f3df9a8f0bc00706b6141318276b4e03af235b9bd341c113efc88874054"},
+    {"session": "usb-session-02", "sha256": "2ed03ce297c7979648dbca5bc45dc6b9439c91190a14d779937c438e4c31b243"},
+    {"session": "battery-arm-01", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "received_bytes": 0},
+    {"session": "battery-arm-02", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "received_bytes": 0},
+    {"session": "battery-arm-03", "sha256": "fa128aedf85d35be245a68528c3a968db4087a29606b7583bd60d8699c968ecf"},
+    {"session": "battery-read-01", "sha256": "75fdf2a889bc657dc9d75f631c73cbaba8f9de8be1f275128cf3585a9374911f"},
+    {"session": "modem-disabled-01", "sha256": "6e5ee5d53187faaf02d69decf33bac206c617544dcd1635b17c9b9afc8f25a5f"},
+    {"session": "battery-read-02", "sha256": "253fca195296593ea89b00b9758fa976498d48f00b9eb0542d47329dc6962c71"}
+  ],
+  "record_location": "Each session is artifacts/imu-native/<session>/uart.bin, uart-clean.txt and session.json in this workspace; ignored local records, not repository links.",
+  "helpers": {
+    "uart_session_sha256": "b4a31929a304425215ee29d7d64e8b8180f993e7f1b1e4549f07015cfb337b8a",
+    "arm_offline_sha256": "3e892dfa2cfd930e9957ccc85c4880d148f7c6d6fd4bc118eb2db562784bcc7b",
+    "scope": "Whitelisted diagnostic commands, DTR/RTS false before open, explicit RTS requests separately recorded. Offline detach skips stop only after verified RUNNING; releases console PM hold and closes UART. Default close attempts stop/allow/status independently."
+  },
+  "final_state": {
+    "closed_at": "2026-10-19T18:46:06.097150+08:00",
+    "helper_error": null,
+    "native_count": 70,
+    "stop_verified": true,
+    "pm": "allow=1 off=1 own_idle=0 sdk_idle=1",
+    "serial_closed": true,
+    "conditions": "Last user-confirmed original battery plus USB; motor wire secured. No manual charger/motor commands. Existing automatic USB charging was observed; not a new charging acceptance test.",
+    "limit": "Remaining SDK IDLE request is not attributed or measured here; no physical DEEP/current/battery-life claim."
+  },
+  "next_bounded_experiment": "Agree single-foot counting, fix mounting/orientation and record the complete trial window including handling; repeat native baseline/walking/interference samples before parameter comparison. No custom replacement algorithm authorized by this exploratory sample."
+}
