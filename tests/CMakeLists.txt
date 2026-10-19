@@ -14,6 +14,7 @@ add_executable(imu_pedometer imu_pedometer.c "${PRODUCT}/imu_pedometer.c")
 target_include_directories(imu_pedometer PRIVATE "${PRODUCT}")
 add_test(NAME imu_pedometer COMMAND imu_pedometer)
 add_executable(product_imu_diag product_imu_diag.c "${PRODUCT}/imu_pedometer.c")
+target_compile_definitions(product_imu_diag PRIVATE BSP_USING_I2C3)
 target_include_directories(product_imu_diag PRIVATE "${CMAKE_CURRENT_LIST_DIR}/support/imu"
     "${CMAKE_CURRENT_LIST_DIR}/support/power" "${PRODUCT}")
 add_test(NAME product_imu_diag COMMAND product_imu_diag)
