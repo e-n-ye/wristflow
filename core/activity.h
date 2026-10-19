@@ -23,7 +23,16 @@ typedef struct {
 } wristflow_activity_metric_t;
 
 typedef struct {
+    uint64_t sampled_ms;
+    uint32_t version, utc, local_day, coverage_start_utc, clock_revision;
+    uint16_t native_count;
+    bool native_source; /* LSM6DS3TR-C embedded counter, not a software detector. */
+    bool partial_day; /* This run only; no persisted or inferred earlier steps. */
+} wristflow_steps_observation_t;
+
+typedef struct {
     wristflow_activity_metric_t metrics[WRISTFLOW_ACTIVITY_METRICS];
+    wristflow_steps_observation_t steps_observation;
 } wristflow_activity_snapshot_t;
 
 #endif

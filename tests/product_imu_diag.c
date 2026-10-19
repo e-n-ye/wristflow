@@ -14,6 +14,9 @@ static int failing_reg = -1;
 static bool fail_event, fail_create, fail_start;
 static bool fail_bus_find, fail_bus_config;
 static bool stop_in_prepare;
+static bool stop_daily_in_prepare, retry_daily_in_prepare;
+static unsigned max_wait=1000, last_wait;
+static wristflow_alarm_clock_t service_clock;
 static struct rt_thread thread;
 static struct rt_i2c_bus_device fake_bus;
 static jmp_buf yield;
@@ -27,6 +30,14 @@ int rt_thread_mdelay(rt_int32_t ms)
     if (stop_in_prepare) {
         stop_in_prepare = false;
         char *args[] = {"wf_imu", "stop"}; wf_imu(2, args);
+    }
+    if (stop_daily_in_prepare) {
+        stop_daily_in_prepare=false;
+        char *args[]={"wf_steps","stop"}; wf_steps(2,args);
+    }
+    if (retry_daily_in_prepare) {
+        retry_daily_in_prepare=false;
+        char *args[]={"wf_steps","retry"}; wf_steps(2,args);
     }
     return 0;
 }
@@ -44,8 +55,9 @@ int rt_event_recv(struct rt_event *e, unsigned mask, unsigned flags, int wait, r
     *bits = e->bits & mask; e->bits &= ~mask;
     if (!*bits) {
         if (wait == RT_WAITING_FOREVER) longjmp(yield, 1);
-        assert(wait > 0 && wait <= 1000); ticks += (unsigned)wait;
+        assert(wait > 0 && (unsigned)wait <= max_wait); ticks += (unsigned)wait;
     }
+    last_wait=(unsigned)wait;
     return *bits ? 0 : -1;
 }
 rt_thread_t rt_thread_create(const char *name, void (*entry)(void *), void *context,
@@ -97,6 +109,15 @@ static void cmd(const char *action, const char *argument)
     char *args[] = {"wf_imu", (char *)action, (char *)argument};
     wf_imu(argument ? 3 : 2, args);
 }
+wristflow_alarm_clock_t wristflow_product_services_time(void)
+{
+    wristflow_alarm_clock_t value=service_clock;
+    value.monotonic_ms=ticks;
+    value.utc += ticks/1000;
+    return value;
+}
+static void daily_cmd(const char *action)
+{ char *args[]={"wf_steps",(char *)action}; wf_steps(2,args); }
 int main(void)
 {
     fail_event = true; assert(!wristflow_product_imu_diag_start()); fail_event = false;
@@ -137,5 +158,48 @@ int main(void)
     failing_reg = -1; cmd("stop", NULL); cycle();
     assert(cached.phase == WF_IMU_READY && cached.stop_verified && !idle);
     cmd("stop", NULL); cycle(); assert(!idle); /* Repeated stop also protects I/O. */
+    /* Production daily mode reuses this owner and never holds IDLE between
+     * observations. Diagnostic reset/stop commands cannot alter its state. */
+    ready=false; cancel_requested=false; pending=CMD_NONE; native_count=0; ticks=0;
+    service_clock=(wristflow_alarm_clock_t){.utc=1792411200,.valid=true};
+    assert(wristflow_product_steps_start()); cycle();
+    assert(daily_cached.metric.total_valid && !daily_cached.metric.total && !idle);
+    assert(device.continuous && device.snapshot.phase==WF_IMU_RUNNING);
+    before=reads+writes; cmd("probe",NULL); cmd("steps","2"); cmd("stop",NULL); daily_cmd("status");
+    assert(before==reads+writes && !cancel_requested && !work.bits);
+    native_count=12; cycle(); assert(daily_cached.metric.total==12 && !idle);
+    wristflow_product_steps_screen(false); cycle(); max_wait=60000;
+    native_count=112; cycle(); assert(last_wait==60000 && daily_cached.metric.total==112 && !idle);
+    wristflow_product_steps_screen(true); cycle();
+    native_count=114; cycle(); assert(last_wait==1000 && daily_cached.metric.total==114 && !idle);
+    /* RTC failures and clock-change notification affect only daily validity. */
+    service_clock.valid=false; wristflow_product_steps_clock_changed(); cycle();
+    assert(!daily_cached.metric.total_valid && device.snapshot.phase==WF_IMU_RUNNING && !idle);
+    service_clock.valid=true; ++service_clock.revision;
+    wristflow_product_steps_clock_changed(); cycle();
+    assert(daily_cached.metric.total_valid && daily_cached.metric.total==0);
+    service_clock.valid=false;
+    assert(!wristflow_product_steps_snapshot().metric.total_valid);
+    service_clock.valid=true; ++service_clock.revision;
+    assert(!wristflow_product_steps_snapshot().metric.total_valid);
+    wristflow_product_steps_clock_changed(); cycle();
+    service_clock.utc+=86400;
+    assert(!wristflow_product_steps_snapshot().metric.total_valid);
+    wristflow_product_steps_clock_changed(); cycle();
+    assert(wristflow_product_steps_snapshot().metric.total_valid);
+    /* Lost native configuration is a fault, not a65536-step wrap. */
+    user_regs[0x10]=0; cycle();
+    assert(cached.phase==WF_IMU_FAULT && cached.stop_verified && !daily_cached.metric.total_valid && !idle);
+    daily_cmd("retry"); retry_daily_in_prepare=true; cycle();
+    assert(device.continuous && cached.phase==WF_IMU_RUNNING && !work.bits && !idle);
+    /* Failed cleanup retains the resource responsibility until explicit retry. */
+    failing_reg=0x19; daily_cmd("stop"); cycle();
+    assert(cached.phase==WF_IMU_FAULT && !cached.stop_verified && idle==1);
+    failing_reg=-1; daily_cmd("retry"); stop_daily_in_prepare=true; cycle();
+    cycle(); assert(cached.phase!=WF_IMU_RUNNING && cached.stop_verified && !idle);
+    daily_cmd("retry"); cycle(); assert(cached.phase==WF_IMU_RUNNING && !idle);
+    ticks+=WRISTFLOW_STEPS_MAX_GAP_MS+1;
+    assert(!wristflow_product_steps_snapshot().metric.total_valid);
+    cycle(); assert(cached.phase==WF_IMU_FAULT && !daily_cached.metric.total_valid && !idle);
     return 0;
 }

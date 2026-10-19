@@ -8,7 +8,7 @@
 #include "product_services.h"
 #include "product_ble.h"
 #include "product_pm.h"
-#include "product_imu_diag.h"
+#include "product_steps.h"
 #include "product_charger.h"
 #include "product_power.h"
 #include "battery_estimate.h"
@@ -47,6 +47,9 @@ static wristflow_watch_snapshot_t read_snapshot(bool force_power)
     power = next;
     wristflow_watch_snapshot_t snapshot = wristflow_product_services_snapshot();
     wristflow_product_apply_power(&snapshot, &power);
+    wristflow_steps_snapshot_t steps = wristflow_product_steps_snapshot();
+    snapshot.activity.metrics[WRISTFLOW_ACTIVITY_STEPS] = steps.metric;
+    snapshot.activity.steps_observation = steps.observation;
     return snapshot;
 }
 
@@ -104,6 +107,7 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     /* Touch power work is asynchronous and holds its own SDK idle request. */
     rt_kprintf("[product] screen off; notification events active\n");
     wristflow_product_power_screen(false);
+    wristflow_product_steps_screen(false);
     wristflow_product_pm_screen(true);
     rt_uint32_t events;
     bool preview = false, reminder = false, charging = false;
@@ -152,6 +156,7 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     set_brightness(wake_brightness, lcd);
     rt_kprintf("[product] screen on\n");
     wristflow_product_power_screen(true); /* Start device work only after the first lit frame. */
+    wristflow_product_steps_screen(true);
 }
 
 static uint32_t vibration_preview(wristflow_vibration_mode_t mode, void *context)
@@ -219,7 +224,7 @@ int main(void)
     RT_ASSERT(key_id >= 0);
     RT_ASSERT(button_enable(key_id) == SF_EOK);
     if (!wristflow_product_power_start()) rt_kprintf("[power] service unavailable; display unknown\n");
-    if (!wristflow_product_imu_diag_start()) rt_kprintf("[imu-steps] diagnostic unavailable\n");
+    if (!wristflow_product_steps_start()) rt_kprintf("[steps] native daily service unavailable\n");
     if (!wristflow_product_charger_service_start()) rt_kprintf("[charger] control service unavailable; no manual start\n");
     rt_kprintf("[product] RTC=%s, %s, voltage_valid=%u VBAT=%umV, BLE active, PM auto when off\n",
                snapshot.time_unavailable ? "not synchronized" : "in range",
@@ -245,6 +250,8 @@ int main(void)
             if (next.hour_24 != snapshot.hour_24 || next.minute != snapshot.minute ||
                 next.time_unavailable != snapshot.time_unavailable ||
                 !wristflow_power_equal(&next.power, &snapshot.power) ||
+                next.activity.metrics[WRISTFLOW_ACTIVITY_STEPS].total != snapshot.activity.metrics[WRISTFLOW_ACTIVITY_STEPS].total ||
+                next.activity.metrics[WRISTFLOW_ACTIVITY_STEPS].total_valid != snapshot.activity.metrics[WRISTFLOW_ACTIVITY_STEPS].total_valid ||
                 next.uptime_seconds / 60 != snapshot.uptime_seconds / 60) {
                 snapshot = next;
                 wristflow_ui_shell_update(shell, &snapshot);

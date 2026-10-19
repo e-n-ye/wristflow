@@ -1,5 +1,6 @@
 #include "product_ui.h"
 #include "activity_view.h"
+#include "daily_steps.h"
 #include "app_registry.h"
 #include "wristflow_ui.h"
 #include <assert.h>
@@ -123,6 +124,27 @@ int main(int argc,char **argv)
     assert(offset!=450 && offset!=876 && offset!=1302 && offset!=1728);
     snapshot("activity-between-cards");
     swipe(105,210,310,210); assert(lv_screen_active()==root); /* Non-edge horizontal swipe stays. */
+    /* Actual native-daily model output updates Product's detail and external
+     * steps component without filling unrelated metrics or hour/goal fixtures. */
+    wristflow_daily_steps_t daily;
+    wristflow_daily_steps_init(&daily);
+    wristflow_steps_clock_t clock={.utc=1792411200,.monotonic_ms=1000,.valid=true};
+    assert(wristflow_daily_steps_observe(&daily,0,clock));
+    clock.utc+=30; clock.monotonic_ms+=30000;
+    assert(wristflow_daily_steps_observe(&daily,48,clock));
+    state.activity.metrics[WRISTFLOW_ACTIVITY_STEPS]=daily.snapshot.metric;
+    state.activity.steps_observation=daily.snapshot.observation;
+    assert(wristflow_ui_shell_update(shell,&state)); advance(32);
+    text(root,"overview_steps","48"); text(root,"overview_calories","--"); text(root,"overview_minutes","--");
+    text(named(root,"activity_steps"),"metric_value","48");
+    text(named(root,"activity_steps"),"metric_goal","目标 -- 步");
+    assert(!lv_obj_has_flag(named(named(root,"activity_steps"),"chart_empty"),LV_OBJ_FLAG_HIDDEN));
+    text(named(lv_obj_get_child(carousel,3),"slot_1"),"value_label","48");
+    lv_obj_scroll_to_y(scroll,856,LV_ANIM_OFF); advance(32); snapshot("native-steps-live");
+    wristflow_daily_steps_invalidate(&daily);
+    state.activity.metrics[WRISTFLOW_ACTIVITY_STEPS]=daily.snapshot.metric;
+    assert(wristflow_ui_shell_update(shell,&state)); text(root,"overview_steps","--");
+    lv_obj_scroll_to_y(scroll,offset,LV_ANIM_OFF); advance(32);
     /* Independent validity, real zero, incomplete hourly data and >100% progress. */
     state.time_unavailable=false; state.hour_24=18; state.minute=56;
     for(unsigned i=0;i<4;++i) {
