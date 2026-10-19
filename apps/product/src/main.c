@@ -8,6 +8,7 @@
 #include "product_services.h"
 #include "product_ble.h"
 #include "product_pm.h"
+#include "product_imu_diag.h"
 #include "product_charger.h"
 #include "product_power.h"
 #include "battery_estimate.h"
@@ -218,6 +219,7 @@ int main(void)
     RT_ASSERT(key_id >= 0);
     RT_ASSERT(button_enable(key_id) == SF_EOK);
     if (!wristflow_product_power_start()) rt_kprintf("[power] service unavailable; display unknown\n");
+    if (!wristflow_product_imu_diag_start()) rt_kprintf("[imu-steps] diagnostic unavailable\n");
     if (!wristflow_product_charger_service_start()) rt_kprintf("[charger] control service unavailable; no manual start\n");
     rt_kprintf("[product] RTC=%s, %s, voltage_valid=%u VBAT=%umV, BLE active, PM auto when off\n",
                snapshot.time_unavailable ? "not synchronized" : "in range",

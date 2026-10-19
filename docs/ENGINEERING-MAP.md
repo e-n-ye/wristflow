@@ -13,6 +13,7 @@
 | 电压估算电量 | `core/battery_estimate.c/h`持有参考曲线、单样本滤波／滞回和有效性；原power worker发布ADC身份／时间，main合并charger后估算并同步legacy；共同formatter及现有页面消费 | [估算契约](BATTERY-ESTIMATE.md)；独立于观测I/O及充电控制，未校准估算显示`~`，样本失效回退未知；无新增采样／timer／PM申请 |
 | 电池主页面 | `ui/xml/screens/screen_battery.xml`及官方输出持有布局，globals持有`battery_80`数字资源；app_registry的battery稳定ID／SYSTEM路由与apps手写绑定共用快照，shell保留返回和生命周期 | [页面契约](BATTERY-PAGE.md)；Product保留设置／卡片入口，应用列表／三列不展示电池；未知电量与电压独立表达，不新增充电控制或后台活动 |
 | 电机诊断、设置体验与当前提醒 | Product `product_motor.c/h`持有同一worker、段／组／提醒会话截止、唯一请求ID、最新交接意图、故障和IDLE；`product_motor_board.c`持有PA20、LDO3借用／恢复及只读查询；main默认OFF构造并分别绑定设置／提醒回调，shell仅提交／取消所属句柄 | [当前提醒](MOTOR-PULSE.md#reminder-session)、[设置体验](MOTOR-PULSE.md#settings-preview)及[供电契约](MOTOR-PULSE.md#supply-prepare)；30秒会话含OFF间隔暂持IDLE，通知／呼吸未接入，RGB启用需先统一供电所有权；数字回读与实际供电／负载／断流分别验证 |
+| IMU原生计步诊断 | Product `imu_pedometer.c/h`持有寄存器配置／原生计数／有限期限和FAULT；`product_imu_diag.c/h`独占诊断worker、I2C3、共享电源使能及IDLE责任；main只创建空闲worker | [硬件优先门槛](HARDWARE-CAPABILITIES.md)及[限时诊断契约](HARDWARE-CAPABILITIES.md#imu-steps-diagnostic)；显式probe／steps才访问设备，无软件识别、默认采样、UI、日累计或新唤醒事件；设备效果另验 |
 | 固定数据演示 | [apps/ui_demo](../apps/ui_demo/)；与 Product 共用 core、运行时和生成 UI | Build 的 `ui_demo`；不能用演示值证明产品数据真实性 |
 | 板级诊断 | [apps/bringup](../apps/bringup/)；自有工程 / 板级集成 | [BRINGUP](BRINGUP.md)；Build 的 `bringup`，不能代替 Product 联合验收 |
 | 官方 Hello / BLE | 实际路径由 [Build.ps1](../scripts/Build.ps1) 的 `$projects` 定义，位于锁定 SDK 内 | Build 的 `hello` / `ble`；按官方 SCons，不迁移固件到 CMake |

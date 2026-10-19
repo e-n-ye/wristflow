@@ -8,6 +8,7 @@ Describe the problem and resulting behavior.
 - Local build commands and results:
 - Manual GitHub Actions run (when needed; otherwise not run):
 - Hardware verification: not performed unless explicitly recorded.
+- Hardware capability choice (when applicable): native device capability, selected implementation and device evidence; custom replacement requires comparable tests showing the hardware algorithm is inadequate (docs/HARDWARE-CAPABILITIES.md).
 - Documentation sync: affected documents and evidence links, or why no update is needed (see docs/DOCUMENTATION-WORKFLOW.md).
 
 ## Remaining Work
