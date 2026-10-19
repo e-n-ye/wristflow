@@ -2,6 +2,7 @@
 #include "product_alarm.h"
 #include "product_settings_store.h"
 #include "product_steps.h"
+#include "steps_store.h"
 #include <rtthread.h>
 #include <rtdevice.h>
 #include <flashdb.h>
@@ -43,6 +44,24 @@ wristflow_alarm_clock_t wristflow_product_services_time(void)
     rt_mutex_release(&rtc_lock); return clock;
 }
 bool wristflow_product_services_storage_ready(void) { return storage_ready; }
+static const char *const steps_keys[] = {"steps_a", "steps_b"};
+bool wristflow_product_services_steps_read(unsigned key, uint8_t *record, void *context)
+{
+    (void)context;
+    if (!storage_ready || key >= 2) return false;
+    struct fdb_blob blob;
+    size_t size = fdb_kv_get_blob(&settings_db, steps_keys[key],
+        fdb_blob_make(&blob, record, WRISTFLOW_STEPS_RECORD_BYTES));
+    return size == WRISTFLOW_STEPS_RECORD_BYTES && blob.saved.len == WRISTFLOW_STEPS_RECORD_BYTES;
+}
+bool wristflow_product_services_steps_write(unsigned key, const uint8_t *record, void *context)
+{
+    (void)context;
+    if (!storage_ready || key >= 2) return false;
+    struct fdb_blob blob;
+    return fdb_kv_set_blob(&settings_db, steps_keys[key],
+        fdb_blob_make(&blob, record, WRISTFLOW_STEPS_RECORD_BYTES)) == FDB_NO_ERR;
+}
 static const char *const alarm_keys[] = {"alarm_a", "alarm_b", "alarm_ca", "alarm_cb"};
 bool wristflow_product_services_alarm_read(unsigned key, uint8_t *record, void *context)
 {

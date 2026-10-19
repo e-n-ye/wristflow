@@ -11,6 +11,9 @@ int wristflow_product_services_set_time(uint32_t utc_seconds);
 wristflow_alarm_clock_t wristflow_product_services_time(void);
 uint64_t wristflow_product_services_monotonic(void);
 bool wristflow_product_services_storage_ready(void);
+/* Independent bounded step checkpoint keys; called by the IMU worker only. */
+bool wristflow_product_services_steps_read(unsigned key, uint8_t *record, void *context);
+bool wristflow_product_services_steps_write(unsigned key, const uint8_t *record, void *context);
 /* Four bounded keys: payload A/B and matching publication markers. */
 bool wristflow_product_services_alarm_read(unsigned key, uint8_t *record, void *context);
 bool wristflow_product_services_alarm_write(unsigned key, const uint8_t *record, void *context);

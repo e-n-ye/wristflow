@@ -16,13 +16,22 @@ typedef struct {
     wristflow_steps_observation_t observation;
 } wristflow_steps_snapshot_t;
 typedef struct {
+    uint32_t local_day, total, coverage_start_utc, saved_utc;
+} wristflow_steps_checkpoint_t;
+typedef struct {
     wristflow_steps_snapshot_t snapshot;
     wristflow_steps_clock_t previous;
     uint16_t previous_native;
     bool baseline;
+    wristflow_steps_checkpoint_t seed;
+    bool seed_pending;
 } wristflow_daily_steps_t;
 
 void wristflow_daily_steps_init(wristflow_daily_steps_t *);
+bool wristflow_steps_checkpoint_valid(const wristflow_steps_checkpoint_t *);
+/* Boot-only, one-shot seed. Never imports a native counter or monotonic clock.
+ * Unknown RTC waits; the first valid sample consumes or rejects the seed. */
+bool wristflow_daily_steps_seed(wristflow_daily_steps_t *, const wristflow_steps_checkpoint_t *);
 /* False means continuity is lost: caller must stop the sensor and publish
  * unknown until an explicit recovery. Calendar changes simply rebaseline. */
 bool wristflow_daily_steps_observe(wristflow_daily_steps_t *, uint16_t native,

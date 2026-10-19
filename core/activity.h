@@ -27,7 +27,8 @@ typedef struct {
     uint32_t version, utc, local_day, coverage_start_utc, clock_revision;
     uint16_t native_count;
     bool native_source; /* LSM6DS3TR-C embedded counter, not a software detector. */
-    bool partial_day; /* This run only; no persisted or inferred earlier steps. */
+    bool partial_day; /* Confirmed partial intervals; reboot gaps remain unknown. */
+    bool restored; /* Includes a matching same-day checkpoint, not native continuity. */
 } wristflow_steps_observation_t;
 
 typedef struct {
