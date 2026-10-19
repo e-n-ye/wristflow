@@ -1,0 +1,115 @@
+{
+  "date": "2026-10-19",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/daily-steps-hardware",
+  "source_main": "b7d9edc9395c9ef0149f7cd1f917fe7c75249d7b",
+  "software_pr": "https://github.com/e-n-ye/wristflow/pull/100",
+  "authorization": "User requested flashing and validation, confirmed same board/screen, original battery + computer USB, secured loose motor wiring and presence. No new flash or power confirmation required.",
+  "scope": "Exact native runtime daily-steps Product image; bounded boot/RTC/cache inspection and user static/walking/screen-off observations. Runtime RAM only, fixed UTC+8; no persistence or custom step algorithm.",
+  "preflight": {
+    "build_result": "artifacts/product/20261019-202037-031/result.json",
+    "source_exact": 440,
+    "source_eol_only": 17,
+    "source_note": "All457 recorded sources match bytes or only LF/CRLF conversion after Git checkout; no semantic change or new build in this hardware round",
+    "artifact_rehashed": 29,
+    "sdk_lock_and_submodules": "matched, clean; SDK421126d9f476ed8e2a6f0b0ca28a9f241c182e65 unchanged",
+    "port": "COM5 / CH340 VID1A86 PID7523 / location1-1.1 enumerated before flash",
+    "driver_option": "DisableModemOutHandShake=1 read only, no driver settings changed",
+    "dry_run": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Flash.ps1 -Example product -Port COM5 -DryRun; exit0",
+    "retained_hook": ".retm_data BSP_PowerUpCustom at0x200033bc; false path branches to correct epilogue0x2000345a, artifacts/daily-steps-retained-hook.asm"
+  },
+  "flash": {
+    "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Flash.ps1 -Example product -Port COM5",
+    "tool": "sftool0.2.5 write_flash --verify --after soft_reset",
+    "result": "artifacts/flash/product/20261019-204112-568/result.json",
+    "result_sha256": "3dbd93b9efb67b0537c558fb368b8c4e0208ab0b524d0e4a972a024c6dd982d1",
+    "log": "artifacts/flash/product/20261019-204112-568/sftool.log",
+    "log_sha256": "f1af4af1b9c274b42d49af74c72cd51acbce7ff66f0848df949a2f23762eb54f",
+    "completed_local": "2026-10-19T20:43:53+08:00",
+    "attempts": 1,
+    "exit_code": 0,
+    "images": [
+      {"name": "bootloader.bin", "address": "0x12010000", "bytes": 58496, "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"},
+      {"name": "main.bin", "address": "0x12020000", "bytes": 7791648, "sha256": "4cd7c09b63c43649cdd71bafbb9864c9f4401375f941632ec8ae9b4a9842dee7"},
+      {"name": "ftab.bin", "address": "0x12000000", "bytes": 11288, "sha256": "a40ca75e1228c62f35e786ac0b4775ca568533c6ac0f1cc0f5fbe5fff9383b84"}
+    ],
+    "settings": "Only three manifest images written; no erase-all or explicit settings-partition write. Firmware autonomously restored/saved existing configuration."
+  },
+  "startup": {
+    "command": "SDK Python artifacts/daily-steps-startup-check.py --port COM5 --directory artifacts/daily-steps-hardware/startup-01 --startup",
+    "helper_sha256": "edc5897b8d0bab89d02196bd45b3c8ebb1e38020ee60afcffd0c51153c5b94ba",
+    "serial": "1000000 8N1 no flow control; DTR/RTS=false before open",
+    "reset": "No complete Product boot in initial3seconds; exactly one deliberate150ms RTS pulse captured initialization before counting tests",
+    "observed": [
+      "Product storage/layout restored, CO5300 ID0x331100 and FT6146 initialized",
+      "[charger] early attempted=1 hal=0 result=0 reg=0x00 verified=1 profile=1",
+      "RTC Jan1 2000 after RTS; synchronized UTC1792413898; readback Mon Oct19 12:45:00 2026",
+      "[imu-steps] phase=2 end=0 counter_valid=1 steps=0; who=0x6a ths=0x10 deb=0x6e start=1567, samples7036 and11084; io_errors=0 incoherent=0",
+      "Startup probe selected0x6a; one driver bus err/reset9clocks occurred adjacent to unsuccessful0x6b probe. Native sampling io_errors0 is not a claim of no I2C error anywhere in startup",
+      "[steps] valid=1 total=0 day=20745 utc=1792413901 version=7 native=0 partial=1 volatile=1; later utc1792413905 version11 total0",
+      "Software USB OK, VBAT approximately4165..4167mV, estimate~98%; not independent voltage/SOC measurement"
+    ],
+    "commands": ["wf_pm hold", "wf_pm status", "show_date", "wf_time 1792413898", "show_date", "wf_steps status", "wf_steps status", "wf_pm allow", "wf_pm status"],
+    "session": "artifacts/daily-steps-hardware/startup-01/session.json",
+    "session_sha256": "654633194ffd8758e9fb7eb5775bed810e1ce64bbb63c2e8dc634a6edc17fecc",
+    "uart": "artifacts/daily-steps-hardware/startup-01/uart.bin",
+    "uart_sha256": "054ab5c1441bfdfcbccadb0db87b739485c5282bbab08f398ba14db6c6dacac0",
+    "exit_code": 0,
+    "closed_local": "2026-10-19T20:45:20+08:00",
+    "final_status": "allow=1 off=1 own_idle=0 sdk_idle=2, enter=0 exit=0; screen-off observed, no physical DEEP claim",
+    "boundary": "No matching HardFault/assertion failure in bounded capture; no stop/retry/probe, motor, manual-charge or raw-register command. COM5 closed before user movement."
+  },
+  "user_validation": {
+    "display_and_static": {
+      "request": "Step detail/component numeric; other metrics --; board settled before15seconds static window",
+      "reply": "显示数字，静置开始和结束都为0",
+      "confirmed": "Numeric display and user-reported15seconds0->0; other-metric detail not separately repeated in reply"
+    },
+    "walk1": {
+      "request": "Battery only, unplug USB, record settled starting total,50single-foot steps, stop and wait3seconds after wake",
+      "reply": "走50步，显示57",
+      "clarification": "上一组起始为0，这一次结束为113步，起为57",
+      "confirmed": "User-reported50single-foot steps, UI0->57; increment57, extra movement not specified, no error percentage inferred"
+    },
+    "walk2_screen_off": {
+      "request": "Continue same battery-only run, note total, wait natural screen-off,50single-foot steps, KEY1 wake and wait3seconds",
+      "reply": "上一组起始为0，这一次结束为113步，起为57",
+      "confirmed": "User-reported UI57->113, increment56 after requested screen-off walk; no independent timing or proof of physical DEEP/60second polling"
+    },
+    "hour_chart_clarification": {
+      "reply": "步数组件和详情有数字，但是步数列表无数据",
+      "location_reply": "总步数下方按小时的图表显示“暂无数据”",
+      "interpretation": "Expected scope: total is integrated, hourly buckets are unavailable and not fabricated from cumulative count"
+    },
+    "final_regression": {
+      "request": "Other three metrics --; information left-edge back restores position; normal-brightness KEY1 home and reopen overview; battery retained while USB reconnected, KEY1 wake and current count",
+      "reply": "其他三项为--，其他均正常，已接入usb，当前步数113",
+      "confirmed": "User-reported bounded missing values/navigation passed; USB reconnected, visible count remained113 before serial readback"
+    }
+  },
+  "readback": {
+    "command": "SDK Python artifacts/daily-steps-startup-check.py --port COM5 --directory artifacts/daily-steps-hardware/readback-01",
+    "reset_and_time": "No --startup flag, no explicit reset, no RTC write, no stop/retry. No complete boot sequence in capture; RTC Mon Oct19 12:55:40 2026 and native start1567 match ongoing run, supporting continuity for this reopen only",
+    "observed": [
+      "Two native snapshots phase2 counter_valid1 steps113, who0x6a ths0x10 deb0x6e start1567; samples646217/650265; io_errors0 incoherent0",
+      "Daily valid1 total113 day20745 utc1792414540/version471 and utc1792414544/version475; native113 partial1 volatile1",
+      "Software PM enter9/exit9/deep_elapsed9; deep_ticks94739/max_ticks33254, screen_off8/screen_on8, wake0x10000002. Path counters only, not measured physical DEEP or proof of60second sampler execution",
+      "Final allow1 off0 own_idle1 sdk_idle2; PM hold released. No new boot, HardFault or assertion failure matched in this bounded capture"
+    ],
+    "session": "artifacts/daily-steps-hardware/readback-01/session.json",
+    "session_sha256": "d0a676a71035267f5e01129daaaf90441cee1d2680e29d910671339f0ee62591",
+    "uart": "artifacts/daily-steps-hardware/readback-01/uart.bin",
+    "uart_sha256": "c7d38c6a4cbe5d689cfe950339cc765fe82fc49a8460a9ba56da06128f7013c4",
+    "exit_code": 0,
+    "closed_local": "2026-10-19T20:56:00+08:00",
+    "final_connection": "Original battery + computer USB, secured loose motor wire; COM5 closed. No manual motor/charge or raw-register commands"
+  },
+  "result": "Exact-image flash/verify, bounded boot/RTC, valid zero, numeric UI/static0->0, two positive walking intervals including requested screen-off interval, navigation/missing-value regression and no-reset113 cache readback completed. Total-count integration verified within these bounds; no accuracy conclusion.",
+  "documentation_validation": {
+    "commands": ["git diff --check", "Locked SDK Python via stdin: strict UTF-8 on6 changed files; JSON parse; evidence hash/flash identity/session-close checks; added relative-link existence"],
+    "result": "PASS; no production source, SDK, build configuration or generated UI edits in this hardware record round",
+    "build_and_host_tests": "Not rerun: reused exact already-built image; software results remain separately recorded in native-daily-steps.json"
+  },
+  "next": "Close documentation PR by Rebase merge and synchronize primary main. Persistence and hourly buckets remain outside this round. Any accuracy follow-up needs a separately bounded complete-window reference test; no active serial experiment remains.",
+  "unverified": ["quantified accuracy or wrist suitability", "physical DEEP and60second timer execution", "UTC+8 rollover/RTC correction on device", "long sleep/16bit wrap/fault recovery", "persistence deliberately deferred", "current, temperature, charging limits and battery life"]
+}
