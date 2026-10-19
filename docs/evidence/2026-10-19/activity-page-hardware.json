@@ -1,0 +1,81 @@
+{
+  "date": "2026-10-19",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/activity-hardware",
+  "source_main": "2f78f5372966973b29bf7957a7e8f375b2bb0b21",
+  "software_pr": "https://github.com/e-n-ye/wristflow/pull/98",
+  "authorization": "User requested flashing and validation; then confirmed same board/screen, original battery + computer USB, loose motor wire secured and user present.",
+  "scope": "Reuse exact Product activity-page candidate. Flash/boot and three bounded visual/input groups; no new production code, build, daily sampling, algorithm or power experiment.",
+  "preflight": {
+    "build_result": "artifacts/product/20261019-192724-164/result.json",
+    "source_exact": 425,
+    "source_eol_only": 29,
+    "source_note": "All454 recorded sources match bytes or only LF/CRLF conversion after Git checkout; no semantic source change",
+    "artifact_rehashed": 29,
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "sdk_lock_and_submodules": "matched, clean",
+    "dry_run": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Flash.ps1 -Example product -Port COM5 -DryRun; exit0, no device opened",
+    "port": "COM5 / USB-SERIAL CH340 / VID1A86 PID7523 / location1-1.1, enumerated again immediately before flash",
+    "driver_option": "DisableModemOutHandShake=1, registry read only; no driver setting changed",
+    "retained_hook": "arm-none-eabi-objdump -d --disassemble=BSP_PowerUpCustom main.elf; .retm_data at0x200033bc, false argument branches directly to matching epilogue"
+  },
+  "flash": {
+    "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Flash.ps1 -Example product -Port COM5",
+    "tool": "sftool0.2.5, write_flash --verify, --after soft_reset",
+    "result": "artifacts/flash/product/20261019-195344-256/result.json",
+    "result_sha256": "440d0224a075aacf324fe38e86c6e0ba3dd7be9152a90c76484e599b822df676",
+    "log": "artifacts/flash/product/20261019-195344-256/sftool.log",
+    "log_sha256": "f1af4af1b9c274b42d49af74c72cd51acbce7ff66f0848df949a2f23762eb54f",
+    "completed_local": "2026-10-19T19:56:24+08:00",
+    "attempts": 1,
+    "exit_code": 0,
+    "images": [
+      {"name": "bootloader.bin", "address": "0x12010000", "bytes": 58496, "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"},
+      {"name": "main.bin", "address": "0x12020000", "bytes": 7789596, "sha256": "18db19846e4b61467ddfb119607dc54cd1eeae3553c32b757516100e3b0b42dc"},
+      {"name": "ftab.bin", "address": "0x12000000", "bytes": 11288, "sha256": "7d61b461d87c9575da3d50e9537b8238d3f8143a0c0c637f1d3b0ee227363ca1"}
+    ],
+    "settings": "Only generated three-image manifest written; no erase-all or explicit settings-partition write. Firmware autonomously restored/saved its existing configuration."
+  },
+  "startup": {
+    "command": "SDK Python artifacts/activity-startup-check.py --port COM5 --directory artifacts/activity-hardware/startup-01 --allow-one-rts-reset",
+    "helper_sha256": "7a6cfbe7b5affb2f9a36d93f96728980722f3e7a0aace2a6e4b1a5383b890a76",
+    "serial": "1000000 8N1, no flow control, DTR/RTS=false before open",
+    "reset": "Initial three seconds had power samples without a complete boot sequence. One deliberate RTS=true150ms then false captured fresh initialization; no repeated reset.",
+    "observed": [
+      "CO5300 ID0x331100 and FT6146 initialization",
+      "Product layout restore=yes generation48 pages3; storage/preferences restored",
+      "[charger] early attempted=1 hal=0 result=0 reg=0x00 verified=1 profile=1",
+      "RTC initially Jan1 2000 after deliberate RTS; [product] RTC synchronized: UTC=1792411056, readback Mon Oct19 11:57:37 2026",
+      "Ordinary firmware power output: USB OK, VBAT around4163..4166mV and SOC~97%; these are software samples, not calibrated physical measurements"
+    ],
+    "commands": ["wf_pm hold", "wf_pm status", "show_date", "wf_time 1792411056", "show_date", "wf_pm allow", "wf_pm status"],
+    "session": "artifacts/activity-hardware/startup-01/session.json",
+    "session_sha256": "d51de911ebf44c61e96de2b6bc6834b52ff168aab9bb19e7f4d5579a7816cfcf",
+    "uart": "artifacts/activity-hardware/startup-01/uart.bin",
+    "uart_sha256": "4470dffe011ed97176c566d2a38c46c58a1680986b1b6f286973e99ba3fbe797",
+    "exit_code": 0,
+    "closed_local": "2026-10-19T19:57:52+08:00",
+    "final_status": "allow=1 off=0 own_idle=1 sdk_idle=2; no natural screen-off observed before closing",
+    "fault_observation": "No matching HardFault or assertion failure in this bounded capture; not a stability-duration test",
+    "no_commands": "No sensor/probe/steps, motor, manual charge or raw-register command; PM hold released and COM5 closed"
+  },
+  "user_validation": {
+    "same_firmware": "18db19846e4b61467ddfb119607dc54cd1eeae3553c32b757516100e3b0b42dc",
+    "group1": {
+      "requested": "One activity launcher entry; overview then calories/steps/active minutes/standing with --; continuous scroll can rest between cards; data-information left-edge back restores parent scroll position",
+      "reply": "三项均正常"
+    },
+    "group2": {
+      "requested": "All five component identities enter the same overview; temporarily replace a quarter slot for calories and active_minutes, then restore original component",
+      "reply": "五种入口都正常，已换回原组件"
+    },
+    "group3": {
+      "requested": "Wait for normal screen-off at a middle scroll position, KEY1 within10seconds restores position; KEY1 at normal brightness returns home, reopening starts at overview",
+      "reply": "短睡恢复、KEY1返回和重开均正常"
+    },
+    "boundary": "User-reported bounded display/input observations; no independent timing, screenshots, full joint matrix or measured activity values. UART remained closed during all three groups."
+  },
+  "result": "Exact-image flash/verify and bounded boot/RTC confirmed; three user UI groups passed. Original quarter component restored; original battery+USB and secured wiring retained.",
+  "unverified": ["real daily steps or other activity data", "algorithm accuracy or wrist suitability", "long sleep, directed DIM and reminders on this device version", "sleep current, charging limits, temperature and battery life"],
+  "next": "Close documentation PR using CONTRIBUTING; any daily native step integration is a separate user-authorized round defining ownership, day boundaries and recovery. No active serial or device experiment remains."
+}
