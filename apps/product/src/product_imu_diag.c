@@ -126,7 +126,19 @@ static wristflow_steps_clock_t daily_clock(void)
         .utc = clock.utc, .revision = clock.revision, .valid = clock.valid};
 }
 
-static void wrist_report(void)
+static void wrist_frame_report(const char *stage, const wf_imu_wrist_frame_t *f)
+{
+    rt_kprintf("[imu-wrist-frame] stage=%s attempted=%u valid=0x%03x begin=%lu end=%lu\n",
+        stage, f->attempted, f->valid, (unsigned long)f->started_ms, (unsigned long)f->completed_ms);
+    rt_kprintf("[imu-wrist-regs] stage=%s bank=%02x who=%02x xl=%02x ctrl3=%02x ctrl10=%02x pulse=%02x tap=%02x\n",
+        stage, f->bank, f->who, f->xl, f->ctrl3, f->ctrl10, f->pulse, f->tap);
+    rt_kprintf("[imu-wrist-source] stage=%s status=%02x axes=%02x source=%02x ready=%u xyz_valid=%u\n",
+        stage, f->status, f->axes, f->source, f->data_ready, f->xyz_valid);
+    rt_kprintf("[imu-wrist-xyz] stage=%s raw=%02x,%02x,%02x,%02x,%02x,%02x x=%d y=%d z=%d; counts, not mg\n",
+        stage, f->raw[0], f->raw[1], f->raw[2], f->raw[3], f->raw[4], f->raw[5],
+        f->xyz[0], f->xyz[1], f->xyz[2]);
+}
+static void wrist_report(bool frames)
 {
     rt_base_t level = rt_hw_interrupt_disable();
     wf_imu_wrist_snapshot_t s = wrist_cached;
@@ -138,6 +150,11 @@ static void wrist_report(void)
         (unsigned long)s.observations, (unsigned long)s.io_errors);
     rt_kprintf("[imu-wrist] start=%lu duration=%lu sample=%lu; latched source observations, not gestures\n",
         (unsigned long)s.started_ms, (unsigned long)s.duration_ms, (unsigned long)s.sampled_ms);
+    if (frames) {
+        wrist_frame_report("before", &s.before);
+        wrist_frame_report("running", &s.running);
+        wrist_frame_report("after", &s.after);
+    }
 }
 static void wrist_stop(bool keep_steps)
 {
@@ -239,7 +256,7 @@ static void daily_work(rt_uint32_t events)
     }
     publish(); /* Releases this owner's IDLE unless stopping remains unconfirmed. */
     if (wrist.snapshot.phase != before_wrist.phase || wrist.snapshot.observations != before_wrist.observations ||
-        (events & (EV_WRIST | EV_WRIST_STOP))) wrist_report();
+        (events & (EV_WRIST | EV_WRIST_STOP))) wrist_report(false);
     if (checkpoint_enabled) {
         uint64_t now = daily_clock().monotonic_ms;
         if (wristflow_steps_store_wait(&checkpoint, now) == 0) {
@@ -417,7 +434,7 @@ MSH_CMD_EXPORT(wf_imu, bounded native step-counter diagnostic);
 
 static void wf_wrist(int argc, char **argv)
 {
-    if (argc == 2 && !strcmp(argv[1], "status")) { wrist_report(); return; }
+    if (argc == 2 && !strcmp(argv[1], "status")) { wrist_report(true); return; }
     if (!ready || !daily_mode) { rt_kprintf("[imu-wrist] daily IMU owner unavailable\n"); return; }
     if (argc == 2 && !strcmp(argv[1], "stop")) {
         rt_base_t level = rt_hw_interrupt_disable();

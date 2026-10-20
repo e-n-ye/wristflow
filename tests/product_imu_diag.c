@@ -96,8 +96,9 @@ int rt_i2c_configure(struct rt_i2c_bus_device *b, struct rt_i2c_configuration *c
 size_t rt_i2c_mem_read(struct rt_i2c_bus_device *b, unsigned addr, unsigned reg,
     unsigned bits, void *out, size_t length)
 {
-    assert(b == &fake_bus && bits == 8 && length == 1 && !irq && idle); ++reads;
+    assert(b == &fake_bus && bits == 8 && (length == 1 || (reg==0x28 && length==6)) && !irq && idle); ++reads;
     if (addr != 0x6a) return 0;
+    if (length==6) { assert(!bank); memcpy(out,user_regs+reg,length); return length; }
     uint8_t value = bank == 0xa0 ? bank_b_regs[reg] : bank ? bank_regs[reg] : user_regs[reg];
     if (reg == 1) value = bank;
     if (!bank && reg == 0x4c) value = (uint8_t)(native_count >> 8);
@@ -295,13 +296,16 @@ int main(void)
     assert(wrist_cached.phase==WF_IMU_RUNNING && wrist_cached.configured && idle==1);
     assert(device.wrist_enabled && user_regs[0x19]==0x94 && bank_b_regs[0x59]==0x40);
     assert(native_count==5 && daily_cached.metric.total==5 && daily_cached.metric.hourly[20]==5);
+    assert(wrist_cached.before.valid==WF_WRIST_ALL && wrist_cached.before.ctrl10==0x14);
     before=reads+writes; wrist_cmd("status",NULL,NULL); wrist_cmd("start","120","xpos");
     assert(before==reads+writes && !wrist_pending);
     native_count=6; user_regs[0x54]=1; user_regs[0x55]=0x40; cycle();
     assert(wrist_cached.observations==1 && wrist_cached.source==1 && wrist_cached.axes==0x40);
+    assert(wrist_cached.running.valid==WF_WRIST_ALL && wrist_cached.running.xyz_valid && wrist_cached.running.ctrl10==0x94);
     assert(daily_cached.metric.total==6 && cached.phase==WF_IMU_RUNNING && idle==1);
     wrist_cmd("stop",NULL,NULL); cycle();
     assert(wrist_cached.stop_verified && !device.wrist_enabled && user_regs[0x19]==0x14 && !idle);
+    assert(wrist_cached.after.valid==WF_WRIST_ALL && wrist_cached.after.ctrl10==0x14 && !wrist_cached.after.source);
     assert(native_count==6 && daily_cached.metric.total==6 && cached.phase==WF_IMU_RUNNING);
     wrist_cmd("start","1","xpos"); cycle(); ticks+=1000; cycle();
     assert(wrist_cached.phase==WF_IMU_DONE && wrist_cached.stop_verified && !idle);

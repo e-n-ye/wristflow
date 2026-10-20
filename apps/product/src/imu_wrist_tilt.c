@@ -1,6 +1,7 @@
 #include "imu_wrist_tilt.h"
 
-enum { BANK = 0x01, PULSE = 0x0b, XL = 0x10, CTRL10 = 0x19,
+enum { BANK = 0x01, PULSE = 0x0b, WHO = 0x0f, XL = 0x10, CTRL3 = 0x12,
+    CTRL10 = 0x19, STATUS = 0x1e, OUT_XL = 0x28,
     SOURCE = 0x54, AXES = 0x55, TAP = 0x58, LAT = 0x50, THS = 0x54, MASK = 0x59 };
 
 static bool read_byte(wf_imu_wrist_tilt_t *d, uint8_t reg, uint8_t *value)
@@ -33,6 +34,43 @@ static bool continuing(wf_imu_wrist_tilt_t *d)
 static bool configure(wf_imu_wrist_tilt_t *d, uint8_t reg, uint8_t value)
 { return continuing(d) && set(d, reg, value); }
 
+static void frame_byte(wf_imu_wrist_tilt_t *d, wf_imu_wrist_frame_t *f,
+    uint8_t reg, uint8_t *out, unsigned bit)
+{ if (read_byte(d, reg, out)) f->valid |= bit; }
+
+static void capture(wf_imu_wrist_tilt_t *d, wf_imu_wrist_frame_t *f)
+{
+    *f = (wf_imu_wrist_frame_t){.attempted = true, .started_ms = d->io.now_ms(d->io.context)};
+    frame_byte(d, f, BANK, &f->bank, WF_WRIST_BANK);
+    /* Do not read user-address aliases when the bank is unknown or nonzero. */
+    if (!(f->valid & WF_WRIST_BANK) || f->bank) goto done;
+    frame_byte(d, f, WHO, &f->who, WF_WRIST_WHO);
+    frame_byte(d, f, XL, &f->xl, WF_WRIST_XL);
+    frame_byte(d, f, CTRL3, &f->ctrl3, WF_WRIST_CTRL3);
+    frame_byte(d, f, CTRL10, &f->ctrl10, WF_WRIST_CTRL10);
+    frame_byte(d, f, PULSE, &f->pulse, WF_WRIST_PULSE);
+    frame_byte(d, f, TAP, &f->tap, WF_WRIST_TAP);
+    frame_byte(d, f, STATUS, &f->status, WF_WRIST_STATUS);
+    if (d->io.read && d->io.read(d->io.context, OUT_XL, f->raw, sizeof f->raw))
+        f->valid |= WF_WRIST_RAW;
+    else ++d->snapshot.io_errors;
+    /* Keep the existing AXES-before-clearing-SOURCE pair. These reads are not
+     * atomic with one another or with XYZ. Before/after reads also clear SOURCE.
+     * Datasheet 2.2: AXES is not applicable to a single enabled semi-axis. */
+    frame_byte(d, f, AXES, &f->axes, WF_WRIST_AXES);
+    frame_byte(d, f, SOURCE, &f->source, WF_WRIST_SOURCE);
+    f->data_ready = (f->valid & WF_WRIST_STATUS) && (f->status & 1U);
+    unsigned format = WF_WRIST_XL | WF_WRIST_CTRL3 | WF_WRIST_RAW;
+    f->xyz_valid = (f->valid & format) == format && f->xl == 0x20 && f->ctrl3 == 0x44;
+    if (f->xyz_valid) for (unsigned i = 0; i < 3; ++i) {
+        int32_t value = (uint16_t)((uint16_t)f->raw[2*i + 1] << 8 | f->raw[2*i]);
+        if (value >= 32768) value -= 65536;
+        f->xyz[i] = (int16_t)value;
+    }
+done:
+    f->completed_ms = d->io.now_ms(d->io.context);
+}
+
 void wf_imu_wrist_init(wf_imu_wrist_tilt_t *d, wf_imu_io_t io,
     void (*delay_ms)(void *, uint32_t))
 { *d = (wf_imu_wrist_tilt_t){.io = io, .delay_ms = delay_ms}; }
@@ -53,7 +91,12 @@ bool wf_imu_wrist_stop(wf_imu_wrist_tilt_t *d, uint32_t now, wf_imu_end_t reason
             bool tap = set(d, TAP, d->saved_tap);
             ok = control && clear && pulse && tap;
         }
-        if (ok) d->changed = false;
+        if (ok) {
+            d->changed = false;
+            /* Observability is separate from the verified stop transaction:
+             * failed telemetry leaves partial valid bits, not an active device. */
+            capture(d, &d->snapshot.after);
+        }
     }
     d->snapshot.sampled_ms = now;
     d->snapshot.stop_verified = ok;
@@ -67,21 +110,22 @@ bool wf_imu_wrist_begin(wf_imu_wrist_tilt_t *d, uint32_t duration, uint8_t mask,
     if (!d->io.now_ms || !d->delay_ms || d->changed || d->snapshot.phase == WF_IMU_RUNNING ||
         d->snapshot.phase == WF_IMU_FAULT || duration < 1000 || duration > 120000 ||
         !mask || (mask & 3U) || !latency) return false;
-    uint8_t bank, xl, control;
     uint32_t errors = d->snapshot.io_errors;
     d->snapshot = (wf_imu_wrist_snapshot_t){.io_errors = errors, .mask = mask,
         .latency = latency, .threshold = 0x20, .duration_ms = duration, .stop_verified = true};
     /* This capability may borrow only the known native-counter configuration.
      * In particular it must not reset PEDO_RST_STEP, ODR or the shared rail. */
-    bool read = read_byte(d, BANK, &bank) && bank == 0 && read_byte(d, XL, &xl) && xl == 0x20 &&
-        read_byte(d, CTRL10, &control) && control == 0x14 &&
-        read_byte(d, PULSE, &d->saved_pulse) && !(d->saved_pulse & 1U) &&
-        read_byte(d, TAP, &d->saved_tap);
+    capture(d, &d->snapshot.before);
+    wf_imu_wrist_frame_t *f = &d->snapshot.before;
+    bool read = f->valid == WF_WRIST_ALL && f->who == 0x6a && f->xl == 0x20 &&
+        f->ctrl3 == 0x44 && f->ctrl10 == 0x14 && !(f->pulse & 1U);
     if (!read) {
         d->snapshot.phase = WF_IMU_FAULT;
         d->snapshot.ended = WF_IMU_IO_FAILURE;
         return false; /* No register was written; do not invent a restore value. */
     }
+    d->saved_pulse = f->pulse;
+    d->saved_tap = f->tap;
     d->snapshot.started_ms = d->io.now_ms(d->io.context);
     if (!continuing(d)) goto fail;
     d->changed = true;
@@ -120,16 +164,16 @@ void wf_imu_wrist_poll(wf_imu_wrist_tilt_t *d, uint32_t now)
         (void)wf_imu_wrist_stop(d, now, d->snapshot.ended, true);
         return;
     }
-    uint8_t bank, xl, control, pulse, tap, source, axes;
-    bool ok = read_byte(d, BANK, &bank) && bank == 0 && read_byte(d, XL, &xl) && xl == 0x20 &&
-        read_byte(d, CTRL10, &control) && control == 0x94 &&
-        read_byte(d, PULSE, &pulse) && pulse == (uint8_t)(d->saved_pulse | 1U) &&
-        read_byte(d, TAP, &tap) && tap == (uint8_t)(d->saved_tap | 1U) &&
-        read_byte(d, AXES, &axes) && read_byte(d, SOURCE, &source);
+    capture(d, &d->snapshot.running);
+    wf_imu_wrist_frame_t *f = &d->snapshot.running;
+    bool ok = f->valid == WF_WRIST_ALL && f->who == 0x6a && f->xl == 0x20 && f->ctrl3 == 0x44 &&
+        f->ctrl10 == 0x94 && f->pulse == (uint8_t)(d->saved_pulse | 1U) &&
+        f->tap == (uint8_t)(d->saved_tap | 1U);
     if (!ok) { (void)wf_imu_wrist_stop(d, now, WF_IMU_IO_FAILURE, true); return; }
-    d->snapshot.axes = axes; /* Read before the clearing source; not an atomic pair. */
-    d->snapshot.source = source;
+    if (!continuing(d)) { (void)wf_imu_wrist_stop(d, f->completed_ms, d->snapshot.ended, true); return; }
+    d->snapshot.axes = f->axes;
+    d->snapshot.source = f->source;
     d->snapshot.source_valid = true;
-    d->snapshot.sampled_ms = now;
-    if (source & 1U) ++d->snapshot.observations;
+    d->snapshot.sampled_ms = f->completed_ms;
+    if (f->source & 1U) ++d->snapshot.observations;
 }

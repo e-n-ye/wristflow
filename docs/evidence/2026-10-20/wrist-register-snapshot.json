@@ -1,0 +1,94 @@
+{
+  "date": "2026-10-20",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/wrist-register-snapshot",
+  "base_commit": "b1e16d1a27cc4c7a8506b2aeb4e8da3fc71b18dc",
+  "scope": "Prepare bounded register/raw XYZ observation within existing AWT diagnostic session; no hardware operation",
+  "capability_choice": "Continue native LSM6DS3TR-C AWT path. No software pose recognition, new algorithm, IRQ/AON/display wake or UI change. Source84h root cause and exact physical die identity remain unknown",
+  "references": {
+    "datasheet": "https://www.st.com/resource/en/datasheet/lsm6ds3tr-c.pdf",
+    "revision": "DocID030071 Rev3",
+    "correction": "Section2.2: WRIST_TILT_IA55h axis indication is not applicable when using one axis side only. Previous axes00 in a single-semi-axis experiment is not independently anomalous",
+    "format": "CTRL3_C BDU40h/IF_INC04h/BLE02h; require44h for known format. OUT_X_L28h..OUT_Z_H2dh are signed16bit little-endian; XL20h is26Hz +/-2g,0.061mg/LSB",
+    "application_note": "https://www.st.com/resource/en/application_note/dm00472670-lsm6ds3trc-alwayson-3d-accelerometer-and-3d-gyroscope-stmicroelectronics.pdf",
+    "freshness": "AN5130 output-data/BDU sections: read STATUS XLDA before XYZ. BDU ensures per-axis L/H pairing, not simultaneous XYZ; no atomic relation to AXES/SOURCE",
+    "bus_source": "Locked SDK i2c_core.c rt_i2c_mem_read forwards requested count; drv_i2c.c memory read forwards msg.len to HAL, supporting one6-byte raw read. Transfer success is not an independent physical bytes-received measurement"
+  },
+  "implementation": {
+    "phases": "before: new reads before AWT writes; running: latest polling frame; after: new reads only after successful stop/clear/restore. Idempotent stop preserves original after frame",
+    "order": "BANK, require exact0; WHO,XL,CTRL3,CTRL10,PULSE,TAP,STATUS,RAW6 at28h,AXES55h,SOURCE54h. No diagnostic bank switching",
+    "valid_mask": {"BANK": 1, "WHO": 2, "XL": 4, "CTRL3": 8, "CTRL10": 16, "PULSE": 32, "TAP": 64, "STATUS": 128, "RAW6": 256, "AXES": 512, "SOURCE": 1024, "all": 2047},
+    "interpretation": "Valid bits mean completed transfers, not matching config or freshness. attempted distinguishes an absent frame; timestamps bound sequential reads. xyz_valid requires RAW/XL/CTRL3 valid and20h/44h; ready requires STATUS valid and XLDA1. Unknown/failed fields printed as0 must not be interpreted without masks",
+    "source_side_effect": "SOURCE read clears latch. Before does so explicitly; running uses exactly one SOURCE read for both frame and observations. After is a fresh read after original cleanup clear. Existing summary source remains last successful running observation, never silently replaced by after",
+    "failure": "Incomplete before/active frame or known config mismatch terminates diagnostic and cleans up. If hardware stop already verified, after telemetry failure leaves partial valid bits/io_errors but does not reacquire active-device responsibility",
+    "budget": "At most11 read transactions per frame, each existing50ms bus timeout. Full frame may complete before cancellation/deadline is rechecked; crossed frame never increments observations.100ms remains requested event wait, not exact sample period. No free-running extra reader or thread",
+    "status": "wf_wrist status copies synchronized cached snapshot and prints3 historical summary lines plus4 lines for each stage; no hardware reads"
+  },
+  "identity_evidence": {
+    "result": "No existing readable IMU die marking found in scoped evidence and6 local hardware photos under artifacts/hardware/20260924-photos. Whole-board/description/screen photos do not prove exact IMU model",
+    "limits": "Read-only scoped search, not exhaustive image archive audit; WHO6a and board BOM remain nonunique identity evidence"
+  },
+  "source_hashes": {
+    "apps/product/src/imu_wrist_tilt.c": "f92ad0776c88908806837061ad3d542f62699cd0df866a07d874b67015993142",
+    "apps/product/src/imu_wrist_tilt.h": "cb86285fca62481762c6fa93d73c864594d8923628e7c7fde0f8620ac7b7f697",
+    "apps/product/src/product_imu_diag.c": "20fa83405e69b4bfa2d8b32cdb411ea40fb79c171f89d5e9f772e374578d14d6",
+    "tests/imu_wrist_tilt.c": "ed8e50c83a6fa89e1936dda3bb9dddf150b8f8416e127344263622d0b023afea",
+    "tests/product_imu_diag.c": "59143073a9e2115b42bf689c8d6b90ebe6fd7d6cb1e81b0460d1847332cc647b"
+  },
+  "host_validation": {
+    "versions": {"gcc": "15.2.0", "cmake": "4.2.3", "ninja": "1.13.2"},
+    "commands": [
+      "cmake --build artifacts/native-wrist-debug --parallel 4",
+      "ctest --test-dir artifacts/native-wrist-debug --output-on-failure --timeout 60",
+      "cmake --build artifacts/native-wrist-release --target imu_wrist_tilt product_imu_diag imu_pedometer daily_steps steps_store --parallel 4",
+      "ctest --test-dir artifacts/native-wrist-release --output-on-failure --timeout 60 -R '^(imu_wrist_tilt|product_imu_diag|imu_pedometer|daily_steps|steps_store)$'"
+    ],
+    "configuration": "Reuse native-wrist Debug/Release CMake/Ninja trees with D:/msys64/ucrt64/bin/gcc.exe; tests undefine NDEBUG to retain assertions",
+    "debug": {"passed": 53, "total": 53, "seconds": 14.16, "exit_code": 0},
+    "release": {"passed": 5, "total": 5, "seconds": 0.32, "exit_code": 0},
+    "new_cases": ["Distinct before/running/after data and source-clearing sequence", "Negative/extreme signed little-endian XYZ, data-ready distinct from decoding validity", "Wrong bank does no user-address/raw reads or writes", "Incomplete RAW read before start/while running/after-only; cleanup responsibility versus telemetry completeness", "Wrong CTRL3 invalidates decoding and terminates session", "Capture consumes1100ms past deadline or triggers cancellation at RAW; event read is retained in running frame but not counted", "Actual worker publishes frames with counter/hour continuity and status performs no I2C"],
+    "limits": "Mock does not prove physical bus timing, XYZ coherence beyond device contract, die identity, AWT effectiveness or hardware cleanup"
+  },
+  "builds": [
+    {
+      "example": "product",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Build.ps1 -Example product -Jobs 4",
+      "official_command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "result": "artifacts/product/20261020-195623-368/result.json",
+      "result_sha256": "c4944b44ae1eb99e7002fa0ab0b0b6965cc02034d211a0c92dd077a2963303c6",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "source_hashes_matched": 461,
+      "artifact_hashes_matched": 29,
+      "bin_bytes": 7798612,
+      "bin_sha256": "df9c37d610ae657b00f5fccea849769ea2ee9afa7ae1996553b5b6d635044fe3",
+      "warning_lines": 10,
+      "warnings": "Existing FinSH function cast and linker RWX/entry/syscall warnings, plus existing dfu-not-found diagnostic; no new diagnostic-source warning",
+      "arm_sizes": {"wrist_module_text": 1446, "wrist_state": 168, "wrist_cache": 140, "increase_per_state_or_cache": 108, "worker_stack_unchanged": 6144},
+      "limits": "Static/object sizes are not runtime stack/heap peak measurements"
+    },
+    {
+      "example": "ui_demo",
+      "action": "Not rebuilt; unchanged compiled sources and artifacts rehashed",
+      "result": "artifacts/ui_demo/20261020-165557-466/result.json",
+      "result_sha256": "ce546baeadb2a52282efd24acf30c4da1e1a6d0dd6b9cbb4d3842873f8d48080",
+      "source_hashes_matched": 418,
+      "artifact_hashes_matched": 22,
+      "bin_sha256": "c568c377aec494bf8fc299e89050917d46679c8b07f8d4b60c94377e02487e13"
+    }
+  ],
+  "toolchain": {"python": "3.13.15", "scons": "4.10.1", "arm_gcc": "14.2.1"},
+  "sdk": {"commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65", "lock_unchanged": true, "submodules_matched": true, "working_tree_clean": true},
+  "logs_sha256": {
+    "artifacts/wrist-snapshot-debug-build.log": "916555a37a75db2bd130859436d9ec3d3a9c613301a7af124d463dc6eacb2434",
+    "artifacts/wrist-snapshot-debug-ctest.log": "e4be6e78f6026762e39020ca8f11133a2c22ac6a9c90214ab83ecd4f383548a2",
+    "artifacts/wrist-snapshot-release-build.log": "32da12980b8a15fb9558df4d1475b20cfb51cb9c6d0b7a16f250e01a5453301f",
+    "artifacts/wrist-snapshot-release-ctest.log": "b8a3668c2e2a47961d972603935da7f0be95781d5069dbef6e01579cd0291645",
+    "artifacts/wrist-snapshot-product-build.log": "494e754e09ad7eacd7a430c94212ce098cabbc4ea3b8501b072a1a1781002eb4"
+  },
+  "review": "Read-only independent register/SDK and implementation review found no blocker; suggested after-only telemetry failure and capture-time deadline/cancel cases were added and reviewed. Requested Sol/medium and Luna/low identity exploration; tools exposed task paths, not actual model metadata",
+  "hardware_verified": false,
+  "device_operations": "No serial open, flash, motion, motor or charger command. Board remains prior BIN83c9bb50 with previous partial hardware evidence",
+  "unverified": ["This candidate new frame/XYZ output on actual device", "Source84h cause and positive AWT event", "Exact die identity/physical orientation", "Real transfer duration/cancel response, XYZ simultaneity, step continuity/gaps", "IRQ/AON/display wake/switch, wear or power"],
+  "next_bounded_experiment": "On separately confirmed device conditions, flash this exact candidate and collect three-stage newly read frames with one short stationary/orientation window; observe source mapping and XYZ threshold sign before any further AWT effectiveness or wake integration"
+}

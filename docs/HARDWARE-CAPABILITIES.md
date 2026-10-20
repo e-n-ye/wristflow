@@ -140,3 +140,22 @@ wf_wrist stop
 随后按新授权下载精确`83c9bb50…`，恢复107／小时51，再自然短走形成native22／总129／小时73并自动保存。一次30秒xneg／600ms／30°会话`accepted1`表示配置序列及写后读回已完成，后续运行快照通过共享配置守卫；没有逐项原始寄存器打印。静止及用户四方向动作窗口均`FUNC_SRC2=84h／axes00／observations0`。UART捕获30023ms到期、DONE／stop_verified1；末端串口拒绝访问，用户听到设备重连声，原助手失败保留。独立cleanup会话无复位／补时，再读到同一DONE与native22／总129／完整小时／代次12保留；幂等stop与allow1回执后串口释放，用户确认屏幕／触摸／KEY1正常。[设备证据](evidence/2026-10-20/native-wrist-hardware.json)仅支持配置／到期清理／非零计数保留，不支持正向AWT效果或活动中取消。
 
 **未解观测异常**：精确数据手册Table179的bit7及bit2为0，而运行快照source84h将两位读为1；bit0仍0，不能当腕事件或公开定义的NACK。每次poll已检查bank0／XL／CTRL10／LIR／路由，尚无确定源码原因。WHO6a也被LSM6DSL等共用，单改器件命名不能解释异常。停止时SOURCE读到ignored，缓存source不会更新，因此停用后84h仅历史值。当前无原始XYZ及三阶段新读寄存器，无法区分映射／身份与实际半轴未达到阈值／持续时间；下一轮先准备一次有界寄存器与原始加速度观测，再安排设备补测，不能据零事件判原生能力不足。IRQ／AON、专用亮屏／开关、佩戴及功耗继续未验。
+
+<a id="wrist-register-snapshot"></a>
+### 三阶段寄存器与XYZ观测（2026-10-20软件增量）
+
+本节覆盖上一版“没有新读寄存器／XYZ”的软件限制，不改变首轮设备结果。精确数据手册§2.2还明确：**只启用一个半轴时，55h轴指示不适用**，因此旧单半轴实验的axes00不能单独判异常；真正待查的是未见源bit0及source84h固定零位。已有文档／相关证据和限定六张20260924硬件照片没有可读IMU丝印，精确器件身份仍不能仅据板级清单或WHO6a确定。
+
+复用原`wf_wrist start`会话，启动前取`before`，每轮运行取最新`running`，停用事务读回确认后取`after`，均由原worker独占。每帧先确认BANK读成功且严格为0，才依次读WHO／XL／CTRL3／CTRL10／PULSE／TAP／STATUS、28h起六字节XYZ、AXES55h／SOURCE54h；不临时切bank取证。SOURCE读取仍会清锁存，before也有此副作用；running只读一次SOURCE并据其bit0累计，after在原停止清源及路由恢复后再次新读，不覆盖运行事件缓存。重复stop不重取after；未执行或未成功停止时after可能尚未采集，不能把零字段当测得0。
+
+`wf_wrist status`保留原三行摘要，再输出每阶段`imu-wrist-frame/regs/source/xyz`四行；只复制同一同步缓存、无I2C。`attempted`区分尚未采集，`begin/end`为帧读取起止单调毫秒；`valid`仅代表对应传输成功，不代表配置相符或数据新鲜。失效字段即使显示0也不可采用：
+
+| valid位 | 1／2／4／8／10h／20h／40h | 80h／100h／200h／400h | 全部完成 |
+|---|---|---|---|
+| 对应字段 | BANK／WHO／XL／CTRL3／CTRL10／PULSE／TAP | STATUS／六字节RAW／AXES／SOURCE | 7ffh |
+
+XYZ输出保留六个原字节及有符号counts，仅当RAW／XL／CTRL3有效且XL20h、CTRL3=44h（BDU1／IF_INC1／BLE0）时`xyz_valid=1`；±2g参考换算为counts×0.061mg，不把counts打印成mg。`ready`仅在STATUS读取成功且XLDA1时置1；XLDA0是没有新数据，非I/O错误，仍可保留旧读数但不证明新鲜。BDU只保证每轴低／高字节配对，不保证XYZ同时，XYZ与源对也非原子，帧区间必须一起解释。
+
+新增帧每次最多11笔读取，原100ms仍是等待请求而非精确采样周期，取消／截止在整帧后再检查，响应包括剩余有界事务；到期／取消帧不会新增observations。每笔沿用50ms总线超时，无后台额外采样／线程。启动／运行帧失败或格式配置不符终止腕会话并走清理；已确认停用后after遥测失败只保留有效位缺失及错误计数，不把已知关闭的设备重新标成活动，停止结果与遥测完整性分别判断。
+
+完整Debug53/53、保留断言Release相关5/5及Product编译／源码产物核对通过；覆盖负值／大小端、三阶段新读与运行缓存保留、部分RAW失败、非0 bank不访问别名、错误CTRL3、after-only失败、采集中途到期／取消、worker共存及status零I/O。[软件证据](evidence/2026-10-20/wrist-register-snapshot.json)保存精确候选、命令与限制。本轮未开串口／下载，尚未取得本版新帧或XYZ实机读数，source84h根因仍未知；不接IRQ／AON／亮屏，也没有硬件算法不足结论。

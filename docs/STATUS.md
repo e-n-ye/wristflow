@@ -13,7 +13,9 @@
 
 **硬件verified（部分）**：本轮用户继续并重新确认同一板屏、原电池＋电脑USB、松线固定且人在旁，授权30秒原生腕事件／停止及计步保留观察。从`827ca73`建立`codex/native-wrist-hardware`，未改源码／重编。COM5身份／驱动、461源码（459字节同／2仅Git换行）、29产物、锁／DryRun／retained钩子重核；首次write+verify于19:29:51退出0，初始单次150ms RTS后实际RTC2000，真实UTC校时读回，恢复107／小时51／代次10、native0。用户短走后129／当前小时柱，读回native22、18时51／19时22／和73、自动保存129／代次12。30秒xneg配置读回成功，但动作窗口source84h／axes00／observations0；UART已见30023ms到期／停止确认，末端串口PermissionError且用户听到重连声，原失败保留。独立无复位／补时会话再核同一DONE及native22／129／小时73不变，幂等stop／allow1回执后19:35:46释放COM5。用户确认屏幕／触摸／KEY1正常、USB接稳。[设备证据](evidence/2026-10-20/native-wrist-hardware.json)不证明正向腕事件／漏计／功耗；本轮动作观察到此结束。
 
-唯一下一步：先准备同一worker内的一次有界新读寄存器／XYZ诊断，记录AWT启用前、运行中、停止后的WHO／bank／XL／CTRL10／路由／LIR／源及稳定姿态原始加速度，定位source84h固定零位异常与实际半轴条件；按已有可用丝印／照片核对器件身份，WHO6a不唯一。当前停止后的source是旧缓存，无原始XYZ，尚无确定源码根因。新设备补测另按当轮确认，不重复同样动作或判原生算法不足；取得内置效果后才进入PA31 IRQ／AON→worker清源→专用亮屏及开关，不能复用KEY导航事件。此状态不自动安排步数边界、功耗或其他硬件实验。
+**后续诊断软件verified**：用户继续后，从`b1e16d1`建立`codex/wrist-register-snapshot`，在同一会话加入[before／running／after寄存器与XYZ新读帧](HARDWARE-CAPABILITIES.md#wrist-register-snapshot)，status只读缓存。每字段传输有效位／单调起止、原字节／有符号counts、格式有效与XLDA新鲜度分别表达；bank未知不读别名，到期／取消帧不计事件，停用已确认后遥测缺失不重新承担活动责任。完整Debug53/53／Release相关5/5及独立审查通过，Product`20261020-195623-368`／BIN`df9c37d6…`编译成功，461源码／29产物与未变Demo418／22重哈希一致，SDK锁固定干净。[本轮证据](evidence/2026-10-20/wrist-register-snapshot.json)记录边界；本轮未开串口／烧录，板上仍为`83c9bb50…`。
+
+数据手册§2.2已进一步确认单半轴时axes55h不适用，旧axes00不能单独判异常；source84h及源bit0仍未解释。限定已有照片没有可读IMU丝印，WHO6a不唯一，精确身份未知。唯一下一步：新确认设备条件后，以精确新候选做一次短时三阶段寄存器／稳定姿态XYZ观察，定位映射与实际半轴阈值条件；不重复无XYZ的同样动作或判内置算法不足。取得内置效果后才进入PA31 IRQ／AON→worker清源→专用亮屏及开关，不能复用KEY导航事件。此状态不自动安排步数边界、功耗或其他硬件实验。
 
 <a id="history"></a>
 ## 2026-10-20 小时步数保存与上板闭环（历史，PR #104／#105已交付）
