@@ -45,14 +45,14 @@ wristflow_alarm_clock_t wristflow_product_services_time(void)
 }
 bool wristflow_product_services_storage_ready(void) { return storage_ready; }
 static const char *const steps_keys[] = {"steps_a", "steps_b"};
-bool wristflow_product_services_steps_read(unsigned key, uint8_t *record, void *context)
+size_t wristflow_product_services_steps_read(unsigned key, uint8_t *record, size_t capacity, void *context)
 {
     (void)context;
-    if (!storage_ready || key >= 2) return false;
+    if (!storage_ready || key >= 2 || !record || !capacity) return 0;
     struct fdb_blob blob;
     size_t size = fdb_kv_get_blob(&settings_db, steps_keys[key],
-        fdb_blob_make(&blob, record, WRISTFLOW_STEPS_RECORD_BYTES));
-    return size == WRISTFLOW_STEPS_RECORD_BYTES && blob.saved.len == WRISTFLOW_STEPS_RECORD_BYTES;
+        fdb_blob_make(&blob, record, capacity));
+    return size && size == blob.saved.len && size <= capacity ? size : 0;
 }
 bool wristflow_product_services_steps_write(unsigned key, const uint8_t *record, void *context)
 {

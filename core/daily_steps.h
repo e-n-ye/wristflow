@@ -17,6 +17,7 @@ typedef struct {
 } wristflow_steps_snapshot_t;
 typedef struct {
     uint32_t local_day, total, coverage_start_utc, saved_utc;
+    uint32_t hourly[24], hours_valid;
 } wristflow_steps_checkpoint_t;
 typedef struct {
     wristflow_steps_snapshot_t snapshot;

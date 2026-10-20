@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-20",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/hourly-steps",
+  "base_main": "c0e51862f8ba74fc63b5673333a92926d8b86cff",
+  "scope": "User continued the proposed real24-hour step chart, checkpoint and restore loop. Reuse existing XML/generated chart and native counter; no goal, other metric, algorithm or SDK change",
+  "contract": [
+    "Only continuous same-clock, same-UTC+8-hour intervals enter a bucket; confirmed zero intervals mark that hour valid. A valid bit denotes partial observations, not complete hour coverage",
+    "Same-day cross-hour delta enters the daily total but no guessed bucket. Clock-change intervals are dropped; known same-day buckets stay at their recorded hours without redistribution. New day, invalid RTC and explicit recovery retain existing daily-model boundaries",
+    "Bucket sum may be smaller than daily total, including a migrated total. Saturation admits only the increment that fits the daily total; checkpoint validates24-bit mask, zero unmarked buckets and bucket sum<=total",
+    "v2 writes132bytes including24 counters/mask and CRC32; actual-length reads accept old32-byte v1, keeping its total/generation with unknown hours. A failed new-slot write preserves the other slot. New v2 records are not downgrade-readable by old v1 firmware",
+    "One IMU worker, unchanged1s/60s polling,60s changed-data checkpoint cadence and bounded retries; hours/mask changes count as data changes. No new worker, timer or sensor parameter"
+  ],
+  "source_hashes": {
+    "apps/product/src/main.c": "5e5fea431f1fae83592c92a2301d98a9083ea14aa09283145ab37e4139d948e7",
+    "apps/product/src/product_imu_diag.c": "acbbae7a20cafeb51fb2f6c5d8d3752af444f0703503685fda1a2bff509323bc",
+    "apps/product/src/product_services.c": "d58f6f01a30be4141f5fe879af946747735742a69a3b6079cedf8d3dcfbfb408",
+    "apps/product/src/product_services.h": "59c068755a7a154f5107c24d50c5423c7c76387daa7c484f8730348c19d8fff1",
+    "core/activity.h": "ec82c5adc481dd466ad042931da692201c54e4941e5a1b64533a6f395ecf9017",
+    "core/daily_steps.c": "0909e4940288867cdab81160bd9038daca131a0905e905d3c6ab5cf1afd0d179",
+    "core/daily_steps.h": "5f29139431305b00e5d122b9cada9b403c1a2f8731b562250fa43d4a993b5642",
+    "core/steps_store.c": "6b77f629a229e56cd0987b057f68fdc774b75efac4146c40aeb8f9d8d07a8c11",
+    "core/steps_store.h": "066dba93a8f5f2fc9ba94f561a0ccb23412cb4210b572dbfe87030670008a90e",
+    "tests/activity_ui.c": "df1fb02d6b4940347ef5e82413bb90ab4d0c41376fd272c5b57e075f0cdcd688",
+    "tests/daily_steps.c": "386eee870c6025d91773c7b428fd28d75e9a96a6b10c1cf6375c822fb2351253",
+    "tests/product_imu_diag.c": "868d971970e90b4ef7d4d4f9b64e546069dc8af5013ba6e3ba4c2a2d892d7119",
+    "tests/steps_store.c": "12f408e9bf0684f93bdf6df3c712c65d7d1fb9fab6f62093ac86c5ba3c423909"
+  },
+  "host": {
+    "debug_commands": "cmake -S tests -B artifacts/hourly-steps-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe; cmake --build artifacts/hourly-steps-debug --parallel 6; ctest --test-dir artifacts/hourly-steps-debug --output-on-failure --timeout 60",
+    "release_commands": "Same configuration with Release and artifacts/hourly-steps-release; build targets daily_steps steps_store product_imu_diag activity_ui product_ui --parallel 4; ctest regex ^(daily_steps|steps_store|product_imu_diag|activity_ui|product_ui)$",
+    "debug": "52/52,22.94seconds,exit0",
+    "release": "5/5,1.29seconds,exit0",
+    "final_boundary_recheck": "After strengthening nonzero-native v2 seed and clearing a preexisting nonzero23h bucket at midnight: rebuild daily_steps/steps_store,Debug2/2 and Release2/2,exit0. Production sources unchanged after firmware builds",
+    "coverage": "Cross-hour unassigned delta, real zero, RTC correction/invalidity, day change, saturation, v1 frozen bytes through actual-size mock read, mixed-slot fallback, v2 one-shot restore, mask-only writes, CRC/semantic rejection, worker ownership/freshness/IDLE and real LVGL output",
+    "limitation": "Migration mock does not execute the real FlashDB adapter. Adapter actual-length semantics were inspected against locked FlashDB source; firmware compilation is separate evidence"
+  },
+  "builds": [
+    {"result":"artifacts/product/20261020-165441-652/result.json","result_sha256":"869be798c2ffddfcb58a3af9bcccb004417f97c1d5693f497d97d1077cc1e944","main_sha256":"2a1a39aa93e59de77bdd20afcc623d53211f047a010ddcc7799553aa42c4562b","sources_exact":459,"sources_eol_only":0,"artifacts_rehashed":29,"exit_code":0},
+    {"result":"artifacts/ui_demo/20261020-165557-466/result.json","result_sha256":"ce546baeadb2a52282efd24acf30c4da1e1a6d0dd6b9cbb4d3842873f8d48080","main_sha256":"c568c377aec494bf8fc299e89050917d46679c8b07f8d4b60c94377e02487e13","sources_exact":418,"sources_eol_only":0,"artifacts_rehashed":22,"exit_code":0}
+  ],
+  "build_commands": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Build.ps1 -Example product -Jobs 4; repeat with -Example ui_demo. Official SCons, Python3.13.15, ArmGCC14.2.1, SCons4.10.1",
+  "warnings": "Product14,Demo3; changed-file warnings are two existing RTC signedness comparisons at product_services.c:40, outside this edit. No new hourly-model/store warning",
+  "sdk": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65 and both submodules match sdk.lock.json, clean",
+  "logs_sha256": {
+    "artifacts/hourly-steps-debug-ctest.log": "c43de631959fdb4f90659fabdf7847ad31dd64afcac5167f6321a059d7d7fc00",
+    "artifacts/hourly-steps-debug-boundary-ctest.log": "04534e7c863581287c3d57eb2bd29b970843e3fc14b8560075b77eca254f2eaa",
+    "artifacts/hourly-steps-release-ctest.log": "1aef4a05c925d5d7eafb99ddad41752f2044c70b1600ebb9d61c706d645a043d",
+    "artifacts/hourly-steps-release-boundary-ctest.log": "e46dfd2b9b089fb3845f2285b637a3a238a82c50815c5d77da3d97d2352d05d9",
+    "artifacts/hourly-steps-product-build.log": "8ecefd689d42ea8f0b35ee17bcd0ed1706cb66d3d1256911b77428c6131a9ee3",
+    "artifacts/hourly-steps-demo-build.log": "bcbee84d45cef564417a4b704ec63e04bee43e039b6e228f26c655a43d75b71c"
+  },
+  "renders_sha256": {
+    "artifacts/hourly-steps-debug/renders/native-steps-live.png": "be01bddf4cdda300fbc12bab79046d346ddcf5d3693c54e82d85fb923f46da0a",
+    "artifacts/hourly-steps-debug/renders/restored-steps-hourly.png": "41c025a8e1c6a18977ac97b423620fae6ae2dcc676256399192d392762e629da"
+  },
+  "render_check": "Actual LVGL9.4.0 pixels inspected at390x450: native48 yields20h column; restoring legacy48 leaves hours unknown, next5 yields daily53/chart maximum5 and only20h column. Reused XML/generated assets; no export needed",
+  "memory": "arm-none-eabi-nm -S --size-sort main.elf, artifacts/hourly-steps-product-nm.txt: daily304B,daily_cached152B,checkpoint264B,checkpoint_cached264B. Existing6144B worker stack unchanged; two process buffers now264B total vs64B. Actual stack peak/IRQ duration and Flash wear not measured",
+  "review": "Read-only UI/data/persistence review found no remaining blocker after two test-strengthening suggestions; primary owns implementation/build/Git",
+  "failures": "No build or test failure. First PPM-to-PNG conversion attempt lacked Pillow in system Python; succeeded using the existing bundled runtime, without installing dependencies",
+  "hardware": "No serial, flash, reset, RTC write or sensor operation in this software round. Device remains previous e7cca572 image, original battery+USB, COM5 closed",
+  "next_bounded_experiment": "After software delivery and current-device preflight, flash exact Product2a1a39aa candidate; verify old total retained with unknown historical hours, new real steps populate current-hour column, automatic checkpoint/reboot restores both, then resumed counting. Precise hour boundary, physical power loss/DEEP/current and accuracy remain separate"
+}

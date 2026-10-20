@@ -125,7 +125,7 @@ int main(int argc,char **argv)
     snapshot("activity-between-cards");
     swipe(105,210,310,210); assert(lv_screen_active()==root); /* Non-edge horizontal swipe stays. */
     /* Actual native-daily model output updates Product's detail and external
-     * steps component without filling unrelated metrics or hour/goal fixtures. */
+     * steps component and real hour bucket without unrelated metric/goal fixtures. */
     wristflow_daily_steps_t daily;
     wristflow_daily_steps_init(&daily);
     wristflow_steps_clock_t clock={.utc=1792411200,.monotonic_ms=1000,.valid=true};
@@ -138,12 +138,34 @@ int main(int argc,char **argv)
     text(root,"overview_steps","48"); text(root,"overview_calories","--"); text(root,"overview_minutes","--");
     text(named(root,"activity_steps"),"metric_value","48");
     text(named(root,"activity_steps"),"metric_goal","目标 -- 步");
-    assert(!lv_obj_has_flag(named(named(root,"activity_steps"),"chart_empty"),LV_OBJ_FLAG_HIDDEN));
+    assert(lv_obj_has_flag(named(named(root,"activity_steps"),"chart_empty"),LV_OBJ_FLAG_HIDDEN));
+    assert(!lv_obj_has_flag(named(named(root,"activity_steps"),"hour_20"),LV_OBJ_FLAG_HIDDEN));
+    assert(lv_obj_has_flag(named(named(root,"activity_steps"),"hour_19"),LV_OBJ_FLAG_HIDDEN));
+    text(named(root,"activity_steps"),"chart_max","48");
     text(named(lv_obj_get_child(carousel,3),"slot_1"),"value_label","48");
     lv_obj_scroll_to_y(scroll,856,LV_ANIM_OFF); advance(32); snapshot("native-steps-live");
+    /* A migrated total has no guessed columns. Its next measured interval
+     * creates only a new partial bucket, while the total keeps the old48. */
+    wristflow_steps_checkpoint_t legacy={.local_day=daily.snapshot.observation.local_day,
+        .total=48,.coverage_start_utc=1792411200,.saved_utc=clock.utc};
+    wristflow_daily_steps_init(&daily); assert(wristflow_daily_steps_seed(&daily,&legacy));
+    assert(wristflow_daily_steps_observe(&daily,0,clock));
+    state.activity.metrics[WRISTFLOW_ACTIVITY_STEPS]=daily.snapshot.metric;
+    assert(wristflow_ui_shell_update(shell,&state));
+    text(named(root,"activity_steps"),"metric_value","48");
+    assert(!lv_obj_has_flag(named(named(root,"activity_steps"),"chart_empty"),LV_OBJ_FLAG_HIDDEN));
+    ++clock.utc; clock.monotonic_ms+=1000;
+    assert(wristflow_daily_steps_observe(&daily,5,clock));
+    state.activity.metrics[WRISTFLOW_ACTIVITY_STEPS]=daily.snapshot.metric;
+    assert(wristflow_ui_shell_update(shell,&state));
+    text(named(root,"activity_steps"),"metric_value","53");
+    text(named(root,"activity_steps"),"chart_max","5");
+    assert(!lv_obj_has_flag(named(named(root,"activity_steps"),"hour_20"),LV_OBJ_FLAG_HIDDEN));
+    advance(32); snapshot("restored-steps-hourly");
     wristflow_daily_steps_invalidate(&daily);
     state.activity.metrics[WRISTFLOW_ACTIVITY_STEPS]=daily.snapshot.metric;
     assert(wristflow_ui_shell_update(shell,&state)); text(root,"overview_steps","--");
+    assert(!lv_obj_has_flag(named(named(root,"activity_steps"),"chart_empty"),LV_OBJ_FLAG_HIDDEN));
     lv_obj_scroll_to_y(scroll,offset,LV_ANIM_OFF); advance(32);
     /* Independent validity, real zero, incomplete hourly data and >100% progress. */
     state.time_unavailable=false; state.hour_24=18; state.minute=56;

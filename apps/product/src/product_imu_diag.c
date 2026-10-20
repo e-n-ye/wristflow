@@ -85,7 +85,10 @@ wristflow_steps_snapshot_t wristflow_product_steps_snapshot(void)
             clock.monotonic_ms - value.observation.sampled_ms > WRISTFLOW_STEPS_MAX_GAP_MS ||
             clock.revision != value.observation.clock_revision ||
             ((uint64_t)clock.utc + 28800U) / 86400U != value.observation.local_day)
+        {
             value.metric.total_valid = false;
+            value.metric.hours_valid = 0;
+        }
     }
     return value;
 }
@@ -343,6 +346,14 @@ static void wf_steps(int argc, char **argv)
             checkpoint_enabled, saved.saved_valid, saved.dirty, saved.failed, saved.attempts,
             (unsigned long)saved.saved.local_day, (unsigned long)saved.saved.total,
             (unsigned long)saved.generation);
+        uint32_t sum = 0;
+        for (unsigned h = 0; h < 24; ++h)
+            if (s.metric.hours_valid & (1U << h)) sum += s.metric.hourly[h];
+        rt_kprintf("[steps-hours] valid=0x%06lx sum=%lu saved_valid=0x%06lx\n",
+            (unsigned long)s.metric.hours_valid, (unsigned long)sum, (unsigned long)saved.saved.hours_valid);
+        for (unsigned h = 0; h < 24; ++h)
+            if (s.metric.hours_valid & (1U << h))
+                rt_kprintf("[steps-hour] hour=%u total=%lu\n", h, (unsigned long)s.metric.hourly[h]);
         return;
     }
     rt_base_t level = rt_hw_interrupt_disable();
