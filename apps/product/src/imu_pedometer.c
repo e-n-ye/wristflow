@@ -51,6 +51,7 @@ static bool stop_hardware(wf_imu_pedometer_t *d)
         bool stopped = set(d, regs[i], 0);
         ok = stopped && ok; /* Attempt every stop, even after an earlier failure. */
     }
+    if (ok) d->wrist_enabled = false;
     return ok;
 }
 
@@ -155,7 +156,8 @@ void wf_imu_pedometer_poll(wf_imu_pedometer_t *d, uint32_t now)
          * as wraparound. This never resets the count during observation. */
         uint8_t bank, xl, control;
         bool configured = !d->continuous || (read_byte(d, BANK, &bank) && bank == 0 &&
-            read_byte(d, XL, &xl) && xl == 0x20 && read_byte(d, CTRL10, &control) && control == 0x14);
+            read_byte(d, XL, &xl) && xl == 0x20 && read_byte(d, CTRL10, &control) &&
+            control == (d->wrist_enabled ? 0x94 : 0x14));
         if (!configured || !counter(d, now))
             (void)wf_imu_pedometer_stop(d, now, WF_IMU_IO_FAILURE);
     }
