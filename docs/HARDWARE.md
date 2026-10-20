@@ -1,5 +1,17 @@
 # 黄山派选型复评
 
+## 2026-10-19至20日 今日步数保存与重启恢复（同版）
+
+用户在软件PR #102／`79861bd`交付后要求继续，确认同一板屏、原电池＋电脑USB、松线固定且人在旁。复用Product`20261019-212437-661`／BIN`e7cca572…`；459源码中457字节一致／2仅行尾变化、29产物、SDK锁、COM5／CH340位置1-1.1、禁Modem流控只读1、DryRun及retained钩子复核后，首次三镜像write+verify于22:18:00退出0。没有新源码、构建或整片擦除；固件随后自主写入检查点是本轮验证对象。
+
+初始一次150ms RTS启动确认Product／CO5300／FT6146和early禁充verified1／profile1；RTC从2000校回当前UTC并读回，日常有效0，存储available1／restore0／dirty1，22:19:14释放hold并关闭COM5。用户拔USB走动后回报“当前步数40，已接入usb”，仅用于非零保存值，不按“约20步”的指引推精度。回接首次状态已保存同日40／generation2／verified1／dirty0，持续超过60秒的四次查询代次不变；全程没有save／stop／retry，所以可确认自动路径保存和该静置窗内不重复写，但未直接捕捉dirty40→clean或量化写入延迟。
+
+一次SDK `reboot`前后读回UTC14:24:16→14:24:26，无补校时／RTS；新启动restore1／saved40／generation2，原生计数0，而日总量有效40／restored1，采样错误0。随后单独一次150ms RTS确实使RTC回2000：两次日总量valid0，Flash40仍保留；以发送时真实UTC校时后，两次日总量恢复有效40／restored1，没有重复加40。两次阶段均释放hold、正常关闭COM5；未知RTC窗口仅由串口生产者状态证明，未单独让用户观察短暂`--`画面。原生参数未改，启动0x6b探测附近总线错误与采样io_errors0分开记录，不当作算法故障。
+
+10月20日接续，用户确认原电池仍接、电脑日期20日、屏幕约16:19且步数0；COM5／位置／禁Modem流控只读复核。无复位／校时读取RTC当日、日总量0／restored0、同日检查点0／generation3，关闭后重新生成非零值。用户0→30回接USB，自动保存30／generation5；一次普通reboot保持RTC08:24:26→08:24:36UTC，无RTS／补校时，原生0与恢复日总量30分开。用户按整组页面／KEY1／续走指引回复“还是显示30”，又走后56并更正USB已接；不逐项扩为组件／详情／KEY1全部独立通过，也不用所报16步计算精度。最终四次查询跨越60秒均为native26／日总量56／restored1、采样错误0、检查点56／generation6／verified1／dirty0，未发save／stop／retry。16:29:20释放hold并关闭COM5，allow1／off1／own_idle0／sdk_idle1；沿用原电池＋USB、松线固定，没有新烧录、原生参数或充电控制改动。
+
+[首日证据](evidence/2026-10-19/steps-persistence-hardware.json)与[接续证据](evidence/2026-10-20/steps-persistence-continuation.json)保留命令、日志哈希与反馈，当前进度只见STATUS。当天首次查询均已clean，不量化写入延迟；跨日后状态不等于午夜瞬间连续记录。普通重启与RTS均不是物理拔电／Flash写入中断试验；掉电原子性、磨损、真实DEEP、功耗、精度及长时换日仍未证。
+
 ## 2026-10-19 运行期今日步数版下载与观察
 
 用户授权烧录验证，确认同一板屏、原电池＋电脑USB、松脱电机线已固定且人在旁。复用PR #100／`b7d9edc`的Product BIN`4cd7c09b…`，457源码中440字节相同／17仅LF与CRLF变化、29产物重哈希、SDK锁／三镜像DryRun／retained钩子复核通过；COM5／CH340首次write+verify于20:43:53退出0，没有重新构建、整片擦除或充电参数修改。

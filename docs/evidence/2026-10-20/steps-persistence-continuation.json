@@ -1,0 +1,88 @@
+{
+  "date": "2026-10-20",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/steps-persistence-hardware",
+  "source_main": "79861bda0bc718437acc026756473913e8208e32",
+  "previous_evidence": "docs/evidence/2026-10-19/steps-persistence-hardware.json",
+  "authorization": "User continued the previous chat; after the overnight gap requested current-day retesting and confirmed original battery connected and USB connected. No new flash or RTC-unknown experiment",
+  "scope": "Current-day nonzero automatic checkpoint, ordinary reboot, UI retention and resumed counting; no production source, native parameters or SDK changes",
+  "source_inspection": "459 build sources rechecked:457 byte-identical,2 EOL-only;29 artifacts rehashed; SDK/submodules match sdk.lock.json and clean",
+  "compilation": "No new build. Reuse Product20261019-212437-661/main BIN e7cca57247f78ef99dee8ccdfaf49c67944f89deb0944fdb9311c210dcc6eba6, flashed/verified in previous evidence",
+  "helper": "artifacts/steps-persistence-check.py",
+  "helper_sha256": "f1a785c17be6b862640d051e6afe9e666c4cc4b46de73d6699ddcf2aaf534a68",
+  "preflight": "COM5 CH340 VID1A86 PID7523 location1-1.1 enumerated; DisableModemOutHandShake=1 read-only; RTS/DTR false before each open",
+  "date_resolution": {
+    "first_user_report": "今天是10月29，usb已连接，测试可能要重新做",
+    "correction": "当前步数0，4点19，日期好像没显示，电池连接，电脑日期显示10月20，板子日期未知",
+    "clock_check": "Client date and host clock both2026-10-20; device read-only show_date Tue Oct20 08:19:59 2026 UTC. No RTC write"
+  },
+  "initial_status": {
+    "command": "SDK Python artifacts/steps-persistence-check.py --mode status --directory artifacts/steps-persistence-hardware/current-day-status-01",
+    "session": "artifacts/steps-persistence-hardware/current-day-status-01/session.json",
+    "session_sha256": "3722d9061c43a79ddc281f31f275738f09923c20e6a46019c2d3e10157542d6d",
+    "uart": "artifacts/steps-persistence-hardware/current-day-status-01/uart.bin",
+    "uart_sha256": "942c1c66857ab0879e5da1b6985e78fb08964d0e4e7597f58aab4a170f4fff9e",
+    "exit_code": 0,
+    "closed_local": "2026-10-20T16:20:16+08:00",
+    "observed": "Daily valid1 total0 day20746 restored0; saved verified1 dirty0 failed0 total0 day20746 generation3; native0 start1571 io_errors0 incoherent0",
+    "final_pm": "allow1 off0 own_idle1 sdk_idle2; hold released and COM5 closed",
+    "boundary": "Post-midnight state observation only. No continuous midnight log, precise day-transition/write timestamp or all-night count continuity claim; restored0 alone does not prove old-record rejection at boot"
+  },
+  "user_seed": {
+    "request": "Keep original battery, unplug USB, walk about20 steps, settle/wake/wait3seconds, reconnect USB/wake and place still",
+    "reply": "0->30,已接usb",
+    "boundary": "Nonzero persistence seed; not an exact-count or accuracy trial"
+  },
+  "automatic": {
+    "command": "SDK Python artifacts/steps-persistence-check.py --mode automatic --directory artifacts/steps-persistence-hardware/current-day-automatic-01",
+    "session": "artifacts/steps-persistence-hardware/current-day-automatic-01/session.json",
+    "session_sha256": "28539aba89dfc72dbb07d2269dc5dfc2e8536142e9c95202d3ea147968802e9c",
+    "uart": "artifacts/steps-persistence-hardware/current-day-automatic-01/uart.bin",
+    "uart_sha256": "794765da3ef91b0f6fb7c9039669415f6ff5c651984decf128f34854c6fa6fe4",
+    "exit_code": 0,
+    "closed_local": "2026-10-20T16:24:14+08:00",
+    "observed": "All four status reads valid1 total30 day20746 restored0, verified1 dirty0 failed0 total30 generation5; native30 start1571 errors0. More than60seconds across observations with unchanged generation",
+    "commands": "Only wf_pm hold/allow/status, show_date and wf_steps status; no save, stop, retry, reset or RTC write",
+    "final_pm": "allow1 off1 own_idle0 sdk_idle1; COM5 closed",
+    "boundary": "First observation already clean; generation3->5 occurred before this window, intermediate values/timing not captured. No exact save-latency claim"
+  },
+  "ordinary_reboot": {
+    "command": "SDK Python artifacts/steps-persistence-check.py --mode reboot --directory artifacts/steps-persistence-hardware/current-day-reboot-01",
+    "session": "artifacts/steps-persistence-hardware/current-day-reboot-01/session.json",
+    "session_sha256": "31cbbbc807102ce88cb770568d2c8bf9e5893fd959d6276d5b0b34ec0ec7ebcc",
+    "uart": "artifacts/steps-persistence-hardware/current-day-reboot-01/uart.bin",
+    "uart_sha256": "7447faef4629936e1c2e95843dc6907e30656c0717c6dc645843881047ce2b04",
+    "exit_code": 0,
+    "closed_local": "2026-10-20T16:24:56+08:00",
+    "action": "One SDK reboot after matching nonzero clean checkpoint guard; no RTS pulse or RTC write",
+    "rtc": "Tue Oct20 08:24:26 ->08:24:36 UTC2026 without resync",
+    "observed": "Fresh boot, native0 start1567, two daily valid1 total30 day20746 restored1 snapshots, saved verified1 dirty0 failed0 attempts0 total30 generation5, sampling errors0",
+    "final_pm": "allow1 off1 own_idle0 sdk_idle1; COM5 closed"
+  },
+  "user_resumed": {
+    "request": "Check component/detail30 and normal time, natural screen-off/KEY1 retention, then unplug USB while keeping battery and walk about10-20steps; settle/wake/wait3seconds then reconnect USB/wake",
+    "reply": "还是显示30，又走了16步，当前为56，已接入电池",
+    "correction": "已接usb我说错了",
+    "interpretation": "User reports retained30 after reboot then total56 and USB connected. Whole requested UI group received this general reply; component/detail/KEY1 were not separately itemized or independently timed. Display increment26 and reported16 actions are retained as raw observations, not an accuracy result"
+  },
+  "resumed_automatic": {
+    "command": "SDK Python artifacts/steps-persistence-check.py --mode automatic --directory artifacts/steps-persistence-hardware/current-day-resumed-01",
+    "session": "artifacts/steps-persistence-hardware/current-day-resumed-01/session.json",
+    "session_sha256": "a23d3bd189e0f4dd43a47d07ec4fc8796efc5b2e411e344f0c9b9a6b6c1233ce",
+    "uart": "artifacts/steps-persistence-hardware/current-day-resumed-01/uart.bin",
+    "uart_sha256": "e73ba6cdddf5393f6c83a68ff7383abf54a7f8c358833dcc9da8a6446f479c66",
+    "exit_code": 0,
+    "closed_local": "2026-10-20T16:29:20+08:00",
+    "observed": "Four snapshots span more than60seconds: native26 start1567 errors0, daily valid1 total56 day20746 restored1, saved verified1 dirty0 failed0 attempts1 total56 generation6. Restored30 plus native26 equals56, no duplicate restored baseline",
+    "commands": "Only wf_pm hold/allow/status, show_date and wf_steps status; no save, stop, retry, reset or RTC write",
+    "rtc": "Tue Oct20 08:27:52 UTC2026; no complete boot sequence, same native start1567 as post-reboot snapshots",
+    "final_pm": "allow1 off1 own_idle0 sdk_idle1; PM hold released, COM5 closed",
+    "boundary": "First56 observation already clean; generation5->6 preceded observation. No exact write-delay measurement, physical DEEP/current or physical power-loss proof"
+  },
+  "verification_notes": [
+    "All eight historical/continuation UART text copies match raw UTF-8 replacement decoding plus the helpers' Windows write_text newline translation; all session error fields null",
+    "Metadata-only stdin utility first failed due to a backslash literal, then an exact-text assertion omitted Windows newline translation; corrected with Path.as_posix and os.linesep. These checks did not open serial or change device state"
+  ],
+  "state": "Bounded hardware loop complete: current-day automatic30, ordinary reboot restore30/native0, user retained30 then56, and matching automatic56 generation6. Independent read-only review found no device-evidence blocker; no new flash/build. Final original battery+USB, COM5 closed",
+  "not_verified": ["precise60second write latency", "separately itemized component/detail/KEY1 observations", "UI during unknown RTC", "physical power loss or interrupted Flash write", "Flash atomicity/wear", "continuous midnight/all-day counting", "native step accuracy", "physical DEEP/current/battery life"]
+}

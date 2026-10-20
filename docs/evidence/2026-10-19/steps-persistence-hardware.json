@@ -1,0 +1,117 @@
+{
+  "date": "2026-10-19",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/steps-persistence-hardware",
+  "source_main": "79861bda0bc718437acc026756473913e8208e32",
+  "software_pr": "https://github.com/e-n-ye/wristflow/pull/102",
+  "authorization": "User continued after software delivery; confirmed same board/screen, original battery+computer USB, secured loose motor wiring and user present. This round covers new-image flash, ordinary reboot and RTC-unknown recovery boundary",
+  "scope": "Exact-image checkpoint/reboot validation, no new production code/build or step-accuracy experiment",
+  "preflight": {
+    "build_result": "artifacts/product/20261019-212437-661/result.json",
+    "sources_exact": 457,
+    "sources_eol_only": 2,
+    "artifacts_rehashed": 29,
+    "sdk": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65; SDK/submodules match sdk.lock.json and clean",
+    "port": "COM5 CH340 VID1A86 PID7523 location1-1.1 enumerated before flash",
+    "driver": "DisableModemOutHandShake=1 read-only; unchanged",
+    "dry_run": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Flash.ps1 -Example product -Port COM5 -DryRun; exit0",
+    "retained_hook": ".retm_data BSP_PowerUpCustom0x200033bc false path branches directly to epilogue0x2000345a, artifacts/steps-persistence-retained-hook.asm"
+  },
+  "flash": {
+    "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Flash.ps1 -Example product -Port COM5",
+    "result": "artifacts/flash/product/20261019-221518-570/result.json",
+    "result_sha256": "42e76c634e73201dc8b01ffcf42bf3c51560a1f1cb1655459c145d2ea053d4cf",
+    "log": "artifacts/flash/product/20261019-221518-570/sftool.log",
+    "log_sha256": "ed115e0ab998ac53b411a5b459407304760c82de8ce58667aa9553683b74dfd1",
+    "completed_local": "2026-10-19T22:18:00+08:00",
+    "attempts": 1,
+    "exit_code": 0,
+    "main_sha256": "e7cca57247f78ef99dee8ccdfaf49c67944f89deb0944fdb9311c210dcc6eba6",
+    "images": [
+      {"name":"bootloader.bin","address":"0x12010000","bytes":58496,"sha256":"e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"},
+      {"name":"main.bin","address":"0x12020000","bytes":7793904,"sha256":"e7cca57247f78ef99dee8ccdfaf49c67944f89deb0944fdb9311c210dcc6eba6"},
+      {"name":"ftab.bin","address":"0x12000000","bytes":11288,"sha256":"314179f40078020d4b7abf33df8cf34bd2049e48c4978b9caca9e073be1f9fb2"}
+    ],
+    "settings": "Only manifest bootloader/main/ftab write_flash --verify, no erase-all or explicit settings-partition write. Subsequent firmware checkpoint writes are the subject of this round"
+  },
+  "startup": {
+    "command": "SDK Python artifacts/daily-steps-startup-check.py --port COM5 --directory artifacts/steps-persistence-hardware/startup-01 --startup",
+    "helper_sha256": "edc5897b8d0bab89d02196bd45b3c8ebb1e38020ee60afcffd0c51153c5b94ba",
+    "session": "artifacts/steps-persistence-hardware/startup-01/session.json",
+    "session_sha256": "89cad1c0312937f8e6b3e094416656bd2f6027ef37250a5f7bf5390967069804",
+    "uart": "artifacts/steps-persistence-hardware/startup-01/uart.bin",
+    "uart_sha256": "80578f523791f516a2a45f421161cf3954818a5dd487cf1f3442ea508a91cfe7",
+    "exit_code": 0,
+    "closed_local": "2026-10-19T22:19:14+08:00",
+    "reset": "Exactly one150ms RTS pulse after no complete boot in first3seconds; initial setup only",
+    "observed": [
+      "Product, CO5300 ID0x331100 and FT6146 initialized, early inhibit verified1/profile1",
+      "Step store available1 restore0 day0 total0 generation0; no usable prior checkpoint reported",
+      "RTC initially Jan1 2000; synchronized to true current UTC1792419532, read back Mon Oct19 14:18:54 2026",
+      "Native phase2 valid1 steps0 start1574 samples7158/11206 io_errors0 incoherent0; WHO0x6a ths0x10 deb0x6e",
+      "Daily valid1 total0 day20745 restored0; store verified0 dirty1 failed0 attempts0, queued first automatic checkpoint",
+      "One driver I2C bus error/9clock reset adjacent to unsuccessful0x6b probe, separate from native sampling error counters"
+    ],
+    "final_pm": "allow1 off1 own_idle0 sdk_idle1, screen-off observed; not physical DEEP/current proof",
+    "boundary": "No save/stop/retry, raw sensor/motor/manual-charge command. Hold released and COM5 closed before user walking"
+  },
+  "user_seed": {
+    "request": "Keep original battery, unplug USB, natural walk about20single-foot steps, settle/wake/wait3seconds, record visible total then reconnect USB/wake; generate nonzero persistence value only",
+    "reply": "当前步数40，已接入usb",
+    "boundary": "Visible40 reported; no exact artificial walking count or accuracy inference"
+  },
+  "automatic": {
+    "command": "SDK Python artifacts/steps-persistence-check.py --mode automatic --directory artifacts/steps-persistence-hardware/automatic-01",
+    "helper_sha256": "f1a785c17be6b862640d051e6afe9e666c4cc4b46de73d6699ddcf2aaf534a68",
+    "session": "artifacts/steps-persistence-hardware/automatic-01/session.json",
+    "session_sha256": "1e3191d77d92e6224948c16a6612101ca29c7429f2e58470a72d4f1a49563fdd",
+    "uart": "artifacts/steps-persistence-hardware/automatic-01/uart.bin",
+    "uart_sha256": "692b41026359b042e97214b9f63b39f3e908f8f40c7de895479425db1ebf5146",
+    "exit_code": 0,
+    "closed_local": "2026-10-19T22:23:04+08:00",
+    "observed": [
+      "RTC current, no complete boot sequence, original native start1574 retained; samples150673/210685, io_errors0 incoherent0",
+      "All four status reads valid1 total40 day20745 restored0; store available1 verified1 dirty0 failed0 attempts1 day20745 total40 generation2",
+      "First observation already had matching40 persisted; subsequent commands spanned more than60seconds, unchanged generation2. Not a directly timed dirty40->clean transition or exact write-latency measurement"
+    ],
+    "commands": "Only wf_pm hold/allow/status, show_date and wf_steps status; no wf_time, save, stop, retry or reset. Therefore verified matching checkpoint was produced by automatic firmware path",
+    "boundary": "PM hold during bounded serial observation; not a natural DEEP/power experiment"
+  },
+  "ordinary_reboot": {
+    "command": "SDK Python artifacts/steps-persistence-check.py --mode reboot --directory artifacts/steps-persistence-hardware/reboot-01",
+    "session": "artifacts/steps-persistence-hardware/reboot-01/session.json",
+    "session_sha256": "805d622c12b0a082bc86dd946213f2b65ca7971c33924f81199028b9cf788b9b",
+    "uart": "artifacts/steps-persistence-hardware/reboot-01/uart.bin",
+    "uart_sha256": "7706dd64f191b7fb0922a10093065cea88b627181050e665e4cecaf306ffb849",
+    "exit_code": 0,
+    "closed_local": "2026-10-19T22:24:45+08:00",
+    "before": "RTC Mon Oct19 14:24:16 2026; daily/native40, native start1574; matching verified clean day20745 total40 generation2",
+    "action": "Exactly one SDK reboot command, no RTS pulse or RTC write",
+    "observed": [
+      "Fresh Product initialization with early inhibit verified1/profile1 and step-store available1 restore1 day20745 total40 generation2",
+      "RTC readback Mon Oct19 14:24:26 2026 without resynchronization",
+      "Two native snapshots phase2 counter_valid1 steps0 start1565 samples5615/9663 io_errors0 incoherent0",
+      "Daily valid1 total40 day20745 restored1 with native0, versions5/9; store verified1 dirty0 failed0 attempts0 total40 generation2",
+      "No duplicate40 or loss on this bounded same-day ordinary reboot; original counter restarted independently of restored daily total"
+    ],
+    "final_pm": "allow1 off1 own_idle0 sdk_idle1; PM hold released, COM5 closed"
+  },
+  "rtc_unknown": {
+    "command": "SDK Python artifacts/steps-persistence-check.py --mode rtc --directory artifacts/steps-persistence-hardware/rtc-01",
+    "session": "artifacts/steps-persistence-hardware/rtc-01/session.json",
+    "session_sha256": "e98aced05542836eb1da3a22ebe280ffacd7f47778097e0a84ac42f71d9e150c",
+    "uart": "artifacts/steps-persistence-hardware/rtc-01/uart.bin",
+    "uart_sha256": "28a8257237c71575c22025c4db01a01065a2c60258537303345c4bbc4bdc22a2",
+    "exit_code": 0,
+    "closed_local": "2026-10-19T22:25:59+08:00",
+    "before": "Matching clean day20745 daily/saved40 generation2, restored1; native0 start1565",
+    "action": "One deliberate150ms RTS pulse only after clean checkpoint guard; boot then current-time resync after observing actual unknown RTC",
+    "unknown": "Fresh boot store restore1 day20745 total40 generation2; RTC Sat Jan1 00:00:04 2000. Two native phase2 valid1 count0 start1571 samples4609/9669 io_errors0; daily valid0 total0 day0 utc0 restored0. Saved checkpoint stays verified1 dirty0 failed0 total40 generation2",
+    "resync": "wf_time1792419938 from current host UTC at send; successful RTC synchronized reply and readback Mon Oct19 14:25:40 2026",
+    "after": "Two native0 snapshots samples15240/19288, daily valid1 total40 day20745 restored1 versions15/19; store verified1 dirty0 failed0 attempts0 total40 generation2",
+    "final_pm": "allow1 off1 own_idle0 sdk_idle1, COM5 closed",
+    "boundary": "Valid0 proven in serial producer state only; user did not separately observe the short unknown-time UI window. No simulated step input or checkpoint override"
+  },
+  "continuation": "docs/evidence/2026-10-20/steps-persistence-continuation.json",
+  "state": "40 automatic checkpoint, ordinary reboot and RTC-unknown gated restore verified. No final same-day resumed/UI result was recorded before the overnight gap; completed current-day retesting is recorded separately in continuation"
+}
