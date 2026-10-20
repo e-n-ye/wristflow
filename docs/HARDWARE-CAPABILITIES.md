@@ -36,7 +36,7 @@
 
 ## IMU第一轮硬件验证入口契约
 
-第一轮以单项、有明确期限的原生能力诊断为目标，先准备计步实验，再独立准备absolute wrist tilt；不是一次实现所有板载传感器。计步配置已按AN5130 §6.1核对并实现于下节；腕部检测配置仍须另行核对，不能直接套用旧C2。
+第一轮以单项、有明确期限的原生能力诊断为目标，先准备计步实验，再独立准备absolute wrist tilt；不是一次实现所有板载传感器。计步配置按AN5130 §6.1、腕部检测配置按§6.4核对并分别实现于后文；不能直接套用旧C2。
 
 - 启动默认无采样；显式probe后才接受单项实验。单一拥有者管理I2C、寄存器bank与实验期限，先记录型号／地址／配置读回；共享传感器电源不得用于粗暴复位。
 - 开始前约定有限时长和样本；到期／stop／故障都走关闭、源清理和读回。关闭失败保留故障及资源责任，不误报停止成功或立即接受下一实验。
@@ -113,3 +113,24 @@ wf_imu stop              # 优先取消待办／活动实验；故障时显式�
 再后续同版`e7cca572…`有[自动40检查点／普通reboot及RTC未知后校时恢复](evidence/2026-10-19/steps-persistence-hardware.json)的设备证据；重启后原生0与恢复日总量40独立，未将旧原始计数接回。该证据不改变原生算法能力判断，也不证明物理掉电连续性、精度、DEEP或新增Flash负载的功耗。
 
 2026-10-20[小时分布软件轮](ACTIVITY.md#steps-hourly)仅为同一原生计数增加时间归属和v2检查点，不重写动作识别、不改阈值／去抖、采样节奏或SDK锁。跨整点不猜柱，旧总量保留而小时未知；新增结构与Flash载荷单列在[软件证据](evidence/2026-10-20/hourly-steps.json)。后续精确`2a1a39aa…`有[设备迁移／小时保存证据](evidence/2026-10-20/hourly-steps-hardware.json)：保留旧56且不造旧柱，新27进18时桶，总量83与完整桶／mask普通重启恢复，原生计数从0重建。该结果支持产品时间归属／保存链路，不改变原生算法效果判断，也不证明精度、物理DEEP或功耗。
+
+<a id="native-wrist-diagnostic"></a>
+## 原生absolute wrist tilt限时诊断（2026-10-20软件轮）
+
+从`main@c7dd3c5`实现LSM6DS3TR-C内置AWT，无软件姿态／动作识别。`imu_wrist_tilt.c/h`拥有腕部寄存器配置、读回、源快照及期限；仍由`product_imu_diag.c`的唯一IMU worker访问I2C3，与日常计步共存，不新增线程、IRQ或AON。本节覆盖上文旧单项诊断“启动默认无采样”的适用范围：Product日常计步已默认运行，腕检测仍默认关闭，仅接受显式限时命令。
+
+按[AN5130 Rev1 §6.1、§6.4](https://www.st.com/resource/en/application_note/dm00472670-lsm6ds3trc-alwayson-3d-accelerometer-and-3d-gyroscope-stmicroelectronics.pdf)和[精确器件数据手册Rev3](https://www.st.com/resource/en/datasheet/lsm6ds3tr-c.pdf)核对：只借用已确认的26Hz／±2g原生计步配置；`CTRL10=04h→等50ms→00h`后写bank B的LAT／THS／Mask，每次写后读回并恢复user bank，再开启共享`FUNC_EN+PEDO_EN+WRIST_TILT_EN=94h`。不置`PEDO_RST_STEP`、不改ODR或切共享电源。官方说明停用计步不会清零已有计数；配置期间采集暂停、重启识别连续性与漏计量仍须设备观察，不能由mock保数推定。
+
+腕阈值固定`20h`（500mg／30°），默认延迟15×40ms=600ms，可选1–255；每次只选一个半轴，六种命令轴映射至Mask的bit7–2，显式覆盖数据手册与应用笔记默认mask描述差异。bank B值在加速度计退出Power-Down时会复默认，故每次会话重配。锁定SDK的mask setter读代写缺陷未改厂商树，由项目边界直接写入并读回。
+
+设置`TAP_CFG.LIR`及`DRDY_PULSE_CFG.INT2_WRIST_TILT`，即使INT2在官方板图为NC也保留真实中断路由：AN5130明确不路由时源位仅维持1/26秒，单设LIR不能锁存。worker限时窗口请求每100ms读取，先读`WRIST_TILT_IA(55h)`半轴再读`FUNC_SRC2(54h)`清锁存。两读非原子；`observations`是见到锁存源的次数，不是完整手势数或动作时刻。诊断全程持IDLE，尚无MCU唤醒或亮屏策略。
+
+```text
+wf_wrist start <1..120秒> <xpos|xneg|ypos|yneg|zpos|zneg> [1..255延迟单位]
+wf_wrist status
+wf_wrist stop
+```
+
+命令只入队／读缓存，不直接I2C。已有日常计步必须处于RUNNING；重复启动、未清理FAULT和取消期间拒绝启动。到期／stop／配置失败恢复`CTRL10=14h`保留计步、清源、恢复原PULSE／TAP。bank恢复未确认时不写user地址；未确认清理则保留FAULT／IDLE并使共享计步无效，显式stop清理后才允许retry重建计步。日常stop先清腕、再关闭共享设备。已保存日／小时检查点不被腕路径清零。
+
+主机验证覆盖非零计数与小时保留、latched源读取、缓存status无I/O、重复命令、截止／tick回绕／准备期取消、bank B写失败及恢复失败、运行中丢配置、日常stop和两种腕准备总线失败后的责任保留／显式恢复。Debug完整53/53、Release相关5/5通过；源码审查、编译标识及证据见[本轮记录](evidence/2026-10-20/native-wrist-tilt.json)。本轮未打开串口、下载或采集动作；轴向／配置实机读回、片上检测效果、实际计步保持／漏计、清源／停止、PA31 IRQ／AON、亮屏开关及功耗均未验，不据此判定内置算法不足。

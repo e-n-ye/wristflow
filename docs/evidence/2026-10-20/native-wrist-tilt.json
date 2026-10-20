@@ -1,0 +1,124 @@
+{
+  "date": "2026-10-20",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/native-wrist-tilt",
+  "base_commit": "c7dd3c5f6a737de15bdc5f8d458278141686bb05",
+  "scope": "LSM6DS3TR-C embedded absolute wrist tilt, explicit bounded observation alongside the existing daily pedometer owner",
+  "capability_choice": {
+    "selected": "Hardware AWT; no software pose or gesture recognition",
+    "owner": "Existing product_imu_diag worker and I2C3; no new worker, IRQ or AON",
+    "configuration": "Require user bank/CTRL1_XL=20h/CTRL10=14h; CTRL10=04h, wait 50ms, CTRL10=00h, bank B=A0h, write/read LAT/THS/Mask, restore bank0, LIR and INT2 route, CTRL10=94h",
+    "parameters": "1..120 seconds, one explicit semi-axis (Mask bit7..2), latency1..255 x40ms, threshold20h=500mg=30deg",
+    "counter": "AN5130 says disabling the pedometer does not reset the counter. AWT code never sets PEDO_RST_STEP or changes ODR/rail; acquisition pauses during preparation. Actual resume continuity and missed steps remain unverified",
+    "latched_source": "Route to INT2 (official board drawing NC) plus LIR, poll request100ms. Read axes55h before FUNC_SRC2/54h clears the latch. Pair is not atomic; observations are source reads, not gesture counts",
+    "cleanup": "Wrist-only stop restores CTRL10=14h and saved TAP/PULSE; daily stop clears wrist then stops device. Unconfirmed bank recovery blocks user-register writes. Unconfirmed cleanup retains FAULT/IDLE and invalidates daily data until explicit cleanup/retry",
+    "device_effectiveness": "Not tested; no evidence that native AWT is inadequate"
+  },
+  "references": [
+    {
+      "url": "https://www.st.com/resource/en/application_note/dm00472670-lsm6ds3trc-alwayson-3d-accelerometer-and-3d-gyroscope-stmicroelectronics.pdf",
+      "revision": "AN5130 Rev1",
+      "pages": "50,55,56",
+      "local_pdf": "artifacts/native-wrist-an5130.pdf",
+      "sha256": "15b90b0ccca09f1cd6f561ecc67c7620714f452ad3f2c07e0f1cbce7e1ebb1c6",
+      "evidence": "Section6.1: The step count is not reset to zero when the accelerometer is configured in Power-Down or the pedometer is disabled. Section6.4: custom bankB sequence and routing required for latched FUNC_SRC2; bankB values reset on exit from accelerometer Power-Down"
+    },
+    {
+      "url": "https://www.st.com/resource/en/datasheet/lsm6ds3tr-c.pdf",
+      "revision": "DocID030071 Rev3",
+      "pages": "60,86,87,109",
+      "local_pdf": "artifacts/native-wrist-datasheet.pdf",
+      "sha256": "251737db70e3b6cdc217a5681dd4634a05faffd5288aff6a576078a6464a1b2b",
+      "evidence": "CTRL10 independent PEDO_RST_STEP; FUNC_SRC2 bit0, axes55h and bankB Mask bit7..2. Explicit mask avoids differing default-mask descriptions in AN5130 and datasheet"
+    }
+  ],
+  "source_hashes": {
+    "apps/product/src/imu_pedometer.c": "8970df28a2806f08ffe27245e1924ec462f1e4bf5fc248c3cd1108ef07ff03ca",
+    "apps/product/src/imu_pedometer.h": "3990d48056dcb59582711a04c5caa6969743a4ccb9f427880efb7768ba3a1769",
+    "apps/product/src/imu_wrist_tilt.c": "6de0a0c982b2d837960596b2bf3aa526669903054c69a3186a8bc3bea20e7f12",
+    "apps/product/src/imu_wrist_tilt.h": "33fca7494b4aa801d665c4b6aab4841d806c1e55575e96bef5765e03558d8efc",
+    "apps/product/src/product_imu_diag.c": "41629dc089f451fa784b1e24b25d63bdbc392928d539620e5a8966dbbf2d7745",
+    "tests/CMakeLists.txt": "ad6f6b2a5ec1561a3a286f7e9790999aae7fc4c2b6c3e2ccf9f026037de824f6",
+    "tests/product_imu_diag.c": "f7d900ff410a5cc7d95702ee8f093faf05d3c61af8d1da46e6d9a4fc45a77d94",
+    "tests/imu_wrist_tilt.c": "3368019c3d0a97c7f4c9e54f7c6f70d8fb4c8c8b712fcb4bfbdedec46b5dc760"
+  },
+  "host_validation": {
+    "compiler": "D:/msys64/ucrt64/bin/gcc.exe",
+    "versions": {"gcc": "15.2.0", "cmake": "4.2.3", "ninja": "1.13.2"},
+    "commands": [
+      "cmake -S tests -B artifacts/native-wrist-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe",
+      "cmake --build artifacts/native-wrist-debug --parallel 4",
+      "cmake --build artifacts/native-wrist-debug --target product_imu_diag --parallel 4",
+      "ctest --test-dir artifacts/native-wrist-debug --output-on-failure --timeout 60",
+      "cmake -S tests -B artifacts/native-wrist-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe",
+      "cmake --build artifacts/native-wrist-release --target imu_wrist_tilt product_imu_diag imu_pedometer daily_steps steps_store --parallel 4",
+      "cmake --build artifacts/native-wrist-release --target product_imu_diag --parallel 4",
+      "ctest --test-dir artifacts/native-wrist-release --output-on-failure --timeout 60 -R '^(imu_wrist_tilt|product_imu_diag|imu_pedometer|daily_steps|steps_store)$'"
+    ],
+    "debug": {"passed": 53, "total": 53, "seconds": 13.73, "exit_code": 0},
+    "release_assertions_retained": {"passed": 5, "total": 5, "seconds": 0.10, "exit_code": 0},
+    "covered": [
+      "Nonzero native count and daily/hourly values across AWT start, source observation and stop",
+      "Status cache without I2C, duplicate request rejection, bounded input, deadline and uint32 tick rollover",
+      "Cancellation/deadline during50ms initialization, bankB write failure, unconfirmed bank restore and explicit recovery",
+      "Lost control configuration; daily stop; shared failure invalidation and retained IDLE",
+      "Daily prepare succeeds, second bus lookup/configure (wrist prepare) fails: FAULT/end=IO_FAILURE; explicit stop/retry recovers"
+    ],
+    "limits": "New wrist worker scenarios run with storage unavailable; persistence behavior is covered by unchanged full daily/store tests and source inspection, not a new combined hardware Flash exercise. Mock does not establish actual counter continuity or exhaust all read failures/mismatches"
+  },
+  "builds": [
+    {
+      "example": "product",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Build.ps1 -Example product -Jobs 4",
+      "official_command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "result": "artifacts/product/20261020-190507-506/result.json",
+      "result_sha256": "bf024ac1d00697b072061538e08643f3c16de1868151943c00829c421ffef420",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "source_hashes_matched": 461,
+      "artifact_hashes_matched": 29,
+      "bin_bytes": 7797820,
+      "bin_sha256": "83c9bb501f3d1486e1bb75882a5e146ab85ce8246b813a93fc9770aa12faf5a4",
+      "warning_lines": 10,
+      "warnings": "Three FinSH cast warnings (including one for new wf_wrist export), existing linker RWX/entry/syscall warnings; SDK dfu-not-found diagnostic also retained",
+      "map_symbols": ["wf_imu_wrist_begin", "wf_imu_wrist_poll", "wf_imu_wrist_stop", "__fsym___cmd_wf_wrist"],
+      "arm_objects": {"imu_wrist_tilt_text_bytes": 1182, "wrist_state_bytes": 60, "wrist_cache_bytes": 32},
+      "budget_limits": "No new thread; existing6144B worker stack unchanged. Object/static sizes are not measured runtime stack/heap peaks"
+    },
+    {
+      "example": "ui_demo",
+      "action": "Not rebuilt; unchanged compiled sources and prior artifacts rehashed",
+      "result": "artifacts/ui_demo/20261020-165557-466/result.json",
+      "result_sha256": "ce546baeadb2a52282efd24acf30c4da1e1a6d0dd6b9cbb4d3842873f8d48080",
+      "source_hashes_matched": 418,
+      "artifact_hashes_matched": 22,
+      "bin_sha256": "c568c377aec494bf8fc299e89050917d46679c8b07f8d4b60c94377e02487e13"
+    }
+  ],
+  "toolchain": {"python": "3.13.15", "scons": "4.10.1", "arm_gcc": "14.2.1"},
+  "sdk": {"commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65", "lock_unchanged": true, "submodules_matched": true, "working_tree_clean": true},
+  "logs_sha256": {
+    "artifacts/native-wrist-debug-configure.log": "7128fef764fcde3907f58e02c5e9c932fc198cb8187e2fadd0c82af6a39a7181",
+    "artifacts/native-wrist-debug-build.log": "4ceb83fc75a2b93e33848c35bd1181ed7cb33a317f43dfa075e54ed26c28591b",
+    "artifacts/native-wrist-debug-fault-build.log": "989dac8848d77bc0d8b1c9cca820fe00fb661832f241250895945f2c17043b7d",
+    "artifacts/native-wrist-debug-ctest.log": "40586d7755b0c1538fb31c8a991efd47e5cc4e6a6ff63f26e92c4f86ddb29097",
+    "artifacts/native-wrist-release-configure.log": "1af160584709963b8e5a3ebaa1a49d478192c64907eb13316996fec515ee9ba5",
+    "artifacts/native-wrist-release-build.log": "af6881190b15063809436932b4e924c57259f60ccbc4a63194e63ab09f5d3195",
+    "artifacts/native-wrist-release-fault-build.log": "7716162f3cd3b99cf3b8a8dd6decf324e08c7e941aae7e730baba5e4fc8c075b",
+    "artifacts/native-wrist-release-ctest.log": "6dd81f156fb2d9018b7b23746cbd157ffbdf966bc079452ae7d0380c4118e9f0",
+    "artifacts/native-wrist-product-build.log": "6240cfd220e534f388320d8c7d709ff1c790375007794cf04d9a0f2886fe2ee5"
+  },
+  "review": {
+    "method": "Primary review plus one read-only independent reviewer; requested gpt-6.1-sol/medium. Spawn result exposed task path, not actual model/effort metadata",
+    "fixed": "Active wrist prepare_bus failure omitted ended=IO_FAILURE; fixed and tested with failure on the second lookup/configuration, after daily preparation succeeds",
+    "final": "No remaining blocking issue in reviewed source; hardware and real transfer timing unverified"
+  },
+  "failures_and_corrections": [
+    "Initial ST legacy /content/ccc/ download returned HTTP567; current official /resource/en/ URL succeeded",
+    "Initial3-test pass from previous chat predates final review. Rebuilt final worker test and reran full Debug plus related Release after exact failure injection changes"
+  ],
+  "hardware_verified": false,
+  "device_operations": "No serial open, flashing, gesture acquisition, motor or charger commands in this software round",
+  "unverified": ["Actual AWT configuration/effectiveness and installation semi-axis", "Counter preservation/resumed detection and preparation gaps on device", "Physical source latch clearing and stop behavior", "PA31 IRQ/AON, dedicated wake event, user switch, wear experience, DEEP/current/battery life"],
+  "next_bounded_experiment": "After fresh device/power/loose-motor-wire confirmation and authorization, use the exact Product candidate for one timed single-semi-axis AWT configuration/source/stop and counter-preservation observation; no expansion to steps boundary/power tests"
+}

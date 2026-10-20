@@ -27,6 +27,7 @@ typedef struct {
     bool identified;
     bool budget_active;
     bool continuous;
+    bool wrist_enabled; /* Same owner has confirmed the extra CTRL10 bit. */
 } wf_imu_pedometer_t;
 
 /* One caller owns the device and register bank. No recognition algorithm here:

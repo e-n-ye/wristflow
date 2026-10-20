@@ -6,15 +6,18 @@
 #include <assert.h>
 #include <setjmp.h>
 
-static uint8_t user_regs[256], bank_regs[256], bank;
+static uint8_t user_regs[256], bank_regs[256], bank_b_regs[256], bank;
 static uint16_t native_count;
 static rt_tick_t ticks;
 static unsigned irq, idle, reads, writes, rounds, deleted, detached;
 static int failing_reg = -1;
 static bool fail_event, fail_create, fail_start;
 static bool fail_bus_find, fail_bus_config;
+static unsigned bus_find_fail_after, bus_config_fail_after;
 static bool stop_in_prepare;
 static bool stop_daily_in_prepare, retry_daily_in_prepare;
+static bool stop_wrist_in_delay;
+static void wf_wrist(int, char **);
 static unsigned max_wait=1000, last_wait;
 static wristflow_alarm_clock_t service_clock;
 static struct rt_thread thread;
@@ -31,6 +34,10 @@ rt_tick_t rt_tick_from_millisecond(unsigned ms) { return ms; }
 int rt_thread_mdelay(rt_int32_t ms)
 {
     ticks += ms;
+    if (ms == 50 && stop_wrist_in_delay) {
+        stop_wrist_in_delay = false;
+        char *args[] = {"wf_wrist", "stop"}; wf_wrist(2, args);
+    }
     if (stop_in_prepare) {
         stop_in_prepare = false;
         char *args[] = {"wf_imu", "stop"}; wf_imu(2, args);
@@ -77,19 +84,27 @@ void HAL_PIN_Set(unsigned pin, unsigned function, unsigned pull, unsigned cpu)
 void BSP_GPIO_Set(unsigned pin, unsigned value, unsigned cpu)
 { assert(pin == 30 && value == 1 && cpu == 1 && idle && !irq); }
 struct rt_i2c_bus_device *rt_i2c_bus_device_find(const char *name)
-{ assert(!strcmp(name, "i2c3") && idle && !irq); return fail_bus_find ? NULL : &fake_bus; }
+{
+    assert(!strcmp(name, "i2c3") && idle && !irq);
+    return fail_bus_find || (bus_find_fail_after && !--bus_find_fail_after) ? NULL : &fake_bus;
+}
 int rt_i2c_configure(struct rt_i2c_bus_device *b, struct rt_i2c_configuration *cfg)
-{ assert(b == &fake_bus && cfg->timeout == 50 && cfg->max_hz == 100000); return fail_bus_config ? -1 : 0; }
+{
+    assert(b == &fake_bus && cfg->timeout == 50 && cfg->max_hz == 100000);
+    return fail_bus_config || (bus_config_fail_after && !--bus_config_fail_after) ? -1 : 0;
+}
 size_t rt_i2c_mem_read(struct rt_i2c_bus_device *b, unsigned addr, unsigned reg,
     unsigned bits, void *out, size_t length)
 {
     assert(b == &fake_bus && bits == 8 && length == 1 && !irq && idle); ++reads;
     if (addr != 0x6a) return 0;
-    uint8_t value = bank ? bank_regs[reg] : user_regs[reg];
+    uint8_t value = bank == 0xa0 ? bank_b_regs[reg] : bank ? bank_regs[reg] : user_regs[reg];
     if (reg == 1) value = bank;
     if (!bank && reg == 0x4c) value = (uint8_t)(native_count >> 8);
     if (!bank && reg == 0x4b) value = (uint8_t)native_count;
-    *(uint8_t *)out = value; return 1;
+    *(uint8_t *)out = value;
+    if (!bank && reg == 0x54) user_regs[0x54] = user_regs[0x55] = 0;
+    return 1;
 }
 size_t rt_i2c_mem_write(struct rt_i2c_bus_device *b, unsigned addr, unsigned reg,
     unsigned bits, void *input, size_t length)
@@ -98,6 +113,7 @@ size_t rt_i2c_mem_write(struct rt_i2c_bus_device *b, unsigned addr, unsigned reg
     if ((int)reg == failing_reg) return 0;
     uint8_t value = *(uint8_t *)input;
     if (reg == 1) bank = value;
+    else if (bank == 0xa0) bank_b_regs[reg] = value;
     else if (bank) bank_regs[reg] = value;
     else { user_regs[reg] = value; if (reg == 0x19 && (value & 2)) native_count = 0; }
     return 1;
@@ -122,6 +138,11 @@ wristflow_alarm_clock_t wristflow_product_services_time(void)
 }
 static void daily_cmd(const char *action)
 { char *args[]={"wf_steps",(char *)action}; wf_steps(2,args); }
+static void wrist_cmd(const char *action, const char *span, const char *axis)
+{
+    char *args[] = {"wf_wrist", (char *)action, (char *)span, (char *)axis};
+    wf_wrist(span ? 4 : 2, args);
+}
 bool wristflow_product_services_storage_ready(void) { return storage_available; }
 size_t wristflow_product_services_steps_read(unsigned key, uint8_t *record, size_t capacity, void *context)
 {
@@ -266,5 +287,55 @@ int main(void)
     ready=false; cancel_requested=false; storage_available=false;
     assert(wristflow_product_steps_start()); cycle(); native_count=2; cycle();
     assert(daily_cached.metric.total==2 && !checkpoint_enabled && !idle);
+    /* A bounded AWT observation borrows this same device/worker. It preserves
+     * the existing native count, daily/hourly values and the saved record. */
+    ready=false; cancel_requested=false; ticks=0; daily_lit=true;
+    assert(wristflow_product_steps_start()); cycle(); native_count=5;
+    wrist_cmd("start","2","xneg"); cycle();
+    assert(wrist_cached.phase==WF_IMU_RUNNING && wrist_cached.configured && idle==1);
+    assert(device.wrist_enabled && user_regs[0x19]==0x94 && bank_b_regs[0x59]==0x40);
+    assert(native_count==5 && daily_cached.metric.total==5 && daily_cached.metric.hourly[20]==5);
+    before=reads+writes; wrist_cmd("status",NULL,NULL); wrist_cmd("start","120","xpos");
+    assert(before==reads+writes && !wrist_pending);
+    native_count=6; user_regs[0x54]=1; user_regs[0x55]=0x40; cycle();
+    assert(wrist_cached.observations==1 && wrist_cached.source==1 && wrist_cached.axes==0x40);
+    assert(daily_cached.metric.total==6 && cached.phase==WF_IMU_RUNNING && idle==1);
+    wrist_cmd("stop",NULL,NULL); cycle();
+    assert(wrist_cached.stop_verified && !device.wrist_enabled && user_regs[0x19]==0x14 && !idle);
+    assert(native_count==6 && daily_cached.metric.total==6 && cached.phase==WF_IMU_RUNNING);
+    wrist_cmd("start","1","xpos"); cycle(); ticks+=1000; cycle();
+    assert(wrist_cached.phase==WF_IMU_DONE && wrist_cached.stop_verified && !idle);
+    assert(cached.phase==WF_IMU_RUNNING && native_count==6);
+    stop_wrist_in_delay=true; wrist_cmd("start","2","xneg"); cycle(); cycle();
+    assert(wrist_cached.ended==WF_IMU_USER_STOP && wrist_cached.stop_verified && !idle);
+    assert(cached.phase==WF_IMU_RUNNING && user_regs[0x19]==0x14 && native_count==6);
+    failing_reg=0x59; wrist_cmd("start","2","xneg"); cycle();
+    assert(wrist_cached.phase==WF_IMU_FAULT && wrist_cached.stop_verified && !idle);
+    assert(cached.phase==WF_IMU_RUNNING && user_regs[0x19]==0x14 && native_count==6);
+    failing_reg=-1; wrist_cmd("stop",NULL,NULL); cycle();
+    wrist_cmd("start","2","xneg"); cycle(); daily_cmd("stop"); cycle();
+    assert(wrist_cached.stop_verified && !wrist.changed && cached.stop_verified && !idle);
+    assert(!user_regs[0x19] && !user_regs[0x10] && !daily_cached.metric.total_valid);
+    daily_cmd("retry"); cycle();
+    failing_reg=1; wrist_cmd("start","2","xneg"); cycle();
+    assert(wrist_cached.phase==WF_IMU_FAULT && !wrist_cached.stop_verified && idle==1);
+    assert(cached.phase==WF_IMU_FAULT && !cached.counter_valid && !daily_cached.metric.total_valid);
+    failing_reg=-1; wrist_cmd("stop",NULL,NULL); cycle();
+    assert(wrist_cached.stop_verified && cached.stop_verified && !idle && !user_regs[0x10]);
+    daily_cmd("retry"); cycle(); assert(cached.phase==WF_IMU_RUNNING && !idle);
+    /* Loss of bus preparation during an active wrist session faults both
+     * borrowers and retains ownership until explicit cleanup succeeds. */
+    for (unsigned failure=0; failure<2; ++failure) {
+        wrist_cmd("start","2","xneg"); cycle();
+        /* The daily read succeeds; fail the wrist preparation in this round. */
+        if (failure) bus_config_fail_after=2; else bus_find_fail_after=2;
+        cycle();
+        assert(wrist_cached.phase==WF_IMU_FAULT && wrist_cached.ended==WF_IMU_IO_FAILURE);
+        assert(!wrist_cached.configured && !wrist_cached.source_valid && !wrist_cached.stop_verified);
+        assert(cached.phase==WF_IMU_FAULT && !cached.counter_valid && !daily_cached.metric.total_valid && idle==1);
+        wrist_cmd("stop",NULL,NULL); cycle();
+        assert(wrist_cached.stop_verified && cached.stop_verified && !idle && !user_regs[0x10]);
+        daily_cmd("retry"); cycle(); assert(cached.phase==WF_IMU_RUNNING && !idle);
+    }
     return 0;
 }
