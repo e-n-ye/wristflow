@@ -17,7 +17,11 @@
 
 **三阶段设备补测verified（有界）**：用户明确要求烧录，复用同一板屏／原电池＋电脑USB／松线固定及人在旁的确认。461源码／29产物字节哈希、SDK锁、COM5身份／驱动、DryRun／retained钩子复核后，20:18:21首次三镜像write+verify退出0；初始单次150ms RTS后RTC实际2000，校回真实UTC，新版恢复129／native0／小时和73／代次13。用户确认屏幕、触摸、KEY1、时间及129正常。四方向xneg窗口取得有效XYZ但没有可靠稳定保持证据；后续xpos窗口确认用户所说“上边缘抬起”的真实方向为负X。最后按实测方向做60秒xneg：UART在sample2067196捕获`source85h／axes40h／observations1`，前后负X样本与动作一致；到期60022ms、三阶段valid7ff及CTRL10=14h／94h／14h，显式stop后READY／stop_verified1、allow1／两个IDLE0，20:54:38关闭串口。129／native0／小时73／代次13未变，用户最终确认屏幕／触摸／KEY1正常。助手解析错误、静止／错轴窗口、触发超时及无回执失败均保留在[本轮设备证据](evidence/2026-10-20/wrist-register-snapshot-hardware.json)；本轮无固件源码修改或重编。
 
-该结果证明本次内置AWT来源bit0可触发并清除，`observations1`不是手势识别率或精确600ms响应证明；source基值84h保留位、器件精确身份仍未知，WHO6a不唯一。单半轴axes55h不适用，axes40h只保留为观测。唯一下一步：准备有界的`CTRL4_C.INT2_on_INT1`路由／PA31电平及读源释放诊断软件，先源码／主机／编译闭环；资料中的候选总路由不等于AWT已到达PA31，后续设备验证另行安排。专用亮屏不能复用KEY导航事件。常驻腕检测、IRQ／AON唤醒、开关、佩戴误触及功耗均未验，本状态不自动启动其他设备实验。
+该结果证明本次内置AWT来源bit0可触发并清除，设备证据PR #109已合入`583c719`；`observations1`不是手势识别率或精确600ms响应证明。source基值84h保留位、器件精确身份仍未知，WHO6a不唯一；单半轴axes55h不适用，axes40h只保留为观测。
+
+**INT1路由诊断软件verified**：本次接续在干净隔离工作树`D:/MY_Desk/project/wristflow-snapshot-hardware`从`583c719`建立`codex/wrist-int1-route`，增加显式[限时route](HARDWARE-CAPABILITIES.md#wrist-int1-route)：同worker保存／读回恢复CTRL4 bit5，四个其他源路由全零守卫，PA31被动输入读源前后电平／有效位／时间及最后有效事件缓存。默认腕关闭，原start不配置PA31，无IRQ／AON／亮屏。完整Debug53/53、Release相关5/5及独立只读复核通过；Product`20261020-215940-822`／BIN`17f1b775…`退出0，461源码／29产物字节哈希一致，未变Demo418／22重核，SDK锁及厂商树干净。[软件证据](evidence/2026-10-20/wrist-int1-route.json)记录命令、首版被最终守卫补强替代、警告及边界；无串口／烧录，板上仍为`df9c37d6…`。主目录`codex/wrist-register-snapshot@ed13335`的独立VS Code设置修改保留，本地主线同步仍受其阻挡。
+
+唯一下一步：重新核对设备供电／松线及精确候选后，短时验证route读回、匹配负X动作的SOURCE与PA31读源前后电平、到期恢复及计步保留。软件GPIO模型不证明实装路由或释放时延；本状态不自动授权烧录／动作窗口。取得该链路证据后才安排IRQ／AON和专用亮屏，不能复用KEY导航事件。常驻腕检测、开关、佩戴误触与功耗均未验，不启动其他设备实验。
 
 <a id="history"></a>
 ## 2026-10-20 小时步数保存与上板闭环（历史，PR #104／#105已交付）
