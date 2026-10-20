@@ -139,7 +139,7 @@ wf_wrist stop
 
 随后按新授权下载精确`83c9bb50…`，恢复107／小时51，再自然短走形成native22／总129／小时73并自动保存。一次30秒xneg／600ms／30°会话`accepted1`表示配置序列及写后读回已完成，后续运行快照通过共享配置守卫；没有逐项原始寄存器打印。静止及用户四方向动作窗口均`FUNC_SRC2=84h／axes00／observations0`。UART捕获30023ms到期、DONE／stop_verified1；末端串口拒绝访问，用户听到设备重连声，原助手失败保留。独立cleanup会话无复位／补时，再读到同一DONE与native22／总129／完整小时／代次12保留；幂等stop与allow1回执后串口释放，用户确认屏幕／触摸／KEY1正常。[设备证据](evidence/2026-10-20/native-wrist-hardware.json)仅支持配置／到期清理／非零计数保留，不支持正向AWT效果或活动中取消。
 
-**未解观测异常**：精确数据手册Table179的bit7及bit2为0，而运行快照source84h将两位读为1；bit0仍0，不能当腕事件或公开定义的NACK。每次poll已检查bank0／XL／CTRL10／LIR／路由，尚无确定源码原因。WHO6a也被LSM6DSL等共用，单改器件命名不能解释异常。停止时SOURCE读到ignored，缓存source不会更新，因此停用后84h仅历史值。当前无原始XYZ及三阶段新读寄存器，无法区分映射／身份与实际半轴未达到阈值／持续时间；下一轮先准备一次有界寄存器与原始加速度观测，再安排设备补测，不能据零事件判原生能力不足。IRQ／AON、专用亮屏／开关、佩戴及功耗继续未验。
+**首轮未解观测异常**：精确数据手册Table179的bit7及bit2为0，而运行快照source84h将两位读为1；首轮bit0仍0，不能当腕事件或公开定义的NACK。每次poll已检查bank0／XL／CTRL10／LIR／路由，尚无确定源码原因。WHO6a也被LSM6DSL等共用，单改器件命名不能解释异常。首轮停止时SOURCE读到ignored，缓存source不会更新，因此当时停用后84h仅历史值。首轮缺少原始XYZ及三阶段新读寄存器的限制由下节软件及补测覆盖；不能据该次零事件判原生能力不足。
 
 <a id="wrist-register-snapshot"></a>
 ### 三阶段寄存器与XYZ观测（2026-10-20软件增量）
@@ -159,3 +159,13 @@ XYZ输出保留六个原字节及有符号counts，仅当RAW／XL／CTRL3有效�
 新增帧每次最多11笔读取，原100ms仍是等待请求而非精确采样周期，取消／截止在整帧后再检查，响应包括剩余有界事务；到期／取消帧不会新增observations。每笔沿用50ms总线超时，无后台额外采样／线程。启动／运行帧失败或格式配置不符终止腕会话并走清理；已确认停用后after遥测失败只保留有效位缺失及错误计数，不把已知关闭的设备重新标成活动，停止结果与遥测完整性分别判断。
 
 完整Debug53/53、保留断言Release相关5/5及Product编译／源码产物核对通过；覆盖负值／大小端、三阶段新读与运行缓存保留、部分RAW失败、非0 bank不访问别名、错误CTRL3、after-only失败、采集中途到期／取消、worker共存及status零I/O。[软件证据](evidence/2026-10-20/wrist-register-snapshot.json)保存精确候选、命令与限制。本轮未开串口／下载，尚未取得本版新帧或XYZ实机读数，source84h根因仍未知；不接IRQ／AON／亮屏，也没有硬件算法不足结论。
+
+### 同BIN三阶段与原生事件补测（2026-10-20）
+
+用户随后明确授权下载，精确Product`df9c37d6…`首次write+verify通过，启动恢复129／小时和73，UI／触摸／KEY1正常；无新固件源码或重编。所有有效新帧均bank0／WHO6a／XL20h／CTRL3=44h，原字节与有符号XYZ解码相符；三阶段valid7ffh、CTRL10=14h／94h／14h及PULSE／TAP=00／01／00支持启用与停用配置。before和after新读SOURCE仍84h，故基值异常不限于旧运行缓存。
+
+四方向xneg窗口的末端负X样本不足以证明持续阈值；后续xpos稳定姿态窗口实测“上边缘抬起”为负X，6帧约−1g、端点跨度10675ms，确认映射而非判正X效果。最后改与姿态匹配的60秒xneg，UART捕获`SOURCE85h／AXES40h／observations1`（sample2067196），随后SOURCE回84h且累计1保持；事件前X=−8852、后续多帧接近−1g。该结果支持本次内置AWT来源bit0触发并清除；单半轴AXES不适用，40h只保留为原始观测。事件行无同次完整XYZ，离散样本不严格证明连续姿态，也不证明恰好600ms响应或手势识别率。
+
+60022ms到期、显式stop、停用读回与allow1通过，20:54:38释放COM5；129／native0／小时73／保存代次13不变，用户最终确认屏幕／触摸／KEY1正常。[设备证据](evidence/2026-10-20/wrist-register-snapshot-hardware.json)保留解析错误、静止／错轴窗口及触发／串口等待失败，不把失败窗口算作有效动作测试。source84h保留位与精确器件身份仍未知，原生能力不足未证；保持内置AWT路线，先核对实际中断输出及板上连线再确定亮屏集成。当前无IRQ／AON／亮屏开关、误触／漏检、佩戴或功耗结论。
+
+中断路线仅有资料候选：精确数据手册的`INT2_WRIST_TILT`为AWT专用INT2路由，而`CTRL4_C.INT2_on_INT1`说明可将全部中断OR至INT1；普通`MD1_CFG.INT1_TILT`不等同AWT。既有[板图核查](evidence/2026-10-19/native-daily-steps.json)为INT1→PA31、INT2 NC，当前代码只设AWT→INT2／LIR，未开启该总路由或MCU IRQ。故不能由INT2 NC直接推断必须飞线，也不能声称PA31已收到AWT；路由读回、实装电平与读源释放须先有界验证。

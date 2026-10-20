@@ -5,7 +5,7 @@
 
 本区是活动任务和下一步的唯一权威来源；历史下一步不构成执行授权。
 
-用户要求读取“梳理当前未完善项”对话后，明确下一方向为LSM6DS3TR-C硬件自带翻腕。步数跨整点等实机边界暂缓，保留PC覆盖；目标设置及进度显示记入[统一活动完善待办](BASELINE.md#2026-10-20-活动后续与原生翻腕优先)，待卡路里、中高强度运动等完善时一并处理。小时步数PR #104／#105已交付，后续腕诊断软件PR #106已合入`827ca73`；本次设备使用精确`83c9bb50…`，当前原电池＋USB、松线固定，COM5关闭。
+用户要求读取“梳理当前未完善项”对话后，明确下一方向为LSM6DS3TR-C硬件自带翻腕。步数跨整点等实机边界暂缓，保留PC覆盖；目标设置及进度显示记入[统一活动完善待办](BASELINE.md#2026-10-20-活动后续与原生翻腕优先)，待卡路里、中高强度运动等完善时一并处理。小时步数PR #104／#105、腕诊断PR #106／#107及三阶段观测PR #108已交付，后者主线为`521676b`；本次设备已换精确`df9c37d6…`，当前原电池＋USB、松线固定，COM5关闭。
 
 软件轮从`c7dd3c5`建立`codex/native-wrist-tilt`，完成[限时原生腕诊断](HARDWARE-CAPABILITIES.md#native-wrist-diagnostic)：同一IMU worker协调共享FUNC_EN／计步守卫，默认腕关闭，显式1–120秒／六半轴／延迟参数；配置写后读回，锁存源请求100ms读取，截止／取消／故障清理，不新增并行I2C拥有者。官方AN5130 §6.1／6.4与精确数据手册支持停用计步不清已有计数；准备期间暂停采集，实际漏计与识别连续性未验。锁定SDK及厂商树不改，不使用旧#30／#39软件姿态算法。
 
@@ -13,9 +13,11 @@
 
 **硬件verified（部分）**：本轮用户继续并重新确认同一板屏、原电池＋电脑USB、松线固定且人在旁，授权30秒原生腕事件／停止及计步保留观察。从`827ca73`建立`codex/native-wrist-hardware`，未改源码／重编。COM5身份／驱动、461源码（459字节同／2仅Git换行）、29产物、锁／DryRun／retained钩子重核；首次write+verify于19:29:51退出0，初始单次150ms RTS后实际RTC2000，真实UTC校时读回，恢复107／小时51／代次10、native0。用户短走后129／当前小时柱，读回native22、18时51／19时22／和73、自动保存129／代次12。30秒xneg配置读回成功，但动作窗口source84h／axes00／observations0；UART已见30023ms到期／停止确认，末端串口PermissionError且用户听到重连声，原失败保留。独立无复位／补时会话再核同一DONE及native22／129／小时73不变，幂等stop／allow1回执后19:35:46释放COM5。用户确认屏幕／触摸／KEY1正常、USB接稳。[设备证据](evidence/2026-10-20/native-wrist-hardware.json)不证明正向腕事件／漏计／功耗；本轮动作观察到此结束。
 
-**后续诊断软件verified**：用户继续后，从`b1e16d1`建立`codex/wrist-register-snapshot`，在同一会话加入[before／running／after寄存器与XYZ新读帧](HARDWARE-CAPABILITIES.md#wrist-register-snapshot)，status只读缓存。每字段传输有效位／单调起止、原字节／有符号counts、格式有效与XLDA新鲜度分别表达；bank未知不读别名，到期／取消帧不计事件，停用已确认后遥测缺失不重新承担活动责任。完整Debug53/53／Release相关5/5及独立审查通过，Product`20261020-195623-368`／BIN`df9c37d6…`编译成功，461源码／29产物与未变Demo418／22重哈希一致，SDK锁固定干净。[本轮证据](evidence/2026-10-20/wrist-register-snapshot.json)记录边界；本轮未开串口／烧录，板上仍为`83c9bb50…`。
+**后续诊断软件verified**：用户继续后，从`b1e16d1`建立`codex/wrist-register-snapshot`，在同一会话加入[before／running／after寄存器与XYZ新读帧](HARDWARE-CAPABILITIES.md#wrist-register-snapshot)，status只读缓存。每字段传输有效位／单调起止、原字节／有符号counts、格式有效与XLDA新鲜度分别表达；bank未知不读别名，到期／取消帧不计事件，停用已确认后遥测缺失不重新承担活动责任。完整Debug53/53／Release相关5/5及独立审查通过，Product`20261020-195623-368`／BIN`df9c37d6…`编译成功，461源码／29产物与未变Demo418／22重哈希一致，SDK锁固定干净。[软件证据](evidence/2026-10-20/wrist-register-snapshot.json)只记录软件轮；随后新授权的同BIN设备结果见下段。
 
-数据手册§2.2已进一步确认单半轴时axes55h不适用，旧axes00不能单独判异常；source84h及源bit0仍未解释。限定已有照片没有可读IMU丝印，WHO6a不唯一，精确身份未知。唯一下一步：新确认设备条件后，以精确新候选做一次短时三阶段寄存器／稳定姿态XYZ观察，定位映射与实际半轴阈值条件；不重复无XYZ的同样动作或判内置算法不足。取得内置效果后才进入PA31 IRQ／AON→worker清源→专用亮屏及开关，不能复用KEY导航事件。此状态不自动安排步数边界、功耗或其他硬件实验。
+**三阶段设备补测verified（有界）**：用户明确要求烧录，复用同一板屏／原电池＋电脑USB／松线固定及人在旁的确认。461源码／29产物字节哈希、SDK锁、COM5身份／驱动、DryRun／retained钩子复核后，20:18:21首次三镜像write+verify退出0；初始单次150ms RTS后RTC实际2000，校回真实UTC，新版恢复129／native0／小时和73／代次13。用户确认屏幕、触摸、KEY1、时间及129正常。四方向xneg窗口取得有效XYZ但没有可靠稳定保持证据；后续xpos窗口确认用户所说“上边缘抬起”的真实方向为负X。最后按实测方向做60秒xneg：UART在sample2067196捕获`source85h／axes40h／observations1`，前后负X样本与动作一致；到期60022ms、三阶段valid7ff及CTRL10=14h／94h／14h，显式stop后READY／stop_verified1、allow1／两个IDLE0，20:54:38关闭串口。129／native0／小时73／代次13未变，用户最终确认屏幕／触摸／KEY1正常。助手解析错误、静止／错轴窗口、触发超时及无回执失败均保留在[本轮设备证据](evidence/2026-10-20/wrist-register-snapshot-hardware.json)；本轮无固件源码修改或重编。
+
+该结果证明本次内置AWT来源bit0可触发并清除，`observations1`不是手势识别率或精确600ms响应证明；source基值84h保留位、器件精确身份仍未知，WHO6a不唯一。单半轴axes55h不适用，axes40h只保留为观测。唯一下一步：准备有界的`CTRL4_C.INT2_on_INT1`路由／PA31电平及读源释放诊断软件，先源码／主机／编译闭环；资料中的候选总路由不等于AWT已到达PA31，后续设备验证另行安排。专用亮屏不能复用KEY导航事件。常驻腕检测、IRQ／AON唤醒、开关、佩戴误触及功耗均未验，本状态不自动启动其他设备实验。
 
 <a id="history"></a>
 ## 2026-10-20 小时步数保存与上板闭环（历史，PR #104／#105已交付）
