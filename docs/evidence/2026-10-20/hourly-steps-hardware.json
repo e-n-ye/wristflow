@@ -1,0 +1,130 @@
+{
+  "date": "2026-10-20",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/hourly-steps-hardware",
+  "source_main": "761b5161c4c86ab1b50ff314e326a2dd0bf8213f",
+  "software_evidence": "docs/evidence/2026-10-20/hourly-steps.json",
+  "authorization": "User requested flashing and hardware validation; reconfirmed same board/screen, original battery plus computer USB, loose motor wire fixed and user nearby: 条件均未变化，可以开始",
+  "scope": "Legacy daily total migration, real current-hour increment, automatic checkpoint, ordinary reboot restore and resumed counting. No production source, sensor algorithm/parameters, SDK or charging policy change",
+  "source_inspection": "459 build inputs byte-identical and29 artifacts rehashed; SDK421126d9f476ed8e2a6f0b0ca28a9f241c182e65 and submodules match sdk.lock.json and clean",
+  "compilation": "No new build; reuse verified Product20261020-165441-652, main BIN2a1a39aa93e59de77bdd20afcc623d53211f047a010ddcc7799553aa42c4562b",
+  "preflight": "COM5 CH340 VID1A86 PID7523 location1-1.1; DisableModemOutHandShake=1 read-only; three-image DryRun and retained hook disassembly checked. BSP_PowerUpCustom0x200033bc false path reaches epilogue0x2000345a; disassembly SHA25699c554362b221acaa4947d48e7d218ac5231a1495b2e5b40e3c4cbfee3f35705",
+  "helper": {
+    "path": "artifacts/hourly-steps-check.py",
+    "sha256": "60a5f82bef1ee3bd0fbad499d990ba470dd74f599f9588b2d20d95552bf6d303",
+    "command_prefix": "SDK Python artifacts/hourly-steps-check.py --mode MODE --directory artifacts/hourly-steps-hardware/SESSION",
+    "serial": "COM5 1000000 8N1, no flow control, RTS/DTR false before open; up to60 idempotent PM hold attempts with nominal2second request/wait cycles, no wake-reset fallback",
+    "guards": "Parse all24 counters/mask/sum; nonzero clean saved day/total/mask required before reboot; unchanged full buckets/generation and native0 required after. Ordinary reboot has no RTS/RTC correction. Startup alone permits one150ms RTS and true-current-UTC sync only when actual RTC is year2000",
+    "cleanup": "wf_pm allow,10second receive, wf_pm status requiring allow1, close port; no save/stop/retry/raw sensor/motor/manual-charge commands"
+  },
+  "preflash_failures": [
+    {"session":"preflash-01","exit_code":1,"error":"Missing PM hold reply in old helper; no reset or RTC write","session_sha256":"8cefbbdcaff7541e623e9429785492da0aa27d51c821b010fce820df00323777","uart_bytes":0,"uart_sha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","final_pm":"Unknown; port closed"},
+    {"session":"preflash-02","exit_code":1,"error":"Missing initial PM hold reply in old helper; late PM output during cleanup; no reset or RTC write","session_sha256":"ff4364700e4cad7e2e30b991fa63f4680febf5b9fe7ae77166afb445044d7ea6","uart_bytes":960,"uart_sha256":"5729a5e54bb7e2e6929fdcb87fb2314912cccfa8c14ca937d7bc39f57eb9a6e1","final_pm":"allow1 off0 own_idle1 sdk_idle1; port closed"}
+  ],
+  "preflash": {
+    "mode": "legacy",
+    "session": "artifacts/hourly-steps-hardware/preflash-03/session.json",
+    "session_sha256": "a95a6843bac0a02cdc69f92d3ea93d9891c6e6dd689444c9df4b4ce98d439184",
+    "uart_sha256": "9c42cb246f8fc5791c519194473fff74c3bcfa6fc7fe29e736704393f921d95c",
+    "exit_code": 0,
+    "user_before": "6.06，步数56，已唤醒",
+    "observed": "Two current-day20746 total56/restored1/native26 snapshots; saved56/generation6/verified1/dirty0/failed0. No reset or RTC write",
+    "closed_local": "2026-10-20T18:09:04+08:00",
+    "final_pm": "allow1 off0 own_idle1 sdk_idle1; COM5 closed"
+  },
+  "flash": {
+    "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Flash.ps1 -Example product -Port COM5",
+    "result": "artifacts/flash/product/20261020-180938-584/result.json",
+    "result_sha256": "37986db8957af09da479f625abe4dac71bc575ad7f87a076ed18183a3551ce7e",
+    "log": "artifacts/hourly-steps-flash.log",
+    "log_sha256": "09ff8aa7f3430ae6d84f9c35cb7f40f452ff17ed6cfc46e8c5095b312b06f416",
+    "sftool_log_sha256": "ed115e0ab998ac53b411a5b459407304760c82de8ce58667aa9553683b74dfd1",
+    "images": [
+      {"name":"bootloader.bin","address":"0x12010000","bytes":58496,"sha256":"e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"},
+      {"name":"main.bin","address":"0x12020000","bytes":7794496,"sha256":"2a1a39aa93e59de77bdd20afcc623d53211f047a010ddcc7799553aa42c4562b"},
+      {"name":"ftab.bin","address":"0x12000000","bytes":11288,"sha256":"7e0a936cefa0cf57377d61b1be5736dfd2e53c7f0dbfe586a956870161192ab8"}
+    ],
+    "exit_code": 0,
+    "completed_local": "2026-10-20T18:12:19+08:00",
+    "boundary": "First write_flash --verify succeeded; only manifest images, no erase-all or explicit settings-partition write. result hardware_verified=false is download metadata, separate observations below establish bounded behavior",
+    "late_user_reply": "当前屏幕无法按键点亮",
+    "reply_context": "Reply arrived while download was active, after preflash wake acquisition already completed. Not treated as post-startup KEY1 failure; user later explicitly confirmed wake"
+  },
+  "startup": {
+    "mode": "startup",
+    "session": "artifacts/hourly-steps-hardware/startup-01/session.json",
+    "session_sha256": "7740c4fc0c2b948535785b1b579b726fd0100fda567c31573ac310ccd38b1551",
+    "uart_sha256": "9adf9d1575bb1c0ea000c2773fbd2f36b1bf747664bc712f25f52f3e031ffed2",
+    "exit_code": 0,
+    "actions": "One150ms RTS at18:12:47; actual RTC2000 then wf_time1792491175, confirmed synchronized and readback2026-10-20T10:12:57Z",
+    "observed": "Product/CO5300/FT6146/early inhibit verified1 profile1; two total56/restored1/native0/day20746 snapshots, saved generation6. Current18h zero bucket valid0x040000/sum0, saved_valid0/dirty1; historical56 not assigned to hours",
+    "boundary": "Behavioral legacy compatibility evidence using old firmware baseline and preserved settings, not a raw flash record length/version dump. At this stage v2 clean save and positive hour were not yet proven",
+    "closed_local": "2026-10-20T18:13:16+08:00",
+    "final_pm": "allow1 off1 own_idle0 sdk_idle1; COM5 closed"
+  },
+  "user_seed": {
+    "request": "Check KEY1 wake/component/detail56 and time, then keep battery/unplug USB/naturally walk about10-20steps/settle/wake/wait3seconds, observe hour column, reconnect USB",
+    "reply": "唤醒，56->当前83步，出现小时柱，已接usb",
+    "interpretation": "Explicit wake, total increment and visible hour column confirmation. Component/detail/time were requested as a group, not independently itemized. Nonzero data generation, not an accuracy trial"
+  },
+  "automatic": {
+    "mode": "automatic",
+    "session": "artifacts/hourly-steps-hardware/automatic-01/session.json",
+    "session_sha256": "76cfa971f28a86d0d42b9223a6fbc40586cae777279ad8f173889b90b882c805",
+    "uart_sha256": "1a5932e121ec3c29884ec9d67370ba7406d83bb929adfd45a3f70f349533d031",
+    "exit_code": 0,
+    "observed": "Four snapshots spanning71seconds: total83/restored1/native27/day20746; only18h=27, mask0x040000/sum27; saved total83/generation8/verified1/dirty0/failed0/attempts1/saved mask matching. All values and generation unchanged; sampling io_errors0/incoherent0",
+    "boundary": "First observation already clean; intermediate generation6->8 writes and exact latency not captured. No manual save/stop/retry/reset/time write, so supports automatic persistence and no new checkpoint generation in this stationary window",
+    "closed_local": "2026-10-20T18:19:26+08:00",
+    "final_pm": "allow1 off1 own_idle0 sdk_idle1; COM5 closed"
+  },
+  "ordinary_reboot": {
+    "mode": "reboot",
+    "session": "artifacts/hourly-steps-hardware/reboot-01/session.json",
+    "session_sha256": "495446ad7ba0e7139cd39865b746993adc3aeffe3e7be166e5d6d810419898b1",
+    "uart_sha256": "381f8fdd84f9ebc94e0ce9c13392c2f373391df729601e81c1dae17f0a52cb00",
+    "exit_code": 0,
+    "action": "One SDK reboot at18:19:37 after clean/nonzero/full-hour guard; no RTS or RTC write",
+    "rtc": "2026-10-20T10:19:34Z ->10:19:44Z without synchronization",
+    "observed": "Fresh Product boot; two restored1/native0/total83/day20746 snapshots. Full24 buckets and mask identical to preboot:18h27, all others0, mask0x040000/sum27. Saved83/generation8/verified1/dirty0/failed0/attempts0, sampling errors0",
+    "closed_local": "2026-10-20T18:20:03+08:00",
+    "final_pm": "allow1 off1 own_idle0 sdk_idle1; COM5 closed"
+  },
+  "user_resumed": {
+    "request": "Check component/detail83/hour column, natural screen-off then KEY1 retention; keep battery/unplug USB/walk about10-20steps/settle/wake/wait3seconds, reconnect USB",
+    "reply": "83->107,小时柱上面显示51，其他均正常，已接usb",
+    "interpretation": "General normal feedback for requested UI/KEY1 group, plus explicit total107 and chart maximum51. No independently timed/itemized UI observations or accuracy conclusion"
+  },
+  "resumed_automatic": {
+    "mode": "automatic",
+    "session": "artifacts/hourly-steps-hardware/resumed-01/session.json",
+    "session_sha256": "921fa28a0db2593ddb339f2d592d0c36da68f043fca49386fecf486522352f9b",
+    "uart_sha256": "364d9a13373f95632a46521c7efac3ffbc44ba946783dea3ca3161da2c9b38cc",
+    "exit_code": 1,
+    "observed": "Four snapshots spanning more than60seconds: total107/restored1/native24/day20746;18h51/mask0x040000/sum51, all other buckets0. Saved107/generation9/verified1/dirty0/failed0/attempts1/matching mask unchanged; sampling errors0. Restored83+new24=107, restored hour27+new24=51, legacy56 remains unassigned",
+    "commands": "Only PM hold/allow/status, show_date and wf_steps status; no save/stop/retry/reset/RTC write",
+    "cleanup_failure": "wf_pm allow received allow1; later PM output also allow1/off1/own_idle0/sdk_idle0. After10seconds final PM status got no immediate reply; helper asserted Final PM allow not confirmed and exited1. Preserve this session-level failure separately from successful data snapshots",
+    "closed_local": "2026-10-20T18:27:48+08:00",
+    "boundary": "First observation already clean; no exact persistence latency. Zero SDK IDLE/path counters do not prove physical DEEP or a cause for the missing UART reply"
+  },
+  "release_recovery": {
+    "helper": "artifacts/hourly-steps-release-check.py",
+    "helper_sha256": "f1a4a2706fb259e3d834d4f764f79f6719170645164b81f56d5b0f8bcbb4d5d5",
+    "command": "SDK Python artifacts/hourly-steps-release-check.py",
+    "session": "artifacts/hourly-steps-hardware/release-01/session.json",
+    "session_sha256": "a6aff553fc64b7c50903fa191c0563d2563d9cbb6bc83a3b96b7b108b49cf189",
+    "uart_sha256": "ce98f5432580fb75375aabe52e3a1a674205d78dff69c8e157e87aaee4d384ad",
+    "exit_code": 0,
+    "user_reply": "已按",
+    "action": "After bounded hold wait caught KEY1 wake, query PM/date/steps, then require wf_pm allow reply and close immediately. No reset, RTC write, save, stop, retry or raw sensor/motor/charge command; no new Product boot marker",
+    "rtc": "2026-10-20T10:29:46Z without synchronization",
+    "observed": "107/native24/day20746/restored1,18h51/mask0x040000, saved107/gen9/verified1/dirty0/failed0 unchanged; sampling errors0",
+    "closed_local": "2026-10-20T18:29:51+08:00",
+    "final_pm": "allow1 off0 own_idle1 sdk_idle1 acknowledged, COM5 closed; no extra sleeping-UART query",
+    "boundary": "Wake transition UART contains one malformed-prefix wf_pm: command not found line before subsequent valid hold/status/steps/allow replies; cause unproven. Recovery resolves final release confirmation, does not turn resumed-01 exit1 into a successful session or prove the cause of its missing late reply"
+  },
+  "initialization_notes": "Both startup captures show a bus error and9clks reset near the unsuccessful0x6b address probe; later0x6a native sampling reports io_errors0/incoherent0. Firmware autonomous charger output was observed, without manual charge control or current/temperature measurement",
+  "verification_notes": "Completed UART text copies match raw UTF-8 replacement decoding plus Windows write_text newline translation. Preserve failed preflash and resumed cleanup sessions; other completed helper sessions have error=null. Independent read-only reviews cross-checked migration/automatic/reboot/resumed data and hashes; primary owns writes/device/Git. Original battery+USB retained",
+  "state": "Bounded hardware loop complete: legacy56 migration,18h27/total83 automatic checkpoint, ordinary reboot restore and resumed18h51/total107/gen9. UI/KEY1 group generally normal; final release recovery exit0/allow1 and port closed. No remaining device action authorized in this round",
+  "not_verified": ["precise checkpoint write latency or intermediate generation6->8 values", "raw flash format byte dump", "same-device cross-hour/day continuous behavior", "physical power loss or interrupted write/Flash atomicity/wear", "native step accuracy", "physical DEEP/current/battery life", "separately itemized component/detail/time observations"]
+}
