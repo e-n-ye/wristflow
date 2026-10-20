@@ -66,3 +66,11 @@ Product `20261019-192724-164`／BIN `18db1984…`及UI Demo `20261019-192948-540
 - Flash I/O在worker短持IDLE、快照临界区外执行，UI不做I/O；等待不新增持锁。沿用一个IMU worker，栈由2048B提高到6144B以容纳FlashDB调用，增加4096B配置栈预算，未测真实峰值或耗电。未采样、待写、失败或写入中数据都可能在突然掉电时丢失；一分钟策略不承诺最多只丢一分钟动作。
 
 源码／主机及编译结果见[本轮证据](evidence/2026-10-19/daily-steps-persistence.json)。本轮不打开串口或烧录；前版`4cd7c09b…`的113步观察不证明本版Flash写入／普通重启恢复，物理断电、换日、深睡和功耗仍须分别验证，当前进度只见STATUS。
+
+### 同版检查点与恢复观察（2026-10-19至20日硬件轮）
+
+随后用户授权的硬件轮复用Product`e7cca572…`，三镜像verify／启动／RTC读回通过；非零40已由自动路径写入，超过60秒的四次查询仍为同日40／generation2／verified1／dirty0，没有save命令。首次查询已经clean，故不宣称直接计得dirty40到保存成功的60秒延迟。
+
+一次SDK普通reboot保持有效RTC，首段原生计数0、日总量40／restored1、检查点generation2；再单独一次RTS后RTC实际未知，两次日总量valid0且保存40不变，真实UTC校回后恢复有效40／restored1，证明本次同日恢复没有重复累计。未知RTC的短窗未单独观察UI，状态与后续页面反馈分开记，[同版硬件证据](evidence/2026-10-19/steps-persistence-hardware.json)保留原始日志／原话、继续累计和最终保存结果。不把普通重启／RTS当物理掉电或写入中断验证，其他未验边界仍保留。
+
+隔日接续先只读确认10月20日总量0／检查点0／generation3，不将昨日40当今日恢复值；这不是跨午夜连续记录。当天用户生成0→30，自动检查点30／generation5；一次普通reboot不补校时恢复30／native0。用户按页面／KEY1／续走整组指引回报“还是显示30”，续走后56并更正已接USB；该回复未逐项确认所有页面动作。最终四次回查跨越60秒均为56／restored1、native26／错误0、保存56／generation6／verified1／dirty0，支持恢复基数30加新26且再次自动保存；未测精确写入延迟，不用口述16步与增量26计算精度。16:29:20释放hold并关闭COM5，命令、哈希与原话见[接续证据](evidence/2026-10-20/steps-persistence-continuation.json)。
