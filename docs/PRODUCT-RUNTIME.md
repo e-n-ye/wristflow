@@ -1,5 +1,7 @@
 # 产品固件框架
 
+2026-10-20在原腕会话增加[三阶段新读寄存器／XYZ缓存](HARDWARE-CAPABILITIES.md#wrist-register-snapshot)：同一worker在启用前、运行中、停止清理确认后读取，status只打印缓存。帧含传输有效位、单调起止、原字节／有符号counts及独立新鲜度；部分读取和停止已确认后的遥测失败分别表达，无新采样入口／线程／UI。新增传输会延长会话帧及取消响应，100ms不是精确周期；本版只有软件／编译验证，设备仍为首轮`83c9bb50…`，正向腕事件及source84h根因未证。
+
 2026-10-20新增[原生腕部限时诊断](HARDWARE-CAPABILITIES.md#native-wrist-diagnostic)：既有唯一IMU worker协调AWT与日常计步共享FUNC_EN及寄存器bank，默认不启用腕部，仅显式`wf_wrist start`运行1–120秒。诊断窗口持IDLE并请求100ms读锁存源，到期／stop恢复计步及原路由／锁存设置；清理未确认保留FAULT责任。主机共存／失败回归通过；无新IRQ／AON、常驻亮屏或UI开关，设备效果待验，精确候选见STATUS／证据。
 
 同日精确`83c9bb50…`已[下载并做首轮观察](evidence/2026-10-20/native-wrist-hardware.json)：配置序列读回、30秒到期／停止及native22／总129保留有界通过，UI／触摸／KEY1正常；动作窗口source84h／axes00／observations0，正向腕事件未证。末端串口失败后独立会话无复位确认同一到期状态，显式stop／allow1后关闭。source异常位、实际半轴／XYZ仍待定位，不接入常驻亮屏或以自研替代。

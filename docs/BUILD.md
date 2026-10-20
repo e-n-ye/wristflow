@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-10-20 腕部寄存器与XYZ快照
+
+从`main@b1e16d1`为同一腕会话增加启用前／运行中／停止后新读帧，status仅打印同步缓存，无新worker／命令或检测算法。完整Debug53/53（14.16秒）及保留断言Release相关5/5（0.32秒）通过，含三阶段／传输失败／XYZ符号格式／bank保护、after-only遥测失败和帧中取消／到期；独立审查无剩余阻断。
+
+`pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Build.ps1 -Example product -Jobs 4`调用官方SCons，Product`20261020-195623-368`退出0／产物校验通过，BIN7,798,612B／`df9c37d6…`，461源码／29产物字节哈希一致；未变Demo418源码／22产物重核一致，未重复编译。SDK／子模块锁固定干净，Python3.13.15／SCons4.10.1／ArmGCC14.2.1不变，增量保留原10条FinSH／链接等warning。腕模块text1446B，腕状态168B／缓存140B（较前增108B各一份），既有6144B worker栈未变；未测栈峰值或硬件传输时间。完整证据见[本轮记录](evidence/2026-10-20/wrist-register-snapshot.json)，本轮无串口／烧录／设备验证。
+
 ## 2026-10-20 原生腕部限时诊断
 
 从`main@c7dd3c5`新增LSM6DS3TR-C内置AWT配置／锁存源诊断，复用唯一计步worker，不改SDK、UI、公共构建入口或设置格式。完整Debug53/53（13.73秒）及保留断言的Release相关5/5（0.10秒）通过；最终测试包含daily读取成功后腕准备失败的查找／配置双注入，审查无剩余阻断。
