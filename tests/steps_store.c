@@ -5,17 +5,91 @@
 #include <assert.h>
 #include <string.h>
 static uint8_t records[2][WRISTFLOW_STEPS_RECORD_BYTES];
+static size_t lengths[2];
 static unsigned writes;
 static bool fail_write, fail_read, corrupt;
-static bool read_record(unsigned key, uint8_t *p, void *ctx)
-{ (void)ctx; memcpy(p, records[key], sizeof records[key]); if(corrupt) p[16]^=1; return !fail_read; }
+static size_t read_record(unsigned key, uint8_t *p, size_t capacity, void *ctx)
+{
+    (void)ctx;
+    if (fail_read || lengths[key]>capacity) return 0;
+    memcpy(p, records[key], lengths[key]); if(corrupt && lengths[key]>16) p[16]^=1;
+    return lengths[key];
+}
 static bool write_record(unsigned key, const uint8_t *p, void *ctx)
-{ (void)ctx; ++writes; memcpy(records[key],p,sizeof records[key]); return !fail_write; }
+{ (void)ctx; ++writes; memcpy(records[key],p,sizeof records[key]); lengths[key]=sizeof records[key]; return !fail_write; }
 static wristflow_steps_clock_t clock_at(uint32_t utc, uint64_t ms)
 { return (wristflow_steps_clock_t){.utc=utc,.monotonic_ms=ms,.valid=true}; }
+static void hourly_and_legacy(void)
+{
+    /* Frozen v1 bytes, independently packed with Python struct/zlib: generation7,
+     * day20745,total113,coverage1792411200,saved1792411260. */
+    static const uint8_t legacy[32]={
+        0x57,0x46,0x53,0x54,0x01,0,0,0,0x07,0,0,0,0x09,0x51,0,0,
+        0x71,0,0,0,0x40,0x06,0xd6,0x6a,0x7c,0x06,0xd6,0x6a,0x5c,0x12,0xa5,0x5f
+    };
+    memset(records,0,sizeof records); lengths[0]=sizeof legacy; lengths[1]=0;
+    memcpy(records[0],legacy,sizeof legacy); fail_read=fail_write=corrupt=false;
+    wristflow_steps_store_t store, restored;
+    assert(wristflow_steps_store_restore(&store,read_record,NULL));
+    assert(store.generation==7 && store.saved.total==113 && !store.saved.hours_valid);
+    wristflow_daily_steps_t daily;
+    wristflow_daily_steps_init(&daily); assert(wristflow_daily_steps_seed(&daily,&store.saved));
+    wristflow_steps_clock_t clock=clock_at(1792411270,1000);
+    assert(wristflow_daily_steps_observe(&daily,500,clock));
+    assert(daily.snapshot.metric.total==113 && !daily.snapshot.metric.hours_valid);
+    ++clock.utc; clock.monotonic_ms+=1000;
+    assert(wristflow_daily_steps_observe(&daily,502,clock));
+    assert(daily.snapshot.metric.total==115 && daily.snapshot.metric.hourly[20]==2);
+    wristflow_steps_store_offer(&store,&daily.snapshot,2000);
+    fail_write=true;
+    assert(wristflow_steps_store_process(&store,62000,read_record,write_record,NULL));
+    records[1][0]=0; /* Interrupted new-slot write leaves the old32-byte record. */
+    assert(wristflow_steps_store_restore(&restored,read_record,NULL));
+    assert(restored.active==0 && restored.saved.total==113 && restored.generation==7);
+    fail_write=false; wristflow_steps_store_flush(&store,63000);
+    assert(wristflow_steps_store_process(&store,63000,read_record,write_record,NULL));
+    assert(lengths[0]==32 && lengths[1]==132);
+    assert(wristflow_steps_store_restore(&restored,read_record,NULL));
+    assert(restored.active==1 && restored.generation==8 && restored.saved.total==115);
+    assert(restored.saved.hours_valid==(1U<<20) && restored.saved.hourly[20]==2);
+    lengths[1]=131; assert(wristflow_steps_store_restore(&restored,read_record,NULL));
+    assert(restored.saved.total==113); lengths[1]=132;
+    assert(wristflow_steps_store_restore(&restored,read_record,NULL));
+    wristflow_daily_steps_t rebooted;
+    wristflow_daily_steps_init(&rebooted); assert(wristflow_daily_steps_seed(&rebooted,&restored.saved));
+    ++clock.utc; clock.monotonic_ms=1000;
+    assert(wristflow_daily_steps_observe(&rebooted,4000,clock));
+    assert(rebooted.snapshot.metric.total==115 && rebooted.snapshot.metric.hourly[20]==2);
+    ++clock.utc; clock.monotonic_ms+=1000;
+    assert(wristflow_daily_steps_observe(&rebooted,4003,clock));
+    assert(rebooted.snapshot.metric.total==118 && rebooted.snapshot.metric.hourly[20]==5);
+    /* Hour-validity and bucket values are part of saved identity, even when
+     * the daily total is unchanged (e.g. a confirmed zero in the next hour). */
+    wristflow_steps_snapshot_t next=daily.snapshot;
+    next.observation.utc+=3600; next.metric.hours_valid|=1U<<21;
+    wristflow_steps_store_offer(&store,&next,64000); assert(store.dirty);
+    assert(wristflow_steps_store_process(&store,123000,read_record,write_record,NULL));
+    assert(store.saved.total==115 && store.saved.hours_valid==((1U<<20)|(1U<<21)));
+    next.metric.hourly[20]=3;
+    wristflow_steps_store_offer(&store,&next,124000); assert(store.dirty);
+    assert(wristflow_steps_store_process(&store,183000,read_record,write_record,NULL));
+    assert(store.saved.total==115 && store.saved.hourly[20]==3);
+    wristflow_steps_checkpoint_t c=store.saved;
+    uint8_t encoded[WRISTFLOW_STEPS_RECORD_BYTES];
+    c.hours_valid|=1U<<24; assert(!wristflow_steps_encode(&c,10,encoded));
+    c=store.saved; c.hours_valid&=~(1U<<20); assert(!wristflow_steps_encode(&c,10,encoded));
+    c=store.saved; c.hourly[20]=116; assert(!wristflow_steps_encode(&c,10,encoded));
+    c=store.saved; assert(wristflow_steps_encode(&c,10,records[0]));
+    c.hours_valid&=~(1U<<21); assert(wristflow_steps_encode(&c,10,records[1]));
+    lengths[0]=lengths[1]=132;
+    assert(!wristflow_steps_store_restore(&restored,read_record,NULL));
+    c=store.saved; assert(wristflow_steps_encode(&c,11,records[0]));
+    ++c.hourly[20]; assert(wristflow_steps_encode(&c,11,records[1]));
+    assert(!wristflow_steps_store_restore(&restored,read_record,NULL));
+}
 int main(void)
 {
-    wristflow_steps_checkpoint_t c={20745,113,1792411200,1792411260}, decoded;
+    wristflow_steps_checkpoint_t c={.local_day=20745,.total=113,.coverage_start_utc=1792411200,.saved_utc=1792411260}, decoded;
     uint32_t generation;
     uint8_t record[WRISTFLOW_STEPS_RECORD_BYTES];
     assert(wristflow_steps_encode(&c,UINT32_MAX,record));
@@ -112,5 +186,6 @@ int main(void)
     assert(!wristflow_steps_store_restore(&restored,read_record,NULL));
     memcpy(records[1],records[0],sizeof records[0]);
     assert(wristflow_steps_store_restore(&restored,read_record,NULL) && restored.saved.total==113);
+    hourly_and_legacy();
     return 0;
 }

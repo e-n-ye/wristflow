@@ -252,6 +252,10 @@ int main(void)
                 !wristflow_power_equal(&next.power, &snapshot.power) ||
                 next.activity.metrics[WRISTFLOW_ACTIVITY_STEPS].total != snapshot.activity.metrics[WRISTFLOW_ACTIVITY_STEPS].total ||
                 next.activity.metrics[WRISTFLOW_ACTIVITY_STEPS].total_valid != snapshot.activity.metrics[WRISTFLOW_ACTIVITY_STEPS].total_valid ||
+                next.activity.metrics[WRISTFLOW_ACTIVITY_STEPS].hours_valid != snapshot.activity.metrics[WRISTFLOW_ACTIVITY_STEPS].hours_valid ||
+                memcmp(next.activity.metrics[WRISTFLOW_ACTIVITY_STEPS].hourly,
+                    snapshot.activity.metrics[WRISTFLOW_ACTIVITY_STEPS].hourly,
+                    sizeof next.activity.metrics[WRISTFLOW_ACTIVITY_STEPS].hourly) ||
                 next.uptime_seconds / 60 != snapshot.uptime_seconds / 60) {
                 snapshot = next;
                 wristflow_ui_shell_update(shell, &snapshot);

@@ -1,5 +1,6 @@
 #ifndef WRISTFLOW_PRODUCT_SERVICES_H
 #define WRISTFLOW_PRODUCT_SERVICES_H
+#include <stddef.h>
 #include "product_state.h"
 #include "component_layout.h"
 #include "weather.h"
@@ -12,7 +13,7 @@ wristflow_alarm_clock_t wristflow_product_services_time(void);
 uint64_t wristflow_product_services_monotonic(void);
 bool wristflow_product_services_storage_ready(void);
 /* Independent bounded step checkpoint keys; called by the IMU worker only. */
-bool wristflow_product_services_steps_read(unsigned key, uint8_t *record, void *context);
+size_t wristflow_product_services_steps_read(unsigned key, uint8_t *record, size_t capacity, void *context);
 bool wristflow_product_services_steps_write(unsigned key, const uint8_t *record, void *context);
 /* Four bounded keys: payload A/B and matching publication markers. */
 bool wristflow_product_services_alarm_read(unsigned key, uint8_t *record, void *context);

@@ -20,6 +20,7 @@ static wristflow_alarm_clock_t service_clock;
 static struct rt_thread thread;
 static struct rt_i2c_bus_device fake_bus;
 static uint8_t step_records[2][WRISTFLOW_STEPS_RECORD_BYTES];
+static size_t step_lengths[2];
 static unsigned store_reads, store_writes;
 static bool storage_available = true, fail_storage;
 static jmp_buf yield;
@@ -122,15 +123,17 @@ wristflow_alarm_clock_t wristflow_product_services_time(void)
 static void daily_cmd(const char *action)
 { char *args[]={"wf_steps",(char *)action}; wf_steps(2,args); }
 bool wristflow_product_services_storage_ready(void) { return storage_available; }
-bool wristflow_product_services_steps_read(unsigned key, uint8_t *record, void *context)
+size_t wristflow_product_services_steps_read(unsigned key, uint8_t *record, size_t capacity, void *context)
 {
     (void)context; assert(key<2 && idle && !irq); ++store_reads;
-    memcpy(record,step_records[key],WRISTFLOW_STEPS_RECORD_BYTES); return !fail_storage;
+    if(fail_storage || step_lengths[key]>capacity) return 0;
+    memcpy(record,step_records[key],step_lengths[key]); return step_lengths[key];
 }
 bool wristflow_product_services_steps_write(unsigned key, const uint8_t *record, void *context)
 {
     (void)context; assert(key<2 && idle && !irq); ++store_writes;
-    memcpy(step_records[key],record,WRISTFLOW_STEPS_RECORD_BYTES); return !fail_storage;
+    memcpy(step_records[key],record,WRISTFLOW_STEPS_RECORD_BYTES);
+    step_lengths[key]=WRISTFLOW_STEPS_RECORD_BYTES; return !fail_storage;
 }
 int main(void)
 {
@@ -182,6 +185,7 @@ int main(void)
     before=reads+writes; cmd("probe",NULL); cmd("steps","2"); cmd("stop",NULL); daily_cmd("status");
     assert(before==reads+writes && !cancel_requested && !work.bits);
     native_count=12; cycle(); assert(daily_cached.metric.total==12 && !idle);
+    assert(daily_cached.metric.hourly[20]==12 && daily_cached.metric.hours_valid==(1U<<20));
     wristflow_product_steps_screen(false); cycle(); max_wait=60000;
     native_count=112; cycle(); assert(last_wait>0 && last_wait<=60000 && daily_cached.metric.total==112 && !idle);
     wristflow_product_steps_screen(true); cycle();
@@ -189,11 +193,13 @@ int main(void)
     /* RTC failures and clock-change notification affect only daily validity. */
     service_clock.valid=false; wristflow_product_steps_clock_changed(); cycle();
     assert(!daily_cached.metric.total_valid && device.snapshot.phase==WF_IMU_RUNNING && !idle);
+    assert(!daily_cached.metric.hours_valid);
     service_clock.valid=true; ++service_clock.revision;
     wristflow_product_steps_clock_changed(); cycle();
     assert(daily_cached.metric.total_valid && daily_cached.metric.total==0);
     service_clock.valid=false;
     assert(!wristflow_product_steps_snapshot().metric.total_valid);
+    assert(!wristflow_product_steps_snapshot().metric.hours_valid);
     service_clock.valid=true; ++service_clock.revision;
     assert(!wristflow_product_steps_snapshot().metric.total_valid);
     wristflow_product_steps_clock_changed(); cycle();
@@ -217,26 +223,32 @@ int main(void)
     cycle(); assert(cached.phase==WF_IMU_FAULT && !daily_cached.metric.total_valid && !idle);
     /* A cold application start imports only the same-day daily checkpoint.
      * Native begin resets its counter; the saved113 must not be counted twice. */
-    wristflow_steps_checkpoint_t seed={20745,113,1792411200,1792411260};
+    wristflow_steps_checkpoint_t seed={.local_day=20745,.total=113,.coverage_start_utc=1792411200,
+        .saved_utc=1792411260,.hourly={[20]=80},.hours_valid=1U<<20};
     memset(step_records,0,sizeof step_records);
     assert(wristflow_steps_encode(&seed,7,step_records[0]));
+    step_lengths[0]=WRISTFLOW_STEPS_RECORD_BYTES; step_lengths[1]=0;
     ready=false; cancel_requested=false; ticks=0; daily_lit=true;
     service_clock=(wristflow_alarm_clock_t){.utc=1792411300,.valid=true};
     assert(wristflow_product_steps_start()); cycle();
     assert(daily_cached.metric.total==113 && daily_cached.observation.restored && native_count==0 && !idle);
+    assert(daily_cached.metric.hourly[20]==80 && daily_cached.metric.hours_valid==(1U<<20));
     before=store_reads+store_writes; daily_cmd("status");
     assert(before==store_reads+store_writes); /* Status performs no Flash I/O. */
     native_count=2; cycle(); assert(daily_cached.metric.total==115);
+    assert(daily_cached.metric.hourly[20]==82);
     unsigned saved_writes=store_writes;
     ticks+=30000; wristflow_product_steps_screen(false); cycle();
     cycle(); /* Checkpoint deadline occurs before the next60-second sample. */
     assert(last_wait>28000 && last_wait<31000);
     assert(store_writes==saved_writes+1 && checkpoint_cached.saved_valid && checkpoint_cached.saved.total==115 && !idle);
+    assert(checkpoint_cached.saved.hourly[20]==82 && checkpoint_cached.saved.hours_valid==(1U<<20));
     wristflow_product_steps_screen(true); cycle(); native_count=4; cycle();
     daily_cmd("stop"); cycle(); saved_writes=store_writes; cycle();
     assert(store_writes==saved_writes+1 && checkpoint_cached.saved.total==117 && !idle);
     daily_cmd("retry"); cycle();
     assert(daily_cached.metric.total==0 && !daily_cached.observation.restored);
+    assert(!daily_cached.metric.hours_valid);
     daily_cmd("save"); cycle(); assert(checkpoint_cached.saved.total==0);
     native_count=2; cycle(); user_regs[0x10]=0; cycle();
     assert(cached.phase==WF_IMU_FAULT && !daily_cached.metric.total_valid && !idle);
@@ -244,6 +256,7 @@ int main(void)
     assert(store_writes==saved_writes+1 && checkpoint_cached.saved.total==2 && !idle);
     /* The common RTS/unknown-RTC startup must wait before using its seed. */
     memset(step_records,0,sizeof step_records); assert(wristflow_steps_encode(&seed,9,step_records[0]));
+    step_lengths[0]=WRISTFLOW_STEPS_RECORD_BYTES; step_lengths[1]=0;
     ready=false; cancel_requested=false; ticks=0; service_clock.valid=false;
     assert(wristflow_product_steps_start()); cycle(); native_count=5; cycle();
     assert(!daily_cached.metric.total_valid && daily.seed_pending);

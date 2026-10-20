@@ -2,9 +2,11 @@
 #define WRISTFLOW_STEPS_STORE_H
 #include "daily_steps.h"
 #include <stddef.h>
-#define WRISTFLOW_STEPS_RECORD_BYTES 32U
+#define WRISTFLOW_STEPS_LEGACY_BYTES 32U
+#define WRISTFLOW_STEPS_RECORD_BYTES 132U
 #define WRISTFLOW_STEPS_SAVE_MS 60000U
-typedef bool (*wristflow_steps_read_t)(unsigned, uint8_t *, void *);
+/* Return the actual stored length, or zero on failure/truncation. */
+typedef size_t (*wristflow_steps_read_t)(unsigned, uint8_t *, size_t, void *);
 typedef bool (*wristflow_steps_write_t)(unsigned, const uint8_t *, void *);
 /* Single worker owns this state and all I/O. No native counter is persisted. */
 typedef struct {
