@@ -29,7 +29,7 @@
 
 2026-10-20腕诊断后续增量：[三阶段新读寄存器／XYZ](HARDWARE-CAPABILITIES.md#wrist-register-snapshot)将传输有效位／采集区间／格式与新鲜度分开；完整Debug53/53、Release相关5/5及Product`df9c37d6…`编译／哈希为[软件证据](evidence/2026-10-20/wrist-register-snapshot.json)，随后同BIN硬件结果为上表补测。数据手册明确单半轴下AXES不可独立判定，因此axes00和事件时axes40均只保留为观测；WHO6a非唯一身份。已有正向来源不等于已实现翻腕亮屏。
 
-2026-10-20接续软件轮加入[INT1总路由／PA31电平缓存](HARDWARE-CAPABILITIES.md#wrist-int1-route)，显式限时route、其他源路由守卫、CTRL4恢复及最后事件帧与原计步共存；[本轮证据](evidence/2026-10-20/wrist-int1-route.json)分别记录主机与编译。本候选未下载，上一版SOURCE85h不能抵扣本版PA31物理路由、清源电平或IRQ／AON／亮屏验收。
+2026-10-20接续软件轮加入[INT1总路由／PA31电平缓存](HARDWARE-CAPABILITIES.md#wrist-int1-route)，显式限时route、其他源路由守卫、CTRL4恢复及最后事件帧与原计步共存；[软件证据](evidence/2026-10-20/wrist-int1-route.json)分别记录主机与编译。随后精确`17f1b775…`已[下载并实测](evidence/2026-10-20/wrist-int1-route-hardware.json)：完整SOURCE85h事件帧与PA31读源前1／后0支持本次醒态路由；UART坏报告使动作窗约21.5秒被显式停止，取消恢复通过，另补静置60022ms到期、配置及129／native0／小时73／代次15保留，用户最终确认UI／触摸／KEY1及129正常。原坏报告与摘要交错保留，不补字节或将取消窗写成到期；本版无非零native、稳定释放时延、识别率／佩戴、IRQ／AON／专用亮屏、物理DEEP或功耗验收。
 
 日常迭代采用“相关主机检查＋受影响目标编译＋受影响真机回归”。原 J1–J7 的 10 轮导航／睡醒、5 次重连和连续 30–60 分钟保留为当前同版整体验收契约，尚未整体通过，不是日常 UI／功能工作的统一前置。低功耗数值、故障波形、续航和佩戴在各自条件具备后独立验证，不能由本页的软件通过状态推得。
 

@@ -1,0 +1,643 @@
+{
+  "date": "2026-10-20",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "base_commit": "1fe850ce128dd6429e93880d1e33e27c425239c2",
+  "branch": "codex/wrist-int1-hardware",
+  "authorization": {
+    "conditions": "User confirmed same Huangshan board/screen, original battery plus PC USB, loose motor wire secured, present; allowed candidate flash and60s PA31 observation.",
+    "after_startup": "User confirmed screen/touch/KEY1/time normal, steps129 and face-up ready.",
+    "motion": "Prompt: top edge near vertical, hold15s then face-up. User replied completed. Actual continuous duration not measured.",
+    "static": "After malformed UART aborted motion run, no repeat gesture requested; user pressed KEY1 and kept face-up for bounded deadline recovery.",
+    "final": "User confirmed screen/touch/KEY1 normal and129 after all serial sessions closed."
+  },
+  "scope": "Exact compiled native AWT INT2_on_INT1 routing/PA31 raw source-clear levels, cancellation and separate stationary deadline, daily/hour checkpoint preservation. No firmware/source build or new IRQ/AON/display implementation.",
+  "candidate": {
+    "software_record": "docs/evidence/2026-10-20/wrist-int1-route.json",
+    "build_worktree": "D:/MY_Desk/project/wristflow-snapshot-hardware",
+    "build_result": "artifacts/product/20261020-215940-822/result.json",
+    "bin_sha256": "17f1b7754af2df2190c5d6ce2f5cb8f36b73795dd53b2269e75b16fde1f35031",
+    "source_hashes_matched": 461,
+    "artifacts_rehashed": 29,
+    "sdk_locked_clean": true,
+    "capability": "Keep embedded AWT. Prior df9c37d6 native event and current raw GPIO evidence do not establish unique chip identity; no replacement gesture algorithm.",
+    "new_compilation": false,
+    "toolchain": "Reused Python3.13.15/SCons4.10.1/ArmGCC14.2.1 Product; sftool0.2.5, serial1000000 8N1/no flow, driver DisableModemOutHandShake=1"
+  },
+  "preflight": {
+    "build_result": "D:\\MY_Desk\\project\\wristflow-snapshot-hardware\\artifacts\\product\\20261020-215940-822\\result.json",
+    "sources_rehashed": 461,
+    "artifacts_rehashed": 29,
+    "bin_sha256": "17f1b7754af2df2190c5d6ce2f5cb8f36b73795dd53b2269e75b16fde1f35031",
+    "sdk_locked_and_clean": true,
+    "ports": [
+      {
+        "device": "COM5",
+        "description": "USB-SERIAL CH340 (COM5)",
+        "vid": 6790,
+        "pid": 29987,
+        "location": "1-1.1"
+      },
+      {
+        "device": "COM3",
+        "description": "蓝牙链接上的标准串行 (COM3)",
+        "vid": null,
+        "pid": null,
+        "location": null
+      },
+      {
+        "device": "COM4",
+        "description": "蓝牙链接上的标准串行 (COM4)",
+        "vid": null,
+        "pid": null,
+        "location": null
+      }
+    ],
+    "DisableModemOutHandShake": 1,
+    "device_opened": false
+  },
+  "flash": {
+    "result": "D:/MY_Desk/project/wristflow-snapshot-hardware/artifacts/flash/product/20261020-221732-575/result.json",
+    "exit_code": 0,
+    "completed_at": "2026-10-20T22:20:13.1429473+08:00",
+    "command": "D:/MY_Desk/project/wristflow/.tools/sifli/tools/sftool/0.2.5/sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify D:\\MY_Desk\\project\\wristflow-snapshot-hardware\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 D:\\MY_Desk\\project\\wristflow-snapshot-hardware\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 D:\\MY_Desk\\project\\wristflow-snapshot-hardware\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+    "wrapper": "pwsh -NoProfile -File artifacts/flash-wrist-route.ps1; DryRun first; wrapper points stock Flash.ps1 at exact isolated build and existing primary sftool",
+    "images": [
+      {
+        "name": "bootloader.bin",
+        "path": "D:\\MY_Desk\\project\\wristflow-snapshot-hardware\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+        "address": "0x12010000",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "name": "main.bin",
+        "path": "D:\\MY_Desk\\project\\wristflow-snapshot-hardware\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+        "address": "0x12020000",
+        "bytes": 7799628,
+        "sha256": "17f1b7754af2df2190c5d6ce2f5cb8f36b73795dd53b2269e75b16fde1f35031"
+      },
+      {
+        "name": "ftab.bin",
+        "path": "D:\\MY_Desk\\project\\wristflow-snapshot-hardware\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+        "address": "0x12000000",
+        "bytes": 11288,
+        "sha256": "145b1c1953bde05235d50e6679d3ece9c1500bb0383ffc8431c3724c9ad17d84"
+      }
+    ],
+    "boundary": "Three images only; no full erase or explicit settings writes. Download exit0 is not UI/touch or PM verification."
+  },
+  "startup": {
+    "directory": "artifacts/wrist-route-hardware/startup-01",
+    "command": "SDK Python artifacts/wrist-route-startup-check.py --directory artifacts/wrist-route-hardware/startup-01 --port COM5",
+    "exit_code": 0,
+    "reset": "One150ms RTS for fresh post-flash startup capture; RTC then actually2000, corrected to real current UTC and read back",
+    "results": {
+      "steps": [
+        {
+          "current": {
+            "valid": 1,
+            "total": 129,
+            "day": 20746,
+            "utc": 1792506076,
+            "version": 8,
+            "native": 0,
+            "partial": 1,
+            "restored": 1
+          },
+          "imu": {
+            "phase": 2,
+            "end": 0,
+            "counter_valid": 1,
+            "steps": 0,
+            "stop_verified": 0
+          },
+          "errors": {
+            "io_errors": 0,
+            "incoherent": 0
+          },
+          "saved": {
+            "available": 1,
+            "verified": 1,
+            "dirty": 0,
+            "failed": 0,
+            "attempts": 0,
+            "day": 20746,
+            "total": 129,
+            "generation": 15
+          },
+          "hourly": {
+            "valid": 8126464,
+            "sum": 73,
+            "saved_valid": 8126464
+          }
+        },
+        {
+          "current": {
+            "valid": 1,
+            "total": 129,
+            "day": 20746,
+            "utc": 1792506076,
+            "version": 8,
+            "native": 0,
+            "partial": 1,
+            "restored": 1
+          },
+          "imu": {
+            "phase": 2,
+            "end": 0,
+            "counter_valid": 1,
+            "steps": 0,
+            "stop_verified": 0
+          },
+          "errors": {
+            "io_errors": 0,
+            "incoherent": 0
+          },
+          "saved": {
+            "available": 1,
+            "verified": 1,
+            "dirty": 0,
+            "failed": 0,
+            "attempts": 0,
+            "day": 20746,
+            "total": 129,
+            "generation": 15
+          },
+          "hourly": {
+            "valid": 8126464,
+            "sum": 73,
+            "saved_valid": 8126464
+          }
+        }
+      ],
+      "wrist": {
+        "state": {
+          "phase": 0,
+          "end": 0,
+          "configured": 0,
+          "source_valid": 0,
+          "stop_verified": 0
+        },
+        "frames": {
+          "before": {
+            "attempted": 0,
+            "valid": 0,
+            "begin": 0,
+            "end": 0
+          },
+          "running": {
+            "attempted": 0,
+            "valid": 0,
+            "begin": 0,
+            "end": 0
+          },
+          "event": {
+            "attempted": 0,
+            "valid": 0,
+            "begin": 0,
+            "end": 0
+          },
+          "after": {
+            "attempted": 0,
+            "valid": 0,
+            "begin": 0,
+            "end": 0
+          }
+        }
+      }
+    },
+    "cleanup": "allow1 then close; no extra post-allow query required"
+  },
+  "motion": {
+    "directory": "artifacts/wrist-route-hardware/route-01",
+    "command": "SDK Python artifacts/wrist-route-observe.py --directory artifacts/wrist-route-hardware/route-01 --port COM5 --gate artifacts/wrist-route-hardware/route-01.trigger",
+    "device_command": "wf_wrist route 60 xneg",
+    "exit_code": 1,
+    "error": "AssertionError()",
+    "event": {
+      "attempted": 1,
+      "valid": 65535,
+      "begin": 302652,
+      "end": 302659,
+      "bank": 0,
+      "who": 106,
+      "xl": 32,
+      "ctrl3": 68,
+      "ctrl10": 148,
+      "pulse": 1,
+      "tap": 1,
+      "status": 5,
+      "axes": 64,
+      "source": 133,
+      "ready": 1,
+      "xyz_valid": 1,
+      "int1": 0,
+      "int2": 0,
+      "md1": 0,
+      "md2": 0,
+      "pin": {
+        "ctrl4": 32,
+        "valid": 3,
+        "pre": 1,
+        "post": 0,
+        "pre_ms": 302658,
+        "post_ms": 302659
+      },
+      "raw": [
+        38,
+        194,
+        140,
+        255,
+        13,
+        240
+      ],
+      "x": -15834,
+      "y": -116,
+      "z": -4083
+    },
+    "before": {
+      "attempted": 1,
+      "valid": 65535,
+      "begin": 300398,
+      "end": 300405,
+      "bank": 0,
+      "who": 106,
+      "xl": 32,
+      "ctrl3": 68,
+      "ctrl10": 20,
+      "pulse": 0,
+      "tap": 0,
+      "status": 5,
+      "axes": 0,
+      "source": 132,
+      "ready": 1,
+      "xyz_valid": 1,
+      "int1": 0,
+      "int2": 0,
+      "md1": 0,
+      "md2": 0,
+      "pin": {
+        "ctrl4": 0,
+        "valid": 3,
+        "pre": 0,
+        "post": 0,
+        "pre_ms": 300404,
+        "post_ms": 300405
+      },
+      "raw": [
+        14,
+        0,
+        200,
+        254,
+        57,
+        192
+      ],
+      "x": 14,
+      "y": -312,
+      "z": -16327
+    },
+    "after_cancel": {
+      "attempted": 1,
+      "valid": 65535,
+      "begin": 321852,
+      "end": 321859,
+      "bank": 0,
+      "who": 106,
+      "xl": 32,
+      "ctrl3": 68,
+      "ctrl10": 20,
+      "pulse": 0,
+      "tap": 0,
+      "status": 4,
+      "axes": 0,
+      "source": 132,
+      "ready": 0,
+      "xyz_valid": 1,
+      "int1": 0,
+      "int2": 0,
+      "md1": 0,
+      "md2": 0,
+      "pin": {
+        "ctrl4": 0,
+        "valid": 3,
+        "pre": 0,
+        "post": 0,
+        "pre_ms": 321859,
+        "post_ms": 321859
+      },
+      "raw": [
+        38,
+        0,
+        203,
+        254,
+        53,
+        192
+      ],
+      "x": 38,
+      "y": -309,
+      "z": -16331
+    },
+    "cancel_summary": {
+      "phase": 1,
+      "end": 1,
+      "configured": 0,
+      "source_valid": 0,
+      "stop_verified": 1,
+      "mask": 64,
+      "latency": 15,
+      "ths": 32,
+      "source": 132,
+      "axes": 0,
+      "observations": 1,
+      "errors": 0,
+      "start": 300405,
+      "duration": 60000,
+      "sample": 321874,
+      "route_int1": 1
+    },
+    "cached_elapsed_ms": 21469,
+    "source_observations": 1,
+    "cleanup": "Explicit stop READY/end1/stop_verified1, CTRL4/PULSE/TAP restored00 and CTRL10=14, allow1/IDLE0, close22:26:36",
+    "interpretation": "One complete source85 event, raw negative-X and PA31 pre1/post0 supports this awake native route/source-clear observation.1ms callback timestamp separation is not a measured stable release delay or gesture response time.",
+    "failure": "UART text line602 has running.raw=c8,fe,30,c0 only4 bytes. No traceback; consistent with v1 six-byte assertion. Preserve bad text; underlying TX/RX loss cause unknown. Do not count this about21.5s explicit-stop window as60s deadline.",
+    "summary_interleave": "First v1 parse absorbed worker summary appended after an older full status. Do not use that state/frame mixture. Complete event rows and repeated full reports stand independently; actual ACTION_WINDOW helper log occurs after event and is not human motion timing."
+  },
+  "helper_repair": {
+    "file": "artifacts/wrist-route-observe-v2.py",
+    "firmware_changed": false,
+    "change": "Use route marker and preceding three summary rows for a single report; strip console prompts; reject summary/event mismatch; up to3 cached status re-reads for malformed report; never reconstruct bytes. Reduce queries to about5s.",
+    "offline_replay": "11 complete actual reports parse,1 malformed RAW report rejected; appended autonomous worker summary does not replace older report state. Initial replay harness miscounted CRCRLF blank lines; filtering empty display lines fixed harness only."
+  },
+  "stationary": {
+    "directory": "artifacts/wrist-route-hardware/static-02",
+    "command": "SDK Python artifacts/wrist-route-observe-v2.py --directory artifacts/wrist-route-hardware/static-02 --port COM5 --static",
+    "exit_code": 0,
+    "error": null,
+    "no_host_reset_or_time_write": true,
+    "daily_native_start_before_after": 1618,
+    "deadline_summary": {
+      "phase": 3,
+      "end": 2,
+      "configured": 0,
+      "source_valid": 0,
+      "stop_verified": 1,
+      "mask": 64,
+      "latency": 15,
+      "ths": 32,
+      "source": 132,
+      "axes": 0,
+      "observations": 0,
+      "errors": 0,
+      "start": 714970,
+      "duration": 60000,
+      "sample": 774992,
+      "route_int1": 1
+    },
+    "elapsed_ms": 60022,
+    "before": {
+      "attempted": 1,
+      "valid": 65535,
+      "begin": 714963,
+      "end": 714970,
+      "bank": 0,
+      "who": 106,
+      "xl": 32,
+      "ctrl3": 68,
+      "ctrl10": 20,
+      "pulse": 0,
+      "tap": 0,
+      "status": 5,
+      "axes": 0,
+      "source": 132,
+      "ready": 1,
+      "xyz_valid": 1,
+      "int1": 0,
+      "int2": 0,
+      "md1": 0,
+      "md2": 0,
+      "pin": {
+        "ctrl4": 0,
+        "valid": 3,
+        "pre": 0,
+        "post": 0,
+        "pre_ms": 714969,
+        "post_ms": 714970
+      },
+      "raw": [
+        18,
+        0,
+        180,
+        254,
+        33,
+        192
+      ],
+      "x": 18,
+      "y": -332,
+      "z": -16351
+    },
+    "running": {
+      "attempted": 1,
+      "valid": 65535,
+      "begin": 774885,
+      "end": 774892,
+      "bank": 0,
+      "who": 106,
+      "xl": 32,
+      "ctrl3": 68,
+      "ctrl10": 148,
+      "pulse": 1,
+      "tap": 1,
+      "status": 5,
+      "axes": 0,
+      "source": 132,
+      "ready": 1,
+      "xyz_valid": 1,
+      "int1": 0,
+      "int2": 0,
+      "md1": 0,
+      "md2": 0,
+      "pin": {
+        "ctrl4": 32,
+        "valid": 3,
+        "pre": 0,
+        "post": 0,
+        "pre_ms": 774891,
+        "post_ms": 774892
+      },
+      "raw": [
+        19,
+        0,
+        191,
+        254,
+        27,
+        192
+      ],
+      "x": 19,
+      "y": -321,
+      "z": -16357
+    },
+    "after": {
+      "attempted": 1,
+      "valid": 65535,
+      "begin": 774996,
+      "end": 775003,
+      "bank": 0,
+      "who": 106,
+      "xl": 32,
+      "ctrl3": 68,
+      "ctrl10": 20,
+      "pulse": 0,
+      "tap": 0,
+      "status": 5,
+      "axes": 0,
+      "source": 132,
+      "ready": 1,
+      "xyz_valid": 1,
+      "int1": 0,
+      "int2": 0,
+      "md1": 0,
+      "md2": 0,
+      "pin": {
+        "ctrl4": 0,
+        "valid": 3,
+        "pre": 0,
+        "post": 0,
+        "pre_ms": 775002,
+        "post_ms": 775003
+      },
+      "raw": [
+        21,
+        0,
+        199,
+        254,
+        40,
+        192
+      ],
+      "x": 21,
+      "y": -313,
+      "z": -16344
+    },
+    "event_attempted": false,
+    "source_observations": 0,
+    "source80_sample_ms": 766227,
+    "steps_before": {
+      "daily": {
+        "valid": 1,
+        "total": 129,
+        "day": 20746,
+        "utc": 1792506779,
+        "version": 217,
+        "native": 0,
+        "partial": 1,
+        "restored": 1
+      },
+      "checkpoint": {
+        "available": 1,
+        "verified": 1,
+        "dirty": 0,
+        "failed": 0,
+        "attempts": 0,
+        "day": 20746,
+        "total": 129,
+        "generation": 15
+      },
+      "hours": {
+        "valid": 8126464,
+        "sum": 73,
+        "saved_valid": 8126464
+      },
+      "errors": {
+        "io_errors": 0,
+        "incoherent": 0
+      },
+      "native": {
+        "who": 106,
+        "ths": 16,
+        "deb": 110,
+        "start": 1618,
+        "duration": 0,
+        "sample": 710758
+      }
+    },
+    "steps_after": {
+      "daily": {
+        "valid": 1,
+        "total": 129,
+        "day": 20746,
+        "utc": 1792506843,
+        "version": 682,
+        "native": 0,
+        "partial": 1,
+        "restored": 1
+      },
+      "checkpoint": {
+        "available": 1,
+        "verified": 1,
+        "dirty": 0,
+        "failed": 0,
+        "attempts": 0,
+        "day": 20746,
+        "total": 129,
+        "generation": 15
+      },
+      "hours": {
+        "valid": 8126464,
+        "sum": 73,
+        "saved_valid": 8126464
+      },
+      "errors": {
+        "io_errors": 0,
+        "incoherent": 0
+      },
+      "native": {
+        "who": 106,
+        "ths": 16,
+        "deb": 110,
+        "start": 1618,
+        "duration": 0,
+        "sample": 774980
+      }
+    },
+    "final_allow": "[pm-p1] tick=783674 allow=1 off=1 own_idle=0 sdk_idle=0\r\n[pm-p1] enter=9 exit=9 deep_elapsed=9\r\n[pm-p1] deep_ticks=380422 max_ticks=60004 wake=0x40002\r\n[pm-p1] screen_off=3 screen_on=2 tick_hz=1000\r\n[pm-p1] phone=0 phone_off=0 background=0\r\nmsh />msh />",
+    "closed_at": "2026-10-20T14:34:14.541644+00:00",
+    "boundary": "Stationary zero observations is not a false-positive-rate test. PM enter/deep/wake software counters are not wrist IRQ/AON or physical DEEP/power evidence."
+  },
+  "review": "Independent read-only review confirms complete source85/pre1post0 event, malformed RAW/summary interleave limits, cancellation restore, separate60022ms stationary deadline/restore,129/native0/hour73/gen15 unchanged, allow and closed logs. No device action delegated.",
+  "local_evidence_sha256": {
+    "artifacts/wrist-route-flash-preflight.json": "fd7541cce758dd9d72a5071b54eda01b7e3555696ef389a08a3da77e7c26dcb7",
+    "artifacts/wrist-route-flash-dryrun.log": "dca8d574ccf5481cbd3844fe8f292022289189e923d831d233bdac3a0b851709",
+    "artifacts/wrist-route-flash-retained.txt": "718c3ad4f8b2feb2f5eaf2c8b1fc5c7511517c3d069a9e9d3311b4b8272bd704",
+    "artifacts/wrist-route-flash.log": "b13f1ec5c729b17a5fe15c6bbd21f9e927b60d9edf649519484d1519c3a8baf5",
+    "artifacts/flash-wrist-route.ps1": "3691928015b4f33a2fa6d10dae76ca468c51dda2ddb056f5eb0b2ff2612e7775",
+    "artifacts/wrist-route-startup-check.py": "5723232e56e6f379cf63d4d2cb7154ce4173e3bb165bfef4be53f69f8c680be7",
+    "artifacts/wrist-route-observe.py": "2134da0cb32b9351aedaf5ca0aca7d62d2bd9e04348134bfb66c5e1f9d2739e8",
+    "artifacts/wrist-route-observe-v2.py": "e9eee2fda60b11b1c706cbe3020d3c866e0047f6be5f8b770ef29f6d9e100377",
+    "artifacts/wrist-route-hardware/route-01.trigger": "dd6eb32590f861a3c98cd16c291e395fdebf1769d964670936be21c1442b3327",
+    "artifacts/wrist-route-hardware/startup-01/session.json": "960069cecb08b788ae8673acaddbeba29a8f9b34b3c8c7a03399c6d14852f2c7",
+    "artifacts/wrist-route-hardware/startup-01/uart.txt": "a9a36b685926b8751f9c821345a3d800f6ea36b4820bbfa8ef214284425af63d",
+    "artifacts/wrist-route-hardware/startup-01/uart.bin": "08395d0b975ceaa993f1256e5c12a2bf5f417e7632facbcf563805b7053f05a3",
+    "artifacts/wrist-route-hardware/route-01/session.json": "39613657e002c0d9476ae554c1ef8ac420b7b7c6347981c01362bd63fc7e882e",
+    "artifacts/wrist-route-hardware/route-01/uart.txt": "ea58bca9860719aa20914a838d79f6fecc447a448725d9e9a5287a4f0bd889b5",
+    "artifacts/wrist-route-hardware/route-01/uart.bin": "343a645c9fc0e71a0ce83952cf07ed3a9979ce0ea159bf9d22d61812caa2c797",
+    "artifacts/wrist-route-hardware/static-02/session.json": "56b4da937462f8ff9d8f0b8e05c11969a1f1e4ca20d64df5759e166e83935885",
+    "artifacts/wrist-route-hardware/static-02/uart.txt": "b7735902e30b8a6f8c73a0b0e160817fd3611e42adace7e69faa69dd425826d5",
+    "artifacts/wrist-route-hardware/static-02/uart.bin": "a5b3b71472076e461ff27661f9a5c3effb7cafe054160705c45af1d196935ca1"
+  },
+  "external_evidence_sha256": {
+    "D:/MY_Desk/project/wristflow-snapshot-hardware/artifacts/flash/product/20261020-221732-575/result.json": "d74973b0bac4d09b1105cc3256230237b7c6242f149e682671306aef2faf845d",
+    "D:/MY_Desk/project/wristflow-snapshot-hardware/artifacts/flash/product/20261020-221732-575/sftool.log": "20ce448e4eebfae7ac62ab65c3cb8b5932fe5aedb109c68d1e9e5dd318c94fb8",
+    "D:/MY_Desk/project/wristflow-snapshot-hardware/artifacts/product/20261020-215940-822/result.json": "b92a8d58a8a9c267d9527c8008fc1487cbb78b968142d2be857b9665af9bbad0",
+    "C:/Users/13984/.fastctx/jobs/j-bwhhg1/output.log": "6392977e6e1d9d931c2cdeb75c313e16a50844da47935b014875dd883f2a83bb",
+    "C:/Users/13984/.fastctx/jobs/j-4g7yab/output.log": "ca3202c0ab8f62296db0535b444f3896a3c8e8022ae2c471b3fd149a31b319e1"
+  },
+  "final_state": "Original battery plus USB and secured loose motor wire unchanged; wrist configured0/stop_verified1, PM allow1, own_idle0/sdk_idle0, COM5 closed22:34:14, user UI/touch/KEY1 and129 normal.",
+  "not_verified": [
+    "nonzero native counter retention on this candidate",
+    "exact IMU identity and source84/80 reserved-bit meaning",
+    "stable GPIO release latency or exact600ms response",
+    "repeatability/wear/false-positive or miss rate",
+    "GPIO ISR/AON/dedicated display wake",
+    "physical DEEP/current/battery life"
+  ],
+  "next_bounded_step": "Prepare bounded PA31 IRQ notification -> same IMU worker source clear software, inspect AON preconditions, default off. Source/host/build first; hardware separate. Persistent wrist switch and dedicated screen wake remain later and must not reuse KEY navigation."
+}

@@ -1,5 +1,19 @@
 # 黄山派选型复评
 
+## 2026-10-20 INT1总路由与PA31清源电平（有界）
+
+用户继续并重新确认同一板屏、原电池＋电脑USB、脱落电机线固定且人在旁，授权精确`17f1b775…`下载及60秒route观察。从`main@1fe850c`建立`codex/wrist-int1-hardware`，复用隔离目录的Product`20261020-215940-822`，没有固件源码修改或重编。461源码／29产物字节哈希、SDK及子模块锁、COM5／CH340位置1-1.1与禁Modem流控1、三镜像DryRun和retained钩子复核后，22:20:13首次write+verify退出0。下载仍仅写三镜像，无整片擦除或显式settings分区写入；完整本机路径及命令见[本轮证据](evidence/2026-10-20/wrist-int1-route-hardware.json)。
+
+启动助手一次150ms RTS后RTC实际2000，真实UTC校正并读回；两次恢复总129／native0／小时和73／mask7c0000h／代次15、无采样错误，四阶段未采集及默认腕／路由关闭。用户确认屏幕、触摸、KEY1、时间及129正常。后续会话均无RTS／reboot／校时。人工触发`wf_wrist route 60 xneg`后，用户按“上边缘接近竖直、保持15秒后放平”操作并回复完成；实际连续保持及精确响应时刻未测。
+
+完整event帧begin302652／end302659、validffff、bank0／WHO6a／XL20／CTRL3=44／CTRL10=94，CTRL4=20、PULSE／TAP=01、INT1／INT2／MD1／MD2均00；SOURCE85h／axes40h，原字节`26,c2,8c,ff,0d,f0`对应counts`−15834,−116,−4083`。pin.valid3，PA31 pre1@302658／post0@302659；随后SOURCE84h、平放running为0／0，累计1及event帧保留。该组支持本次内置AWT至PA31的醒态路由和清源前后电平变化，不是GPIO ISR、AON唤醒、稳定释放时延或手势识别率证明；单半轴axes40仍只记原始观测。
+
+约21.5秒时UART一条running RAW只有`c8,fe,30,c0`四字节，助手断言中止；底层缺字节原因未定，未补字节或把该帧视为完整。显式stop后READY／end1／stop_verified1，after有效ffff、CTRL10=14及CTRL4／PULSE／TAP=00、PA31=0／0，allow1／两个IDLE0后22:26:36关闭。该窗口有正向事件与取消恢复，不能写成60秒到期。原助手还会将完整报告后的后台摘要拼入较旧帧，首个混合摘要不当一致快照使用；按route报告标记重解析的11份完整报告及1份不完整拒绝分别保留。
+
+修正的本机助手只增加有界重读／报告分界，未修改固件。随后补60秒静置到期，用户按KEY1并放平，无第二次动作要求。相同日常start1618／RTC连续，新route start714970→sample774992（60022ms）到期，DONE／end2／stop_verified1／errors0；before／running／after均ffff，CTRL4=00／20／00、CTRL10=14／94／14、PULSE／TAP恢复00，PA31各0／0，观察0且event未采集。sample766227曾读SOURCE80h，bit0仍0，不能把基值写成始终84h；器件精确身份和保留位含义未解。
+
+静置前后均native0／总129／小时73／mask7c0000h／代次15，未发steps stop／retry／save。幂等stop读回、allow1／两个IDLE0后22:34:14关闭COM5；用户最终确认屏幕／触摸／KEY1正常及129。现为原电池＋USB、松线固定，腕功能已关闭；没有本版非零原生计数保持、漏计、物理DEEP、IRQ／AON、专用亮屏、佩戴或功耗结论。PM软件计数和wake值仅留日志，不归因为腕唤醒。
+
 ## 2026-10-20 三阶段寄存器／XYZ与原生腕事件（有界）
 
 用户明确要求“接下来烧录吧”，沿用刚确认的同一黄山派和屏幕、原电池＋电脑USB、松线固定及人在旁。复用PR #108／主线`521676b`的Product`20261020-195623-368`／BIN`df9c37d6…`，本轮没有固件源码修改或重编。461源码及29产物全部字节哈希一致，SDK及子模块锁定干净；COM5／CH340位置1-1.1、禁Modem流控1、三镜像DryRun及retained钩子复核通过。20:18:21首次三镜像write+verify退出0，无整片擦除或显式settings分区写入。启动助手一次150ms RTS后RTC实际2000，真实UTC校时并读回；恢复129／native0、18时51／19时22／20时0、小时和73、mask1c0000h及保存代次13。用户确认屏幕／触摸／KEY1／时间及129正常。
