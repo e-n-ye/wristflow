@@ -2,6 +2,8 @@
 
 2026-10-20新增[原生腕部限时诊断](HARDWARE-CAPABILITIES.md#native-wrist-diagnostic)：既有唯一IMU worker协调AWT与日常计步共享FUNC_EN及寄存器bank，默认不启用腕部，仅显式`wf_wrist start`运行1–120秒。诊断窗口持IDLE并请求100ms读锁存源，到期／stop恢复计步及原路由／锁存设置；清理未确认保留FAULT责任。主机共存／失败回归通过；无新IRQ／AON、常驻亮屏或UI开关，设备效果待验，精确候选见STATUS／证据。
 
+同日精确`83c9bb50…`已[下载并做首轮观察](evidence/2026-10-20/native-wrist-hardware.json)：配置序列读回、30秒到期／停止及native22／总129保留有界通过，UI／触摸／KEY1正常；动作窗口source84h／axes00／observations0，正向腕事件未证。末端串口失败后独立会话无复位确认同一到期状态，显式stop／allow1后关闭。source异常位、实际半轴／XYZ仍待定位，不接入常驻亮屏或以自研替代。
+
 现行系统的职责图、已实现低功耗机制及测量边界见 [2026-10-14 系统／PM 说明](PM-EVENT-WAKE.md#current-power-system)。下文保留各版本的接入和验收记录；2026-09 的“BLE／PM 关闭”是历史状态，不能据此判断当前 Product。
 
 2026-10-20新增[真实步数小时分布](ACTIVITY.md#steps-hourly)：沿用唯一IMU worker与原生计数，在同一小时的可信区间填充24桶／有效位；跨整点增量只入日总量，不猜分配。v2／132B与总量同存、兼容v1／32B旧总量和代次，旧小时未知；快照失效同时隐藏小时数据，main检测桶及mask独立刷新。每分钟有变化才保存，已确认零区间的mask变化也算变化；无新worker／timer或XML输出。软件／主机和双目标编译通过，真实LVGL已检查；后续精确Product`2a1a39aa…`实机保留旧56、仅新27进18时桶、自动保存总量83并普通reboot恢复完整桶／mask／代次8，native重建0基线；续走后总量107／小时51自动保存代次9且静置稳定，[设备证据](evidence/2026-10-20/hourly-steps-hardware.json)另列。一次末端PM查询超时保留，随后KEY1有界核对与明确allow1／关闭COM5成功；本节覆盖下方首轮“持久化／小时图后续”的限制，目标和其他指标仍后置，未增加精度／功耗结论。

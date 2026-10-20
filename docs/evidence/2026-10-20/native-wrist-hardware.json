@@ -1,0 +1,114 @@
+{
+  "date": "2026-10-20",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/native-wrist-hardware",
+  "source_main": "827ca73f56a376adbe05b586883abc90527fb1aa",
+  "software_evidence": "docs/evidence/2026-10-20/native-wrist-tilt.json",
+  "authorization": "User requested continuation, then confirmed: 同一板屏，原电池＋电脑USB，松线固定，我在旁. Scope presented before confirmation: flash BIN83c9bb50 and one approximately30second native wrist source/stop/counter-preservation observation",
+  "source_inspection": "No production source changes or rebuild; 461 Product build inputs checked:459 byte-identical,2 new wrist files differ only Git LF/CRLF checkout normalization. All29 build artifacts rehashed; SDK and submodules match lock and are clean",
+  "compilation": "Reuse successful Product20261020-190507-506; no new compile. BIN7797820B, SHA25683c9bb501f3d1486e1bb75882a5e146ab85ce8246b813a93fc9770aa12faf5a4",
+  "preflight": {
+    "port": "COM5 CH340 VID1A86 PID7523 location1-1.1; COM3/4 Bluetooth ports excluded by identity, not opened",
+    "registry": "DisableModemOutHandShake=1, read-only verification",
+    "dryrun": "Three expected manifest images and addresses validated; no device open",
+    "retained_hook": "BSP_PowerUpCustom in .retm_data at200033bc; false branch reaches epilogue2000345a before peripheral operations",
+    "preparation_errors": [
+      "Initial preflight inline Python rejected registry literal due unicodeescape syntax; no port open. DryRun still ran locally in that initial shell; no flashing",
+      "Next preflight guard incorrectly required all serial ports to consist solely of target; BluetoothCOM3/4 caused assertion. Corrected to require exactly one matching CH340COM5 at expected location; no device opened in either failed preflight"
+    ]
+  },
+  "preflash": {
+    "command": "SDK Python artifacts/hourly-steps-check.py --mode status --directory artifacts/native-wrist-hardware/preflash-01 --port COM5",
+    "exit_code": 0,
+    "user_total": "107",
+    "observed": "RTC current without correction; total107/restored1/native24,18h51 and19h0, mask0x0c0000/sum51, saved107/generation10/clean/verified1/failed0",
+    "serial": "1000000 8N1/no flow control/RTS-DTR false before open; bounded hold wait succeeded after KEY1; no reset or time write",
+    "closed_local": "2026-10-20T19:25:33+08:00",
+    "final_pm": "allow1 confirmed and port released"
+  },
+  "flash": {
+    "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Flash.ps1 -Example product -Port COM5",
+    "result": "artifacts/flash/product/20261020-192711-032/result.json",
+    "exit_code": 0,
+    "completed_local": "2026-10-20T19:29:51+08:00",
+    "images": [
+      {"name": "bootloader.bin", "address": "0x12010000", "bytes": 58496, "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"},
+      {"name": "main.bin", "address": "0x12020000", "bytes": 7797820, "sha256": "83c9bb501f3d1486e1bb75882a5e146ab85ce8246b813a93fc9770aa12faf5a4"},
+      {"name": "ftab.bin", "address": "0x12000000", "bytes": 11288, "sha256": "4a97188b6a753d33a333697969a058058d5d47521f82292618ffec777d77db4c"}
+    ],
+    "boundary": "First write_flash --verify succeeded, only three manifest images, no erase-all or explicit settings partition write. Download result hardware_verified=false remains metadata, not behavior acceptance"
+  },
+  "startup": {
+    "command": "SDK Python artifacts/hourly-steps-check.py --mode startup --directory artifacts/native-wrist-hardware/startup-01 --port COM5",
+    "exit_code": 0,
+    "actions": "One initial150ms RTS at19:30:30; RTC actually year2000, then current UTC wf_time1792495838 with synchronization receipt and show_date readback2026-10-20T11:30:40Z",
+    "observed": "Product storage ready, early inhibit verified1/profile1, exact address0x6a WHO6a; two snapshots restored107/native0, full hour data18h51/19h0/mask0x0c0000, saved generation10 clean; sampling io_errors0/incoherent0",
+    "startup_bus_boundary": "Address0x6b mismatch probe has I2C recovery output; do not generalize later sampling error0 to no startup bus errors",
+    "closed_local": "2026-10-20T19:30:59+08:00",
+    "final_pm": "allow1 off1 own_idle0 sdk_idle1; COM5 closed"
+  },
+  "user_seed": {
+    "request": "Check UI/KEY1; keep battery, temporarily unplugUSB, naturally walk approximately10-20steps, settle/wake/wait3seconds, reconnectUSB and prepare face-up. This seeds a nonzero native counter, not an accuracy test",
+    "reply": "走后，总步数129，看到跨小时的柱，已接回usb，准备好",
+    "observed_before_awt": "Native22,total129,18h51/19h22,sum73,saved129/generation12/verified1/clean/error0",
+    "boundary": "No natural hour-boundary crossing was arranged or tested; displayed19h bar is current-hour collection. Walk count approximate, no accuracy inference"
+  },
+  "observation_helper": {
+    "path": "artifacts/native-wrist-check.py",
+    "observe_version_sha256": "60f99b07d2233847885dc6354ee80d24dae30137b6aa4e6218486105c108c6f8",
+    "cleanup_version_sha256": "31d1c5fdf4f583d28b49d69ac7b708db7107db8b6492b46ebf4fa0c9ce7f76f1",
+    "change": "After interrupted observe session, added cleanup mode that never starts wrist and always submits stop/allow in finally; no firmware changes",
+    "serial": "1000000 8N1/no flow control/RTS-DTR false before open; bounded60s hold acquisition; no RTS/reboot/time/reset/save/retry/motor/manual-charge commands",
+    "commands": [
+      "SDK Python artifacts/native-wrist-check.py --directory artifacts/native-wrist-hardware/observe-01 --port COM5",
+      "SDK Python artifacts/native-wrist-check.py --mode cleanup --directory artifacts/native-wrist-hardware/cleanup-01 --port COM5"
+    ]
+  },
+  "observe": {
+    "exit_code": 1,
+    "start_local": "2026-10-20T19:33:51+08:00",
+    "command": "wf_wrist start 30 xneg",
+    "accepted": 1,
+    "configuration_evidence": "Begin returned success after every write/readback and final configuration; subsequent snapshot RUNNING/configured1/mask40h/latency15/ths32/errors0. Numeric readbacks are not individually printed by this firmware",
+    "source": "Five RUNNING status snapshots: FUNC_SRC2=84h, AXES=00h, observations0. Initial approximately5second stationary window also0; no late positive source output in captured UART",
+    "deadline": "UART already captured DONE3/endDEADLINE2/configured0/source_valid0/stop_verified1/errors0 before host exception. Device started_ms198886, stopped sample228909:30023ms; software timestamps do not measure physical detection latency",
+    "failure": "At19:34:30 host GetOverlappedResult PermissionError13/Win32error5; cleanup WriteFile likewise failed. Port closed with exit1; stop/allow were not acknowledged in that failed session",
+    "user_reply": "刚才已完成，但是我好像听到电脑插设备的声音，可能有断联",
+    "interpretation": "User says four-direction action completed and heard reconnect sound, consistent with possible USB interruption. Cause/time of physical disconnect not proven; no AWT source effect demonstrated, not evidence native algorithm is inadequate"
+  },
+  "cleanup": {
+    "exit_code": 0,
+    "actions": "Re-enumerated sameCOM5; reopened with no RTS/reboot/time write, held PM, read state, idempotent wf_wrist stop, read state/steps, wf_pm allow/status, closed port",
+    "observed_before_stop": "RTC current, same native session start1572, native22/total129/hour sum73/saved generation12 clean and errors0. AWT DONE/end2/stop_verified1, original start198886/sample228909/observations0/errors0 retained",
+    "observed_after_stop": "AWT READY1/endUSER_STOP1/configured0/source_valid0/stop_verified1; native22/total129/hours18:51,19:22/mask0x0c0000/saved129 generation12 unchanged, counter RUNNING/valid1/io_errors0",
+    "closed_local": "2026-10-20T19:35:46+08:00",
+    "final_pm": "allow1 off1 own_idle0 sdk_idle1; port released",
+    "user_final": "屏幕、触摸和KEY1均正常，USB已接稳",
+    "boundary": "Supports nonzero native-count retention, bounded expiration and idempotent post-deadline stop. Does not test active cancellation, resume counting under AWT motion, perfect continuity, or physical current/DEEP"
+  },
+  "hardware_outcome": "Partial: download/startup and existing total/hour recovery, AWT configuration readback, timed cleanup and native22 retention observed. Positive AWT event/effectiveness NOT verified; one interrupted acquisition preserved with successful separate cleanup",
+  "source_followup": {
+    "facts": "Target datasheet Table179 defines FUNC_SRC2 bit7 and bit2 as0; source84h sets both while event bit0 remains0. Poll confirms bank0/XL20h/CTRL1094h/LIR/route before reading source. WHO6a is also LSM6DSL_ID in locked SDK, and that mapping also marks those bits unused",
+    "assessment": "No definite configuration/route/LIR source defect found against AN5130 AWT-specific sequence. Register mapping/device identity and actual semi-axis conditions remain hypotheses. Cleanup source84h is historical cached data, not a fresh post-disable source observation",
+    "next_bounded_experiment": "Prepare one bounded same-worker snapshot of newly read WHO/bank/XL/CTRL10/PULSE/TAP/FUNC_SRC2/AXES before/during/after AWT, plus raw XYZ in face-up and tilted stable orientations; use available die-mark/photo evidence to check exact device identity before a separately confirmed hardware follow-up. No custom algorithm, IRQ/AON or display-wake expansion"
+  },
+  "remaining": ["No positive AWT source event, repeated source84h/axes00h requires investigation", "No known physical installation semi-axis or independent die-mark identification beyond WHO6a and board documentation", "No active-stop/device-failure injection, false-positive/negative rate, wear behavior", "No PA31 IRQ/AON, wake event or user switch; no current/battery-life measurement"],
+  "local_hashes": {
+    "artifacts/native-wrist-preflight.json": "633acd00fecf7e4050da30afacdc095ea735f0e3a7e96b590cab7e3aac25ed79",
+    "artifacts/native-wrist-flash-dryrun.log": "1a32ca08b659464538b39725dbcd6ce97a59b6bb224a882523c591526374ce40",
+    "artifacts/native-wrist-retained-disassembly.txt": "a5b8d19c2f86724faf9535de20ec2ee04b5f03355eda05a5f88762478b5baa12",
+    "artifacts/native-wrist-flash.log": "3c6fc048470137068910b4948d23ccd7fbcd62712f03d5c43b9adfe68e364c0b",
+    "artifacts/flash/product/20261020-192711-032/result.json": "1dbb48f98005995cfd7f8b5bb94927e2fb881ca42e1d17df0ee2b685624a79bc",
+    "artifacts/flash/product/20261020-192711-032/sftool.log": "ed115e0ab998ac53b411a5b459407304760c82de8ce58667aa9553683b74dfd1",
+    "artifacts/hourly-steps-check.py": "60a5f82bef1ee3bd0fbad499d990ba470dd74f599f9588b2d20d95552bf6d303",
+    "artifacts/native-wrist-check.py": "31d1c5fdf4f583d28b49d69ac7b708db7107db8b6492b46ebf4fa0c9ce7f76f1",
+    "artifacts/native-wrist-hardware/preflash-01/session.json": "4ef478540feefd7324cb02f4d9effa94444d34a23d12b4aa9ead0f04581a1b16",
+    "artifacts/native-wrist-hardware/preflash-01/uart.bin": "17519af89a732d7c76c9d7c2bca7f6209e4b45a463f71af5dfe595cbcf144637",
+    "artifacts/native-wrist-hardware/startup-01/session.json": "d396364abaf26e1dd99fc8ebc8632936a386633b0569611aa756f8a4d3959415",
+    "artifacts/native-wrist-hardware/startup-01/uart.bin": "c7397754461637e70bcc21618635def2f1caff17bae05ccb8f8b89c2347c089e",
+    "artifacts/native-wrist-hardware/observe-01/session.json": "57bc0f73d2e052a572213c24d158da840c9ef43c45dca415ce2b7470c3ae2a90",
+    "artifacts/native-wrist-hardware/observe-01/uart.bin": "ff60fb41a7c5bbf90c8ff9cf48fc78c3d43352719bc64e30b0c131f5a88a1a60",
+    "artifacts/native-wrist-hardware/cleanup-01/session.json": "4268b59e1d7dd07be08c57405db5715278c497b2912459604886c54284ac6cea",
+    "artifacts/native-wrist-hardware/cleanup-01/uart.bin": "e89b3208d09e99b98020fa593cf1bccac11ceb7b89b2f800d265db3618af5dc9"
+  }
+}
