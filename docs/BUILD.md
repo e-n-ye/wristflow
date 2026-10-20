@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-10-20 INT1总路由诊断
+
+从`583c719`在`D:/MY_Desk/project/wristflow-snapshot-hardware`的`codex/wrist-int1-route`增加[显式限时route／PA31读源前后电平](HARDWARE-CAPABILITIES.md#wrist-int1-route)，不改SDK锁、厂商或UI生成物。主机使用GCC15.2.0／CMake4.2.3／Ninja1.13.2，`WRISTFLOW_SDK_ROOT`指向主目录锁定SDK；最终Debug53/53（12.87秒）、Release相关5/5（0.17秒）通过。覆盖CTRL4借用／恢复失败责任、四个其他源起始非零／运行漂移／读取失败、GPIO无效、事件帧保留、期限／取消、status无I/O及计步共存。
+
+沿用本机忽略的`artifacts/build-isolated.ps1`加载主目录已注册SDK环境，再以隔离目录的实际`Build.ps1`调用官方`scons --board=sf32lb52-lchspi-ulp -j4`。首版冷构建成功后补四路由守卫；最终增量Product`20261020-215940-822`退出0、产物校验通过，BIN7,799,628B／`17f1b775…`，461源码／29产物字节哈希一致，未变Demo418／22重核、隔离副本语义相同，未重复编译Demo。Python3.13.15／SCons4.10.1／ArmGCC14.2.1及SDK／子模块锁固定干净；最终增量保留9条`warning:`（3条既有FinSH转换、RWX及ftab的syscall／入口），另有既有缺dfu大写WARNING。腕对象text1894B、状态292B／缓存260B，worker仍6144B，未测运行时栈峰值或传输时长。完整命令、日志／源码／产物哈希和未验项见[软件证据](evidence/2026-10-20/wrist-int1-route.json)。本轮无串口、下载或硬件电平结果。
+
 ## 2026-10-20 腕部寄存器与XYZ快照
 
 从`main@b1e16d1`为同一腕会话增加启用前／运行中／停止后新读帧，status仅打印同步缓存，无新worker／命令或检测算法。完整Debug53/53（14.16秒）及保留断言Release相关5/5（0.32秒）通过，含三阶段／传输失败／XYZ符号格式／bank保护、after-only遥测失败和帧中取消／到期；独立审查无剩余阻断。

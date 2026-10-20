@@ -168,4 +168,19 @@ XYZ输出保留六个原字节及有符号counts，仅当RAW／XL／CTRL3有效�
 
 60022ms到期、显式stop、停用读回与allow1通过，20:54:38释放COM5；129／native0／小时73／保存代次13不变，用户最终确认屏幕／触摸／KEY1正常。[设备证据](evidence/2026-10-20/wrist-register-snapshot-hardware.json)保留解析错误、静止／错轴窗口及触发／串口等待失败，不把失败窗口算作有效动作测试。source84h保留位与精确器件身份仍未知，原生能力不足未证；保持内置AWT路线，先核对实际中断输出及板上连线再确定亮屏集成。当前无IRQ／AON／亮屏开关、误触／漏检、佩戴或功耗结论。
 
-中断路线仅有资料候选：精确数据手册的`INT2_WRIST_TILT`为AWT专用INT2路由，而`CTRL4_C.INT2_on_INT1`说明可将全部中断OR至INT1；普通`MD1_CFG.INT1_TILT`不等同AWT。既有[板图核查](evidence/2026-10-19/native-daily-steps.json)为INT1→PA31、INT2 NC，当前代码只设AWT→INT2／LIR，未开启该总路由或MCU IRQ。故不能由INT2 NC直接推断必须飞线，也不能声称PA31已收到AWT；路由读回、实装电平与读源释放须先有界验证。
+中断路线仅有资料候选：精确数据手册的`INT2_WRIST_TILT`为AWT专用INT2路由，而`CTRL4_C.INT2_on_INT1`说明可将全部中断OR至INT1；普通`MD1_CFG.INT1_TILT`不等同AWT。既有[板图核查](evidence/2026-10-19/native-daily-steps.json)为INT1→PA31、INT2 NC；本节设备补测所用`df9c37d6…`代码只设AWT→INT2／LIR，未开启该总路由或MCU IRQ。故不能由INT2 NC直接推断必须飞线，也不能声称PA31已收到AWT；路由读回、实装电平与读源释放须先有界验证。
+
+<a id="wrist-int1-route"></a>
+### INT1总路由与PA31电平诊断（2026-10-20软件轮）
+
+接续`583c719`，仍采用芯片内置AWT；上节一次来源触发是选择依据，不是物理中断通路证据。精确数据手册§9.16／Table58–59定义`CTRL4_C(13h).INT2_on_INT1`为bit5，将全部中断OR至INT1；§2.2说明读`FUNC_SRC2`可清AWT锁存。新增显式命令`wf_wrist route <1..120秒> <xpos|xneg|ypos|yneg|zpos|zneg> [1..255延迟单位]`，沿用默认600ms／30°和同worker／IDLE期限；原`start`不配置PA31，也不改CTRL4。
+
+route只在收到命令后确认GPIO设备存在，设置PA31为GPIO普通无上下拉输入，随后在原AWT配置中保存CTRL4并写后读回`原值|20h`。不驱动引脚、不注册MCU IRQ或AON、不发KEY／亮屏事件，停止后PA31保持被动输入，不留采样任务。锁定板级代码的触摸IRQ为PA41，按键PA34／43，VBUS为PA44；当前Product和该板基类未发现PA31其他使用，但实装身份／接线仍须设备核验。
+
+每帧新增CTRL4；route另读取INT1_CTRL／INT2_CTRL／MD1_CFG／MD2_CFG，只有四者全零才启用或继续，以排除已知可配置的其他中断源。其他路由异常时结束本次借用，恢复自身CTRL4／PULSE／TAP及计步使能，不声称修复外来配置。route在AXES读取后、清SOURCE前后分别取PA31原始0／1，`pin_valid` bit0／1分别表示两次调用返回有效电平，`pre_ms/post_ms`为各调用前的单调毫秒；不加稳定等待，不把紧邻的post直接称为释放时延。CTRL3仍要求44h（资料定义高有效／推挽），主机模型不能证明实际电气极性。
+
+status继续只读缓存，每阶段附加`imu-wrist-pin`；有效位增加CTRL4=800h，普通帧全传输成功为fffh，route四路由位依次1000h／2000h／4000h／8000h，全传输成功为ffffh。PA31有效位独立于寄存器传输位。新增`event`阶段保留最后一次通过格式／配置／期限检查的SOURCE bit0帧，后续无事件帧和停止不覆盖它；`attempted=0`表示未曾留存，累计次数仍不是手势数。before／after读源也有清锁存副作用，过期／取消帧不进入event。
+
+到期、取消、日常stop及故障均读回恢复借用的CTRL4；恢复失败保留FAULT／IDLE与计步无效，显式stop成功才释放，既有bank恢复规则不变。after遥测失败不会重新承担已确认停止的硬件责任。普通帧最多12笔I2C读取，route最多16笔及两次GPIO读，各I2C沿用50ms超时，取消响应包含剩余整帧；100ms为等待请求。没有新增线程／timer、持久配置或生成UI修改。
+
+本轮只做源码／主机／编译；精确结果见[软件证据](evidence/2026-10-20/wrist-int1-route.json)。尚未开串口、烧录或测PA31；板上仍为`df9c37d6…`。未知器件身份及84h基值保持未解，物理路由／读源释放、IRQ／AON、常驻腕功能／开关、专用亮屏、佩戴效果与功耗均未验。下一设备实验只在核对供电／接线及候选后短时观察路由读回、源位与GPIO前后电平，不将主机合成pin模型当成实装证据。

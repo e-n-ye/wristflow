@@ -1,0 +1,133 @@
+{
+  "date": "2026-10-20",
+  "worktree": "D:/MY_Desk/project/wristflow-snapshot-hardware",
+  "base_commit": "583c71900f7c62a72a9ce80132e359087629d753",
+  "branch": "codex/wrist-int1-route",
+  "authorization": "User continued the prior WristFlow chat; current directs a bounded INT1 route/PA31 diagnostic software loop before separately arranging hardware. No device opened or flashed.",
+  "hardware_choice": {
+    "capability": "Existing embedded absolute wrist tilt; prior exact df9c37d6 hardware recorded one matching xneg SOURCE85h event. Keep native AWT, no custom gesture algorithm.",
+    "references": [
+      {
+        "url": "https://www.st.com/resource/en/datasheet/lsm6ds3tr-c.pdf",
+        "version": "DocID030071 Rev3",
+        "sections": "2.2 source read clears latched AWT; 9.15 CTRL3_C polarity/output; 9.16 Tables58-59 CTRL4_C bit5 INT2_on_INT1 OR route"
+      },
+      {
+        "record": "docs/evidence/2026-10-19/native-daily-steps.json",
+        "finding": "Official V1.2 EPRO U13 INT1->PA31, INT2 NC; physical board path remains unverified"
+      }
+    ],
+    "sdk_sources": [
+      "Locked customer/boards/sf32lb52-lchspi-ulp_base/bsp_pinmux.c:159-165 KEY34/43;199 VBUS44;209 touch41. No PA31 use found in Product/current board base.",
+      "rtos/rtthread/bsp/sifli/drivers/drv_gpio.h:14-23 GET_PIN(1,31) maps GPIO1 pin31; drv_gpio.c:306-326 reads HAL_GPIO input;329-388 input mode no pull"
+    ],
+    "identity_unknown": "WHO6a is not unique; SOURCE84h reserved-bit base and exact device identity remain unknown. Documentation route candidate is not a measured PA31 signal."
+  },
+  "contract": {
+    "command": "wf_wrist route <1..120 seconds> <xpos|xneg|ypos|yneg|zpos|zneg> [latency1..255x40ms]; default600ms/30deg",
+    "ownership": "Existing IMU worker is sole I2C owner. Route configures PA31 passive GPIO input/no pull only after explicit command. No MCU IRQ, AON, KEY, display event, extra worker/timer or persisted setting. Input remains passive after stop, with no background pin polling.",
+    "routing": "Save CTRL4; verify original|20h. Route-only frames read INT1_CTRL/INT2_CTRL/MD1_CFG/MD2_CFG and require all four zero at begin and poll; do not overwrite them on a wrist fault. Ordinary start never configures PA31 or writes CTRL4.",
+    "frames": "Ordinary frame transfer maskfff; route adds1000/2000/4000/8000 for the four other routes, allffff. CTRL4 bit800. GPIO valid bits0/1 independent of I2C. Two raw levels immediately bracket SOURCE read; timestamps are before GPIO callbacks. No settle delay or physical release latency claim.",
+    "event": "Cache last configuration-valid, in-budget bit0 frame; later empty polls and stop preserve it. Expired/cancelled/invalid frames never count or replace event. Before/after source reads still clear latches. No gesture-rate claim.",
+    "cleanup": "Restore/readback CTRL4 plus original PULSE/TAP after disabling wrist and clearing source; do not reset native count or rail. Unknown bank blocks user aliases. Failed cleanup retains changed/FAULT/IDLE and invalidates shared daily reading until explicit cleanup. After-only telemetry failure does not restore active ownership.",
+    "budget": "At most12 I2C reads ordinary /16 plus2 GPIO reads route frame; each I2C retains50ms timeout; cancellation/deadline includes remaining whole frame.100ms is requested wait, not exact period. ARM wrist text1894B; state292B/cache260B; worker stack6144B unchanged, peak not measured."
+  },
+  "host": {
+    "environment": "GCC15.2.0 / CMake4.2.3 / Ninja1.13.2, locked SDK LVGL9.4.0",
+    "debug_commands": [
+      "export PATH=\"/d/msys64/ucrt64/bin:$PATH\"",
+      "cmake -S tests -B artifacts/host/wrist-route-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug -DWRISTFLOW_SDK_ROOT=D:/MY_Desk/project/wristflow/vendor/SiFli-SDK",
+      "cmake --build artifacts/host/wrist-route-debug --parallel 6",
+      "ctest --test-dir artifacts/host/wrist-route-debug --output-on-failure --timeout 60"
+    ],
+    "debug_result": "Final53/53 pass,12.87seconds",
+    "release_commands": [
+      "cmake -S tests -B artifacts/host/wrist-route-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DWRISTFLOW_SDK_ROOT=D:/MY_Desk/project/wristflow/vendor/SiFli-SDK",
+      "cmake --build artifacts/host/wrist-route-release --parallel 6 --target imu_pedometer imu_wrist_tilt product_imu_diag daily_steps steps_store",
+      "ctest --test-dir artifacts/host/wrist-route-release -R '^(imu_pedometer|imu_wrist_tilt|product_imu_diag|daily_steps|steps_store)$' --output-on-failure --timeout 60"
+    ],
+    "release_result": "Final5/5 pass,0.17seconds; affected tests retain assertions",
+    "coverage": [
+      "CTRL4 unrelated bit preservation, deadline/cancel restoration and write/restore failure responsibility",
+      "Four other routes each: nonzero baseline rejects without writes, running drift faults before event, read failure validity bits",
+      "GPIO callback absence/invalid values, source-bracketing raw levels, last event survives empty poll and stop",
+      "Route worker integration, missing GPIO device rejected without wrist writes, failed cleanup retains IDLE until explicit recovery",
+      "Legacy start never configures/reads PA31, cached status has no I2C/GPIO I/O, daily/native/hour values coexist"
+    ],
+    "boundary": "GPIO is a host model synthesized from CTRL4/SOURCE, not physical pin or latch timing validation."
+  },
+  "builds": [
+    {
+      "result": "artifacts/product/20261020-215940-822/result.json",
+      "result_sha256": "b92a8d58a8a9c267d9527c8008fc1487cbb78b968142d2be857b9665af9bbad0",
+      "sources_rehashed": 461,
+      "artifacts_rehashed": 29,
+      "firmware_bytes": 7799628,
+      "bin_sha256": "17f1b7754af2df2190c5d6ce2f5cb8f36b73795dd53b2269e75b16fde1f35031",
+      "example": "product",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/build-isolated.ps1 -Example product -Jobs 4",
+      "implementation": "Local ignored wrapper loads registered primary SDK environment, then executes this worktree Build.ps1 with isolated ProjectRoot; official scons --board=sf32lb52-lchspi-ulp -j4",
+      "toolchain": "Python3.13.15 / SCons4.10.1 / ArmGCC14.2.1",
+      "warnings": "9 lowercase warning: occurrences in final incremental build:3 FinSH cast, main RWX,4 ftab syscall stubs, ftab entry; also existing uppercase missing dfu WARNING. Not a warning-free build."
+    }
+  ],
+  "ui_demo_reuse": {
+    "result": "artifacts/ui_demo/20261020-165557-466/result.json",
+    "sources_rehashed": 418,
+    "artifacts_rehashed": 22,
+    "isolated_sources_semantically_same": true,
+    "worktree": "D:/MY_Desk/project/wristflow",
+    "boundary": "No affected UI Demo source; existing418 sources/22 artifacts rehashed, isolated equivalent files LF-normalized equal. No new Demo compilation."
+  },
+  "superseded_run": {
+    "product_result": "artifacts/product/20261020-215408-589/result.json",
+    "product_log": "artifacts/wrist-route-product.log",
+    "exit_code": 0,
+    "reason": "First cold build passed before adding route-only other-source guards; final build and tests above supersede it. Its mutable build paths no longer identify those first binaries.",
+    "host_logs": [
+      "artifacts/wrist-route-debug-ctest.log",
+      "artifacts/wrist-route-release-ctest.log"
+    ],
+    "host_result": "First53/53 and5/5 pass before guard extension; no test/build failures in this loop"
+  },
+  "source_hashes": {
+    "apps/product/src/imu_wrist_tilt.c": "ec360ac13b2c392580e1b19560cb1c06aa30f9122a7548be53f479437cc7f261",
+    "apps/product/src/imu_wrist_tilt.h": "4a478e4cd72f4616261809ff44941f5ee9d995c2b38a853abe6d74806a53b76c",
+    "apps/product/src/product_imu_diag.c": "5887dddd0ea8ccc460b30ed1c161f5a5dcf78ff39b05e0d7344e7fb06e053f45",
+    "tests/imu_wrist_tilt.c": "35ba17decd27c7c02ee6dab602578ebc80b7ac4db1260b625d9d1a4762414ac8",
+    "tests/product_imu_diag.c": "76df78b8408e597d9c95ec8a4d7a8114241b31f1e9e231dd7c31d91480e0b616",
+    "tests/support/imu/board.h": "b6b5bab6be9227ad94df4365bde1a34aa6171f99f3899e268b1a4ea7c1ba3b4c",
+    "tests/support/imu/rtdevice.h": "de26010333814e137bca0d0a7e2d911919d1e44ce35cc3f36d039a69c49a9601",
+    "tests/support/imu/drv_gpio.h": "caa760d55f2302e0758226e318136b845637c7055cab1cdd74e6f3e8ea199f39"
+  },
+  "logs_sha256": {
+    "artifacts/wrist-route-debug-config.log": "1a1704846a0fda55e2eb29539d15fc1de5b59ed4f80497e84bf01bf92c5be762",
+    "artifacts/wrist-route-release-config.log": "98285d967dc89c57a92062f420c423a07d1f974bd42778048f452247293ef03f",
+    "artifacts/wrist-route-debug-final-build.log": "3adb1907595991c3da2c8e41486870a77819d966f0a42f4e8db1e1f3d2d74e27",
+    "artifacts/wrist-route-debug-final-ctest.log": "a81475d71a96c91874f16a88c5de7420fe2550092fd173ce8505b374755f3904",
+    "artifacts/wrist-route-release-final-build.log": "6a517960ac466db91edf758c4cd79905c9f7bb0fbd9523be004c1376a8bb2f69",
+    "artifacts/wrist-route-release-final-ctest.log": "456200fd8bbcd6b5f2fcbda8dde2216b9eb247f2ba6b328f09cf56a4c67cf9f0",
+    "artifacts/wrist-route-product-final.log": "104ecc8939a19233b852bbced9b0216a36cd6025a677c045ca01dea9e967c535",
+    "artifacts/wrist-route-nm.txt": "df8bd9fe1fb3a16fa13c9d32912e1945655a5a18a08a1d7ec91a92f13835742d",
+    "artifacts/build-isolated.ps1": "0c5cab951ef424e9d002bb7a8b7cbb01e95440a2e583d53403e15a534e376834",
+    "artifacts/wrist-route-build-summary.json": "0834c49d31109f14c05c66cfa08c650664727e8609490461c7bd8b1a33fa0efd"
+  },
+  "review": "Primary reviewed source/contract and final test/build evidence. Independent read-only review found no lifecycle blocker; its other-route recommendation implemented/tested, historical current-code wording corrected. Review did not run tools on hardware.",
+  "device": {
+    "opened": false,
+    "flashed": false,
+    "last_known_bin": "df9c37d6 (full hash in wrist-register-snapshot-hardware.json)",
+    "last_known_state": "COM5 closed, original battery plus USB, loose motor wire secured; not rechecked in this software loop"
+  },
+  "next_bounded_experiment": "After device/cable/power/candidate confirmation: short matching-xneg route/PA31 pre/post SOURCE observation, deadline/cleanup and step preservation. Only then evaluate IRQ/AON and dedicated display wake, never KEY navigation reuse.",
+  "not_verified": [
+    "PA31 physical AWT route/polarity/read-source release delay",
+    "exact IMU identity and SOURCE84h base",
+    "IRQ/AON/DEEP wake",
+    "persistent wrist switch/display wake",
+    "wear false positives/misses/accuracy",
+    "power/current/battery life and runtime stack peak"
+  ]
+}

@@ -13,6 +13,8 @@ static unsigned irq, idle, reads, writes, rounds, deleted, detached;
 static int failing_reg = -1;
 static bool fail_event, fail_create, fail_start;
 static bool fail_bus_find, fail_bus_config;
+static bool fail_pin_device;
+static unsigned pin_modes, pin_reads;
 static unsigned bus_find_fail_after, bus_config_fail_after;
 static bool stop_in_prepare;
 static bool stop_daily_in_prepare, retry_daily_in_prepare;
@@ -80,7 +82,17 @@ rt_thread_t rt_thread_create(const char *name, void (*entry)(void *), void *cont
 int rt_thread_startup(rt_thread_t t) { assert(t == &thread); return fail_start ? -1 : 0; }
 int rt_thread_delete(rt_thread_t t) { assert(t == &thread); ++deleted; return 0; }
 void HAL_PIN_Set(unsigned pin, unsigned function, unsigned pull, unsigned cpu)
-{ assert(!irq && idle && (pin == 39 || pin == 40) && pull == 1 && cpu == 1); (void)function; }
+{
+    assert(!irq && idle && cpu == 1);
+    if (pin==31) assert(function==GPIO_A31 && pull==PIN_NOPULL);
+    else assert((pin==39 || pin==40) && pull==1);
+}
+void *rt_device_find(const char *name)
+{ assert(!strcmp(name,"pin") && idle && !irq); return fail_pin_device ? NULL : &fake_bus; }
+void rt_pin_mode(int pin, int mode)
+{ assert(pin==31 && mode==PIN_MODE_INPUT && idle && !irq); ++pin_modes; }
+int rt_pin_read(int pin)
+{ assert(pin==31 && pin_modes && idle && !irq); ++pin_reads; return !!((user_regs[0x13]&0x20) && (user_regs[0x54]&1)); }
 void BSP_GPIO_Set(unsigned pin, unsigned value, unsigned cpu)
 { assert(pin == 30 && value == 1 && cpu == 1 && idle && !irq); }
 struct rt_i2c_bus_device *rt_i2c_bus_device_find(const char *name)
@@ -289,7 +301,7 @@ int main(void)
     assert(wristflow_product_steps_start()); cycle(); native_count=2; cycle();
     assert(daily_cached.metric.total==2 && !checkpoint_enabled && !idle);
     /* A bounded AWT observation borrows this same device/worker. It preserves
-     * the existing native count, daily/hourly values and the saved record. */
+     * the existing native count and daily/hourly values (storage is off here). */
     ready=false; cancel_requested=false; ticks=0; daily_lit=true;
     assert(wristflow_product_steps_start()); cycle(); native_count=5;
     wrist_cmd("start","2","xneg"); cycle();
@@ -310,6 +322,7 @@ int main(void)
     wrist_cmd("start","1","xpos"); cycle(); ticks+=1000; cycle();
     assert(wrist_cached.phase==WF_IMU_DONE && wrist_cached.stop_verified && !idle);
     assert(cached.phase==WF_IMU_RUNNING && native_count==6);
+    assert(!pin_modes && !pin_reads); /* Legacy start never configures PA31. */
     stop_wrist_in_delay=true; wrist_cmd("start","2","xneg"); cycle(); cycle();
     assert(wrist_cached.ended==WF_IMU_USER_STOP && wrist_cached.stop_verified && !idle);
     assert(cached.phase==WF_IMU_RUNNING && user_regs[0x19]==0x14 && native_count==6);
@@ -341,5 +354,25 @@ int main(void)
         assert(wrist_cached.stop_verified && cached.stop_verified && !idle && !user_regs[0x10]);
         daily_cmd("retry"); cycle(); assert(cached.phase==WF_IMU_RUNNING && !idle);
     }
+    user_regs[0x13]=0x08;
+    before=writes; fail_pin_device=true; wrist_cmd("route","2","xneg"); cycle();
+    assert(writes==before && !pin_modes && !wrist.changed && !idle);
+    fail_pin_device=false; wrist_cmd("route","2","xneg"); cycle();
+    assert(wrist_cached.route_int1 && wrist_cached.configured && pin_modes==1 && idle==1);
+    assert(user_regs[0x13]==0x28 && wrist_cached.before.ctrl4==0x08);
+    native_count=9; user_regs[0x54]=0x85; cycle();
+    assert(wrist_cached.event.source==0x85 && wrist_cached.event.pin_before==1 && !wrist_cached.event.pin_after);
+    assert(wrist_cached.event.pin_valid==3 && daily_cached.metric.total==9);
+    before=reads+writes+pin_reads; wrist_cmd("status",NULL,NULL);
+    assert(reads+writes+pin_reads==before); /* All status fields are cached. */
+    cycle(); assert(!wrist_cached.running.pin_before && wrist_cached.event.pin_before==1);
+    failing_reg=0x13; wrist_cmd("stop",NULL,NULL); cycle();
+    assert(wrist.changed && !wrist_cached.stop_verified && cached.phase==WF_IMU_FAULT && idle==1);
+    failing_reg=-1; wrist_cmd("stop",NULL,NULL); cycle();
+    assert(!wrist.changed && wrist_cached.stop_verified && cached.stop_verified && !idle && user_regs[0x13]==0x08);
+    daily_cmd("retry"); cycle(); wrist_cmd("route","1","xneg"); cycle(); ticks+=1000; cycle();
+    assert(wrist_cached.phase==WF_IMU_DONE && wrist_cached.stop_verified && !idle && user_regs[0x13]==0x08);
+    wrist_cmd("route","2","xneg"); cycle(); daily_cmd("stop"); cycle();
+    assert(wrist_cached.stop_verified && !wrist.changed && cached.stop_verified && !idle && user_regs[0x13]==0x08);
     return 0;
 }

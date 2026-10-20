@@ -8,6 +8,7 @@
 #include <rthw.h>
 #include <rtdevice.h>
 #include <board.h>
+#include "drv_gpio.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -35,6 +36,7 @@ static bool checkpoint_initialized, checkpoint_enabled;
 static wf_imu_wrist_tilt_t wrist;
 static wf_imu_wrist_snapshot_t wrist_cached;
 static bool wrist_pending, wrist_busy;
+static bool wrist_route;
 static volatile bool wrist_cancel_requested;
 static unsigned wrist_seconds;
 static uint8_t wrist_mask, wrist_latency;
@@ -50,6 +52,17 @@ static bool wrist_cancelled(void *context)
 { (void)context; return wrist_cancel_requested || cancel_requested; }
 static void wrist_delay(void *context, uint32_t ms)
 { (void)context; rt_thread_mdelay((rt_int32_t)ms); }
+static int wrist_int1_read(void *context)
+{ (void)context; return rt_pin_read(GET_PIN(1, 31)); }
+static bool wrist_int1_prepare(void)
+{
+    if (!rt_device_find("pin")) return false;
+    /* Board V1.2 schematic: IMU INT1 -> PA31. Passive input only; this
+     * diagnostic never attaches an IRQ/AON source or drives the line. */
+    HAL_PIN_Set(PAD_PA31, GPIO_A31, PIN_NOPULL, 1);
+    rt_pin_mode(GET_PIN(1, 31), PIN_MODE_INPUT);
+    return true;
+}
 static bool read_reg(void *context, uint8_t reg, uint8_t *data, size_t size)
 {
     (void)context;
@@ -137,6 +150,11 @@ static void wrist_frame_report(const char *stage, const wf_imu_wrist_frame_t *f)
     rt_kprintf("[imu-wrist-xyz] stage=%s raw=%02x,%02x,%02x,%02x,%02x,%02x x=%d y=%d z=%d; counts, not mg\n",
         stage, f->raw[0], f->raw[1], f->raw[2], f->raw[3], f->raw[4], f->raw[5],
         f->xyz[0], f->xyz[1], f->xyz[2]);
+    rt_kprintf("[imu-wrist-pin] stage=%s ctrl4=%02x valid=%u pre=%u post=%u pre_ms=%lu post_ms=%lu; PA31 raw levels\n",
+        stage, f->ctrl4, f->pin_valid, f->pin_before, f->pin_after,
+        (unsigned long)f->pin_before_ms, (unsigned long)f->pin_after_ms);
+    rt_kprintf("[imu-wrist-other-routes] stage=%s int1=%02x int2=%02x md1=%02x md2=%02x\n",
+        stage, f->int1, f->int2, f->md1, f->md2);
 }
 static void wrist_report(bool frames)
 {
@@ -151,9 +169,11 @@ static void wrist_report(bool frames)
     rt_kprintf("[imu-wrist] start=%lu duration=%lu sample=%lu; latched source observations, not gestures\n",
         (unsigned long)s.started_ms, (unsigned long)s.duration_ms, (unsigned long)s.sampled_ms);
     if (frames) {
+        rt_kprintf("[imu-wrist-route] int1=%u; no MCU IRQ/AON/display wake; event is last accepted source bit0 frame\n", s.route_int1);
         wrist_frame_report("before", &s.before);
         wrist_frame_report("running", &s.running);
         wrist_frame_report("after", &s.after);
+        wrist_frame_report("event", &s.event);
     }
 }
 static void wrist_stop(bool keep_steps)
@@ -171,6 +191,7 @@ static void wrist_work(rt_uint32_t events)
     bool begin = wrist_pending;
     unsigned span = wrist_seconds;
     uint8_t mask = wrist_mask, latency = wrist_latency;
+    bool route = wrist_route;
     wrist_pending = false;
     rt_hw_interrupt_enable(level);
     if (events & (EV_STOP | EV_DAILY_START)) return; /* Shared shutdown was handled first. */
@@ -182,7 +203,9 @@ static void wrist_work(rt_uint32_t events)
         if (!wrist.changed && device.snapshot.phase == WF_IMU_FAULT && !device.snapshot.stop_verified)
             (void)wf_imu_pedometer_stop(&device, now_ms(), WF_IMU_IO_FAILURE);
     } else if (begin && device.snapshot.phase == WF_IMU_RUNNING) {
-        bool ok = prepare_bus() && wf_imu_wrist_begin(&wrist, span * 1000U, mask, latency);
+        bool ok = prepare_bus() && (!route || wrist_int1_prepare());
+        if (ok) ok = route ? wf_imu_wrist_route_begin(&wrist, span * 1000U, mask, latency) :
+            wf_imu_wrist_begin(&wrist, span * 1000U, mask, latency);
         rt_kprintf("[imu-wrist] accepted=%u\n", ok);
     } else if (wrist.snapshot.phase == WF_IMU_RUNNING) {
         if (device.snapshot.phase != WF_IMU_RUNNING) wrist_stop(false);
@@ -447,7 +470,8 @@ static void wf_wrist(int argc, char **argv)
     unsigned span = 0, latency = 15;
     uint8_t mask = 0;
     static const char *const axes[] = {"xpos", "xneg", "ypos", "yneg", "zpos", "zneg"};
-    if ((argc == 4 || argc == 5) && !strcmp(argv[1], "start")) {
+    bool route = argc >= 2 && !strcmp(argv[1], "route");
+    if ((argc == 4 || argc == 5) && (!strcmp(argv[1], "start") || route)) {
         char *end;
         unsigned long value = strtoul(argv[2], &end, 10);
         if (argv[2][0] >= '0' && argv[2][0] <= '9' && !*end && value >= 1 && value <= 120) span = (unsigned)value;
@@ -460,6 +484,7 @@ static void wf_wrist(int argc, char **argv)
     if (!span || !mask || !latency) {
         rt_kprintf("wf_wrist start <1..120 seconds> <xpos|xneg|ypos|yneg|zpos|zneg> [latency1..255x40ms]\n");
         rt_kprintf("wf_wrist status | stop; default600ms/30deg; no display wake\n");
+        rt_kprintf("wf_wrist route <1..120 seconds> <axis> [latency]; INT2 OR INT1 / PA31 levels\n");
         return;
     }
     rt_base_t level = rt_hw_interrupt_disable();
@@ -468,6 +493,7 @@ static void wf_wrist(int argc, char **argv)
     if (accepted) {
         wrist_busy = wrist_pending = true;
         wrist_seconds = span; wrist_mask = mask; wrist_latency = (uint8_t)latency;
+        wrist_route = route;
         rt_event_send(&work, EV_WRIST);
     }
     rt_hw_interrupt_enable(level);
@@ -523,6 +549,7 @@ static bool start(bool daily_service)
     if (rt_event_init(&work, "wf_imu", RT_IPC_FLAG_PRIO) != RT_EOK) return false;
     wf_imu_pedometer_init(&device, (wf_imu_io_t){NULL, read_reg, write_reg, io_clock, io_cancelled});
     wf_imu_wrist_init(&wrist, (wf_imu_io_t){NULL, read_reg, write_reg, io_clock, wrist_cancelled}, wrist_delay);
+    wrist.read_int1 = wrist_int1_read;
     wrist_cached = wrist.snapshot;
     wrist_pending = wrist_busy = wrist_cancel_requested = false;
     daily_mode = daily_service;
