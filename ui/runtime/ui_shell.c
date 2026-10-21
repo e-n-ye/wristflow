@@ -33,6 +33,7 @@ struct wristflow_ui_shell {
     lv_obj_t *carousel;
     lv_obj_t *controls;
     lv_timer_t *cleanup_timer;
+    lv_timer_t *scroll_settle_timer;
     wristflow_apps_t *apps;
     wristflow_components_t *components;
     lv_timer_t *card_hold;
@@ -212,32 +213,99 @@ static void sync_visibility(wristflow_ui_shell_t *shell)
     }
 }
 
+static void commit_scroll(wristflow_ui_shell_t *shell)
+{
+    int32_t x = lv_obj_get_scroll_x(shell->carousel);
+    if (x < 0 || x % PAGE_WIDTH) return;
+    unsigned int slot = (unsigned int)(x / PAGE_WIDTH);
+    if (slot >= slot_count(shell)) return;
+    if (slot == 0 || slot == shell->navigation.page_count + 1) {
+        shell->recentering = true;
+        slot = slot == 0 ? shell->navigation.page_count : 1;
+        lv_obj_scroll_to_x(shell->carousel, (int32_t)slot * PAGE_WIDTH, LV_ANIM_OFF);
+        shell->recentering = false;
+    }
+    wristflow_navigation_commit_page(&shell->navigation, slot - 1);
+    for (unsigned int i = 0; i < shell->navigation.page_count; ++i)
+        if (shell->indicators[i])
+            lv_obj_set_flag(shell->indicators[i], LV_OBJ_FLAG_HIDDEN,
+                            i != shell->navigation.page_index);
+}
+
+static void settle_scroll(lv_timer_t *timer)
+{
+    wristflow_ui_shell_t *shell = lv_timer_get_user_data(timer);
+    lv_timer_pause(timer);
+    /* LVGL sends the release END before clearing indev.scroll_obj. A snap
+     * animation's final END re-arms this one-shot if motion is still active. */
+    if (!shell->ready || shell->recentering || lv_obj_is_scrolling(shell->carousel)) return;
+    commit_scroll(shell);
+    sync_visibility(shell);
+}
+
 static void scroll_event(lv_event_t *event)
 {
     wristflow_ui_shell_t *shell = lv_event_get_user_data(event);
-    if (shell->recentering)
-        return;
-    if (lv_event_get_code(event) == LV_EVENT_SCROLL_END &&
-        !lv_obj_is_scrolling(shell->carousel)) {
-        int32_t x = lv_obj_get_scroll_x(shell->carousel);
-        if (x >= 0 && x % PAGE_WIDTH == 0) {
-            unsigned int slot = (unsigned int)(x / PAGE_WIDTH);
-            if (slot >= slot_count(shell))
-                return;
-            if (slot == 0 || slot == shell->navigation.page_count + 1) {
-                shell->recentering = true;
-                slot = slot == 0 ? shell->navigation.page_count : 1;
-                lv_obj_scroll_to_x(shell->carousel, (int32_t)slot * PAGE_WIDTH, LV_ANIM_OFF);
-                shell->recentering = false;
-            }
-            wristflow_navigation_commit_page(&shell->navigation, slot - 1);
-            for (unsigned int i = 0; i < shell->navigation.page_count; ++i)
-                if (shell->indicators[i])
-                    lv_obj_set_flag(shell->indicators[i], LV_OBJ_FLAG_HIDDEN,
-                                    i != shell->navigation.page_index);
+    if (!shell->ready || shell->recentering) return;
+    if (lv_event_get_code(event) == LV_EVENT_SCROLL_END) {
+        if (lv_obj_is_scrolling(shell->carousel)) {
+            lv_timer_reset(shell->scroll_settle_timer);
+            lv_timer_resume(shell->scroll_settle_timer);
+        } else {
+            lv_timer_pause(shell->scroll_settle_timer);
+            commit_scroll(shell);
         }
     }
     sync_visibility(shell);
+}
+
+bool wristflow_ui_shell_carousel_snapshot(const wristflow_ui_shell_t *shell, wristflow_carousel_snapshot_t *out)
+{
+    if (!shell || !shell->ready || !out) return false;
+    wristflow_carousel_snapshot_t s = {0};
+    s.sampled_ms = lv_tick_get();
+    s.x = lv_obj_get_scroll_x(shell->carousel);
+    s.left = lv_obj_get_scroll_left(shell->carousel);
+    s.right = lv_obj_get_scroll_right(shell->carousel);
+    s.page = shell->navigation.page_index;
+    s.pages = shell->navigation.page_count;
+    s.surface = shell->navigation.surface;
+    s.display_phase = wristflow_ui_shell_display_phase(shell);
+    s.scrolling = lv_obj_is_scrolling(shell->carousel);
+    s.settling = !lv_timer_get_paused(shell->scroll_settle_timer);
+    s.transitioning = shell->transitioning;
+    s.recentering = shell->recentering;
+    for (unsigned i = 0; i < s.pages; ++i) {
+        if (!shell->indicators[i]) continue;
+        ++s.dots_present;
+        if (lv_obj_has_flag(shell->indicators[i], LV_OBJ_FLAG_HIDDEN)) continue;
+        ++s.dots_visible;
+        if (i == s.page) s.selected_dots = true;
+    }
+    for (unsigned i = 0; i < 2; ++i) {
+        lv_obj_t *panel = shell->slots[i ? slot_count(shell) - 1 : 0].panel;
+        s.edge_x[i] = lv_obj_get_x(panel);
+        s.edge_width[i] = lv_obj_get_width(panel);
+        s.edge_flags[i] = (lv_obj_has_flag(panel, LV_OBJ_FLAG_HIDDEN) ? 1 : 0) |
+            (lv_obj_has_flag(panel, LV_OBJ_FLAG_FLOATING) ? 2 : 0) |
+            (lv_obj_has_flag(panel, LV_OBJ_FLAG_SNAPPABLE) ? 4 : 0);
+    }
+    s.settled = s.surface == WRISTFLOW_SURFACE_HOME && !s.scrolling && !s.settling &&
+        !s.transitioning && !s.recentering;
+    if (s.settled) {
+        int32_t end = (int32_t)(s.pages + 1) * PAGE_WIDTH;
+        if (s.x < PAGE_WIDTH || s.x >= (int32_t)(s.pages + 1) * PAGE_WIDTH || s.x % PAGE_WIDTH)
+            s.mismatch |= 1;
+        if (s.x != (int32_t)(s.page + 1) * PAGE_WIDTH) s.mismatch |= 2;
+        if (s.dots_present != s.pages - 1 || s.dots_visible != (s.page ? 1U : 0U) ||
+            (s.page && !s.selected_dots)) s.mismatch |= 4;
+        if (s.left != s.x || s.right != end - s.x) s.mismatch |= 8;
+        if (s.edge_x[0] != 0 || s.edge_x[1] != end || s.edge_width[0] != PAGE_WIDTH ||
+            s.edge_width[1] != PAGE_WIDTH || s.edge_flags[0] != 4 || s.edge_flags[1] != 4)
+            s.mismatch |= 16;
+    }
+    *out = s;
+    return true;
 }
 
 static void finish_transition(lv_timer_t *timer)
@@ -854,6 +922,8 @@ wristflow_ui_shell_t *wristflow_ui_shell_create(const wristflow_ui_shell_config_
     lv_obj_add_event_cb(shell->controls, screen_loaded, LV_EVENT_SCREEN_LOADED, shell);
     lv_obj_update_layout(shell->home);
     lv_obj_scroll_to_x(shell->carousel, PAGE_WIDTH, LV_ANIM_OFF);
+    shell->scroll_settle_timer = lv_timer_create(settle_scroll, 1, shell);
+    lv_timer_pause(shell->scroll_settle_timer);
     lv_obj_add_event_cb(shell->carousel, scroll_event, LV_EVENT_SCROLL, shell);
     lv_obj_add_event_cb(shell->carousel, scroll_event, LV_EVENT_SCROLL_END, shell);
     shell->cleanup_timer = lv_timer_create(finish_transition, 1, shell);
@@ -873,6 +943,7 @@ void wristflow_ui_shell_destroy(wristflow_ui_shell_t *shell)
     cancel_reminder_vibration(shell);
     sync_visibility(shell);
     lv_timer_delete(shell->cleanup_timer);
+    lv_timer_delete(shell->scroll_settle_timer);
     lv_timer_delete(shell->card_hold);
     if (shell->display_timer) lv_timer_delete(shell->display_timer);
     shell->display_timer = NULL;
@@ -1113,6 +1184,7 @@ void wristflow_ui_shell_display_retry(wristflow_ui_shell_t *shell)
 void wristflow_ui_shell_rebuild_components(wristflow_ui_shell_t *shell, unsigned selected)
 {
     shell->ready = false; shell->recentering = true;
+    lv_timer_pause(shell->scroll_settle_timer);
     shell->pressed_card = NULL; lv_timer_pause(shell->card_hold);
     sync_visibility(shell);
     for (unsigned i = 0; i < slot_count(shell); ++i)

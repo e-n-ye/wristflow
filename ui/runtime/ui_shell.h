@@ -77,6 +77,19 @@ bool wristflow_ui_shell_key(wristflow_ui_shell_t *shell);
 bool wristflow_ui_shell_wrist_wake(wristflow_ui_shell_t *shell);
 bool wristflow_ui_shell_home(wristflow_ui_shell_t *shell);
 const wristflow_navigation_t *wristflow_ui_shell_navigation(const wristflow_ui_shell_t *shell);
+typedef struct {
+    uint32_t sampled_ms, mismatch;
+    int32_t x, left, right;
+    int32_t edge_x[2], edge_width[2];
+    unsigned page, pages, surface, display_phase;
+    unsigned dots_present, dots_visible;
+    /* Endpoint bits: hidden=1, floating=2, snappable=4. */
+    uint8_t edge_flags[2];
+    bool scrolling, settling, transitioning, recentering, selected_dots, settled;
+} wristflow_carousel_snapshot_t;
+/* UI thread only, no layout/input/navigation changes. Mismatch bits apply only
+ * to a settled HOME ring: position=1, page=2, dots=4, extent=8, endpoints=16. */
+bool wristflow_ui_shell_carousel_snapshot(const wristflow_ui_shell_t *, wristflow_carousel_snapshot_t *);
 const char *wristflow_ui_shell_watchface_id(const wristflow_ui_shell_t *shell);
 /* User preference, not temporary flashlight or power-policy brightness. */
 bool wristflow_ui_shell_get_settings(const wristflow_ui_shell_t *shell, wristflow_settings_t *settings);

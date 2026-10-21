@@ -2,6 +2,8 @@
 #include "wristflow_ui.h"
 #include "ui_demo.h"
 #include "app_registry.h"
+#include "src/indev/lv_indev_private.h"
+#include "src/indev/lv_indev_scroll.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -89,6 +91,44 @@ static void snapshot(const char *directory, const char *name)
     lv_draw_buf_destroy(buffer);
 }
 
+/* Exercise the locked LVGL release path itself: an exactly aligned drag with
+ * zero throw has no snap animation to deliver a second SCROLL_END later. */
+static void release_drag(lv_indev_t *input, lv_obj_t *carousel, int32_t target_x)
+{
+    input->pointer.scroll_obj = carousel;
+    input->pointer.scroll_dir = LV_DIR_HOR;
+    input->pointer.scroll_throw_vect = (lv_point_t){0, 0};
+    input->pointer.scroll_sum = (lv_point_t){0, 0};
+    input->pointer.scroll_area = (lv_area_t){LV_COORD_MIN, LV_COORD_MIN, LV_COORD_MAX, LV_COORD_MAX};
+    input->reset_query = 0;
+    lv_obj_scroll_by_raw(carousel, lv_obj_get_scroll_x(carousel) - target_x, 0);
+    assert(lv_obj_is_scrolling(carousel));
+    lv_indev_scroll_throw_handler(input);
+    assert(!input->pointer.scroll_obj);
+}
+
+static void check_ring(wristflow_ui_shell_t *shell, lv_obj_t *home, lv_obj_t *carousel, unsigned page)
+{
+    wristflow_carousel_snapshot_t state;
+    assert(wristflow_ui_shell_carousel_snapshot(shell, &state));
+    assert(state.settled && state.mismatch == 0 && state.page == page && state.pages == 4);
+    assert(state.right == (int32_t)(4 - page) * 390);
+    assert(wristflow_ui_shell_navigation(shell)->page_index == page);
+    assert(lv_obj_get_scroll_x(carousel) == (int32_t)(page + 1) * 390);
+    assert(lv_obj_get_scroll_left(carousel) == (int32_t)(page + 1) * 390);
+    assert(lv_obj_get_scroll_right(carousel) == (int32_t)(4 - page) * 390);
+    unsigned visible = 0;
+    for (unsigned i = 0; i < lv_obj_get_child_count(home); ++i) {
+        lv_obj_t *obj = lv_obj_get_child(home, i);
+        const char *name = lv_obj_get_name(obj);
+        if (!name || strncmp(name, "page_dots_", 10) || lv_obj_has_flag(obj, LV_OBJ_FLAG_HIDDEN)) continue;
+        ++visible;
+        assert(page && lv_obj_get_child_count(obj) == 3);
+        assert(lv_color_eq(lv_obj_get_style_bg_color(lv_obj_get_child(obj, page - 1), 0), lv_color_hex(0xffffff)));
+    }
+    assert(visible == (page ? 1U : 0U));
+}
+
 int main(int argc, char **argv)
 {
     assert(argc == 2);
@@ -121,6 +161,38 @@ int main(int argc, char **argv)
     text(lv_screen_active(), "simple_battery", "--");
     lv_obj_t *home = lv_screen_active();
     lv_obj_t *carousel = named(home, "demo_carousel");
+    const unsigned released_slots[] = {1, 2, 3, 4, 0, 5};
+    for (unsigned i = 0; i < sizeof released_slots / sizeof released_slots[0]; ++i) {
+        assert(wristflow_ui_shell_home(shell)); advance();
+        unsigned slot = released_slots[i];
+        release_drag(input, carousel, (int32_t)slot * 390);
+        wristflow_carousel_snapshot_t pending;
+        assert(wristflow_ui_shell_carousel_snapshot(shell, &pending));
+        assert(pending.settling && !pending.settled && !pending.mismatch);
+        assert(pending.x == (int32_t)slot * 390); /* Reading never recenters the ring. */
+        advance_ms(16);
+        check_ring(shell, home, carousel, slot == 0 ? 3 : slot == 5 ? 0 : slot - 1);
+    }
+    assert(wristflow_ui_shell_home(shell)); advance();
+    release_drag(input, carousel, 600); /* The immediate END precedes a snap animation. */
+    advance_ms(16);
+    assert(wristflow_ui_shell_navigation(shell)->page_index == 0);
+    advance_ms(800); check_ring(shell, home, carousel, 1);
+    assert(wristflow_ui_shell_home(shell)); advance();
+    release_drag(input, carousel, 1560); advance_ms(16);
+    swipe(320, 125, 60, 125); check_ring(shell, home, carousel, 0);
+    swipe(60, 125, 320, 125); check_ring(shell, home, carousel, 3);
+    lv_obj_t *last_clone = lv_obj_get_child(carousel, 5);
+    lv_obj_add_flag(last_clone, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_update_layout(home);
+    wristflow_carousel_snapshot_t fault;
+    assert(wristflow_ui_shell_carousel_snapshot(shell, &fault));
+    assert(fault.settled && (fault.mismatch & 24) == 24 && fault.edge_flags[1] == 5);
+    assert(fault.page == 3 && fault.x == 1560 && fault.right == 0);
+    lv_obj_remove_flag(last_clone, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_update_layout(home);
+    check_ring(shell, home, carousel, 3);
+    assert(wristflow_ui_shell_home(shell)); advance();
     const char *const expected[3][4] = {
         {"heart_rate", "blood_oxygen", "battery", "stress"},
         {"activity", "steps", "standing", NULL},

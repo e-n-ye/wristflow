@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-10-21 主页环收尾与缓存诊断
+
+从`17cf239`修复[整页零距离release漏提交](UI-NAVIGATION.md#carousel-scroll-state-20261021)，并准备只读`wf_ui status`取证。完整Debug54/54、全库保留断言的Release54/54通过。默认完整Release52/54的倒计时失败原样保留：既有`product_countdown_host`静态库的NDEBUG移除了stub RT_ASSERT中的调用；使用`cmake -S tests -B artifacts/host/native-wrist-wake-release '-DCMAKE_C_FLAGS_RELEASE=-O3 -DNDEBUG -UNDEBUG'`补核，不改公共CMake或倒计时源码。
+
+本工作树直接调用`pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example <product|ui_demo> -Jobs 4`，仍为官方SCons。Product`20261021-145119-846`／BIN7,803,048B／`e5b9c342…`，Demo`20261021-145234-419`／7,560,656B／`34b8c078…`均退出0、产物校验通过；464／418源码及29／22产物重哈希一致。SDK／子模块锁、Python3.13.15／SCons4.10.1／ArmGCC14.2.1不变，FinSH callback转换、RTC signedness及链接等警告保留。无串口／复位／烧录，新版触摸及完整单向故障根因未验；命令、哈希、失败和资源见[精简证据](evidence/2026-10-21/carousel-scroll-state.json)。
+
 ## 2026-10-20 INT1总路由诊断
 
 从`583c719`在`D:/MY_Desk/project/wristflow-snapshot-hardware`的`codex/wrist-int1-route`增加[显式限时route／PA31读源前后电平](HARDWARE-CAPABILITIES.md#wrist-int1-route)，不改SDK锁、厂商或UI生成物。主机使用GCC15.2.0／CMake4.2.3／Ninja1.13.2，`WRISTFLOW_SDK_ROOT`指向主目录锁定SDK；最终Debug53/53（12.87秒）、Release相关5/5（0.17秒）通过。覆盖CTRL4借用／恢复失败责任、四个其他源起始非零／运行漂移／读取失败、GPIO无效、事件帧保留、期限／取消、status无I/O及计步共存。
