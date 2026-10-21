@@ -31,8 +31,9 @@ const labels={pending:'未执行',running:'进行中',waiting:'等待确认',com
 async function post(path,body){const r=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json','X-Workflow-Token':token},body:JSON.stringify(body)});if(!r.ok)throw Error(await r.text());}
 async function update(){try{const r=await fetch('/state',{cache:'no-store'});if(!r.ok)throw Error('状态读取失败');const s=await r.json();current=s.prompt;terminal=!!s.result;
 document.querySelector('#mode').textContent=s.mode+' · 本页只记录确认，确认点击不证明物理动作。';
-document.querySelector('#summary').textContent=(s.result?s.result.label:'本轮进行中')+' · 已完成 '+s.completed+' / '+s.phases.length+' 个步骤';
-const list=document.querySelector('#phases');list.replaceChildren();for(const p of s.phases){const e=document.createElement('li');e.textContent=p.title+'：'+labels[p.state];list.append(e);}
+const checks=s.result&&s.result.verification;
+document.querySelector('#summary').textContent=checks?(checks.every(c=>c.passed)?'本轮检查通过':'本轮检查未完成')+' · 已验证 '+checks.filter(c=>c.passed).length+' / '+checks.length+' 项 · '+s.result.label:(s.result?s.result.label:'本轮进行中')+' · 已完成 '+s.completed+' / '+s.phases.length+' 个步骤';
+const list=document.querySelector('#phases');list.replaceChildren();for(const p of checks||s.phases){const e=document.createElement('li');e.textContent=p.title+'：'+(checks?(p.passed?'通过':'未完成'):labels[p.state]);list.append(e);}
 document.querySelector('#message').textContent=current?current.message:(s.result?s.result.detail:'程序正在处理，请稍候。');
 document.querySelector('#remaining').textContent=current?'确认剩余 '+Math.max(0,Math.ceil(current.remaining))+' 秒':'';
 document.querySelector('#confirm').disabled=terminal||!current;document.querySelector('#cancel').disabled=terminal;
@@ -200,7 +201,7 @@ class Console:
             self.journal.event("finalizing", outcome=outcome)
             return outcome
 
-    def finish(self, outcome, detail):
+    def finish(self, outcome, detail, *, verification=None):
         with self.condition:
             effective = self.seal(outcome)
             if outcome == "error":
@@ -208,3 +209,5 @@ class Console:
             self.prompt_value = None
             labels = {"passed": "软件流程通过", "cancelled": "本轮已取消", "timeout": "本轮已超时", "error": "本轮异常"}
             self.result = {"outcome": effective, "label": labels[effective], "detail": detail}
+            if verification is not None:
+                self.result["verification"] = verification

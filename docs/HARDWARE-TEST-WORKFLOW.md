@@ -1,4 +1,4 @@
-# 人机协作测试：电量主机工具
+# 人机协作测试：电量工具
 
 活动项和唯一下一步只见[STATUS](STATUS.md#current)。本页保存方法和试点边界；历史命令不构成新设备操作授权。
 
@@ -6,7 +6,7 @@
 
 2026-10-21用户要求借电量排查改进人机协作。PR #120首轮复用B2实机记录，完成可重复B3回放和OpenHTF网页演练；后续用户要求继续，增加模拟采集适配器及共同本地控制页。AI制定实验、分析证据；本地程序持有阶段和输出；人只确认需要判断或实际动作的部分。软件验收由主代理在浏览器操作，没有让用户重复设备输入。
 
-当前命令行仅开放历史回放、引导演练与模拟采集，没有实机端口参数或烧录功能。`SerialTransport`已写出串口边界，但只通过替身验证，未实际打开设备；这不是已验收的硬件采集台。仍沿用[硬件条件](HARDWARE.md)、[下载](FLASHING.md)与[电量契约](BATTERY-ESTIMATE.md)，SDK环境和固件不变。OpenHTF保留phase／measurement／JSON，不再使用其StationServer／SockJS前端；不构成全项目框架选型决定。
+历史回放、引导演练与模拟采集仍由原入口提供；新增`battery_device.py`只读实机入口，保护已有停止态记录，不开放实机start／stop、PM hold／allow、复位、校时或烧录。实机执行及验收状态只见[STATUS](STATUS.md#current)，不把主机替身通过算作设备结果。仍沿用[硬件条件](HARDWARE.md)、[下载](FLASHING.md)与[电量契约](BATTERY-ESTIMATE.md)，SDK环境和固件不变。OpenHTF保留phase／measurement／JSON，不再使用其StationServer／SockJS前端；不构成全项目框架选型决定。
 
 ## 离线回放
 
@@ -79,3 +79,17 @@ PR #120首轮网页通过／取消／真实超时的证据保留于[试点证据
 **历史问题与覆盖关系**：首轮OpenHTF1.6.1前端的跨线程发布／未运行loop造成收尾警告，summary把ERROR及Waiting都计为执行完成。只读源码核查后，本轮保留其测试执行／JSON，移除该前端链；不修改site-packages或压缩前端资源。共同控制页按实际阶段计数并独立管理HTTP线程退出，原问题不再位于当前页面路径；这不宣称上游缺陷已修复，也不证明长期采集稳定性。
 
 未来设备适配应在同一个本地会话中集中准备、提示动作、收集和清理，并先在模拟串口验收：单拥有者、开口前DTR／RTS关闭、原始字节先存证、基于完整回执等待、会话／页码校验、有限重试、取消后释放资源和恢复状态。设备记录启动时间、网页动作确认时间、PG／页面观测时间分别存储；不能因确认点击就断言物理动作发生，也不能把480秒记录器预算称为480秒BAT窗口。缺少关键窗口应明确未完成。此段是准入契约；获准执行顺序仍只回STATUS。
+
+## 同BIN既有记录保护：受限实机入口
+
+`scripts/battery_device.py`独立使用`ReadOnlyClient`，所有路径仅允许`wf_pm status`、`wf_battery status`与分页dump。固件dump不要求PM hold；PM allow还会触发采样定时器，故首轮不借用其控制命令。已有记录只属于被观察的会话，不赋予工具停止／覆盖它的权力。status／dump可能令已过期记录的元数据转为EXPIRED，不会清空记录。
+
+操作者先确认同板屏／原电池／接线固定／供电与版本连续性。入口核对历史证据绑定的成功build、产物数量／唯一清单及每份哈希、来源BIN，并在每次开口前核对实际Windows COM／CH340位置和`DisableModemOutHandShake=1`；不能由USB标识证明板上固件身份，`device_identity_verified`保持false。实际端口、位置和build参数从本轮现场与证据取值，不复制历史命令自动执行。
+
+页面先提示临时持续亮屏10分钟并保持原供电；确认后才打开串口。工具仅导出匹配既有停止态和全部原始行的记录，先保存`protected.json`及各页原始字节，再关闭／重新打开并完整核对为`reopened.json`。窗口／内容改变、冷启动、页面损坏或有限重读失败均停止，不重新arm。`uart.bin`与事件时间保存实际收发，关重开连续性仅限本次观测，不推断物理深睡／功耗。
+
+随后页面要求操作者实际点击“取消本轮”，验证等待中的退出清理；点确认会记异常且检查未完成。正确取消仍为`outcome=cancelled`／`passed=false`／进程退出1，已保存记录不丢；两次导出匹配、指定阶段取消及清理确认全部满足时，独立字段`bounded_checks_met=true`。这不是新BAT负载实验通过；`new_battery_experiment_complete`始终false。收尾关闭串口／原始文件并释放锁，无start／stop／hold／allow；页面提示用户关闭临时持续亮屏并确认界面正常。
+
+终态页面另列设备准备、记录保护、关重开一致、实际取消清理、资源关闭五项验证；按要求取消且检查齐全时显示“已验证5/5项 · 本轮已取消”。阶段计数仍为4/5，原始`cancelled`事件与`passed=false`不改，避免把刻意验证取消解释为漏项。早期报告缺少`preparation_confirmed`时，已完成的保护导出只用于兼容呈现其准备项；原报告保持原样。主机故障注入不替代实机故障验证，实际结果与展示修正分别绑定源码版本，见[本轮精简证据](evidence/2026-10-21/battery-device-export.json)。
+
+接续读取同一输出目录的`binding.json`、`collection.json`和`events.jsonl`，原`battery_lab.py status --run <目录>`仍可查终态。这里仅提供既有数据保护和一次关重开／取消验证，不提供自动重启恢复、实机新记录或长时放电入口。相关主机测试同原`test_battery_*.py`命令，均用注入transport，不打开设备。
