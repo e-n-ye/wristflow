@@ -1,0 +1,806 @@
+{
+  "date": "2026-10-21",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/native-wrist-wake-hardware",
+  "base_commit": "3a14f64a70f8c0ba63eba1cc9ac2e31c41a4ec13",
+  "authorization": {
+    "request": "User continued native wrist screen-wake integration, then reconfirmed the same Huangshan board/display, original battery+PC USB, secured detached motor wire, present for UI/motion actions: 条件均未变，可以开始.",
+    "scope": "Exact candidate flash/startup, saved switch on/off, one controlled positive and one disabled motion window, one ordinary reboot. No source changes/rebuild, physical power cut, manual motor/charge or step-boundary experiment."
+  },
+  "firmware_sha256": "751de5f544e1fd17bd047e9818cd498eded4855a7498c376165ff3ce64cac971",
+  "preflight": {
+    "at": "2026-10-21T06:02:12.976040+00:00",
+    "source_exact": 461,
+    "source_line_end_only": [
+      "D:\\MY_Desk\\project\\wristflow\\apps\\product\\src\\product_wrist_irq.c",
+      "D:\\MY_Desk\\project\\wristflow\\apps\\product\\src\\product_wrist_irq.h",
+      "D:\\MY_Desk\\project\\wristflow\\apps\\product\\src\\product_wrist.h"
+    ],
+    "artifacts_verified": 29,
+    "ports": [
+      {
+        "device": "COM5",
+        "vid": 6790,
+        "pid": 29987,
+        "location": "1-1.1",
+        "description": "USB-SERIAL CH340 (COM5)"
+      },
+      {
+        "device": "COM3",
+        "vid": null,
+        "pid": null,
+        "location": null,
+        "description": "蓝牙链接上的标准串行 (COM3)"
+      },
+      {
+        "device": "COM4",
+        "vid": null,
+        "pid": null,
+        "location": null,
+        "description": "蓝牙链接上的标准串行 (COM4)"
+      }
+    ],
+    "bin_sha256": "751de5f544e1fd17bd047e9818cd498eded4855a7498c376165ff3ce64cac971",
+    "result": "artifacts/product/20261020-230509-333/result.json"
+  },
+  "flash": {
+    "result": "artifacts/flash/product/20261021-140307-437/result.json",
+    "result_sha256": "6fa01095a97bbde9129cf4778757cd3553964aea177397aac6f8eec39443cecc",
+    "completed_at": "2026-10-21T14:05:50.0136970+08:00",
+    "exit_code": 0,
+    "command": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+    "images": [
+      {
+        "name": "bootloader.bin",
+        "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+        "address": "0x12010000",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "name": "main.bin",
+        "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+        "address": "0x12020000",
+        "bytes": 7801476,
+        "sha256": "751de5f544e1fd17bd047e9818cd498eded4855a7498c376165ff3ce64cac971"
+      },
+      {
+        "name": "ftab.bin",
+        "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+        "address": "0x12000000",
+        "bytes": 11288,
+        "sha256": "cda13d8f3e60f768f2292ce499d5c3cac7fb4d7247b5588591d501f181c340e4"
+      }
+    ],
+    "boundary": "Three manifest images write+verify only, no full erase or explicit settings-partition write. Image validation is not UI/hardware-function verification."
+  },
+  "baseline": {
+    "session": "artifacts/native-wrist-hardware/baseline-01/session.json",
+    "closed_at": "2026-10-21T06:02:37.323891+00:00",
+    "error": null,
+    "rtc_events": [
+      "2026-10-21T06:02:30+00:00"
+    ],
+    "steps_before": {
+      "current": {
+        "valid": 1,
+        "total": 0,
+        "day": 20747,
+        "utc": 1792562532,
+        "version": 1680,
+        "native": 0,
+        "partial": 1,
+        "restored": 0
+      },
+      "imu": {
+        "phase": 2,
+        "end": 0,
+        "counter_valid": 1,
+        "steps": 0,
+        "stop_verified": 0
+      },
+      "errors": {
+        "io_errors": 0,
+        "incoherent": 0
+      },
+      "saved": {
+        "available": 1,
+        "verified": 1,
+        "dirty": 0,
+        "failed": 0,
+        "attempts": 1,
+        "day": 20747,
+        "total": 0,
+        "generation": 32
+      },
+      "hourly": {
+        "valid": 32767,
+        "sum": 0,
+        "saved_valid": 32767
+      }
+    },
+    "wrist_before": {
+      "state": {
+        "phase": 1,
+        "end": 1,
+        "configured": 0,
+        "source_valid": 0,
+        "stop_verified": 1,
+        "mask": 64,
+        "latency": 15,
+        "ths": 32,
+        "source": 132,
+        "axes": 0,
+        "observations": 0,
+        "errors": 0,
+        "start": 714970,
+        "duration": 60000,
+        "sample": 780406,
+        "route_int1": 1
+      },
+      "wake": null
+    }
+  },
+  "startup": {
+    "session": "artifacts/native-wrist-wake-hardware/startup-01/session.json",
+    "closed_at": "2026-10-21T06:06:43.363591+00:00",
+    "error": null,
+    "rtc_events": [
+      "2000-01-01T00:00:04+00:00",
+      "2026-10-21T06:06:37+00:00"
+    ],
+    "steps_before": {
+      "current": {
+        "valid": 1,
+        "total": 0,
+        "day": 20747,
+        "utc": 1792562797,
+        "version": 8,
+        "native": 0,
+        "partial": 1,
+        "restored": 1
+      },
+      "imu": {
+        "phase": 2,
+        "end": 0,
+        "counter_valid": 1,
+        "steps": 0,
+        "stop_verified": 0
+      },
+      "errors": {
+        "io_errors": 0,
+        "incoherent": 0
+      },
+      "saved": {
+        "available": 1,
+        "verified": 1,
+        "dirty": 0,
+        "failed": 0,
+        "attempts": 0,
+        "day": 20747,
+        "total": 0,
+        "generation": 32
+      },
+      "hourly": {
+        "valid": 32767,
+        "sum": 0,
+        "saved_valid": 32767
+      }
+    },
+    "wrist_before": {
+      "state": {
+        "phase": 0,
+        "end": 0,
+        "configured": 0,
+        "source_valid": 0,
+        "stop_verified": 0,
+        "mask": 0,
+        "latency": 0,
+        "ths": 0,
+        "source": 0,
+        "axes": 0,
+        "observations": 0,
+        "errors": 0,
+        "start": 0,
+        "duration": 0,
+        "sample": 0,
+        "route_int1": 0
+      },
+      "wake": {
+        "requested": 0,
+        "continuous": 0,
+        "armed": 0,
+        "owned": 0,
+        "irqs": 0,
+        "wakes": 0
+      }
+    }
+  },
+  "enabled_window": {
+    "session": "artifacts/native-wrist-wake-hardware/on-01/session.json",
+    "closed_at": "2026-10-21T06:10:12.355861+00:00",
+    "error": null,
+    "rtc_events": [
+      "2026-10-21T06:08:24+00:00"
+    ],
+    "steps_before": {
+      "current": {
+        "valid": 1,
+        "total": 0,
+        "day": 20747,
+        "utc": 1792562851,
+        "version": 36,
+        "native": 0,
+        "partial": 1,
+        "restored": 1
+      },
+      "imu": {
+        "phase": 2,
+        "end": 0,
+        "counter_valid": 1,
+        "steps": 0,
+        "stop_verified": 0
+      },
+      "errors": {
+        "io_errors": 0,
+        "incoherent": 0
+      },
+      "saved": {
+        "available": 1,
+        "verified": 1,
+        "dirty": 0,
+        "failed": 0,
+        "attempts": 0,
+        "day": 20747,
+        "total": 0,
+        "generation": 32
+      },
+      "hourly": {
+        "valid": 32767,
+        "sum": 0,
+        "saved_valid": 32767
+      }
+    },
+    "wrist_before": {
+      "state": {
+        "phase": 2,
+        "end": 0,
+        "configured": 1,
+        "source_valid": 1,
+        "stop_verified": 0,
+        "mask": 64,
+        "latency": 15,
+        "ths": 32,
+        "source": 132,
+        "axes": 0,
+        "observations": 1,
+        "errors": 0,
+        "start": 46728,
+        "duration": 0,
+        "sample": 61663,
+        "route_int1": 1
+      },
+      "wake": {
+        "requested": 1,
+        "continuous": 1,
+        "armed": 1,
+        "owned": 1,
+        "irqs": 1,
+        "wakes": 1
+      }
+    },
+    "wrist_after": {
+      "state": {
+        "phase": 2,
+        "end": 0,
+        "configured": 1,
+        "source_valid": 1,
+        "stop_verified": 0,
+        "mask": 64,
+        "latency": 15,
+        "ths": 32,
+        "source": 132,
+        "axes": 0,
+        "observations": 2,
+        "errors": 0,
+        "start": 46728,
+        "duration": 0,
+        "sample": 215883,
+        "route_int1": 1
+      },
+      "wake": {
+        "requested": 1,
+        "continuous": 1,
+        "armed": 1,
+        "owned": 1,
+        "irqs": 2,
+        "wakes": 2
+      }
+    },
+    "steps_after": {
+      "current": {
+        "valid": 1,
+        "total": 0,
+        "day": 20747,
+        "utc": 1792563006,
+        "version": 48,
+        "native": 0,
+        "partial": 1,
+        "restored": 1
+      },
+      "imu": {
+        "phase": 2,
+        "end": 0,
+        "counter_valid": 1,
+        "steps": 0,
+        "stop_verified": 0
+      },
+      "errors": {
+        "io_errors": 0,
+        "incoherent": 0
+      },
+      "saved": {
+        "available": 1,
+        "verified": 1,
+        "dirty": 0,
+        "failed": 0,
+        "attempts": 0,
+        "day": 20747,
+        "total": 0,
+        "generation": 32
+      },
+      "hourly": {
+        "valid": 32767,
+        "sum": 0,
+        "saved_valid": 32767
+      }
+    }
+  },
+  "disabled_window": {
+    "session": "artifacts/native-wrist-wake-hardware/off-01/session.json",
+    "closed_at": "2026-10-21T06:14:28.554125+00:00",
+    "error": null,
+    "rtc_events": [
+      "2026-10-21T06:10:55+00:00"
+    ],
+    "steps_before": {
+      "current": {
+        "valid": 1,
+        "total": 0,
+        "day": 20747,
+        "utc": 1792563044,
+        "version": 78,
+        "native": 0,
+        "partial": 1,
+        "restored": 1
+      },
+      "imu": {
+        "phase": 2,
+        "end": 0,
+        "counter_valid": 1,
+        "steps": 0,
+        "stop_verified": 0
+      },
+      "errors": {
+        "io_errors": 0,
+        "incoherent": 0
+      },
+      "saved": {
+        "available": 1,
+        "verified": 1,
+        "dirty": 0,
+        "failed": 0,
+        "attempts": 0,
+        "day": 20747,
+        "total": 0,
+        "generation": 32
+      },
+      "hourly": {
+        "valid": 32767,
+        "sum": 0,
+        "saved_valid": 32767
+      }
+    },
+    "wrist_before": {
+      "state": {
+        "phase": 1,
+        "end": 1,
+        "configured": 0,
+        "source_valid": 0,
+        "stop_verified": 1,
+        "mask": 64,
+        "latency": 15,
+        "ths": 32,
+        "source": 132,
+        "axes": 0,
+        "observations": 5,
+        "errors": 0,
+        "start": 46728,
+        "duration": 0,
+        "sample": 249868,
+        "route_int1": 1
+      },
+      "wake": {
+        "requested": 0,
+        "continuous": 1,
+        "armed": 0,
+        "owned": 0,
+        "irqs": 5,
+        "wakes": 5
+      }
+    },
+    "wrist_after": {
+      "state": {
+        "phase": 1,
+        "end": 1,
+        "configured": 0,
+        "source_valid": 0,
+        "stop_verified": 1,
+        "mask": 64,
+        "latency": 15,
+        "ths": 32,
+        "source": 132,
+        "axes": 0,
+        "observations": 5,
+        "errors": 0,
+        "start": 46728,
+        "duration": 0,
+        "sample": 249868,
+        "route_int1": 1
+      },
+      "wake": {
+        "requested": 0,
+        "continuous": 1,
+        "armed": 0,
+        "owned": 0,
+        "irqs": 5,
+        "wakes": 5
+      }
+    },
+    "steps_after": {
+      "current": {
+        "valid": 1,
+        "total": 0,
+        "day": 20747,
+        "utc": 1792563226,
+        "version": 86,
+        "native": 0,
+        "partial": 1,
+        "restored": 1
+      },
+      "imu": {
+        "phase": 2,
+        "end": 0,
+        "counter_valid": 1,
+        "steps": 0,
+        "stop_verified": 0
+      },
+      "errors": {
+        "io_errors": 0,
+        "incoherent": 0
+      },
+      "saved": {
+        "available": 1,
+        "verified": 1,
+        "dirty": 0,
+        "failed": 0,
+        "attempts": 0,
+        "day": 20747,
+        "total": 0,
+        "generation": 32
+      },
+      "hourly": {
+        "valid": 32767,
+        "sum": 0,
+        "saved_valid": 32767
+      }
+    }
+  },
+  "ordinary_reboot": {
+    "session": "artifacts/native-wrist-wake-hardware/reboot-01/session.json",
+    "closed_at": "2026-10-21T06:15:55.197746+00:00",
+    "error": null,
+    "rtc_events": [
+      "2026-10-21T06:15:36+00:00",
+      "2026-10-21T06:15:49+00:00"
+    ],
+    "steps_before": {
+      "current": {
+        "valid": 1,
+        "total": 0,
+        "day": 20747,
+        "utc": 1792563325,
+        "version": 102,
+        "native": 0,
+        "partial": 1,
+        "restored": 1
+      },
+      "imu": {
+        "phase": 2,
+        "end": 0,
+        "counter_valid": 1,
+        "steps": 0,
+        "stop_verified": 0
+      },
+      "errors": {
+        "io_errors": 0,
+        "incoherent": 0
+      },
+      "saved": {
+        "available": 1,
+        "verified": 1,
+        "dirty": 0,
+        "failed": 0,
+        "attempts": 0,
+        "day": 20747,
+        "total": 0,
+        "generation": 32
+      },
+      "hourly": {
+        "valid": 32767,
+        "sum": 0,
+        "saved_valid": 32767
+      }
+    },
+    "wrist_before": {
+      "state": {
+        "phase": 2,
+        "end": 0,
+        "configured": 1,
+        "source_valid": 1,
+        "stop_verified": 0,
+        "mask": 64,
+        "latency": 15,
+        "ths": 32,
+        "source": 132,
+        "axes": 0,
+        "observations": 0,
+        "errors": 0,
+        "start": 527420,
+        "duration": 0,
+        "sample": 535174,
+        "route_int1": 1
+      },
+      "wake": {
+        "requested": 1,
+        "continuous": 1,
+        "armed": 1,
+        "owned": 1,
+        "irqs": 5,
+        "wakes": 5
+      }
+    },
+    "wrist_after": {
+      "state": {
+        "phase": 2,
+        "end": 0,
+        "configured": 1,
+        "source_valid": 1,
+        "stop_verified": 0,
+        "mask": 64,
+        "latency": 15,
+        "ths": 32,
+        "source": 132,
+        "axes": 0,
+        "observations": 0,
+        "errors": 0,
+        "start": 1589,
+        "duration": 0,
+        "sample": 7778,
+        "route_int1": 1
+      },
+      "wake": {
+        "requested": 1,
+        "continuous": 1,
+        "armed": 1,
+        "owned": 1,
+        "irqs": 0,
+        "wakes": 0
+      }
+    },
+    "steps_after": {
+      "current": {
+        "valid": 1,
+        "total": 0,
+        "day": 20747,
+        "utc": 1792563349,
+        "version": 6,
+        "native": 0,
+        "partial": 1,
+        "restored": 1
+      },
+      "imu": {
+        "phase": 2,
+        "end": 0,
+        "counter_valid": 1,
+        "steps": 0,
+        "stop_verified": 0
+      },
+      "errors": {
+        "io_errors": 0,
+        "incoherent": 0
+      },
+      "saved": {
+        "available": 1,
+        "verified": 1,
+        "dirty": 0,
+        "failed": 0,
+        "attempts": 0,
+        "day": 20747,
+        "total": 0,
+        "generation": 32
+      },
+      "hourly": {
+        "valid": 32767,
+        "sum": 0,
+        "saved_valid": 32767
+      }
+    }
+  },
+  "controlled_positive": {
+    "gate": "artifacts/native-wrist-wake-hardware/on-01.trigger",
+    "action": "User confirmed face-up/naturalOFF after KEY1. Gate then raise upper edge near vertical for about15s, return face-up, noKEY during action.",
+    "irq_and_source_validated_ui_request_delta": {
+      "irqs": 1,
+      "wakes": 1
+    },
+    "observation_delta": 1,
+    "last_event": {
+      "attempted": 1,
+      "valid": 65535,
+      "begin": 214483,
+      "end": 214490,
+      "bank": 0,
+      "who": 106,
+      "xl": 32,
+      "ctrl3": 68,
+      "ctrl10": 148,
+      "pulse": 1,
+      "tap": 1,
+      "status": 5,
+      "axes": 64,
+      "source": 133,
+      "ready": 1,
+      "xyz_valid": 1,
+      "int1": 0,
+      "int2": 0,
+      "md1": 0,
+      "md2": 0,
+      "pin": {
+        "ctrl4": 32,
+        "valid": 3,
+        "pre": 1,
+        "post": 0,
+        "pre_ms": 214489,
+        "post_ms": 214490
+      },
+      "raw": [
+        220,
+        195,
+        81,
+        11,
+        9,
+        242
+      ],
+      "x": -15396,
+      "y": 2897,
+      "z": -3575
+    },
+    "ui_log": "on-01/uart.txt:214 wake event=wrist;245 screen on, after fresh KEY104/ON132/OFF152. IRQ/source counter increments1->2, full last event source85h, PA31 pre1/post0.",
+    "user_feedback": "自行亮起，仍在原页面",
+    "boundary": "One controlled positive, not response latency or gesture rate. Gate-to-screen elapsed includes user reaction; initial1 and subsequent2->5 outside controlled window are not additional controlled trials. wakes counts source-validated UI requests, not every physically lit screen."
+  },
+  "controlled_disabled": {
+    "gate": "artifacts/native-wrist-wake-hardware/off-01.trigger",
+    "window_seconds": 25,
+    "elapsed_seconds": 25.207877800000006,
+    "state": "requested/armed/owned0; observations/irqs/wakes5 before and after. Old event is retained history, not disabled detection.",
+    "after_frame": {
+      "attempted": 1,
+      "valid": 65535,
+      "begin": 249872,
+      "end": 249879,
+      "bank": 0,
+      "who": 106,
+      "xl": 32,
+      "ctrl3": 68,
+      "ctrl10": 20,
+      "pulse": 0,
+      "tap": 0,
+      "status": 5,
+      "axes": 0,
+      "source": 132,
+      "ready": 1,
+      "xyz_valid": 1,
+      "int1": 0,
+      "int2": 0,
+      "md1": 0,
+      "md2": 0,
+      "pin": {
+        "ctrl4": 0,
+        "valid": 3,
+        "pre": 0,
+        "post": 0,
+        "pre_ms": 249878,
+        "post_ms": 249879
+      },
+      "raw": [
+        50,
+        209,
+        59,
+        18,
+        159,
+        216
+      ],
+      "x": -11982,
+      "y": 4667,
+      "z": -10081
+    },
+    "ui_log": "Fresh KEY at off uart234, screen on261, naturalOFF282 precede action. No wrist screen wake in25s.",
+    "user_feedback": "屏幕保持熄灭",
+    "preparation_exception": "First user-ready reply had no freshOFF text; action gate was withheld. User confirmed fully dark and KEY1 normal, then new KEY/ON/OFF logs were captured before gate. No failed motion window was counted."
+  },
+  "settings_and_reboot": {
+    "user_initial": "均正常，初始关闭，现已开启并保存，已放平",
+    "user_disabled": "已关闭并保存，已放平",
+    "user_reenabled": "已重新开启并保存，准备好重启",
+    "rtc": "06:15:36UTC before /06:15:49UTC after; one SDK reboot, noRTS/no time write. Original single initial150msRTS during startup did setRTC2000 and was corrected to real UTC/read back.",
+    "enabled_restored": "After reboot requested/continuous/armed/owned1, start1589, duration0, mask40 latency15 threshold32, native/daily/hour0 restored from same day20747 generation32. IRQ/wake counters reset to0 on reboot.",
+    "user_final": "均正常，开关仍开启，步数0",
+    "final_state": "Saved wrist enabled; original battery+USB and secured loose motor wire unchanged; allow1 and COM5 closed at14:15:55+08:00. No further motion requested.",
+    "boundary": "Operational saved-switch recovery; no raw settings-version dump or exhaustive preference combinations. No nonzero native-count preservation added on this exact candidate."
+  },
+  "errors_and_limits": [
+    "First host registry query failed due MSYS slash conversion; rerun withMSYS_NO_PATHCONV=1 read DisableModemOutHandShake=1. No registry write.",
+    "Initial10s read-only preflight timed out/killed before output, then background run passed; no device port opened by that preflight.",
+    "Startup helper first selected an existing prior native-wrist-hardware/startup-01 directory and rejected before openingCOM. Old logs untouched; actual fresh run used native-wrist-wake-hardware/startup-01, exactly one RTS.",
+    "Initial post-flash150msRTS producedRTC2000; only then realUTC correction/readback. Ordinary reboot retained time withoutRTS/correction.",
+    "Startup0x6b probe logged I2C error/SDK recovery while6a matched; later native snapshot errors0 is separate. FlashDB allocation/GC warnings retained; saves and reboot recovery verified.",
+    "Early inhibit verified1 is startup preflight only; firmware later automatically enabled charging. Not a whole-session inhibit or measured charge/current/temperature result.",
+    "All observed PM enter/exit/deep_ticks are0, final SDK IDLE count1 despite this PM owner idle0. ActualLCDoff/IRQ-driven screen wake is verified; physicalDEEP/AON-from-DEEP/current/battery life are not.",
+    "SOURCE80h/84h reserved bits and exact physical IMU identity remain unknown. No stable release latency, exact600ms response, false-positive/miss rate, wear test or continuous-step accuracy."
+  ],
+  "post_acceptance_issue": {
+    "report_date": "2026-10-21",
+    "firmware": "same751de5f5 candidate",
+    "user_reports": [
+      "突发bug，当前页面不能左滑，只能右滑，保留现场，底下显示页面位置的点也消失，偶然出现",
+      "熄屏亮屏后依然保持，只有右滑回到表盘页面，再左滑，bug才能消失",
+      "此bug之前出现过几次",
+      "处于故障页，出现前的最后一次操作，只是在主页环正常的左滑，没有显示出底下显示页面位置的点",
+      "但是右滑还是正常的，就是无法左滑"
+    ],
+    "photo": "artifacts/carousel-one-way-20261021/user-photo-original.jpg",
+    "photo_sha256": "6a93e96a37494423eb3908e4e279aa556b7b371f15ce576c0125f65cb8fa88d5",
+    "observation": "Photo shows weather/sleep/alarm card page with bottom dots absent. User confirms device remains on fault page. Prior general UI confirmation preceded this new issue; dedicated on/off/reboot wrist observations remain bounded evidence.",
+    "preservation": "After new report no serial open, reset, flash or device-input request. Original image copied byte-for-byte locally. Active task switched to PC-only carousel investigation; exact cause and relation to wrist change unknown."
+  },
+  "review": "Primary verified exact firmware, snapshots, raw main wake/off boundaries and user responses. Independent read-only Sol(medium) reviewed startup and both windows; identified cumulative-event and PM limits. Luna(low) reviewed host helper; freshOFF boundaries strengthened before any motion gate. Post-acceptance carousel defect recorded separately, no claim of whole UI acceptance.",
+  "logs_sha256": {
+    "artifacts/native-wrist-device.py": "2e1108f12168c8a2e3942a95fafc1b3b060a625c498736da327dc8bff965ee60",
+    "artifacts/preflight-native-wrist.py": "5e17f311e5f737baf04d388cfa8e474ade421ff1d3a9802ddeb35e78cb715e93",
+    "artifacts/native-wrist-wake-preflight.json": "b82b185cb7bb2bfd90ad762ac1d09b426dc24720e9080ebaf2eedb0b5e982330",
+    "artifacts/native-wrist-wake-driver.txt": "8f615578ba60f446a970ed694767f51ca9cf643f18423107db1862fea391da98",
+    "artifacts/native-wrist-wake-flash-dryrun.log": "9b10af8f18855c122d6be9a69e1fe233a2b581715aab327b766dce8a21f2b0e2",
+    "artifacts/native-wrist-wake-flash-retained.txt": "cf1e70212db5878aca7f9268a5f6a0b35912f1fb3a8723fc97025b64cba2391a",
+    "artifacts/native-wrist-wake-flash.log": "6c09ef1c50f6a3e4f717be5cf11f2fdbfa195557d3ab6c51f0ded8e53ea851d1",
+    "artifacts/flash/product/20261021-140307-437/result.json": "6fa01095a97bbde9129cf4778757cd3553964aea177397aac6f8eec39443cecc",
+    "artifacts/native-wrist-wake-hardware/on-01.trigger": "c4fa50c09d247dd948e43df1909f37432f4d07607129738edd6f4d0b2cd65b58",
+    "artifacts/native-wrist-wake-hardware/off-01.trigger": "2cb92e8a8a945d445840714a89b5c98287783096938a6b66680cb13c51d8af80",
+    "artifacts/native-wrist-hardware/baseline-01/session.json": "ef485b9fece1560ad0d6ef02fe972e934656241c9b93e5ad90291c8571ff71e6",
+    "artifacts/native-wrist-hardware/baseline-01/uart.txt": "fe8949bf35b0a6904db045418d523bef33b72c66e3fc7dbd5e8f1990b94a7ac9",
+    "artifacts/native-wrist-hardware/baseline-01/uart.bin": "fe8949bf35b0a6904db045418d523bef33b72c66e3fc7dbd5e8f1990b94a7ac9",
+    "artifacts/native-wrist-wake-hardware/startup-01/session.json": "9a7a64e5ea9bed25a8013aed513fdfec858bff061605e626222a24f41296a634",
+    "artifacts/native-wrist-wake-hardware/startup-01/uart.txt": "c1a4176b5b6c227c71ef39d300616471336f73edda2408c92da902a6faa89a40",
+    "artifacts/native-wrist-wake-hardware/startup-01/uart.bin": "2c50851b05ccfc7db68ab966d96094edbb059f4b3a276ff092890f0593e58868",
+    "artifacts/native-wrist-wake-hardware/on-01/session.json": "af7cd9125cb6bf669ec623e4c2d26a9668bfe0054fa71107278b78063a0cd2d9",
+    "artifacts/native-wrist-wake-hardware/on-01/uart.txt": "8024bb991da09a410082f942d137bce862565decafe15a396e96182d6b63e1c4",
+    "artifacts/native-wrist-wake-hardware/on-01/uart.bin": "8024bb991da09a410082f942d137bce862565decafe15a396e96182d6b63e1c4",
+    "artifacts/native-wrist-wake-hardware/off-01/session.json": "c230747c5c908cc87bbe2fa59e683c2b6d4ffe2c0fd673757952d57d3a266e86",
+    "artifacts/native-wrist-wake-hardware/off-01/uart.txt": "195cd598fe8c9ca64fb3e4f978164b339848f0b41e5ae2a4280ebf7404b565e5",
+    "artifacts/native-wrist-wake-hardware/off-01/uart.bin": "195cd598fe8c9ca64fb3e4f978164b339848f0b41e5ae2a4280ebf7404b565e5",
+    "artifacts/native-wrist-wake-hardware/reboot-01/session.json": "38fae44ec9fb7917afc6b59dfd59a887000754a30940e0ae2d654cb7cab094ca",
+    "artifacts/native-wrist-wake-hardware/reboot-01/uart.txt": "e8f50ca0c8262d017a117858d15008cba23736f6a11d76f62df241c3f5b0ef0d",
+    "artifacts/native-wrist-wake-hardware/reboot-01/uart.bin": "88eff9d301d6ecff60978043fb0581545aa4d7bbbbd3c2e40017d4412f8eb371"
+  }
+}

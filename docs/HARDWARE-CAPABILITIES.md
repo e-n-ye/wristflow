@@ -205,3 +205,9 @@ status继续只读缓存，每阶段附加`imu-wrist-pin`；有效位增加CTRL4
 - [设置契约](PRODUCT-SETTINGS.md#native-wrist-wake-20261020)默认关闭并保存；UI专用入口仅唤醒OFF／DIM，ACTIVE不续时，不复用KEY或假触摸。普通120秒长睡和豁免保持；提醒用独立期限，充电／通知／退出确认不因腕事件关闭。main在黑屏中完成目标帧再提亮；KEY／TEST与腕事件同批时只处理既有KEY语义。
 
 Debug54/54、保留断言Release相关7/7、实际LVGL开关／字形／保存请求／覆盖状态及两个只读审查通过。Product`20261020-230509-333`／BIN`751de5f5…`、UI Demo`20261020-230622-144`／BIN`1cf7047c…`编译退出0，464／418源码及29／22产物哈希一致，SDK／子模块锁未变；命令、失败及边界见[软件证据](evidence/2026-10-20/native-wrist-wake.json)。没有本版串口／烧录，板上仍为旧`17f1b775…`；MCU IRQ、实际息屏唤醒／触摸／KEY1、开关Flash恢复、识别率／延迟、佩戴、物理DEEP／功耗均待同版验证。原worker栈6144B不变，峰值未测。
+
+### 同BIN翻腕亮屏设备闭环（2026-10-21）
+
+用户重新确认条件后，精确`751de5f5…`三镜像verify及启动／默认关闭通过，用户确认UI／触摸／KEY1／时间、开关初始关闭及手动开启保存。开启受控窗在新KEY→自然OFF之后放行，SOURCE85h／validffff、PA31 pre1/post0和IRQ／源有效UI请求增量各1与main的`wake event=wrist`／screen on一致，用户确认自行亮起仍原页。关闭保存后寄存器恢复、IRQ/AON责任释放，另一个新自然OFF后的25秒重复动作窗无新增IRQ／请求，用户确认保持黑屏。初始已存在的1及窗间额外累计不计受控样本数，旧event不是关闭后事件。
+
+重新开启保存后一次普通SDK reboot无RTS／补时，RTC连续，服务requested／continuous／armed／owned1自动恢复；用户最终确认屏幕／触摸／KEY1／时间／开关正常及步数0。当天总量／native／小时和0、mask7fffh／代次32保留，14:15:55 allow1后关闭COM5，腕保持已保存开启。[设备证据](evidence/2026-10-21/native-wrist-wake-hardware.json)覆盖实际LCD息屏→PA31 IRQ→同worker清源→专用亮屏和开关正常保存／普通重启恢复。PM enter／exit／deep_ticks为0且SDK IDLE仍1，不证明物理DEEP或从DEEP唤醒；非零保数、响应时延、佩戴／误触／漏检和功耗仍未验，器件精确身份与保留位未知不变。

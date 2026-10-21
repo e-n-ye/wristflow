@@ -3,6 +3,8 @@
 <a id="current-power-system"></a>
 ## 2026-10-14 当前系统与低功耗说明
 
+2026-10-20至21日腕增量：[原生AWT亮屏](HARDWARE-CAPABILITIES.md#native-wrist-wake)默认关闭，保存开启后PA31上升沿IRQ／AON索引7通知原IMU worker，完整清源验证后发独立事件128；main专用唤屏不复用KEY导航，KEY同批优先。持续等待不持本owner的IDLE，不新增100ms周期；失败停用继续保留责任。精确`751de5f5…`已有[实际LCD息屏→IRQ→亮屏、关闭不亮及普通reboot恢复](evidence/2026-10-21/native-wrist-wake-hardware.json)的有界设备结果；该轮PM enter／exit／deep_ticks均0且SDK IDLE仍1，不能写成物理DEEP或深睡腕唤醒通过，更不推导电流／续航。下方基线与旧C2边界保留原版本。
+
 2026-10-19计步增量：[原生今日步数接口](ACTIVITY.md#native-daily-steps)使IMU在Product启动后持续执行片上计步，HCPU亮屏约1秒／息屏约60秒恢复I2C读取；事件timeout使用锁定SDK tickless定时路径。仅准备／读取／清理序列持本服务IDLE，正常等待释放；未确认停止保留FAULT责任，计数更新不主动点亮屏幕。此项覆盖下文旧基线“没有使用IMU”的运行状态，不等于新负载下已实测DEEP计数连续性或省电；硬件及增量电流仍待本版验证。
 
 10-15 状态梳理：下文机制核验与旧设备结果保留原版本；最近已确认 BIN `0794fb9d…` 还有仅电池页面／KEY1 及短时双电源禁充回读，见[同接记录](CHARGER-PREFLIGHT.md)。用户当前确认电池连接，屏幕 `USB` 仍是缺失数据占位。没有新增长时、驻留、电流或续航测量。无任务轮询／退出清理等软件改进可以独立推进，其省电收益在具备仪器后另验；完整 H2／功耗基线不作为普通功能开发的统一前置，分层方法见[验收说明](ACCEPTANCE.md#validation-20261015)，当前任务仍只见 STATUS。
@@ -23,6 +25,8 @@ flowchart TD
     Timer --> Event[事件邮箱]
     Ble --> Event
     Key[KEY1 按键] --> Event
+    Imu[内置AWT / PA31 IRQ，用户开关] --> ImuWorker[原IMU worker：配置与清源验证]
+    ImuWorker --> Event
     Event --> UI
     UI --> PM[应用休眠许可]
     PM --> SDK[RT-Thread 与固定 SiFli SDK：驱动、BLE、PM]
