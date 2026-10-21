@@ -1,0 +1,142 @@
+{
+  "schema": 1,
+  "date": "2026-10-21",
+  "base_commit": "f9cfb58d5c657074ddd9719f21621c8ec9cdf135",
+  "branch": "codex/battery-device-export",
+  "local_worktree": "D:\\MY_Desk\\project\\wristflow",
+  "scope": "Protect and export existing stopped B2 RAM records; reopen comparison and expected cancellation only.",
+  "runtime": {
+    "python": "3.12.9 (tags/v3.12.9:fdb8142, Feb  4 2025, 15:27:58) [MSC v.1942 64 bit (AMD64)]",
+    "openhtf": "1.6.1",
+    "pyserial": "3.5"
+  },
+  "source_inspection": {
+    "allowed_commands": [
+      "wf_pm status",
+      "wf_battery status",
+      "wf_battery dump <session> <offset> <count>"
+    ],
+    "executed_source_sha256": {
+      "battery_device.py": "7ace05d98b5ff9c2f597f9bff38c0d4f040b9bc6053c25405a18e7724a7c4541",
+      "battery_collect.py": "c42f5753b1f64f1539f3038460d5894611c27948461f021f1489d449f21a3db3",
+      "battery_console.py": "bc6c2e52f992f607b37ec3310fcce6439086e838e75238fe6cad5731d4585a2d",
+      "battery_lab.py": "59dd0103852c335a144e26276cb19c6236dc19951b51e4045272610cf072f25f"
+    },
+    "final_source_sha256": {
+      "scripts/battery_device.py": "3cb2d944388c8653efe123b244dc3be66b368717d24f36a77221e2495e6c3e97",
+      "scripts/battery_collect.py": "c42f5753b1f64f1539f3038460d5894611c27948461f021f1489d449f21a3db3",
+      "scripts/battery_console.py": "81a3e8e7829d355e72b715bf02d7c92a056217622df5edd31c0270c4a1442067",
+      "scripts/battery_lab.py": "59dd0103852c335a144e26276cb19c6236dc19951b51e4045272610cf072f25f",
+      "tests/test_battery_device.py": "afee94e359161f99c4cbfdb12b5569dae6c9b11867174381e158380c07259470"
+    },
+    "post_device_change": "Only report preparation/verification fields, result detail and terminal page rendering plus related tests changed after the saved serial run. Final rendering was checked from saved evidence; hardware was not rerun.",
+    "executed_source_reconstruction": "Reversed the exact post-device file-change hunks from the previous chat into local snapshots. Both reconstructed source byte hashes exactly match the immutable run binding. Collector/lab hashes remain unchanged.",
+    "independent_review": "Read-only review found no remaining blocker in command whitelist, record protection, cancellation arbitration/cleanup, verification rendering or artifact binding. No device operations by reviewer."
+  },
+  "host_validation": {
+    "command": "CC=D:/msys64/ucrt64/bin/gcc.exe uv run --isolated --python 3.12 --with-requirements scripts/requirements-battery-lab.txt python -m unittest discover -s tests -p 'test_battery_*.py' -v",
+    "tests": 52,
+    "exit_code": 0,
+    "log": "artifacts\\battery-device-tests-display-final.log",
+    "browser": {
+      "source": "saved serial report; no serial transport constructed",
+      "summary": "本轮检查通过 · 已验证 5 / 5 项 · 本轮已取消",
+      "verification_passed": 5,
+      "screenshot": "artifacts/battery-device-20261021/browser-verification.png"
+    }
+  },
+  "firmware": {
+    "build_result": "D:\\MY_Desk\\project\\wristflow\\artifacts\\product\\20261021-185828-667\\result.json",
+    "build_result_sha256": "841051f487c5417191ba23a3f0df95b68a1789c777cc13d1c497792f02d7c1a3",
+    "bin_sha256": "1d6df1a4e1b4f5c9e2a7737be0d58294cffc0e46153a46772c3ff9e85bcbe575",
+    "artifacts_rehashed": 29,
+    "new_firmware_build": false,
+    "flashing": false,
+    "sdk_or_lock_changed": false,
+    "device_identity_verified": false,
+    "identity_basis": "Operator confirms same board/BIN and uninterrupted supply; host USB metadata and local artifacts match. No firmware attestation protocol."
+  },
+  "hardware_validation": {
+    "command": "uv run --isolated --python 3.12 --with-requirements scripts/requirements-battery-lab.txt python scripts/battery_device.py --serial-port COM5 --usb-location 1-1.1 --build-result artifacts/product/20261021-185828-667/result.json --expected-trace tests/fixtures/battery-b2-20261021.json --out artifacts/battery-device-20261021/run-001 --port 4444 --timeout 900",
+    "exit_code": 1,
+    "expected_exit_reason": "Operator cancellation is the required check; passed remains false.",
+    "run": "artifacts\\battery-device-20261021\\run-001",
+    "report": {
+      "kind": "protected_device_export",
+      "outcome": "cancelled",
+      "passed": false,
+      "bounded_checks_met": true,
+      "device_identity_verified": false,
+      "new_battery_experiment_complete": false,
+      "transport_kind": "serial",
+      "protected_export_matched": true,
+      "reopened_export_matched": true,
+      "cancel_cleanup_observed": true,
+      "record_count": 121,
+      "cleanup_confirmed": true,
+      "detail": "Operator cancelled",
+      "completed_phases": 4,
+      "total_phases": 5
+    },
+    "commands": 24,
+    "exports": 2,
+    "records_per_export": 121,
+    "pages_per_export": 8,
+    "all_records_and_frozen_fields_match_b2": true,
+    "pm_allow_observations": [
+      1,
+      1,
+      1,
+      1
+    ],
+    "serial_open_at": "2026-10-21T21:11:18.838+08:00",
+    "second_export_at": "2026-10-21T21:11:24.546+08:00",
+    "cancel_at": "2026-10-21T21:11:32.042+08:00",
+    "last_serial_close_at": "2026-10-21T21:11:32.150+08:00",
+    "automatic_exports_ms": 5703.0,
+    "cancel_to_close_ms": 109.0,
+    "kernel_lease_reacquired_without_serial_open": true,
+    "operator_final_feedback": "已取消，常亮已关闭，界面正常",
+    "operator_feedback_source": "codex://threads/01a15e56-a63b-7270-9e9d-5fbc2b2986f2"
+  },
+  "failures_and_limits": [
+    "Initial terminal page showed 4/5 completed because the required cancellation was not a completed phase. Raw outcome/count remain unchanged; final UI now displays a separate 5/5 verification list.",
+    "Skipped cancellation, timeout, changed records, cold boot and I/O cleanup failure are injected host tests only, not device fault validation.",
+    "This run does not add new ADC/SOC data, a full 480-second BAT window, sleep-current/battery-life evidence or a measured comparative time saving.",
+    "No firmware attestation; host metadata and operator continuity confirmation do not establish exact on-device identity."
+  ],
+  "next_bounded_experiment": "Close this reviewed PR and synchronize main; the following separate software round should define and validate battery display recovery boundaries against fixed replay and edge cases, without treating 30/60 seconds as chosen production constants.",
+  "artifacts_sha256": {
+    "artifacts/battery-device-20261021/run-001/binding.json": "d4f5462ee20edd82aa85bf4ccedec1a8f75826da6c1ef8cb550320d000ae4e7d",
+    "artifacts/battery-device-20261021/run-001/collection.json": "0000d136f690c2bc986119dfffd8ad9c453c0ac03e85146dda60e6a1a885a7ff",
+    "artifacts/battery-device-20261021/run-001/events.jsonl": "33d4ace8336d858b9b8ed6fbf1249a0330568f11b420cfa76f880abb10f454b8",
+    "artifacts/battery-device-20261021/run-001/progress.json": "dd373cde075f2a60445e4be7a3971c89a63ff1d3b1721c86af441dba7b9af3e3",
+    "artifacts/battery-device-20261021/run-001/protected-page-000-attempt-0.bin": "668a542dd9eae035ec839ce91efa475f2b780677438030e4024d10528330e147",
+    "artifacts/battery-device-20261021/run-001/protected-page-016-attempt-0.bin": "a1d33c6a85a495f7d7d706a498a767b8e4c506619c3939aba7bea13b7d81118d",
+    "artifacts/battery-device-20261021/run-001/protected-page-032-attempt-0.bin": "7c1e6eecd046353d6c4e9f80bc6fd90a247c2b2cd6f790bd45b852fd911c12dd",
+    "artifacts/battery-device-20261021/run-001/protected-page-048-attempt-0.bin": "a326e5be1d0f27e2271a2a6b47565013acfa46091760da8ee60e84398372e7d9",
+    "artifacts/battery-device-20261021/run-001/protected-page-064-attempt-0.bin": "67a34dc25864fa6629f6571dea7ee5aaef5e50c90f775ca1f38360b08e3ef8e7",
+    "artifacts/battery-device-20261021/run-001/protected-page-080-attempt-0.bin": "51123c8f6a54a249bbdbbb1db21f8f4d7c29c966fcb60768275567cc392df5db",
+    "artifacts/battery-device-20261021/run-001/protected-page-096-attempt-0.bin": "0478e77851ebfdc3f47dfb95c0747b4ad2c49c45918410ab7b5d3f00e3bf4c82",
+    "artifacts/battery-device-20261021/run-001/protected-page-112-attempt-0.bin": "870caacf16c90c51ea21eaff22cc71e5f18226c44e48382ae1cf4c7baf359105",
+    "artifacts/battery-device-20261021/run-001/protected.json": "7f9136dab1a53a811d4805aefc54af6781fc3cea142f0a4ddce53411b99019a7",
+    "artifacts/battery-device-20261021/run-001/reopened-page-000-attempt-0.bin": "c8a0c9720f1809177695e57bf2b747185ffe4a3817f47a54af7939092b4ebc8b",
+    "artifacts/battery-device-20261021/run-001/reopened-page-016-attempt-0.bin": "273f873123766aeee23bf5ba240761bd60953e1cacfdf17531a80dc97fb7aded",
+    "artifacts/battery-device-20261021/run-001/reopened-page-032-attempt-0.bin": "4f34d29df4d4da2c06b61dc14493152d30343f8a4851fb8fbe2c838ad62b7176",
+    "artifacts/battery-device-20261021/run-001/reopened-page-048-attempt-0.bin": "7fcd6dbd359d8503c8e671cefa4067ec3f9622d1251d8b44ed835f94f1a2c8ea",
+    "artifacts/battery-device-20261021/run-001/reopened-page-064-attempt-0.bin": "5a47e5cde3de1410c3d51d8bf65377d15d9d94196eb4d71be9d8a14a13599b51",
+    "artifacts/battery-device-20261021/run-001/reopened-page-080-attempt-0.bin": "83d03756aea40d3663c55770f7e23d9105c5c6d3df1ca1fa6ce221fa38fb8419",
+    "artifacts/battery-device-20261021/run-001/reopened-page-096-attempt-0.bin": "30e332c9a6ced04f2461b5d55eec953273ae5cfc7af7edd1654fe49ce121d3bc",
+    "artifacts/battery-device-20261021/run-001/reopened-page-112-attempt-0.bin": "dfa66045470b3b5a80508929b6f824e0849559843e4134b426299920bcf57be3",
+    "artifacts/battery-device-20261021/run-001/reopened.json": "32facddbd0145b8683efab4f5e04766f6597d49a227f764118fe862d2e759ab7",
+    "artifacts/battery-device-20261021/run-001/uart.bin": "5f09682c0ed572e2adeeaf21c80a8f0d7358b9d4351c3860b97c4e44724b8a1c",
+    "artifacts/battery-device-20261021/acceptance.json": "db4024e191a2d9eb415cbcfbba5d23d0d91e0cd8c024581222e92a64e22cb9f3",
+    "artifacts/battery-device-20261021/browser-cancel.png": "09632a88c6077004c7be5c24b7fa272ef8d777c5e4219caca76cd35672e28c46",
+    "artifacts/battery-device-20261021/browser-verification.png": "fc70b686d57f3eddd1eda1dcbd251a010b379e21b2c02d055faea1fd82252334",
+    "artifacts/battery-device-20261021/result-view-001/view.json": "45cda8ca5ede6ee8e94b4387c359f5199dc653608f85bfb136d10796256aeeba",
+    "artifacts/battery-device-tests-display-final.log": "5e66cb54e251b49835a4a29f436452a10bfe3b1bc5c6d655fda3b6ec4c2100a5",
+    "artifacts/battery-device-20261021/display-change.json": "a0dad5f18903afecf0f1716cb489a4579e6b93cc185484254c01e91d2f0277fd",
+    "artifacts/battery-device-20261021/executed-source/battery_console.py": "bc6c2e52f992f607b37ec3310fcce6439086e838e75238fe6cad5731d4585a2d",
+    "artifacts/battery-device-20261021/executed-source/battery_device.py": "7ace05d98b5ff9c2f597f9bff38c0d4f040b9bc6053c25405a18e7724a7c4541"
+  }
+}
