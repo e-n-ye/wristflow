@@ -1,0 +1,422 @@
+{
+  "schema": 1,
+  "date": "2026-10-21",
+  "base_commit": "6be31181bd69518f85d7d6e228ebbccffa4a33e9",
+  "branch": "codex/battery-guided-device-test",
+  "local_worktree": "D:\\MY_Desk\\project\\wristflow",
+  "scope": "Existing BIN; guided new BAT-only load/recovery acquisition, backup before overwrite and bounded serial recovery.",
+  "source_sha256": {
+    "scripts/battery_experiment.py": "0858b737267239d20679ccd8a7407e7fa97853aa458c6bc41bb97d181b3a92d8",
+    "scripts/battery_console.py": "2ebe5d0dd75b5d3d9db0444cd3270b24c579b9be6e071bcc09098c14a05f0ce7",
+    "tests/test_battery_experiment.py": "cd6341c9f10ddd64457f14fd9bc4f5edf4af20dda3f7812c4c4a2e836f6a32d1",
+    "tests/fixtures/battery-guided-20261021.json": "7ca07f5656d12516464263f348f7c0a55b5ee187dc41bc387527f7f147e824a6"
+  },
+  "executed_scripts_sha256": {
+    "battery_device.py": "660a0de76420dc10f9ebcc62b12d8f09908c6179bd039a3ea8e59489274ba60c",
+    "battery_collect.py": "c42f5753b1f64f1539f3038460d5894611c27948461f021f1489d449f21a3db3",
+    "battery_console.py": "2ebe5d0dd75b5d3d9db0444cd3270b24c579b9be6e071bcc09098c14a05f0ce7",
+    "battery_lab.py": "0b5597c2be2aee5e8ff542535e3275945a643fa9d822bca415a8eee86aef0d59",
+    "battery_experiment.py": "0858b737267239d20679ccd8a7407e7fa97853aa458c6bc41bb97d181b3a92d8"
+  },
+  "host_validation": {
+    "command": "CC=D:/msys64/ucrt64/bin/gcc.exe uv run --isolated --python 3.12 --with-requirements scripts/requirements-battery-lab.txt python -m unittest discover -s tests -p 'test_battery_*.py' -v",
+    "tests_before_device": 82,
+    "exit_code": 0,
+    "log": "artifacts/battery-guided-experiment-final-tests.log",
+    "tests_after_new_fixture": 83,
+    "final_log": "artifacts/battery-guided-experiment-closeout-tests.log",
+    "browser": "Actual operator completed 11/11 phases; screenshot is the saved terminal page.",
+    "independent_review": "Read-only admission and saved-run audits found no remaining blocker. Admission defect (collection success without window checks) was fixed before serial execution."
+  },
+  "firmware": {
+    "bin_sha256": "1d6df1a4e1b4f5c9e2a7737be0d58294cffc0e46153a46772c3ff9e85bcbe575",
+    "build_result": "D:\\MY_Desk\\project\\wristflow\\artifacts\\product\\20261021-185828-667\\result.json",
+    "artifacts_rehashed": 29,
+    "new_firmware_build": false,
+    "flashed": false,
+    "sdk_changed": false,
+    "device_identity_verified": false,
+    "identity_basis": "Operator confirms same board/BIN and uninterrupted supply; host USB metadata and local artifacts match. No firmware attestation protocol."
+  },
+  "hardware": {
+    "command": "uv run --isolated --python 3.12 --with-requirements scripts/requirements-battery-lab.txt python scripts/battery_experiment.py --serial-port COM5 --usb-location 1-1.1 --build-result artifacts/product/20261021-185828-667/result.json --expected-trace tests/fixtures/battery-b2-20261021.json --out artifacts/battery-guided-20261021/run-001 --port 4444",
+    "exit_code": 0,
+    "operator_preflight": "Same board/screen/original battery; loose wire secured; no reboot or flash; operator present.",
+    "old_trace_protected": {
+      "session": 3,
+      "records": 121,
+      "sha256": "b73d52ea4c349aec521ec0e6d32edc331f5d18a0724075b769e770f519277e8e",
+      "exact_b2_record_match": true
+    },
+    "new_trace": {
+      "schema": 1,
+      "session": 4,
+      "state": 2,
+      "count": 110,
+      "cap": 256,
+      "start": 11153881,
+      "duration": 900000,
+      "now": 11641232
+    },
+    "records": 110,
+    "commands": {
+      "wf_pm status": 3,
+      "wf_battery status": 5,
+      "wf_battery dump 3 0 16": 1,
+      "wf_battery dump 3 16 16": 2,
+      "wf_battery dump 3 32 16": 1,
+      "wf_battery dump 3 48 16": 1,
+      "wf_battery dump 3 64 16": 1,
+      "wf_battery dump 3 80 16": 1,
+      "wf_battery dump 3 96 16": 1,
+      "wf_battery dump 3 112 9": 1,
+      "wf_battery start 900": 1,
+      "wf_battery stop": 1,
+      "wf_battery dump 4 0 16": 2,
+      "wf_battery dump 4 16 16": 1,
+      "wf_battery dump 4 32 16": 1,
+      "wf_battery dump 4 48 16": 1,
+      "wf_battery dump 4 64 16": 1,
+      "wf_battery dump 4 80 16": 1,
+      "wf_battery dump 4 96 14": 1
+    },
+    "command_count": 27,
+    "start_count": 1,
+    "stop_count": 1,
+    "pm_or_charger_control_sent": false,
+    "milestones": [
+      {
+        "kind": "confirmed",
+        "phase": "prepare",
+        "time": "2026-10-21T22:23:42.217+08:00"
+      },
+      {
+        "kind": "transport_open",
+        "phase": null,
+        "time": "2026-10-21T22:23:42.230+08:00"
+      },
+      {
+        "kind": "armed",
+        "phase": null,
+        "time": "2026-10-21T22:23:45.896+08:00"
+      },
+      {
+        "kind": "transport_closed",
+        "phase": null,
+        "time": "2026-10-21T22:23:45.953+08:00"
+      },
+      {
+        "kind": "confirmed",
+        "phase": "unplug",
+        "time": "2026-10-21T22:23:57.563+08:00"
+      },
+      {
+        "kind": "timed_stage_started",
+        "phase": "baseline",
+        "time": "2026-10-21T22:23:57.570+08:00"
+      },
+      {
+        "kind": "timed_stage_finished",
+        "phase": "baseline",
+        "time": "2026-10-21T22:25:27.584+08:00"
+      },
+      {
+        "kind": "confirmed",
+        "phase": "flashlight",
+        "time": "2026-10-21T22:25:35.837+08:00"
+      },
+      {
+        "kind": "timed_stage_started",
+        "phase": "flashlight",
+        "time": "2026-10-21T22:25:35.842+08:00"
+      },
+      {
+        "kind": "timed_stage_finished",
+        "phase": "flashlight",
+        "time": "2026-10-21T22:27:05.849+08:00"
+      },
+      {
+        "kind": "confirmed",
+        "phase": "recovery",
+        "time": "2026-10-21T22:27:14.836+08:00"
+      },
+      {
+        "kind": "timed_stage_started",
+        "phase": "recovery",
+        "time": "2026-10-21T22:27:14.839+08:00"
+      },
+      {
+        "kind": "timed_stage_finished",
+        "phase": "recovery",
+        "time": "2026-10-21T22:30:14.841+08:00"
+      },
+      {
+        "kind": "timed_stage_started",
+        "phase": "control",
+        "time": "2026-10-21T22:30:14.850+08:00"
+      },
+      {
+        "kind": "timed_stage_finished",
+        "phase": "control",
+        "time": "2026-10-21T22:31:44.850+08:00"
+      },
+      {
+        "kind": "confirmed",
+        "phase": "reconnect",
+        "time": "2026-10-21T22:31:52.964+08:00"
+      },
+      {
+        "kind": "transport_open",
+        "phase": null,
+        "time": "2026-10-21T22:31:52.979+08:00"
+      },
+      {
+        "kind": "recorder_stopped",
+        "phase": null,
+        "time": "2026-10-21T22:31:53.442+08:00"
+      },
+      {
+        "kind": "recorder_stopped",
+        "phase": null,
+        "time": "2026-10-21T22:31:55.673+08:00"
+      },
+      {
+        "kind": "transport_closed",
+        "phase": null,
+        "time": "2026-10-21T22:31:55.739+08:00"
+      },
+      {
+        "kind": "finished",
+        "phase": null,
+        "time": "2026-10-21T22:31:55.758+08:00"
+      }
+    ],
+    "analysis": {
+      "new_hardware_data": true,
+      "soc_or_consumed_charge_measured": false,
+      "battery_observation_span_ms": 475084,
+      "battery_unique_adc": 95,
+      "unknown_pg_rows": 0,
+      "off_rows": 0,
+      "before_flashlight": {
+        "unique_adc": 20,
+        "mv_median": 4157.0,
+        "mv_min": 4156,
+        "mv_max": 4159,
+        "display_percent": [
+          99
+        ],
+        "candidate_percent": [
+          98,
+          99
+        ],
+        "brightness_ack": [
+          55
+        ]
+      },
+      "flashlight": {
+        "unique_adc": 18,
+        "mv_median": 4126.0,
+        "mv_min": 4121,
+        "mv_max": 4150,
+        "display_percent": [
+          97,
+          99
+        ],
+        "candidate_percent": [
+          97,
+          98
+        ],
+        "brightness_ack": [
+          100
+        ]
+      },
+      "recovery": {
+        "after_0_30s": {
+          "unique_adc": 5,
+          "mv_median": 4143,
+          "mv_min": 4141,
+          "mv_max": 4145,
+          "display_percent": [
+            97
+          ],
+          "candidate_percent": [
+            97,
+            98
+          ],
+          "brightness_ack": [
+            55
+          ]
+        },
+        "after_30_60s": {
+          "unique_adc": 6,
+          "mv_median": 4145.5,
+          "mv_min": 4144,
+          "mv_max": 4146,
+          "display_percent": [
+            97
+          ],
+          "candidate_percent": [
+            98
+          ],
+          "brightness_ack": [
+            55
+          ]
+        },
+        "after_60_120s": {
+          "unique_adc": 12,
+          "mv_median": 4145.0,
+          "mv_min": 4144,
+          "mv_max": 4146,
+          "display_percent": [
+            97
+          ],
+          "candidate_percent": [
+            98
+          ],
+          "brightness_ack": [
+            55
+          ]
+        },
+        "after_120_180s": {
+          "unique_adc": 12,
+          "mv_median": 4144.5,
+          "mv_min": 4143,
+          "mv_max": 4145,
+          "display_percent": [
+            97
+          ],
+          "candidate_percent": [
+            98
+          ],
+          "brightness_ack": [
+            55
+          ]
+        },
+        "after_180_300s": {
+          "unique_adc": 20,
+          "mv_median": 4143.5,
+          "mv_min": 4142,
+          "mv_max": 4144,
+          "display_percent": [
+            97
+          ],
+          "candidate_percent": [
+            98
+          ],
+          "brightness_ack": [
+            55
+          ]
+        }
+      },
+      "white_context_span_ms": 89205,
+      "exit_observed_ms": 11356154,
+      "load_window_observed": true,
+      "observed_window_checks": {
+        "baseline_at_least_80s": true,
+        "flashlight_at_least_80s": true,
+        "recovery_and_control_at_least_260s": true,
+        "normal_brightness_unchanged": true,
+        "flashlight_ack100": true,
+        "no_off_or_unknown_pg_inside_bat_window": true,
+        "recorder_not_full": true
+      },
+      "observed_window_checks_met": true,
+      "limits": "Only raw voltage/estimator/observed load context. No current integration, SOC calibration or matched-energy conclusion."
+    },
+    "candidate98_display97_independent_adc_after30s": 50,
+    "collection_report_summary": {
+      "kind": "guided_battery_experiment",
+      "outcome": "passed",
+      "collection_completed": true,
+      "passed": true,
+      "host_resources_closed": true,
+      "recorder_stopped_confirmed": true,
+      "detail": "",
+      "soc_accuracy_verified": false
+    },
+    "kernel_lease_reacquired_without_serial_open": true,
+    "operator_final_feedback": "已关闭，屏幕／触摸／时间正常",
+    "final_supply": "USB remained connected after export."
+  },
+  "new_data_replay": {
+    "fixture": "tests/fixtures/battery-guided-20261021.json",
+    "fixture_sha256": "7ca07f5656d12516464263f348f7c0a55b5ee187dc41bc387527f7f147e824a6",
+    "checked_production_rows": 109,
+    "warm_state_row": 0,
+    "guarded_experiment_parameters": {
+      "retain_ms": 15000,
+      "settle_ms": 60000,
+      "settle_samples": 3,
+      "max_sample_gap_ms": 15000
+    },
+    "settling_events": [
+      {
+        "index": 28,
+        "adc": 11266097,
+        "percent": 98,
+        "candidate": 98
+      },
+      {
+        "index": 45,
+        "adc": 11351097,
+        "percent": 97,
+        "candidate": 97
+      },
+      {
+        "index": 65,
+        "adc": 11436297,
+        "percent": 98,
+        "candidate": 98
+      }
+    ],
+    "claim": "Candidate behavior on fixed data only; production algorithm unchanged in this PR."
+  },
+  "failures_and_limits": [
+    "Protected page offset16 and new page offset0 were initially incomplete/extra; both preserved original bytes and succeeded after one bounded reread.",
+    "Orphan UART tails were persisted and discarded from parsing; no byte repair or cross-command joining.",
+    "BAT span475084ms is first/last observed BAT context, not continuous current sampling. Independent ADC count95.",
+    "Ordinary page after flashlight is sequential recovery observation, not an independent randomized or matched-energy control.",
+    "No current integration, actual capacity/SOC calibration, lower-voltage large-jump, deep-sleep or battery-life conclusion.",
+    "BLE remote testing is feasible as a separate diagnostic interface but is not implemented or tested by this change."
+  ],
+  "next_bounded_experiment": "Use the two fixed real traces to implement/validate the confirmed sustained one-point display-stall fix in a separate production software round. BLE transport/navigation remains a scoped proposal, not another parallel feature implementation.",
+  "artifacts_sha256": {
+    "artifacts/battery-guided-20261021/run-001/analysis.json": "c87b95e46431fe04d76d9ad14482c1abc489589935ba76a28e9d6cbe59a92f2a",
+    "artifacts/battery-guided-20261021/run-001/binding.json": "8636217503a7f7cd7d2a9ea92a41536e9bd73b13200ed1f5eeb2a04cd96120b1",
+    "artifacts/battery-guided-20261021/run-001/collection.json": "419e0266df3071c07a067029b43bf26f2c371e8a70a9def60baa423d4697af18",
+    "artifacts/battery-guided-20261021/run-001/events.jsonl": "c52f2f951e4149da3812e1d178c6cfa3dd7f97a7d1804c0cb1a8ef0bec1acf5a",
+    "artifacts/battery-guided-20261021/run-001/ownership.json": "26cc0996bbd9040f3a43d74d4132991749876abea76e231bccd24266b7a49218",
+    "artifacts/battery-guided-20261021/run-001/page-000-attempt-0.bin": "a001e1f58d7263e160b268c50176c33b601c684b1d8c562fe62ab2c988b5f4fd",
+    "artifacts/battery-guided-20261021/run-001/page-000-attempt-1.bin": "1d205bd2f5c8908d78caae0f3ac704c6991abaef422792d3890107f50e1cbf18",
+    "artifacts/battery-guided-20261021/run-001/page-016-attempt-0.bin": "b7ce477b8d426c568a76d4d9297b5c01c1c0f49e6abddd5b0d1702486a17ba96",
+    "artifacts/battery-guided-20261021/run-001/page-032-attempt-0.bin": "04e2bc1deb38def7addbba51314349343ffecfaffbfef6470e9f3692203f83b0",
+    "artifacts/battery-guided-20261021/run-001/page-048-attempt-0.bin": "b274ced119a7e411acfcf8a2f7150e940a4bb0118af790859339a7c7b4ba0522",
+    "artifacts/battery-guided-20261021/run-001/page-064-attempt-0.bin": "8c4b76e07243e3c228eb44e88be397a0540075dc9ed4cc11190b6c6c596f17b0",
+    "artifacts/battery-guided-20261021/run-001/page-080-attempt-0.bin": "919d0fd6fa4d4607f0d8a04bf7c384837af5b9df39cab2d56bb7d4e578268901",
+    "artifacts/battery-guided-20261021/run-001/page-096-attempt-0.bin": "2c06a7f0f786542be1f5161a763dbbee4f7f216757288c1fd8fcc41ddd531c95",
+    "artifacts/battery-guided-20261021/run-001/progress.json": "45436243dec89a40ab39edc2f173f12e4d92ff83d0b95ccd4543e20ce226bbdc",
+    "artifacts/battery-guided-20261021/run-001/protected-page-000-attempt-0.bin": "26635e9678f5f970e4e2037662380a8ed766786fc170e428da68fadeb0ef2ba4",
+    "artifacts/battery-guided-20261021/run-001/protected-page-016-attempt-0.bin": "c2f5be99a37d27b48df5de94aa6453fd88ec9e83cf1e10e4e02deb567aebe235",
+    "artifacts/battery-guided-20261021/run-001/protected-page-016-attempt-1.bin": "dc19e31ece878c3044b100793a1a4f9598afed299c2b705d23bf05f286a1bd32",
+    "artifacts/battery-guided-20261021/run-001/protected-page-032-attempt-0.bin": "1bddd366a9c644c86088eda11eece7d1135c00d8b2ff5244059de61bf83d6b93",
+    "artifacts/battery-guided-20261021/run-001/protected-page-048-attempt-0.bin": "1ca6eadc67e333528b8c8ca082e3d5af94b2978b638a0552cb665422f60d2e61",
+    "artifacts/battery-guided-20261021/run-001/protected-page-064-attempt-0.bin": "3ac12e37336d65c6d1049e3c08276456256b6d103ebf5eab511ccf3ac5fe8720",
+    "artifacts/battery-guided-20261021/run-001/protected-page-080-attempt-0.bin": "4be4b5f293f61145072893f4bcca54e1a31e62ba791b2d86f50c1647c61e2668",
+    "artifacts/battery-guided-20261021/run-001/protected-page-096-attempt-0.bin": "b02dd4e78f3a38252f56b636a49c6af1c1ed03c4d7f8b1fefdc14f9fe6a20351",
+    "artifacts/battery-guided-20261021/run-001/protected-page-112-attempt-0.bin": "f9574a97706f4f8e6475ae239fa3f037be9516c959677e92fdf038043bdadfc9",
+    "artifacts/battery-guided-20261021/run-001/protected.json": "b73d52ea4c349aec521ec0e6d32edc331f5d18a0724075b769e770f519277e8e",
+    "artifacts/battery-guided-20261021/run-001/records.json": "ff48fecb9cf7c0aad7758a3053e23538b0df1debaa7ae63ae4eb61c1ee229a0b",
+    "artifacts/battery-guided-20261021/run-001/uart.bin": "b34d7cc05ca7c9d8b67bebfc1e6f801af65dd0d50124240207b4035273a5e0ae",
+    "artifacts/battery-guided-20261021/replay-001/battery_replay.exe": "a79fa6585895a69a3cd749159c6ae99a42e0ba540ddb1f6429dedd560afb623a",
+    "artifacts/battery-guided-20261021/replay-001/build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "artifacts/battery-guided-20261021/replay-001/engine-input.txt": "72a72e77f3ae739feb25594f689001a5212b58e4deb5b6de0717e7c4c483dc6d",
+    "artifacts/battery-guided-20261021/replay-001/engine.txt": "510e1f379ea1cd621756d4fe9af26b5ee6db29c524cd90ef971f7466841e7a58",
+    "artifacts/battery-guided-20261021/replay-001/predictions.json": "5dcc2aa1aba90b04eff7a4b3639a5bdcd84128534462b360b05dbc4cedb0ef9a",
+    "artifacts/battery-guided-20261021/replay-001/replay.json": "8460367082ef57954917b521adf2e5651b9b05bed6a71804a21abdaf9f154d1d",
+    "artifacts/battery-guided-20261021/replay-001/report.md": "f8fa1a37760fcab062c45fdb591802f2c9906cb79fe3ac7eba9b2bcaf8eb57ad",
+    "artifacts/battery-guided-20261021/browser-completed.png": "de0c21c0f415b204089fce53d854a767254693de4df62407b28b315b11d323e0",
+    "artifacts/battery-guided-experiment-final-tests.log": "fc9802c0c28d8c943b8953e13a47f829ff230757997f5fe67e98425546dedd3e",
+    "artifacts/battery-guided-experiment-closeout-tests.log": "88cfc4671a774198bdea84989bbebb80be3f0696f65147bab0252b90954906f2"
+  }
+}
