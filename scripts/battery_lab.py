@@ -75,13 +75,13 @@ def load_trace(path):
     return data
 
 
-def replay(fixture, output, cc):
+def replay(fixture, output, cc, *, guarded=None):
     fixture, output = pathlib.Path(fixture).resolve(), pathlib.Path(output).resolve()
     data = load_trace(fixture)
     rows = data["records"]
     output.mkdir(parents=True, exist_ok=False)
     engine = output / "battery_replay.exe"
-    sources = [ROOT / "scripts/battery_replay.c", ROOT / "core/battery_estimate.c"]
+    sources = [ROOT / "scripts/battery_replay.c", ROOT / "scripts/battery_policy.c", ROOT / "core/battery_estimate.c"]
     command = [cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-I", str(ROOT / "core"),
                *map(str, sources), "-o", str(engine)]
     build = subprocess.run(command, capture_output=True, text=True, timeout=60)
@@ -94,25 +94,37 @@ def replay(fixture, output, cc):
     if not first["filter_valid"] or not first["percent_valid"] or first["decision"] != 3:
         raise ValueError("This replay requires a valid cached warm-state first row")
     wire = [f"1 {first['mode']} {first['percent']} {first['seq']} {first['filter']}"]
+    policies = POLICIES if guarded is None else ("baseline", "retention", "settling", "combined")
+    if guarded is not None:
+        if (set(guarded) != {"retain_ms", "settle_ms", "settle_samples", "max_sample_gap_ms"} or
+            any(type(v) is not int or not 0 < v <= 900000 for v in guarded.values()) or
+            not 2 <= guarded["settle_samples"] <= 256):
+            raise ValueError("Invalid guarded host policy parameters")
+        wire[0] += f" {first['eval']} {first['adc']} {first['mv']}"
     for row in rows[1:]:
         wire.append(" ".join(str(row[k]) for k in
                     ("index", "eval", "adc", "seq", "mv", "raw_valid", "usb_valid", "usb_good", "charge")))
-    result = subprocess.run([str(engine)], input="\n".join(wire) + "\n", text=True,
+    engine_command = [str(engine)] + ([] if guarded is None else
+        [str(guarded[k]) for k in ("retain_ms", "settle_ms", "settle_samples", "max_sample_gap_ms")])
+    result = subprocess.run(engine_command, input="\n".join(wire) + "\n", text=True,
                             capture_output=True, timeout=30, check=True)
     (output / "engine-input.txt").write_text("\n".join(wire) + "\n", encoding="utf-8")
     (output / "engine.txt").write_text(result.stdout, encoding="utf-8")
-    predictions = {name: [dict(first)] for name in POLICIES}
+    predictions = {name: [dict(first)] for name in policies}
     aliases = []
     for line in result.stdout.splitlines():
         index, policy, *values = map(int, line.split())
-        prediction = dict(rows[index], **dict(zip(OUTPUT_KEYS, values)))
-        predictions[POLICIES[policy]].append(prediction)
+        keys = OUTPUT_KEYS if guarded is None else OUTPUT_KEYS + ("restored", "history_reset", "settled")
+        if len(values) != len(keys):
+            raise ValueError("Unexpected engine output width")
+        prediction = dict(rows[index], **dict(zip(keys, values)))
+        predictions[policies[policy]].append(prediction)
         if policy:
             continue
         for key in OUTPUT_KEYS:
             # Context rows may retain NEW/SEED diagnostics from an earlier eval;
             # calling the same sequence again yields CACHED without a new ADC.
-            if key == "decision" and values[-1] == 3 and rows[index][key] in (0, 1, 2):
+            if key == "decision" and prediction["decision"] == 3 and rows[index][key] in (0, 1, 2):
                 aliases.append(index)
                 continue
             if prediction[key] != rows[index][key]:
@@ -140,8 +152,9 @@ def replay(fixture, output, cc):
         "fixture_sha256": digest(fixture), "fixture_source": data.get("source", {}),
         "source_sha256": {str(path.relative_to(ROOT)): digest(path) for path in
                           [*sources, pathlib.Path(__file__).resolve(),
-                           ROOT / "core/battery_estimate.h", ROOT / "core/power_state.h"]},
+                           ROOT / "scripts/battery_policy.h", ROOT / "core/battery_estimate.h", ROOT / "core/power_state.h"]},
         "build_command": command, "build_exit": build.returncode,
+        "engine_command": engine_command, "guarded_parameters": guarded,
         "compiler_version": subprocess.run([cc, "--version"], text=True, capture_output=True,
                                            check=True, timeout=10).stdout.splitlines()[0],
         "python_version": sys.version, "engine_sha256": digest(engine),
@@ -157,7 +170,7 @@ def replay(fixture, output, cc):
                            "invalid_rows": [i for i, row in enumerate(group) if not row["percent_valid"]]}
                      for name, group in predictions.items()},
         "limits": ["Warm start uses recorded row 0; earlier history is unavailable.",
-                   "30s/60s are host experiment parameters, not selected firmware constants.",
+                   "Host experiment parameters are not selected firmware constants.",
                    "OFF gaps contain no voltage samples; no interpolation or SOC calibration.",
                    "UI/PG observations are not proof of physical input actions or DEEP."]}
     write_json(output / "replay.json", report)
@@ -165,10 +178,9 @@ def replay(fixture, output, cc):
     summary = ["# 电量离线回放", "", f"生产C回放：{len(rows)-1}行匹配；首行采用已记录热状态。",
                f"拔线延迟 {report['unplug_delay_ms']/1000:.3f}s，确认BAT跨度 "
                f"{report['confirmed_battery_span_ms']/1000:.3f}s。", "",
-               "| index | 原始mV | 原版% | 保留30s% | 收敛60s% | 组合% |",
+               "| index | 原始mV | 原版% | 保留策略% | 收敛策略% | 组合% |",
                "|---|---|---|---|---|---|"]
-    summary += [f"| {p['index']} | {p['raw_mv']} | {p['baseline']} | {p['retain_30s']} | "
-                f"{p['settle_60s']} | {p['combined']} |" for p in points]
+    summary += [f"| {p['index']} | {p['raw_mv']} | " + " | ".join(str(p[n]) for n in policies) + " |" for p in points]
     summary += ["", "以上为主机策略比较，未修改固件、未新增设备验证，也不代表真实SOC精度。"]
     (output / "report.md").write_text("\n".join(summary) + "\n", encoding="utf-8")
     return report

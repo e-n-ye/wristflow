@@ -14,7 +14,7 @@
 
 `scripts/battery_lab.py replay`验证schema、停止状态、数量、会话、连续索引、ADC身份／年龄和记录窗口；编译`core/battery_estimate.c`及主机专用`scripts/battery_replay.c`。记录开始前的历史不可重建，因此第0条只作热状态输入；其余120条比较生产C的滤波、有效性、候选、百分比、模式及decision。携带旧诊断的上下文行允许NEW／SEED与重复调用产生的CACHED对应，单列索引，不把它算作新ADC。
 
-另运行两个纯主机实验及其组合：缺样后30秒内、可信相同放电模式和新ADC恢复时复用历史；1点候选差异跨至少3个独立ADC及60秒后收敛。无效期间仍输出未知，不用旧百分比伪装新测量。30／60秒只是本轮实验参数，未决定固件常量。结果与限制见[B3](BATTERY-ESTIMATE.md#battery-workflow-pilot-20261021)。
+原无参数入口另运行两个早期纯主机实验及其组合：缺样后30秒内、可信相同放电模式和新ADC恢复时复用历史；1点候选差异跨至少3个独立ADC及60秒后收敛。无效期间仍输出未知，不用旧百分比伪装新测量。30／60秒只是早期实验参数，未决定固件常量。历史结果见[B3](BATTERY-ESTIMATE.md#battery-workflow-pilot-20261021)；该旧路径没有下段新guarded守卫，不用于证明其边界已通过。
 
 从仓库根目录运行；本机已有GCC可用，其他机器用实际编译器路径替换`--cc`：
 
@@ -23,6 +23,17 @@ python scripts/battery_lab.py replay --cc D:/msys64/ucrt64/bin/gcc.exe --out art
 ```
 
 输出目录必须不存在，防止覆盖旧证据。输出包括`build.log`、精确`engine-input.txt`、引擎输出、四组预测、`replay.json`和便读的`report.md`；JSON记录源码、输入、引擎哈希及编译器／Python版本。失败没有通过报告，保留该次目录与命令输出。
+
+<a id="guarded-policy-matrix"></a>
+### 带守卫的参数比较
+
+```bash
+python scripts/battery_policy_lab.py --cc D:/msys64/ucrt64/bin/gcc.exe --out artifacts/battery-policy/matrix-001
+```
+
+新入口显式启用主机`battery_policy.c`，运行18组：保留15／30／60秒 × 收敛30／60／120秒 × 相邻支持6／15秒，至少3份有序新ADC。参数保存在各`replay.json`的`guarded_parameters`与精确引擎命令中，不写入固件。每组独立输出和生产C校验；总报告`matrix.json`记录事件行、参数、源码／输入和子报告哈希，`report.md`便读。目录已存在或任一编译／回放／有效性比较失败即异常退出，不写成功总报告；以显式异常检查，不依赖可被`python -O`移除的assert。
+
+历史期限锚定最后接受的ADC完成时刻，缺样期间PG无效仅允许暂存，恢复须确认新鲜放电新ADC；长调用空档也会过期。未知模式、坏样本、候选改变及支持超时清理相应历史／累计；生产有效性守卫保留同ADC的MODE_WAIT。支持超时不能通过重播种新鲜缓存来跳过等待。引擎验证有界模时间／ADC身份顺序，wrapper假定此前提成立；没有推断真实睡眠时长或未观测插拔。结果与未选参数的理由见[边界专题](BATTERY-ESTIMATE.md#policy-boundaries-20261021)。相关主机回归仍使用下文统一`test_battery_*.py`命令，不含设备操作。
 
 ## 网页演练与交接
 
