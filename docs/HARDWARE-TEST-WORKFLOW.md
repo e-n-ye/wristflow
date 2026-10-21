@@ -6,7 +6,7 @@
 
 2026-10-21用户要求借电量排查改进人机协作。PR #120首轮复用B2实机记录，完成可重复B3回放和OpenHTF网页演练；后续用户要求继续，增加模拟采集适配器及共同本地控制页。AI制定实验、分析证据；本地程序持有阶段和输出；人只确认需要判断或实际动作的部分。软件验收由主代理在浏览器操作，没有让用户重复设备输入。
 
-历史回放、引导演练与模拟采集仍由原入口提供；新增`battery_device.py`只读实机入口，保护已有停止态记录，不开放实机start／stop、PM hold／allow、复位、校时或烧录。实机执行及验收状态只见[STATUS](STATUS.md#current)，不把主机替身通过算作设备结果。仍沿用[硬件条件](HARDWARE.md)、[下载](FLASHING.md)与[电量契约](BATTERY-ESTIMATE.md)，SDK环境和固件不变。OpenHTF保留phase／measurement／JSON，不再使用其StationServer／SockJS前端；不构成全项目框架选型决定。
+历史回放、引导演练与模拟采集仍由原入口提供；`battery_device.py`只读实机入口保护已有停止态记录，不开放实机start／stop。后续`battery_experiment.py`独立承接获准的新负载记录，先保护再单次启动、纯BAT记录后回连停止／导出。二者均不开放PM hold／allow、charger控制、复位、校时或烧录。实机执行及验收状态只见[STATUS](STATUS.md#current)，不把主机替身通过算作设备结果。仍沿用[硬件条件](HARDWARE.md)、[下载](FLASHING.md)与[电量契约](BATTERY-ESTIMATE.md)，SDK环境和固件不变。OpenHTF保留phase／measurement／JSON，不再使用其StationServer／SockJS前端；不构成全项目框架选型决定。
 
 ## 离线回放
 
@@ -104,3 +104,18 @@ PR #120首轮网页通过／取消／真实超时的证据保留于[试点证据
 终态页面另列设备准备、记录保护、关重开一致、实际取消清理、资源关闭五项验证；按要求取消且检查齐全时显示“已验证5/5项 · 本轮已取消”。阶段计数仍为4/5，原始`cancelled`事件与`passed=false`不改，避免把刻意验证取消解释为漏项。早期报告缺少`preparation_confirmed`时，已完成的保护导出只用于兼容呈现其准备项；原报告保持原样。主机故障注入不替代实机故障验证，实际结果与展示修正分别绑定源码版本，见[本轮精简证据](evidence/2026-10-21/battery-device-export.json)。
 
 接续读取同一输出目录的`binding.json`、`collection.json`和`events.jsonl`，原`battery_lab.py status --run <目录>`仍可查终态。这里仅提供既有数据保护和一次关重开／取消验证，不提供自动重启恢复、实机新记录或长时放电入口。相关主机测试同原`test_battery_*.py`命令，均用注入transport，不打开设备。
+
+<a id="guided-device-experiment"></a>
+## 同BIN新负载记录：真实协作页
+
+`scripts/battery_experiment.py`使用本轮现场确认的`--serial-port`、`--usb-location`、`--build-result`、`--expected-trace`和新`--out`目录，网页端口由`--port`指定。历史命令不构成新运行授权；状态仍由`battery_lab.py status --run <本次目录>`读取，不自动恢复或重启已结束进程。精确已执行命令见[本轮证据](evidence/2026-10-21/battery-guided-experiment.json)。
+
+操作者准备好原供电、普通亮度和临时持续亮屏后，先在页内确认。工具复用历史build／产物／端点核验，完整保护匹配的旧停止态记录及每页原始字节；磁盘文件哈希和紧邻start的精确前态均须一致。仅该独立入口可替换已备份的旧RAM会话，原采集器的非空拒绝默认规则保持。新命令白名单只含status、start900、stop及分页dump，没有PM／charger控制。
+
+新start只发一次，回执超时用status消解；`ownership.json`在发送前持久保存预测会话／时限／旧now起5秒内的start边界，成功后保存精确session／start／duration。串口随后关闭，页面提示拔USB并确认，再自动计时：普通电池页90秒→人工进入手电筒并确认／90秒→人工退出并确认／恢复180秒→继续普通页90秒→接回USB并确认。倒计时阶段禁用继续按钮；确认时间与实际surface／亮度／PG／ADC分别存证，不能以点击证明物理动作。900秒是记录器预算，含准备／切页延迟；接USB后的样本不算纯BAT窗口。
+
+回连只在操作者确认后开口，先核窗口所有权再stop／dump，不先改变PM。离线取消／超时不重开端口，主机资源关闭与设备停止确认分字段；若未确认停止，保存`recorder_recovery_required`及身份，设备至多运行至逻辑截止，但不把未观测的到期称为已清理。重新回连／恢复需依据新现场确认，不盲目start或stop其他窗口。
+
+`records.json`保留全部记录，`analysis.json`仅选首次确认BAT至首次确认USB返回前的可信放电独立ADC，按普通／白屏／退出后时段分组。实验通过另需样本支持普通至少80秒、白屏至少80秒、恢复加末段普通至少260秒、普通亮度单值一致、白屏ack100、BAT段无OFF／未知PG且非FULL；允许10秒采样量化余量。采集完成与窗口通过分开，缺项异常退出，SOC／累计耗电测量始终false。首末跨度不证明连续采样，末段普通页是顺序恢复观察，不是独立、随机或等能量对照。
+
+2026-10-21实际操作者完成11/11阶段并恢复常亮关闭。该次同BIN新数据110条／95个BAT独立ADC，原始坏页及有限重读保留；结果见[电量定因](BATTERY-ESTIMATE.md#guided-load-20261021)。蓝牙远控可另轮复用这套阶段／记录／回执结构，当前没有BLE测试导航或trace导出实现。

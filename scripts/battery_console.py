@@ -36,7 +36,7 @@ document.querySelector('#summary').textContent=checks?(checks.every(c=>c.passed)
 const list=document.querySelector('#phases');list.replaceChildren();for(const p of checks||s.phases){const e=document.createElement('li');e.textContent=p.title+'：'+(checks?(p.passed?'通过':'未完成'):labels[p.state]);list.append(e);}
 document.querySelector('#message').textContent=current?current.message:(s.result?s.result.detail:'程序正在处理，请稍候。');
 document.querySelector('#remaining').textContent=current?'确认剩余 '+Math.max(0,Math.ceil(current.remaining))+' 秒':'';
-document.querySelector('#confirm').disabled=terminal||!current;document.querySelector('#cancel').disabled=terminal;
+document.querySelector('#confirm').disabled=terminal||!current||!!current.automatic;document.querySelector('#cancel').disabled=terminal;
 if(terminal){await post('/seen',{});return;}setTimeout(update,250);
 }catch(e){document.querySelector('#error').textContent=e.message+'；请用 status 命令读取保存的进度。';}}
 document.querySelector('#confirm').onclick=async()=>{if(!current)return;document.querySelector('#confirm').disabled=true;try{await post('/reply',{id:current.id,answer:'continue'});}catch(e){document.querySelector('#error').textContent=e.message;}};
