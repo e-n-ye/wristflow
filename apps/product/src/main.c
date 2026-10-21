@@ -1,4 +1,5 @@
 #include <rtthread.h>
+#include <rthw.h>
 #include <rtdevice.h>
 #include <board.h>
 #include "button.h"
@@ -18,6 +19,9 @@
 #include "product_motor.h"
 #include "weather_screen.h"
 #include <string.h>
+#ifdef RT_USING_FINSH
+#include <finsh.h>
+#endif
 
 static wristflow_ui_shell_t *product_shell;
 static lv_indev_read_cb_t original_pointer_read;
@@ -31,6 +35,55 @@ static wristflow_power_snapshot_t power;
 static rt_tick_t power_sampled;
 static wristflow_battery_estimator_t battery_estimator;
 static bool wrist_setting_known, wrist_setting;
+static wristflow_carousel_snapshot_t carousel_current, carousel_last_mismatch;
+static bool carousel_valid, carousel_mismatch_valid;
+
+static void capture_carousel(void)
+{
+    wristflow_carousel_snapshot_t value;
+    if (!wristflow_ui_shell_carousel_snapshot(product_shell, &value)) return;
+    /* LVGL reads above run only on the UI thread; publish bounded copies. */
+    rt_base_t level = rt_hw_interrupt_disable();
+    carousel_current = value;
+    carousel_valid = true;
+    if (value.mismatch) {
+        carousel_last_mismatch = value;
+        carousel_mismatch_valid = true;
+    }
+    rt_hw_interrupt_enable(level);
+}
+
+#ifdef RT_USING_FINSH
+static void report_carousel(const char *label, const wristflow_carousel_snapshot_t *s)
+{
+    rt_kprintf("[ui-ring] %s ms=%lu surface=%u phase=%u page=%u/%u mismatch=%lu\n",
+        label, (unsigned long)s->sampled_ms, s->surface, s->display_phase, s->page, s->pages,
+        (unsigned long)s->mismatch);
+    rt_kprintf("[ui-ring] %s x=%ld left=%ld right=%ld\n", label, (long)s->x, (long)s->left, (long)s->right);
+    rt_kprintf("[ui-ring] %s settled=%u scrolling=%u settling=%u transition=%u recenter=%u dots=%u/%u selected=%u\n",
+        label, s->settled, s->scrolling, s->settling, s->transitioning, s->recentering,
+        s->dots_visible, s->dots_present, s->selected_dots);
+    rt_kprintf("[ui-ring] %s first=%ld,%ld,0x%x last=%ld,%ld,0x%x; endpoint x,width,flags\n",
+        label, (long)s->edge_x[0], (long)s->edge_width[0], s->edge_flags[0],
+        (long)s->edge_x[1], (long)s->edge_width[1], s->edge_flags[1]);
+}
+static int wf_ui(int argc, char **argv)
+{
+    if (argc != 2 || strcmp(argv[1], "status")) {
+        rt_kprintf("wf_ui status\n");
+        return -1;
+    }
+    rt_base_t level = rt_hw_interrupt_disable();
+    wristflow_carousel_snapshot_t current = carousel_current, last = carousel_last_mismatch;
+    bool valid = carousel_valid, last_valid = carousel_mismatch_valid;
+    rt_hw_interrupt_enable(level);
+    rt_kprintf("[ui-ring] cache_valid=%u last_mismatch_valid=%u; cached only, ms is UI sample time\n", valid, last_valid);
+    if (valid) report_carousel("current", &current);
+    if (last_valid) report_carousel("last-mismatch", &last);
+    return 0;
+}
+MSH_CMD_EXPORT(wf_ui, Read cached carousel state without changing UI);
+#endif
 
 static void sync_wrist_setting(void)
 {
@@ -254,6 +307,7 @@ int main(void)
         uint32_t wait_ms = lv_timer_handler();
         uint32_t now = lv_tick_get();
         if (wristflow_ui_shell_display_phase(shell) == WRISTFLOW_DISPLAY_OFF) {
+            capture_carousel();
             wristflow_ui_shell_sync_settings_save(shell);
             sync_wrist_setting();
             screen_off(lcd, touch, pointer);
@@ -283,6 +337,7 @@ int main(void)
             wristflow_ui_shell_sync_settings_save(shell);
             sync_wrist_setting();
             sampled = now;
+            capture_carousel();
         }
         rt_uint32_t events = wristflow_product_event_wait(rt_tick_from_millisecond(LV_CLAMP(1, wait_ms, 20)));
         if (events & WF_EVENT_PM_SAMPLE) wristflow_product_pm_report();

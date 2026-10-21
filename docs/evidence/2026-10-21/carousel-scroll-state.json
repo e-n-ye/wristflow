@@ -1,0 +1,156 @@
+{
+  "date": "2026-10-21",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/carousel-scroll-state",
+  "base_commit": "17cf2399cd8ec34888abbff9d1238007d254f489",
+  "user_report": {
+    "firmware": "751de5f544e1fd17bd047e9818cd498eded4855a7498c376165ff3ce64cac971",
+    "facts": [
+      "Ordinary left swipe on the home ring entered weather/sleep/alarm cards; dots absent, left swipe blocked, right swipe usable.",
+      "Off/on preserved the symptom; user says returning to face with right swipe and reentering previously restored it; happened several times before.",
+      "Initially confirmed still in fault page and asked to preserve scene; later reported no input yet screen already returned to face."
+    ],
+    "original_photo_local": "artifacts/carousel-one-way-20261021/user-photo-original.jpg",
+    "original_photo_sha256": "6a93e96a37494423eb3908e4e279aa556b7b371f15ce576c0125f65cb8fa88d5",
+    "photo_published": false,
+    "scene_capture": "No serial, RAM or indev/geometry dump available. No causal attribution for spontaneous return to face."
+  },
+  "source_findings": {
+    "confirmed": "The locked LVGL zero-throw aligned release sends SCROLL_END while indev.scroll_obj is still carousel; it clears the pointer only after END. With zero snap delta there is no animation/final END. Old shell busy guard skipped navigation/dot commit and loop-clone recenter.",
+    "source_refs": [
+      "vendor/SiFli-SDK/external/lvgl_v9/src/indev/lv_indev_scroll.c:183-188,228-232",
+      "vendor/SiFli-SDK/external/lvgl_v9/src/core/lv_obj_scroll.c:308,429-442,696-699"
+    ],
+    "baseline_reproduction": "Real locked SDK lv_indev_scroll_throw_handler, target x780 with zero throw: x780/page0/right1170 and expected page1 assertion fails. This proves missed commit, not persistent one-way touch restriction.",
+    "remaining": "Ordinary next gesture recomputes bounds; stale page alone does not prove persistent one-way restriction. No actual hidden/moved clone evidence. Original state was replaced before capture. Long-off restore is a possible route to face, not a proved actual cause."
+  },
+  "change": {
+    "settle": "Keep immediate commit for idle END. Busy END arms one paused 1ms LVGL timer; callback pauses first and commits only after indev/animation is idle. Active animation waits for its final END to re-arm; no polling. Rebuild pauses it, destroy removes it after ready=false.",
+    "diagnostics": "UI-thread read-only snapshot: time/surface/display/page, x/left/right, endpoint geometry+hidden/floating/snappable flags, dot container present/visible/selected counts, scroll/settle/transition guards. Mismatch bits1position/2page/4dots/8extent/16endpoints only when settled HOME.",
+    "product_cache": "Existing250ms UI refresh and pre-OFF capture publish current and last nonzero mismatch under the same short IRQ lock used by FinSH copy. wf_ui status only prints copies outside the lock; no LVGL calls, reset, input, hardware I/O, command to clear, new thread or RT timer. Cache can remain pre-OFF and is labelled with sample time. RAM-only, lost on reboot.",
+    "limits": "selected_dots checks selected container visibility, not white child dot color. FinSH cache main loop is source-reviewed/firmware compiled, not host-executed or device-verified.",
+    "resources": {
+      "product_elf_symbols": [
+        "20023f7c 00000001 b carousel_mismatch_valid",
+        "20023f7d 00000001 b carousel_valid",
+        "1278ffd4 0000000c T __fsym___cmd_wf_ui",
+        "12783c0c 0000000c T __fsym___cmd_wf_ui_name",
+        "12783bdd 0000002f T __fsym___cmd_wf_ui_desc",
+        "120b0bfc 00000036 t settle_scroll",
+        "20023fc4 00000044 b carousel_current",
+        "20023f80 00000044 b carousel_last_mismatch",
+        "1209c33c 00000058 t capture_carousel",
+        "120afbb0 0000007a t commit_scroll",
+        "1209c188 00000098 t report_carousel",
+        "1209c220 00000098 t wf_ui",
+        "120b16e8 00000246 T wristflow_ui_shell_carousel_snapshot"
+      ],
+      "status_line_max_bytes": 115,
+      "boundary": "Link sizes and bounded state only; no device stack/heap peak or current measured. XML/generated files and SDK lock unchanged."
+    }
+  },
+  "host": {
+    "environment": "GCC15.2.0 / CMake4.2.3 / Ninja1.13.2 / lockedLVGL9.4.0",
+    "commands": [
+      "export PATH=\"/d/msys64/ucrt64/bin:$PATH\"",
+      "cmake --build artifacts/host/native-wrist-wake-debug -j4",
+      "ctest --test-dir artifacts/host/native-wrist-wake-debug --output-on-failure",
+      "cmake --build artifacts/host/native-wrist-wake-release -j4",
+      "ctest --test-dir artifacts/host/native-wrist-wake-release --output-on-failure",
+      "cmake -S tests -B artifacts/host/native-wrist-wake-release '-DCMAKE_C_FLAGS_RELEASE=-O3 -DNDEBUG -UNDEBUG'",
+      "cmake --build artifacts/host/native-wrist-wake-release -j4",
+      "ctest --test-dir artifacts/host/native-wrist-wake-release --output-on-failure"
+    ],
+    "debug": "54/54 passed",
+    "default_release": "52/54; product_countdown and product_countdown_ui failed, retained below",
+    "release_assert_enabled": "54/54 passed with -O3 and assertions enabled in all libraries",
+    "coverage": [
+      "Actual SDK release with zero snap delta in each real slot and both clones; index/dots/geometry checked after callback.",
+      "Partial drag with live snap animation does not prematurely commit/recenter; final END commits.",
+      "Last real page exact release then real pointer left wrap to face and right wrap to last card.",
+      "Snapshot does not recenter before settle; explicit hidden last-clone injection reports right0/extent+endpoint mismatches, restored clone clears them.",
+      "Existing whole Debug and assertion-enabled Release suites include lifecycle/rebuild/timer counts, editor, settings, charging/notifications/reminders and wrist wake."
+    ],
+    "boundary": "Hidden-clone injection is diagnostic verification only, not reproduction of actual user one-way defect. No broad gesture sweep or hardware touch validation."
+  },
+  "failures_and_repairs": [
+    "Original shell aligned-release regression failed before fix; retained baseline assertion log.",
+    "Default full Release52/54: product_countdown_host library has NDEBUG but lacks -UNDEBUG, while test executables enable asserts. Its RT_ASSERT maps to assert and removes rt_timer_start/control side effects. Countdown library/stub/tests/CMake unchanged from base. Existing configuration issue, not repaired in source; explicit all-library assertion configuration restores54/54. Default failure not overwritten."
+  ],
+  "builds": [
+    {
+      "result": "artifacts/product/20261021-145119-846/result.json",
+      "result_sha256": "e7c2725c9e29f36acba40d451919b077309f1d115628e7bda8f19cbda7f132c5",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 4",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "sources_rehashed": 464,
+      "artifacts_rehashed": 29,
+      "firmware_bytes": 7803048,
+      "bin_sha256": "e5b9c3427f4c802e64b61c9377710a974a27d4c43955919ef658a1d2ed81ba07",
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+      "hardware_verified": false
+    },
+    {
+      "result": "artifacts/ui_demo/20261021-145234-419/result.json",
+      "result_sha256": "fa548039e936cc1586a9ec9fe736c6435d8f2bc1667fd579d972b33c1c5c776c",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example ui_demo -Jobs 4",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "sources_rehashed": 418,
+      "artifacts_rehashed": 22,
+      "firmware_bytes": 7560656,
+      "bin_sha256": "34b8c0784dd5b9ef1a89b555c67958aaacb7825777feb2e3fe3b80781f5144f0",
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+      "hardware_verified": false
+    }
+  ],
+  "source_hashes": {
+    "ui/runtime/ui_shell.c": "836954295b8dbbb902c8a19b2e2b8414442e8cb0233f2ba08a71d7a35f74ce54",
+    "ui/runtime/ui_shell.h": "75f847bbc964aac2dd9ee65b24cfb2db5476430fc8004ae4f51f817d57e6d78b",
+    "apps/product/src/main.c": "eae3ae71553bb0e96c2c4347ec2657dafd9b36218cbb741f6281a72266c65e33",
+    "tests/product_ui.c": "102d828bcfd3e568113f70889ec0e84df2e14bed4823ab41039e8e7959ce65dd"
+  },
+  "logs_sha256": {
+    "artifacts/carousel-one-way-20261021/aligned-baseline-build.log": "2342d9eb33ade26173bbbc0c703ab651276f39f87c38d31caa326a8901f3a584",
+    "artifacts/carousel-one-way-20261021/aligned-baseline-test.log": "f2a91b0851cfa1620d6605fea851c67f81692bb5180eb6338c88d350d7a27164",
+    "artifacts/carousel-one-way-20261021/debug-build.log": "6d62a8898d9e4857ca13868ed3011ad24ed14b24e85b564dcdb74918083d27df",
+    "artifacts/carousel-one-way-20261021/debug-test.log": "1058522547243e60ff24883ccacd5e2a28d9a8056e377a3c4b60d12c9b535466",
+    "artifacts/carousel-one-way-20261021/demo-build.log": "b614d6b2c1a7ff3f51840beef9bae2b1804e09835487370859a0367a804a5840",
+    "artifacts/carousel-one-way-20261021/diagnostic-build.log": "732ce3ebe8c8207061170a6dfa0cc6b27b8ad7d942062fbf04eee7862e9df982",
+    "artifacts/carousel-one-way-20261021/diagnostic-test.log": "e1969dfa2126be54fea831ec530769c710d3c0f3347001335d24ee4f60f831ab",
+    "artifacts/carousel-one-way-20261021/product-build.log": "3f9ea5c95e4f70606ac269b83a62b859958227cfb71cd2a431e208a3e7ed04d7",
+    "artifacts/carousel-one-way-20261021/release-assert-build.log": "e2a3ca5318af938506f4dae03ed947eda24188735a2a956c70837a429d7fb547",
+    "artifacts/carousel-one-way-20261021/release-assert-config.log": "875c34f94d3a53f1dc878701de41d9f4548e33f6233ddd6b0807546287cdfd59",
+    "artifacts/carousel-one-way-20261021/release-assert-test.log": "a3832263954f21558679bb32018cc240960e589b2d32c6d800cc83826cb4133e",
+    "artifacts/carousel-one-way-20261021/release-build.log": "97a2bf696e907d64fbff4dfddae3a1dc669eadba81634bed0291c20cfbf8cc84",
+    "artifacts/carousel-one-way-20261021/release-countdown-commands.log": "d1102c7e7c0401316f6d08365251f2c6ae91dfb18b21afde8cf65a5a3797e1c2",
+    "artifacts/carousel-one-way-20261021/release-test.log": "e27c68ceb194858c7c770a3e8df2410a3e8e95f52b6f714cb9a3c9e6a91faf12",
+    "artifacts/carousel-one-way-20261021/settle-build.log": "6f5c237359c927b378f4a3cda87fc29a4e22e8a104abcb5372fe9df27d8b34fd",
+    "artifacts/carousel-one-way-20261021/settle-test.log": "01de3f04ae30da1a4daf0e41f13a5d23b48aa60eb6c47fb81263baf75915a822"
+  },
+  "build_warnings": "Existing RTC signedness, FinSH callback casts (including new export using SDK convention), RWX/ftab syscall+entry and missing dfu conversion warnings retained. Both official builds exit0 with artifact validation; not warning-free.",
+  "review": "Primary checks source, tests, evidence and final PR. Read-only Sol(medium) reviewed release END/timer lifecycle and cache thread ownership, no blocker; Luna(low) scoped ring/loop and countdown host assertion cause. No subagent writes/build/device operations.",
+  "device": {
+    "opened": false,
+    "reset": false,
+    "flashed": false,
+    "current_bin": "751de5f544e1fd17bd047e9818cd498eded4855a7498c376165ff3ce64cac971",
+    "port": "COM5 closed since wrist hardware loop14:15:55+08:00",
+    "pending": "After software delivery, arrange with user before any device operation: exact candidate flash, bounded bidirectional last-card/wake check and cached status. Preserve current RAM until then. Full intermittent one-way cause remains open."
+  }
+}
