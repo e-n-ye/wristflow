@@ -1,0 +1,597 @@
+{
+  "date": "2026-10-21",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/carousel-scroll-hardware",
+  "base_commit": "fad784a1acfe0706716b371d90b819bd651ec486",
+  "authorization": {
+    "prior_thread": "01a15990-59e5-7253-8b9f-e8c16690ec8f",
+    "confirmation": "条件未变，同意烧录并检查",
+    "conditions": "Same Huangshan board/display, original battery + PC USB, secured detached motor wire, user present.",
+    "scope": "Exact candidate flash, bidirectional home carousel/dots and short display-off restore. No rebuild, wrist gesture, step boundary, physical power cut or power measurement experiment."
+  },
+  "source_and_build": {
+    "new_source_changes": false,
+    "new_build": false,
+    "software_evidence": "docs/evidence/2026-10-21/carousel-scroll-state.json",
+    "build_record": "artifacts/product/20261021-145119-846/result.json",
+    "firmware_sha256": "e5b9c3427f4c802e64b61c9377710a974a27d4c43955919ef658a1d2ed81ba07",
+    "source_exact": 464,
+    "source_line_end_only": [],
+    "artifacts_verified": 29,
+    "sdk_vendor_clean": true,
+    "sdk_lock_changed": false
+  },
+  "preflight": {
+    "port": "COM5",
+    "vid": 6790,
+    "pid": 29987,
+    "location": "1-1.1",
+    "disable_modem_handshake": 1,
+    "retained_hook": [
+      "200033bc 000000c0 T BSP_PowerUpCustom"
+    ],
+    "dryrun_checked": true
+  },
+  "flash": {
+    "result": "artifacts/flash/product/20261021-152608-774/result.json",
+    "completed_at": "2026-10-21T15:28:50.3453737+08:00",
+    "exit_code": 0,
+    "command": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+    "images": [
+      {
+        "name": "bootloader.bin",
+        "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+        "address": "0x12010000",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "name": "main.bin",
+        "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+        "address": "0x12020000",
+        "bytes": 7803048,
+        "sha256": "e5b9c3427f4c802e64b61c9377710a974a27d4c43955919ef658a1d2ed81ba07"
+      },
+      {
+        "name": "ftab.bin",
+        "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+        "address": "0x12000000",
+        "bytes": 11288,
+        "sha256": "233e4c49130ed66cc607beb7e68704a91f07d64e80be782d30e381e1b7a56a60"
+      }
+    ],
+    "boundary": "Three manifest images write+verify; no full erase or explicit settings-partition write. Function verification recorded separately."
+  },
+  "before_flash": {
+    "rtc": [
+      "2026-10-21T07:25:50+00:00"
+    ],
+    "steps": {
+      "current": {
+        "valid": 1,
+        "total": 0,
+        "day": 20747,
+        "utc": 1792567550,
+        "version": 190,
+        "native": 0,
+        "partial": 1,
+        "restored": 1
+      },
+      "saved": {
+        "available": 1,
+        "verified": 1,
+        "dirty": 0,
+        "failed": 0,
+        "attempts": 1,
+        "day": 20747,
+        "total": 0,
+        "generation": 33
+      },
+      "hours": {
+        "valid": 65535,
+        "sum": 0,
+        "saved_valid": 65535
+      },
+      "errors": {
+        "io_errors": 0,
+        "incoherent": 0
+      }
+    },
+    "wrist": {
+      "requested": 1,
+      "continuous": 1,
+      "armed": 1,
+      "owned": 1,
+      "irqs": 0,
+      "wakes": 0
+    },
+    "error": null
+  },
+  "startup": {
+    "reset": [
+      {
+        "at": "2026-10-21T07:29:17.719192+00:00",
+        "kind": "RESET",
+        "value": "One150ms RTS only for initial post-flash boot capture"
+      }
+    ],
+    "rtc": [
+      "2000-01-01T00:00:05+00:00",
+      "2026-10-21T07:29:28+00:00"
+    ],
+    "time_write": [
+      {
+        "at": "2026-10-21T07:29:26.085106+00:00",
+        "kind": "TX",
+        "value": "wf_time 1792567766"
+      }
+    ],
+    "steps": {
+      "current": {
+        "valid": 1,
+        "total": 0,
+        "day": 20747,
+        "utc": 1792567767,
+        "version": 8,
+        "native": 0,
+        "partial": 1,
+        "restored": 1
+      },
+      "saved": {
+        "available": 1,
+        "verified": 1,
+        "dirty": 0,
+        "failed": 0,
+        "attempts": 0,
+        "day": 20747,
+        "total": 0,
+        "generation": 33
+      },
+      "hours": {
+        "valid": 65535,
+        "sum": 0,
+        "saved_valid": 65535
+      },
+      "errors": {
+        "io_errors": 0,
+        "incoherent": 0
+      }
+    },
+    "wrist": {
+      "requested": 1,
+      "continuous": 1,
+      "armed": 1,
+      "owned": 1,
+      "irqs": 0,
+      "wakes": 0
+    },
+    "first_snapshot": {
+      "ms": 7736,
+      "surface": 0,
+      "phase": 2,
+      "page": 0,
+      "mismatch": 0,
+      "x": 390,
+      "left": 390,
+      "right": 1560,
+      "settled": 1,
+      "scrolling": 0,
+      "settling": 0,
+      "transition": 0,
+      "recenter": 0,
+      "dots": 0,
+      "selected": 0,
+      "first": 0,
+      "last": 1950
+    }
+  },
+  "user_feedback": [
+    "均正常，已到天气页，3点且第3个亮（prior thread）",
+    "双向都正常，位置点正常，已停在该页",
+    "短息屏恢复和双向滑动均正常",
+    "均正常，步数 0",
+    "按key回读是什么验收流程吗，好麻烦"
+  ],
+  "observation_windows": {
+    "bidirectional": {
+      "samples": 36,
+      "moving_samples": 16,
+      "representatives": [
+        {
+          "at": "2026-10-21T07:41:31.991530+00:00",
+          "ms": 731825,
+          "surface": 0,
+          "phase": 0,
+          "page": 0,
+          "mismatch": 0,
+          "x": 390,
+          "left": 390,
+          "right": 1560,
+          "settled": 1,
+          "scrolling": 0,
+          "settling": 0,
+          "transition": 0,
+          "recenter": 0,
+          "dots": 0,
+          "selected": 0,
+          "first": 0,
+          "last": 1950
+        },
+        {
+          "at": "2026-10-21T07:41:52.817292+00:00",
+          "ms": 752605,
+          "surface": 0,
+          "phase": 0,
+          "page": 3,
+          "mismatch": 0,
+          "x": 1560,
+          "left": 1560,
+          "right": 390,
+          "settled": 1,
+          "scrolling": 0,
+          "settling": 0,
+          "transition": 0,
+          "recenter": 0,
+          "dots": 1,
+          "selected": 1,
+          "first": 0,
+          "last": 1950
+        },
+        {
+          "at": "2026-10-21T07:41:57.046464+00:00",
+          "ms": 756589,
+          "surface": 0,
+          "phase": 2,
+          "page": 3,
+          "mismatch": 0,
+          "x": 1560,
+          "left": 1560,
+          "right": 390,
+          "settled": 1,
+          "scrolling": 0,
+          "settling": 0,
+          "transition": 0,
+          "recenter": 0,
+          "dots": 1,
+          "selected": 1,
+          "first": 0,
+          "last": 1950
+        },
+        {
+          "at": "2026-10-21T07:42:05.419761+00:00",
+          "ms": 765310,
+          "surface": 0,
+          "phase": 1,
+          "page": 3,
+          "mismatch": 0,
+          "x": 1560,
+          "left": 1560,
+          "right": 390,
+          "settled": 1,
+          "scrolling": 0,
+          "settling": 0,
+          "transition": 0,
+          "recenter": 0,
+          "dots": 1,
+          "selected": 1,
+          "first": 0,
+          "last": 1950
+        }
+      ],
+      "last": {
+        "at": "2026-10-21T07:42:30.534987+00:00",
+        "ms": 765960,
+        "surface": 0,
+        "phase": 2,
+        "page": 3,
+        "mismatch": 0,
+        "x": 1560,
+        "left": 1560,
+        "right": 390,
+        "settled": 1,
+        "scrolling": 0,
+        "settling": 0,
+        "transition": 0,
+        "recenter": 0,
+        "dots": 1,
+        "selected": 1,
+        "first": 0,
+        "last": 1950
+      },
+      "mismatch_samples": 0,
+      "last_mismatch_valid_samples": 0
+    },
+    "short_off_restore": {
+      "samples": 29,
+      "moving_samples": 1,
+      "representatives": [
+        {
+          "at": "2026-10-21T07:43:03.611166+00:00",
+          "ms": 823511,
+          "surface": 0,
+          "phase": 0,
+          "page": 3,
+          "mismatch": 0,
+          "x": 1560,
+          "left": 1560,
+          "right": 390,
+          "settled": 1,
+          "scrolling": 0,
+          "settling": 0,
+          "transition": 0,
+          "recenter": 0,
+          "dots": 1,
+          "selected": 1,
+          "first": 0,
+          "last": 1950
+        },
+        {
+          "at": "2026-10-21T07:43:05.722702+00:00",
+          "ms": 825511,
+          "surface": 0,
+          "phase": 1,
+          "page": 3,
+          "mismatch": 0,
+          "x": 1560,
+          "left": 1560,
+          "right": 390,
+          "settled": 1,
+          "scrolling": 0,
+          "settling": 0,
+          "transition": 0,
+          "recenter": 0,
+          "dots": 1,
+          "selected": 1,
+          "first": 0,
+          "last": 1950
+        },
+        {
+          "at": "2026-10-21T07:43:07.813746+00:00",
+          "ms": 826161,
+          "surface": 0,
+          "phase": 2,
+          "page": 3,
+          "mismatch": 0,
+          "x": 1560,
+          "left": 1560,
+          "right": 390,
+          "settled": 1,
+          "scrolling": 0,
+          "settling": 0,
+          "transition": 0,
+          "recenter": 0,
+          "dots": 1,
+          "selected": 1,
+          "first": 0,
+          "last": 1950
+        }
+      ],
+      "last": {
+        "at": "2026-10-21T07:43:59.674850+00:00",
+        "ms": 826161,
+        "surface": 0,
+        "phase": 2,
+        "page": 3,
+        "mismatch": 0,
+        "x": 1560,
+        "left": 1560,
+        "right": 390,
+        "settled": 1,
+        "scrolling": 0,
+        "settling": 0,
+        "transition": 0,
+        "recenter": 0,
+        "dots": 1,
+        "selected": 1,
+        "first": 0,
+        "last": 1950
+      },
+      "mismatch_samples": 0,
+      "last_mismatch_valid_samples": 0
+    },
+    "uart_observations": [
+      "resume-02/uart.txt:254 OFF; :270 wrist wake; :302-305 ON; :309 page3/phase0 at ms763048.",
+      "resume-02/uart.txt:404 KEY1; :423-431 OFF->INITIALIZED->ON; :442 moving page2 then :447 settled page3 at ms823511.",
+      "No deliberate wrist motion window was requested; incidental wrist wake is not a new controlled wrist acceptance."
+    ],
+    "boundary": "Periodic cached samples are not a complete gesture trace. Dots count is visible indicator containers, not individual point color; color/direction confirmed by user."
+  },
+  "final": {
+    "error": null,
+    "snapshot": {
+      "ms": 1107817,
+      "surface": 0,
+      "phase": 2,
+      "page": 2,
+      "mismatch": 0,
+      "x": 1170,
+      "left": 1170,
+      "right": 780,
+      "settled": 1,
+      "scrolling": 0,
+      "settling": 0,
+      "transition": 0,
+      "recenter": 0,
+      "dots": 1,
+      "selected": 1,
+      "first": 0,
+      "last": 1950
+    },
+    "steps": {
+      "current": {
+        "valid": 1,
+        "total": 0,
+        "day": 20747,
+        "utc": 1792568867,
+        "version": 145,
+        "native": 0,
+        "partial": 1,
+        "restored": 1
+      },
+      "saved": {
+        "available": 1,
+        "verified": 1,
+        "dirty": 0,
+        "failed": 0,
+        "attempts": 0,
+        "day": 20747,
+        "total": 0,
+        "generation": 33
+      },
+      "hours": {
+        "valid": 65535,
+        "sum": 0,
+        "saved_valid": 65535
+      },
+      "errors": {
+        "io_errors": 0,
+        "incoherent": 0
+      }
+    },
+    "wrist": {
+      "requested": 1,
+      "continuous": 1,
+      "armed": 1,
+      "owned": 1,
+      "irqs": 3,
+      "wakes": 3
+    },
+    "rtc": "2026-10-21T07:47:58+00:00",
+    "pm_last": "[pm-p1] tick=1120841 allow=1 off=1 own_idle=0 sdk_idle=0",
+    "close": "2026-10-21T07:48:03.950837+00:00",
+    "boundary": "Final cached page is 2, not the previously user-confirmed page 3. Later page change trigger was not captured; do not label final snapshot as weather page or infer recurrence from it."
+  },
+  "failures_and_limits": [
+    "Original startup process j-rvry1y interrupted without final session record. UART and process log retained.",
+    "First weather-third-dot label read page0/phase2, not weather. It supports only that cached sample, not the user visual report.",
+    "resume-01 process intentionally stopped after acknowledged allow1 to enable bounded periodic snapshots; no reset, RTC write or new held state at interruption.",
+    "resume-02 completed both watch windows, then final hold timed out after 25 attempts; cleanup closed COM5, exit1. Failure retained. final-01 separately re-read without reset/RTC write and exited0.",
+    "resume-02/uart.txt:434 and final-01/uart.txt:32 contain undecodable byte prefixes followed by wf_pm: command not found. Cause unknown; original UART retained. Later valid hold/allow acknowledgements were required and obtained.",
+    "Repeated KEY1 requests were UART wake/collection overhead, not independent functional acceptance. User found them burdensome. Device operations ended; future collection should share a single user action window.",
+    "No captured original one-way fault. Successful bounded checks do not prove intermittent defect eliminated or establish relation to wrist wake.",
+    "OFF cache can be stale; ms is UI sample time. Mismatch0 while moving does not validate static invariants. last_mismatch_valid0 means no retained mismatch, not full observation coverage.",
+    "No exact latency, wear/recognition-rate, nonzero step retention, physical DEEP, sleep current or battery-life claims."
+  ],
+  "local_artifacts": [
+    {
+      "path": "artifacts/flash/product/20261021-152608-774/result.json",
+      "bytes": 1767,
+      "sha256": "e0bae3345fa69267c3a6089886629182257ded6cb8a80cf81c8f87ca12079117"
+    },
+    {
+      "path": "artifacts/carousel-one-way-20261021/hardware-preflight-resume.json",
+      "bytes": 994,
+      "sha256": "bd2150729c54b297efc99cf4d73716fad486d12ec946e886d873ce16777034bb"
+    },
+    {
+      "path": "artifacts/carousel-one-way-20261021/hardware-preflight.json",
+      "bytes": 994,
+      "sha256": "600b5c9776cdcb993df17d2e1b2b352f84ab6a371a5d7ca7767a007403650f32"
+    },
+    {
+      "path": "artifacts/carousel-one-way-20261021/flash-dryrun.log",
+      "bytes": 452,
+      "sha256": "fb7d43ff9831aaa55341dac31abbab544c9ed843875f16daad1a653f62d04461"
+    },
+    {
+      "path": "artifacts/carousel-one-way-20261021/flash-write.log",
+      "bytes": 892,
+      "sha256": "72d6861a30a84c42fcf7262e5cdc4a19ff31c85137287d350782178e7b3e75ac"
+    },
+    {
+      "path": "artifacts/carousel-device.py",
+      "bytes": 8023,
+      "sha256": "b62964049aac5319684e960a43df870f87632b9425915dc522a00f09616055a1"
+    },
+    {
+      "path": "artifacts/preflight-carousel.py",
+      "bytes": 2820,
+      "sha256": "4aa3b834db17cdeec98f4d907f270d486e12d58599cfa5a57ca2f475c90ea9f3"
+    },
+    {
+      "path": "artifacts/carousel-hardware-20261021/baseline-01/session.json",
+      "bytes": 3499,
+      "sha256": "c64bb124099ea7d9010fb34d473fc9312f9541a6cb428002b50a7676a7df49f0"
+    },
+    {
+      "path": "artifacts/carousel-hardware-20261021/baseline-01/uart.bin",
+      "bytes": 5185,
+      "sha256": "1ad072c3411fa51a4888cb7b1531407a3a4ff233a029ccb2c45af2808d1db7fe"
+    },
+    {
+      "path": "artifacts/carousel-hardware-20261021/baseline-01/uart.txt",
+      "bytes": 5185,
+      "sha256": "1ad072c3411fa51a4888cb7b1531407a3a4ff233a029ccb2c45af2808d1db7fe"
+    },
+    {
+      "path": "artifacts/carousel-hardware-20261021/final-01/session.json",
+      "bytes": 10371,
+      "sha256": "e704b9cc33aa79773a716e0ca93916d6d048fd8e836820465fc19d3b84cc1798"
+    },
+    {
+      "path": "artifacts/carousel-hardware-20261021/final-01/snapshots.json",
+      "bytes": 1646,
+      "sha256": "8362b1704eb824998f7cee52c8e586be9f458bf0a80f0e804e454f244f7c3fe2"
+    },
+    {
+      "path": "artifacts/carousel-hardware-20261021/final-01/uart.bin",
+      "bytes": 6940,
+      "sha256": "12ea464fed8e5977eede9a59f3da93060da56a2c4182d13e7f317b788a948bb3"
+    },
+    {
+      "path": "artifacts/carousel-hardware-20261021/final-01/uart.txt",
+      "bytes": 6944,
+      "sha256": "244cbd57daf79268cbfdfaff9a3e63da00c0fc5027c3822af56f895bc549dee2"
+    },
+    {
+      "path": "artifacts/carousel-hardware-20261021/resume-01/process-output.log",
+      "bytes": 3662,
+      "sha256": "c7389533aa08ebbab57148c81173a2e775a48929eb0b3ea80209d6ee86bd6925"
+    },
+    {
+      "path": "artifacts/carousel-hardware-20261021/resume-01/snapshots.json",
+      "bytes": 1642,
+      "sha256": "febb0cb07c261d85e160120c84891bd8cad0189659144f6a3dde69be3e4f7238"
+    },
+    {
+      "path": "artifacts/carousel-hardware-20261021/resume-01/uart.bin",
+      "bytes": 6815,
+      "sha256": "c7dd2e1518161ccb53d24acbbcd7deb57f2248985b31c4f60fa333c51b293348"
+    },
+    {
+      "path": "artifacts/carousel-hardware-20261021/resume-02/session.json",
+      "bytes": 176925,
+      "sha256": "ad6d7dd994bf4465f5ea952e30643f325d256d6c93f125fa54061365705ecafe"
+    },
+    {
+      "path": "artifacts/carousel-hardware-20261021/resume-02/snapshots.json",
+      "bytes": 69845,
+      "sha256": "f0e2edb0b13abe686e57c5a1008944544a06d6c3cc63e15c89de9546c7a13115"
+    },
+    {
+      "path": "artifacts/carousel-hardware-20261021/resume-02/uart.bin",
+      "bytes": 37016,
+      "sha256": "63b4a046da7a73b679efb28ddd0d61e613448899685885c03289f3b9fd8e63dd"
+    },
+    {
+      "path": "artifacts/carousel-hardware-20261021/resume-02/uart.txt",
+      "bytes": 37020,
+      "sha256": "514e02520ba22041e7d9c9aff040478d52d66b2f110ef7d33554f560d3c51e27"
+    },
+    {
+      "path": "artifacts/carousel-hardware-20261021/startup-01/process-output.log",
+      "bytes": 4350,
+      "sha256": "f7340e541148e17c22b284e9c28f5c038ddf968caefad8da919469e1d5a17d4d"
+    },
+    {
+      "path": "artifacts/carousel-hardware-20261021/startup-01/snapshots.json",
+      "bytes": 2738,
+      "sha256": "f09f9093845a37efa0101f5abb17fbcdd6efa5249c990c703dd119decf2b4050"
+    },
+    {
+      "path": "artifacts/carousel-hardware-20261021/startup-01/uart.bin",
+      "bytes": 17866,
+      "sha256": "353fa60494111d5f1a38036e8f96cd58f8b4916503d8743f500b2dc212826eea"
+    }
+  ]
+}
