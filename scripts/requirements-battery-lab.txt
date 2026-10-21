@@ -1,0 +1,2 @@
+# Host workflow rehearsal only; isolated from the pinned SiFli SDK environment.
+openhtf==1.6.1
