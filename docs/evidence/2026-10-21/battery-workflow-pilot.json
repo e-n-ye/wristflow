@@ -1,0 +1,404 @@
+{
+  "date": "2026-10-21",
+  "base_commit": "c7f3e2cb5109a36baf12a99108e1c59517cdd74b",
+  "branch": "codex/battery-workflow-pilot",
+  "scope": "B3 offline replay and OpenHTF browser rehearsal only",
+  "source_inspected": true,
+  "host_compiled": true,
+  "firmware_compiled": false,
+  "hardware_verified": false,
+  "serial_opened": false,
+  "sdk_lock_changed": false,
+  "source_sha256": {
+    "scripts/battery_lab.py": "9007c8678fb185af76d1c36464ae88d51bfebf5d2d2c90b5dbcf5d1aaf3077c7",
+    "scripts/battery_replay.c": "bcecc1427ee322eb8e614c512af786d0b066ce154b8d98519cfa21379391faa9",
+    "scripts/requirements-battery-lab.txt": "3580d5d8d2b7e90f297ee90e2e4c9464780f8cadbfed8b4de306c37e554d15b2",
+    "tests/test_battery_lab.py": "1a6a03b88c2592d943fcd8466f6a058e76a0807e194bbf282c478f9858cae507",
+    "tests/fixtures/battery-b2-20261021.json": "9018e966aa0afcdb76704e9007ac2fa0f9f3b21ecf9ebef90ddd4ee860cf1e18"
+  },
+  "replay": {
+    "fixture_sha256": "9018e966aa0afcdb76704e9007ac2fa0f9f3b21ecf9ebef90ddd4ee860cf1e18",
+    "fixture_source": {
+      "kind": "parsed_device_trace",
+      "base_commit": "c7f3e2cb5109a36baf12a99108e1c59517cdd74b",
+      "bin_sha256": "1d6df1a4e1b4f5c9e2a7737be0d58294cffc0e46153a46772c3ff9e85bcbe575",
+      "original_records_path": "artifacts/battery-b2-20261021/export/offline-records.json",
+      "original_records_sha256": "e0b65647c15d6c4bda114efd4bdd67830565744116a713e122aa5c108bd247b5",
+      "evidence": "docs/evidence/2026-10-21/battery-load-hardware.json",
+      "raw_pages": {
+        "offline-page-000-attempt-0.txt": "872dfc3022d5e1c568064cf7e0baff18c86f6941a206e741495ed549dea42d00",
+        "offline-page-016-attempt-0.txt": "3e0c536d9c5cd72a72dbe9c892e2b10f41e3b4c6b102ef7fb7dcb6a8cb804c87",
+        "offline-page-032-attempt-0.txt": "62957f887623448be1008ba4557836ced9ad9548bdca787fd615306cb65d6bfc",
+        "offline-page-048-attempt-0.txt": "38aaba92cf9a9cbd08de3057bfbc76c597fefdb8c6017c6e5115530eaea3f56a",
+        "offline-page-064-attempt-0.txt": "cdb29041231c2d7e05379f51cbb7685727ff7e390120c18ef0ecb265eb601682",
+        "offline-page-080-attempt-0.txt": "8b125f819160e1e6d1959bbf95d32ccc13b309f8a8dd0ee4c0c2a3262856e278",
+        "offline-page-096-attempt-0.txt": "133620bd2c237b823897685cc41414c3c8116587292b376adaed685d25ba89d3",
+        "offline-page-112-attempt-0.txt": "ffa0119e91ea55c46f6c2475b92213fc50c7d693e2e4840d3f2068c0ff045226"
+      }
+    },
+    "source_sha256": {
+      "scripts/battery_replay.c": "bcecc1427ee322eb8e614c512af786d0b066ce154b8d98519cfa21379391faa9",
+      "core/battery_estimate.c": "5b00f487d65f0bf2a6de9d423d01de7ce10a378378a0c90535b3f3977e3aeb14",
+      "scripts/battery_lab.py": "9007c8678fb185af76d1c36464ae88d51bfebf5d2d2c90b5dbcf5d1aaf3077c7",
+      "core/battery_estimate.h": "fc27b5b7161d2a7b24fa66e62ecba66c292f54a0f61bac66b364dbb40f4a498f",
+      "core/power_state.h": "87a0215ee9f1a7ffdcc68b6944bdf1caf0e5fdf47e05b5203df1f88a0c7f24ee"
+    },
+    "build_command": [
+      "D:/msys64/ucrt64/bin/gcc.exe",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-I",
+      "D:/MY_Desk/project/wristflow/core",
+      "D:/MY_Desk/project/wristflow/scripts/battery_replay.c",
+      "D:/MY_Desk/project/wristflow/core/battery_estimate.c",
+      "-o",
+      "D:/MY_Desk/project/wristflow/artifacts/battery-workflow-pilot/replay-03/battery_replay.exe"
+    ],
+    "build_exit": 0,
+    "compiler_version": "gcc.exe (Rev13, Built by MSYS2 project) 15.2.0",
+    "python_version": "3.14.3 (main, Feb  5 2026, 13:34:54)  [MINGW GCC UCRT 15.2.0 64 bit (AMD64)]",
+    "engine_sha256": "3560d7b1aa5ad0a87b731eddce561c73747ee7535c32738de16f551889aa4fd6",
+    "record_count": 121,
+    "checked_rows": 120,
+    "warm_state_row": 0,
+    "cached_decision_aliases": [],
+    "unique_adc": 98,
+    "unplug_delay_ms": 58988,
+    "confirmed_battery_span_ms": 418910,
+    "points": [
+      {
+        "index": 47,
+        "adc_ms_from_exit": -655,
+        "raw_mv": 4125,
+        "candidate": 97,
+        "baseline": 97,
+        "retain_30s": 97,
+        "settle_60s": 97,
+        "combined": 97
+      },
+      {
+        "index": 51,
+        "adc_ms_from_exit": 4584,
+        "raw_mv": 4143,
+        "candidate": 97,
+        "baseline": 97,
+        "retain_30s": 97,
+        "settle_60s": 97,
+        "combined": 97
+      },
+      {
+        "index": 53,
+        "adc_ms_from_exit": 14642,
+        "raw_mv": 4145,
+        "candidate": 98,
+        "baseline": 97,
+        "retain_30s": 97,
+        "settle_60s": 97,
+        "combined": 97
+      },
+      {
+        "index": 62,
+        "adc_ms_from_exit": 59647,
+        "raw_mv": 4148,
+        "candidate": 98,
+        "baseline": 97,
+        "retain_30s": 97,
+        "settle_60s": 97,
+        "combined": 97
+      },
+      {
+        "index": 86,
+        "adc_ms_from_exit": 179651,
+        "raw_mv": 4146,
+        "candidate": 98,
+        "baseline": 97,
+        "retain_30s": 97,
+        "settle_60s": 98,
+        "combined": 98
+      },
+      {
+        "index": 108,
+        "adc_ms_from_exit": 258689,
+        "raw_mv": 4143,
+        "candidate": 98,
+        "baseline": 98,
+        "retain_30s": 97,
+        "settle_60s": 98,
+        "combined": 98
+      }
+    ],
+    "policies": {
+      "baseline": {
+        "changed_rows": [],
+        "invalid_rows": [
+          12,
+          13,
+          105,
+          106,
+          107,
+          113,
+          114,
+          115
+        ]
+      },
+      "retain_30s": {
+        "changed_rows": [
+          108,
+          109,
+          110,
+          111,
+          112,
+          116,
+          117,
+          118,
+          119,
+          120
+        ],
+        "invalid_rows": [
+          12,
+          13,
+          105,
+          106,
+          107,
+          113,
+          114,
+          115
+        ]
+      },
+      "settle_60s": {
+        "changed_rows": [
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104
+        ],
+        "invalid_rows": [
+          12,
+          13,
+          105,
+          106,
+          107,
+          113,
+          114,
+          115
+        ]
+      },
+      "combined": {
+        "changed_rows": [
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102,
+          103,
+          104
+        ],
+        "invalid_rows": [
+          12,
+          13,
+          105,
+          106,
+          107,
+          113,
+          114,
+          115
+        ]
+      }
+    },
+    "limits": [
+      "Warm start uses recorded row 0; earlier history is unavailable.",
+      "30s/60s are host experiment parameters, not selected firmware constants.",
+      "OFF gaps contain no voltage samples; no interpolation or SOC calibration.",
+      "UI/PG observations are not proof of physical input actions or DEEP."
+    ]
+  },
+  "validation": {
+    "test_command": "CC=D:/msys64/ucrt64/bin/gcc.exe uv run --isolated --python 3.12 --with-requirements scripts/requirements-battery-lab.txt python -m unittest discover -s tests -p test_battery_lab.py -v",
+    "tests": 13,
+    "passed": 13,
+    "exit_code": 0,
+    "test_log_local": "artifacts/battery-workflow-pilot/tests-04.log",
+    "test_log_sha256": "c019464dd9f0b72b4c1a70179dba336996014413ff4a5c29474be8965eebbc77",
+    "replay_command": "python scripts/battery_lab.py replay --cc D:/msys64/ucrt64/bin/gcc.exe --out artifacts/battery-workflow-pilot/replay-03",
+    "replay_exit_code": 0,
+    "progress_command": "python scripts/battery_lab.py status --run artifacts/battery-workflow-pilot/web-04",
+    "progress_exit_code": 0,
+    "fixture_provenance": "Parsed JSON and all 8 raw pages match committed B2 SHA-256 values; fixture status/records exactly equal original parsed JSON."
+  },
+  "browser_runs": {
+    "web-04": {
+      "command": "uv run --isolated --python 3.12 --with-requirements scripts/requirements-battery-lab.txt python scripts/battery_lab.py guide --report artifacts/battery-workflow-pilot/replay-03/replay.json --out artifacts/battery-workflow-pilot/web-04 --timeout 180",
+      "actor": "primary agent browser rehearsal",
+      "expected_outcome": "PASS",
+      "observed_outcome": "PASS",
+      "exit_code": 0,
+      "events": [
+        "created",
+        "evidence_checked",
+        "prompt",
+        "confirmed",
+        "prompt",
+        "confirmed",
+        "prompt",
+        "confirmed",
+        "record_saved",
+        "finished"
+      ],
+      "runtime": {
+        "python_version": "3.12.9 (tags/v3.12.9:fdb8142, Feb  4 2025, 15:27:58) [MSC v.1942 64 bit (AMD64)]",
+        "openhtf_version": "1.6.1"
+      },
+      "report_sha256": "c98d84284822dfe6007e03ad14acce4e6b68b7158eb8c6962dbd784fa3e8b3c1",
+      "journal_sha256": "148b099492ebdac02996ef75fe8f2e27f0e7bcf5755677465e9c20b61a3542b3",
+      "local_directory": "artifacts/battery-workflow-pilot/web-04"
+    },
+    "web-cancel": {
+      "command": "uv run --isolated --python 3.12 --with-requirements scripts/requirements-battery-lab.txt python scripts/battery_lab.py guide --report artifacts/battery-workflow-pilot/replay-03/replay.json --out artifacts/battery-workflow-pilot/web-cancel --timeout 180",
+      "actor": "primary agent browser rehearsal",
+      "expected_outcome": "FAIL",
+      "observed_outcome": "FAIL",
+      "exit_code": 1,
+      "events": [
+        "created",
+        "evidence_checked",
+        "prompt",
+        "cancelled",
+        "record_saved",
+        "finished"
+      ],
+      "runtime": {
+        "python_version": "3.12.9 (tags/v3.12.9:fdb8142, Feb  4 2025, 15:27:58) [MSC v.1942 64 bit (AMD64)]",
+        "openhtf_version": "1.6.1"
+      },
+      "report_sha256": "66ea7d65ec4955d9adbf3c70d06c5928b4f014fc66a842ab47fd11b8be1e31aa",
+      "journal_sha256": "ea310986f3b4f2736df5c4864079b45431b25bcf0518a26e298801ba49a0d0db",
+      "local_directory": "artifacts/battery-workflow-pilot/web-cancel"
+    },
+    "actual-timeout": {
+      "command": "uv run --isolated --python 3.12 --with-requirements scripts/requirements-battery-lab.txt python scripts/battery_lab.py guide --report artifacts/battery-workflow-pilot/replay-03/replay.json --out artifacts/battery-workflow-pilot/actual-timeout --port 0 --timeout 1",
+      "actor": "no response; genuine prompt deadline",
+      "expected_outcome": "FAIL",
+      "observed_outcome": "FAIL",
+      "exit_code": 1,
+      "events": [
+        "created",
+        "evidence_checked",
+        "prompt",
+        "timeout",
+        "record_saved",
+        "finished"
+      ],
+      "runtime": {
+        "python_version": "3.12.9 (tags/v3.12.9:fdb8142, Feb  4 2025, 15:27:58) [MSC v.1942 64 bit (AMD64)]",
+        "openhtf_version": "1.6.1"
+      },
+      "report_sha256": "9275b595d67ac1984558185fa6e6502c0cd4f9ea4f6ef2e0fde4377494404992",
+      "journal_sha256": "2c94b7a60dc1c0fa702fac45a532c16af22c2f171e3ebedb5e4ef13bb00461a3",
+      "local_directory": "artifacts/battery-workflow-pilot/actual-timeout"
+    }
+  },
+  "failures_preserved": [
+    {
+      "log": "artifacts/battery-workflow-pilot/tests-01.log",
+      "failure": "Experimental retention initially rejected unknown PG during NO_SEQUENCE; changed to retain hidden discharge history provisionally, require trustworthy same discharge mode and fresh distinct ADC on return."
+    },
+    {
+      "log": "artifacts/battery-workflow-pilot/web-01.log",
+      "failure": "Used conf.CONF rather than conf.load; corrected."
+    },
+    {
+      "log": "artifacts/battery-workflow-pilot/web-03.log",
+      "failure": "Windows NUL reports TTY; use StringIO to suppress console prompt EOF. Retested web-04 without EOF."
+    },
+    {
+      "log": "artifacts/battery-workflow-pilot/tests-04.log",
+      "failure": "Injected output OSError proves OpenHTF can print PASS while callback fails; tool now requires persisted report readback and records interruption."
+    }
+  ],
+  "remaining_limits": [
+    "No device collector/serial adapter; no flashing or new hardware evidence.",
+    "No automatic execution resume after process restart; status reader preserves evidence and refuses changed report.",
+    "OpenHTF 1.6.1 WebSocket shutdown coroutine/pending-task warnings remain on browser-connected runs.",
+    "Cancellation UI says Ran 5 of 5 while later phases are Waiting; use journal and passed=false.",
+    "30s/60s are experiments only; no firmware parameter choice, 4.0V/SOC/energy calibration, or measured time savings."
+  ],
+  "review": {
+    "agent_role": "default",
+    "requested_model": "gpt-6.1-sol",
+    "requested_reasoning": "medium",
+    "observed_run": "spawn accepted explicit model/effort; no independent backend model attestation",
+    "result": "Report callback false-PASS blocker corrected; focused read-only re-review found no remaining blocker in host scope."
+  },
+  "next_bounded_experiment": "Software-only battery collector adapter: resolve/verify UI shutdown/cancel limits, then test exact protocol, raw byte preservation, single serial owner, bounded waits and cancel cleanup against simulated serial before any new device window."
+}
