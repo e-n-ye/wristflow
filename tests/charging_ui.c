@@ -60,6 +60,7 @@ int main(int argc,char **argv)
     lv_indev_t *input=lv_indev_create(); lv_indev_set_type(input,LV_INDEV_TYPE_POINTER);
     lv_indev_set_display(input,d); lv_indev_set_read_cb(input,read_pointer); lv_timer_set_period(lv_indev_get_read_timer(input),16);
     wristflow_ui_init(""); wristflow_settings_t settings=wristflow_settings_default();
+    settings.wrist_wake=true;
     state=wristflow_product_snapshot(false,0); state.time_unavailable=false; state.hour_24=21; state.minute=10;
     shell=wristflow_product_ui_create(&state,&settings,set_brightness,NULL);
     wristflow_ui_shell_enable_display_policy(shell); advance(240);
@@ -104,6 +105,8 @@ int main(int argc,char **argv)
     assert(wristflow_ui_shell_key(shell)); advance(32); assert(!sync()&&!visible());
     state.power.charge_cycle=2; assert(sync()&&visible());
     jump(6500); assert(wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_DIM);
+    assert(wristflow_ui_shell_wrist_wake(shell) && visible() && lv_screen_active()==original);
+    jump(6500);
     tap(); assert(visible()&&brightness==60); /* First DIM touch only brightens. */
     tap(); assert(!visible()&&lv_screen_active()==original);
     state.power.charge_cycle=3; assert(sync()); jump(6500);
@@ -122,7 +125,7 @@ int main(int argc,char **argv)
     capture("full_expired"); assert(cyan_ring_pixels()==0);
     jump(11000); assert(wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_OFF&&brightness==0);
     assert(!sync()&&brightness==0); /* FULL must not wake. */
-    jump(125000); assert(wristflow_ui_shell_key(shell)); assert(visible()&&lv_screen_active()==original);
+    jump(125000); assert(wristflow_ui_shell_wrist_wake(shell)); assert(visible()&&lv_screen_active()==original);
     assert(wristflow_ui_shell_key(shell)&&!visible()&&lv_screen_active()==original);
     assert(!sync()&&!visible());
     state.power.charge_cycle=5; state.power.charge=WF_POWER_CHARGE_ACTIVE; assert(sync());

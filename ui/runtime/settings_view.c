@@ -121,6 +121,15 @@ static void dnd_changed(lv_event_t *event)
     wristflow_ui_shell_set_dnd(shell, lv_obj_has_state(lv_event_get_current_target_obj(event), LV_STATE_CHECKED));
 }
 
+static void wrist_changed(lv_event_t *event)
+{
+    wristflow_ui_shell_t *shell = lv_event_get_user_data(event);
+    wristflow_settings_t settings;
+    wristflow_ui_shell_get_settings(shell, &settings);
+    settings.wrist_wake = lv_obj_has_state(lv_event_get_current_target_obj(event), LV_STATE_CHECKED);
+    wristflow_ui_shell_configure(shell, &settings);
+}
+
 static void notification_center(lv_event_t *event)
 { wristflow_ui_shell_open_notification(lv_event_get_user_data(event), false, 0); }
 
@@ -193,7 +202,7 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
         title = "显示与亮度";
         route(row(list, "display_brightness", "屏幕亮度", "自定义"), WRISTFLOW_SURFACE_BRIGHTNESS_SETTINGS, shell);
         route(row(list, "display_timeout", "熄屏时间", "10秒"), WRISTFLOW_SURFACE_SCREEN_TIMEOUT, shell);
-        route(row(list, "display_wrist", "抬腕亮屏", "暂未开放"), WRISTFLOW_SURFACE_WAKE_SETTINGS, shell);
+        route(row(list, "display_wrist", "抬腕亮屏", "关闭"), WRISTFLOW_SURFACE_WAKE_SETTINGS, shell);
         route(row(list, "display_keep", "持续亮屏", "关闭"), WRISTFLOW_SURFACE_KEEP_AWAKE, shell);
         break;
     case WRISTFLOW_SURFACE_BRIGHTNESS_SETTINGS:
@@ -283,8 +292,12 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
         settings_note_create(list, "硬件版本与实际容量尚未核实。"); break;
     case WRISTFLOW_SURFACE_WAKE_SETTINGS:
         title = "抬腕亮屏";
-        settings_note_create(list, "抬腕识别功能待接入，当前可使用按键亮屏。");
-        unavailable(list, "wrist_disabled", "抬腕亮屏", "暂未开放"); break;
+        obj = row(list, "wrist_row", "抬腕亮屏", "");
+        lv_obj_add_event_cb(obj, long_press_row, LV_EVENT_SHORT_CLICKED, shell);
+        obj = named(obj, "row_switch");
+        lv_obj_remove_flag(obj, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_event_cb(obj, wrist_changed, LV_EVENT_VALUE_CHANGED, shell);
+        break;
     default: break;
     }
     lv_label_set_text(named(root, "app_title"), title);
@@ -304,6 +317,8 @@ void wristflow_settings_refresh(lv_obj_t *root, wristflow_surface_t surface, wri
         lv_obj_set_state(named(root, "row_switch"), LV_STATE_CHECKED, settings.face_long_press);
     else if (surface == WRISTFLOW_SURFACE_DND_SETTINGS)
         lv_obj_set_state(named(root, "row_switch"), LV_STATE_CHECKED, settings.do_not_disturb);
+    else if (surface == WRISTFLOW_SURFACE_WAKE_SETTINGS)
+        lv_obj_set_state(named(root, "row_switch"), LV_STATE_CHECKED, settings.wrist_wake);
     else if (surface == WRISTFLOW_SURFACE_NOTIFICATION_SETTINGS)
         label(named(named(root, "notifications_dnd"), "row_detail"), settings.do_not_disturb ? "开启" : "关闭");
     else if (surface == WRISTFLOW_SURFACE_SOUND_SETTINGS) {
@@ -317,6 +332,7 @@ void wristflow_settings_refresh(lv_obj_t *root, wristflow_surface_t surface, wri
         }
     }
     else if (surface == WRISTFLOW_SURFACE_DISPLAY_SETTINGS) {
+        label(named(named(root, "display_wrist"), "row_detail"), settings.wrist_wake ? "开启" : "关闭");
         snprintf(value, sizeof value, "%u%%", settings.brightness);
         label(named(named(root, "display_brightness"), "row_detail"), value);
         snprintf(value, sizeof value, "%u秒", settings.screen_timeout);

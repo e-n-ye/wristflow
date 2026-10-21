@@ -1,0 +1,170 @@
+{
+  "date": "2026-10-20",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/native-wrist-wake",
+  "base_commit": "6e609d75dcb9ad9c2e894d6a3c5e12f7af3cbcc1",
+  "authorization": "User: 没问题的话，接入翻腕亮屏吧. This software loop prepares a reviewable persistent native AWT/IRQ/AON/UI candidate. No device access in this loop.",
+  "capability_choice": {
+    "native": "LSM6DS3TR-C embedded absolute wrist tilt, fixed xneg / latency15*40ms / threshold30deg; no software pose replacement",
+    "prior_device": "Exact17f1b775 route evidence: SOURCE85h, PA31 raw1 before SOURCE /0 after. One awake path observation, not IRQ/AON/DEEP proof.",
+    "references": [
+      "docs/evidence/2026-10-20/wrist-int1-route-hardware.json",
+      "ST DocID030071 Rev3 §2.2/9.16",
+      "ST AN5130 §6.4"
+    ],
+    "sdk": "Pinned421126d9: drv_gpio rising applies pulldown; PA31 HPAON index7, pm_* take that index, not GPIO31. AON WER has no owner/refcount; reject an already enabled source."
+  },
+  "contract": {
+    "settings": "v8/24B, byte13 bool; longest face ID nine chars reconstructed NUL. Decode1..4/6/7 -> wristfalse; v5 remains rejected. Defaultfalse, existing saved switch and 250ms/pre-off enqueue; flash save stays asynchronous.",
+    "hardware_owner": "Existing sole IMU worker configures/clears native AWT and owns GPIO/AON adapter. ISR only signals worker, generation rejects stale callbacks. Attach conflict does not mutate someone else; failed disable retains responsibility/IDLE until explicit cleanup.",
+    "scheduling": "Persistent mode has no diagnostic deadline or100ms polling and does not retain IDLE while armed/waiting. Existing daily1s lit/60s off checks can also accept a latched source. IRQ coalescing is a hint; source/config are authoritative. Bounded FinSH1..120s behavior retained.",
+    "qualification": "Complete valid/configured source bit0 frame, post-source pin low, requested and not cancelled -> dedicatedWF_EVENT_WRIST128. Disable immediately clears pending; active stop prevents replay. Runtime source/config failure disarms, cleans up, reports FAULT; shared device shutdown also cleans wrist.",
+    "ui": "Dedicated UI-thread wake: OFF/DIM only, ACTIVE does not renew timeout; no KEY navigation/dismiss/acknowledge. Reminder uses its own display phase; charge/notification/exit-dialog/draft state preserved, ordinary120s restore contract retained. KEY/TEST has priority over wrist in same main event batch.",
+    "diagnostics": "wf_wrist status cached fields include requested/continuous/armed/owned/irqs/wakes; counters are not DEEP or gesture-rate proof. wf_wrist stop and wf_steps stop suspend RAM wrist request; saved preference unchanged, UI off/on or reboot reapplies it.",
+    "resources": "No extra thread/timer, SDK/config/XML/generated files unchanged; original IMU stack6144 remains, peak unmeasured."
+  },
+  "host": {
+    "environment": "GCC15.2.0 / CMake4.2.3 / Ninja1.13.2 / lockedLVGL9.4.0",
+    "commands": [
+      "export PATH=\"/d/msys64/ucrt64/bin:$PATH\"",
+      "cmake -S tests -B artifacts/host/native-wrist-wake-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug",
+      "cmake --build artifacts/host/native-wrist-wake-debug -j4",
+      "ctest --test-dir artifacts/host/native-wrist-wake-debug --output-on-failure",
+      "cmake -S tests -B artifacts/host/native-wrist-wake-release -G Ninja -DCMAKE_BUILD_TYPE=Release",
+      "cmake --build artifacts/host/native-wrist-wake-release -j4 --target product_imu_diag product_wrist_irq imu_wrist_tilt product_state settings_ui charging_ui notifications_ui",
+      "ctest --test-dir artifacts/host/native-wrist-wake-release -R '^(settings_ui|notifications_ui|charging_ui|product_imu_diag|product_wrist_irq|imu_wrist_tilt|product_state)$' --output-on-failure"
+    ],
+    "debug_result": [
+      "54/54 Test #54: notifications_ui .................   Passed    0.46 sec",
+      "",
+      "100% tests passed, 0 tests failed out of 54",
+      "",
+      "Total Test time (real) =  19.95 sec"
+    ],
+    "release_result": [
+      "7/7 Test #54: notifications_ui .................   Passed    0.24 sec",
+      "",
+      "100% tests passed, 0 tests failed out of 7",
+      "",
+      "Total Test time (real) =   0.87 sec"
+    ],
+    "coverage": [
+      "v7->v8 defaults, v8bool/longest ID roundtrip/illegalbytes, existing migrations/v5 rejection",
+      "IRQ index7/EBUSY/no-device/existingWER/positiveerrorcodes/failed enable, independent failed cleanup, old callback cookie rejected after restart",
+      "Worker persistent noIDLE/no100ms wait, coalesced IRQ onlyone accepted clear, disable cancels queued wake, disable during50ms preparation, failures retain IDLE and explicit recovery",
+      "Nonzero native11 and daily/hour preserved, runtime config fault/disarm and shared bus fault cleanup",
+      "Real LVGL switch/touch/save request, OFF/DIM/ACTIVE, ordinary long-sleep and exempt draft, stopwatch exit dialog, notification preview, reminder own30s timeout, charge view remains visible"
+    ],
+    "boundary": "RT pin/I2C/PM host mocks and actualLVGL only. main hardware loop coalescedKEY priority statically reviewed, not executed as device or full main mock.",
+    "renders": {
+      "artifacts/host/native-wrist-wake-debug/renders/settings_wrist.png": "05e4c388dd62f1d061db11f30a250663033459c3dc627292442db89df16bc9b0",
+      "artifacts/host/native-wrist-wake-debug/renders/settings_wrist_on.png": "e63a68efa21542f9861af2f79e88000acbdd3b08beb888b7a2609411b2fba1de"
+    }
+  },
+  "failures_and_repairs": [
+    "First Debug53/54: test incorrectly expected wake immediately after configure (configure already activates display). Corrected setup; exposed missing independent display policy on recreated test shell, corrected setup. Final54/54.",
+    "Primary/source review corrected reminder effective phase; independent read-only UI review found coalescedKEY+wrist could navigate twice, fixed KEY priority at both main handlers. IRQ/worker review found no remaining blocker.",
+    "SDK Python lacks PIL during optional snapshot conversion; used standard-library PPM->PNG encoding only, no UI/image content edits."
+  ],
+  "builds": [
+    {
+      "result": "artifacts/product/20261020-230509-333/result.json",
+      "result_sha256": "66a2a30271a07b6f179978b3958ffc768d3db4ce84c59465a6f3f1c2ff62ace9",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 4",
+      "example": "product",
+      "exit_code": 0,
+      "sources_rehashed": 464,
+      "artifacts_rehashed": 29,
+      "firmware_bytes": 7801476,
+      "bin_sha256": "751de5f544e1fd17bd047e9818cd498eded4855a7498c376165ff3ce64cac971",
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+      "hardware_verified": false
+    },
+    {
+      "result": "artifacts/ui_demo/20261020-230622-144/result.json",
+      "result_sha256": "35063b43b3c76c55c0489418c41d403bc02e54998945bc7ff4caee554d42c28e",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example ui_demo -Jobs 4",
+      "example": "ui_demo",
+      "exit_code": 0,
+      "sources_rehashed": 418,
+      "artifacts_rehashed": 22,
+      "firmware_bytes": 7560544,
+      "bin_sha256": "1cf7047c0c2a333bbe1040932288019ae9abe73d590c64fb0d2d9f80241eb596",
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+      "hardware_verified": false
+    }
+  ],
+  "source_hashes": {
+    "apps/product/src/imu_wrist_tilt.c": "a80c39318d0a33a46e695d1c90824da674cd410183cc3f1365113bbbc8eea77d",
+    "apps/product/src/imu_wrist_tilt.h": "8e624d9091b67a8840c13e3543bb6964437a076a9456a5eefd868c5e570fed1e",
+    "apps/product/src/main.c": "b5ccd498436a84b75538d3ef212797641e0991d27bdf73caa6c29610a784c5d2",
+    "apps/product/src/product_imu_diag.c": "b1f2b9ac0f18cd0525a6667408654004b901bc5476ac6f205692e5dd5ee0e7d3",
+    "apps/product/src/product_pm.h": "81d23440beddcb7cc8649456443c6c3e323d155ef04b7eda808d662137e838e8",
+    "core/product_state.c": "64e9e489213298f20dfeacf7784afd80a036ca019a2b0e55686df8de82f66fc6",
+    "core/product_state.h": "28f4e2d19e6262717a700b3254a36d1448a6a2deeaeda1d9109bfa8e430a1f91",
+    "tests/CMakeLists.txt": "7339d285e5e1eedb4a113c0e8ddee09b1132cc25c3135a0173d0cf5c06b5f71f",
+    "tests/charging_ui.c": "9cc6313107cfe0ebb7cb95680849d23152493f48bf389d4c07223a7f0b4b7933",
+    "tests/imu_wrist_tilt.c": "5acb6ff6b436248eb03293cb95aad1ff4e3837271e5c66276bca11b5d02f1442",
+    "tests/notifications_ui.c": "730f3fb9419153df3072295885e22a474c923d7ff102b931d8284ba3f180b1a2",
+    "tests/product_imu_diag.c": "db9b5ea52eba667f5dc62d89a91c05d2cae4265016bd87c1c6ab25132a55189e",
+    "tests/product_state.c": "2e2ddb5a21c0922a0ea6d0449d1abcda5e8a4b04fed11df29e6fe94b2a92200a",
+    "tests/settings_ui.c": "f8a1e85a832e3ae981c0157118318cf5210a8557ff837de74a299f0855f2ccd5",
+    "tests/support/imu/board.h": "9f15ef8837226e2623ddc42f33593316cd28d4f360b257c800a1f70d166aea7d",
+    "tests/support/imu/drv_gpio.h": "27c3deebb4d7d52a35f20580b99c2816df72861e67a12f1fe66e72b99562cad9",
+    "tests/support/imu/rtdevice.h": "ecbbb08e2d8a12b953db99f9fd5c00cf2920fe65d9b576dfb9496cd7cebfb2b8",
+    "ui/runtime/settings_view.c": "02b8fb4a33d38b5f8c3a60a1d049c396d9d14fa4068fcc18099587361fab0e7d",
+    "ui/runtime/ui_shell.c": "589c630f7e7e0537598b59a1cc5372487734f68509e97aa9151ae44ee4446c42",
+    "ui/runtime/ui_shell.h": "9c6f6207f5098922204754601d77d33b45dd2076f8fda7ad01cdeeb5c3238300",
+    "apps/product/src/product_wrist.h": "f8a03bdcb2cadd12b900010b2ab09c72dab089a05c02f21ddff44df547e79d76",
+    "apps/product/src/product_wrist_irq.c": "85d27961f376b6be028670a1c7670c0f725eea2199a2a0a2e670ac4423d4a77e",
+    "apps/product/src/product_wrist_irq.h": "58f0972539654383abdd14d2fe4959005e5d46ff1a441c6b335cefc15e8ff5a9",
+    "tests/product_wrist_irq.c": "cc13c6f75b4007a55095e1412c9f267010e8ab818b6e33e885ad5d7004b83363",
+    "tests/support/imu/bf0_pm.h": "a2b6289baf44861b2f76fd55aa74a5ba1a72393331667d743711ebfaa020f0d9"
+  },
+  "logs_sha256": {
+    "artifacts/native-wrist-wake-debug-verified-build.log": "989dac8848d77bc0d8b1c9cca820fe00fb661832f241250895945f2c17043b7d",
+    "artifacts/native-wrist-wake-debug-verified-test.log": "5f1fb148111d6166b90e54863d84f6b2567602c6e8acad70514757292ec85f59",
+    "artifacts/native-wrist-wake-demo-build.log": "5b9d5af7215697d3455816a7705b11dc020314c28c168c7b6c2d3b42bb3bc5f0",
+    "artifacts/native-wrist-wake-host-build-2.log": "7f7c36c0aee352d890fd033385caef3c7b5876ac7f6482ba77381e04093b2138",
+    "artifacts/native-wrist-wake-host-build-final.log": "24b631a6e526ee0253629e71e3cbb16e165ef3e5e85782b4274d41dbee960e25",
+    "artifacts/native-wrist-wake-host-build.log": "fe9c79ab71c7fc8bae377b090bfaa284b6764d20f8e0d7267b64622673869de5",
+    "artifacts/native-wrist-wake-host-config.log": "910637b3a9b9b5f9dacaab41afc12430730e1d706435ecd4babfdcfc694bec98",
+    "artifacts/native-wrist-wake-host-test-2.log": "f5db8adbba5dc736b2534e1213df5f443ecc01e3786b4b9485dc27f7ef7e4d25",
+    "artifacts/native-wrist-wake-host-test-final.log": "ad748e1411b25323fab78d64dc7e63ec902f309bbd4974ac4858e946ac3d859f",
+    "artifacts/native-wrist-wake-host-test.log": "30c5f57419252fb9c2db4cd63b6ad7ae0341f24adaa6881ee0b959f4f6c648b7",
+    "artifacts/native-wrist-wake-product-build.log": "b54cbadce7c0ff7db1ccf4c4ef3ded4a38e46a66a3f7d04651337e9bcbd370e7",
+    "artifacts/native-wrist-wake-release-build.log": "57af4df223d850b84fa1e2204e10ff076695e9d7688cff6c1e5d3f8ed4f79cbd",
+    "artifacts/native-wrist-wake-release-config.log": "9f4505da3fece1bec7f649e78207090fad857edb0cfb47b11285d6dc5985bfde",
+    "artifacts/native-wrist-wake-release-test.log": "e5a27ef8e96bc06175a8f59ce8fbab02b0a2b2fb60fc0defe2785ffa803ce11f",
+    "artifacts/native-wrist-wake-release-verified-build.log": "7716162f3cd3b99cf3b8a8dd6decf324e08c7e941aae7e730baba5e4fc8c075b",
+    "artifacts/native-wrist-wake-release-verified-test.log": "51883774c70f02daa3a706be063cd319a2a1edb31ab2ccf12072357c0068b871"
+  },
+  "build_warnings": "Product retains FinSH callback casts, RTC signedness, RWX and ftab syscall/entry warnings plus missing dfu conversion dependency; Demo retains existing RWX/conversion warnings. Both exit0 and artifact validation pass; not warning-free builds.",
+  "review": "Primary reviewed final change/evidence and actual rendered ON/OFF pages. Separate read-only Luna(low) UI/settings and Sol(medium) IRQ/worker review; final followup verified coalescedKEY and effective reminder phase, no remaining blocker. No device actions by agents.",
+  "device": {
+    "opened": false,
+    "flashed": false,
+    "current_bin": "17f1b7754af2df2190c5d6ce2f5cb8f36b73795dd53b2269e75b16fde1f35031",
+    "port": "COM5 closed since prior hardware loop",
+    "unverified": [
+      "MCU IRQ delivery/AON wake and actual screen/touch/KEY behavior on new firmware",
+      "Saved enabled preference ordinary reboot/actualFlash migration",
+      "PhysicalDEEP residency/current, battery life, gesture rates/false positives/latency/continuous steps during configuration",
+      "SOURCE80h/84h reserved bits and exact physical IMU identity"
+    ]
+  }
+}

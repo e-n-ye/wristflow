@@ -72,6 +72,9 @@ bool wristflow_ui_shell_close_controls(wristflow_ui_shell_t *shell);
 bool wristflow_ui_shell_open(wristflow_ui_shell_t *shell, wristflow_surface_t surface);
 bool wristflow_ui_shell_back(wristflow_ui_shell_t *shell);
 bool wristflow_ui_shell_key(wristflow_ui_shell_t *shell);
+/* UI thread only: wake OFF/DIM without navigation or acknowledgement. Motion
+ * while ACTIVE does not extend the display timeout. Respects the user switch. */
+bool wristflow_ui_shell_wrist_wake(wristflow_ui_shell_t *shell);
 bool wristflow_ui_shell_home(wristflow_ui_shell_t *shell);
 const wristflow_navigation_t *wristflow_ui_shell_navigation(const wristflow_ui_shell_t *shell);
 const char *wristflow_ui_shell_watchface_id(const wristflow_ui_shell_t *shell);

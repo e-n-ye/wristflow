@@ -26,7 +26,7 @@ static bool continuing(wf_imu_wrist_tilt_t *d)
         d->snapshot.ended = WF_IMU_USER_STOP;
         return false;
     }
-    if (d->io.now_ms(d->io.context) - d->snapshot.started_ms >= d->snapshot.duration_ms) {
+    if (!d->snapshot.continuous && d->io.now_ms(d->io.context) - d->snapshot.started_ms >= d->snapshot.duration_ms) {
         d->snapshot.ended = WF_IMU_DEADLINE;
         return false;
     }
@@ -136,15 +136,15 @@ bool wf_imu_wrist_stop(wf_imu_wrist_tilt_t *d, uint32_t now, wf_imu_end_t reason
     return ok;
 }
 
-static bool begin(wf_imu_wrist_tilt_t *d, uint32_t duration, uint8_t mask, uint8_t latency, bool route)
+static bool begin(wf_imu_wrist_tilt_t *d, uint32_t duration, uint8_t mask, uint8_t latency, bool route, bool continuous)
 {
     if (!d->io.now_ms || !d->delay_ms || d->changed || d->snapshot.phase == WF_IMU_RUNNING ||
-        d->snapshot.phase == WF_IMU_FAULT || duration < 1000 || duration > 120000 ||
+        d->snapshot.phase == WF_IMU_FAULT || (!continuous && (duration < 1000 || duration > 120000)) ||
         !mask || (mask & 3U) || !latency || (route && !d->read_int1)) return false;
     uint32_t errors = d->snapshot.io_errors;
     d->snapshot = (wf_imu_wrist_snapshot_t){.io_errors = errors, .mask = mask,
         .latency = latency, .threshold = 0x20, .duration_ms = duration, .stop_verified = true,
-        .route_int1 = route};
+        .route_int1 = route, .continuous = continuous};
     /* This capability may borrow only the known native-counter configuration.
      * In particular it must not reset PEDO_RST_STEP, ODR or the shared rail. */
     capture(d, &d->snapshot.before);
@@ -180,8 +180,8 @@ static bool begin(wf_imu_wrist_tilt_t *d, uint32_t duration, uint8_t mask, uint8
         !configure(d, CTRL10, 0x94) || !continuing(d)) goto fail;
     /* Route to INT2 even though it is NC on this board: without a driven
      * interrupt route the source remains a 1/26s pulse despite LIR (AN5130).
-     * The explicit route experiment additionally ORs INT2 onto INT1 (CTRL4 bit5).
-     * The bounded worker polls this latched source; no MCU IRQ/AON is enabled. */
+     * INT1 mode additionally ORs INT2 onto INT1 (CTRL4 bit5). The owner decides
+     * whether this is a bounded observation or a persistent IRQ wake service. */
     d->snapshot.configured = true;
     d->snapshot.phase = WF_IMU_RUNNING;
     return true;
@@ -193,9 +193,11 @@ fail:
 }
 
 bool wf_imu_wrist_begin(wf_imu_wrist_tilt_t *d, uint32_t duration, uint8_t mask, uint8_t latency)
-{ return begin(d, duration, mask, latency, false); }
+{ return begin(d, duration, mask, latency, false, false); }
 bool wf_imu_wrist_route_begin(wf_imu_wrist_tilt_t *d, uint32_t duration, uint8_t mask, uint8_t latency)
-{ return begin(d, duration, mask, latency, true); }
+{ return begin(d, duration, mask, latency, true, false); }
+bool wf_imu_wrist_wake_begin(wf_imu_wrist_tilt_t *d, uint8_t mask, uint8_t latency)
+{ return begin(d, 0, mask, latency, true, true); }
 
 void wf_imu_wrist_poll(wf_imu_wrist_tilt_t *d, uint32_t now)
 {

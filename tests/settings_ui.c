@@ -163,7 +163,12 @@ int main(int argc,char **argv)
     press("settings_notifications"); snapshot("notifications"); back();
     press("settings_display"); snapshot("display");
     assert(!lv_obj_find_by_name(lv_screen_active(),"display_tap"));
-    press("display_wrist"); snapshot("wrist"); back();
+    press("display_wrist"); snapshot("wrist");
+    assert(!settings().wrist_wake);
+    press("row_switch"); assert(settings().wrist_wake); snapshot("wrist_on");
+    press("wrist_row"); assert(!settings().wrist_wake);
+    press("wrist_row"); assert(settings().wrist_wake); back();
+    assert(!strcmp(lv_label_get_text(named(named(lv_screen_active(),"display_wrist"),"row_detail")),"开启"));
     press("display_brightness"); snapshot("brightness");
     assert(lv_obj_has_state(named(lv_screen_active(),"auto_brightness"),LV_STATE_DISABLED));
     press("custom_brightness"); snapshot("adjust27");
@@ -197,7 +202,20 @@ int main(int argc,char **argv)
     home(); key(); open(WRISTFLOW_SURFACE_SETTINGS);
     wristflow_settings_t chosen=settings(); chosen.brightness=27; chosen.screen_timeout=5;
     assert(wristflow_ui_shell_configure(shell,&chosen));
-    jump(4050); assert(brightness==5 && wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_DIM);
+    lv_obj_t *wake_page=lv_screen_active();
+    jump(1000);
+    assert(!wristflow_ui_shell_wrist_wake(shell)); /* ACTIVE motion does not reset timeout. */
+    jump(3050); assert(brightness==5 && wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_DIM);
+    assert(wristflow_ui_shell_wrist_wake(shell) && brightness==27 && lv_screen_active()==wake_page);
+    jump(5050); assert(wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_OFF);
+    assert(wristflow_ui_shell_wrist_wake(shell) && lv_screen_active()==wake_page);
+    chosen.wrist_wake=false; assert(wristflow_ui_shell_configure(shell,&chosen));
+    jump(5050); assert(!wristflow_ui_shell_wrist_wake(shell));
+    assert(wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_OFF);
+    chosen.wrist_wake=true; assert(wristflow_ui_shell_configure(shell,&chosen));
+    jump(5050);
+    assert(wristflow_ui_shell_wrist_wake(shell));
+    jump(4050);
     /* A dim touch over an actionable row consumes down, drag, and release. */
     sample(195,125,true); assert(brightness==27); sample(195,130,true); sample(195,125,false); advance(240); surface(WRISTFLOW_SURFACE_SETTINGS);
     press("settings_faces"); surface(WRISTFLOW_SURFACE_FACE_MANAGEMENT);
@@ -216,6 +234,8 @@ int main(int argc,char **argv)
     assert(!strcmp(paused,lv_label_get_text(named(lv_screen_active(),"stopwatch_time"))));
     /* Paused data, running data, and all exits obey the same confirmation. */
     press("app_back"); snapshot("stopwatch_exit"); surface(WRISTFLOW_SURFACE_STOPWATCH);
+    jump(5050); assert(wristflow_ui_shell_wrist_wake(shell));
+    assert(lv_obj_find_by_name(lv_screen_active(),"stopwatch_exit_confirm"));
     press("confirm_cancel"); surface(WRISTFLOW_SURFACE_STOPWATCH);
     swipe(10,220,280,220); assert(lv_obj_find_by_name(lv_screen_active(),"stopwatch_exit_confirm"));
     key(); assert(!lv_obj_find_by_name(lv_screen_active(),"stopwatch_exit_confirm")); surface(WRISTFLOW_SURFACE_STOPWATCH);
@@ -235,7 +255,7 @@ int main(int argc,char **argv)
     swipe(320,125,60,125); sample(100,110,true); advance(736); sample(100,110,false); advance(240); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
     press("edit_right"); press("full"); press("slot_0"); press("choose_activity_0"); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
     lv_obj_t *draft=lv_screen_active(); assert(wristflow_ui_shell_layout(shell)->count==3);
-    jump(5050); jump(600000); key(); assert(lv_screen_active()==draft); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
+    jump(5050); jump(600000); assert(wristflow_ui_shell_wrist_wake(shell)); assert(lv_screen_active()==draft); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
     assert(!lv_obj_has_state(named(draft,"edit_action"),LV_STATE_DISABLED)); assert(wristflow_ui_shell_layout(shell)->count==3); snapshot("draft_wake");
     uint8_t record[WRISTFLOW_SETTINGS_BYTES]; chosen=settings(); assert(wristflow_settings_encode(&chosen,record));
     assert(wristflow_ui_shell_keep_awake(shell,20)); wristflow_ui_shell_destroy(shell); shell=NULL;
@@ -243,6 +263,7 @@ int main(int argc,char **argv)
     shell=wristflow_product_ui_create(&state,&initial,set_brightness,NULL); advance(240);
     assert(!wristflow_ui_shell_keep_minutes(shell) && !settings().face_long_press && settings().screen_timeout==5 && brightness==27);
     assert(settings().vibration_mode==WRISTFLOW_VIBRATION_STANDARD && previews==5);
+    assert(settings().wrist_wake);
     /* Same UI with a real asynchronous contract: never infer persistence from
      * changing an in-memory toggle or from re-entering the screen. */
     wristflow_ui_shell_bind_settings_store(shell,request_settings,settings_status,NULL);
@@ -298,8 +319,11 @@ int main(int argc,char **argv)
     assert(previews==6 && cancellations==before_cancel+1); /* Restore/configure only cancels. */
     press("vibration_1"); assert(previews==7);
     lv_obj_t *reminder=lv_obj_create(lv_layer_top());
+    wristflow_ui_shell_enable_display_policy(shell); /* This recreated shell has its own policy. */
     assert(wristflow_ui_shell_present_reminder(shell,reminder));
     assert(cancellations==before_cancel+2 && !wristflow_ui_shell_set_vibration_mode(shell,WRISTFLOW_VIBRATION_ENHANCED));
+    jump(30050); assert(wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_OFF);
+    assert(wristflow_ui_shell_wrist_wake(shell) && wristflow_ui_shell_reminder_active(shell) && brightness);
     wristflow_ui_shell_close_reminder(shell); advance(240); assert(previews==7);
     wristflow_ui_shell_bind_reminder_vibration(shell,preview,cancel_preview,&preview_id);
     assert(previews==7); /* Binding adds capability text without starting an occurrence. */
@@ -309,6 +333,10 @@ int main(int argc,char **argv)
     lv_obj_scroll_to_y(mode_list,LV_COORD_MAX,LV_ANIM_OFF);advance(32);snapshot("vibration_reminder_bottom");
     lv_obj_scroll_to_y(mode_list,0,LV_ANIM_OFF);advance(32);
     press("vibration_2"); assert(previews==8);
+    back(); back(); press("settings_display"); press("display_wrist");
+    store_bound=true; unsigned saves=store_requests;
+    press("row_switch"); assert(!settings().wrist_wake && store_requests==saves+1 && !submitted.wrist_wake);
+    store_state=WRISTFLOW_SAVE_DONE; advance(240); store_bound=false;
     wristflow_ui_shell_destroy(shell); shell=NULL;
     assert(cancellations==before_cancel+3); lv_deinit(); return 0;
 }

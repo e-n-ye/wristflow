@@ -249,5 +249,16 @@ int main(void)
         assert(!wf_imu_wrist_route_begin(&d,1000,0x40,15) && !b.writes);
         assert(d.snapshot.before.valid==(WF_WRIST_ROUTE_ALL & ~(WF_WRIST_INT1<<i)));
     }
+    init(&b,&d); d.read_int1=pin_read;
+    assert(wf_imu_wrist_wake_begin(&d,0x40,15));
+    assert(d.snapshot.continuous && !d.snapshot.duration_ms);
+    b.now += 120001; b.user[0x54]=0x85;
+    wf_imu_wrist_poll(&d,b.now);
+    assert(d.snapshot.phase==WF_IMU_RUNNING && d.snapshot.observations==1);
+    b.now=UINT32_MAX-10; wf_imu_wrist_poll(&d,b.now);
+    b.now=100; wf_imu_wrist_poll(&d,b.now);
+    assert(d.snapshot.phase==WF_IMU_RUNNING);
+    b.cancel=true; wf_imu_wrist_poll(&d,b.now);
+    assert(d.snapshot.ended==WF_IMU_USER_STOP && d.snapshot.stop_verified); preserved(&b);
     return 0;
 }

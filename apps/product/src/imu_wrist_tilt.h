@@ -26,7 +26,7 @@ typedef struct {
     wf_imu_end_t ended;
     uint32_t started_ms, duration_ms, sampled_ms, observations, io_errors;
     uint8_t mask, latency, threshold, source, axes;
-    bool source_valid, configured, stop_verified, route_int1;
+    bool source_valid, configured, stop_verified, route_int1, continuous;
     wf_imu_wrist_frame_t before, running, after, event; /* Last accepted bit0 frame. */
 } wf_imu_wrist_snapshot_t;
 typedef struct {
@@ -43,6 +43,9 @@ typedef struct {
 void wf_imu_wrist_init(wf_imu_wrist_tilt_t *, wf_imu_io_t, void (*)(void *, uint32_t));
 bool wf_imu_wrist_begin(wf_imu_wrist_tilt_t *, uint32_t, uint8_t, uint8_t);
 bool wf_imu_wrist_route_begin(wf_imu_wrist_tilt_t *, uint32_t, uint8_t, uint8_t);
+/* Explicit persistent mode, only for the Product IRQ owner. Bounded diagnostic
+ * entry points retain their 1..120 second contract. */
+bool wf_imu_wrist_wake_begin(wf_imu_wrist_tilt_t *, uint8_t, uint8_t);
 void wf_imu_wrist_poll(wf_imu_wrist_tilt_t *, uint32_t);
 bool wf_imu_wrist_stop(wf_imu_wrist_tilt_t *, uint32_t, wf_imu_end_t, bool);
 #endif

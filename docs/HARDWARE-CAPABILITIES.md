@@ -192,3 +192,16 @@ status继续只读缓存，每阶段附加`imu-wrist-pin`；有效位增加CTRL4
 该动作窗约21.5秒因UART一行RAW只含四字节而被助手中止，显式stop恢复CTRL4／PULSE／TAP与计步使能、allow关闭；原始失败不删除，不算60秒到期。修正助手按route标记限定同一报告，避免尾随后台摘要与旧帧拼接，并对不完整报告有界重读，未补字节。随后只补静置60秒，60022ms到期与三阶段ffff／CTRL4=00,20,00／CTRL10=14,94,14／PA31=0,0通过，观察0；保留一次SOURCE80h的bit0为0读数，84h／80h保留位及器件身份仍未知。
 
 前后129／native0／小时73／代次15不变，stop／allow1／IDLE0及22:34:14关闭COM5，用户最终确认UI／触摸／KEY1及129正常。[设备证据](evidence/2026-10-20/wrist-int1-route-hardware.json)区分正向／取消窗、静置到期窗及坏报告；没有非零native保持、完整动作识别率、精确600ms响应、IRQ／AON、常驻开关／专用亮屏、物理DEEP或功耗结论。
+
+<a id="native-wrist-wake"></a>
+## 原生AWT常驻与专用亮屏（2026-10-20软件轮）
+
+从`6e609d7`接续用户“接入翻腕亮屏”的新授权。选择依据为上节精确`17f1b775…`的醒态源／PA31观察；沿用芯片内置absolute wrist tilt固定负X、延迟15×40ms和阈值30°，不替换为软件姿态识别。SOURCE80h／84h保留位及器件精确身份仍未知，只有有效bit0用于来源判断。此节覆盖前轮“仅限时诊断、无IRQ／UI”的后续范围限制，不改变旧证据所属版本。
+
+- `imu_wrist_tilt`增加显式persistent入口，保留原有写后读回、四路由全零、CTRL3=44h及计步守卫；旧start／route仍限1–120秒。仅已有IMU worker调用，没有第二个I2C拥有者、软件动作算法、rail复位或计数清零。常驻等待不持本owner的IDLE，不请求100ms周期；原日常亮屏1秒／息屏60秒任务及IRQ均可触发同worker读取。短时配置／I/O／Flash仍持IDLE，诊断窗口仍沿用原策略。
+- `product_wrist_irq`先取得PA31回调注册，冲突拒绝且不disable／detach外部拥有者；查询锁定SDK的HPAON索引7，`pm_*_pin_wakeup`使用索引而非GPIO31，并拒绝已启用的WER位。高有效推挽配置对应上升沿IRQ／AON，SDK该IRQ模式自带下拉，适配pinmux同用下拉；实际电气行为待验。使能后的已高锁存由worker主动检查，避免只等下一边沿。
+- ISR只计数／投递原worker事件；代次及armed守卫拒绝迟到回调。worker读取完整配置及源，确认bit0、清源后PA31低且请求仍开启／未取消，才投递`WF_EVENT_WRIST=128`；IRQ位可合并，普通日常读取也能处理锁存源。pin_after仍高则停止并报FAULT，不无限重试。关闭偏好立即清待消费唤屏，GPIO／AON停用失败分别保留责任；清理失败继续持IDLE，显式关闭／stop可重试。
+- 共享计步停止／故障会同步清理腕配置和IRQ；未知bank不访问别名，未确认的寄存器清理保留共享FAULT。开关变化经`product_wrist.h`入队；Flash保存和UI线程不做IMU I/O。`wf_wrist status`继续读缓存并附requested／continuous／armed／owned／irqs／wakes，计数不是手势率／物理DEEP证明。CLI腕／步stop暂停本次RAM请求，保存偏好不改，UI关开或重启重新应用。
+- [设置契约](PRODUCT-SETTINGS.md#native-wrist-wake-20261020)默认关闭并保存；UI专用入口仅唤醒OFF／DIM，ACTIVE不续时，不复用KEY或假触摸。普通120秒长睡和豁免保持；提醒用独立期限，充电／通知／退出确认不因腕事件关闭。main在黑屏中完成目标帧再提亮；KEY／TEST与腕事件同批时只处理既有KEY语义。
+
+Debug54/54、保留断言Release相关7/7、实际LVGL开关／字形／保存请求／覆盖状态及两个只读审查通过。Product`20261020-230509-333`／BIN`751de5f5…`、UI Demo`20261020-230622-144`／BIN`1cf7047c…`编译退出0，464／418源码及29／22产物哈希一致，SDK／子模块锁未变；命令、失败及边界见[软件证据](evidence/2026-10-20/native-wrist-wake.json)。没有本版串口／烧录，板上仍为旧`17f1b775…`；MCU IRQ、实际息屏唤醒／触摸／KEY1、开关Flash恢复、识别率／延迟、佩戴、物理DEEP／功耗均待同版验证。原worker栈6144B不变，峰值未测。

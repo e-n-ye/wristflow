@@ -22,6 +22,10 @@ target_compile_definitions(product_imu_diag PRIVATE BSP_USING_I2C3)
 target_include_directories(product_imu_diag PRIVATE "${CMAKE_CURRENT_LIST_DIR}/support/imu"
     "${CMAKE_CURRENT_LIST_DIR}/support/power" "${PRODUCT}" "${CORE}")
 add_test(NAME product_imu_diag COMMAND product_imu_diag)
+add_executable(product_wrist_irq product_wrist_irq.c)
+target_include_directories(product_wrist_irq PRIVATE "${CMAKE_CURRENT_LIST_DIR}/support/imu"
+    "${CMAKE_CURRENT_LIST_DIR}/support/power" "${PRODUCT}")
+add_test(NAME product_wrist_irq COMMAND product_wrist_irq)
 add_executable(aw32001_inhibit aw32001_inhibit.c "${PRODUCT}/aw32001_inhibit.c")
 target_include_directories(aw32001_inhibit PRIVATE "${PRODUCT}")
 add_test(NAME aw32001_inhibit COMMAND aw32001_inhibit)
