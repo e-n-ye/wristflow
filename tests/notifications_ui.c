@@ -108,6 +108,7 @@ int main(int argc,char **argv)
     lv_indev_t *input=lv_indev_create(); lv_indev_set_type(input,LV_INDEV_TYPE_POINTER);
     lv_indev_set_display(input,d); lv_indev_set_read_cb(input,read_pointer); lv_timer_set_period(lv_indev_get_read_timer(input),16);
     wristflow_ui_init(""); wristflow_settings_t settings=wristflow_settings_default();
+    settings.wrist_wake=true;
     wristflow_watch_snapshot_t state=wristflow_product_snapshot(false,0);
     shell=wristflow_product_ui_create(&state,&settings,set_brightness,NULL);
     assert(notification_22->line_height<=34);
@@ -140,6 +141,7 @@ int main(int argc,char **argv)
     assert(!strcmp(lv_label_get_text(named(lv_screen_active(),"message_title")),"消息已移除")); capture("withdrawn");
     home(); sleep_screen(); jump(120000);
     assert(receive(2,"熄屏中文通知","预览五秒后恢复息屏")); assert(visible("notification_preview"));
+    assert(!wristflow_ui_shell_wrist_wake(shell) && visible("notification_preview"));
     surface(WRISTFLOW_SURFACE_HOME); assert(brightness==60); capture("preview");
     jump(4850); assert(visible("notification_preview")); jump(180);
     assert(!visible("notification_preview")&&brightness==0);

@@ -2,6 +2,9 @@
 #include "imu_pedometer.h"
 #include "imu_wrist_tilt.h"
 #include "product_steps.h"
+#include "product_wrist.h"
+#include "product_wrist_irq.h"
+#include "product_pm.h"
 #include "product_services.h"
 #include "steps_store.h"
 #include <rtthread.h>
@@ -17,7 +20,7 @@
 #endif
 
 enum { EV_COMMAND = 1, EV_STOP = 2, EV_DAILY_START = 4, EV_SCREEN = 8, EV_SAVE = 16,
-    EV_WRIST = 32, EV_WRIST_STOP = 64 };
+    EV_WRIST = 32, EV_WRIST_STOP = 64, EV_WRIST_POLICY = 128, EV_WRIST_IRQ = 256 };
 enum command { CMD_NONE, CMD_PROBE, CMD_STEPS };
 static struct rt_event work;
 static struct rt_i2c_bus_device *bus;
@@ -37,12 +40,38 @@ static wf_imu_wrist_tilt_t wrist;
 static wf_imu_wrist_snapshot_t wrist_cached;
 static bool wrist_pending, wrist_busy;
 static bool wrist_route;
+static bool wrist_requested, wrist_runtime, wrist_wake_pending;
+static uint32_t wrist_wakes;
 static volatile bool wrist_cancel_requested;
 static unsigned wrist_seconds;
 static uint8_t wrist_mask, wrist_latency;
 static bool prepare_bus(void);
 static bool probe(void);
 static wristflow_steps_clock_t daily_clock(void);
+
+static void wrist_irq_signal(void)
+{ if (ready) rt_event_send(&work, EV_WRIST_IRQ); }
+
+void wristflow_product_wrist_enable(bool enabled)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    if (ready && daily_mode && wrist_requested != enabled) {
+        wrist_requested = enabled;
+        wrist_wake_pending = false;
+        if (!enabled && wrist_runtime) wrist_cancel_requested = true;
+        rt_event_send(&work, EV_WRIST_POLICY);
+    }
+    rt_hw_interrupt_enable(level);
+}
+
+bool wristflow_product_wrist_take_wake(void)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    bool wake = wrist_requested && wrist_wake_pending;
+    wrist_wake_pending = false;
+    rt_hw_interrupt_enable(level);
+    return wake;
+}
 
 static uint32_t now_ms(void)
 { return (uint32_t)((uint64_t)rt_tick_get() * 1000U / RT_TICK_PER_SECOND); }
@@ -88,7 +117,10 @@ static void publish(void)
     bool unresolved = device.identified && !device.snapshot.stop_verified &&
         device.snapshot.phase == WF_IMU_FAULT;
     bool wrist_unresolved = wrist.changed && !wrist.snapshot.stop_verified;
-    gate((active && !daily_mode) || unresolved || wrist.snapshot.phase == WF_IMU_RUNNING || wrist_unresolved);
+    wristflow_wrist_irq_snapshot_t irq_state = wristflow_product_wrist_irq_snapshot();
+    gate((active && !daily_mode) || unresolved ||
+        (wrist.snapshot.phase == WF_IMU_RUNNING && !wrist.snapshot.continuous) ||
+        (wrist_unresolved && wrist.snapshot.phase != WF_IMU_RUNNING) || (irq_state.owned && !irq_state.armed));
     rt_base_t level = rt_hw_interrupt_disable();
     cached = device.snapshot;
     wrist_cached = wrist.snapshot;
@@ -160,7 +192,10 @@ static void wrist_report(bool frames)
 {
     rt_base_t level = rt_hw_interrupt_disable();
     wf_imu_wrist_snapshot_t s = wrist_cached;
+    bool requested = wrist_requested;
+    uint32_t wakes = wrist_wakes;
     rt_hw_interrupt_enable(level);
+    wristflow_wrist_irq_snapshot_t irq_state = wristflow_product_wrist_irq_snapshot();
     rt_kprintf("[imu-wrist] phase=%u end=%u configured=%u source_valid=%u stop_verified=%u\n",
         s.phase, s.ended, s.configured, s.source_valid, s.stop_verified);
     rt_kprintf("[imu-wrist] mask=0x%02x latency=%u ths=%u source=0x%02x axes=0x%02x observations=%lu errors=%lu\n",
@@ -169,7 +204,10 @@ static void wrist_report(bool frames)
     rt_kprintf("[imu-wrist] start=%lu duration=%lu sample=%lu; latched source observations, not gestures\n",
         (unsigned long)s.started_ms, (unsigned long)s.duration_ms, (unsigned long)s.sampled_ms);
     if (frames) {
-        rt_kprintf("[imu-wrist-route] int1=%u; no MCU IRQ/AON/display wake; event is last accepted source bit0 frame\n", s.route_int1);
+        rt_kprintf("[imu-wrist-route] int1=%u; event is last accepted source bit0 frame\n", s.route_int1);
+        rt_kprintf("[wrist-wake] requested=%u continuous=%u armed=%u owned=%u irqs=%lu wakes=%lu; software counts, not physical DEEP proof\n",
+            requested, s.continuous, irq_state.armed, irq_state.owned,
+            (unsigned long)irq_state.irqs, (unsigned long)wakes);
         wrist_frame_report("before", &s.before);
         wrist_frame_report("running", &s.running);
         wrist_frame_report("after", &s.after);
@@ -178,12 +216,22 @@ static void wrist_report(bool frames)
 }
 static void wrist_stop(bool keep_steps)
 {
+    rt_base_t level = rt_hw_interrupt_disable();
+    wrist_wake_pending = false;
+    rt_hw_interrupt_enable(level);
+    bool irq_stopped = wristflow_product_wrist_irq_stop();
     if (wrist.changed && !prepare_bus()) {
         wrist.snapshot.phase = WF_IMU_FAULT;
         wrist.snapshot.ended = WF_IMU_IO_FAILURE;
         wrist.snapshot.source_valid = wrist.snapshot.configured = wrist.snapshot.stop_verified = false;
     } else (void)wf_imu_wrist_stop(&wrist, now_ms(), WF_IMU_USER_STOP, keep_steps);
     device.wrist_enabled = false;
+    wrist_runtime = false;
+    if (!irq_stopped) {
+        wrist.snapshot.phase = WF_IMU_FAULT;
+        wrist.snapshot.ended = WF_IMU_IO_FAILURE;
+        wrist.snapshot.stop_verified = false;
+    }
 }
 static void wrist_work(rt_uint32_t events)
 {
@@ -192,29 +240,76 @@ static void wrist_work(rt_uint32_t events)
     unsigned span = wrist_seconds;
     uint8_t mask = wrist_mask, latency = wrist_latency;
     bool route = wrist_route;
+    bool requested = wrist_requested;
     wrist_pending = false;
     rt_hw_interrupt_enable(level);
-    if (events & (EV_STOP | EV_DAILY_START)) return; /* Shared shutdown was handled first. */
-    if (events & EV_WRIST_STOP) {
+    if (events & EV_STOP) return; /* Shared shutdown was handled first. */
+    if (requested && (events & EV_WRIST_POLICY) && !wrist_runtime && wrist.snapshot.phase == WF_IMU_RUNNING)
+        wrist_stop(device.snapshot.phase == WF_IMU_RUNNING);
+    if ((events & EV_WRIST_STOP) || (!requested && wrist_runtime) ||
+        ((events & EV_WRIST_POLICY) && !requested)) {
         wrist_stop(device.snapshot.phase == WF_IMU_RUNNING);
         wrist_cancel_requested = false;
         /* A prior uncertain wrist transaction faults the shared device. Explicit
          * cleanup may stop it safely; only wf_steps retry restarts its baseline. */
         if (!wrist.changed && device.snapshot.phase == WF_IMU_FAULT && !device.snapshot.stop_verified)
             (void)wf_imu_pedometer_stop(&device, now_ms(), WF_IMU_IO_FAILURE);
-    } else if (begin && device.snapshot.phase == WF_IMU_RUNNING) {
+    } else if (requested && !wrist_runtime && !wrist.changed &&
+        wrist.snapshot.phase != WF_IMU_FAULT && device.snapshot.phase == WF_IMU_RUNNING) {
+        wrist_cancel_requested = false;
+        bool ok = prepare_bus() && wristflow_product_wrist_irq_start(wrist_irq_signal);
+        if (ok) ok = wf_imu_wrist_wake_begin(&wrist, 0x40, 15);
+        if (ok) {
+            wrist_runtime = true;
+            /* A high latched before IRQ enable cannot produce another edge. */
+            if (wrist_int1_read(NULL) == 1) rt_event_send(&work, EV_WRIST_IRQ);
+        } else {
+            wrist_stop(true);
+            wrist.snapshot.phase = WF_IMU_FAULT;
+            wrist.snapshot.ended = WF_IMU_IO_FAILURE;
+        }
+        rt_kprintf("[wrist-wake] enable=%u; native xneg600ms/30deg\n", ok);
+    } else if (begin && !requested && device.snapshot.phase == WF_IMU_RUNNING) {
         bool ok = prepare_bus() && (!route || wrist_int1_prepare());
         if (ok) ok = route ? wf_imu_wrist_route_begin(&wrist, span * 1000U, mask, latency) :
             wf_imu_wrist_begin(&wrist, span * 1000U, mask, latency);
         rt_kprintf("[imu-wrist] accepted=%u\n", ok);
     } else if (wrist.snapshot.phase == WF_IMU_RUNNING) {
         if (device.snapshot.phase != WF_IMU_RUNNING) wrist_stop(false);
-        else if (prepare_bus()) wf_imu_wrist_poll(&wrist, now_ms());
+        else if (prepare_bus()) {
+            uint32_t observed = wrist.snapshot.observations;
+            wf_imu_wrist_poll(&wrist, now_ms());
+            if (wrist_runtime && wrist.snapshot.phase == WF_IMU_RUNNING &&
+                wrist.snapshot.observations != observed && wrist.snapshot.event.pin_after == 0) {
+                rt_base_t wake_level = rt_hw_interrupt_disable();
+                if (wrist_requested && !wrist_cancel_requested && !cancel_requested) {
+                    wrist_wake_pending = true;
+                    ++wrist_wakes;
+                    wristflow_product_event_send(WF_EVENT_WRIST);
+                }
+                rt_hw_interrupt_enable(wake_level);
+            }
+        }
         else {
             wrist.snapshot.phase = WF_IMU_FAULT;
             wrist.snapshot.ended = WF_IMU_IO_FAILURE;
             wrist.snapshot.source_valid = wrist.snapshot.configured = wrist.snapshot.stop_verified = false;
         }
+    }
+    if (wrist_runtime && wrist.snapshot.phase != WF_IMU_RUNNING) {
+        bool fault = wrist.snapshot.phase == WF_IMU_FAULT;
+        wrist_stop(device.snapshot.phase == WF_IMU_RUNNING);
+        if (fault) {
+            wrist.snapshot.phase = WF_IMU_FAULT;
+            wrist.snapshot.ended = WF_IMU_IO_FAILURE;
+        }
+    }
+    /* Latched high after a successful clear is unsafe to leave armed: retain a
+     * visible fault instead of a tight retry loop or an unverified wake. */
+    if (wrist_runtime && wrist.snapshot.running.attempted && wrist.snapshot.running.pin_after) {
+        wrist_stop(true);
+        wrist.snapshot.phase = WF_IMU_FAULT;
+        wrist.snapshot.ended = WF_IMU_IO_FAILURE;
     }
     device.wrist_enabled = wrist.snapshot.phase == WF_IMU_RUNNING && wrist.snapshot.configured;
     if (wrist.changed && !wrist.snapshot.stop_verified && wrist.snapshot.phase == WF_IMU_FAULT) {
@@ -227,7 +322,8 @@ static void daily_work(rt_uint32_t events)
     gate(true);
     wf_imu_wrist_snapshot_t before_wrist = wrist.snapshot;
     if (events & (EV_STOP | EV_DAILY_START)) {
-        if (wrist.changed || wrist.snapshot.phase == WF_IMU_RUNNING) wrist_stop(false);
+        if (wrist.changed || wrist.snapshot.phase == WF_IMU_RUNNING ||
+            wristflow_product_wrist_irq_snapshot().owned) wrist_stop(false);
         wrist_cancel_requested = false;
     }
     bool boot_seed = false;
@@ -258,7 +354,8 @@ static void daily_work(rt_uint32_t events)
         bool prepared = prepare_bus();
         if (prepared && device.identified && device.snapshot.phase == WF_IMU_FAULT)
             prepared = wf_imu_pedometer_stop(&device, now_ms(), WF_IMU_USER_STOP);
-        bool ok = prepared && !wrist.changed && probe() && wf_imu_pedometer_begin_continuous(&device);
+        bool ok = prepared && !wrist.changed && !wristflow_product_wrist_irq_snapshot().owned &&
+            probe() && wf_imu_pedometer_begin_continuous(&device);
         if (!ok) wristflow_daily_steps_invalidate(&daily);
     } else if (device.snapshot.phase == WF_IMU_RUNNING) {
         if (prepare_bus()) wf_imu_pedometer_poll(&device, now_ms());
@@ -272,6 +369,9 @@ static void daily_work(rt_uint32_t events)
         if (!wristflow_daily_steps_observe(&daily, device.snapshot.steps, daily_clock()))
             (void)wf_imu_pedometer_stop(&device, now_ms(), WF_IMU_IO_FAILURE);
     } else if (daily.snapshot.metric.total_valid) wristflow_daily_steps_invalidate(&daily);
+    if (device.snapshot.phase != WF_IMU_RUNNING &&
+        (wrist.snapshot.phase == WF_IMU_RUNNING || wristflow_product_wrist_irq_snapshot().owned))
+        wrist_stop(false);
     if (checkpoint_enabled) {
         uint64_t now = daily_clock().monotonic_ms;
         wristflow_steps_store_offer(&checkpoint, &daily.snapshot, now);
@@ -279,7 +379,7 @@ static void daily_work(rt_uint32_t events)
     }
     publish(); /* Releases this owner's IDLE unless stopping remains unconfirmed. */
     if (wrist.snapshot.phase != before_wrist.phase || wrist.snapshot.observations != before_wrist.observations ||
-        (events & (EV_WRIST | EV_WRIST_STOP))) wrist_report(false);
+        (events & (EV_WRIST | EV_WRIST_STOP | EV_WRIST_POLICY | EV_WRIST_IRQ))) wrist_report(false);
     if (checkpoint_enabled) {
         uint64_t now = daily_clock().monotonic_ms;
         if (wristflow_steps_store_wait(&checkpoint, now) == 0) {
@@ -375,7 +475,7 @@ static void worker(void *context)
                 if (wait == (rt_tick_t)RT_WAITING_FOREVER || save_wait < wait) wait = save_wait;
             }
         }
-        if (daily_mode && wrist.snapshot.phase == WF_IMU_RUNNING) {
+        if (daily_mode && wrist.snapshot.phase == WF_IMU_RUNNING && !wrist.snapshot.continuous) {
             uint32_t elapsed = now_ms() - wrist.snapshot.started_ms;
             uint32_t left = elapsed >= wrist.snapshot.duration_ms ? 1 : wrist.snapshot.duration_ms - elapsed;
             rt_tick_t wrist_wait = rt_tick_from_millisecond(left < 100U ? left : 100U);
@@ -383,7 +483,8 @@ static void worker(void *context)
             if (wait == (rt_tick_t)RT_WAITING_FOREVER || wrist_wait < wait) wait = wrist_wait;
         }
         rt_uint32_t events = 0;
-        rt_event_recv(&work, EV_COMMAND | EV_STOP | EV_DAILY_START | EV_SCREEN | EV_SAVE | EV_WRIST | EV_WRIST_STOP,
+        rt_event_recv(&work, EV_COMMAND | EV_STOP | EV_DAILY_START | EV_SCREEN | EV_SAVE | EV_WRIST | EV_WRIST_STOP |
+            EV_WRIST_POLICY | EV_WRIST_IRQ,
             RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, wait, &events);
         if (daily_mode) {
             daily_work(events);
@@ -462,6 +563,8 @@ static void wf_wrist(int argc, char **argv)
     if (argc == 2 && !strcmp(argv[1], "stop")) {
         rt_base_t level = rt_hw_interrupt_disable();
         wrist_pending = false;
+        wrist_requested = false; /* Explicit diagnostic stop suspends the RAM request. */
+        wrist_wake_pending = false;
         wrist_cancel_requested = true;
         rt_event_send(&work, EV_WRIST_STOP);
         rt_hw_interrupt_enable(level);
@@ -483,12 +586,12 @@ static void wf_wrist(int argc, char **argv)
     }
     if (!span || !mask || !latency) {
         rt_kprintf("wf_wrist start <1..120 seconds> <xpos|xneg|ypos|yneg|zpos|zneg> [latency1..255x40ms]\n");
-        rt_kprintf("wf_wrist status | stop; default600ms/30deg; no display wake\n");
+        rt_kprintf("wf_wrist status | stop; bounded commands do not enable display wake; stop suspends RAM request\n");
         rt_kprintf("wf_wrist route <1..120 seconds> <axis> [latency]; INT2 OR INT1 / PA31 levels\n");
         return;
     }
     rt_base_t level = rt_hw_interrupt_disable();
-    bool accepted = cached.phase == WF_IMU_RUNNING && !wrist_busy && !cancel_requested &&
+    bool accepted = !wrist_requested && cached.phase == WF_IMU_RUNNING && !wrist_busy && !cancel_requested &&
         !wrist_cancel_requested && wrist_cached.phase != WF_IMU_FAULT;
     if (accepted) {
         wrist_busy = wrist_pending = true;
@@ -532,6 +635,8 @@ static void wf_steps(int argc, char **argv)
     if (argc == 2 && !strcmp(argv[1], "save")) {
         rt_event_send(&work, EV_SAVE);
     } else if (argc == 2 && !strcmp(argv[1], "stop")) {
+        wrist_requested = false;
+        wrist_wake_pending = false;
         cancel_requested = true;
         rt_event_send(&work, EV_STOP);
     } else if (argc == 2 && !strcmp(argv[1], "retry") &&
@@ -552,6 +657,8 @@ static bool start(bool daily_service)
     wrist.read_int1 = wrist_int1_read;
     wrist_cached = wrist.snapshot;
     wrist_pending = wrist_busy = wrist_cancel_requested = false;
+    wrist_requested = wrist_runtime = wrist_wake_pending = false;
+    wrist_wakes = 0;
     daily_mode = daily_service;
     checkpoint_initialized = checkpoint_enabled = false;
     checkpoint = checkpoint_cached = (wristflow_steps_store_t){.active = -1};

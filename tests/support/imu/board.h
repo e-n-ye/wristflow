@@ -6,5 +6,6 @@
 #define I2C3_SDA 1
 #define I2C3_SCL 2
 #define PIN_PULLUP 1
+#define PIN_PULLDOWN 2
 void HAL_PIN_Set(unsigned, unsigned, unsigned, unsigned);
 void BSP_GPIO_Set(unsigned, unsigned, unsigned);

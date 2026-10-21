@@ -1,5 +1,7 @@
 # 产品固件框架
 
+2026-10-20用户要求正式接入[原生翻腕亮屏](HARDWARE-CAPABILITIES.md#native-wrist-wake)：原IMU worker持有持续AWT及PA31 IRQ/AON，ISR只通知、worker验证配置并清源后投递独立`WF_EVENT_WRIST=128`，UI专用入口只提亮。设置[v8／24B默认关闭开关](PRODUCT-SETTINGS.md#native-wrist-wake-20261020)沿用保存队列，KEY同批优先，提醒／通知／充电及草稿保持；持续等待不持IDLE、不强制100ms轮询，失败清理保留责任。源码／主机54/54、Release相关7/7及Product／Demo编译通过，精确Product`751de5f5…`；本软件轮未下载，IRQ／AON及真机亮屏仍待同版验收。下文无IRQ／UI的描述分别属于旧诊断版本。
+
 2026-10-20接续增加显式[INT1总路由／PA31电平诊断](HARDWARE-CAPABILITIES.md#wrist-int1-route)：同IMU worker的`wf_wrist route`限时借用CTRL4 bit5，检查其他可配置源路由为零，缓存读源前后GPIO及最后有效事件帧；到期／停止／故障读回恢复，失败保留FAULT责任。默认腕关闭，原start不设置PA31，无IRQ／AON／专用亮屏。随后精确`17f1b775…`的[设备轮](evidence/2026-10-20/wrist-int1-route-hardware.json)取得一次SOURCE85h／PA31读源前1后0，约21.5秒因UART坏报告显式停止恢复；另补静置60022ms到期与配置／129／小时73保留，最终UI／KEY1正常及COM5关闭。该结果支持醒态路由，不代表中断／深睡唤醒或翻腕亮屏完成；80h／84h保留位与精确身份仍未知。
 
 2026-10-20在原腕会话增加[三阶段新读寄存器／XYZ缓存](HARDWARE-CAPABILITIES.md#wrist-register-snapshot)：同一worker在启用前、运行中、停止清理确认后读取，status只打印缓存。帧含传输有效位、单调起止、原字节／有符号counts及独立新鲜度；部分读取和停止已确认后的遥测失败分别表达，无新采样入口／线程／UI。新增传输会延长会话帧及取消响应，100ms不是精确周期。随后精确`df9c37d6…`已[下载并补测](evidence/2026-10-20/wrist-register-snapshot-hardware.json)：确认上边缘抬起为负X，匹配xneg后捕获一次SOURCE85h／observations1，三阶段配置与到期清理、129／小时73保留及UI／KEY1正常。该结果是一次内置来源触发，尚无IRQ／AON或专用亮屏；source84h保留位与精确器件身份仍未知。

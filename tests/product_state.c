@@ -15,8 +15,8 @@ int main(void)
     assert(defaults.brightness == 60 && strcmp(defaults.face_id, "diffusion") == 0);
     assert(defaults.menu_layout == WRISTFLOW_MENU_LIST);
     assert(defaults.face_long_press && defaults.screen_timeout == 10);
-    assert(defaults.breathing_minutes == 1 && defaults.vibration_mode == WRISTFLOW_VIBRATION_STANDARD);
-    const wristflow_settings_t chosen = {37, "simple", WRISTFLOW_MENU_GRID, false, 60, true, 5, WRISTFLOW_VIBRATION_ENHANCED};
+    assert(defaults.breathing_minutes == 1 && defaults.vibration_mode == WRISTFLOW_VIBRATION_STANDARD && !defaults.wrist_wake);
+    const wristflow_settings_t chosen = {37, "simple", WRISTFLOW_MENU_GRID, false, 60, true, 5, WRISTFLOW_VIBRATION_ENHANCED, true};
     uint8_t record[WRISTFLOW_SETTINGS_BYTES];
     assert(wristflow_settings_encode(&chosen, record));
     wristflow_settings_t restored = defaults;
@@ -24,7 +24,22 @@ int main(void)
     assert(wristflow_settings_equal(&chosen, &restored));
     assert(restored.do_not_disturb);
     assert(restored.breathing_minutes == 5);
-    assert(record[2] == 7 && record[14] == WRISTFLOW_VIBRATION_ENHANCED);
+    assert(record[2] == 8 && record[13] == 1 && record[14] == WRISTFLOW_VIBRATION_ENHANCED);
+    restored = chosen; restored.wrist_wake = false;
+    assert(!wristflow_settings_equal(&chosen, &restored));
+    assert(wristflow_settings_encode(&chosen, record));
+    record[2] = 7; record[13] = 0; seal(record);
+    assert(wristflow_settings_decode(&restored, record, sizeof record));
+    wristflow_settings_t v7 = chosen; v7.wrist_wake = false;
+    assert(wristflow_settings_equal(&restored, &v7));
+    assert(wristflow_settings_encode(&defaults, record)); record[13] = 1; seal(record);
+    assert(wristflow_settings_decode(&restored, record, sizeof record));
+    assert(!strcmp(restored.face_id, "diffusion") && restored.wrist_wake);
+    for (unsigned flag = 2; flag <= 255; ++flag) {
+        record[13] = (uint8_t)flag; seal(record); restored = defaults;
+        assert(!wristflow_settings_decode(&restored, record, sizeof record));
+        assert(wristflow_settings_equal(&restored, &defaults));
+    }
     for (unsigned mode = 0; mode < WRISTFLOW_VIBRATION_COUNT; ++mode) {
         restored = chosen; restored.vibration_mode = (wristflow_vibration_mode_t)mode;
         assert(wristflow_settings_encode(&restored, record));
@@ -35,9 +50,9 @@ int main(void)
     }
     /* v6 preserves all seven old preferences and acquires only the new default. */
     assert(wristflow_settings_encode(&chosen, record));
-    record[2] = 6; record[14] = 0; seal(record);
+    record[2] = 6; record[13] = 0; record[14] = 0; seal(record);
     assert(wristflow_settings_decode(&restored, record, sizeof record));
-    wristflow_settings_t migrated = chosen; migrated.vibration_mode = WRISTFLOW_VIBRATION_STANDARD;
+    wristflow_settings_t migrated = chosen; migrated.vibration_mode = WRISTFLOW_VIBRATION_STANDARD; migrated.wrist_wake = false;
     assert(wristflow_settings_equal(&restored, &migrated));
     for (unsigned mode = WRISTFLOW_VIBRATION_COUNT; mode <= 255; ++mode) {
         assert(wristflow_settings_encode(&chosen, record)); record[14] = (uint8_t)mode; seal(record);

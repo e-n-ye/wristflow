@@ -448,6 +448,22 @@ static void restore_after_long_sleep(wristflow_ui_shell_t *shell, uint32_t off_a
         wristflow_ui_shell_home(shell);
 }
 
+bool wristflow_ui_shell_wrist_wake(wristflow_ui_shell_t *shell)
+{
+    if (!shell || !shell->preferences.wrist_wake || !shell->display_timer ||
+        wristflow_ui_shell_display_phase(shell) == WRISTFLOW_DISPLAY_ACTIVE) return false;
+    if (wristflow_ui_shell_reminder_active(shell)) {
+        wristflow_ui_shell_wake_reminder(shell);
+        return true;
+    }
+    if (shell->display.phase == WRISTFLOW_DISPLAY_OFF &&
+        wristflow_notification_view_alert(shell->notifications) != WF_ALERT_PREVIEW)
+        restore_after_long_sleep(shell, shell->display.off_at);
+    wristflow_display_activity(&shell->display, lv_tick_get());
+    display_tick(shell->display_timer);
+    return true;
+}
+
 bool wristflow_ui_shell_key(wristflow_ui_shell_t *shell)
 {
     if (wristflow_ui_shell_reminder_active(shell)) {

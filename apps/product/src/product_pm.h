@@ -10,7 +10,8 @@
 #define WF_EVENT_COUNTDOWN 16u
 #define WF_EVENT_ALARM     32u
 #define WF_EVENT_CHARGER   64u
-#define WF_EVENT_ALL       127u
+#define WF_EVENT_WRIST     128u
+#define WF_EVENT_ALL       255u
 
 void wristflow_product_pm_start(void);
 void wristflow_product_event_send(rt_uint32_t events);

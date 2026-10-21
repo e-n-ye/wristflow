@@ -28,6 +28,7 @@ typedef struct {
     bool do_not_disturb;
     uint8_t breathing_minutes;
     wristflow_vibration_mode_t vibration_mode;
+    bool wrist_wake;
 } wristflow_settings_t;
 
 bool wristflow_screen_timeout_valid(unsigned seconds);

@@ -15,10 +15,30 @@ static bool fail_event, fail_create, fail_start;
 static bool fail_bus_find, fail_bus_config;
 static bool fail_pin_device;
 static unsigned pin_modes, pin_reads;
+static wristflow_wrist_irq_snapshot_t irq_adapter;
+static void (*irq_signal)(void);
+static bool fail_irq_start, fail_irq_stop;
+static unsigned ui_events;
+void wristflow_product_event_send(rt_uint32_t events)
+{ assert(events == WF_EVENT_WRIST && !(user_regs[0x54]&1)); ui_events |= events; }
+bool wristflow_product_wrist_irq_start(void (*signal)(void))
+{
+    assert(!irq && idle && !irq_adapter.owned);
+    if (fail_irq_start) return false;
+    irq_adapter.armed=irq_adapter.owned=true; irq_signal=signal; ++pin_modes; return true;
+}
+bool wristflow_product_wrist_irq_stop(void)
+{
+    irq_adapter.armed=false; irq_signal=NULL;
+    if (fail_irq_stop) return false;
+    irq_adapter.owned=false; return true;
+}
+wristflow_wrist_irq_snapshot_t wristflow_product_wrist_irq_snapshot(void) { return irq_adapter; }
 static unsigned bus_find_fail_after, bus_config_fail_after;
 static bool stop_in_prepare;
 static bool stop_daily_in_prepare, retry_daily_in_prepare;
 static bool stop_wrist_in_delay;
+static bool disable_wrist_in_delay;
 static void wf_wrist(int, char **);
 static unsigned max_wait=1000, last_wait;
 static wristflow_alarm_clock_t service_clock;
@@ -39,6 +59,10 @@ int rt_thread_mdelay(rt_int32_t ms)
     if (ms == 50 && stop_wrist_in_delay) {
         stop_wrist_in_delay = false;
         char *args[] = {"wf_wrist", "stop"}; wf_wrist(2, args);
+    }
+    if (ms == 50 && disable_wrist_in_delay) {
+        disable_wrist_in_delay=false;
+        wristflow_product_wrist_enable(false);
     }
     if (stop_in_prepare) {
         stop_in_prepare = false;
@@ -374,5 +398,46 @@ int main(void)
     assert(wrist_cached.phase==WF_IMU_DONE && wrist_cached.stop_verified && !idle && user_regs[0x13]==0x08);
     wrist_cmd("route","2","xneg"); cycle(); daily_cmd("stop"); cycle();
     assert(wrist_cached.stop_verified && !wrist.changed && cached.stop_verified && !idle && user_regs[0x13]==0x08);
+    /* Persistent native service has no 100ms poll/IDLE hold. IRQ only schedules
+     * this worker; UI wake is emitted after source clear and consumed once. */
+    daily_cmd("retry"); cycle(); native_count=11;
+    wristflow_product_wrist_enable(true); cycle();
+    assert(wrist_runtime && wrist_cached.continuous && irq_adapter.armed && !idle);
+    assert(native_count==11 && daily_cached.metric.total==11);
+    wrist_cmd("route","1","xpos"); assert(!wrist_pending);
+    wristflow_product_steps_screen(false); cycle(); max_wait=60000;
+    cycle(); assert(last_wait==60000 && !idle && wrist_cached.phase==WF_IMU_RUNNING);
+    user_regs[0x54]=0x85; irq_signal(); irq_signal(); cycle();
+    assert(ui_events==WF_EVENT_WRIST && wrist_wakes==1 && wrist_cached.observations==1 && !idle);
+    assert(wristflow_product_wrist_take_wake() && !wristflow_product_wrist_take_wake());
+    cycle(); assert(wrist_wakes==1); /* A coalesced callback cannot replay a cleared source. */
+    user_regs[0x54]=0x85; irq_signal(); cycle();
+    wristflow_product_wrist_enable(false); assert(!wristflow_product_wrist_take_wake());
+    cycle(); assert(!wrist_runtime && !irq_adapter.owned && !idle && user_regs[0x19]==0x14);
+    rt_event_send(&work,EV_WRIST_IRQ); cycle(); assert(wrist_wakes==2 && !wristflow_product_wrist_take_wake());
+    wristflow_product_wrist_enable(true); cycle();
+    fail_irq_stop=true; wristflow_product_wrist_enable(false); cycle();
+    assert(irq_adapter.owned && !irq_adapter.armed && idle && wrist_cached.phase==WF_IMU_FAULT);
+    fail_irq_stop=false; wrist_cmd("stop",NULL,NULL); cycle(); assert(!irq_adapter.owned && !idle);
+    fail_irq_start=true; wristflow_product_wrist_enable(true); cycle();
+    assert(!wrist_runtime && wrist_cached.phase==WF_IMU_FAULT && !idle);
+    fail_irq_start=false; wristflow_product_wrist_enable(false); cycle();
+    wristflow_product_wrist_enable(true); cycle(); assert(wrist_runtime && !idle);
+    /* Disable racing with the 50ms prepare cancels the configuration. */
+    wristflow_product_wrist_enable(false); cycle();
+    disable_wrist_in_delay=true; wristflow_product_wrist_enable(true); cycle(); cycle();
+    assert(!wrist_runtime && !irq_adapter.owned && !wrist_requested && !idle);
+    assert(native_count==11 && daily_cached.metric.total==11);
+    wristflow_product_wrist_enable(true); cycle();
+    user_regs[0x13]=0x08; irq_signal(); cycle();
+    assert(wrist_cached.phase==WF_IMU_FAULT && wrist_cached.stop_verified && !wrist_runtime && !irq_adapter.owned && !idle);
+    assert(cached.phase==WF_IMU_RUNNING && native_count==11);
+    wristflow_product_wrist_enable(false); cycle();
+    wristflow_product_wrist_enable(true); cycle();
+    fail_bus_find=true; irq_signal(); cycle();
+    assert(wrist_cached.phase==WF_IMU_FAULT && wrist.changed && !irq_adapter.owned && idle);
+    assert(cached.phase==WF_IMU_FAULT && !daily_cached.metric.total_valid);
+    fail_bus_find=false; wrist_cmd("stop",NULL,NULL); cycle();
+    assert(wrist_cached.stop_verified && cached.stop_verified && !idle);
     return 0;
 }
