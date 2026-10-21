@@ -1,0 +1,151 @@
+{
+  "date": "2026-10-21",
+  "base": "cd3f4aa03f4d41e56fddb13b5a4dbd41d2500930",
+  "branch": "codex/battery-trace",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "scope": "B1 bounded RAM estimate diagnostics; unchanged estimator policy, ADC, charger and PM",
+  "adc_premise": "User reports existing ADC accuracy test; no new instrument values or independent test in this round",
+  "hardware_verified": false,
+  "device_operations": [],
+  "host": {
+    "compiler": "GCC 15.2.0",
+    "cmake": "3.31.4",
+    "ninja": "1.13.2",
+    "debug_full": {
+      "passed": 55,
+      "total": 55,
+      "seconds": 25.56
+    },
+    "release_related": {
+      "passed": 5,
+      "total": 5,
+      "seconds": 0.69
+    },
+    "final_after_deadline_fix": {
+      "debug": "2/2 (0.09s)",
+      "release": "2/2 (0.08s)"
+    },
+    "commands": [
+      "cmake -S tests -B artifacts/host/native-wrist-wake-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe",
+      "cmake --build artifacts/host/native-wrist-wake-debug --parallel 6",
+      "ctest --test-dir artifacts/host/native-wrist-wake-debug --output-on-failure",
+      "cmake -S tests -B artifacts/host/native-wrist-wake-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe '-DCMAKE_C_FLAGS_RELEASE=-O3 -DNDEBUG -UNDEBUG'",
+      "cmake --build artifacts/host/native-wrist-wake-release --target battery_estimate product_battery_trace product_power_service display_policy charging_ui --parallel 6",
+      "ctest --test-dir artifacts/host/native-wrist-wake-release -R '^(battery_estimate|product_battery_trace|product_power_service|display_policy|charging_ui)$' --output-on-failure",
+      "After fix, rebuild and rerun battery_estimate/product_battery_trace in Debug and Release"
+    ],
+    "coverage": [
+      "existing estimator invariants and diagnostic decisions",
+      "default off and argument limits",
+      "cached sample dedup and PG completion",
+      "context events with old estimate timestamp",
+      "capacity stop without overwrite",
+      "expiry and tick wrap",
+      "start-before-copy interleaving",
+      ">=2^31 ms expiry",
+      "stopped-only and session-bound export",
+      "new session during unlocked print aborts export",
+      "max numeric console lines <128 bytes"
+    ],
+    "logs": {
+      "artifacts/battery-trace-host-tests.log": "beaeac43f8080c39598d4bf3e00532c4e42cf7bcb8f3c53b5170f8be1ff56f9a",
+      "artifacts/battery-trace-host-final-tests.log": "5a36d80030ed10c78986c4076e7ed5c51a21a74d83c5421e6c214113eca6a476",
+      "artifacts/battery-trace-release-tests.log": "d2cbec0e20f18284001eb08c39f075c9b38a6a37ee0879c2ea48c37a41a03143",
+      "artifacts/battery-trace-release-final-tests.log": "913e33639dd8d671c96a96c5a880b7fa73532d8df794eff476cb30200c11573f"
+    }
+  },
+  "firmware": {
+    "product": {
+      "result": "artifacts/product/20261021-185828-667/result.json",
+      "result_sha256": "841051f487c5417191ba23a3f0df95b68a1789c777cc13d1c497792f02d7c1a3",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "wrapper": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 4",
+      "exit_code": 0,
+      "source_count_rehashed": 468,
+      "artifact_count_rehashed": 29,
+      "bin": {
+        "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+        "bytes": 7805588,
+        "sha256": "1d6df1a4e1b4f5c9e2a7737be0d58294cffc0e46153a46772c3ff9e85bcbe575"
+      },
+      "source_manifest_sha256": "a289677d34d3db1bc76a240d556d371ab5091c2b0966bd4533c4a08f8e41d9c5",
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "sdk_changes": [],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+      "log": "artifacts/battery-trace-product-final-build.log",
+      "log_sha256": "19d03826f5510a19bb2af81dabf281a73eb701aacd7ede09cadd9058253e606a",
+      "warnings": [
+        "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\rtos\\rtthread\\components\\finsh/finsh_api.h:99:21: warning: cast between incompatible function types from 'int (*)(int,  char **)' to 'long int (*)(void)' [-Wcast-function-type]",
+        "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\rtos\\rtthread\\components\\finsh/finsh_api.h:99:21: warning: cast between incompatible function types from 'int (*)(int,  char **)' to 'long int (*)(void)' [-Wcast-function-type]",
+        "D:/MY_Desk/project/wristflow/.tools/sifli/tools/arm-none-eabi-gcc/14.2.1/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld.exe: warning: build_sf32lb52-lchspi-ulp_hcpu\\main.elf has a LOAD segment with RWX permissions",
+        "WARNING: img \"dfu\" not found",
+        "closer.c:(.text._close_r+0xc): warning: _close is not implemented and will always fail",
+        "lseekr.c:(.text._lseek_r+0x10): warning: _lseek is not implemented and will always fail",
+        "readr.c:(.text._read_r+0x10): warning: _read is not implemented and will always fail",
+        "writer.c:(.text._write_r+0x10): warning: _write is not implemented and will always fail",
+        "D:/MY_Desk/project/wristflow/.tools/sifli/tools/arm-none-eabi-gcc/14.2.1/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld.exe: warning: cannot find entry symbol entry; defaulting to 12000000"
+      ]
+    },
+    "ui_demo": {
+      "result": "artifacts/ui_demo/20261021-185858-943/result.json",
+      "result_sha256": "44b5099f133768d0ded524ac978e6bd373568b60cb539ca8d7943f8fda0b015e",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "wrapper": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example ui_demo -Jobs 4",
+      "exit_code": 0,
+      "source_count_rehashed": 418,
+      "artifact_count_rehashed": 22,
+      "bin": {
+        "path": "D:\\MY_Desk\\project\\wristflow\\apps\\ui_demo\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+        "bytes": 7560656,
+        "sha256": "19a4b0a267c15a92fef13a36474dbbe9d0206026fbb24b8d4d5c197b1c5d114b"
+      },
+      "source_manifest_sha256": "99dd40595ec724b79eeae9d6127854c32798379968612c9fd0f483d440f5e9c8",
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "sdk_changes": [],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+      "log": "artifacts/battery-trace-demo-build.log",
+      "log_sha256": "156ba4362ef43376e23bd55fb219249610b8574695c3de4393b45e3c00cce430",
+      "warnings": [
+        "D:/MY_Desk/project/wristflow/.tools/sifli/tools/arm-none-eabi-gcc/14.2.1/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld.exe: warning: build_sf32lb52-lchspi-ulp_hcpu\\main.elf has a LOAD segment with RWX permissions",
+        "WARNING: img \"dfu\" not found"
+      ]
+    }
+  },
+  "review": {
+    "independent_readonly": "No remaining blocker; long-gap expiry issue fixed and re-reviewed",
+    "brightness": "requested and last driver-success ACK, not measured luminance/PWM"
+  },
+  "resources": {
+    "trace_bss_bytes_arm": 14352,
+    "trace_capacity": 256,
+    "max_seconds": 900,
+    "new_workers": 0,
+    "new_timers": 0,
+    "new_pm_requests": 0
+  },
+  "failures_and_supersession": [
+    "Initial successful Product build superseded by now_at_lock deadline fix; final hash below",
+    "Review found signed pre-start guard could skip expiry after >=2^31 ms; lock-time expiry and regression added"
+  ],
+  "not_verified": [
+    "RAM retention on actual sleep/reconnect",
+    "real UART export and timing",
+    "load/rebound dataset",
+    "cell SOC calibration/capacity/net current/energy",
+    "physical DEEP, luminance, current or battery life"
+  ],
+  "next": "B2 single bounded battery-only load/recovery window with exact final BIN and current physical conditions",
+  "sdk_lock_sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+}

@@ -14,6 +14,7 @@
 #include "product_charger.h"
 #include "product_power.h"
 #include "battery_estimate.h"
+#include "product_battery_trace.h"
 #include "product_countdown.h"
 #include "product_alarm.h"
 #include "product_motor.h"
@@ -34,9 +35,32 @@ static wristflow_notifications_snapshot_t notifications;
 static wristflow_power_snapshot_t power;
 static rt_tick_t power_sampled;
 static wristflow_battery_estimator_t battery_estimator;
+static wristflow_battery_diagnostic_t battery_diagnostic;
+static bool battery_adc_valid, brightness_valid, lcd_on;
+static uint8_t requested_brightness, acknowledged_brightness;
 static bool wrist_setting_known, wrist_setting;
 static wristflow_carousel_snapshot_t carousel_current, carousel_last_mismatch;
 static bool carousel_valid, carousel_mismatch_valid;
+
+static void capture_battery(void)
+{
+    wristflow_battery_record_t record = {.observed_ms=(uint32_t)((uint64_t)rt_tick_get()*1000U/RT_TICK_PER_SECOND),
+        .adc_valid=battery_adc_valid, .power=power, .diagnostic=battery_diagnostic};
+    const wristflow_navigation_t *navigation = wristflow_ui_shell_navigation(product_shell);
+    if (navigation) {
+        record.context.surface = (uint16_t)navigation->surface;
+        record.context.phase = (uint8_t)wristflow_ui_shell_display_phase(product_shell);
+        record.context.flags |= WF_BATTERY_UI_VALID;
+        if (wristflow_ui_shell_charging_active(product_shell)) record.context.flags |= WF_BATTERY_CHARGING_OVERLAY;
+        if (wristflow_ui_shell_reminder_active(product_shell)) record.context.flags |= WF_BATTERY_REMINDER_OVERLAY;
+    }
+    record.context.requested_brightness=requested_brightness;
+    record.context.acknowledged_brightness=acknowledged_brightness;
+    if (brightness_valid) record.context.flags |= WF_BATTERY_BRIGHTNESS_VALID;
+    if (lcd_on) record.context.flags |= WF_BATTERY_LCD_ON;
+    if (defer_brightness) record.context.flags |= WF_BATTERY_BRIGHTNESS_DEFERRED;
+    wristflow_product_battery_trace_observe(&record);
+}
 
 static void capture_carousel(void)
 {
@@ -104,13 +128,15 @@ static wristflow_watch_snapshot_t read_snapshot(bool force_power)
     }
     wristflow_power_snapshot_t next = wristflow_product_power_snapshot();
     wristflow_product_charger_display(&next);
-    wristflow_battery_estimate(&battery_estimator, &next,
-        (uint32_t)((uint64_t)rt_tick_get()*1000U/RT_TICK_PER_SECOND));
+    battery_adc_valid = next.voltage_valid;
+    wristflow_battery_estimate_diagnosed(&battery_estimator, &next,
+        (uint32_t)((uint64_t)rt_tick_get()*1000U/RT_TICK_PER_SECOND), &battery_diagnostic);
     if (!wristflow_power_equal(&power, &next))
         rt_kprintf("[power] %s voltage_valid=%u VBAT=%umV; estimate_valid=%u SOC~%u%%\n",
                    wristflow_power_input_text(&next), next.voltage_valid, next.millivolts,
                    next.estimate_valid, next.estimated_percent);
     power = next;
+    capture_battery();
     wristflow_watch_snapshot_t snapshot = wristflow_product_services_snapshot();
     wristflow_product_apply_power(&snapshot, &power);
     wristflow_steps_snapshot_t steps = wristflow_product_steps_snapshot();
@@ -148,8 +174,11 @@ static void button_callback(int32_t pin, button_action_t action)
 
 static void set_brightness(uint8_t brightness, void *context)
 {
+    requested_brightness = brightness;
     if (defer_brightness) { wake_brightness = brightness; return; }
     RT_ASSERT(rt_device_control((rt_device_t)context, RTGRAPHIC_CTRL_SET_BRIGHTNESS, &brightness) == RT_EOK);
+    acknowledged_brightness = brightness;
+    brightness_valid = true; /* Driver success, not measured luminance/PWM. */
 }
 
 static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
@@ -170,11 +199,13 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     waiting_for_wake = true;
     RT_ASSERT(rt_device_control(touch, RTGRAPHIC_CTRL_POWEROFF, NULL) == RT_EOK);
     RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_POWEROFF, NULL) == RT_EOK);
+    lcd_on = false;
     /* Touch power work is asynchronous and holds its own SDK idle request. */
     rt_kprintf("[product] screen off; notification events active\n");
     wristflow_product_power_screen(false);
     wristflow_product_steps_screen(false);
     wristflow_product_pm_screen(true);
+    capture_battery();
     rt_uint32_t events;
     bool preview = false, reminder = false, charging = false, wrist = false;
     defer_brightness = true;
@@ -208,6 +239,7 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     wristflow_watch_snapshot_t wake_snapshot = read_snapshot(false);
     wristflow_ui_shell_update(product_shell, &wake_snapshot);
     RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_POWERON, NULL) == RT_EOK);
+    lcd_on = true;
     RT_ASSERT(rt_device_control(touch, RTGRAPHIC_CTRL_POWERON, NULL) == RT_EOK);
     lv_indev_reset(pointer, NULL);
     lv_indev_wait_release(pointer);
@@ -228,6 +260,7 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     rt_kprintf("[product] screen on\n");
     wristflow_product_power_screen(true); /* Start device work only after the first lit frame. */
     wristflow_product_steps_screen(true);
+    capture_battery();
 }
 
 static uint32_t vibration_preview(wristflow_vibration_mode_t mode, void *context)
@@ -262,6 +295,7 @@ int main(void)
     wristflow_ui_init("");
     rt_device_t lcd = rt_device_find("lcd");
     RT_ASSERT(lcd);
+    lcd_on = true;
     lv_obj_t *initial = lv_screen_active();
     wristflow_ui_shell_t *shell = wristflow_product_ui_create_with_timers(&snapshot, &settings, set_brightness, lcd,
         &layout, wristflow_product_services_layout, wristflow_product_services_layout_status, NULL, countdown, alarm);
@@ -306,6 +340,7 @@ int main(void)
     for (;;) {
         uint32_t wait_ms = lv_timer_handler();
         uint32_t now = lv_tick_get();
+        capture_battery();
         if (wristflow_ui_shell_display_phase(shell) == WRISTFLOW_DISPLAY_OFF) {
             capture_carousel();
             wristflow_ui_shell_sync_settings_save(shell);

@@ -92,5 +92,29 @@ int main(void)
     assert(!state.seeded); /* Sleep clears exposure/history; wake seeds from fresh voltage. */
     power=sample(14,33000,4100); wristflow_battery_estimate(&state,&power,33000);
     assert(state.filtered_decimillivolts==41000&&power.estimate_valid);
+    /* Diagnostics describe the existing decision, including withheld history. */
+    wristflow_battery_diagnostic_t d;
+    state=(wristflow_battery_estimator_t){0}; power=sample(20,100,4040);
+    wristflow_battery_estimate_diagnosed(&state,&power,100,&d);
+    assert(d.decision==WF_BATTERY_SEED && d.filter_valid && d.candidate==91 && d.mode==0);
+    wristflow_battery_estimate_diagnosed(&state,&power,101,&d);
+    assert(d.decision==WF_BATTERY_CACHED && d.filtered_decimillivolts==40400);
+    power=sample(21,200,4000); wristflow_battery_estimate_diagnosed(&state,&power,200,&d);
+    assert(d.decision==WF_BATTERY_NEW_SAMPLE && d.filtered_decimillivolts==40300);
+    power.charge=WF_POWER_CHARGE_ACTIVE; wristflow_battery_estimate_diagnosed(&state,&power,201,&d);
+    assert(d.decision==WF_BATTERY_MODE_WAIT && !d.filter_valid && !d.filtered_decimillivolts);
+    power=sample(22,300,4000); power.charge=WF_POWER_CHARGE_ACTIVE;
+    wristflow_battery_estimate_diagnosed(&state,&power,300,&d);
+    assert(d.decision==WF_BATTERY_MODE_SEED && d.mode==1 && d.filtered_decimillivolts==40000);
+    power.charge=WF_POWER_CHARGE_UNKNOWN; wristflow_battery_estimate_diagnosed(&state,&power,301,&d);
+    assert(d.decision==WF_BATTERY_MODE_UNKNOWN && d.mode==255 && !d.filter_valid && state.seeded);
+    wristflow_battery_estimate_diagnosed(&state,&power,15301,&d);
+    assert(d.decision==WF_BATTERY_STALE && !state.seeded && !d.filter_valid);
+    power=sample(23,16000,2999); wristflow_battery_estimate_diagnosed(&state,&power,16000,&d);
+    assert(d.decision==WF_BATTERY_RANGE);
+    power.voltage_valid=false; wristflow_battery_estimate_diagnosed(&state,&power,16000,&d);
+    assert(d.decision==WF_BATTERY_NO_VOLTAGE);
+    power.voltage_sequence=0; wristflow_battery_estimate_diagnosed(&state,&power,16000,&d);
+    assert(d.decision==WF_BATTERY_NO_SEQUENCE);
     return 0;
 }
