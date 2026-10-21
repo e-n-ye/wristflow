@@ -36,7 +36,8 @@ def matrix(fixture, output, cc):
               "source_sha256": {str(p.relative_to(ROOT)): digest(p) for p in
                   [pathlib.Path(__file__).resolve(), ROOT / "scripts/battery_policy.c",
                    ROOT / "scripts/battery_policy.h", ROOT / "scripts/battery_replay.c",
-                   ROOT / "scripts/battery_lab.py", ROOT / "core/battery_estimate.c"]},
+                   ROOT / "scripts/battery_lab.py", ROOT / "scripts/battery_baseline_20261021/battery_estimate.c",
+                   ROOT / "scripts/battery_baseline_20261021/battery_estimate.h", ROOT / "core/power_state.h"]},
               "runs": runs, "selected_firmware_parameters": None,
               "limits": ["One near-full historical B2 input cannot select production durations or establish SOC accuracy.",
                          "Missing PG may preserve only a tentative saved copy; a new trusted discharge ADC is required.",

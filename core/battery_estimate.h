@@ -3,10 +3,14 @@
 #include "power_state.h"
 
 #define WF_BATTERY_SAMPLE_MAX_AGE_MS 15000U
+#define WF_BATTERY_SETTLE_MS 60000U
+#define WF_BATTERY_SETTLE_MIN_SAMPLES 3U
 typedef struct {
     bool seeded;
     uint8_t mode, percent;
-    uint32_t sequence, filtered_decimillivolts;
+    uint32_t sequence, filtered_decimillivolts, sampled_ms;
+    uint32_t settling_since_ms;
+    uint8_t settling_candidate, settling_count;
 } wristflow_battery_estimator_t;
 
 typedef enum {

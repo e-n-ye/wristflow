@@ -1,4 +1,4 @@
-/* Host-only policy experiments. The baseline calls the production estimator.
+/* Host-only policy experiments. Calls the frozen17a9de5 production estimator.
  * Nothing in this file is linked into Product or UI Demo. */
 #include "battery_estimate.h"
 #include "battery_policy.h"

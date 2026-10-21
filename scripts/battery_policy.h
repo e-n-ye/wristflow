@@ -1,4 +1,4 @@
-/* Guarded HOST experiments only; never linked into firmware. */
+/* Guarded HOST experiments over the frozen baseline, never firmware. */
 #ifndef WRISTFLOW_HOST_BATTERY_POLICY_H
 #define WRISTFLOW_HOST_BATTERY_POLICY_H
 #include "battery_estimate.h"

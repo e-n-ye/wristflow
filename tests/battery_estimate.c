@@ -9,8 +9,105 @@ static wristflow_power_snapshot_t sample(uint32_t sequence, uint32_t at, unsigne
         .input_valid=true,.charge=WF_POWER_CHARGE_IDLE,
         .voltage_sequence=sequence,.voltage_sampled_ms=at};
 }
+static wristflow_battery_estimator_t warm(unsigned percent)
+{
+    return (wristflow_battery_estimator_t){.seeded=true,.mode=0,.percent=(uint8_t)percent,
+        .sequence=10,.filtered_decimillivolts=41430,.sampled_ms=0};
+}
+static void feed(wristflow_battery_estimator_t *state, uint32_t seq, uint32_t at, unsigned expected)
+{
+    wristflow_power_snapshot_t p=sample(seq,at,4143);
+    wristflow_battery_estimate(state,&p,at);
+    assert(p.estimate_valid && p.estimated_percent==expected);
+}
+static void prepare_dwell(wristflow_battery_estimator_t *state)
+{
+    *state=warm(97);
+    feed(state,11,1,97); feed(state,12,15001,97);
+    feed(state,13,30001,97); feed(state,14,45001,97);
+}
+static void settling_boundaries(void)
+{
+    wristflow_battery_estimator_t state;
+    prepare_dwell(&state);
+    feed(&state,15,60000,97); /* ADC span59999ms, not yet60s. */
+    feed(&state,16,60001,98);
+    state=warm(99); /* Small downward differences converge too. */
+    for (unsigned i=0;i<5;++i) feed(&state,11+i,1+i*15000,i==4?98:99);
+    state=warm(97);
+    for (unsigned i=0;i<100;++i) feed(&state,11+i,1+i,97); /* Samples alone are insufficient. */
+
+    prepare_dwell(&state);
+    wristflow_power_snapshot_t p=sample(14,45001,4143);
+    wristflow_battery_estimate(&state,&p,60001); /* UI time passed, no new ADC. */
+    assert(p.estimated_percent==97);
+    feed(&state,15,60002,97); /*15001ms support gap restarts; no filter reseed. */
+    for (unsigned i=1;i<=4;++i) feed(&state,15+i,60002+i*15000,i==4?98:97);
+
+    prepare_dwell(&state);
+    p=sample(15,59999,4143); wristflow_battery_estimate(&state,&p,60001);
+    assert(p.estimated_percent==97); /* Delayed UI observation cannot add ADC time. */
+
+    prepare_dwell(&state);
+    p=sample(14,45002,4143); wristflow_battery_estimate(&state,&p,45002);
+    feed(&state,15,60001,97); /* Mutated timestamp of a cached identity broke dwell. */
+    prepare_dwell(&state);
+    feed(&state,13,46001,97); feed(&state,15,60001,97); /* Old sequence cannot count. */
+    prepare_dwell(&state);
+    feed(&state,15,44001,97); feed(&state,16,60001,97); /* Backwards ADC cannot count. */
+
+    prepare_dwell(&state);
+    p=sample(15,46001,4100); wristflow_battery_estimate(&state,&p,46001);
+    assert(p.estimated_percent==97);
+    feed(&state,16,60001,97); /* Candidate returned after changing; fresh dwell. */
+
+    for (unsigned reason=0;reason<4;++reason) {
+        prepare_dwell(&state); p=sample(15,46001,4143);
+        if (reason==0) p.input_valid=false;
+        if (reason==1) p.charge=WF_POWER_CHARGE_UNKNOWN;
+        if (reason==2) p.charge=WF_POWER_CHARGE_FAULT;
+        if (reason==3) p.input_good=true; /* USB-present IDLE is not trusted BAT. */
+        wristflow_battery_estimate(&state,&p,46001);
+        feed(&state,16,60001,97);
+    }
+    prepare_dwell(&state);
+    p=sample(14,45001,4143); p.charge=WF_POWER_CHARGE_ACTIVE;
+    wristflow_battery_estimate(&state,&p,45002); assert(!p.estimate_valid);
+    feed(&state,15,60001,97); /* MODE_WAIT canceled the pending dwell. */
+
+    for (unsigned reason=0;reason<4;++reason) {
+        prepare_dwell(&state); p=sample(15,46001,4143);
+        if (reason==0) p.voltage_valid=false;
+        if (reason==1) p.voltage_sequence=0;
+        if (reason==2) p.millivolts=2999;
+        if (reason==3) p.voltage_sampled_ms=30000;
+        wristflow_battery_estimate(&state,&p,46001); assert(!p.estimate_valid);
+        feed(&state,16,60001,98); /* Invalid data clears all history; fresh seed. */
+    }
+    state=warm(97); state.mode=1; state.filtered_decimillivolts=41800;
+    for (unsigned i=0;i<8;++i) {
+        p=sample(11+i,1+i*15000,4180); p.charge=WF_POWER_CHARGE_ACTIVE; p.input_good=true;
+        wristflow_battery_estimate(&state,&p,p.voltage_sampled_ms);
+        assert(p.estimate_valid && p.estimated_percent==97); /* Charging unchanged. */
+    }
+    p.charge=WF_POWER_CHARGE_FULL; wristflow_battery_estimate(&state,&p,p.voltage_sampled_ms);
+    assert(p.estimated_percent==100);
+    p.voltage_valid=false; wristflow_battery_estimate(&state,&p,p.voltage_sampled_ms);
+    assert(!p.estimate_valid);
+    state=warm(96); feed(&state,11,1,98); /* Existing two-point step remains immediate. */
+    state=warm(1); state.filtered_decimillivolts=30000;
+    p=sample(11,1,3000); wristflow_battery_estimate(&state,&p,1); assert(p.estimated_percent==0);
+    state=warm(97); state.filtered_decimillivolts=42500;
+    p=sample(11,1,4250); wristflow_battery_estimate(&state,&p,1); assert(p.estimated_percent==99);
+
+    uint32_t origin=UINT32_MAX-1000U;
+    state=warm(97); state.sampled_ms=origin; state.sequence=UINT32_MAX-3U;
+    uint32_t ids[]={UINT32_MAX-2U,UINT32_MAX-1U,UINT32_MAX,1,2};
+    for (unsigned i=0;i<5;++i) feed(&state,ids[i],origin+1U+i*15000U,i==4?98:97);
+}
 int main(void)
 {
+    settling_boundaries();
     assert(wristflow_battery_reference_percent(3504,false)==0);
     assert(wristflow_battery_reference_percent(3900,false)==49);
     assert(wristflow_battery_reference_percent(3901,false)==50);

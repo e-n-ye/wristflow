@@ -75,14 +75,71 @@ def load_trace(path):
     return data
 
 
+def production_compare(fixture, output, cc):
+    """Compare current production to a fixed old-device input; never fake a match."""
+    fixture, output = pathlib.Path(fixture).resolve(), pathlib.Path(output).resolve()
+    data = load_trace(fixture)
+    rows = data["records"]
+    output.mkdir(parents=True, exist_ok=False)
+    historical = replay(fixture, output / "historical", cc)
+    engine = output / "battery_current_replay.exe"
+    sources = [ROOT / "scripts/battery_current_replay.c", ROOT / "core/battery_estimate.c"]
+    command = [cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-I", str(ROOT / "core"),
+               *map(str, sources), "-o", str(engine)]
+    build = subprocess.run(command, capture_output=True, text=True, timeout=60)
+    (output / "build.log").write_text(build.stdout + build.stderr, encoding="utf-8")
+    if build.returncode:
+        raise RuntimeError("Current production host compilation failed")
+    first = rows[0]
+    wire = [f"1 {first['mode']} {first['percent']} {first['seq']} {first['filter']} {first['adc']}"]
+    wire += [" ".join(str(row[k]) for k in
+             ("index", "eval", "adc", "seq", "mv", "raw_valid", "usb_valid", "usb_good", "charge")) for row in rows[1:]]
+    result = subprocess.run([str(engine)], input="\n".join(wire) + "\n", text=True,
+                            capture_output=True, check=True, timeout=30)
+    (output / "engine-input.txt").write_text("\n".join(wire) + "\n", encoding="utf-8")
+    (output / "engine.txt").write_text(result.stdout, encoding="utf-8")
+    current = [dict(first)]
+    for line in result.stdout.splitlines():
+        index, *values = map(int, line.split())
+        if index != len(current) or len(values) != len(OUTPUT_KEYS):
+            raise ValueError("Incomplete/invalid current engine output")
+        current.append(dict(rows[index], **dict(zip(OUTPUT_KEYS, values))))
+    if len(current) != len(rows):
+        raise ValueError("Incomplete current prediction count")
+    for original, actual in zip(rows[1:], current[1:]):
+        for key in OUTPUT_KEYS:
+            if key == "percent":
+                continue
+            if key == "decision" and actual[key] == 3 and original[key] in (0, 1, 2):
+                continue
+            if actual[key] != original[key]:
+                raise ValueError(f"Unexpected production change: row {actual['index']} {key}")
+    write_json(output / "predictions.json", {"recorded": rows, "current": current})
+    report = {"schema": 1, "kind": "current_production_comparison", "hardware_verified": False,
+              "fixture_sha256": digest(fixture), "record_count": len(rows), "historical_checked_rows": historical["checked_rows"],
+              "build_command": command, "build_exit": build.returncode, "engine_sha256": digest(engine),
+              "source_sha256": {str(p.relative_to(ROOT)): digest(p) for p in
+                    sources + [ROOT / "core/battery_estimate.h", pathlib.Path(__file__).resolve()]},
+              "changed_percent_rows": [{"index": new["index"], "adc": new["adc"], "surface": new["surface"],
+                    "candidate": new["candidate"], "recorded": old["percent"], "current": new["percent"]}
+                    for old, new in zip(rows, current) if old["percent"] != new["percent"]],
+              "unchanged_fields": [k for k in OUTPUT_KEYS if k != "percent"],
+              "warm_state_row": 0, "pending_history_at_start": "unknown; starts empty, no claim about preceding dwell",
+              "limits": ["Old device data fed into current C; this is not new firmware hardware acceptance.",
+                         "Only display behavior changes; SOC and consumed charge were not measured."]}
+    write_json(output / "comparison.json", report)
+    return report
+
+
 def replay(fixture, output, cc, *, guarded=None):
     fixture, output = pathlib.Path(fixture).resolve(), pathlib.Path(output).resolve()
     data = load_trace(fixture)
     rows = data["records"]
     output.mkdir(parents=True, exist_ok=False)
     engine = output / "battery_replay.exe"
-    sources = [ROOT / "scripts/battery_replay.c", ROOT / "scripts/battery_policy.c", ROOT / "core/battery_estimate.c"]
-    command = [cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-I", str(ROOT / "core"),
+    baseline = ROOT / "scripts/battery_baseline_20261021"
+    sources = [ROOT / "scripts/battery_replay.c", ROOT / "scripts/battery_policy.c", baseline / "battery_estimate.c"]
+    command = [cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-I", str(baseline), "-I", str(ROOT / "core"),
                *map(str, sources), "-o", str(engine)]
     build = subprocess.run(command, capture_output=True, text=True, timeout=60)
     (output / "build.log").write_text(build.stdout + build.stderr, encoding="utf-8")
@@ -128,7 +185,7 @@ def replay(fixture, output, cc, *, guarded=None):
                 aliases.append(index)
                 continue
             if prediction[key] != rows[index][key]:
-                raise ValueError(f"Production replay mismatch at row {index}, {key}: "
+                raise ValueError(f"Historical production replay mismatch at row {index}, {key}: "
                                  f"{prediction[key]} != {rows[index][key]}")
     if any(len(group) != len(rows) for group in predictions.values()):
         raise ValueError("Incomplete engine output")
@@ -152,7 +209,8 @@ def replay(fixture, output, cc, *, guarded=None):
         "fixture_sha256": digest(fixture), "fixture_source": data.get("source", {}),
         "source_sha256": {str(path.relative_to(ROOT)): digest(path) for path in
                           [*sources, pathlib.Path(__file__).resolve(),
-                           ROOT / "scripts/battery_policy.h", ROOT / "core/battery_estimate.h", ROOT / "core/power_state.h"]},
+                           ROOT / "scripts/battery_policy.h", baseline / "battery_estimate.h", ROOT / "core/power_state.h"]},
+        "baseline_kind": "frozen production at17a9de5; not current firmware",
         "build_command": command, "build_exit": build.returncode,
         "engine_command": engine_command, "guarded_parameters": guarded,
         "compiler_version": subprocess.run([cc, "--version"], text=True, capture_output=True,
@@ -175,7 +233,7 @@ def replay(fixture, output, cc, *, guarded=None):
                    "UI/PG observations are not proof of physical input actions or DEEP."]}
     write_json(output / "replay.json", report)
     write_json(output / "predictions.json", predictions)
-    summary = ["# 电量离线回放", "", f"生产C回放：{len(rows)-1}行匹配；首行采用已记录热状态。",
+    summary = ["# 电量离线回放", "", f"固定历史生产C回放：{len(rows)-1}行匹配；首行采用已记录热状态。",
                f"拔线延迟 {report['unplug_delay_ms']/1000:.3f}s，确认BAT跨度 "
                f"{report['confirmed_battery_span_ms']/1000:.3f}s。", "",
                "| index | 原始mV | 原版% | 保留策略% | 收敛策略% | 组合% |",
@@ -349,6 +407,10 @@ def main():
                          default=ROOT / "tests/fixtures/battery-b2-20261021.json")
     command.add_argument("--out", required=True, type=pathlib.Path)
     command.add_argument("--cc", default="gcc")
+    command = commands.add_parser("compare-production")
+    command.add_argument("--fixture", required=True, type=pathlib.Path)
+    command.add_argument("--out", required=True, type=pathlib.Path)
+    command.add_argument("--cc", default="gcc")
     command = commands.add_parser("guide")
     command.add_argument("--report", required=True, type=pathlib.Path)
     command.add_argument("--out", required=True, type=pathlib.Path)
@@ -361,6 +423,10 @@ def main():
         report = replay(args.fixture, args.out, args.cc)
         print(json.dumps({key: report[key] for key in
                           ("checked_rows", "record_count", "unplug_delay_ms", "confirmed_battery_span_ms")}, indent=2))
+    elif args.operation == "compare-production":
+        report = production_compare(args.fixture, args.out, args.cc)
+        print(json.dumps({key: report[key] for key in
+                          ("record_count", "historical_checked_rows", "changed_percent_rows")}, indent=2))
     elif args.operation == "guide":
         return 0 if guide(args.report, args.out, args.port, args.timeout) else 1
     else:

@@ -12,7 +12,7 @@
 
 输入`tests/fixtures/battery-b2-20261021.json`来自B2 session3的121条解析记录，保留原始解析文件和8页UART文本的SHA-256及原BIN身份。完整原始文件仍在原工作树忽略的`artifacts/battery-b2-20261021/`，不宣称随仓库分发。fixture不是新采样，也没有补齐OFF间隙。
 
-`scripts/battery_lab.py replay`验证schema、停止状态、数量、会话、连续索引、ADC身份／年龄和记录窗口；编译`core/battery_estimate.c`及主机专用`scripts/battery_replay.c`。记录开始前的历史不可重建，因此第0条只作热状态输入；其余120条比较生产C的滤波、有效性、候选、百分比、模式及decision。携带旧诊断的上下文行允许NEW／SEED与重复调用产生的CACHED对应，单列索引，不把它算作新ADC。
+`scripts/battery_lab.py replay`验证schema、停止状态、数量、会话、连续索引、ADC身份／年龄和记录窗口；初版直接编译当时`core/battery_estimate.c`，自生产停滞修复后显式编译`scripts/battery_baseline_20261021/`固定的`17a9de5`旧生产实现及主机专用`scripts/battery_replay.c`。记录开始前的历史不可重建，因此第0条只作热状态输入；其余各行比较旧生产C的滤波、有效性、候选、百分比、模式及decision。携带旧诊断的上下文行允许NEW／SEED与重复调用产生的CACHED对应，单列索引，不把它算作新ADC。历史匹配不再表示当前固件与旧显示相同。
 
 原无参数入口另运行两个早期纯主机实验及其组合：缺样后30秒内、可信相同放电模式和新ADC恢复时复用历史；1点候选差异跨至少3个独立ADC及60秒后收敛。无效期间仍输出未知，不用旧百分比伪装新测量。30／60秒只是早期实验参数，未决定固件常量。历史结果见[B3](BATTERY-ESTIMATE.md#battery-workflow-pilot-20261021)；该旧路径没有下段新guarded守卫，不用于证明其边界已通过。
 
@@ -23,6 +23,14 @@ python scripts/battery_lab.py replay --cc D:/msys64/ucrt64/bin/gcc.exe --out art
 ```
 
 输出目录必须不存在，防止覆盖旧证据。输出包括`build.log`、精确`engine-input.txt`、引擎输出、四组预测、`replay.json`和便读的`report.md`；JSON记录源码、输入、引擎哈希及编译器／Python版本。失败没有通过报告，保留该次目录与命令输出。
+
+当前生产修复另用以下入口，与历史实现及旧策略wrapper分开链接：
+
+```bash
+python scripts/battery_lab.py compare-production --fixture tests/fixtures/battery-guided-20261021.json --cc D:/msys64/ucrt64/bin/gcc.exe --out artifacts/battery-current/compare-001
+```
+
+可将fixture替换为原`battery-b2-20261021.json`。输出中的`historical/`先验证固定旧实现，独立的`battery_current_replay.exe`只链接当前core；`predictions.json`并排保存recorded／current，`comparison.json`列出变动百分比及其他字段不变的检查。除percent外的有效性／滤波／候选／模式若改变即拒绝，缓存decision别名仍单列。第0条沿用热状态，新增累计从空开始；不虚构记录前的60秒历史。编译和回放成功不替代新BIN设备验证。规则／本轮结果见[生产修复](BATTERY-ESTIMATE.md#display-settling-20261021)。
 
 <a id="guarded-policy-matrix"></a>
 ### 带守卫的参数比较
