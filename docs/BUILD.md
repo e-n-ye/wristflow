@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-10-21 电量限时RAM诊断（B1）
+
+从`cd3f4aa`实现[可选估算诊断与Product有限记录](BATTERY-ESTIMATE.md#battery-trace-20261021)，不改ADC、曲线／滤波策略、充电控制、SDK或正常采样／PM。GCC15.2.0／CMake3.31.4／Ninja1.13.2，完整Debug55/55（25.56秒）、保留断言Release相关5/5（0.69秒）通过。独立审查指出超长间隔应先按锁内时间过期，修复后Debug／Release受影响各2/2（0.09／0.08秒）通过，定点复核无阻断；覆盖截止／容量、PG补全／去重、start前旧UI帧、跨tick／长间隔及导出时会话更换，控制台极值行小于128B。
+
+官方`Build.ps1 -Example product/ui_demo -Jobs 4`分别调用SCons，最终Product`20261021-185828-667`退出0、BIN7,805,588B／`1d6df1a4…`，Demo`20261021-185858-943`退出0、BIN7,560,656B／`19a4b0a2…`；468／418源码及29／22产物逐项重哈希一致。Python3.13.15／SCons4.10.1／ArmGCC14.2.1及SDK锁不变，SDK／子模块干净。新增命令沿用FinSH签名转换警告，既有RWX／ftab syscall／entry和缺dfu警告保留；首版Product成功构建已由最终锁内时间修复版替代。ARM `trace`为14,352B静态RAM，诊断副本16B；没有新worker／timer／PM请求，未测运行期栈峰值或IRQ耗时。完整命令、清单／日志哈希和失败见[软件证据](evidence/2026-10-21/battery-trace.json)。本轮无串口／下载或设备结果，板上仍为旧`e5b9c342…`；RAM保留及负载恢复窗口归B2。
+
 ## 2026-10-21 主页环收尾与缓存诊断
 
 从`17cf239`修复[整页零距离release漏提交](UI-NAVIGATION.md#carousel-scroll-state-20261021)，并准备只读`wf_ui status`取证。完整Debug54/54、全库保留断言的Release54/54通过。默认完整Release52/54的倒计时失败原样保留：既有`product_countdown_host`静态库的NDEBUG移除了stub RT_ASSERT中的调用；使用`cmake -S tests -B artifacts/host/native-wrist-wake-release '-DCMAKE_C_FLAGS_RELEASE=-O3 -DNDEBUG -UNDEBUG'`补核，不改公共CMake或倒计时源码。
