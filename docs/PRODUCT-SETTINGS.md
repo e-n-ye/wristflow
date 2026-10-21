@@ -9,6 +9,8 @@ Product在启动、已有250ms采集点（含DIM）及息屏前将实际变化�
 
 完整Debug54/54、保留断言Release相关7/7、实际LVGL指针／保存请求／开关渲染及Product／Demo编译通过，[软件证据](evidence/2026-10-20/native-wrist-wake.json)记录精确候选和失败修正。没有本版设备操作，真实中断／息屏亮屏、开关Flash恢复及佩戴效果待验；SOURCE保留位和器件身份未知不改变现有证据边界。CLI显式`wf_wrist stop`／`wf_steps stop`会暂停本次RAM腕请求，保留Flash偏好；关闭再开启开关或重启才重新应用。
 
+随后10月21日精确`751de5f5…`完成[有界设备验证](evidence/2026-10-21/native-wrist-wake-hardware.json)：用户确认初始关闭、开启及关闭均已保存；自然息屏后一次开启动作自行亮屏并留原页，关闭后的25秒重复动作保持黑屏。重新开启保存后一次普通reboot无RTS／补时，后台服务自动恢复开启，用户最终确认开关仍开、UI／触摸／KEY1／时间正常及当天步数0。当前已保存开启、COM5关闭；未dump原始v8记录或复跑全部旧偏好组合，不把这次结果扩为物理DEEP、佩戴识别率或功耗通过。
+
 <a id="sound-vibration-settings-20261016"></a>
 ## 声音与振动设置（2026-10-16契约，10-17首轮实现）
 
