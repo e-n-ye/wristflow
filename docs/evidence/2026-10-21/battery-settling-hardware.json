@@ -1,0 +1,689 @@
+{
+  "schema": 1,
+  "date": "2026-10-21",
+  "base_commit": "45744a3ac9c66a9c74b647cd985a38877635a42f",
+  "branch": "codex/battery-settling-hardware",
+  "workspace": "D:\\MY_Desk\\project\\wristflow",
+  "scope": "One new-BIN discharge display acceptance; no firmware source changes or long capacity experiment.",
+  "user_confirmation": "Same board/display and original battery, loose wire secured, USB connected and operator present; flash and bounded test confirmed.",
+  "preflight": {
+    "build": "D:/MY_Desk/project/wristflow/artifacts/product/20261021-230056-732/result.json",
+    "sources": 468,
+    "exact": 468,
+    "line_end_only": [],
+    "artifacts": 29,
+    "bin_sha256": "8a35f2ecd6ea171d335c3c95251c2c609ff6d4e31e1f03a7188f6b370f54e763"
+  },
+  "endpoint": {
+    "endpoint": {
+      "device": "COM5",
+      "vid": 6790,
+      "pid": 29987,
+      "location": "1-1.1",
+      "serial_number": "",
+      "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+      "disable_modem": 1
+    },
+    "previous_records": "D:\\MY_Desk\\project\\wristflow\\artifacts\\battery-guided-20261021\\run-001\\records.json",
+    "previous_records_sha256": "ff48fecb9cf7c0aad7758a3053e23538b0df1debaa7ae63ae4eb61c1ee229a0b",
+    "previous_session": 4,
+    "protected_count": 110,
+    "device_opened": false
+  },
+  "host_tools": {
+    "command": "CC=D:/msys64/ucrt64/bin/gcc.exe uv run --isolated --python 3.12 --with-requirements scripts/requirements-battery-lab.txt python -m unittest discover -s tests -p 'test_battery_*.py' -v",
+    "tests": 94,
+    "exit_code": 0,
+    "fresh_entry": "Successful build/flash binding; only initial empty recorder accepted; old protected-record path unchanged."
+  },
+  "source_sha256": {
+    "scripts/battery_experiment.py": "f7be80be939df61ff0ca55ee1a71ee588c8fb64161b83d06da550a0abde609b7",
+    "tests/test_battery_fresh_flash.py": "2e6675c25975e9ecb43497dce84e94d21ad5c7cf98bd65de504c67c996fdffe6",
+    "core/battery_estimate.c": "2e1a5224b06d04523d4fb80910d08b7ba4054b3b5d62e5e0edff6701e9566be3",
+    "core/battery_estimate.h": "29dbfb2c10e0c7b45da36de987c62a019d2a519734653d6fb371fb6fb4432af4"
+  },
+  "flash": {
+    "date": "2026-10-21T23:41:05.0573341+08:00",
+    "example": "product",
+    "board": "sf32lb52-lchspi-ulp",
+    "port": "COM5",
+    "tool": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe",
+    "command": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+    "images": [
+      {
+        "name": "bootloader.bin",
+        "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+        "address": "0x12010000",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "name": "main.bin",
+        "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+        "address": "0x12020000",
+        "bytes": 7805836,
+        "sha256": "8a35f2ecd6ea171d335c3c95251c2c609ff6d4e31e1f03a7188f6b370f54e763"
+      },
+      {
+        "name": "ftab.bin",
+        "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+        "address": "0x12000000",
+        "bytes": 11288,
+        "sha256": "a549018ee06e13f3c47f0350ff62d9f6a79a1f7af812c23d239ba622c56df196"
+      }
+    ],
+    "exit_code": 0,
+    "hardware_verified": false
+  },
+  "preflash_snapshot": {
+    "reset_once": false,
+    "events": [
+      {
+        "at": "2026-10-21T15:37:27.506097+00:00",
+        "command": "wf_pm status"
+      },
+      {
+        "at": "2026-10-21T15:37:28.358341+00:00",
+        "command": "wf_pm hold"
+      },
+      {
+        "at": "2026-10-21T15:37:29.183877+00:00",
+        "command": "show_date"
+      },
+      {
+        "at": "2026-10-21T15:37:30.028307+00:00",
+        "command": "wf_steps status"
+      },
+      {
+        "at": "2026-10-21T15:37:31.052779+00:00",
+        "command": "wf_wrist status"
+      },
+      {
+        "at": "2026-10-21T15:37:32.071054+00:00",
+        "command": "wf_battery status"
+      },
+      {
+        "at": "2026-10-21T15:37:32.936208+00:00",
+        "command": "wf_pm allow"
+      }
+    ],
+    "error": null,
+    "closed": "2026-10-21T15:37:33.924732+00:00"
+  },
+  "startup_snapshot": {
+    "reset_once": true,
+    "events": [
+      {
+        "reset_once_ms": 150
+      },
+      {
+        "at": "2026-10-21T15:41:37.369739+00:00",
+        "command": "wf_pm status"
+      },
+      {
+        "at": "2026-10-21T15:41:38.275355+00:00",
+        "command": "wf_pm hold"
+      },
+      {
+        "at": "2026-10-21T15:41:39.123838+00:00",
+        "command": "show_date"
+      },
+      {
+        "at": "2026-10-21T15:41:39.960779+00:00",
+        "command": "wf_time 1792597299"
+      },
+      {
+        "at": "2026-10-21T15:41:40.774145+00:00",
+        "command": "show_date"
+      },
+      {
+        "at": "2026-10-21T15:41:41.602544+00:00",
+        "command": "wf_steps status"
+      },
+      {
+        "at": "2026-10-21T15:41:42.633481+00:00",
+        "command": "wf_wrist status"
+      },
+      {
+        "at": "2026-10-21T15:41:43.640749+00:00",
+        "command": "wf_battery status"
+      },
+      {
+        "at": "2026-10-21T15:41:44.491279+00:00",
+        "command": "wf_pm allow"
+      }
+    ],
+    "error": null,
+    "closed": "2026-10-21T15:41:45.510668+00:00"
+  },
+  "startup": {
+    "single_rts_ms": 150,
+    "rtc_after_rts": "2000-01-01T00:00:03Z",
+    "rtc_readback": "2026-10-21T15:41:40Z",
+    "preserved": {
+      "total": 0,
+      "native": 0,
+      "hour_sum": 0,
+      "hour_mask": "0xffffff",
+      "checkpoint_generation": 41,
+      "wrist_enabled": true,
+      "brightness": 55
+    },
+    "initial_trace": {
+      "session": 0,
+      "state": 0,
+      "count": 0
+    }
+  },
+  "guided": {
+    "directory": "artifacts\\battery-settling-hardware-20261021\\run-001",
+    "milestones": [
+      {
+        "kind": "operator_reply",
+        "phase": "prepare",
+        "at": "2026-10-21T23:44:15.893+08:00"
+      },
+      {
+        "kind": "transport_open",
+        "phase": null,
+        "at": "2026-10-21T23:44:15.907+08:00"
+      },
+      {
+        "kind": "armed",
+        "phase": null,
+        "at": "2026-10-21T23:44:16.861+08:00"
+      },
+      {
+        "kind": "transport_closed",
+        "phase": null,
+        "at": "2026-10-21T23:44:16.923+08:00"
+      },
+      {
+        "kind": "operator_reply",
+        "phase": "unplug",
+        "at": "2026-10-21T23:44:23.590+08:00"
+      },
+      {
+        "kind": "operator_reply",
+        "phase": "flashlight",
+        "at": "2026-10-21T23:46:02.718+08:00"
+      },
+      {
+        "kind": "operator_reply",
+        "phase": "recovery",
+        "at": "2026-10-21T23:47:43.454+08:00"
+      },
+      {
+        "kind": "operator_reply",
+        "phase": "reconnect",
+        "at": "2026-10-21T23:52:23.014+08:00"
+      },
+      {
+        "kind": "transport_open",
+        "phase": null,
+        "at": "2026-10-21T23:52:23.029+08:00"
+      },
+      {
+        "kind": "recorder_stopped",
+        "phase": null,
+        "at": "2026-10-21T23:52:23.459+08:00"
+      },
+      {
+        "kind": "recorder_stopped",
+        "phase": null,
+        "at": "2026-10-21T23:52:25.465+08:00"
+      },
+      {
+        "kind": "transport_closed",
+        "phase": null,
+        "at": "2026-10-21T23:52:25.526+08:00"
+      },
+      {
+        "kind": "cleanup",
+        "phase": null,
+        "at": "2026-10-21T23:52:25.528+08:00"
+      },
+      {
+        "kind": "finished",
+        "phase": null,
+        "at": "2026-10-21T23:52:25.546+08:00"
+      }
+    ],
+    "command_count": 15,
+    "commands": {
+      "wf_pm status": 2,
+      "wf_battery status": 4,
+      "wf_battery start 900": 1,
+      "wf_battery stop": 1,
+      "wf_battery dump 1 0 16": 1,
+      "wf_battery dump 1 16 16": 1,
+      "wf_battery dump 1 32 16": 1,
+      "wf_battery dump 1 48 16": 1,
+      "wf_battery dump 1 64 16": 1,
+      "wf_battery dump 1 80 16": 1,
+      "wf_battery dump 1 96 15": 1
+    },
+    "analysis": {
+      "new_hardware_data": true,
+      "soc_or_consumed_charge_measured": false,
+      "battery_observation_span_ms": 474451,
+      "battery_unique_adc": 95,
+      "unknown_pg_rows": 0,
+      "off_rows": 0,
+      "before_flashlight": {
+        "unique_adc": 19,
+        "mv_median": 4158,
+        "mv_min": 4156,
+        "mv_max": 4160,
+        "display_percent": [
+          99
+        ],
+        "candidate_percent": [
+          98,
+          99
+        ],
+        "brightness_ack": [
+          55
+        ]
+      },
+      "flashlight": {
+        "unique_adc": 18,
+        "mv_median": 4127.5,
+        "mv_min": 4122,
+        "mv_max": 4156,
+        "display_percent": [
+          97,
+          99
+        ],
+        "candidate_percent": [
+          97,
+          98
+        ],
+        "brightness_ack": [
+          100
+        ]
+      },
+      "recovery": {
+        "after_0_30s": {
+          "unique_adc": 6,
+          "mv_median": 4144.5,
+          "mv_min": 4141,
+          "mv_max": 4145,
+          "display_percent": [
+            97
+          ],
+          "candidate_percent": [
+            97,
+            98
+          ],
+          "brightness_ack": [
+            55
+          ]
+        },
+        "after_30_60s": {
+          "unique_adc": 6,
+          "mv_median": 4146.0,
+          "mv_min": 4146,
+          "mv_max": 4147,
+          "display_percent": [
+            97
+          ],
+          "candidate_percent": [
+            98
+          ],
+          "brightness_ack": [
+            55
+          ]
+        },
+        "after_60_120s": {
+          "unique_adc": 12,
+          "mv_median": 4146.0,
+          "mv_min": 4145,
+          "mv_max": 4147,
+          "display_percent": [
+            97,
+            98
+          ],
+          "candidate_percent": [
+            98
+          ],
+          "brightness_ack": [
+            55
+          ]
+        },
+        "after_120_180s": {
+          "unique_adc": 12,
+          "mv_median": 4146.0,
+          "mv_min": 4144,
+          "mv_max": 4147,
+          "display_percent": [
+            98
+          ],
+          "candidate_percent": [
+            98
+          ],
+          "brightness_ack": [
+            55
+          ]
+        },
+        "after_180_300s": {
+          "unique_adc": 21,
+          "mv_median": 4145,
+          "mv_min": 4144,
+          "mv_max": 4146,
+          "display_percent": [
+            98
+          ],
+          "candidate_percent": [
+            98
+          ],
+          "brightness_ack": [
+            55
+          ]
+        }
+      },
+      "white_context_span_ms": 89579,
+      "exit_observed_ms": 357460,
+      "load_window_observed": true,
+      "observed_window_checks": {
+        "baseline_at_least_80s": true,
+        "flashlight_at_least_80s": true,
+        "recovery_and_control_at_least_260s": true,
+        "normal_brightness_unchanged": true,
+        "flashlight_ack100": true,
+        "no_off_or_unknown_pg_inside_bat_window": true,
+        "recorder_not_full": true
+      },
+      "observed_window_checks_met": true,
+      "limits": "Only raw voltage/estimator/observed load context. No current integration, SOC calibration or matched-energy conclusion."
+    },
+    "collection": {
+      "kind": "guided_battery_experiment",
+      "outcome": "passed",
+      "collection_completed": true,
+      "passed": true,
+      "host_resources_closed": true,
+      "recorder_stopped_confirmed": true,
+      "analysis": {
+        "new_hardware_data": true,
+        "soc_or_consumed_charge_measured": false,
+        "battery_observation_span_ms": 474451,
+        "battery_unique_adc": 95,
+        "unknown_pg_rows": 0,
+        "off_rows": 0,
+        "before_flashlight": {
+          "unique_adc": 19,
+          "mv_median": 4158,
+          "mv_min": 4156,
+          "mv_max": 4160,
+          "display_percent": [
+            99
+          ],
+          "candidate_percent": [
+            98,
+            99
+          ],
+          "brightness_ack": [
+            55
+          ]
+        },
+        "flashlight": {
+          "unique_adc": 18,
+          "mv_median": 4127.5,
+          "mv_min": 4122,
+          "mv_max": 4156,
+          "display_percent": [
+            97,
+            99
+          ],
+          "candidate_percent": [
+            97,
+            98
+          ],
+          "brightness_ack": [
+            100
+          ]
+        },
+        "recovery": {
+          "after_0_30s": {
+            "unique_adc": 6,
+            "mv_median": 4144.5,
+            "mv_min": 4141,
+            "mv_max": 4145,
+            "display_percent": [
+              97
+            ],
+            "candidate_percent": [
+              97,
+              98
+            ],
+            "brightness_ack": [
+              55
+            ]
+          },
+          "after_30_60s": {
+            "unique_adc": 6,
+            "mv_median": 4146.0,
+            "mv_min": 4146,
+            "mv_max": 4147,
+            "display_percent": [
+              97
+            ],
+            "candidate_percent": [
+              98
+            ],
+            "brightness_ack": [
+              55
+            ]
+          },
+          "after_60_120s": {
+            "unique_adc": 12,
+            "mv_median": 4146.0,
+            "mv_min": 4145,
+            "mv_max": 4147,
+            "display_percent": [
+              97,
+              98
+            ],
+            "candidate_percent": [
+              98
+            ],
+            "brightness_ack": [
+              55
+            ]
+          },
+          "after_120_180s": {
+            "unique_adc": 12,
+            "mv_median": 4146.0,
+            "mv_min": 4144,
+            "mv_max": 4147,
+            "display_percent": [
+              98
+            ],
+            "candidate_percent": [
+              98
+            ],
+            "brightness_ack": [
+              55
+            ]
+          },
+          "after_180_300s": {
+            "unique_adc": 21,
+            "mv_median": 4145,
+            "mv_min": 4144,
+            "mv_max": 4146,
+            "display_percent": [
+              98
+            ],
+            "candidate_percent": [
+              98
+            ],
+            "brightness_ack": [
+              55
+            ]
+          }
+        },
+        "white_context_span_ms": 89579,
+        "exit_observed_ms": 357460,
+        "load_window_observed": true,
+        "observed_window_checks": {
+          "baseline_at_least_80s": true,
+          "flashlight_at_least_80s": true,
+          "recovery_and_control_at_least_260s": true,
+          "normal_brightness_unchanged": true,
+          "flashlight_ack100": true,
+          "no_off_or_unknown_pg_inside_bat_window": true,
+          "recorder_not_full": true
+        },
+        "observed_window_checks_met": true,
+        "limits": "Only raw voltage/estimator/observed load context. No current integration, SOC calibration or matched-energy conclusion."
+      },
+      "detail": "",
+      "soc_accuracy_verified": false
+    },
+    "ownership": {
+      "possible_arm": {
+        "session": 1,
+        "duration": 900000,
+        "earliest_start": 160088
+      },
+      "prestate": {
+        "schema": 1,
+        "session": 0,
+        "state": 0,
+        "count": 0,
+        "cap": 256,
+        "start": 0,
+        "duration": 0,
+        "now": 160088
+      },
+      "protected_sha256": "c86328950b2a02e4063a5c2930e208ec75c337d2a090891e067cfbe41b4f9008",
+      "owned": {
+        "schema": 1,
+        "session": 1,
+        "state": 1,
+        "count": 0,
+        "cap": 256,
+        "start": 160283,
+        "duration": 900000,
+        "now": 160284
+      }
+    },
+    "partial_page_failures": [],
+    "uart_bytes": 41491,
+    "kernel_lease_reacquired": true
+  },
+  "display_acceptance": {
+    "schema": 1,
+    "record_count": 111,
+    "checked_later_rows": 110,
+    "all_output_fields_match_current_C": true,
+    "decision_cache_alias_rows": [
+      110
+    ],
+    "observed_settling_updates": [
+      {
+        "candidate": 98,
+        "since": 369154,
+        "count": 13,
+        "start_index": 50,
+        "index": 62,
+        "adc": 429158,
+        "elapsed_ms": 60004,
+        "from_percent": 97,
+        "to_percent": 98,
+        "surface": 9,
+        "maximum_observed_support_gap_ms": 5029,
+        "after_flashlight_exit_ms": 71698
+      }
+    ],
+    "display_fix_trigger_observed": true,
+    "source_sha256": {
+      "scripts/battery_current_replay.c": "2cd6ec11c49597f3a601aafa583ec0048b7e8342ca8617a9e024ba5a231fc943",
+      "core/battery_estimate.c": "2e1a5224b06d04523d4fb80910d08b7ba4054b3b5d62e5e0edff6701e9566be3",
+      "core/battery_estimate.h": "29dbfb2c10e0c7b45da36de987c62a019d2a519734653d6fb371fb6fb4432af4"
+    },
+    "input_sha256": "a590da0894a16d6ba53699d7e68c6966da449d72b3a06e6bc21f4aaa044ec4f1",
+    "initial_pending_known_empty": true,
+    "initial_pending_basis": "First observed record has known USB input present, which cancels discharge settling.",
+    "post_flashlight_settling": [
+      {
+        "candidate": 98,
+        "since": 369154,
+        "count": 13,
+        "start_index": 50,
+        "index": 62,
+        "adc": 429158,
+        "elapsed_ms": 60004,
+        "from_percent": 97,
+        "to_percent": 98,
+        "surface": 9
+      }
+    ],
+    "limits": [
+      "First row supplies warm filter/display state; no claim to reconstruct earlier samples.",
+      "Only observed ADC/context rows; no battery current, actual SOC or capacity measurement."
+    ]
+  },
+  "failures_and_limits": [
+    "First preflash query while screen was off had no reply; no PM hold was acquired. Operator woke once; next snapshot passed.",
+    "Initial anchored symbol grep missed the CRLF output; corrected symbol lookup found BSP_PowerUpCustom at200033bc sizec0.",
+    "One initial150ms RTS reset RTC to2000; actual current UTC was restored and read back. No reset/time command in guided BAT window.",
+    "Only digital voltage/estimator/context observations; no net-current integration, actual SOC/capacity calibration, sleep-current or life claim.",
+    "Successful local flash/host USB identity is not cryptographic board firmware attestation."
+  ],
+  "documentation_validation": {
+    "changed_files_utf8_json": 7,
+    "added_markdown_links_checked": 10,
+    "diff_check_passed": true,
+    "initial_failure": "System Python attempted GBK decoding of UTF-8 git diff; repeated with PYTHONUTF8=1 and all changed-file/link/hash checks passed. No file encoding conversion was needed."
+  },
+  "independent_review": "Read-only fresh-entry admission review, independent original records/events review and final scoped document/evidence consistency review found no blocker. Confirmed13 ADC/60004ms/maxgap5029ms, post110 current-C match, window and cleanup. Reviewers did not run tests or operate devices.",
+  "operator_closeout": "Operator confirmed temporary always-on off; screen/touch/time normal; USB remains connected. No subsequent device access.",
+  "next_bounded_step": "Close this acceptance and integrate records. Longer/lower-charge capacity work and BLE testing remain separately scoped.",
+  "artifacts_sha256": {
+    "artifacts\\battery-settling-hardware-20261021\\preflight-sources.json": "95926f1b7dc20e0cb50318b02dfd86c5afcc21408e48da9bf5d9f58777a63774",
+    "artifacts\\battery-settling-hardware-20261021\\endpoint-preflight.json": "6d35d0e454e3ca16e2bb4cdc31f7b7e106129e339e276dea403eaf1cadf73fa1",
+    "artifacts\\battery-settling-hardware-20261021\\tool-tests.log": "642ceecd725d17ee8c1d4157dd8c366b27f1ecf490b59cdf3f625f40ee0549c4",
+    "artifacts\\battery-settling-hardware-20261021\\dry-run.log": "43931d5a6ba43201d8e309c8c5842f82ffac1f4b5918333cda88a505cbb45dab",
+    "artifacts\\battery-settling-hardware-20261021\\retained-hook.txt": "1a979df2313aec773ef35d87ea214def519053dbf06b5acb651c2a86d6bf3afd",
+    "artifacts\\battery-settling-hardware-20261021\\preflash.log": "ddc4416fbed8ca2d4b6f5aa6e36f134d663fa4addd036938ced24cf730093631",
+    "artifacts\\battery-settling-hardware-20261021\\preflash-awake.log": "895dcfddfea693fc1201bc09e956d6c1d94a052d37e6d122b5405068785e2aae",
+    "artifacts\\battery-settling-hardware-20261021\\startup.log": "c7e19bac5ec7f96be0fffb7518706f54e8dcb79abeb9fa36ba84b12805c0e0f3",
+    "artifacts\\battery-settling-hardware-20261021\\flash.log": "dbbf97f96175159e1dafa48a348b2ae23658416c98999c753f0f67076e2adb13",
+    "artifacts\\battery-settling-hardware-20261021\\guided.log": "3ea88c0f4058507e4902f71923dfb374d06450ea94a8b9ba699febe1d5dee203",
+    "artifacts\\flash\\product\\20261021-233823-461\\result.json": "bc4ff643b217ced80026e74496173c26d4ad89133d0c17b10a7672ec9d2117a3",
+    "artifacts\\product\\20261021-230056-732\\result.json": "19bd84a41f76d2ac581a2e7ae8aea9ed8c78d827cbd49c5e3e680eb83d98552b",
+    "artifacts\\battery-settling-hardware-20261021\\device_snapshot.py": "01eb6e35534d18d23b69c483b3fef76fd02ab071026e7b6a12eac3661b0eb5e9",
+    "artifacts\\battery-settling-hardware-20261021\\verify_trace.py": "cbea6ce7a0e48c3666eda09fc24e60cc71dae734df3da3b23553aab5bb7d911c",
+    "artifacts\\battery-settling-hardware-20261021\\collect_evidence.py": "a37653a14474e9261eb71e0bc6b0327809b2b913f9a09eddc77d28bc2787ba5e",
+    "artifacts\\battery-settling-hardware-20261021\\production-verification.log": "efa23d22c88559462bb54d5c5a13728172db548cf45271351af8ce9e620027c7",
+    "artifacts\\battery-settling-hardware-20261021\\preflash\\session.json": "a51bb8cd9b2f686d0b1cc9a0ba7a95c2b41055274efb364f4a7ea0c00fdf91f7",
+    "artifacts\\battery-settling-hardware-20261021\\preflash\\uart.bin": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "artifacts\\battery-settling-hardware-20261021\\preflash-awake\\session.json": "8edd990bf233e93e53dcdca07815ea565d4b6fd4c02db884a8c241c00e3def31",
+    "artifacts\\battery-settling-hardware-20261021\\preflash-awake\\uart.bin": "a9e0080e52b474eed759ca934eb14f1c57a66eff67bd22cb6e261d4f3bf40c08",
+    "artifacts\\battery-settling-hardware-20261021\\startup\\session.json": "fda33f5b66d69cb766992a6e0c15a9685ea5079e22bda4f4a84e0884a722595c",
+    "artifacts\\battery-settling-hardware-20261021\\startup\\uart.bin": "14294dfdfe187fa4a455d826cdf7f13861507d9d4dd1791ca107da684569b84d",
+    "artifacts\\battery-settling-hardware-20261021\\run-001\\analysis.json": "5ce5abd4546acd460c8798744505cac775224b5a159707906496dc0efdcbbb86",
+    "artifacts\\battery-settling-hardware-20261021\\run-001\\binding.json": "7020108223a2b5aafa8bb54051f5a8fc8ec109ef2055e1164df7d637b0531a87",
+    "artifacts\\battery-settling-hardware-20261021\\run-001\\collection.json": "5e760a49106aa8826652daa080980078161b6527796ec744c6c09ce6d77e8945",
+    "artifacts\\battery-settling-hardware-20261021\\run-001\\events.jsonl": "ca8ac590cafe6dccc8a89d8756fa7d77f52b5581e62e5779fafe67d48aa4a309",
+    "artifacts\\battery-settling-hardware-20261021\\run-001\\ownership.json": "59261232d731f4b7c37bd72dab17b6f469f0325eaa505eeb93d14dbfcc3a639e",
+    "artifacts\\battery-settling-hardware-20261021\\run-001\\page-000-attempt-0.bin": "24e08fea0831e5e5b188a0abbc66b04ce5c22c7a0940d540b6ee73e1e1af9325",
+    "artifacts\\battery-settling-hardware-20261021\\run-001\\page-016-attempt-0.bin": "e46be8abfd8e17f6df95f42bfb087d0159164c26c7eee2991ab2d27b32a79b40",
+    "artifacts\\battery-settling-hardware-20261021\\run-001\\page-032-attempt-0.bin": "617e422e1d46ca1b753b801042c66f41c2d9d48dc76cb02e4a9ec77dd2361172",
+    "artifacts\\battery-settling-hardware-20261021\\run-001\\page-048-attempt-0.bin": "9501b8f48b09400a6d2702d2ab572d36b784153465af2e22cbdb7f035fbbbe0f",
+    "artifacts\\battery-settling-hardware-20261021\\run-001\\page-064-attempt-0.bin": "a2f733900ddee728bd18643b2a90c69602e8689145dd433fca2fea3196774824",
+    "artifacts\\battery-settling-hardware-20261021\\run-001\\page-080-attempt-0.bin": "bd86c6961af225c27527fd81ef1149cc2ecb7b295b84a1fad4b3c3dbb6b29c8b",
+    "artifacts\\battery-settling-hardware-20261021\\run-001\\page-096-attempt-0.bin": "8a632594b59fe5270f8f9093a741ef9ce616d234de120f94091fa78a468d6572",
+    "artifacts\\battery-settling-hardware-20261021\\run-001\\progress.json": "2c4d1dadf23144d20399b6f0a67aea3fef910698c6f8ba0b9a7dd4c80b63f34b",
+    "artifacts\\battery-settling-hardware-20261021\\run-001\\protected.json": "c86328950b2a02e4063a5c2930e208ec75c337d2a090891e067cfbe41b4f9008",
+    "artifacts\\battery-settling-hardware-20261021\\run-001\\records.json": "a590da0894a16d6ba53699d7e68c6966da449d72b3a06e6bc21f4aaa044ec4f1",
+    "artifacts\\battery-settling-hardware-20261021\\run-001\\uart.bin": "282c6c80dbe9702ebcbca103a5c2b6bf8834f98179ebd773933e739cb243129b",
+    "artifacts\\battery-settling-hardware-20261021\\production-verification\\build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "artifacts\\battery-settling-hardware-20261021\\production-verification\\current.exe": "c67cfeebd708855b7b74213983771ed4f7eee1883fef9eee618f0ada5d6ae8ad",
+    "artifacts\\battery-settling-hardware-20261021\\production-verification\\engine-input.txt": "b2f0fcc357370e8d6cfea3413099e8cba467fb06e0077495a375a9108c557ee5",
+    "artifacts\\battery-settling-hardware-20261021\\production-verification\\engine.txt": "34f4f585c64746b39b63d038e805b710325742734c86099587814c2a20f52931",
+    "artifacts\\battery-settling-hardware-20261021\\production-verification\\verification.json": "efa23d22c88559462bb54d5c5a13728172db548cf45271351af8ce9e620027c7"
+  }
+}

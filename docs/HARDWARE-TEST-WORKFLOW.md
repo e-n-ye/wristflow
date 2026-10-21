@@ -6,7 +6,7 @@
 
 2026-10-21用户要求借电量排查改进人机协作。PR #120首轮复用B2实机记录，完成可重复B3回放和OpenHTF网页演练；后续用户要求继续，增加模拟采集适配器及共同本地控制页。AI制定实验、分析证据；本地程序持有阶段和输出；人只确认需要判断或实际动作的部分。软件验收由主代理在浏览器操作，没有让用户重复设备输入。
 
-历史回放、引导演练与模拟采集仍由原入口提供；`battery_device.py`只读实机入口保护已有停止态记录，不开放实机start／stop。后续`battery_experiment.py`独立承接获准的新负载记录，先保护再单次启动、纯BAT记录后回连停止／导出。二者均不开放PM hold／allow、charger控制、复位、校时或烧录。实机执行及验收状态只见[STATUS](STATUS.md#current)，不把主机替身通过算作设备结果。仍沿用[硬件条件](HARDWARE.md)、[下载](FLASHING.md)与[电量契约](BATTERY-ESTIMATE.md)，SDK环境和固件不变。OpenHTF保留phase／measurement／JSON，不再使用其StationServer／SockJS前端；不构成全项目框架选型决定。
+历史回放、引导演练与模拟采集仍由原入口提供；`battery_device.py`只读实机入口保护已有停止态记录，不开放实机start／stop。后续`battery_experiment.py`独立承接获准的新负载记录，先保护再单次启动、纯BAT记录后回连停止／导出。二者均不开放PM hold／allow、charger控制、复位、校时或烧录。实机执行及验收状态只见[STATUS](STATUS.md#current)，不把主机替身通过算作设备结果。仍沿用[硬件条件](HARDWARE.md)、[下载](FLASHING.md)与[电量契约](BATTERY-ESTIMATE.md)；SDK及诊断协议保持，实际BIN按每轮绑定核对，新固件入口见文末。OpenHTF保留phase／measurement／JSON，不再使用其StationServer／SockJS前端；不构成全项目框架选型决定。
 
 ## 离线回放
 
@@ -127,3 +127,9 @@ PR #120首轮网页通过／取消／真实超时的证据保留于[试点证据
 `records.json`保留全部记录，`analysis.json`仅选首次确认BAT至首次确认USB返回前的可信放电独立ADC，按普通／白屏／退出后时段分组。实验通过另需样本支持普通至少80秒、白屏至少80秒、恢复加末段普通至少260秒、普通亮度单值一致、白屏ack100、BAT段无OFF／未知PG且非FULL；允许10秒采样量化余量。采集完成与窗口通过分开，缺项异常退出，SOC／累计耗电测量始终false。首末跨度不证明连续采样，末段普通页是顺序恢复观察，不是独立、随机或等能量对照。
 
 2026-10-21实际操作者完成11/11阶段并恢复常亮关闭。该次同BIN新数据110条／95个BAT独立ADC，原始坏页及有限重读保留；结果见[电量定因](BATTERY-ESTIMATE.md#guided-load-20261021)。蓝牙远控可另轮复用这套阶段／记录／回执结构，当前没有BLE测试导航或trace导出实现。
+
+### 新固件烧录后的空记录器入口
+
+生产显示修复后的验收不能把旧BIN的fixture身份带过烧录。`battery_experiment.py --flash-result <本轮成功烧录result.json>`与`--expected-trace`互斥；前者核对同一Product build／flash、COM端点、三镜像名称／地址／大小／哈希及全部29产物，仍不声称固件身份认证。旧磁盘记录在烧录前另行确认保留。
+
+新入口只接受初始`session/state/count/start/duration=0`、schema1／cap256的记录器，保存空前态及哈希，并在单次start前再次核对。已有任何记录／运行／旧session均拒绝，不自动stop或覆盖；之后复用同一关闭串口、网页动作、回连所有权校验、stop／导出与取消清理路径。没有新增复位、PM或charger控制。窗口采集完成仍只说明记录可用，显示修复需另核当前生产C及持续1点差的实际触发；缺少触发条件时记缺证据，不冒充通过。

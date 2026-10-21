@@ -1,4 +1,4 @@
-"""One guided BAT-only load/control window, using the existing diagnostic BIN."""
+"""One guided BAT-only load/recovery window, with explicit firmware provenance."""
 from __future__ import annotations
 
 import argparse
@@ -127,6 +127,65 @@ class Experiment(ProtectedExport):
         super().__exit__(*args)
 
 
+def prepare_fresh_binding(result_path, flash_path, endpoint, location):
+    """Bind a successful product flash to current local artifacts, before UART I/O."""
+    result = json.loads(pathlib.Path(result_path).read_text(encoding="utf-8-sig"))
+    flash = json.loads(pathlib.Path(flash_path).read_text(encoding="utf-8-sig"))
+    if (result.get("example") != "product" or result.get("exit_code") != 0 or
+            result.get("artifact_validation_passed") is not True or
+            flash.get("example") != "product" or flash.get("exit_code") != 0 or
+            flash.get("board") != "sf32lb52-lchspi-ulp" or flash.get("port") != endpoint):
+        raise ValueError("Successful matching product build and flash are required")
+    artifacts = result["artifacts"]
+    paths = {pathlib.Path(item["path"]).resolve(): item["sha256"] for item in artifacts}
+    firmware = pathlib.Path(result["firmware_path"]).resolve()
+    if len(artifacts) != 29 or len(paths) != 29 or firmware not in paths:
+        raise ValueError("Product artifact manifest is incomplete or duplicated")
+    for path, expected in paths.items():
+        if digest(path) != expected:
+            raise ValueError("Changed build artifact: " + str(path))
+    addresses = {"main.bin": "0x12020000", "bootloader.bin": "0x12010000", "ftab.bin": "0x12000000"}
+    images = flash["images"]
+    if len(images) != 3 or {image["name"] for image in images} != set(addresses):
+        raise ValueError("Flash must identify exactly the three expected images")
+    for image in images:
+        path = pathlib.Path(image["path"]).resolve()
+        if (path.name != image["name"] or image["address"] != addresses[image["name"]] or
+                paths.get(path) != image["sha256"] or path.stat().st_size != image["bytes"]):
+            raise ValueError("Flash image differs from accepted build")
+    if pathlib.Path(next(image["path"] for image in images if image["name"] == "main.bin")).resolve() != firmware:
+        raise ValueError("Flashed main image is not the accepted firmware")
+    return {"kind": "fresh_flash_battery_experiment", "endpoint": port_identity(endpoint, location),
+            "build_result": str(pathlib.Path(result_path).resolve()), "build_result_sha256": digest(result_path),
+            "flash_result": str(pathlib.Path(flash_path).resolve()), "flash_result_sha256": digest(flash_path),
+            "firmware_sha256": paths[firmware], "device_identity_verified": False,
+            "identity_basis": "Operator-confirmed board and successful local flash record; no firmware attestation.",
+            "source_hashes": {name: digest(ROOT / "scripts" / name) for name in
+                              ("battery_device.py", "battery_collect.py", "battery_console.py", "battery_lab.py", "battery_experiment.py")}}
+
+
+class FreshFlashExperiment(Experiment):
+    """Accept only the initial empty recorder; never reinterpret an old session."""
+    def probe(self):
+        allowed = self.client.pm("status")
+        if self.pm_allow is not None and allowed != self.pm_allow:
+            raise SessionChanged("PM allow changed before fresh experiment")
+        self.pm_allow = allowed
+        status = self.client.status()
+        self.journal.event("observed", status=status, pm_allow=allowed)
+        if any(status[key] != value for key, value in
+               {"schema": 1, "session": 0, "state": 0, "count": 0, "cap": 256, "start": 0, "duration": 0}.items()):
+            raise SessionChanged("Fresh flash requires the initial empty recorder; no start/stop sent")
+        return status
+
+    def protect(self):
+        value = {"status": self.probe(), "records": [], "fresh_after_flash": True}
+        write_json(self.journal.directory / "protected.json", value)
+        self.protected_sha = digest(self.journal.directory / "protected.json")
+        self.journal.event("empty_prestate_saved", sha256=self.protected_sha)
+        return value
+
+
 def analyze(value):
     """Only device-confirmed BAT/discharge samples before the first USB return."""
     rows = value["records"]
@@ -206,8 +265,9 @@ def countdown(console, key, message, seconds):
 
 
 def run(expected, binding, output, *, port=4444, timeout=900):
+    fresh = binding["kind"] == "fresh_flash_battery_experiment"
     journal = Journal(output, binding=binding, mode="guided_battery_experiment")
-    phases = [("prepare", "准备设备"), ("protect", "备份已有记录"), ("arm", "启动新记录"),
+    phases = [("prepare", "准备设备"), ("protect", "核对空记录器" if fresh else "备份已有记录"), ("arm", "启动新记录"),
               ("unplug", "拔USB确认"), ("baseline", "普通页90秒"), ("flashlight", "手电筒90秒"),
               ("recovery", "恢复180秒"), ("control", "普通页对照90秒"), ("reconnect", "接回USB"),
               ("export", "导出并分析"), ("cleanup", "释放资源")]
@@ -216,13 +276,15 @@ def run(expected, binding, output, *, port=4444, timeout=900):
         if port_identity(binding["endpoint"]["device"], binding["endpoint"]["location"]) != binding["endpoint"]:
             raise SessionChanged("Host endpoint changed")
     with Console(journal, phases, port, mode="实机纯电池负载／恢复对照") as console:
-        collector = Experiment(journal, transport, console.cancelled, ROOT / "artifacts/battery-port-locks",
+        collector_type = FreshFlashExperiment if fresh else Experiment
+        collector = collector_type(journal, transport, console.cancelled, ROOT / "artifacts/battery-port-locks",
                                expected, identity_guard=guard)
         current, outcome, detail, analysis = "prepare", "passed", "", None
         print(f"Guided battery experiment: {console.url}", flush=True)
         try:
-            console.prompt(current, "保持原电池＋电脑USB，正常亮度不改。请开启临时持续亮屏10分钟，回设置→电池页后点确认。"
-                           "先备份已有记录，再用新实验替换板上旧RAM记录；磁盘备份保留。", timeout)
+            console.prompt(current, "保持原电池＋电脑USB，正常亮度不改。请开启临时持续亮屏10分钟，回设置→电池页后点确认。" +
+                           ("本次已更新固件，将核对空记录器后启动新测试；旧磁盘记录保留。" if fresh else
+                            "先备份已有记录，再用新实验替换板上旧RAM记录；磁盘备份保留。"), timeout)
             console.stage(current, "complete")
             with collector:
                 current = "protect"; console.stage(current, "running")
@@ -282,15 +344,22 @@ def main():
     parser.add_argument("--serial-port", required=True)
     parser.add_argument("--usb-location", required=True)
     parser.add_argument("--build-result", required=True, type=pathlib.Path)
-    parser.add_argument("--expected-trace", required=True, type=pathlib.Path)
+    provenance = parser.add_mutually_exclusive_group(required=True)
+    provenance.add_argument("--expected-trace", type=pathlib.Path)
+    provenance.add_argument("--flash-result", type=pathlib.Path, help="Successful fresh product flash; requires empty recorder")
     parser.add_argument("--out", required=True, type=pathlib.Path)
     parser.add_argument("--port", type=int, default=4444)
     args = parser.parse_args()
     if not 0 <= args.port <= 65535: parser.error("Invalid loopback port")
-    binding = prepare_binding(args.build_result, args.expected_trace, args.serial_port, args.usb_location)
-    binding["kind"] = "guided_battery_experiment"
+    if args.flash_result:
+        binding = prepare_fresh_binding(args.build_result, args.flash_result, args.serial_port, args.usb_location)
+        expected = None
+    else:
+        binding = prepare_binding(args.build_result, args.expected_trace, args.serial_port, args.usb_location)
+        binding["kind"] = "guided_battery_experiment"
+        expected = load_trace(args.expected_trace)
     binding["source_hashes"]["battery_experiment.py"] = digest(__file__)
-    result = run(load_trace(args.expected_trace), binding, args.out, port=args.port)
+    result = run(expected, binding, args.out, port=args.port)
     return 0 if result["passed"] else 1
 
 
