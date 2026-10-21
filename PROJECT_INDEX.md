@@ -22,6 +22,7 @@
 | 追溯 N0 审计与旧返工 | [首轮验收](docs/handoffs/N0-CODEX-ACCEPTANCE.md)、[旧任务契约](docs/tasks/N0-VERSION-AUDIT.md)；固定历史 SHA 不替代当前核对 |
 | 决定记录写到哪里、整理文档 | [职责与维护](docs/DOCUMENTATION-WORKFLOW.md#responsibilities) |
 | 分支、审阅、PR 与合并 | [CONTRIBUTING](CONTRIBUTING.md)；纯文档只做文档验证，CI 沿用手动基线 |
+| GitHub成果展示、参考仓库与参与开发入口 | [展示调研与素材契约](docs/REPOSITORY-SHOWCASE.md)；阶段依赖见架构任务卡，活动项仍回STATUS |
 | 了解 flow 试点版本与取舍 | [接入记录](docs/FLOW-PILOT.md)，无需到 flow 通读资料 |
 
 工具入口（含 [VS Code](docs/VSCODE.md)）遵循同一 AGENTS / 索引 / STATUS，不维护另一份任务状态。资料不足、冲突或依赖核对才扩大阅读。
