@@ -1,6 +1,8 @@
 /* Host-only policy experiments. The baseline calls the production estimator.
  * Nothing in this file is linked into Product or UI Demo. */
 #include "battery_estimate.h"
+#include "battery_policy.h"
+#include <errno.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -72,17 +74,44 @@ static void evaluate(experiment_t *e, unsigned policy,
         d.filtered_decimillivolts, d.filter_valid, d.candidate, d.mode, d.decision);
 }
 
-int main(void)
+static bool parameter(const char *text, uint32_t *value)
 {
+    char *end;
+    errno = 0;
+    unsigned long parsed = strtoul(text, &end, 10);
+    if (errno || !*text || *end || parsed > 900000UL) return false;
+    *value = (uint32_t)parsed;
+    return true;
+}
+
+int main(int argc, char **argv)
+{
+    bool guarded = argc != 1;
+    battery_policy_config_t config = {0};
+    uint32_t samples;
+    if (guarded && (argc != 5 || !parameter(argv[1], &config.retain_ms) ||
+        !parameter(argv[2], &config.settle_ms) || !parameter(argv[3], &samples) ||
+        !parameter(argv[4], &config.max_sample_gap_ms) || !config.retain_ms ||
+        !config.settle_ms || samples < 2U || samples > 256U || !config.max_sample_gap_ms)) return 2;
+    config.settle_samples = guarded ? samples : 0U;
     experiment_t experiments[4] = {0};
+    battery_policy_t bounded[4] = {0};
     unsigned seeded, mode, percent;
     uint32_t sequence, filtered;
     if (scanf("%u %u %u %" SCNu32 " %" SCNu32,
         &seeded, &mode, &percent, &sequence, &filtered) != 5) return 2;
-    for (unsigned i=0; i<4; ++i)
+    uint32_t last_now = 0, last_adc = 0, last_sequence = sequence;
+    unsigned last_mv = 0;
+    if (guarded && scanf("%" SCNu32 " %" SCNu32 " %u", &last_now, &last_adc, &last_mv) != 3) return 2;
+    for (unsigned i=0; i<4; ++i) {
         experiments[i].state = (wristflow_battery_estimator_t){
             .seeded=seeded != 0, .mode=(uint8_t)mode, .percent=(uint8_t)percent,
             .sequence=sequence, .filtered_decimillivolts=filtered};
+        bounded[i].state = experiments[i].state;
+        bounded[i].validity_gate = experiments[i].state;
+        bounded[i].last_adc_ms = last_adc;
+        bounded[i].have_adc = seeded != 0;
+    }
     unsigned index, mv, raw, usb, good, charge;
     uint32_t now, adc;
     int fields;
@@ -92,7 +121,30 @@ int main(void)
             .millivolts=(uint16_t)mv, .voltage_sampled_ms=adc, .voltage_sequence=sequence,
             .input_valid=usb != 0, .input_good=good != 0,
             .charge=(wristflow_charge_display_t)charge};
-        for (unsigned i=0; i<4; ++i) evaluate(&experiments[i], i, power, now, index);
+        if (guarded) {
+            /* Bounded modular ordering accepts one ordinary uint32 wrap, but
+             * rejects backwards observations, reused/changed ADCs and replayed
+             * old identities. It cannot identify unseen complete counter wraps. */
+            if (now-last_now >= UINT32_C(0x80000000) || (sequence &&
+                ((sequence == last_sequence && (adc != last_adc || mv != last_mv)) ||
+                 (sequence != last_sequence && (sequence-last_sequence >= UINT32_C(0x80000000) ||
+                                               adc-last_adc >= UINT32_C(0x80000000)))))) {
+                fputs("Rejected unordered observation/ADC identity\n", stderr);
+                return 2;
+            }
+            last_now = now;
+            if (sequence) { last_sequence = sequence; last_adc = adc; last_mv = mv; }
+            for (unsigned i=0; i<4; ++i) {
+                wristflow_power_snapshot_t copy = power;
+                wristflow_battery_diagnostic_t d;
+                battery_policy_events_t events;
+                battery_policy_evaluate(&bounded[i], i, &config, &copy, now, &d, &events);
+                printf("%u %u %u %u %" PRIu32 " %u %u %u %u %u %u %u\n", index, i,
+                    copy.estimate_valid, copy.estimated_percent, d.filtered_decimillivolts,
+                    d.filter_valid, d.candidate, d.mode, d.decision,
+                    events.restored, events.history_reset, events.settled);
+            }
+        } else for (unsigned i=0; i<4; ++i) evaluate(&experiments[i], i, power, now, index);
     }
     return fields == EOF ? 0 : 2;
 }
