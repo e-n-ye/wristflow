@@ -5,11 +5,13 @@ import json
 import os
 import pathlib
 import subprocess
+import sys
 import unittest
 import uuid
 from unittest.mock import patch
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
 spec = importlib.util.spec_from_file_location("battery_lab", ROOT / "scripts/battery_lab.py")
 lab = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(lab)
@@ -128,6 +130,17 @@ class BatteryLabTests(unittest.TestCase):
         self.assertIn("output_error", [event["kind"] for event in events])
         self.assertEqual(events[-1]["kind"], "interrupted")
         self.assertFalse(any(event.get("passed") for event in events))
+
+    def test_failed_measurement_cannot_label_outcome_passed(self):
+        bad = json.loads(self.report_path.read_text(encoding="utf-8"))
+        bad["checked_rows"] = 119
+        path = self.directory / "failed-measurement.json"
+        path.write_text(json.dumps(bad), encoding="utf-8")
+        output = self.directory / "failed-measurement"
+        self.assertFalse(lab.guide(path, output, 0, 1, ["continue"]*3))
+        progress = lab.read_progress(output)
+        self.assertEqual(progress["last_event"]["outcome"], "error")
+        self.assertFalse(progress["last_event"]["passed"])
 
 
 if __name__ == "__main__":

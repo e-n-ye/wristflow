@@ -1,2 +1,3 @@
-# Host workflow rehearsal only; isolated from the pinned SiFli SDK environment.
+# Host workflow tools only; isolated from the pinned SiFli SDK environment.
 openhtf==1.6.1
+pyserial==3.5

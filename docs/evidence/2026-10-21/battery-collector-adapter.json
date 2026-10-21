@@ -1,0 +1,164 @@
+{
+  "date": "2026-10-21",
+  "base_commit": "bed1e410b24d983b1a89b9cbefc77f2bcc92b3fc",
+  "branch": "codex/battery-collector-adapter",
+  "scope": "Host collector adapter and shared local console; CLI simulation only",
+  "source_sha256": {
+    "scripts/battery_lab.py": "59dd0103852c335a144e26276cb19c6236dc19951b51e4045272610cf072f25f",
+    "scripts/battery_console.py": "d674493656136040841d7d23864d70ace6ac204970ece89964f05e57aac2ac97",
+    "scripts/battery_collect.py": "57369e2a95cd6138dd001a1e8472694f8317552850f6d61459ac504fa3463c78",
+    "scripts/requirements-battery-lab.txt": "5f86d7eb31b21fc7dd497035abc0b675dae7c7d0d29f09d3f0789434581a4df4",
+    "tests/test_battery_lab.py": "8e48db134f9ea4be2ec7d8070751bb6d71d050059583c6baca2b7716a3a6793e",
+    "tests/test_battery_collect.py": "18f0145b635b6ff5be682f167b5235361247683bb8e8e1b87a0a573bf18e4be5"
+  },
+  "runtime": {
+    "python": "3.12.9 (tags/v3.12.9:fdb8142, Feb  4 2025, 15:27:58) [MSC v.1942 64 bit (AMD64)]",
+    "openhtf": "1.6.1",
+    "pyserial": "3.5",
+    "tornado": "6.4.2"
+  },
+  "source_inspection": true,
+  "host_compiled": true,
+  "firmware_compiled": false,
+  "hardware_verified": false,
+  "real_serial_opened": false,
+  "sdk_lock_changed": false,
+  "validation": {
+    "command": "CC=D:/msys64/ucrt64/bin/gcc.exe uv run --isolated --python 3.12 --with-requirements scripts/requirements-battery-lab.txt python -m unittest discover -s tests -p 'test_battery_*.py' -v",
+    "tests": 36,
+    "passed": 36,
+    "exit_code": 0,
+    "log_local": "artifacts/battery-collector-adapter/tests-final2.log",
+    "log_sha256": "ba5d12a8658b8653e4307dce83c30ad43023536955ab85d7eac1dec380603c2e",
+    "compiler": "gcc.exe (Rev13, Built by MSYS2 project) 15.2.0",
+    "replay_checked_rows": 120,
+    "simulated_roundtrip": "All 121 rows/status exactly equal original fixture; 8 complete pages, 98 unique ADC sequences.",
+    "current_tests_log_summary": "Ran 36 tests; OK"
+  },
+  "accepted_runs": {
+    "web-pass-accepted": {
+      "mode": "simulated_collection",
+      "actor": "primary agent browser",
+      "exit_code": 0,
+      "report": {
+        "kind": "simulated_collection",
+        "passed": true,
+        "outcome": "passed",
+        "hardware_verified": false,
+        "device_identity_verified": false,
+        "cleanup_confirmed": true,
+        "detail": "",
+        "record_count": 121,
+        "window": {
+          "target_battery_ms": 480000,
+          "observed_battery_span_ms": 418910,
+          "unplug_delay_ms": 58988,
+          "usb_returned_in_trace": false,
+          "unknown_pg_rows": 6,
+          "off_rows": 6,
+          "target_span_met": false,
+          "complete": false,
+          "note": "Historical/simulated data cannot verify a new hardware experiment. Span excludes confirmed USB return, includes unsampled gaps, and is not continuous BAT sampling."
+        },
+        "completed_phases": 5,
+        "total_phases": 5
+      },
+      "report_sha256": "576cf13183da0c570123b7c0570c6748a44eb4f6a0bcb0d8a847860eb8baafd4",
+      "raw_sha256": "d27ba852e6349363c724b119485681e14ddb76a38049ec50abf6add0f9e5b222",
+      "events_sha256": "b9a257b31f6f2c75af7748e9a08af6928c119d1e0131d5f7891ed9992e9d9a87",
+      "stderr_runtime_warnings": false
+    },
+    "web-cancel-accepted": {
+      "mode": "simulated_collection",
+      "actor": "primary agent browser",
+      "exit_code": 1,
+      "report": {
+        "kind": "simulated_collection",
+        "passed": false,
+        "outcome": "cancelled",
+        "hardware_verified": false,
+        "device_identity_verified": false,
+        "cleanup_confirmed": true,
+        "detail": "Operator cancelled",
+        "record_count": 0,
+        "window": null,
+        "completed_phases": 3,
+        "total_phases": 5
+      },
+      "report_sha256": "21c1263ff0109112ee2f4486ac20c5578fe8bdcefcb9354b137f5b5a7a188e4b",
+      "raw_sha256": "a2ee214c1abc65e3f2e0ae25e916bc68554aec0bd7ede7e2959d0581a687eedf",
+      "events_sha256": "0d28814dbf3e2edb00aca909514080e2adc249357181246bbf408519ec9a0664",
+      "stderr_runtime_warnings": false
+    },
+    "actual-timeout": {
+      "mode": "simulated_collection",
+      "actor": "genuine prompt timeout with no reply",
+      "exit_code": 1,
+      "report": {
+        "kind": "simulated_collection",
+        "passed": false,
+        "outcome": "timeout",
+        "hardware_verified": false,
+        "device_identity_verified": false,
+        "cleanup_confirmed": false,
+        "detail": "Operator confirmation expired",
+        "record_count": 0,
+        "window": null,
+        "completed_phases": 0,
+        "total_phases": 5
+      },
+      "report_sha256": "30361e069bdde97a5c5bf9a28300aa09c2e3faefd77ae7f273620d1be4641bf0",
+      "raw_sha256": null,
+      "events_sha256": "0d279e3ec2834f5e48f230acc3d2e1793df34e7ca14b491ecd667f81e9be1444",
+      "stderr_runtime_warnings": false
+    },
+    "guide-pass": {
+      "mode": "OpenHTF engine with stdlib console",
+      "expected_outcome": "PASS",
+      "observed_outcome": "PASS",
+      "exit_code": 0,
+      "events_sha256": "e11c7b1a5e736a0f9c110e091ecd97ee1d1870f3f73f339ab2fb444b1570c1aa",
+      "report_sha256": "a3b3c74ef5c6ff44e62b3c5b2e73712892f01b499ec4823416b433ea6e3895ad",
+      "stderr_runtime_warnings": false
+    },
+    "guide-timeout": {
+      "mode": "OpenHTF engine with stdlib console",
+      "expected_outcome": "FAIL",
+      "observed_outcome": "FAIL",
+      "exit_code": 1,
+      "events_sha256": "146c2da5eea3f29eb49d30a633598cc271eac558f6478195f953a026e5e6763b",
+      "report_sha256": "0530d3b2f8d315c6909744a987c2af4fd1cbb1cbd161390b53d9c706628779ec",
+      "stderr_runtime_warnings": false
+    }
+  },
+  "review": {
+    "read_only_agents": [
+      {
+        "requested_model": "gpt-6.1-sol",
+        "requested_effort": "medium",
+        "scope": "Console/guide outcome arbitration and Collector ownership/cleanup; focused fixes re-reviewed"
+      },
+      {
+        "requested_model": "gpt-6-luna",
+        "requested_effort": "low",
+        "scope": "Exact firmware grammar, bounded retries, raw bytes and drain bounds"
+      }
+    ],
+    "result": "Original false UI PASS/cancel race blockers and bounded tail-capture risk closed by focused read-only re-review; no new blocker in host scope. Runtime model attestation not independently exposed."
+  },
+  "failures_and_revisions": [
+    "First implementation was corrected after review: framework False now maps to error; accepted cancel and finalization share one lock/seal boundary.",
+    "Nonempty stopped traces are protected as well as running traces; cleanup binds session/start/duration.",
+    "Completion-marker tail capture is bounded and raw bytes are preserved before decode; attempts are never byte-repaired.",
+    "Initial cancel UI omitted already-performed cleanup; final UI shows cleaned and counts 3/5 for offline cancellation. Earlier screenshots/runs remain local history."
+  ],
+  "limits": [
+    "Real SerialTransport is tested with a stand-in factory only. CLI exposes no COM/serial-port parameter.",
+    "No device/firmware identity verified by UART protocol; manifest binds historical fixture only.",
+    "No process restart execution resume; progress viewing only.",
+    "Drain stops after nominal 10ms quiet or 100ms budget, plus at most one 50ms blocking read; unread/future bytes are not claimed.",
+    "No physical RAM retention, DTR/RTS waveform, PM restore, ADC, touch, BLE, current or battery-life verification.",
+    "Historical/simulated data never marks a new hardware experiment complete; a protocol pass and short BAT window remain distinct."
+  ],
+  "next_bounded_experiment": "Prepare same-BIN real-device integration: bind actual build/port and current hardware conditions, export existing RAM records first, then add restricted real transport and timed operator stages for one concentrated retention/export/cancel check; no automatic flash/reset/rearm."
+}
