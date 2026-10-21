@@ -1,0 +1,166 @@
+{
+  "date": "2026-10-21",
+  "base_commit": "264ef9fa1f105787e22640f8a9c8d44dd8a6adf4",
+  "scope": "User authorized consolidation of all WristFlow branches, worktrees and PRs and removal of unused workspace storage. No unrelated project, chat history or runtime deletion.",
+  "pr_disposition": {
+    "closed_superseded": [
+      {
+        "closedAt": "2026-10-21T08:49:17Z",
+        "headRefOid": "823e656e4bd36ff0e84360ff085d524ad641917f",
+        "number": 30,
+        "state": "CLOSED"
+      },
+      {
+        "closedAt": "2026-10-21T08:49:49Z",
+        "headRefOid": "9815dca1be939e0d45fa312452b6070381d26633",
+        "number": 39,
+        "state": "CLOSED"
+      }
+    ],
+    "reason": "Old software-pose C2 branches superseded by native AWT on main; no blind merge. Prior evidence preserved in bundle and complete worktree ZIP.",
+    "open_prs_before": 2,
+    "open_prs_after_cleanup_before_documentation_pr": 0
+  },
+  "branch_disposition": {
+    "local_removed": 50,
+    "remote_removed": 2,
+    "recovery_prefix": "refs/wristflow-archive/20261021/",
+    "before_refs": "artifacts/workspace-cleanup-refs-before.txt",
+    "bundle": "D:/MY_Desk/wristflow-archives/2026-10-21/wristflow-all-refs-verified.bundle",
+    "bundle_refs": 123,
+    "bundle_verify_exit_code": 0,
+    "stale_remote_tracking_refs_pruned": 36,
+    "boundary": "Most origin/codex refs were stale remote-tracking refs, already deleted remotely before this task. One 404 while verifying activity-hardware triggered fetch --prune; only the two old IMU branches were actually deleted remotely."
+  },
+  "storage": {
+    "before_codex_bytes": 11068260864,
+    "after_codex_bytes": 4177534094,
+    "observed_delta_bytes": 6890726770,
+    "worktrees_after_bytes": 0,
+    "worktree_archives_after_bytes": 0,
+    "c_removed_file_bytes": 6897222903,
+    "total_removed_file_bytes": 8780737591,
+    "retained_zip_bytes": 2052068367,
+    "records": [
+      {
+        "name": "alarm-ui",
+        "source": "C:/Users/13984/.codex/worktrees/alarm-ui/wristflow",
+        "archive": "D:/MY_Desk/wristflow-archives/2026-10-21/alarm-ui.zip",
+        "source_bytes": 854084086,
+        "archive_bytes": 191483260,
+        "archive_sha256": "aff29b7f334be7b18b5ac0f74d223b3570945a87c8c67801d094b6dcc5565909",
+        "files": 4759,
+        "removed_at": "2026-10-21T08:47:42.176754+00:00"
+      },
+      {
+        "name": "breathing-product",
+        "source": "C:/Users/13984/.codex/worktrees/breathing-product/wristflow",
+        "archive": "D:/MY_Desk/wristflow-archives/2026-10-21/breathing-product.zip",
+        "source_bytes": 957223470,
+        "archive_bytes": 231156627,
+        "archive_sha256": "24a88a74b7013be1cf4f9651c31e346889c55ecf7a4ca8f492d315ad97a58aec",
+        "files": 4352,
+        "removed_at": "2026-10-21T08:48:21.770492+00:00"
+      },
+      {
+        "name": "charger-compare",
+        "source": "C:/Users/13984/.codex/worktrees/charger-compare/wristflow",
+        "archive": "D:/MY_Desk/wristflow-archives/2026-10-21/charger-compare.zip",
+        "source_bytes": 322821565,
+        "archive_bytes": 61866016,
+        "archive_sha256": "8ec88d392ed0dc25f9c293d090151c5711475fe5333bb06f0adcbcf8c9d2408b",
+        "files": 1963,
+        "removed_at": "2026-10-21T08:50:40.180091+00:00"
+      },
+      {
+        "name": "countdown-product",
+        "source": "C:/Users/13984/.codex/worktrees/countdown-product/wristflow",
+        "archive": "D:/MY_Desk/wristflow-archives/2026-10-21/countdown-product.zip",
+        "source_bytes": 861759855,
+        "archive_bytes": 193660165,
+        "archive_sha256": "e8f549891a62447ef9325b400787b2957a370979fa664bbc4a75705b097c554e",
+        "files": 3947,
+        "removed_at": "2026-10-21T08:51:13.009703+00:00"
+      },
+      {
+        "name": "imu-wrist-wake",
+        "source": "C:/Users/13984/.codex/worktrees/imu-wrist-wake/wristflow",
+        "archive": "D:/MY_Desk/wristflow-archives/2026-10-21/imu-wrist-wake.zip",
+        "source_bytes": 1149104285,
+        "archive_bytes": 270778661,
+        "archive_sha256": "dae1ee6750763af5dac24bc372d422c6d4e97fa78c0bd1b29ac566851b09c9c3",
+        "files": 5412,
+        "removed_at": "2026-10-21T08:53:14.392254+00:00"
+      },
+      {
+        "name": "hardware-meter-plan",
+        "source": "D:/MY_Desk/project/wristflow-hardware-meter-plan",
+        "archive": "D:/MY_Desk/wristflow-archives/2026-10-21/hardware-meter-plan.zip",
+        "source_bytes": 1164279042,
+        "archive_bytes": 269725580,
+        "archive_sha256": "e16d48f8be08fa7fa7693be31809792eefa7361468790e3da5b623f478e94ac7",
+        "files": 5604,
+        "removed_at": "2026-10-21T08:54:16.194948+00:00"
+      },
+      {
+        "name": "snapshot-hardware",
+        "source": "D:/MY_Desk/project/wristflow-snapshot-hardware",
+        "archive": "D:/MY_Desk/wristflow-archives/2026-10-21/snapshot-hardware.zip",
+        "source_bytes": 719235646,
+        "archive_bytes": 155403491,
+        "archive_sha256": "36fd01b03495283c298864175d6f059811a79574b179f6d0c1e01f4b42a18f37",
+        "files": 3241,
+        "removed_at": "2026-10-21T08:54:36.777972+00:00"
+      },
+      {
+        "name": "legacy-20261008",
+        "source": "C:/Users/13984/.codex/worktree-archives/wristflow-20261008",
+        "archive": "D:/MY_Desk/wristflow-archives/2026-10-21/legacy-20261008.zip",
+        "source_bytes": 2752229642,
+        "archive_bytes": 677994567,
+        "archive_sha256": "513cb813d6f84c44ad8431bed6d0d9d96d5bbd038a3f6300286099201aab8400",
+        "files": 31814,
+        "removed_at": "2026-10-21T09:02:48.110395+00:00"
+      }
+    ],
+    "retained": "Session/history/SQLite databases, plugins, packages, sandbox binaries, runtime/tool environments, cache/tmp of unknown current ownership, current primary artifacts and old recovery evidence.",
+    "boundary": "Metadata sums exclude reparse targets. Observed delta includes normal live chat changes; not an exact Windows free-space measurement. ZIPs preserve history on D: and still consume disk."
+  },
+  "safety": {
+    "single_allowlisted_root_per_removal": true,
+    "followed_reparse_points": false,
+    "source_and_zip_files_sha256_verified_before_removal": true,
+    "worktrees_removed": 7,
+    "legacy_archive_groups": 12,
+    "empty_name_marker_directories_removed": 26,
+    "dirty_files_independently_verified": 169,
+    "git_admin_zips": 7,
+    "stash_entries_preserved": 2,
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "sdk_lock_changed": false,
+    "current_product_sources_verified": 464,
+    "current_product_artifacts_verified": 29,
+    "current_product_bin": "e5b9c3427f4c802e64b61c9377710a974a27d4c43955919ef658a1d2ed81ba07",
+    "build": false,
+    "flash": false,
+    "serial_open": false
+  },
+  "commands": [
+    "git status --short --branch; git worktree list --porcelain; git branch -avv; gh pr list --state all --limit 200",
+    "git bundle create <backup>/wristflow-all-refs-verified.bundle --all; git bundle verify <bundle>",
+    "python artifacts/workspace-cleanup/20261021/preserve-one-tree.py <one exact name> (8 separate invocations)",
+    "python artifacts/workspace-cleanup/20261021/remove-one-tree.py <one exact name> (8 separate invocations)",
+    "gh pr close 30; gh pr close 39; read back CLOSED (separate commands)",
+    "python artifacts/workspace-cleanup/20261021/cleanup-one-branch.py <one exact branch> [--remote] (52 individual invocations)",
+    "git fetch --prune origin; git ls-remote --heads origin",
+    "python artifacts/workspace-cleanup/20261021/remove-one-empty-marker.py <one exact name> (26 separate invocations)",
+    "python artifacts/preflight-carousel.py --output artifacts/workspace-cleanup/20261021/current-product-verified.json (read-only source/artifact/port inventory; no serial open)"
+  ],
+  "failures": [
+    "Initial git bundle command timed out before finalization; it was rerun in background and verified. Its 11111-byte partial bundle lock was removed as one explicit path after success.",
+    "One remote branch verification returned 404 because local tracking refs were stale; fetch --prune established actual remote inventory before continuing.",
+    "Initial read-only inventory Python inline command had a syntax error and no changes; file-based inventory succeeded.",
+    "git ls-files --ignored crossed shared .tools junctions and emitted long-path warnings; cleanup backups used lstat/scandir without traversing any reparse target instead. No deletion relied on the incomplete ignored-file list."
+  ],
+  "remaining": "History remains recoverable, not merged by cleanup. No build/hardware claim added. Current carousel intermittent root cause, wear accuracy, physical DEEP and power validation remain separate. No restore exercise executed."
+}
