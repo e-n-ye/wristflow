@@ -6,13 +6,14 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import importlib.metadata
-import io
 import json
 import pathlib
 import subprocess
 import sys
 import time
+import threading
+
+from battery_console import Cancelled, Console
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 POLICIES = ("baseline", "retain_30s", "settle_60s", "combined")
@@ -175,24 +176,29 @@ def replay(fixture, output, cc):
 
 class Journal:
     """Flush every transition; interruptions leave evidence, never a silent pass."""
-    def __init__(self, directory, report):
+    def __init__(self, directory, report=None, *, binding=None, mode="rehearsal"):
         self.directory = pathlib.Path(directory).resolve()
         self.directory.mkdir(parents=True, exist_ok=False)
-        self.report_sha = digest(report)
         self.events = []
-        (self.directory / "replay.json").write_bytes(pathlib.Path(report).read_bytes())
-        self.event("created", mode="rehearsal", report_sha256=self.report_sha,
-                   python_version=sys.version,
-                   openhtf_version=importlib.metadata.version("openhtf"))
+        self.lock = threading.RLock()
+        name = "replay.json" if report is not None else "binding.json"
+        if report is not None:
+            (self.directory / name).write_bytes(pathlib.Path(report).read_bytes())
+        else:
+            write_json(self.directory / name, binding)
+        self.report_sha = digest(self.directory / name)
+        self.event("created", mode=mode, report_sha256=self.report_sha,
+                   evidence_name=name, python_version=sys.version)
 
     def event(self, kind, **values):
-        item = {"sequence": len(self.events), "wall_ns": time.time_ns(),
-                "monotonic_ns": time.monotonic_ns(), "kind": kind, **values}
-        with (self.directory / "events.jsonl").open("a", encoding="utf-8") as stream:
-            stream.write(json.dumps(item, ensure_ascii=False) + "\n")
-            stream.flush()
-        self.events.append(item)
-        write_json(self.directory / "progress.json", item)
+        with self.lock:
+            item = {"sequence": len(self.events), "wall_ns": time.time_ns(),
+                    "monotonic_ns": time.monotonic_ns(), "kind": kind, **values}
+            with (self.directory / "events.jsonl").open("a", encoding="utf-8") as stream:
+                stream.write(json.dumps(item, ensure_ascii=False) + "\n")
+                stream.flush()
+            self.events.append(item)
+            write_json(self.directory / "progress.json", item)
 
 
 def read_progress(directory):
@@ -208,7 +214,7 @@ def read_progress(directory):
         if event.get("sequence") != len(events):
             raise ValueError("Journal sequence is incomplete")
         events.append(event)
-    if not events or digest(directory / "replay.json") != events[0]["report_sha256"]:
+    if not events or digest(directory / events[0].get("evidence_name", "replay.json")) != events[0]["report_sha256"]:
         raise ValueError("Missing journal or changed replay evidence")
     last = events[-1]
     return {"state": "incomplete" if partial_tail else
@@ -221,9 +227,6 @@ def guide(report_path, output, port, timeout, scripted=None):
     """OpenHTF rehearsal. Scripted responses are restricted to software tests."""
     import openhtf as htf
     from openhtf.output.callbacks import json_factory
-    from openhtf.output.servers import station_server, web_gui_server
-    from openhtf.plugs import user_input
-    from openhtf.util import conf
 
     if not 0 <= port <= 65535 or not 0 < timeout <= 900:
         raise ValueError("Port must be 0..65535; prompt timeout must be 0..900 seconds")
@@ -232,24 +235,35 @@ def guide(report_path, output, port, timeout, scripted=None):
         raise ValueError("Guide requires an offline replay report")
     journal = Journal(output, report_path)
     responses = iter(scripted) if scripted is not None else None
+    console = None
+    outcome = "passed"
 
-    @htf.plugs.plug(operator=user_input.UserInput)
-    def review(test, operator, phase, message):
-        journal.event("prompt", phase=phase)
+    @htf.PhaseOptions()
+    def review(test, phase, message):
+        nonlocal outcome
         try:
             if responses is None:
-                answer = operator.prompt(message + "\n输入 continue 继续，cancel 取消；本轮为离线演练，勿操作设备。",
-                                         text_input=True, timeout_s=timeout)
+                console.prompt(phase, message + "\n本轮为离线演练，请勿操作设备。", timeout)
             else:
                 answer = next(responses)
                 if answer == "timeout":
-                    raise user_input.PromptUnansweredError()
-            if answer.strip().lower() != "continue":
-                journal.event("cancelled", phase=phase, answer=answer)
-                return htf.PhaseResult.STOP
-            journal.event("confirmed", phase=phase, answer=answer)
-        except user_input.PromptUnansweredError:
+                    raise TimeoutError("Scripted timeout")
+                if answer.strip().lower() != "continue":
+                    raise Cancelled("Scripted cancel")
+                journal.event("confirmed", phase=phase)
+            if console:
+                console.stage(phase, "complete")
+        except Cancelled:
+            outcome = "cancelled"
+            journal.event("cancelled", phase=phase)
+            if console:
+                console.stage(phase, "cancelled")
+            return htf.PhaseResult.STOP
+        except TimeoutError:
+            outcome = "timeout"
             journal.event("timeout", phase=phase)
+            if console:
+                console.stage(phase, "timeout")
             return htf.PhaseResult.STOP
 
     @htf.measures(htf.Measurement("production_rows").equals(report["record_count"] - 1))
@@ -276,47 +290,40 @@ def guide(report_path, output, port, timeout, scripted=None):
             value = json.loads(record_path.read_text(encoding="utf-8"))
             if value["outcome"] != record.outcome.name:
                 raise ValueError("Persisted OpenHTF outcome mismatch")
-            saved.append(value["outcome"])
             journal.event("record_saved", outcome=value["outcome"], sha256=digest(record_path))
+            saved.append(value["outcome"])
         except Exception as exc:
             journal.event("output_error", error=type(exc).__name__, detail=str(exc))
             raise
 
     test.add_output_callbacks(persist_record)
-    try:
-        if scripted is not None:
-            passed = test.execute(test_start=lambda: "offline-rehearsal")
-        else:
-            import tornado.netutil
-            from unittest.mock import patch
-
-            class LocalStation(station_server.StationServer):
-                # OpenHTF 1.6.1 binds all interfaces and announces multicast by
-                # default. This offline bench is local and needs no discovery.
-                def run(self):
-                    web_gui_server.WebGuiServer.run(self)
-
-                def stop(self):
-                    web_gui_server.WebGuiServer.stop(self)
-
-            def bind_local(requested):
-                sockets = tornado.netutil.bind_sockets(requested, address="127.0.0.1")
-                return sockets, sockets[0].getsockname()[1]
-
-            conf.load(station_server_port=str(port))
-            with patch.object(web_gui_server, "bind_port", bind_local):
-                local_server = LocalStation()
-            with local_server as server:
-                print(f"OpenHTF rehearsal: http://127.0.0.1:{server.port}", flush=True)
-                test.add_output_callbacks(server.publish_final_state)
-                # Browser-only operation: Git Bash can report a TTY while its
-                # background stdin is closed. Avoid OpenHTF's console reader.
-                with patch.object(sys, "stdin", io.StringIO("")):
-                    passed = test.execute(test_start=lambda: "offline-rehearsal")
+    def execute():
+        nonlocal outcome
+        passed = test.execute(test_start=lambda: "offline-rehearsal")
         if len(saved) != 1 or (passed and saved[0] != "PASS"):
             raise RuntimeError("OpenHTF final report was not successfully persisted")
-        journal.event("finished", passed=passed, hardware_verified=False)
+        if not passed and outcome == "passed":
+            outcome = "error"
+        if console:
+            outcome = console.seal(outcome)
+            passed = passed and outcome == "passed"
+        journal.event("finished", passed=passed, outcome=outcome, hardware_verified=False)
         return bool(passed)
+
+    try:
+        if scripted is not None:
+            return execute()
+        else:
+            with Console(journal, [("preparation", "准备证据"), ("boundary", "核对窗口"),
+                                   ("result", "判断结果")], port) as console:
+                print(f"Workflow rehearsal: {console.url}", flush=True)
+                try:
+                    passed = execute()
+                    console.finish(outcome, "离线流程结束；未操作设备，详情见已保存的阶段和报告。")
+                    return passed
+                except BaseException:
+                    console.finish("error", "报告或流程异常；请读取保存的事件，不计通过。")
+                    raise
     except BaseException as exc:
         journal.event("interrupted", error=type(exc).__name__, detail=str(exc))
         raise
