@@ -1,5 +1,15 @@
 # 黄山派选型复评
 
+## 2026-10-21 电量限时记录与BAT负载／恢复（有界）
+
+用户继续并确认同板屏、原电池＋电脑USB、松脱电机线固定且人在旁。由`main@b5675f2`进入`codex/battery-load-hardware`，复用B1精确Product`1d6df1a4…`，无源码修改／重编。468源码（464字节同／4仅换行）、29产物、SDK锁／子模块、COM5／禁Modem流控1、retained钩子及DryRun通过；19:14:43开始首次三镜像write+verify，19:17:24退出0。单次150ms RTS捕获启动，RTC实际2000后校真实UTC读回，early禁充verified1后沿用自动充电；0／小时和0／mask0fffff／代次37及已保存腕开启保留。
+
+首段smoke在screen off后start，查询count0使助手断言退出，后来该session1为EXPIRED／count1，失败保留。用户确认UI／触摸／时间正常，临时持续亮屏10分钟并回电池页。无复位／补时接续的session2取得3条完整记录，USB＋hold条件下串口关重开后会话／RTC保留并stop／单页导出成功。随后session3限480秒，allow1并关闭串口，用户拔USB按普通页60秒→白屏90秒→回电池页恢复至8分钟后接回，反馈6分48秒自然息屏并再次唤醒开启常亮。
+
+无复位／补时回读得到session3／EXPIRED／121条，8页完整；98个独立ADC、113条有效估算行。首次PG无输入比start晚58.988秒，至末条实际BAT观察约418.910秒，不冒充8分钟全程曲线。白屏上下文约86.873秒：稳定普通页4156–4159mV／99%，末端白屏4125mV／97%，退出约60秒4148mV、候选98而显示仍97；首次睡醒NO_SEQUENCE→SEED用4143mV直接显示98，仍为无输入／放电mode0。两次OFF／SEED中第二次原因未知；采样缺口、上下文时刻与ADC完成分别保留。支持负载电压恢复及现有滞回／清历史的显示路径，不证明SOC、内阻、净耗电或4.0V附近大幅变化，ADC准确仅沿用用户既有测试。
+
+末读RTC连续、总0／native0／小时和0／代次37及腕开启不变，19:32:59 allow1后关闭COM5；用户确认临时持续亮屏已关闭、显示／触摸／时间正常及步数0。PM enter／exit3与deep_ticks2705仅作软件计数，不证明物理DEEP／功耗。设备操作到此结束，无串表、充电参数修改或额外放电实验。[电量专题](BATTERY-ESTIMATE.md#battery-load-hardware-20261021)解释边界，[设备证据](evidence/2026-10-21/battery-load-hardware.json)保留命令／失败／文件指纹，活动项回STATUS。
+
 ## 2026-10-21 主页轮播候选与短息屏检查（有界）
 
 用户重新确认同一板屏、原电池＋电脑USB、松脱电机线固定且人在旁，授权精确`e5b9c342…`烧录及左右滑／短息屏检查。从`main@fad784a`建立`codex/carousel-scroll-hardware`，无固件源码修改／重编；464源码／29产物、SDK锁与厂商树、COM5／CH340位置1-1.1、禁Modem流控1、DryRun及retained钩子复核。预读RTC当前、总0／小时和0／代次33／clean及腕开启后，15:28:50三镜像write+verify退出0，无整片擦除或显式settings分区写入。启动一次150ms RTS后RTC实际2000，校真实UTC并读回，总量／小时maskffffh／保存代次及腕开启恢复。
