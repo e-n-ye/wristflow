@@ -52,15 +52,21 @@ void wristflow_battery_estimate_diagnosed(wristflow_battery_estimator_t *state,
      * curve or reset history in that gap; consume it after mode is known. */
     if (!mode && (!power->input_valid || power->charge == WF_POWER_CHARGE_UNKNOWN ||
         power->charge == WF_POWER_CHARGE_FAULT)) {
+        state->settling_count = 0;
         report.decision = WF_BATTERY_MODE_UNKNOWN;
         goto done;
     }
     report.mode = mode;
     if (state->seeded && state->mode != mode &&
         state->sequence == power->voltage_sequence && mode != 2U) {
+        state->settling_count = 0;
         report.decision = WF_BATTERY_MODE_WAIT;
         goto done;
     }
+    bool discharge_mode = !mode && power->input_valid && !power->input_good &&
+        (power->charge == WF_POWER_CHARGE_IDLE || power->charge == WF_POWER_CHARGE_STOPPED);
+    if (!discharge_mode || (state->sequence == power->voltage_sequence &&
+        state->sampled_ms != power->voltage_sampled_ms)) state->settling_count = 0;
     report.decision = WF_BATTERY_CACHED;
     if (!state->seeded || state->sequence != power->voltage_sequence || state->mode != mode) {
         uint32_t voltage = (uint32_t)power->millivolts*10U;
@@ -72,11 +78,37 @@ void wristflow_battery_estimate_diagnosed(wristflow_battery_estimator_t *state,
         uint8_t candidate = lookup(state->filtered_decimillivolts, mode == 1U);
         if (candidate > 99U) candidate = 99U; /* Voltage alone never declares FULL. */
         int difference = (int)candidate-(int)state->percent;
-        if (reset || difference >= 2 || difference <= -2 || candidate == 0 || candidate == 99)
+        if (reset || difference >= 2 || difference <= -2 || candidate == 0 || candidate == 99) {
             state->percent = candidate;
+            state->settling_count = 0;
+        } else {
+            uint32_t sequence_step = power->voltage_sequence-state->sequence;
+            uint32_t sample_step = power->voltage_sampled_ms-state->sampled_ms;
+            bool ordered = sequence_step && sequence_step < UINT32_C(0x80000000) &&
+                sample_step && sample_step < UINT32_C(0x80000000);
+            if (discharge_mode && (difference == 1 || difference == -1) && ordered) {
+                /* A candidate needs fresh, ordered ADC support throughout the
+                 * dwell. UI polling and delayed observations never advance it.
+                 * Expiry cancels only the dwell; it never reseeds the filter. */
+                if (!state->settling_count || state->settling_candidate != candidate ||
+                    sample_step > WF_BATTERY_SAMPLE_MAX_AGE_MS) {
+                    state->settling_since_ms = power->voltage_sampled_ms;
+                    state->settling_candidate = candidate;
+                    state->settling_count = 1;
+                } else if (state->settling_count < WF_BATTERY_SETTLE_MIN_SAMPLES) {
+                    ++state->settling_count;
+                }
+                if (state->settling_count >= WF_BATTERY_SETTLE_MIN_SAMPLES &&
+                    power->voltage_sampled_ms-state->settling_since_ms >= WF_BATTERY_SETTLE_MS) {
+                    state->percent = candidate;
+                    state->settling_count = 0;
+                }
+            } else state->settling_count = 0;
+        }
         if (mode == 2U) state->percent = 100;
         state->mode = mode;
         state->sequence = power->voltage_sequence;
+        state->sampled_ms = power->voltage_sampled_ms;
         state->seeded = true;
     }
     power->estimate_valid = true;

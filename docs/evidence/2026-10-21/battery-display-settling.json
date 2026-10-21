@@ -1,0 +1,258 @@
+{
+  "schema": 1,
+  "date": "2026-10-21",
+  "base_commit": "17a9de551cd2165af71b0e6f8c28678bd3b6a42c",
+  "branch": "codex/battery-display-settling",
+  "local_worktree": "D:/MY_Desk/project/wristflow",
+  "scope": "Fix sustained one-point discharge display stall in current production, no sleep retention or capacity calibration.",
+  "source_sha256": {
+    "core/battery_estimate.c": "2e1a5224b06d04523d4fb80910d08b7ba4054b3b5d62e5e0edff6701e9566be3",
+    "core/battery_estimate.h": "29dbfb2c10e0c7b45da36de987c62a019d2a519734653d6fb371fb6fb4432af4",
+    "tests/battery_estimate.c": "8fe74ad2455ef144d04739bdc3f26568b6e9f9f81f49c42e31eba144a54c5009",
+    "scripts/battery_lab.py": "10409f6257fd2c874b0237bd434d7d73ae0a0f75b0f3beb8e99b1d94659a75bb",
+    "scripts/battery_current_replay.c": "0f4239caa9d50385ca20366ae9d7efaca2bc59a38e7e0231252cda9ecbb29e02",
+    "scripts/battery_replay.c": "dec7316e446019fbff43e6ca39b8ba44b20b3f6e8368413c0d16d01da67cd99d",
+    "scripts/battery_policy.h": "57e81d0c3e66f1f1b0904762d750b49a741b6859bc1172283b97a3b13452dfe1",
+    "scripts/battery_policy_lab.py": "2eb15bba117f41eab99c9bacc962c5584b37c6e85ff1f93df2f94afd972cac74",
+    "scripts/battery_baseline_20261021/battery_estimate.c": "112e143c8fe843b78245eb12a2dce27709a414002e8d9788a852a60ed060b697",
+    "scripts/battery_baseline_20261021/battery_estimate.h": "a14b3b53bd528215547175389b6ee4433b430166ccef43a11b35810138dcb32a",
+    "tests/test_battery_production.py": "d1bf0153c2a9f1c94b4e0ab5c398141afc2d26acc660474569d8077b986f01b6"
+  },
+  "policy": {
+    "settle_ms": 60000,
+    "minimum_ordered_new_adc": 3,
+    "maximum_support_gap_ms": 15000,
+    "actual_support_note": "60s with adjacent samples <=15s needs at least five time points; count3 is an additional floor.",
+    "eligible_mode": "input_valid && !input_good && IDLE/STOPPED",
+    "elapsed_basis": "ADC completion times, not UI polling; bounded modular sequence/sample progression.",
+    "reset_pending_on": [
+      "invalid/stale/range/no_sequence",
+      "unknown/fault/input uncertainty",
+      "MODE_WAIT/mode switch",
+      "candidate change or no one-point difference",
+      "support gap >15s",
+      "backwards/reused sequence or sample time",
+      "cached same-sequence timestamp mutation"
+    ],
+    "preserved": [
+      "IIR3:1",
+      "reference tables",
+      "seed/mode seed",
+      "two-point immediate step",
+      "candidate0/99",
+      "validFULL100",
+      "charging behavior",
+      "unknown validity",
+      "ADC/charger/PM and sampling cadence"
+    ],
+    "selection_basis": "Bounded display-response compromise on two fixed traces, not a SOC calibration or optimality claim."
+  },
+  "validation": {
+    "debug": {
+      "command": "cmake --build artifacts/host/native-wrist-wake-debug --parallel 6 && ctest --test-dir artifacts/host/native-wrist-wake-debug --output-on-failure --timeout 60",
+      "tests": 55,
+      "exit_code": 0,
+      "seconds": 23.24
+    },
+    "release": {
+      "command": "cmake -S tests -B artifacts/host/native-wrist-wake-release '-DCMAKE_C_FLAGS_RELEASE=-O3 -DNDEBUG -UNDEBUG' && cmake --build artifacts/host/native-wrist-wake-release --parallel 6 && ctest --test-dir artifacts/host/native-wrist-wake-release -R '^(battery_estimate|product_battery_trace|product_power|product_power_service|charging_ui|product_ui)$' --output-on-failure --timeout 60",
+      "tests": 6,
+      "exit_code": 0,
+      "seconds": 1.26
+    },
+    "tools": {
+      "command": "CC=D:/msys64/ucrt64/bin/gcc.exe uv run --isolated --python 3.12 --with-requirements scripts/requirements-battery-lab.txt python -m unittest discover -s tests -p 'test_battery_*.py' -v",
+      "tests": 86,
+      "exit_code": 0,
+      "seconds": 29.739
+    },
+    "comparison_command": "python scripts/battery_lab.py compare-production --fixture tests/fixtures/<battery-b2-20261021.json|battery-guided-20261021.json> --cc D:/msys64/ucrt64/bin/gcc.exe --out <new-output-directory>",
+    "comparisons": {
+      "b2": {
+        "historical_rows_matched": 120,
+        "display_changed_rows": 40,
+        "all_other_output_fields_unchanged": true,
+        "row65": {
+          "recorded_percent": 97,
+          "current_percent": 98
+        },
+        "warm_start": "Row0 supplies recorded estimator state; settling history starts empty and is unknown before row0.",
+        "valid_display_transitions": [
+          {
+            "index": 37,
+            "adc": 434911,
+            "percent": 97,
+            "surface": 5
+          },
+          {
+            "index": 65,
+            "adc": 560213,
+            "percent": 98,
+            "surface": 9
+          }
+        ]
+      },
+      "guided": {
+        "historical_rows_matched": 109,
+        "display_changed_rows": 58,
+        "all_other_output_fields_unchanged": true,
+        "row65": {
+          "recorded_percent": 97,
+          "current_percent": 98
+        },
+        "warm_start": "Row0 supplies recorded estimator state; settling history starts empty and is unknown before row0.",
+        "valid_display_transitions": [
+          {
+            "index": 28,
+            "adc": 11266097,
+            "percent": 98,
+            "surface": 5
+          },
+          {
+            "index": 45,
+            "adc": 11351097,
+            "percent": 97,
+            "surface": 5
+          },
+          {
+            "index": 65,
+            "adc": 11436297,
+            "percent": 98,
+            "surface": 9
+          }
+        ]
+      }
+    },
+    "historical_matrix_smoke": {
+      "configurations": 18,
+      "historical_checked_rows_per_run": 120,
+      "invalid_rows_unchanged": true,
+      "purpose": "Verify that versioned historical experiment inputs and metadata still use the frozen implementation."
+    },
+    "legacy_baseline": {
+      "commit": "17a9de551cd2165af71b0e6f8c28678bd3b6a42c",
+      "normalized_sha256": {
+        "battery_estimate.c": "112e143c8fe843b78245eb12a2dce27709a414002e8d9788a852a60ed060b697",
+        "battery_estimate.h": "a14b3b53bd528215547175389b6ee4433b430166ccef43a11b35810138dcb32a"
+      },
+      "isolation": "Historical replay/guarded experiments link only frozen sources. Current engine links only core. Neither frozen code nor host wrapper is in either firmware source list."
+    },
+    "independent_review": "Read-only implementation, fixture comparison and final hash audit; no remaining blocker."
+  },
+  "builds": {
+    "product": {
+      "result": "artifacts/product/20261021-230056-732/result.json",
+      "result_sha256": "19bd84a41f76d2ac581a2e7ae8aea9ed8c78d827cbd49c5e3e680eb83d98552b",
+      "build_command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "firmware_sha256": "8a35f2ecd6ea171d335c3c95251c2c609ff6d4e31e1f03a7188f6b370f54e763",
+      "firmware_bytes": 7805836,
+      "sources_rehashed": 468,
+      "artifacts_rehashed": 29,
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+      "warnings": [
+        "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\rtos\\rtthread\\components\\finsh/finsh_api.h:99:21: warning: cast between incompatible function types from 'int (*)(int,  char **)' to 'long int (*)(void)' [-Wcast-function-type]",
+        "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\rtos\\rtthread\\components\\finsh/finsh_api.h:99:21: warning: cast between incompatible function types from 'int (*)(int,  char **)' to 'long int (*)(void)' [-Wcast-function-type]",
+        "D:/MY_Desk/project/wristflow/.tools/sifli/tools/arm-none-eabi-gcc/14.2.1/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld.exe: warning: build_sf32lb52-lchspi-ulp_hcpu\\main.elf has a LOAD segment with RWX permissions",
+        "WARNING: img \"dfu\" not found",
+        "closer.c:(.text._close_r+0xc): warning: _close is not implemented and will always fail",
+        "lseekr.c:(.text._lseek_r+0x10): warning: _lseek is not implemented and will always fail",
+        "readr.c:(.text._read_r+0x10): warning: _read is not implemented and will always fail",
+        "writer.c:(.text._write_r+0x10): warning: _write is not implemented and will always fail",
+        "D:/MY_Desk/project/wristflow/.tools/sifli/tools/arm-none-eabi-gcc/14.2.1/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld.exe: warning: cannot find entry symbol entry; defaulting to 12000000"
+      ]
+    },
+    "ui_demo": {
+      "result": "artifacts/ui_demo/20261021-230228-556/result.json",
+      "result_sha256": "3a1109806e04deb70f6944ed8583ea8df03b1b549dd922700271935a5a15729a",
+      "build_command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "firmware_sha256": "19a4b0a267c15a92fef13a36474dbbe9d0206026fbb24b8d4d5c197b1c5d114b",
+      "firmware_bytes": 7560656,
+      "sources_rehashed": 418,
+      "artifacts_rehashed": 22,
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+      "warnings": [
+        "D:/MY_Desk/project/wristflow/.tools/sifli/tools/arm-none-eabi-gcc/14.2.1/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld.exe: warning: build_sf32lb52-lchspi-ulp_hcpu\\main.elf has a LOAD segment with RWX permissions"
+      ]
+    }
+  },
+  "resources": {
+    "product_battery_estimator_bytes": 24,
+    "old_struct_bytes": 12,
+    "map_basis": "main.map .bss.battery_estimator size0x18; no new timer/worker/Flash or device IO."
+  },
+  "hardware": {
+    "performed": false,
+    "serial_opened": false,
+    "flashed": false,
+    "board_remains": "Previous1d6df1a4 diagnostic BIN, operator last confirmed temporary always-on off, UI/touch/time normal, USB reconnected.",
+    "soc_or_capacity_calibrated": false,
+    "sleep_current_or_lifetime_verified": false
+  },
+  "hardware_capability_choice": "Existing ADC plus vendor reference curves; display policy only. No replacement of a demonstrated built-in hardware SOC algorithm; AW32001 charge regulation unchanged.",
+  "failures_and_limits": [
+    "No failed final build or test; injected framework/report failures in tool tests remain expected assertions.",
+    "Historical baselines are now explicitly versioned; their successful matches do not validate new firmware hardware.",
+    "New display may follow persistent load voltage changes up and down, including98/97 transitions during white-screen load; no monotonic clamp.",
+    "Only new dwell rejects sequence/time disorder. Pre-existing IIR input behavior is otherwise preserved.",
+    "First-row pending history is unavailable; replay starts with no pending dwell.",
+    "Longer/lower-level voltage observations help cover other mapping regions; actual capacity needs known conditions and battery net-current integration. No long discharge started."
+  ],
+  "next_bounded_experiment": "After software integration, validate this exact BIN in a separately confirmed device window. Longer/lower-voltage capacity work and BLE remote testing remain separate; do not repeat full near-full diagnosis solely to rediscover the fixed stall.",
+  "artifacts_sha256": {
+    "artifacts/battery-settling-debug-build.log": "77608c5e383bf461ced96655ef7545c352380c9d94ca5722b7adce6bdb113c8d",
+    "artifacts/battery-settling-debug-tests.log": "0b27d271b1ea63d15c7c7f0296eb0c87737fb31d33198cee3a638f2b64cf1088",
+    "artifacts/battery-settling-release-config.log": "142ecd45b8a9345ec1b00f3f620cd6baa6cead538cda9ec531b9ec2289a92772",
+    "artifacts/battery-settling-release-build.log": "c89d1f19bca3feadb2ba68308bbfc08e3a19f5d01bbc7afcfe5ca54e1b2e7d17",
+    "artifacts/battery-settling-release-tests.log": "0dc23812e276d6b7ca0a58db7de0647ec55546930e73c22f471d4b6a99f20bb8",
+    "artifacts/battery-settling-tools-final.log": "162b49aaa501c44bbbc5e075da2bc8b839d6df076011a29823cafb75595ad0fe",
+    "artifacts/battery-settling-product-build.log": "3d8ee308a0c16bfe078eb6509b5741fed6733ddcdace39f96f39ee5315b31b1e",
+    "artifacts/battery-settling-demo-build.log": "c172fceef8140cb0651515691e1a0532adceabc9b1b89d651b8ed52a2ec617f9",
+    "artifacts/product/20261021-230056-732/result.json": "19bd84a41f76d2ac581a2e7ae8aea9ed8c78d827cbd49c5e3e680eb83d98552b",
+    "artifacts/ui_demo/20261021-230228-556/result.json": "3a1109806e04deb70f6944ed8583ea8df03b1b549dd922700271935a5a15729a",
+    "artifacts/battery-settling-20261021/b2/comparison.json": "774f77b067d69d1f3b770fe1b4b70430488a2450aa34d0fae8296c28d898e940",
+    "artifacts/battery-settling-20261021/b2/predictions.json": "e60bd53696ec7c649381b7a7d5d1bade409bf2a439863f5b557a0c7c6c69948f",
+    "artifacts/battery-settling-20261021/b2/build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "artifacts/battery-settling-20261021/b2/engine-input.txt": "c3547b19b4a6e30f6ea4b565418e145dc70f34192c4bd480f5411595e2432f33",
+    "artifacts/battery-settling-20261021/b2/engine.txt": "948aabae1c3f4c4376ad838fb66b94756c9358019ebeec0c55dc549c09951234",
+    "artifacts/battery-settling-20261021/b2/battery_current_replay.exe": "d03b6425123557c355e1974ce98db5def31765692697b1ca7c6e239a09a5ed98",
+    "artifacts/battery-settling-20261021/b2/historical/replay.json": "91d03e4599c1f5ce4f761a5d2e3b18b8b36d7cde485bea68b1e1d97a2bdbdab6",
+    "artifacts/battery-settling-20261021/b2/historical/predictions.json": "0bf8fb66985e08d0af66495b1647b14c408334acc2b4cf8f13b33d706cc0c7a5",
+    "artifacts/battery-settling-20261021/b2/historical/build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "artifacts/battery-settling-20261021/b2/historical/engine-input.txt": "5eb9a4a5a518534c82ef6306a7e6f902571b12260830704e0b987a2922709ac4",
+    "artifacts/battery-settling-20261021/b2/historical/engine.txt": "7c8038e967fa68913320a4262d02af3fe20bce74751443e1ba430be2b78614df",
+    "artifacts/battery-settling-20261021/b2/historical/battery_replay.exe": "32c64eeb49021c2605ad174368b5d1fcce0472ac0748138f9ad0690f5c89ab8c",
+    "artifacts/battery-settling-20261021/guided/comparison.json": "6c3ca864b5e3904758c8fd0a23b98d3d588a7d751b8dba7ee12aef2303b87ca2",
+    "artifacts/battery-settling-20261021/guided/predictions.json": "c2ed3f6bd08f4834ec5a823845a351a4cf712e57af2fe383d63c97abd0894d3e",
+    "artifacts/battery-settling-20261021/guided/build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "artifacts/battery-settling-20261021/guided/engine-input.txt": "68c6ff5273d92a3c203837bd0111f0d806232a1002f660df4b574199d9069a3e",
+    "artifacts/battery-settling-20261021/guided/engine.txt": "f8d6a535efc2f72e5f9b3bb99ffbede9edc8f736c24130d8f50b57cdc20f68f2",
+    "artifacts/battery-settling-20261021/guided/battery_current_replay.exe": "6bc12e1e1bd969bff1b4ffcec456003d28998f361dce3047adc4c77ffca3fe30",
+    "artifacts/battery-settling-20261021/guided/historical/replay.json": "e5d660c3c5ccbf8713da93446570e1ac87e8dc46a0902037bf7ed5263437347c",
+    "artifacts/battery-settling-20261021/guided/historical/predictions.json": "ef3e948f648f5490c3cbfb0852e14982335ba347efef99e873e8451fc981c6d8",
+    "artifacts/battery-settling-20261021/guided/historical/build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "artifacts/battery-settling-20261021/guided/historical/engine-input.txt": "19b91b09e56a5b651b64d1d2764c3976bb6dbc7012b9e0e6a2b7b04b899cfd51",
+    "artifacts/battery-settling-20261021/guided/historical/engine.txt": "5dcdbcc633e613618ba923600741b11acedd07486cafc1f657279ced1c0a2155",
+    "artifacts/battery-settling-20261021/guided/historical/battery_replay.exe": "7c20f804f79673b3123736f4b7b192365601bff2f0e20461b0df0d7fe473af5c",
+    "artifacts/battery-settling-20261021/historical-matrix/matrix.json": "921e715778e6c3b1fba08810afd28a760b115201df364da7e93f375b24c57197",
+    "artifacts/battery-settling-20261021/historical-matrix/report.md": "be159de03841037abb83b2b7407e53ea49ecb926c9f94b40f60a446cc7c6e6b3",
+    "artifacts/battery-settling-historical-matrix.log": "7e374df8513a2022d3bae82aea3d78dbf1fd1953cc74bb4fd86076ea8b769fde"
+  }
+}
