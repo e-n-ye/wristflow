@@ -1,0 +1,1691 @@
+{
+  "date": "2026-10-22",
+  "topic": "AOD A0 CO5300 native Idle hardware observations",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/aod-panel-hardware",
+  "source_commit": "f73342dc8dc84bf0029e16404491dd904701e39d",
+  "software_evidence": "docs/evidence/2026-10-22/aod-panel-probe.json",
+  "authorization": {
+    "conditions": "Same Huangshan board/screen; original battery plus PC USB; loose wires secured; operator present",
+    "initial_scope": "Flash exact A0 image; one 30-second static/automatic restore window and one KEY1 cancellation; no current measurement",
+    "retry": "Operator explicitly agreed to supplement after the collector malformed-line failure",
+    "recovery": "Operator explicitly allowed one150ms RTS reset retaining firmware, startup/status capture and time correction only if required",
+    "stack_candidate": "Operator separately allowed flashing the16KiB candidate, startup capture/time correction if necessary and consolidated touch/scroll/short-sleep/stack-watermark checks"
+  },
+  "source_and_build": {
+    "firmware_source_changes": false,
+    "firmware_rebuilt": false,
+    "scope": "Original971a955b panel/recovery stage only; later16KiB configuration build/flash is separately recorded under stack_candidate",
+    "preflight": {
+      "at": "2026-10-22T13:45:20.547463+00:00",
+      "build_record": "D:\\MY_Desk\\project\\wristflow\\artifacts\\product\\20261022-213241-312\\result.json",
+      "build_record_sha256": "a2d0a80bddbb37ba9074f869dad6252a7fabdb8e6e09e64358cb8253885e66b3",
+      "groups": {
+        "project_sources": {
+          "count": 508,
+          "newline_only": [
+            "D:\\MY_Desk\\project\\wristflow\\apps\\product\\src\\aod_panel_probe.c",
+            "D:\\MY_Desk\\project\\wristflow\\apps\\product\\src\\aod_panel_probe.h"
+          ],
+          "mismatches": []
+        },
+        "artifacts": {
+          "count": 29,
+          "newline_only": [],
+          "mismatches": []
+        }
+      },
+      "sdk_lock_clean": true,
+      "head": "f73342dc8dc84bf0029e16404491dd904701e39d",
+      "branch": "codex/aod-panel-hardware",
+      "endpoint": {
+        "device": "COM5",
+        "vid": 6790,
+        "pid": 29987,
+        "location": "1-1.1",
+        "serial_number": "",
+        "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+        "disable_modem": 1
+      },
+      "main_bin_sha256": "971a955b5fd700e7146addd19875139ebe7858e5d3f73e1b076d684b44ab5bef"
+    },
+    "flash": {
+      "endpoint": {
+        "device": "COM5",
+        "vid": 6790,
+        "pid": 29987,
+        "location": "1-1.1",
+        "serial_number": "",
+        "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+        "disable_modem": 1
+      },
+      "bin_sha256": "971a955b5fd700e7146addd19875139ebe7858e5d3f73e1b076d684b44ab5bef",
+      "started": "2026-10-22T13:49:21.850557+00:00",
+      "command": [
+        "pwsh",
+        "-NoProfile",
+        "-File",
+        "scripts/Flash.ps1",
+        "-Example",
+        "product",
+        "-Port",
+        "COM5"
+      ],
+      "exit_code": 0,
+      "closed": "2026-10-22T13:52:07.356089+00:00"
+    },
+    "native_path": "Locked CO5300 Idle 39h/38h and brightness 51h; LVGL submissions frozen, normal IDLE ownership retained",
+    "meaning": "GET_STATE and GET_BRIGHTNESS are SDK caches; not chip-register readback or photometry"
+  },
+  "tools": {
+    "sdk_python": "3.13.15",
+    "pyserial": "3.5",
+    "reset": "Initial startup, separately authorized recovery-001 and stack-startup each use one150ms RTS pulse",
+    "time": "Initial and stack-startup RTC actually2000 and explicitly calibrated. Panel probes did not reset or set time. Recovery phone automatically synchronized RTC before show_date; that helper sent no wf_time"
+  },
+  "sessions": {
+    "before": {
+      "error": "AssertionError('Hold not confirmed')",
+      "reset_once": false,
+      "reboot": false,
+      "closed": "2026-10-22T13:46:08.728169+00:00",
+      "events": [
+        {
+          "at": "2026-10-22T13:45:52.613839+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:45:53.458523+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:45:54.080109+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:45:54.728215+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:45:55.392204+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:45:55.993007+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:45:56.653838+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:45:57.279300+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:45:57.925764+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:45:58.533712+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:45:59.192559+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:45:59.851744+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:46:00.505235+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:46:01.159078+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:46:01.805376+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:46:02.444851+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:46:03.048372+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:46:03.662320+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:46:04.278783+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:46:04.927001+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:46:05.540265+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:46:06.199840+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:46:06.870164+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-22T13:46:07.700232+00:00",
+          "command": "wf_pm allow"
+        }
+      ]
+    },
+    "before-awake": {
+      "error": null,
+      "reset_once": false,
+      "reboot": false,
+      "closed": "2026-10-22T13:47:02.321724+00:00",
+      "events": [
+        {
+          "at": "2026-10-22T13:46:52.594577+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:46:53.395599+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-22T13:46:54.218907+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-22T13:46:55.067971+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-22T13:46:56.098035+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-22T13:46:57.186601+00:00",
+          "command": "wf_battery status"
+        },
+        {
+          "at": "2026-10-22T13:46:58.234281+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-22T13:46:59.235118+00:00",
+          "command": "wf_ble status"
+        },
+        {
+          "at": "2026-10-22T13:47:00.283947+00:00",
+          "command": "wf_ble radio"
+        },
+        {
+          "at": "2026-10-22T13:47:01.288284+00:00",
+          "command": "wf_pm allow"
+        }
+      ]
+    },
+    "startup": {
+      "error": null,
+      "reset_once": true,
+      "reboot": false,
+      "closed": "2026-10-22T13:53:42.707964+00:00",
+      "events": [
+        {
+          "at": "2026-10-22T13:53:26.175346+00:00",
+          "reset_once_ms": 150
+        },
+        {
+          "at": "2026-10-22T13:53:31.367175+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:53:32.207453+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-22T13:53:33.060139+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-22T13:53:33.876388+00:00",
+          "command": "wf_time 1792677213"
+        },
+        {
+          "at": "2026-10-22T13:53:34.700044+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-22T13:53:35.556376+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-22T13:53:36.557843+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-22T13:53:37.591826+00:00",
+          "command": "wf_battery status"
+        },
+        {
+          "at": "2026-10-22T13:53:38.609456+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-22T13:53:39.632406+00:00",
+          "command": "wf_ble status"
+        },
+        {
+          "at": "2026-10-22T13:53:40.658152+00:00",
+          "command": "wf_ble radio"
+        },
+        {
+          "at": "2026-10-22T13:53:41.670359+00:00",
+          "command": "wf_pm allow"
+        }
+      ]
+    },
+    "auto": {
+      "mode": "auto",
+      "error": null,
+      "reset": false,
+      "clock_change": false,
+      "start_attempted": true,
+      "started": true,
+      "restored": true,
+      "cleanup_verified": true,
+      "closed": "2026-10-22T13:57:21.120779+00:00",
+      "events": [
+        {
+          "at": "2026-10-22T13:56:33.555732+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:56:34.371285+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-22T13:56:41.213873+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:56:42.112385+00:00",
+          "command": "wf_aod start 30"
+        },
+        {
+          "at": "2026-10-22T13:56:42.945849+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:56:45.001283+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:56:47.079557+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:56:49.163309+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:56:51.239605+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:56:53.283741+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:56:55.333591+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:56:57.398974+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:56:59.473034+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:57:01.516150+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:57:03.613043+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:57:05.727264+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:57:07.815814+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:57:09.878491+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:57:11.968384+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:57:14.060948+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:57:14.917035+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-22T13:57:15.933956+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-22T13:57:16.945543+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-22T13:57:17.996983+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-22T13:57:19.037247+00:00",
+          "command": "wf_ble radio"
+        },
+        {
+          "at": "2026-10-22T13:57:20.096583+00:00",
+          "command": "wf_pm allow"
+        }
+      ],
+      "first_status": {
+        "phase": 0,
+        "reserved": 0,
+        "queued": 0,
+        "available": 1,
+        "valid": 0,
+        "restore_pending": 0,
+        "restored": 0,
+        "start_ms": 0,
+        "elapsed_ms": 0,
+        "duration_ms": 0,
+        "events": 0,
+        "observations": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "at": "2026-10-22T13:56:42.112342+00:00"
+      },
+      "final_status": {
+        "phase": 2,
+        "reserved": 0,
+        "queued": 0,
+        "available": 1,
+        "valid": 7,
+        "restore_pending": 0,
+        "restored": 1,
+        "start_ms": 193627,
+        "elapsed_ms": 30001,
+        "duration_ms": 30000,
+        "events": 0,
+        "observations": [
+          1,
+          55,
+          2,
+          5,
+          1,
+          55
+        ],
+        "at": "2026-10-22T13:57:14.916961+00:00"
+      },
+      "status_count": 17
+    },
+    "key": {
+      "mode": "key",
+      "error": "AssertionError('AOD detail missing')",
+      "reset": false,
+      "clock_change": false,
+      "start_attempted": true,
+      "started": true,
+      "restored": true,
+      "cleanup_verified": true,
+      "closed": "2026-10-22T13:59:41.783447+00:00",
+      "events": [
+        {
+          "at": "2026-10-22T13:59:26.033941+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T13:59:26.872112+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-22T13:59:33.723207+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:59:34.566175+00:00",
+          "command": "wf_aod start 30"
+        },
+        {
+          "at": "2026-10-22T13:59:35.419286+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:59:37.494006+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:59:38.330591+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:59:39.136240+00:00",
+          "command": "wf_aod stop"
+        },
+        {
+          "at": "2026-10-22T13:59:39.946687+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T13:59:40.777086+00:00",
+          "command": "wf_pm allow"
+        }
+      ],
+      "first_status": {
+        "phase": 2,
+        "reserved": 0,
+        "queued": 0,
+        "available": 1,
+        "valid": 7,
+        "restore_pending": 0,
+        "restored": 1,
+        "start_ms": 193627,
+        "elapsed_ms": 30001,
+        "duration_ms": 30000,
+        "events": 0,
+        "observations": [
+          1,
+          55,
+          2,
+          5,
+          1,
+          55
+        ],
+        "at": "2026-10-22T13:59:34.566134+00:00"
+      },
+      "final_status": {
+        "phase": 3,
+        "reserved": 0,
+        "queued": 0,
+        "available": 1,
+        "valid": 7,
+        "restore_pending": 0,
+        "restored": 1,
+        "start_ms": 366055,
+        "elapsed_ms": 4568,
+        "duration_ms": 30000,
+        "events": 0,
+        "observations": [
+          1,
+          55,
+          2,
+          5,
+          1,
+          55
+        ],
+        "at": "2026-10-22T13:59:40.777030+00:00"
+      },
+      "status_count": 4
+    },
+    "auto-retry": {
+      "mode": "auto",
+      "error": "AssertionError({'phase': 3, 'reserved': 0, 'queued': 0, 'available': 1, 'valid': 7, 'restore_pending': 0, 'restored': 1, 'start_ms': 907411, 'elapsed_ms': 5935, 'duration_ms': 30000, 'events': 128, 'observations': [1, 55, 2, 5, 1, 55], 'at': '2026-10-22T14:08:42.978658+00:00'})",
+      "reset": false,
+      "clock_change": false,
+      "start_attempted": true,
+      "started": true,
+      "restored": true,
+      "cleanup_verified": false,
+      "closed": "2026-10-22T14:08:44.024033+00:00",
+      "helper_sha256": {
+        "probe.py": "d4a47b77b3c2b7746e6687d82765d35043c8897eaaf0a4ab8ea94901afa3911c",
+        "aod_status.py": "4619fcbb5a15883e161459d0c2a77516192526e1e620105209c9d5970e554519"
+      },
+      "status_errors": [],
+      "events": [
+        {
+          "at": "2026-10-22T14:08:27.235067+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T14:08:28.056449+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-22T14:08:34.874540+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T14:08:35.898587+00:00",
+          "command": "wf_aod start 30"
+        },
+        {
+          "at": "2026-10-22T14:08:36.750800+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T14:08:41.940237+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T14:08:42.978775+00:00",
+          "command": "wf_pm allow"
+        }
+      ],
+      "first_status": {
+        "phase": 3,
+        "reserved": 0,
+        "queued": 0,
+        "available": 1,
+        "valid": 7,
+        "restore_pending": 0,
+        "restored": 1,
+        "start_ms": 366055,
+        "elapsed_ms": 4568,
+        "duration_ms": 30000,
+        "events": 0,
+        "observations": [
+          1,
+          55,
+          2,
+          5,
+          1,
+          55
+        ],
+        "at": "2026-10-22T14:08:35.898551+00:00"
+      },
+      "final_status": {
+        "phase": 3,
+        "reserved": 0,
+        "queued": 0,
+        "available": 1,
+        "valid": 7,
+        "restore_pending": 0,
+        "restored": 1,
+        "start_ms": 907411,
+        "elapsed_ms": 5935,
+        "duration_ms": 30000,
+        "events": 128,
+        "observations": [
+          1,
+          55,
+          2,
+          5,
+          1,
+          55
+        ],
+        "at": "2026-10-22T14:08:42.978658+00:00"
+      },
+      "status_count": 3
+    },
+    "auto-isolated-2": {
+      "mode": "auto",
+      "error": null,
+      "reset": false,
+      "clock_change": false,
+      "start_attempted": true,
+      "started": true,
+      "restored": true,
+      "cleanup_verified": true,
+      "closed": "2026-10-22T14:28:26.134652+00:00",
+      "helper_sha256": {
+        "probe.py": "fb02cf02b158b925201f270bfd1cfe4cd4f08f2c01cf996eac37a7f7b8b61add",
+        "aod_status.py": "4619fcbb5a15883e161459d0c2a77516192526e1e620105209c9d5970e554519"
+      },
+      "status_errors": [],
+      "events": [
+        {
+          "at": "2026-10-22T14:27:39.374477+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T14:27:40.230426+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-22T14:27:47.094160+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T14:27:48.133283+00:00",
+          "command": "wf_aod start 30"
+        },
+        {
+          "at": "2026-10-22T14:27:48.935331+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T14:28:18.846926+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T14:28:19.881003+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-22T14:28:20.893243+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-22T14:28:21.939443+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-22T14:28:22.999770+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-22T14:28:24.035456+00:00",
+          "command": "wf_ble radio"
+        },
+        {
+          "at": "2026-10-22T14:28:25.096052+00:00",
+          "command": "wf_pm allow"
+        }
+      ],
+      "first_status": {
+        "phase": 3,
+        "reserved": 0,
+        "queued": 0,
+        "available": 1,
+        "valid": 7,
+        "restore_pending": 0,
+        "restored": 1,
+        "start_ms": 907411,
+        "elapsed_ms": 5935,
+        "duration_ms": 30000,
+        "events": 128,
+        "observations": [
+          1,
+          55,
+          2,
+          5,
+          1,
+          55
+        ],
+        "at": "2026-10-22T14:27:48.133230+00:00"
+      },
+      "final_status": {
+        "phase": 2,
+        "reserved": 0,
+        "queued": 0,
+        "available": 1,
+        "valid": 7,
+        "restore_pending": 0,
+        "restored": 1,
+        "start_ms": 2059670,
+        "elapsed_ms": 30001,
+        "duration_ms": 30000,
+        "events": 0,
+        "observations": [
+          1,
+          55,
+          2,
+          5,
+          1,
+          55
+        ],
+        "at": "2026-10-22T14:28:19.880968+00:00"
+      },
+      "status_count": 3
+    },
+    "key-isolated": {
+      "mode": "key",
+      "error": null,
+      "reset": false,
+      "clock_change": false,
+      "start_attempted": true,
+      "started": true,
+      "restored": true,
+      "cleanup_verified": true,
+      "closed": "2026-10-22T14:30:32.636242+00:00",
+      "helper_sha256": {
+        "probe.py": "fb02cf02b158b925201f270bfd1cfe4cd4f08f2c01cf996eac37a7f7b8b61add",
+        "aod_status.py": "4619fcbb5a15883e161459d0c2a77516192526e1e620105209c9d5970e554519"
+      },
+      "status_errors": [],
+      "events": [
+        {
+          "at": "2026-10-22T14:30:10.688484+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T14:30:11.524035+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-22T14:30:18.400030+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T14:30:19.412167+00:00",
+          "command": "wf_aod start 30"
+        },
+        {
+          "at": "2026-10-22T14:30:20.264882+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T14:30:25.443827+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T14:30:26.469832+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-22T14:30:27.485174+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-22T14:30:28.507433+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-22T14:30:29.550238+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-22T14:30:30.596195+00:00",
+          "command": "wf_ble radio"
+        },
+        {
+          "at": "2026-10-22T14:30:31.597479+00:00",
+          "command": "wf_pm allow"
+        }
+      ],
+      "first_status": {
+        "phase": 2,
+        "reserved": 0,
+        "queued": 0,
+        "available": 1,
+        "valid": 7,
+        "restore_pending": 0,
+        "restored": 1,
+        "start_ms": 2059670,
+        "elapsed_ms": 30001,
+        "duration_ms": 30000,
+        "events": 0,
+        "observations": [
+          1,
+          55,
+          2,
+          5,
+          1,
+          55
+        ],
+        "at": "2026-10-22T14:30:19.412143+00:00"
+      },
+      "final_status": {
+        "phase": 3,
+        "reserved": 0,
+        "queued": 0,
+        "available": 1,
+        "valid": 7,
+        "restore_pending": 0,
+        "restored": 1,
+        "start_ms": 2211004,
+        "elapsed_ms": 5076,
+        "duration_ms": 30000,
+        "events": 0,
+        "observations": [
+          1,
+          55,
+          2,
+          5,
+          1,
+          55
+        ],
+        "at": "2026-10-22T14:30:26.469778+00:00"
+      },
+      "status_count": 3
+    },
+    "freeze": {
+      "error": null,
+      "reset": false,
+      "clock_change": false,
+      "closed": "2026-10-22T14:33:08.252639+00:00",
+      "read_only": true,
+      "hold": false,
+      "events": [
+        {
+          "at": "2026-10-22T14:32:57.604053+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T14:32:58.815982+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-22T14:33:00.026496+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T14:33:01.249171+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-22T14:33:02.476418+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-22T14:33:03.695812+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-22T14:33:04.959741+00:00",
+          "command": "wf_ble radio"
+        }
+      ]
+    },
+    "freeze-key-wake": {
+      "error": null,
+      "reset": false,
+      "clock_change": false,
+      "closed": "2026-10-22T14:36:18.298834+00:00",
+      "read_only": true,
+      "hold": false,
+      "saw_uart_data": false,
+      "events": []
+    },
+    "recovery-001": {
+      "error": null,
+      "reset_once": true,
+      "reboot": false,
+      "closed": "2026-10-22T14:53:17.816765+00:00",
+      "events": [
+        {
+          "at": "2026-10-22T14:53:02.848235+00:00",
+          "reset_once_ms": 150
+        },
+        {
+          "at": "2026-10-22T14:53:08.026656+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T14:53:08.876293+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-22T14:53:09.683100+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-22T14:53:10.539668+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-22T14:53:11.581449+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-22T14:53:12.619280+00:00",
+          "command": "wf_battery status"
+        },
+        {
+          "at": "2026-10-22T14:53:13.678412+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-22T14:53:14.730112+00:00",
+          "command": "wf_ble status"
+        },
+        {
+          "at": "2026-10-22T14:53:15.741834+00:00",
+          "command": "wf_ble radio"
+        },
+        {
+          "at": "2026-10-22T14:53:16.796112+00:00",
+          "command": "wf_pm allow"
+        }
+      ]
+    },
+    "recovery-observe-001": {
+      "error": null,
+      "reset": false,
+      "clock_change": false,
+      "started": "2026-10-22T14:55:25.177451+00:00",
+      "closed": "2026-10-22T14:58:25.204323+00:00",
+      "helper_sha256": "3d57f6ca6053ad3f0e30fa9f41170c40c8ab164c386d843d448f8073f95b7bed",
+      "read_only": true,
+      "hold": false,
+      "uart_bytes": 2373,
+      "duration_seconds": 180,
+      "events": []
+    },
+    "stack-startup": {
+      "error": null,
+      "reset_once": true,
+      "reboot": false,
+      "closed": "2026-10-22T15:17:00.640807+00:00",
+      "events": [
+        {
+          "at": "2026-10-22T15:16:43.987843+00:00",
+          "reset_once_ms": 150
+        },
+        {
+          "at": "2026-10-22T15:16:49.175868+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T15:16:49.994809+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-22T15:16:50.816743+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-22T15:16:51.686412+00:00",
+          "command": "wf_time 1792682211"
+        },
+        {
+          "at": "2026-10-22T15:16:52.547040+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-22T15:16:53.395451+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-22T15:16:54.452542+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-22T15:16:55.470182+00:00",
+          "command": "wf_battery status"
+        },
+        {
+          "at": "2026-10-22T15:16:56.485304+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-22T15:16:57.548929+00:00",
+          "command": "wf_ble status"
+        },
+        {
+          "at": "2026-10-22T15:16:58.589008+00:00",
+          "command": "wf_ble radio"
+        },
+        {
+          "at": "2026-10-22T15:16:59.633450+00:00",
+          "command": "wf_pm allow"
+        }
+      ]
+    },
+    "stack-observe-001": {
+      "error": null,
+      "reset": false,
+      "clock_change": false,
+      "started": "2026-10-22T15:18:25.020099+00:00",
+      "closed": "2026-10-22T15:21:26.907397+00:00",
+      "helper_sha256": "f38738cd8246042a9c125eec534d936d8eba4b97e4907eb7322647186e2d9b15",
+      "read_only": true,
+      "hold": false,
+      "uart_bytes": 11245,
+      "wake_snapshots": 1,
+      "stopped_by_request": true,
+      "events": [
+        {
+          "at": "2026-10-22T15:19:06.275433+00:00",
+          "command": "wf_aod status",
+          "wake_snapshot": 1
+        },
+        {
+          "at": "2026-10-22T15:19:07.200946+00:00",
+          "command": "wf_ui status",
+          "wake_snapshot": 1
+        },
+        {
+          "at": "2026-10-22T15:19:08.154066+00:00",
+          "command": "wf_steps status",
+          "wake_snapshot": 1
+        },
+        {
+          "at": "2026-10-22T15:19:09.112668+00:00",
+          "command": "wf_wrist status",
+          "wake_snapshot": 1
+        },
+        {
+          "at": "2026-10-22T15:19:10.033712+00:00",
+          "command": "wf_pm status",
+          "wake_snapshot": 1
+        },
+        {
+          "at": "2026-10-22T15:19:10.982286+00:00",
+          "command": "list_thread",
+          "wake_snapshot": 1
+        },
+        {
+          "at": "2026-10-22T15:19:11.924540+00:00",
+          "command": "list_mem",
+          "wake_snapshot": 1
+        }
+      ]
+    },
+    "stack-final": {
+      "error": null,
+      "reset": false,
+      "clock_change": false,
+      "closed": "2026-10-22T15:22:32.609578+00:00",
+      "read_only": true,
+      "hold": false,
+      "uart_bytes": 6388,
+      "events": [
+        {
+          "at": "2026-10-22T15:22:25.135680+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-22T15:22:26.095406+00:00",
+          "command": "list_thread"
+        },
+        {
+          "at": "2026-10-22T15:22:27.018171+00:00",
+          "command": "list_mem"
+        },
+        {
+          "at": "2026-10-22T15:22:27.958609+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-22T15:22:28.871398+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-22T15:22:29.798795+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-22T15:22:30.727814+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-22T15:22:31.664438+00:00",
+          "command": "wf_wrist status"
+        }
+      ]
+    }
+  },
+  "pre_start_failures": [
+    {
+      "attempt": "auto-isolated",
+      "error": "Serial endpoint is missing or ambiguous",
+      "facts": "port_identity rejected COM5 before SerialTransport.open, PortLease, PM hold or start. A separate port enumeration found only Bluetooth COM3/COM4. Empty output directory and original traceback preserved",
+      "operator_preparation": "Operator had confirmed wrist wake temporarily off and ready; requested USB reconnection check before any new attempt"
+    }
+  ],
+  "interpretation": {
+    "auto": "SDK DONE at 30001ms/events0, cache NORMAL55 -> IDLE5 -> NORMAL55; operator did not notice dimming, physical static observation inconclusive",
+    "key": "Operator saw dimming but did not press KEY. Actual malformed report caused helper error, then explicit stop; CANCELLED at4568ms/events0. Not evidence of touch wake or KEY cancellation",
+    "auto-retry": "CANCELLED at5935ms/events0x80, cache restored55. Native wrist source event85h/axes40h followed; helper sent no stop. Not a 30-second static pass",
+    "cleanup_note": "auto-retry recorded cleanup_verified=false because the old helper assigned it only after outcome assertions. The complete terminal status actually has reserved0/restore_pending0/restored1; allow1 and port close are logged. The later helper separates cleanup from outcome",
+    "auto-isolated-2": "With wrist wake temporarily disabled, DONE at30001ms/events0; NORMAL55 -> IDLE5 -> NORMAL55, reserved0/restore_pending0/restored1, no collector stop. Operator confirmed stable dim picture and automatic restore",
+    "key-isolated": "CANCELLED at5076ms/events0, restored55, reserved0/restore_pending0/restored1, no collector stop. Operator confirmed one KEY restored display and release did not navigate; stable HOME page0 after window",
+    "steps_fault": "Both isolated postreads report daily phase4/end3/io_errors1/sample1407569/stop_verified1, valid0/partial1, checkpoint total0/generation64. The fault sample predates both isolated starts; no failed bus transaction captured and AOD causation unknown",
+    "freeze": "After panel windows, operator reported frozen between HOME and the left page, touch unresponsive; photo preserved. Seven read-only queries produced zero UART bytes. One operator short KEY left picture unchanged; separate90s passive wait produced zero bytes and sent no commands. Both sessions closed normally, no PM hold/reset/clock change",
+    "acceptance": "Two bounded panel observations passed; whole-device closeout failed. Wrist preference and temporary-awake restoration not confirmed",
+    "recovery-001": "Single authorized RTS150ms at2026-10-22T14:53:02.848235Z; original firmware retained. Storage restored, steps valid1/native0/io_errors0, checkpoint total0/generation64; wrist requested0/armed0. Phone set current UTC before show_date, no host wf_time. allow1/off1/own_idle0/sdk_idle0 and closed14:53:17.816765Z",
+    "recovery-observe-001": "Passive180s capture, no commands/reset/PM/time writes,2373 UART bytes. KEY1 -> touch Power up done -> screen on -> thread:main stack overflow. Main pri19/ready/SP0x2003d680/top0x2003f690/size0x2000/max100%. SDK top is stack_addr+size-4, so SP20B below stack bottom. Scheduler fatal path disables interrupts and waits. User reports lit display but touch unavailable",
+    "causation": "This reset session never started AOD and captures actual main-stack overflow after ordinary KEY wake. It explains this post-reset halt but does not prove the original zero-byte freeze or earlier IMU fault had the same cause. Deepest call chain and corruption not excluded"
+  },
+  "user_observations": [
+    {
+      "window": "startup",
+      "quote": "均正常，已开启10分钟常亮并平放在主表盘"
+    },
+    {
+      "window": "auto",
+      "quote": "没有看到变暗，现在屏幕都是显示正常，位于主表盘，可能是我没注意"
+    },
+    {
+      "window": "key",
+      "quote": "看到了变暗，但是好像没按key就恢复了，好像是触屏导致的变亮"
+    },
+    {
+      "window": "retry_preparation",
+      "quote": "已准备好，可以补做"
+    },
+    {
+      "window": "isolation_preparation",
+      "quote": "已暂关抬腕并准备好，继续"
+    },
+    {
+      "window": "auto-isolated-2",
+      "quote": "低亮保持正常，约30秒后自动恢复"
+    },
+    {
+      "window": "key-isolated",
+      "quote": "按KEY1后恢复，仍在主表盘且未进菜单"
+    },
+    {
+      "window": "freeze",
+      "quote": "当前手表卡死了，在表盘页面和表盘左边的页面中间"
+    },
+    {
+      "window": "freeze-photo",
+      "quote": "如图，触摸无反应"
+    },
+    {
+      "window": "freeze-key-wake",
+      "quote": "短按后仍卡住，没有变化"
+    },
+    {
+      "window": "continuation",
+      "quote": "当前设备还处于卡死状态"
+    },
+    {
+      "window": "recovery_authorization",
+      "quote": "允许一次复位并采集，必要时校时"
+    },
+    {
+      "window": "recovery-observe-001",
+      "quote": "亮屏后，无法触屏"
+    },
+    {
+      "window": "stack_candidate_authorization",
+      "quote": "允许烧录并做集中恢复检查"
+    },
+    {
+      "window": "stack_consolidated_recovery",
+      "quote": "全部正常，抬腕开启、常亮关闭"
+    }
+  ],
+  "collector_fix": {
+    "scope": "Local ignored helper only; firmware unchanged",
+    "behavior": "Each status response parsed independently, one bounded re-read on malformed response; start never repeated; running window passively listens; terminal bound to start_ms; original errors retained; uncertain owned operation stopped before PM release",
+    "offline_checks": "10 checks replay actual complete/malformed reports and reject duplicate, missing and foreign-window reports; py_compile passed; read-only Sol/medium review found no definite blocker",
+    "commands": [
+      "SDK Python artifacts/aod-hardware-20261022/verify_status.py",
+      "SDK Python -m py_compile probe.py aod_status.py"
+    ]
+  },
+  "stack_candidate": {
+    "scope": "No AOD starts on the new16KiB candidate. Original AOD panel windows remain evidence for971a955b only; same-candidate panel regression and longer stability deferred",
+    "preflight": {
+      "at": "2026-10-22T15:08:43.939812+00:00",
+      "build_record": "D:\\MY_Desk\\project\\wristflow\\artifacts\\product\\20261022-230404-769\\result.json",
+      "build_record_sha256": "7604733cae5934b2257bfc82672e6e1fa22e2eae44db3559390e808e3383d2f4",
+      "groups": {
+        "project_sources": {
+          "count": 508,
+          "mismatches": []
+        },
+        "artifacts": {
+          "count": 29,
+          "mismatches": []
+        }
+      },
+      "sdk_lock_clean": true,
+      "head": "f73342dc8dc84bf0029e16404491dd904701e39d",
+      "branch": "codex/aod-panel-hardware",
+      "endpoint": {
+        "device": "COM5",
+        "vid": 6790,
+        "pid": 29987,
+        "location": "1-1.1",
+        "serial_number": "",
+        "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+        "disable_modem": 1
+      },
+      "main_stack_bytes": 16384,
+      "overflow_check": true,
+      "main_bin_sha256": "e3bc20585f48ac6a4d54a3da2c7bbeb4e2c431b7d4a8e929c5ac6b07df083b4d"
+    },
+    "comparison": {
+      "old_record": "artifacts/product/20261022-213241-312/result.json",
+      "candidate_record": "artifacts/product/20261022-230404-769/result.json",
+      "byte_identical": 505,
+      "newline_only": [
+        "D:\\MY_Desk\\project\\wristflow\\apps\\product\\src\\aod_panel_probe.c",
+        "D:\\MY_Desk\\project\\wristflow\\apps\\product\\src\\aod_panel_probe.h"
+      ],
+      "semantic_changes": [
+        "apps\\product\\project\\proj.conf"
+      ],
+      "firmware_bytes": 7973872,
+      "firmware_sha256": "e3bc20585f48ac6a4d54a3da2c7bbeb4e2c431b7d4a8e929c5ac6b07df083b4d",
+      "result_sha256": "7604733cae5934b2257bfc82672e6e1fa22e2eae44db3559390e808e3383d2f4",
+      "note": "Product configuration only; runtime stack margin remains unverified until same-BIN hardware test"
+    },
+    "build_command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 4",
+    "dryrun_command": "pwsh -NoProfile -File scripts/Flash.ps1 -Example product -Port COM5 -DryRun",
+    "validation": "Both commands exit0; generated stack16384/overflow_check1; source/config-only change, no host behavioral tests applicable; independent read-only review found no download blocker",
+    "flash": {
+      "endpoint": {
+        "device": "COM5",
+        "vid": 6790,
+        "pid": 29987,
+        "location": "1-1.1",
+        "serial_number": "",
+        "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+        "disable_modem": 1
+      },
+      "bin_sha256": "e3bc20585f48ac6a4d54a3da2c7bbeb4e2c431b7d4a8e929c5ac6b07df083b4d",
+      "started": "2026-10-22T15:12:50.419303+00:00",
+      "command": [
+        "pwsh",
+        "-NoProfile",
+        "-File",
+        "scripts/Flash.ps1",
+        "-Example",
+        "product",
+        "-Port",
+        "COM5"
+      ],
+      "exit_code": 0,
+      "closed": "2026-10-22T15:15:35.263413+00:00"
+    },
+    "hardware": "Candidate write+verify exit0 at15:12:50-15:15:35Z; startup succeeded with steps valid1/io_errors0/checkpoint64 and wrist off. Initial RTC2000 corrected using current UTC and read back. User confirmed three HOME/left-page roundtrips, menu/settings return, short sleep/KEY touch and wrist-on/temporary-awake-off",
+    "watermark": "Two complete list_thread replies: main priority19/stack0x4000/max50%; first during navigation and final after operator report. list_mem total272236/used98124/peak105364B. No overflow text in either candidate observation capture; this is a bounded observation, not proof against corruption or all call paths",
+    "final": "Read-only closeout closed15:22:32.609578Z; no hold/reset/time writes. Complete PM allow1, list_thread, list_mem, AOD unused/unreserved, settled HOME page0/mismatch0 and wrist requested1/continuous1/armed1/owned1. A natural OFF interrupted show_date and wf_steps status; no complete replies for those queries and no fabricated final RTC/steps state. A subsequent KEY wake/screen on is captured. One KEY-triggered query group was captured by stack-observe; operator reported full instructed checks independently",
+    "limits": "No deepest call chain, no proof against stack corruption; do not keep enlarging stack if overflow or growth recurs"
+  },
+  "unverified": [
+    "Full product A1 settings/persistence/styles/display state not implemented",
+    "Panel low scan frequency",
+    "Current, battery life and energy benefit",
+    "Physical DEEP",
+    "Reminder interruption",
+    "Long-duration retention, repetition and wear behavior"
+  ],
+  "local_artifacts": {
+    "availability": "Ignored local files only; these paths are not committed repository links",
+    "manifest": [
+      {
+        "path": "artifacts/aod-hardware-20261022/before/session.json",
+        "bytes": 2781,
+        "sha256": "a93980b0d364f6bed1c3256c4c1118c1efaebbc2dc0b260ef8fba29a44dea36e"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/before/uart.bin",
+        "bytes": 1277,
+        "sha256": "e2426ad618c1a0896b80ea27c5b1ae5ba982cd365076d85e498c4afc2e6d0697"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/before.log",
+        "bytes": 1797,
+        "sha256": "db4756743ec7990ebe15822fb46b55d2cca812c6f6a1e6e261b6665fe20c3c44"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/before-awake/session.json",
+        "bytes": 1397,
+        "sha256": "8fd52c4d4f70bdaf231436d75c4d2e8584220e5e2116c58446191055c7d1394e"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/before-awake/uart.bin",
+        "bytes": 5572,
+        "sha256": "83fc927e572a7b448fa0592adbc219f96bd9e25a9ba6e16cb620dfdcd2352145"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/before-awake.log",
+        "bytes": 5859,
+        "sha256": "5c3b65a4bb8f754751907a6844a27478124a24c744b5e22e9df67fe7672969f4"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/startup/session.json",
+        "bytes": 1686,
+        "sha256": "28c10ae5e853231c28caaeeab06cdcaafe66c54d2b179a4ee20664e77aefbfe3"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/startup/uart.bin",
+        "bytes": 11090,
+        "sha256": "7089c00453ec34524460ec6dc60324d39a697b06b921ca5ea70bb1743bf8f6be"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/startup.log",
+        "bytes": 11441,
+        "sha256": "895118f29a6924c858c903c88bdcb9d97267cad93d0f19792bf64da008cc0333"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/auto/session.json",
+        "bytes": 10236,
+        "sha256": "9d3f2dd0474d3b1aab5c59ebce444c0b2e26d22f46187d741d5633b697b93f1e"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/auto/uart.bin",
+        "bytes": 9826,
+        "sha256": "069bb3644f395d5169d34a88747dffb35e1f38e01cfaa194a59fa1b329a12de7"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/auto.log",
+        "bytes": 10540,
+        "sha256": "6c5fef5571046f4f9d542725522f62c9852b2affde73196c29141bb4371ea6a7"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/key/session.json",
+        "bytes": 3203,
+        "sha256": "f9b58455f4fb8529876fb72ab594bcd0647120334825b475c729df126f5b3f2e"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/key/uart.bin",
+        "bytes": 2732,
+        "sha256": "78aac3d8642663428b615452ce37972130a12bcb323bc0f33c49cec111aeed6b"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/key.log",
+        "bytes": 3041,
+        "sha256": "cb9575251238dc545826b3242cb7d7b1acf7d386f664e938b830dd26bf6b75b1"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/auto-retry/session.json",
+        "bytes": 2958,
+        "sha256": "563f11613932af898970b5ed2a589aa3dd8eb0f302747e8e94c95c381afbcf9c"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/auto-retry/uart.bin",
+        "bytes": 2467,
+        "sha256": "d68a18a3bde8569c141aeff9e985bd6b67067b8ce9e468156df40678a1168027"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/auto-retry.log",
+        "bytes": 2964,
+        "sha256": "3fd12a78f715ac552aafc04313e61b8d491aa4ed99a79557f52e25fc516d51c2"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/auto-isolated-2/session.json",
+        "bytes": 3172,
+        "sha256": "2dcdd410648cdab409d4e017bb8fc63efb1d9a66ad6b55bc0d91dc9126c32efa"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/auto-isolated-2/uart.bin",
+        "bytes": 7205,
+        "sha256": "a14dded1397dc19858fcefe369da06be3543e2ee2fb1fa6ae23802844cc647cc"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/auto-isolated-2.log",
+        "bytes": 7648,
+        "sha256": "6e483e0e14b7ff5f6271de547a10f1f75ab4d024d699116a48594aa12c53fb2e"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/key-isolated/session.json",
+        "bytes": 3170,
+        "sha256": "af397227eace28504deba92c9ae292ed9c067ff53706e507b60e12db09d94889"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/key-isolated/uart.bin",
+        "bytes": 5664,
+        "sha256": "b0f2fb8471c397eb2b713a08eecd33faff6da57d0062728c12f0f78749276b85"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/key-isolated.log",
+        "bytes": 6009,
+        "sha256": "21f451ae2eaa53f359142fbcb7c54ae8d3d1c41d40b61a4f1f43bf73bc9c5b0d"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/freeze/session.json",
+        "bytes": 1077,
+        "sha256": "84ece8ae5b8f5c7b9cd669beae3078c4a206fdb5e1f5d024015f359f3b446b0f"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/freeze/uart.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/freeze.log",
+        "bytes": 141,
+        "sha256": "e6ea849082ef9016636e087a41b7e7ec48f0ebb4dadf75bb33af7f2b6cf46f9e"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/freeze-key-wake/session.json",
+        "bytes": 418,
+        "sha256": "3fe4b4eb8051430be7d617131daf9c268f80cf1aae4f33474201c94230215e86"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/freeze-key-wake/uart.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/freeze-key-wake.log",
+        "bytes": 84,
+        "sha256": "dd20753adfdeaac3e7b2aba80c635a7aeae80dc60bfb93401d2ac42f93791ee5"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/recovery-001/session.json",
+        "bytes": 1489,
+        "sha256": "31c1674a5ee4b73972577e689a0bb1c92ae85a0df8d14635f72c1cee8d927278"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/recovery-001/uart.bin",
+        "bytes": 11400,
+        "sha256": "60662d59b378b679512907d6ead0122e1f2d8fc4d5d79a722e6dfae1b836d49a"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/recovery-001.log",
+        "bytes": 11712,
+        "sha256": "bb7e3c30bd2b30a73c05da79434e9602b3458947795dc8fb94aed27dc4a92a2a"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/recovery-observe-001/session.json",
+        "bytes": 580,
+        "sha256": "5210f5692a1fbfb69c9f26d0fa1b14ca976a27b4528679c6c94f2981b6d20246"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/recovery-observe-001/uart.bin",
+        "bytes": 2373,
+        "sha256": "317ae6771907deef1b623b7f50abbfa0e68624ae2d6d9f3a5cbd5608b7c84e1c"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/recovery-observe-001.log",
+        "bytes": 2495,
+        "sha256": "4635c035075f1271558135585fcd57ad887b8fb3afd20416b695bea5047e53b0"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/stack-startup/session.json",
+        "bytes": 1686,
+        "sha256": "5e47d68548c350f138781821a1647892e97d0860e447c255f4c7e494ae6c7087"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/stack-startup/uart.bin",
+        "bytes": 10901,
+        "sha256": "bd098f97ae1a562f78b733aaf3efa91bb459bae16a020ecc1e4d3afea60fd457"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/stack-startup.log",
+        "bytes": 11258,
+        "sha256": "b423ba4d78589df01738b869f9d24bc02b7c3006651234b6d77ebaa26dca718e"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/stack-observe-001/session.json",
+        "bytes": 1481,
+        "sha256": "f188541e48ad650734bf2a38c268bf1fe98e9299afa4c261652b604795871561"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/stack-observe-001/uart.bin",
+        "bytes": 11245,
+        "sha256": "fb67cda8eb17909cc42408e609a24cc15809ed5622e7e00b467fe63e1ad98269"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/stack-observe-001.log",
+        "bytes": 11689,
+        "sha256": "dbb70c41464ecf3d923579d63ad9925d3a8d4e077bd55ff6f91f32cb5ac7dd91"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/stack-final/session.json",
+        "bytes": 1192,
+        "sha256": "e5149091d8b40238bd07d08500362f92239f0155a2b9b14962a110e36b6b8f50"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/stack-final/uart.bin",
+        "bytes": 6388,
+        "sha256": "592319986d7dfd23a5ebc4869c62b59dcf0cbac729a1df5ad2dd627d18387405"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/stack-final.log",
+        "bytes": 6648,
+        "sha256": "1753437a1a600bc7f9600cb554867c9fad445fa423b10d19a537ae00c503553a"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/preflight.json",
+        "bytes": 1078,
+        "sha256": "71f68f175ef67c3387b88b66d50dbbc20de7455a0ba52de52d1b27e7ad5c4b78"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/preflight.log",
+        "bytes": 1080,
+        "sha256": "951e7d78764556be45d6ccafa7d7f288de41a21beab697536fa23e5b9770b42c"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/preflight.py",
+        "bytes": 2477,
+        "sha256": "d2b18bd240175872e2c6f862a55a6329371d5e3c67dc324152d37b385c91309d"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/flash-session.json",
+        "bytes": 576,
+        "sha256": "2d89c7b9c2551786e463944f1ea7e6a616762c6212c2b9d3c3ec8b1cd463e9f5"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/flash.log",
+        "bytes": 1306,
+        "sha256": "f4742aae5e2e02039b6c981fa02d5cd92922911cd221ab36cb0ab305ce931b90"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/flash.py",
+        "bytes": 1583,
+        "sha256": "ad82241f05e2300c30393f9fd0b4c8ddf46886b765bce3ee16fa8661c67212f0"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/probe-v1.py",
+        "bytes": 6813,
+        "sha256": "ab26c581033c2fb2e5a107aa2ba3f26cfcbd7eef080a6b7c12c25559023f12ca"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/probe-v2.py",
+        "bytes": 7133,
+        "sha256": "d4a47b77b3c2b7746e6687d82765d35043c8897eaaf0a4ab8ea94901afa3911c"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/probe.py",
+        "bytes": 7197,
+        "sha256": "fb02cf02b158b925201f270bfd1cfe4cd4f08f2c01cf996eac37a7f7b8b61add"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/aod_status.py",
+        "bytes": 1348,
+        "sha256": "4619fcbb5a15883e161459d0c2a77516192526e1e620105209c9d5970e554519"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/verify_status.py",
+        "bytes": 1242,
+        "sha256": "47f6e68c74fe23ff8c38f78edd18e4e38fef54cbb2f7d61901a27cd6083a483b"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/auto-isolated.log",
+        "bytes": 395,
+        "sha256": "9729c71fae31994f15d2ec49ddab61aaa14f0e90e53fbdb2874f48b15c6570db"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/capture_freeze.py",
+        "bytes": 1838,
+        "sha256": "a924f2e98eb8016a683508489b87997a91206241a59181296cbe7100ed2b0cb9"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/capture_wake.py",
+        "bytes": 2225,
+        "sha256": "90db578b53ca5b201717fd3e092f1094d4cd11f8cf25efe4a0391f63f044a033"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/freeze-user-photo.jpg",
+        "bytes": 498530,
+        "sha256": "47f836abbf9adfc22be82830af31a049671392afc9ab5343b2a5789da0d6b4c8"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/capture_recovery_tail.py",
+        "bytes": 1874,
+        "sha256": "3d57f6ca6053ad3f0e30fa9f41170c40c8ab164c386d843d448f8073f95b7bed"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/original-product-971a955b.zip",
+        "bytes": 23385782,
+        "sha256": "90d268ff4d72a24d5f98a24176641547927d01d2103a7a1df02e2046840e6105"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/stack_preflight.py",
+        "bytes": 2268,
+        "sha256": "33bd63a527ba7646a87f52fbf9d4a136d5ab50d00b7793432be8d22872f8f6f3"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/stack-preflight.json",
+        "bytes": 908,
+        "sha256": "5f2a856bd5415d6a846235e1d099dd6b56c53a9b4e0cf60b592bb5936b4d7971"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/stack-preflight.log",
+        "bytes": 910,
+        "sha256": "602e70e75ede8be8079d7836890e2fc5a4562d2d598b31f4f807fea0984f502b"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/stack_flash.py",
+        "bytes": 1810,
+        "sha256": "4207d7dba62afe208a86ad52534f09fb6786fd3558d3e8f1ff749377ce62c5da"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/stack-dryrun.log",
+        "bytes": 452,
+        "sha256": "ac7c456784eee1c5d01ff52febc9894f1d417c64493265a92db75bd0af805d1e"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/product-stack-build.log",
+        "bytes": 81325,
+        "sha256": "582966a736fd78699bda09778003d8e107855c1b4b781cbcfceaeda0dce5ab04"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/stack-source-comparison.json",
+        "bytes": 752,
+        "sha256": "48491ebe02b0448a642685253bf13a761224f4701a6796e127e52546a5cea67c"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/stack-flash-session.json",
+        "bytes": 576,
+        "sha256": "97e7375b4563cba04b7f124be40e19c46f923a2ba240ff1cb2829dc9e66e3b25"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/stack-flash.log",
+        "bytes": 1286,
+        "sha256": "20ec8d9cb5d042546419757fe55f00a0d92febc9431739fbc56760c109964dd3"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/stack_capture.py",
+        "bytes": 3808,
+        "sha256": "f38738cd8246042a9c125eec534d936d8eba4b97e4907eb7322647186e2d9b15"
+      },
+      {
+        "path": "artifacts/aod-hardware-20261022/stack_final.py",
+        "bytes": 1963,
+        "sha256": "2c16a302f134b0a48b5af6cd66552b2fd80dd4dd86132fb7cec6fd4733c4bbe4"
+      }
+    ]
+  }
+}
