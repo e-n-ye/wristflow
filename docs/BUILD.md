@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-10-22 Product主线程栈溢出候选
+
+同版原AOD固件经新授权一次RTS恢复后，普通KEY唤醒捕获`thread:main stack overflow`、8KiB／100%且SP低于栈底20B；本轮未运行AOD，原冻结／IMU故障不追认同因。[有界修复](AOD.md#2026-10-22-恢复捕获与主栈候选)仅将Product主栈8192→16384，保留优先级及overflow check，额外8192B SRAM分配预算。
+
+`pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 4`官方SCons退出0，Product `20261022-230404-769`／BIN7,973,872B／`e3bc2058…`；508源码及29产物字节重哈希通过，与旧508源码比较505字节同／2仅Git换行／1配置，SDK及子模块锁干净。生成rtconfig为16384／overflow check1；`Flash.ps1 -Example product -Port COM5 -DryRun`退出0，不打开设备。重建保留原FinSH转换、RTC signedness、LVGL null-dereference及链接RWX等警告，未修改SDK。原29产物先按哈希ZIP归档；纯栈配置无主机行为变更，不以无关主机用例代替栈峰值实测。后来新获下载授权，三镜像write＋verify退出0，用户集中触摸／导航／短睡恢复正常，main两份水印均16KiB／max50%、无新overflow；新版AOD未启动、长时稳定性仍未验。命令和完整指纹见[设备／候选证据](evidence/2026-10-22/aod-panel-hardware.json)。
+
 ## 2026-10-22 AOD A0面板诊断软件
 
 从`bf43474`准备[原生Idle有界诊断](AOD.md)，正式AOD设置／保存／样式／显示状态未接入。GCC15.2.0／CMake4.2.3／Ninja1.13.2，完整Debug59/59（13.31秒）及全库保留断言Release59/59（6.07秒）；最后增加缓存有效位和恢复等待边界后，受影响诊断目标Debug／Release各1/1再次通过。独立审查发现的“恢复失败仍放行正常LCD写入”已改为独占恢复等待，定点复核无剩余确定阻断；主机不代表实际面板恢复。
