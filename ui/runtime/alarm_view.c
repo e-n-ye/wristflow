@@ -224,8 +224,8 @@ void wristflow_alarm_view_refresh(wristflow_alarm_view_t *view, uint64_t cutoff_
 static void show_time(wristflow_alarm_view_t *view, bool from_settings)
 {
     view->time_from_settings = from_settings;
-    lv_roller_set_selected(named(view, "alarm_hours"), view->draft.hour, LV_ANIM_OFF);
-    lv_roller_set_selected(named(view, "alarm_minutes"), view->draft.minute, LV_ANIM_OFF);
+    lv_roller_set_selected(named(view, "time_hours"), view->draft.hour, LV_ANIM_OFF);
+    lv_roller_set_selected(named(view, "time_minutes"), view->draft.minute, LV_ANIM_OFF);
     view->page = ALARM_TIME;
 }
 
@@ -260,9 +260,9 @@ static void action(lv_event_t *event)
             .minute = view->clock.time_unavailable ? 0 : view->clock.minute, .enabled = true};
         show_time(view, false);
     } else if (target == named(view, "alarm_edit_time") && view->page == ALARM_SETTINGS) show_time(view, true);
-    else if (target == named(view, "alarm_time_accept") && view->page == ALARM_TIME) {
-        view->draft.hour = lv_roller_get_selected(named(view, "alarm_hours"));
-        view->draft.minute = lv_roller_get_selected(named(view, "alarm_minutes"));
+    else if (target == named(view, "time_accept") && view->page == ALARM_TIME) {
+        view->draft.hour = lv_roller_get_selected(named(view, "time_hours"));
+        view->draft.minute = lv_roller_get_selected(named(view, "time_minutes"));
         view->page = ALARM_SETTINGS;
     } else if (target == named(view, "alarm_edit_repeat") && view->page == ALARM_SETTINGS) {
         view->repeat_mask = view->draft.weekdays;
@@ -345,7 +345,7 @@ lv_obj_t *wristflow_alarm_view_screen(wristflow_alarm_view_t *view)
     lv_obj_set_scroll_dir(named(view, "alarm_list"), LV_DIR_VER);
     lv_obj_set_scroll_dir(named(view, "alarm_repeat_scroll"), LV_DIR_VER);
     lv_obj_set_scroll_dir(named(view, "alarm_day_scroll"), LV_DIR_VER);
-    const char *const buttons[] = {"alarm_add", "alarm_edit_time", "alarm_time_accept", "alarm_edit_repeat",
+    const char *const buttons[] = {"alarm_add", "alarm_edit_time", "time_accept", "alarm_edit_repeat",
         "alarm_repeat_accept", "alarm_days_accept", "alarm_save", "alarm_delete"};
     for (unsigned i = 0; i < sizeof buttons / sizeof buttons[0]; ++i)
         lv_obj_add_event_cb(named(view, buttons[i]), action, LV_EVENT_SHORT_CLICKED, view);

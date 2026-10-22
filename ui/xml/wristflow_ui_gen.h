@@ -232,6 +232,15 @@ extern lv_font_t * icons_20;
  *----------------*/
 
 /* Targets: any */
+extern const void * control_dnd;
+extern const void * control_silent;
+extern const void * control_wrist;
+extern const void * control_settings;
+extern const void * control_flashlight;
+extern const void * control_phone;
+extern const void * control_drain;
+extern const void * control_battery;
+extern const void * control_awake;
 extern const void * hour_unknown;
 extern const void * hour_1;
 extern const void * hour_2;
@@ -318,10 +327,12 @@ void wristflow_ui_init_gen(const char * asset_path);
 #include "components/settings_entry_gen.h"
 #include "components/settings_note_gen.h"
 #include "components/settings_row_gen.h"
+#include "components/status_toast_gen.h"
 #include "components/tile_full_gen.h"
 #include "components/tile_grid_gen.h"
 #include "components/tile_half_gen.h"
 #include "components/tile_quarter_gen.h"
+#include "components/time_picker_gen.h"
 #include "screens/screen_activity_gen.h"
 #include "screens/screen_activity_info_gen.h"
 #include "screens/screen_alarm_gen.h"
@@ -335,6 +346,7 @@ void wristflow_ui_init_gen(const char * asset_path);
 #include "screens/screen_component_templates_gen.h"
 #include "screens/screen_control_center_gen.h"
 #include "screens/screen_countdown_gen.h"
+#include "screens/screen_dnd_time_gen.h"
 #include "screens/screen_face_picker_gen.h"
 #include "screens/screen_flashlight_gen.h"
 #include "screens/screen_game_2048_gen.h"

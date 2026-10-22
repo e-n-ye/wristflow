@@ -140,7 +140,7 @@ int main(int argc,char**argv) {
     lv_obj_get_coords(named(empty,"alarm_add"),&empty_add);lv_obj_get_coords(named(empty,"alarm_list"),&empty_list);
     assert(empty_text.y2<empty_status.y1&&empty_status.y2<empty_add.y1&&empty_add.y2<=empty_list.y2);
     assert(lv_obj_has_flag(named(empty,"alarm_status"),LV_OBJ_FLAG_HIDDEN));capture("waiting");
-    press("alarm_add");press("alarm_time_accept");press("alarm_save");assert(alarms.data.alarms.count==0);
+    press("alarm_add");press("time_accept");press("alarm_save");assert(alarms.data.alarms.count==0);
     text(lv_screen_active(),"alarm_status","保存中");capture("saving");
     assert(wristflow_ui_shell_back(shell));text(lv_screen_active(),"alarm_title","设置");
     finish_save(false);assert(alarms.data.alarms.count==0);text(lv_screen_active(),"alarm_status","保存失败，稍后重试");capture("failed");

@@ -1,0 +1,107 @@
+{
+  "date": "2026-10-22",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/control-center-refine",
+  "base_commit": "ac74f2706b3e6706fb26b9b6f9bb041341498f5f",
+  "scope": "控制中心九格、定时勿扰、独立静音偏好、直接五分钟常亮与统一提示；闹钟和勿扰共用选时组件",
+  "source_inspection": {
+    "settings": "v9仍24B，前20B校验，兼容v1–4/v6–8，拒绝v5与非法位/枚举/分钟，旧记录补静音关闭和22:00–08:00",
+    "dnd": "按有效本地时钟派生，跨夜、开始包含/结束排除，无效时间等待；消息前刷新时间，不新增息屏周期唤醒",
+    "reuse": "time_picker.xml由原闹钟抽取；闹钟与勿扰共用双滚轮/冒号/确认按钮，草稿、校验、保存与返回各自持有",
+    "toast": "status_toast.xml视觉可复用，控制中心单1800ms timer覆盖/重置；离页、OFF、提醒/充电覆盖清理；手机消息控制器保持独立",
+    "hardware_capability": "抬腕沿用原生LSM6DS3TR-C AWT服务；本轮不修改硬件算法、参数或驱动",
+    "read_only_reviews": "核心迁移/通知顺序及UI生命周期两项独立审查无剩余阻断；选时抽取后定点复审无阻断。代理未独立构建或操作设备。"
+  },
+  "official_xml": {
+    "editor": "LVGL Pro Editor 2.0.1 Community",
+    "lvgl": "9.4.0",
+    "action": "官方GUI Ctrl+B；末次生成包含time_picker组件",
+    "observed_success": ["Built runtime for Preview", "compile completed", "Project compiled successfully", "Initializing custom C code using LVGL v9.4.0"],
+    "preview": "控制中心及共用选时在100%检查；真实LVGL截图核对全部九图标、提示、~100%、定时/相同时间错误与闹钟00:00/23:59",
+    "generated_c_hand_edited": false,
+    "artwork": "9个原创64x64透明PNG，由Generate-Control-Icons.py生成；无参考照片像素拷贝",
+    "font_command": "uv run --no-project --with fonttools==4.60.1 --with pillow==11.3.0 python scripts/Generate-Ui-Assets.py --static-fonts-only"
+  },
+  "host": {
+    "compiler": "MSYS2 GCC15.2.0",
+    "cmake": "4.2.3",
+    "ninja": "1.13.2",
+    "debug": {
+      "directory": "artifacts/host/control-center-debug",
+      "command": "cmake --build artifacts/host/control-center-debug -j6 && ctest --test-dir artifacts/host/control-center-debug --output-on-failure",
+      "passed": 55,
+      "total": 55,
+      "seconds": 24.89,
+      "exit_code": 0
+    },
+    "release": {
+      "directory": "artifacts/host/native-wrist-wake-release",
+      "cache_c_flags_release": "-O3 -DNDEBUG -UNDEBUG",
+      "command": "cmake --build artifacts/host/native-wrist-wake-release --target product_state product_settings_store core_navigation settings_ui notifications_ui ui_navigation ui_apps ui_shell_lifecycle product_ui display_policy alarm_ui product_alarm_ui -j6 && ctest --test-dir artifacts/host/native-wrist-wake-release -R '^(product_state|product_settings_store|core_navigation|settings_ui|notifications_ui|ui_navigation|ui_apps|ui_shell_lifecycle|product_ui|display_policy|alarm_ui|product_alarm_ui)$' --output-on-failure",
+      "passed": 12,
+      "total": 12,
+      "seconds": 6.11,
+      "exit_code": 0
+    },
+    "coverage": [
+      "v9往返/保留位/校验/旧格式迁移、不覆盖坏记录、非整点和0/1439端点",
+      "正常/跨夜全部1440分钟、无效RTC、跨入勿扰撤横幅、息屏收件不唤醒、终点首条恢复、静音不充当勿扰",
+      "真实LVGL短按/长按分流、长按返回、常亮直接五分钟/设置仍确认、占位无响应、长续航不改模式",
+      "提示覆盖/到期/提醒清理、持久化请求与失败状态、九图标解码64x64、估算~100%与中文字符",
+      "共用组件的闹钟新增/编辑/草稿/返回/睡后恢复与00:00/23:59几何"
+    ],
+    "raw_log_local": "C:/Users/13984/.fastctx/jobs/j-jyfdct/output.log",
+    "renders_local": "artifacts/host/control-center-debug/renders/control-center-review.png"
+  },
+  "firmware": {
+    "python": "3.13.15",
+    "scons": "4.10.1",
+    "compiler": "Arm GNU Toolchain14.2.Rel1 / GCC14.2.1 20241119",
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "sdk_lock_unchanged": true,
+    "sdk_and_submodules_clean": true,
+    "product": {
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 4",
+      "record_local": "artifacts/product/20261022-143831-791/result.json",
+      "record_sha256": "8bb971e6c7563e4c17a37581d63a4d8725cf21fc2063e91e526df35db7c09387",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "source_hashes_rechecked": 497,
+      "artifact_hashes_rechecked": 29,
+      "hash_mismatches": 0,
+      "main_bin_bytes": 7962756,
+      "main_bin_sha256": "1ab8fd5d44cdf802b26e7a29194610a8451943a715fe1e5c22585bb60af15167",
+      "warning_lines": 7
+    },
+    "ui_demo": {
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example ui_demo -Jobs 4",
+      "record_local": "artifacts/ui_demo/20261022-144005-146/result.json",
+      "record_sha256": "4863434652d016994337373703ebdbe9e9cf946dc1efd391f258ca5d94a0f1bc",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "source_hashes_rechecked": 447,
+      "artifact_hashes_rechecked": 22,
+      "hash_mismatches": 0,
+      "main_bin_bytes": 7717400,
+      "main_bin_sha256": "991a288975b9cc437dbb62d39abf2774f8a3ea21d52c144adaba62dbd5cb6f8e",
+      "warning_lines": 6
+    },
+    "warnings": "既有FinSH签名转换、RWX LOAD及ftab syscall/entry提示，另有既有缺dfu WARNING；本轮手写控制/设置/选时无新warning",
+    "raw_log_local": "C:/Users/13984/.fastctx/jobs/j-ejc2yy/output.log"
+  },
+  "failures_and_corrections": [
+    "首轮Debug53/55：生命周期仍依赖已移除亮度滑条；长按设置入口未在控制中心导航白名单放行。修正fixture与显式路由后，旧DND switch测试再改为三模式选择。",
+    "实际渲染发现control_battery标签遮蔽同名图像指针，长续航图标为空；标签改control_battery_value、官方重新导出并补九图像尺寸测试。",
+    "用户指出重复选时页后从原闹钟抽共用time_picker.xml，替换两处视觉定义并重跑全Debug/相关Release/双固件。此前成功构建仅为中间版本，不能替代最终记录。",
+    "只读审查发现旧状态提示可能在短提醒后重现；提醒/充电opening立即清理并加入提醒覆盖回归。",
+    "默认Python缺Pillow、Bundled Python缺fontTools；图标使用已有Pillow运行时，字体用固定uv依赖完成，不改变SDK环境。"
+  ],
+  "hardware": {
+    "performed": false,
+    "serial_opened": false,
+    "flashed": false,
+    "battery_capacity_calibrated": false,
+    "pending": "同版集中检查真实长短按、设置/返回、v8到v9保存和重启恢复、定时边界通知及短睡；不代表物理深睡、电流或续航通过。",
+    "activity_authority": "docs/STATUS.md#current"
+  }
+}

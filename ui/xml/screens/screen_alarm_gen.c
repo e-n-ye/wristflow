@@ -34,21 +34,6 @@ lv_obj_t * screen_alarm_create(void)
 {
     LV_TRACE_OBJ_CREATE("begin");
 
-    static lv_style_t alarm_wheel_selected;
-
-    static bool style_inited = false;
-
-    if (!style_inited) {
-        /*Init all styles*/
-        lv_style_init(&alarm_wheel_selected);
-
-        lv_style_set_bg_opa(&alarm_wheel_selected, (255 * 0 / 100));
-        lv_style_set_text_color(&alarm_wheel_selected, FG_PRIMARY);
-        lv_style_set_text_font(&alarm_wheel_selected, metric_56);
-
-        style_inited = true;
-    }
-
 
     lv_obj_t * the_root = NULL;
 
@@ -205,73 +190,9 @@ lv_obj_t * screen_alarm_create(void)
         lv_label_set_text(lv_label_0, "");
         lv_obj_set_style_text_font(lv_label_0, icons_44, 0);
 
-        lv_obj_t * alarm_time_panel = lv_obj_create(lv_obj_0);
+        lv_obj_t * alarm_time_panel = time_picker_create(lv_obj_0);
         lv_obj_set_name(alarm_time_panel, "alarm_time_panel");
-        lv_obj_set_x(alarm_time_panel, 0);
-        lv_obj_set_y(alarm_time_panel, 78);
-        lv_obj_set_width(alarm_time_panel, 390);
-        lv_obj_set_height(alarm_time_panel, 350);
         lv_obj_set_flag(alarm_time_panel, LV_OBJ_FLAG_HIDDEN, true);
-        lv_obj_set_flag(alarm_time_panel, LV_OBJ_FLAG_SCROLLABLE, false);
-        lv_obj_set_style_bg_opa(alarm_time_panel, (255 * 0 / 100), 0);
-        lv_obj_set_style_border_width(alarm_time_panel, 0, 0);
-        lv_obj_set_style_pad_all(alarm_time_panel, 0, 0);
-        lv_obj_t * alarm_hours = lv_roller_create(alarm_time_panel);
-        lv_obj_set_name(alarm_hours, "alarm_hours");
-        lv_obj_set_x(alarm_hours, 60);
-        lv_obj_set_y(alarm_hours, 46);
-        lv_obj_set_width(alarm_hours, 110);
-        lv_roller_set_options(alarm_hours, "00\n01\n02\n03\n04\n05\n06\n07\n08\n09\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23", LV_ROLLER_MODE_INFINITE);
-        lv_obj_set_style_bg_opa(alarm_hours, (255 * 0 / 100), 0);
-        lv_obj_set_style_border_width(alarm_hours, 0, 0);
-        lv_obj_set_style_radius(alarm_hours, 0, 0);
-        lv_obj_set_style_text_font(alarm_hours, value_36, 0);
-        lv_obj_set_style_text_color(alarm_hours, lv_color_hex(0x737980), 0);
-        lv_obj_set_style_text_line_space(alarm_hours, 22, 0);
-        lv_obj_set_style_text_align(alarm_hours, LV_TEXT_ALIGN_CENTER, 0);
-        lv_roller_set_visible_row_count(alarm_hours, 3);
-        lv_obj_add_style(alarm_hours, &alarm_wheel_selected, LV_PART_SELECTED);
-
-        lv_obj_t * alarm_minutes = lv_roller_create(alarm_time_panel);
-        lv_obj_set_name(alarm_minutes, "alarm_minutes");
-        lv_obj_set_x(alarm_minutes, 220);
-        lv_obj_set_y(alarm_minutes, 46);
-        lv_obj_set_width(alarm_minutes, 110);
-        lv_roller_set_options(alarm_minutes, "00\n01\n02\n03\n04\n05\n06\n07\n08\n09\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n31\n32\n33\n34\n35\n36\n37\n38\n39\n40\n41\n42\n43\n44\n45\n46\n47\n48\n49\n50\n51\n52\n53\n54\n55\n56\n57\n58\n59", LV_ROLLER_MODE_INFINITE);
-        lv_obj_set_style_bg_opa(alarm_minutes, (255 * 0 / 100), 0);
-        lv_obj_set_style_border_width(alarm_minutes, 0, 0);
-        lv_obj_set_style_radius(alarm_minutes, 0, 0);
-        lv_obj_set_style_text_font(alarm_minutes, value_36, 0);
-        lv_obj_set_style_text_color(alarm_minutes, lv_color_hex(0x737980), 0);
-        lv_obj_set_style_text_line_space(alarm_minutes, 22, 0);
-        lv_obj_set_style_text_align(alarm_minutes, LV_TEXT_ALIGN_CENTER, 0);
-        lv_roller_set_visible_row_count(alarm_minutes, 3);
-        lv_obj_add_style(alarm_minutes, &alarm_wheel_selected, LV_PART_SELECTED);
-
-        lv_obj_t * alarm_time_separator = lv_label_create(alarm_time_panel);
-        lv_obj_set_name(alarm_time_separator, "alarm_time_separator");
-        lv_obj_set_x(alarm_time_separator, 180);
-        lv_obj_set_y(alarm_time_separator, 121);
-        lv_obj_set_width(alarm_time_separator, 30);
-        lv_label_set_text(alarm_time_separator, ":");
-        lv_obj_set_style_text_font(alarm_time_separator, value_36, 0);
-        lv_obj_set_style_text_color(alarm_time_separator, FG_PRIMARY, 0);
-        lv_obj_set_style_text_align(alarm_time_separator, LV_TEXT_ALIGN_CENTER, 0);
-
-        lv_obj_t * alarm_time_accept = lv_button_create(alarm_time_panel);
-        lv_obj_set_name(alarm_time_accept, "alarm_time_accept");
-        lv_obj_set_x(alarm_time_accept, 120);
-        lv_obj_set_y(alarm_time_accept, 279);
-        lv_obj_set_width(alarm_time_accept, 150);
-        lv_obj_set_height(alarm_time_accept, 66);
-        lv_obj_set_style_bg_color(alarm_time_accept, lv_color_hex(0x008cff), 0);
-        lv_obj_set_style_radius(alarm_time_accept, 33, 0);
-        lv_obj_set_style_shadow_width(alarm_time_accept, 0, 0);
-        lv_obj_set_style_pad_all(alarm_time_accept, 0, 0);
-        lv_obj_t * lv_label_1 = lv_label_create(alarm_time_accept);
-        lv_obj_set_align(lv_label_1, LV_ALIGN_CENTER);
-        lv_label_set_text(lv_label_1, "");
-        lv_obj_set_style_text_font(lv_label_1, icons_44, 0);
 
         lv_obj_t * alarm_settings_panel = lv_obj_create(lv_obj_0);
         lv_obj_set_name(alarm_settings_panel, "alarm_settings_panel");
@@ -294,11 +215,11 @@ lv_obj_t * screen_alarm_create(void)
         lv_obj_set_style_radius(alarm_edit_time, 24, 0);
         lv_obj_set_style_shadow_width(alarm_edit_time, 0, 0);
         lv_obj_set_style_pad_all(alarm_edit_time, 0, 0);
-        lv_obj_t * lv_label_2 = lv_label_create(alarm_edit_time);
-        lv_obj_set_x(lv_label_2, 20);
-        lv_obj_set_y(lv_label_2, 12);
-        lv_label_set_text(lv_label_2, "时间设置");
-        lv_obj_set_style_text_font(lv_label_2, title_24, 0);
+        lv_obj_t * lv_label_1 = lv_label_create(alarm_edit_time);
+        lv_obj_set_x(lv_label_1, 20);
+        lv_obj_set_y(lv_label_1, 12);
+        lv_label_set_text(lv_label_1, "时间设置");
+        lv_obj_set_style_text_font(lv_label_1, title_24, 0);
 
         lv_obj_t * alarm_draft_time = lv_label_create(alarm_edit_time);
         lv_obj_set_name(alarm_draft_time, "alarm_draft_time");
@@ -317,11 +238,11 @@ lv_obj_t * screen_alarm_create(void)
         lv_obj_set_style_radius(alarm_edit_repeat, 24, 0);
         lv_obj_set_style_shadow_width(alarm_edit_repeat, 0, 0);
         lv_obj_set_style_pad_all(alarm_edit_repeat, 0, 0);
-        lv_obj_t * lv_label_3 = lv_label_create(alarm_edit_repeat);
-        lv_obj_set_x(lv_label_3, 20);
-        lv_obj_set_y(lv_label_3, 12);
-        lv_label_set_text(lv_label_3, "重复");
-        lv_obj_set_style_text_font(lv_label_3, title_24, 0);
+        lv_obj_t * lv_label_2 = lv_label_create(alarm_edit_repeat);
+        lv_obj_set_x(lv_label_2, 20);
+        lv_obj_set_y(lv_label_2, 12);
+        lv_label_set_text(lv_label_2, "重复");
+        lv_obj_set_style_text_font(lv_label_2, title_24, 0);
 
         lv_obj_t * alarm_draft_rule = lv_label_create(alarm_edit_repeat);
         lv_obj_set_name(alarm_draft_rule, "alarm_draft_rule");
@@ -342,10 +263,10 @@ lv_obj_t * screen_alarm_create(void)
         lv_obj_set_style_radius(alarm_delete, 33, 0);
         lv_obj_set_style_shadow_width(alarm_delete, 0, 0);
         lv_obj_set_style_pad_all(alarm_delete, 0, 0);
-        lv_obj_t * lv_label_4 = lv_label_create(alarm_delete);
-        lv_obj_set_align(lv_label_4, LV_ALIGN_CENTER);
-        lv_label_set_text(lv_label_4, "");
-        lv_obj_set_style_text_font(lv_label_4, icons_44, 0);
+        lv_obj_t * lv_label_3 = lv_label_create(alarm_delete);
+        lv_obj_set_align(lv_label_3, LV_ALIGN_CENTER);
+        lv_label_set_text(lv_label_3, "");
+        lv_obj_set_style_text_font(lv_label_3, icons_44, 0);
 
         lv_obj_t * alarm_save = lv_button_create(alarm_settings_panel);
         lv_obj_set_name(alarm_save, "alarm_save");
@@ -357,10 +278,10 @@ lv_obj_t * screen_alarm_create(void)
         lv_obj_set_style_radius(alarm_save, 33, 0);
         lv_obj_set_style_shadow_width(alarm_save, 0, 0);
         lv_obj_set_style_pad_all(alarm_save, 0, 0);
-        lv_obj_t * lv_label_5 = lv_label_create(alarm_save);
-        lv_obj_set_align(lv_label_5, LV_ALIGN_CENTER);
-        lv_label_set_text(lv_label_5, "");
-        lv_obj_set_style_text_font(lv_label_5, icons_44, 0);
+        lv_obj_t * lv_label_4 = lv_label_create(alarm_save);
+        lv_obj_set_align(lv_label_4, LV_ALIGN_CENTER);
+        lv_label_set_text(lv_label_4, "");
+        lv_obj_set_style_text_font(lv_label_4, icons_44, 0);
 
         lv_obj_t * alarm_repeat_panel = lv_obj_create(lv_obj_0);
         lv_obj_set_name(alarm_repeat_panel, "alarm_repeat_panel");
@@ -413,10 +334,10 @@ lv_obj_t * screen_alarm_create(void)
         lv_obj_set_style_radius(alarm_repeat_accept, 33, 0);
         lv_obj_set_style_shadow_width(alarm_repeat_accept, 0, 0);
         lv_obj_set_style_pad_all(alarm_repeat_accept, 0, 0);
-        lv_obj_t * lv_label_6 = lv_label_create(alarm_repeat_accept);
-        lv_obj_set_align(lv_label_6, LV_ALIGN_CENTER);
-        lv_label_set_text(lv_label_6, "");
-        lv_obj_set_style_text_font(lv_label_6, icons_44, 0);
+        lv_obj_t * lv_label_5 = lv_label_create(alarm_repeat_accept);
+        lv_obj_set_align(lv_label_5, LV_ALIGN_CENTER);
+        lv_label_set_text(lv_label_5, "");
+        lv_obj_set_style_text_font(lv_label_5, icons_44, 0);
 
         lv_obj_t * alarm_weekdays_panel = lv_obj_create(lv_obj_0);
         lv_obj_set_name(alarm_weekdays_panel, "alarm_weekdays_panel");
@@ -477,10 +398,10 @@ lv_obj_t * screen_alarm_create(void)
         lv_obj_set_style_radius(alarm_days_accept, 33, 0);
         lv_obj_set_style_shadow_width(alarm_days_accept, 0, 0);
         lv_obj_set_style_pad_all(alarm_days_accept, 0, 0);
-        lv_obj_t * lv_label_7 = lv_label_create(alarm_days_accept);
-        lv_obj_set_align(lv_label_7, LV_ALIGN_CENTER);
-        lv_label_set_text(lv_label_7, "");
-        lv_obj_set_style_text_font(lv_label_7, icons_44, 0);
+        lv_obj_t * lv_label_6 = lv_label_create(alarm_days_accept);
+        lv_obj_set_align(lv_label_6, LV_ALIGN_CENTER);
+        lv_label_set_text(lv_label_6, "");
+        lv_obj_set_style_text_font(lv_label_6, icons_44, 0);
 
         lv_obj_t * alarm_error = lv_label_create(lv_obj_0);
         lv_obj_set_name(alarm_error, "alarm_error");

@@ -223,14 +223,11 @@ int main(int argc, char **argv)
     {
         swipe(input, 195, 330, 195, 80);
         lv_obj_t *control = lv_screen_active();
-        lv_obj_t *slider = lv_obj_find_by_name(control, "brightness_slider");
-        assert(control != face && slider);
+        assert(control != face && lv_obj_find_by_name(control, "keep_awake_button"));
         if (cycle == 0)
             snapshot("navigation_control_center");
-        int before = lv_slider_get_value(slider);
         swipe(input, 100, 383, 330, 383);
         assert(lv_screen_active() == control);
-        assert(lv_slider_get_value(slider) != before || cycle > 0);
         /* Start on the button to verify its child gesture reaches the screen. */
         swipe(input, 100, 140, 100, 340);
         assert(lv_screen_active() == face);

@@ -17,3 +17,11 @@ assets; `globals.xml` no longer registers them, the official generated CMake
 list excludes them, and the handwritten SCons source list now excludes only
 the legacy `hour_seven_data.c`. The original preview evidence remains in
 docs/evidence.
+
+## Control center glyphs
+
+The nine `control_*.png` files are original WristFlow artwork, rendered by
+`scripts/Generate-Control-Icons.py` with Pillow. Each is a 64×64 white glyph with
+an antialiased transparent background, registered as ARGB8888. The Redmi Watch 4
+photos guide the agreed function mapping and appearance; no pixels are copied
+from those photos. Generated image data is exported by the official LVGL editor.

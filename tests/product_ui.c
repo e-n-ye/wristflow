@@ -396,7 +396,7 @@ int main(int argc, char **argv)
     assert(wristflow_ui_shell_key(shell)); advance();
     assert(wristflow_ui_shell_open_controls(shell));
     advance();
-    assert(lv_slider_get_value(named(lv_screen_active(), "brightness_slider")) == 37);
+    assert(!lv_obj_find_by_name(lv_screen_active(), "brightness_slider"));
     assert(wristflow_ui_shell_open(shell, WRISTFLOW_SURFACE_SETTINGS));
     advance();
     assert(lv_obj_get_child_count(named(lv_screen_active(), "settings_scroll")) == 10);
@@ -543,7 +543,7 @@ int main(int argc, char **argv)
     snapshot(argv[1], "power_about");
     assert(wristflow_ui_shell_key(shell)); advance();
     assert(wristflow_ui_shell_open_controls(shell)); advance();
-    text(lv_screen_active(), "connection_status", "USB+ · 未连接");
+    text(lv_screen_active(), "connection_status", "\xef\x8a\x93");
     assert(lv_obj_get_height(named(lv_screen_active(), "connection_status")) <= 30);
     snapshot(argv[1], "power_controls");
     assert(wristflow_ui_shell_close_controls(shell)); advance();

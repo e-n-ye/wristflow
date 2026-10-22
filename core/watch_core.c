@@ -83,7 +83,10 @@ bool wristflow_navigation_open(wristflow_navigation_t *navigation, wristflow_sur
                     navigation->surface < WRISTFLOW_SURFACE_COUNT;
     bool from_controls = navigation->surface == WRISTFLOW_SURFACE_CONTROLS &&
                          (surface == WRISTFLOW_SURFACE_SETTINGS || surface == WRISTFLOW_SURFACE_FLASHLIGHT ||
-                          surface == WRISTFLOW_SURFACE_NOTIFICATIONS || surface == WRISTFLOW_SURFACE_COUNTDOWN);
+                          surface == WRISTFLOW_SURFACE_NOTIFICATIONS || surface == WRISTFLOW_SURFACE_COUNTDOWN ||
+                          surface == WRISTFLOW_SURFACE_DND_SETTINGS || surface == WRISTFLOW_SURFACE_SOUND_SETTINGS ||
+                          surface == WRISTFLOW_SURFACE_WAKE_SETTINGS || surface == WRISTFLOW_SURFACE_KEEP_AWAKE ||
+                          surface == WRISTFLOW_SURFACE_ENDURANCE_SETTINGS);
     bool from_face = navigation->surface == WRISTFLOW_SURFACE_HOME && navigation->page_index == 0 &&
                      (surface == WRISTFLOW_SURFACE_FACE_PICKER || surface == WRISTFLOW_SURFACE_NOTIFICATIONS ||
                       surface == WRISTFLOW_SURFACE_COUNTDOWN);

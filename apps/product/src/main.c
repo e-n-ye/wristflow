@@ -349,7 +349,6 @@ int main(void)
             continue;
         }
         if (now - sampled >= 250) {
-            sync_notifications();
             wristflow_watch_snapshot_t next = read_snapshot(false);
             wristflow_ui_shell_charging_event(shell, &next);
             lv_obj_t *active = lv_screen_active();
@@ -369,6 +368,8 @@ int main(void)
                 snapshot = next;
                 wristflow_ui_shell_update(shell, &snapshot);
             }
+            /* Evaluate scheduled DND using fresh wall time before any alert. */
+            sync_notifications();
             wristflow_ui_shell_sync_settings_save(shell);
             sync_wrist_setting();
             sampled = now;
@@ -386,9 +387,9 @@ int main(void)
             wristflow_ui_shell_update(shell, &snapshot);
         }
         if (events & WF_EVENT_PHONE) {
-            sync_notifications();
             snapshot = read_snapshot(false);
             wristflow_ui_shell_update(shell, &snapshot);
+            sync_notifications();
             lv_obj_t *active = lv_screen_active();
             if (active && lv_obj_get_name(active) && !strcmp(lv_obj_get_name(active), "screen_weather")) {
                 wristflow_weather_screen_refresh(active);

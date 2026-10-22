@@ -258,5 +258,29 @@ int main(int argc,char **argv)
     swipe(320,155,100,155); tap(300,155);
     assert(phone.count==1&&phone.messages[0].id==102); capture("group_deleted");
     press("notification_clear"); assert(!phone.count);
+    /* Every incoming wake uses fresh wall time: crossing a scheduled boundary
+     * while OFF must suppress/allow the very first new alert without a UI timer. */
+    home(); wristflow_ui_shell_get_settings(shell,&settings);
+    settings.dnd_mode=WRISTFLOW_DND_SCHEDULED; settings.dnd_start_minute=1320; settings.dnd_end_minute=480;
+    settings.silent_mode=true; /* A mute preference must not act as notification DND. */
+    assert(wristflow_ui_shell_configure(shell,&settings));
+    state=(wristflow_watch_snapshot_t){.hour_24=21,.minute=59};
+    wristflow_ui_shell_update(shell,&state);
+    receive(201,"定时开始前","仍有横幅"); assert(visible("notification_banner"));
+    state.hour_24=22; state.minute=0; wristflow_ui_shell_update(shell,&state);
+    assert(wristflow_ui_shell_dnd(shell)&&!visible("notification_banner"));
+    sleep_screen();
+    receive(202,"跨夜勿扰","入库且不亮屏");
+    assert(brightness==0&&!visible("notification_preview")&&phone.messages[0].id==202);
+    state.hour_24=7; state.minute=59; wristflow_ui_shell_update(shell,&state);
+    receive(203,"结束之前","仍不亮屏"); assert(brightness==0);
+    state.hour_24=8; state.minute=0; wristflow_ui_shell_update(shell,&state);
+    assert(!wristflow_ui_shell_dnd(shell)&&brightness==0);
+    assert(receive(204,"定时结束","首条消息恢复预览")); assert(visible("notification_preview"));
+    jump(5050); assert(brightness==0);
+    state.time_unavailable=true; wristflow_ui_shell_update(shell,&state);
+    assert(!wristflow_ui_shell_dnd(shell));
+    assert(receive(205,"等待校时","不把未知时间当成勿扰时段"));
+    jump(5050); assert(brightness==0);
     wristflow_ui_shell_destroy(shell); puts("notifications_ui: passed"); return 0;
 }
