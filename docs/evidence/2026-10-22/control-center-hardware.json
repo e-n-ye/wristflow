@@ -1,0 +1,97 @@
+{
+  "date": "2026-10-22",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/control-center-hardware",
+  "base_commit": "2f6d819944547774ba4c3d118a6007ad6e760483",
+  "authorization": "用户延续控制中心软件轮，确认同板屏、原电池、松线固定、USB接电脑且人在旁；授权烧录与一次普通重启恢复检查。首组通过后要求默认底色黑白灰、激活保留蓝色。",
+  "initial_version": {
+    "build_result_local": "artifacts/product/20261022-143831-791/result.json",
+    "bin_sha256": "1ab8fd5d44cdf802b26e7a29194610a8451943a715fe1e5c22585bb60af15167",
+    "qualification": "497源码470字节同/27仅Git换行，29产物同；SDK及子模块锁定干净；COM5 CH340 1A86:7523位置1-1.1，DisableModemOutHandShake=1；DryRun及retained SRAM钩子通过",
+    "preflight_local": "artifacts/control-center-hardware-20261022/preflight.json",
+    "flash_command": "pwsh -NoProfile -File scripts/Flash.ps1 -Example product -Port COM5",
+    "flash_result_local": "artifacts/flash/product/20261022-150322-456/result.json",
+    "flash_exit_code": 0,
+    "flash_started_local": "2026-10-22T15:03:22+08:00",
+    "flash_finished_local": "2026-10-22T15:06:07+08:00",
+    "startup_local": "artifacts/control-center-hardware-20261022/post-flash",
+    "startup": "一次150ms RTS；RTC实际2000后wf_time当前UTC校正，show_date读回；storage=ready restore=yes，brightness55/face diffusion/腕开启，旧day20748 total0 generation56保留；hold释放/关口确认",
+    "manual_first_group": {
+      "user_reply": "三项均正常，留在控制中心",
+      "covered": ["KEY1唤醒/时间/上划/九图标完整", "持续亮屏短按直接五分钟、关闭、再开启", "静音短按颜色和提示变化、长按声音与振动、松手未再切换、返回保持状态"],
+      "limit": "只适用于初版本组，不抵扣后来配色版的未验项"
+    }
+  },
+  "preflash_observation_and_failure": {
+    "first_attempt_local": "artifacts/control-center-hardware-20261022/pre-flash",
+    "error": "AssertionError('RTC differs from current UTC')",
+    "cleanup": "临时wf_pm hold已allow释放，串口关闭",
+    "supplement_local": "artifacts/control-center-hardware-20261022/pre-flash-state",
+    "observed": "无复位/校时的补读：RTC为2000，RAM trace全零，保存检查点day20748 total0 generation56 clean，腕开启，BLE未连接",
+    "unknown": "上次结束到本次开口前是否重启及RTC归零原因未知；不继承上一轮RAM会话身份"
+  },
+  "neutral_revision": {
+    "source_change": "控制中心默认/关闭按钮#252525，短横#777777、断连蓝牙#707070、提示底#303030/边#666666；开启#008cff及已连接蓝牙#55baff保持，业务不变",
+    "xml": "ElementTree格式通过；Pro2.0.1 Community GUI Ctrl+B导出并编译成功，预览LVGL9.4.0，100%检查；生成C未手改",
+    "host_command": "cmake --build artifacts/host/control-center-debug --target settings_ui ui_navigation -j6 && ctest --test-dir artifacts/host/control-center-debug -R '^(settings_ui|ui_navigation)$' --output-on-failure",
+    "host_passed": "2/2, 3.07s, exit0",
+    "render_local": "artifacts/control-center-hardware-20261022/neutral-review.png",
+    "build_commands": ["pwsh -NoProfile -File scripts/Build.ps1 -Example product -Jobs 4", "pwsh -NoProfile -File scripts/Build.ps1 -Example ui_demo -Jobs 4"],
+    "build_log_local": "C:/Users/13984/.fastctx/jobs/j-a1zn8m/output.log",
+    "product_result_local": "artifacts/product/20261022-151715-051/result.json",
+    "product_result_sha256": "79723fc01e43c607d211607f8db7e33df07c4f80f2663cc63c9b14936c13aa2e",
+    "product_bin_sha256": "7a313abc8c403fe47fe8e3bf1eadaee17d50e563cf86959077445662f288a22a",
+    "demo_result_local": "artifacts/ui_demo/20261022-151812-642/result.json",
+    "demo_result_sha256": "8f9bc71fc4b754162af25779a2ea2eeffd34abe38a685fc0b02034839de09d8f",
+    "demo_bin_sha256": "528c67432eedaac0c06401161a909de17fc9a4962505f2a75ea5023c4c78d4ef",
+    "build_exit_codes": [0, 0],
+    "hash_recheck": "Product497源码/29产物及Demo447源码/22产物字节一致；端点重核、DryRun及retained钩子通过",
+    "qualification_local": "artifacts/control-center-hardware-20261022/neutral-preflight.json",
+    "warnings": "保留既有RWX/缺dfu等构建提示；SDK/锁与子模块未改",
+    "flash_command": "pwsh -NoProfile -File scripts/Flash.ps1 -Example product -Port COM5",
+    "flash_result_local": "artifacts/flash/product/20261022-152319-283/result.json",
+    "flash_started_local": "2026-10-22T15:23:19+08:00",
+    "flash_finished_local": "2026-10-22T15:26:02+08:00",
+    "flash_exit_code": 0,
+    "startup_local": "artifacts/control-center-hardware-20261022/post-neutral",
+    "startup": "一次150ms RTS后RTC为2000，校真实UTC并读回；storage ready/restore yes，brightness55/face diffusion，腕开启，总0及generation57保留；15:26:48 hold释放/串口关闭",
+    "manual_second_group": {
+      "user_reply": "配色及三项均正常，已保存21:30–07:15",
+      "covered": ["灰色关闭态、原蓝开启态及灰色提示", "勿扰长按进入定时选项，共用选时相同起止报错留页", "21:30–次日07:15保存，下午不在时段，返回控制中心勿扰灰色"]
+    },
+    "manual_third_group": {
+      "user_reply": "均正常，静音关闭",
+      "covered": ["抬腕短按关/开与长按设置/释放不再切换", "设置常亮10分钟先取消再确认，返回开启", "长续航取消/确认仅提示待实现/长按说明，找手机和排水无响应"]
+    },
+    "ordinary_reboot": {
+      "preparation_reply": "已开启并显示已保存，可以普通重启",
+      "expected_settings": "静音开启，抬腕开启，定时勿扰21:30–次日07:15；临时常亮应在重启后关闭",
+      "local": "artifacts/control-center-hardware-20261022/reboot",
+      "rtc_before_utc": "2026-10-22T07:36:40Z",
+      "rtc_after_utc": "2026-10-22T07:36:51Z",
+      "commands": "受控快照后单次SDK reboot，无RTS/补时；storage ready restore yes，腕enable1，generation57 total0，重启后allow1",
+      "process_exit_code": 0,
+      "ui_reply": "三项均正常，设置已恢复",
+      "ui_values": "用户屏幕确认时间正常；静音/腕开启为蓝色、临时常亮关闭灰色；定时勿扰21:30–次日07:15恢复；静音设置仍开启；设置/手电筒往返与触摸正常"
+    },
+    "manual_final_group": {
+      "user_reply": "两项均正常，已恢复定时且常亮关闭",
+      "covered": ["按当前真实时钟设置未来2分钟开始/持续1分钟，设置页状态自然不在时段→生效中→不在时段", "恢复定时21:30–次日07:15并保存", "控制中心关闭常亮，自然息屏约5秒KEY1回控制中心，旧提示不重现，下划退出/上划重入正常"],
+      "limit": "人工自然分钟观察，不是跨夜连续实测、精确触发时延或真实BLE通知验证；未改变RTC制造边界"
+    },
+    "hardware_status": "新版本轮有界交互/保存恢复/自然分钟状态与控制中心短睡验收通过；未做真实通知抑制及整套联合矩阵"
+  },
+  "closeout": {
+    "attempt_local": "artifacts/control-center-hardware-20261022/closeout",
+    "only_command": "wf_pm status",
+    "failure": "自然息屏后无UART回执，AssertionError('Unowned PM state not confirmed')，退出1",
+    "hold_acquired": false,
+    "closed_local": "2026-10-22T15:43:22.894127+08:00",
+    "resource_check": "脚本正常关闭串口；主机端点租约可重获/释放，不再开口/唤醒/复位。最近完整PM读回为15:36:53普通重启后allow1，末次查询未发hold，不能冒充末端设备PM快照成功。",
+    "final_user_settings": "定时21:30–次日07:15，静音开启，抬腕开启，临时常亮关闭；USB保持原连接条件",
+    "post_hardware_hash_recheck": "Product497/29与Demo447/22再次字节一致，未再次构建或改固件"
+  },
+  "review": "独立只读审查确认XML/官方输出/运行时颜色一致，事件/导航/保存/生命周期无变更；最终会话/记录抽查未见代码或验收边界阻断，中途进度滞后及专题旧句真实设备恢复另验已作版本化修正。",
+  "not_covered": ["真实BLE通知在定时端点抑制/恢复", "跨夜连续运行/跨时区/未校时UI现场", "设置页草稿短睡/提醒覆盖及完整J1–J7", "实际音频", "SOC/mAh/电流/续航/物理DEEP/佩戴识别率", "末端完整设备PM/RTC快照"],
+  "next_bounded_step": "审查并合并本轮灰阶修正与有界验收记录；不追加设备操作，后续真实BLE通知验收另核授权"
+}
