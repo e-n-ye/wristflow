@@ -22,6 +22,8 @@ static uint32_t accepted_ms;
 static bool detect_pending, input_known, input_good, auto_blocked;
 static bool cached_input_known, cached_input_good, cached_auto_blocked;
 static uint32_t input_epoch, session_input_epoch, cached_input_epoch;
+static bool insertion_armed;
+static uint32_t input_insertions, cached_input_insertions;
 static uint32_t detect_after_ms;
 static bool auto_preparing;
 static uint32_t auto_cycle, presentation_cycle, cached_presentation_cycle;
@@ -132,16 +134,19 @@ static void publish(void)
     if (!retain && !wristflow_product_charger_bus_release()) retain = true;
     if (!retain && idle_held) { rt_pm_release(PM_SLEEP_MODE_IDLE); idle_held = false; }
     level = rt_hw_interrupt_disable();
+    bool input_updated = cached_input_known != input_known || cached_input_good != input_good ||
+        cached_input_insertions != input_insertions;
     cached = session;
     busy = retain || start_pending || stop_pending || detect_pending;
     cached_input_known = input_known;
     cached_input_good = input_good;
     cached_auto_blocked = auto_blocked;
     cached_input_epoch = input_epoch;
+    cached_input_insertions = input_insertions;
     wristflow_charge_display_t charge = display_state(&cached, input_known, input_good, detect_pending);
     if (charge == WF_POWER_CHARGE_ACTIVE && session.automatic && !presentation_cycle && !stop_pending)
         presentation_cycle = auto_cycle;
-    bool notify = charge != published_charge || cached_presentation_cycle != presentation_cycle;
+    bool notify = input_updated || charge != published_charge || cached_presentation_cycle != presentation_cycle;
     cached_presentation_cycle = presentation_cycle;
     published_charge = charge;
     rt_hw_interrupt_enable(level);
@@ -159,6 +164,7 @@ static void report(void)
     wristflow_charge_session_t value = cached;
     bool pending = busy;
     bool known = cached_input_known, good = cached_input_good, blocked = cached_auto_blocked;
+    uint32_t insertions = cached_input_insertions;
     rt_hw_interrupt_enable(level);
     rt_kprintf("[charger] state=%s reason=%s busy=%u sampled=%u at_ms=%lu deadline_ms=%lu\n",
         states[value.state], reasons[value.reason], pending, value.sample_valid,
@@ -172,6 +178,7 @@ static void report(void)
     rt_kprintf("[charger] enabled means CEB readback, not measured current; no cell temperature or SOC\n");
     rt_kprintf("[charger] auto_usb=1 input_valid=%u good=%u cycle_locked=%u automatic=%u ITERM_REG03=%02x\n",
         known, good, blocked, value.automatic, value.termination);
+    rt_kprintf("[charger] input_insertions=%lu; confirmed PG low/high, not charging cycles\n", (unsigned long)insertions);
     rt_kprintf("[charger] entry_fault=%02x input_qualified=%u\n", value.entry_fault, value.input_qualified);
 }
 
@@ -182,6 +189,8 @@ void wristflow_product_charger_display(wristflow_power_snapshot_t *power)
     bool known = cached_input_known, good = cached_input_good;
     bool changing = detect_pending || input_epoch != cached_input_epoch;
     power->charge_cycle = cached_presentation_cycle;
+    power->input_observation = (wristflow_input_observation_t){
+        .valid = ready && known && !changing, .good = good, .insertions = cached_input_insertions};
     rt_hw_interrupt_enable(level);
     power->charge = WF_POWER_CHARGE_UNKNOWN;
     /* The service/core reason orders are a checked wire mapping, not enum identity. */
@@ -224,6 +233,11 @@ static void detect_input(uint32_t generation)
     }
     input_known = true;
     input_good = (status & 2) != 0;
+    if (!input_good) insertion_armed = true;
+    else if (insertion_armed) {
+        if (!++input_insertions) ++input_insertions;
+        insertion_armed = false;
+    }
     if (!input_good) {
         presentation_cycle = 0;
         if (session.state == WF_CHARGE_ENABLED)

@@ -3,13 +3,18 @@
 int main(void)
 {
     wristflow_endurance_t p;
-    wristflow_endurance_init(&p, true, true, true);
-    assert(!wristflow_endurance_usb(&p, true, true));
-    assert(!wristflow_endurance_usb(&p, false, false));
-    assert(!wristflow_endurance_usb(&p, true, true));
-    assert(!wristflow_endurance_usb(&p, true, false));
-    assert(!wristflow_endurance_usb(&p, false, true));
-    assert(wristflow_endurance_usb(&p, true, true));
+    wristflow_input_observation_t input = {.valid=true,.good=true};
+    wristflow_endurance_init(&p, true, &input);
+    assert(!wristflow_endurance_usb(&p, &input));
+    input.valid=false;input.good=false;assert(!wristflow_endurance_usb(&p,&input));
+    input.valid=true;input.good=true;assert(!wristflow_endurance_usb(&p,&input));
+    input.good=false;assert(!wristflow_endurance_usb(&p,&input));
+    input.valid=false;input.good=true;assert(!wristflow_endurance_usb(&p,&input));
+    input.valid=true;assert(wristflow_endurance_usb(&p,&input));
+    wristflow_endurance_init(&p,true,&input);
+    ++input.insertions;assert(wristflow_endurance_usb(&p,&input)); /* Coalesced low/high. */
+    input.good=false;assert(wristflow_endurance_usb(&p,&input)); /* Low/high/low also durable. */
+    input.valid=false;assert(wristflow_endurance_usb(&p,&input)); /* New confirmed event then unknown. */
     assert(!wristflow_endurance_hold(&p, true, 1, 2999));
     assert(!wristflow_endurance_hold(&p, false, 1, 2999) && !p.holding);
     assert(!wristflow_endurance_hold(&p, true, 2, 0));

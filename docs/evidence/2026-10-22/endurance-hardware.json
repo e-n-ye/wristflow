@@ -1,0 +1,773 @@
+{
+  "date": "2026-10-22",
+  "scope": "长续航同板集中验收、USB息屏退出缺陷修正与定点补验",
+  "base_commit": "81aa223720b859477240207d2a3d61b2700fcef1",
+  "branch": "codex/endurance-hardware",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "authorization": {
+    "same_board_display": true,
+    "original_battery": true,
+    "loose_wire_secured": true,
+    "usb_pc": true,
+    "user_present": true,
+    "flash_and_normal_reboot": true
+  },
+  "initial_preflight": {
+    "at": "2026-10-22T11:11:28.761472+00:00",
+    "build_record": "D:\\MY_Desk\\project\\wristflow\\artifacts\\product\\20261022-183427-113\\result.json",
+    "build_record_sha256": "5cdcebc50ea3bf8784224a62f7d77f336d0b3aba0e7d859210057c430c6c7f95",
+    "groups": {
+      "project_sources": {
+        "count": 506,
+        "mismatches": [],
+        "newline_only": [
+          "D:\\MY_Desk\\project\\wristflow\\apps\\product\\src\\phone_queue.c",
+          "D:\\MY_Desk\\project\\wristflow\\apps\\product\\src\\phone_queue.h",
+          "D:\\MY_Desk\\project\\wristflow\\ui\\xml\\wristflow_ui_gen.h",
+          "D:\\MY_Desk\\project\\wristflow\\ui\\xml\\screens\\screen_battery_gen.c",
+          "D:\\MY_Desk\\project\\wristflow\\ui\\xml\\screens\\screen_endurance_gen.c",
+          "D:\\MY_Desk\\project\\wristflow\\ui\\xml\\screens\\screen_endurance_gen.h",
+          "D:\\MY_Desk\\project\\wristflow\\ui\\xml\\screens\\screen_endurance.xml",
+          "D:\\MY_Desk\\project\\wristflow\\core\\endurance.c",
+          "D:\\MY_Desk\\project\\wristflow\\core\\endurance.h",
+          "D:\\MY_Desk\\project\\wristflow\\core\\radio_policy.c",
+          "D:\\MY_Desk\\project\\wristflow\\core\\radio_policy.h",
+          "D:\\MY_Desk\\project\\wristflow\\ui\\runtime\\endurance_view.c",
+          "D:\\MY_Desk\\project\\wristflow\\ui\\runtime\\endurance_view.h"
+        ]
+      },
+      "artifacts": {
+        "count": 29,
+        "mismatches": [],
+        "newline_only": []
+      }
+    },
+    "sdk_lock_clean": true,
+    "head": "81aa223720b859477240207d2a3d61b2700fcef1",
+    "branch": "codex/endurance-hardware",
+    "endpoint": {
+      "device": "COM5",
+      "vid": 6790,
+      "pid": 29987,
+      "location": "1-1.1",
+      "serial_number": "",
+      "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+      "disable_modem": 1
+    },
+    "main_bin_sha256": "27e02ab579234b6941da7d282f19f0a921b343b0fbbefc10c22f1d2deba0f3b0"
+  },
+  "initial_dry_run": "artifacts/endurance-hardware-20261022/dry-run.log",
+  "initial_flash": {
+    "endpoint": {
+      "device": "COM5",
+      "vid": 6790,
+      "pid": 29987,
+      "location": "1-1.1",
+      "serial_number": "",
+      "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+      "disable_modem": 1
+    },
+    "bin_sha256": "27e02ab579234b6941da7d282f19f0a921b343b0fbbefc10c22f1d2deba0f3b0",
+    "started": "2026-10-22T11:26:19.430723+00:00",
+    "command": [
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "scripts/Flash.ps1",
+      "-Example",
+      "product",
+      "-Port",
+      "COM5"
+    ],
+    "exit_code": 0,
+    "closed": "2026-10-22T11:29:04.426353+00:00"
+  },
+  "fix_flash": {
+    "endpoint": {
+      "device": "COM5",
+      "vid": 6790,
+      "pid": 29987,
+      "location": "1-1.1",
+      "serial_number": "",
+      "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+      "disable_modem": 1
+    },
+    "bin_sha256": "ead3a73576dada932e1c6fe11a0c94c0097d2b67528dcf4374f712a632f7a7a8",
+    "started": "2026-10-22T12:11:36.372053+00:00",
+    "command": [
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "scripts/Flash.ps1",
+      "-Example",
+      "product",
+      "-Port",
+      "COM5"
+    ],
+    "exit_code": 0,
+    "closed": "2026-10-22T12:14:21.455978+00:00"
+  },
+  "flash_records": [
+    {
+      "record": "artifacts/flash/product/20261022-192620-343/result.json",
+      "sha256": "53ebe8452def9a647c2b6b4b526286a613ff3c838a452ba49f7ff5b9f3399083",
+      "result": {
+        "date": "2026-10-22T19:29:04.3761997+08:00",
+        "example": "product",
+        "board": "sf32lb52-lchspi-ulp",
+        "port": "COM5",
+        "tool": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe",
+        "command": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+        "images": [
+          {
+            "name": "bootloader.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+            "address": "0x12010000",
+            "bytes": 58496,
+            "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+          },
+          {
+            "name": "main.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+            "address": "0x12020000",
+            "bytes": 7970588,
+            "sha256": "27e02ab579234b6941da7d282f19f0a921b343b0fbbefc10c22f1d2deba0f3b0"
+          },
+          {
+            "name": "ftab.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+            "address": "0x12000000",
+            "bytes": 11288,
+            "sha256": "600391b19b5dfe364c819cb2985e0630b1e95b94bc88a6dc571ae31d2a3aeb8f"
+          }
+        ],
+        "exit_code": 0,
+        "hardware_verified": false
+      }
+    },
+    {
+      "record": "artifacts/flash/product/20261022-201137-304/result.json",
+      "sha256": "0dfaf1b8c982642141226ca58bde5d8ac319075134a78d2710e4995242650e1f",
+      "result": {
+        "date": "2026-10-22T20:14:21.4120887+08:00",
+        "example": "product",
+        "board": "sf32lb52-lchspi-ulp",
+        "port": "COM5",
+        "tool": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe",
+        "command": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+        "images": [
+          {
+            "name": "bootloader.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+            "address": "0x12010000",
+            "bytes": 58496,
+            "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+          },
+          {
+            "name": "main.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+            "address": "0x12020000",
+            "bytes": 7971020,
+            "sha256": "ead3a73576dada932e1c6fe11a0c94c0097d2b67528dcf4374f712a632f7a7a8"
+          },
+          {
+            "name": "ftab.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+            "address": "0x12000000",
+            "bytes": 11288,
+            "sha256": "c500716de4262f0e893eec053ee181e8a91222bd14ac21c37636e3989acf098c"
+          }
+        ],
+        "exit_code": 0,
+        "hardware_verified": false
+      }
+    }
+  ],
+  "initial_bin": {
+    "sha256": "27e02ab579234b6941da7d282f19f0a921b343b0fbbefc10c22f1d2deba0f3b0",
+    "source_unchanged_for_initial_hardware": true,
+    "compiled_sources": 506,
+    "source_byte_match": 493,
+    "git_newline_only": 13,
+    "artifacts_byte_match": 29
+  },
+  "before": {
+    "reset": false,
+    "time_set": false,
+    "rtc_utc": "2026-10-22T11:24:38Z",
+    "steps_total": 0,
+    "native": 0,
+    "checkpoint_generation": 61,
+    "clean": true,
+    "wrist_requested": true,
+    "ble_connected": false,
+    "trace": "session0/state0/count0",
+    "pm_hold_released": true
+  },
+  "initial_startup": {
+    "reset_count": 1,
+    "rts_high_ms": 150,
+    "actual_rtc_year": 2000,
+    "time_set_to_current_utc_and_read_back": true,
+    "storage_restore": true,
+    "brightness": 55,
+    "face": "diffusion",
+    "layout_generation": 54,
+    "steps_total": 0,
+    "checkpoint_generation": 61,
+    "ble_radio": "enabled=1 adv=3 connected=0 settled=1 failed=0",
+    "wrist": "requested=1 continuous=1 armed=1 owned=1",
+    "early_inhibit": "attempted=1 hal=0 result=0 verified=1 profile=1",
+    "hold_released_and_closed": true
+  },
+  "user_observations": {
+    "authorization": {
+      "same_board_display": true,
+      "original_battery": true,
+      "loose_wire_secured": true,
+      "usb_pc": true,
+      "user_present": true,
+      "flash_and_normal_reboot": true
+    },
+    "groups": [
+      {
+        "group": 1,
+        "prompt_scope": "电池/长续航设置/优化/说明往返，不关闭优化项；取消后确认进入；已插USB不退出；自然黑屏同按约1秒取消",
+        "answer": "三项均正常，留在长续航模式",
+        "passed_bounded": true
+      },
+      {
+        "group": 2,
+        "prompt_scope": "自然黑屏同次KEY1满3秒退出表盘、释放不进菜单；原腕开关保留与自然息屏实际抬腕恢复",
+        "answer": "均正常，已退出且抬腕恢复",
+        "passed_bounded": true
+      },
+      {
+        "group": 3,
+        "prompt_scope": "近时闹钟、运行3分钟倒计时，进入模式自然到期提醒、关闭回极简页",
+        "answer": "两种提醒正常，闹钟不需要恢复，留在长续航",
+        "alarm_restore_waived_by_user": true,
+        "passed_bounded": true
+      },
+      {
+        "group": 4,
+        "prompt_scope": "普通reboot模式/时间恢复；拔USB15秒重接退出；正常触摸/腕/手机",
+        "answer": "然后拔下USB，等15秒再接回电脑，没有回到正常表盘，还是处于长续航页面，手动退出长续航，后，其他各项正常",
+        "passed_bounded": false,
+        "passed": [
+          "ordinary reboot mode/time restore",
+          "manual key exit still available",
+          "other normal controls"
+        ],
+        "failed": [
+          "USB reinsert automatic exit"
+        ]
+      }
+    ],
+    "phone_observation": {
+      "answer": "长续航情况下，无法连接",
+      "interpretation": "初版该时点模式内无连接为预期；已连接主动断开和退出重连尚未验"
+    },
+    "reboot_preparation": [
+      {
+        "answer": "已点亮，留在长续航",
+        "result": "第一次采集没有取得回执，未发reboot，未取hold"
+      },
+      {
+        "answer": "已按KEY1点亮",
+        "result": "等待已启动时取得回执，随后一次普通reboot成功"
+      }
+    ],
+    "phone_ready_after_failure": "USB已接回、普通页面、手机已连接",
+    "fix_groups": [
+      {
+        "group": 1,
+        "scope": "普通模式连接手机10秒后进入模式，保持USB",
+        "answer": "连接后进入模式，手机已断开且模式保持",
+        "passed_bounded": true
+      },
+      {
+        "group": 2,
+        "scope": "自然黑屏后拔USB15秒重接，无KEY1，自动退出、重连、触摸、腕偏好",
+        "answer": "自动退出、手机重连及其他均正常，常亮已关闭",
+        "passed_bounded": true
+      }
+    ]
+  },
+  "initial_device_results": {
+    "passed_bounded": [
+      "电池/设置/优化/说明进入返回；取消后确认",
+      "已插USB进入不立即退出",
+      "自然黑屏同按约1秒松开取消",
+      "自然黑屏同按满3秒退出表盘，释放不进菜单",
+      "腕偏好保留及实际自然息屏抬腕恢复",
+      "已有近时闹钟与运行3分钟倒计时提醒，关闭返回模式",
+      "一次SDK普通reboot恢复模式/时间；原闹钟5条及计步检查点保留"
+    ],
+    "failed": [
+      "拔USB15秒重接仍在模式，用户手动退出；此失败不覆盖修正版"
+    ],
+    "group1_uart": {
+      "radio_suspended_complete": 12,
+      "radio_resumed_complete": 10,
+      "connected_all_samples": false,
+      "wrist_stopped": "configured=0 stop_verified=1 requested=0 armed=0 owned=0; after validffff CTRL10=14/PULSE=00/TAP=00/CTRL4=00",
+      "wrist_resume": "requested1/armed1/owned1; wake event=wrist; SOURCE85/axes40",
+      "continuous_note": "continuous保留会话配置，不代表检测仍活动",
+      "steps": "valid total0/native0，非零保留未验"
+    },
+    "reminders_uart": {
+      "wake_event_reminder_count": 2,
+      "identity_note": "日志无提醒ID；闹钟/倒计时映射及关闭返回依用户反馈",
+      "reset": false,
+      "hold": false
+    },
+    "reboot": {
+      "actual_commands": 1,
+      "rts": false,
+      "time_set": false,
+      "before_utc": "2026-10-22T11:43:27Z",
+      "after_utc": "2026-10-22T11:43:40Z",
+      "storage_restore": true,
+      "alarm_count": 5,
+      "alarm_generation": 641,
+      "steps_checkpoint_generation": 61,
+      "after_ble": "enabled0 adv1 suspended1 settled1 failed0",
+      "after_wrist": "requested0 armed0 owned0",
+      "hold_cleared_by_reboot": true,
+      "after_allow_readback": 1,
+      "closed": true
+    }
+  },
+  "usb_fix": {
+    "root_cause_source": "息屏product_power_service清ADC/PG缓存且不采样；charger维护确认PG但旧display不发布，旧事件仅charge/cycle变化。未捕获失败插拔窗口UART，源码路径与用户现象一致，不冒充现场完整因果波形。",
+    "test_reproduction": "新增实际charger service→空ADC快照断言在旧服务失败，usb-before-fix-test.log:6；退出旧测试仅注入PG，未验证生产息屏链。",
+    "implementation": [
+      "charger唯一worker发布独立input_observation(valid/good/insertions)，确认低高才增；初始高/未知/状态INT不造插入",
+      "PG状态/代次变化独立通知；新代次跨邮箱合并和最终低/未知保留；原ADC/PG/charge_cycle/估算参数不改",
+      "shell接受进入时通过无I/O缓存回调取最新基线；模式恢复后绑定一次；core计数不消费直到成功切页",
+      "不新增ADC/I2C/息屏轮询，不改充电启停/电流/电压/安全责任"
+    ],
+    "host": {
+      "debug": "58/58, 24.46s",
+      "release_assert_enabled": "58/58, 12.08s",
+      "commands": [
+        "cmake --build artifacts/host/control-center-debug -j 6",
+        "ctest --test-dir artifacts/host/control-center-debug --output-on-failure",
+        "cmake --build artifacts/host/native-wrist-wake-release -j 6",
+        "ctest --test-dir artifacts/host/native-wrist-wake-release --output-on-failure"
+      ],
+      "new_coverage": [
+        "boot-high无插入",
+        "无ADC/无充电ACTIVE仍有PG",
+        "状态不变也通知PG低",
+        "合并低高及低高低/随后未知仍识别",
+        "未知单独不造插入",
+        "满电/拒充新接入",
+        "旧UI快照进入前已插不误退"
+      ]
+    },
+    "builds": [
+      {
+        "target": "product",
+        "record": "artifacts/product/20261022-200833-351/result.json",
+        "record_sha256": "64a3aae80aa710549d1a2b008e5d175bb478ba2e5f4841f972fea9acd68a72e8",
+        "main_bin_sha256": "ead3a73576dada932e1c6fe11a0c94c0097d2b67528dcf4374f712a632f7a7a8",
+        "main_bin_bytes": 7971020,
+        "sources": 506,
+        "artifacts": 29,
+        "warnings": 7
+      },
+      {
+        "target": "ui_demo",
+        "record": "artifacts/ui_demo/20261022-200904-895/result.json",
+        "record_sha256": "fd15b2dbddf50bd7ec49f198559b2c1e9654098446e0c062244a68a9f144b49e",
+        "main_bin_sha256": "5318707d67fde13ac6bc125ddb6da2c9f8ed07c6a361c18a24ad6625bf4d1a50",
+        "main_bin_bytes": 7722600,
+        "sources": 456,
+        "artifacts": 22,
+        "warnings": 6
+      }
+    ],
+    "preflight": {
+      "at": "2026-10-22T12:10:47.976586+00:00",
+      "builds": [
+        {
+          "target": "product",
+          "record": "D:\\MY_Desk\\project\\wristflow\\artifacts\\product\\20261022-200833-351\\result.json",
+          "record_sha256": "64a3aae80aa710549d1a2b008e5d175bb478ba2e5f4841f972fea9acd68a72e8",
+          "sources": 506,
+          "artifacts": 29,
+          "main_bin_sha256": "ead3a73576dada932e1c6fe11a0c94c0097d2b67528dcf4374f712a632f7a7a8"
+        },
+        {
+          "target": "ui_demo",
+          "record": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ui_demo\\20261022-200904-895\\result.json",
+          "record_sha256": "fd15b2dbddf50bd7ec49f198559b2c1e9654098446e0c062244a68a9f144b49e",
+          "sources": 456,
+          "artifacts": 22,
+          "main_bin_sha256": "5318707d67fde13ac6bc125ddb6da2c9f8ed07c6a361c18a24ad6625bf4d1a50"
+        }
+      ],
+      "sdk_lock_clean": true,
+      "endpoint": {
+        "device": "COM5",
+        "vid": 6790,
+        "pid": 29987,
+        "location": "1-1.1",
+        "serial_number": "",
+        "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+        "disable_modem": 1
+      },
+      "head": "81aa223720b859477240207d2a3d61b2700fcef1"
+    },
+    "sdk_lock_unchanged": true,
+    "vendor_clean": true,
+    "review": "两个只读代理分工服务/主线程UI，修复事件/进入基线/合并末态后无剩余确定阻断；无代理设备操作",
+    "remaining_software_boundary": "UNCONFIRMED沿用安全责任优先，不资格化新PG；I/O失败时USB退出不保证，KEY1可退出。启动恢复绑定及转场拒绝后重试组合未单独测试，相关部件路径已覆盖。"
+  },
+  "fix_device_results": {
+    "startup": "一次150ms RTS；实际RTC2000后校当前UTC读回12:15:00；storage恢复、亮度55/闹钟5/检查点61；normal BLE广播与腕请求，allow1关口",
+    "connected_to_suspend_uart": {
+      "before": "index0 generation1/subscribed/MTU131；enabled1 adv1 connected1 settled1 failed0",
+      "request": "action=3 result=0 failed=0",
+      "disconnect": "reason=22",
+      "after": "enabled0 adv1 connected0 disconnecting0 suspended1 settled1 failed0",
+      "wrist": "configured0 stop_verified1 requested0 armed0 owned0; validffff/CTRL10=14/PULSE=TAP=CTRL4=00",
+      "settings_save": "verified=1",
+      "reset": false,
+      "hold": false
+    },
+    "usb_reinsert_and_phone_reconnect": "用户明确自然黑屏拔USB15秒再接，不按KEY自动退出/手机重连/触摸及腕开关正常；该物理插拔阶段串口已关，不伪称UART捕获重连",
+    "not_rerun_on_fix": [
+      "前版完整页面/按键取消/三秒/两提醒/普通reboot流程未全套重跑，按精确版本保留；修复软件相关回归完整通过"
+    ]
+  },
+  "closeout": {
+    "transport_error": null,
+    "uart_bytes": 0,
+    "device_readback_confirmed": false,
+    "commands": "show_date; wf_ble radio/status; wf_wrist status; wf_steps status; wf_charger status; wf_pm status",
+    "hold": false,
+    "reset": false,
+    "closed": "2026-10-22T12:22:35.889445+00:00",
+    "endpoint_lease_reacquired": true,
+    "final_by_user": "正常模式、USB连接、手机已重连、触摸/腕偏好正常、临时常亮关闭；闹钟按用户要求保留测试值"
+  },
+  "failures_and_limitations": [
+    "系统python缺serial，改用已有SDK Python3.13.15/pySerial3.5，无安装",
+    "初始before status无回执，未hold即关闭，退出1；亮屏后before-awake成功",
+    "第一次reboot准备只status无回执，未发reboot；提前等待后KEY窗口一次reboot成功",
+    "group1一次steps行损坏native=0 partiestored=1，原字节保留，不补partial/restored",
+    "fix-link一次非法UTF-8字节导致wf_steps command not found，失败查询保留；protocol rejected=1保留",
+    "日志FT6146 id_H/id_L错误及非匹配0x6b I2C探测/恢复原样保留，不能写全程零错误",
+    "修复编译中较早成功版本被进入基线/合并末态补强版本替代，最终result绑定明确",
+    "收尾所有查询无回执，原始0字节保留；脚本退出0仅表示传输无异常，非快照通过",
+    "无物理DEEP/电流/续航/芯片断电/温度/计步精度/非零步保留/Flash断写或长期稳定性新增证据"
+  ],
+  "operation_commands": {
+    "flash": [
+      "pwsh -NoProfile -File scripts/Flash.ps1 -Example product -Port COM5 -DryRun",
+      "python artifacts/endurance-hardware-20261022/flash.py",
+      "python artifacts/endurance-hardware-20261022/flash.py --fix"
+    ],
+    "capture": "SDK python执行snapshot.py/observe.py/closeout.py；所有会话命令及reset项以session.json为准，辅助脚本随阶段增选项，最终脚本哈希不冒充每次历史版本相同"
+  },
+  "logs": [
+    {
+      "path": "artifacts/endurance-hardware-20261022/before/session.json",
+      "bytes": 526,
+      "sha256": "2ea43f71f631c5435e55f304f26cf68e80f223e4afe5ac62b9f1b7de8e333960"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/before/uart.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/before-awake/session.json",
+      "bytes": 1281,
+      "sha256": "28e1a158f405d128680e02c3135615701b0291953c8f6f6a28f82a5277ef58fd"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/before-awake/uart.bin",
+      "bytes": 5214,
+      "sha256": "5c633a546d43e3d483b0fa6d85fbba47d866c53ad2172f980b19fb60867435fd"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/before-awake.log",
+      "bytes": 5477,
+      "sha256": "5001a5bda3f36be8e3948900e8ff8e7488f9e6d396d1ff8c9ce9752f386b704d"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/before.log",
+      "bytes": 77,
+      "sha256": "f5370464560e63a34637b725bb752b6e8ae7255de1e35f1c1ece425b98d59d9e"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/closeout/cleanup.json",
+      "bytes": 1063,
+      "sha256": "5cafc919988037eff89c62aac644c6ad14eb15a3509b82ed2b9851bdf00ac70d"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/closeout/session.json",
+      "bytes": 1034,
+      "sha256": "de441c7446783737b6dac54fb2258ee217752078410f50049656c6c99e9e0eed"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/closeout/uart.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/closeout.log",
+      "bytes": 1063,
+      "sha256": "5cafc919988037eff89c62aac644c6ad14eb15a3509b82ed2b9851bdf00ac70d"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/closeout.py",
+      "bytes": 1785,
+      "sha256": "89b4ac237ae9ec56fe453cdfc72270eaedc7ee2b9c81dc1bdf30fe5ce8a4927b"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/dry-run.log",
+      "bytes": 452,
+      "sha256": "416a222a756e3d7b5034b006e786a662c6fde094aa00db0d55c855d4d353643b"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/fix-build-summary.json",
+      "bytes": 767,
+      "sha256": "92f76dec2fdc8c15b5d27ec5534b03f649c4ed72191058df556aa3980feffa68"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/fix-dry-run.log",
+      "bytes": 452,
+      "sha256": "b3d829ef1357f0f304fbeee870684caa29d20c9eb8f652016c64220b956c7d20"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/fix-link/session.json",
+      "bytes": 5894,
+      "sha256": "2a8a884365fd7f2240315250c730905514af0020e471a9550d1645f0039dd2b1"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/fix-link/uart.bin",
+      "bytes": 30762,
+      "sha256": "dd2183275f1cf3851b8efbdc041ac660f41a61b5d41e9f169fbad5027a9cc2ca"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/fix-link-observe.log",
+      "bytes": 5894,
+      "sha256": "2a8a884365fd7f2240315250c730905514af0020e471a9550d1645f0039dd2b1"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/fix-preflight.json",
+      "bytes": 1131,
+      "sha256": "b2b7047946deca47317f872ba3e98444b404685c5667453836494127988f3227"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/fix-preflight.log",
+      "bytes": 1131,
+      "sha256": "b2b7047946deca47317f872ba3e98444b404685c5667453836494127988f3227"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/flash-fix-session.json",
+      "bytes": 578,
+      "sha256": "cacdd783598fe9a905865dbaac226371350543b564c508e5b8215292fc449609"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/flash-fix.log",
+      "bytes": 1306,
+      "sha256": "68713c8d863bbbaedec9a660a666b46264689e08ec1b70e1c71185595e6a3df0"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/flash-session.json",
+      "bytes": 578,
+      "sha256": "f6d233df347d8dfc01e41603acc8777f0a715cb0563b4cd5284401343332474f"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/flash.log",
+      "bytes": 1306,
+      "sha256": "834cda7a91265468495168013ac684f58ca8ae45b0050a2f497006dfb1ff8bb6"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/flash.py",
+      "bytes": 2165,
+      "sha256": "b1f9ec9f324ca6d1e484809bc14b63dbdf28269886cbc47189b5e63c6e5b52fd"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/group1/session.json",
+      "bytes": 7082,
+      "sha256": "d7b9947bebee96971fa05a09168931cd87dd16dc1fc026c35af5d4708c73b940"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/group1/uart.bin",
+      "bytes": 97847,
+      "sha256": "04b36e7c6c9b27b6a5738cbc018cce813ba617e0d14fbc7fe986d927232ff545"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/group1-observe.log",
+      "bytes": 7082,
+      "sha256": "d7b9947bebee96971fa05a09168931cd87dd16dc1fc026c35af5d4708c73b940"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/observe.py",
+      "bytes": 2421,
+      "sha256": "879131b2fde4ba4c56e365e4f3623ee3ae64da4ad567c72f9e6f2f3e853a99dd"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/preflight.json",
+      "bytes": 1893,
+      "sha256": "6e0267f2850d93c2111e10327818a7960f1e4f9349142efc32b0fe851d087e97"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/preflight.log",
+      "bytes": 1893,
+      "sha256": "6e0267f2850d93c2111e10327818a7960f1e4f9349142efc32b0fe851d087e97"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/preflight.py",
+      "bytes": 2620,
+      "sha256": "8f088324c1fdf13060093b0978548c3e4e6e7399a8d47871e7f692116df76d83"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/reboot/session.json",
+      "bytes": 9780,
+      "sha256": "380d9452c35a7637ef52581ad74c47be2bb17d2c09a048e4148ee71223e9e216"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/reboot/uart.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/reboot-awake/session.json",
+      "bytes": 7698,
+      "sha256": "9bfa5932dafb2bf9c9361db127f32646a9a03333edf0dbde8130cc898f2cb40d"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/reboot-awake/uart.bin",
+      "bytes": 13770,
+      "sha256": "56b94937b63958dc4aedd75f6749eab27b95784058cdf7b6fed90cf697b8ed00"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/reboot-awake.log",
+      "bytes": 15319,
+      "sha256": "5cb333a10381b876466dca70eb178456b8ef2e4fd0a7ed712d55bbf6494dae72"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/reboot.log",
+      "bytes": 1882,
+      "sha256": "666e103edf7c5e9aad5d1256620af02ed06c087a7dfef5d1af8c69d6bb5c38fd"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/reminders/session.json",
+      "bytes": 5003,
+      "sha256": "ed0c6ed7abc26ba22ed66e966ed61cc5a410aeed4ab6397639e596b5845e03af"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/reminders/uart.bin",
+      "bytes": 27146,
+      "sha256": "a9b00be1f12e9d537cadf7f86bafb52e6d4b5aab226a814bd22dc7c461c5c8fd"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/reminders-observe.log",
+      "bytes": 5003,
+      "sha256": "ed0c6ed7abc26ba22ed66e966ed61cc5a410aeed4ab6397639e596b5845e03af"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/retained-hook-fix.txt",
+      "bytes": 542,
+      "sha256": "bb996e1f406bfd49022d792b3a98347903bffabd0b5a9cceaf338a417ba897bb"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/retained-hook.txt",
+      "bytes": 542,
+      "sha256": "bb996e1f406bfd49022d792b3a98347903bffabd0b5a9cceaf338a417ba897bb"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/snapshot.py",
+      "bytes": 5363,
+      "sha256": "97d08fc5e0b23d5b73b58e46face56fc70bb05d0dc7e10cdbc048ba24608ccff"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/startup/session.json",
+      "bytes": 1666,
+      "sha256": "c4d7ded8750ad4d67db4ddd1f9090c7949d4111d37d418d9d92deb9d475a5f4f"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/startup/uart.bin",
+      "bytes": 10852,
+      "sha256": "e55c9e1c4351d1eacdcf0eb13bd3c91c223b4463cbfa82923a27f5a94319dcb1"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/startup-fix/session.json",
+      "bytes": 1686,
+      "sha256": "baa7a489d184613d10a49e633bda43279d40a1c90eadc73d3d1dcb299e020498"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/startup-fix/uart.bin",
+      "bytes": 10961,
+      "sha256": "11320833c853dc527aaa26f3b1547aaa65a66dc9c49436dbfd3d96dc058e9dff"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/startup-fix.log",
+      "bytes": 11309,
+      "sha256": "5f202cbcdef1435f30d3e9d972005c753b0fb222508a8278b61bac91e1d92170"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/startup.log",
+      "bytes": 11198,
+      "sha256": "3ed73df8cb072feb2caa854d7c8f1e4bbcf7093b37a59e07bd087adc1ce2d37b"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/usb-before-fix-build.log",
+      "bytes": 530,
+      "sha256": "00c5de36cb7d61a8e65b450fd83c145bf3441c720cd6efbea4d0a3757769e335"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/usb-before-fix-test.log",
+      "bytes": 658,
+      "sha256": "5fa766c5c7d1dd84f89f763dc682c37acc5aaab4986a9a9c35a3822e5a914de9"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/usb-fix-debug-build.log",
+      "bytes": 6612,
+      "sha256": "f6cd3b13045d9d1c8048642da849f203428dd5ce8fcfd6f04e9287f49cf6682b"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/usb-fix-debug-test.log",
+      "bytes": 6233,
+      "sha256": "d26bf7bd1b4129f5fabd88e20377a432a8ed5b8cbac420d4085155580fa3011b"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/usb-fix-product-build.log",
+      "bytes": 13989,
+      "sha256": "c9f83ccc35608f22472446df3df5db1c588a93c58302e873f2dcb3f7a32eff52"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/usb-fix-release-build.log",
+      "bytes": 6612,
+      "sha256": "8d578404ce478e44fb40ef5017cecb2ac5d5759b7b2be7d9021811381e0ccece"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/usb-fix-release-test.log",
+      "bytes": 6243,
+      "sha256": "fd726fec698ecc6dcd6ec8dd38295b447f675e8aad6cffe03401370ce42aefd7"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/usb-fix-ui-demo-build.log",
+      "bytes": 10789,
+      "sha256": "59c8801a17491e6e692d76c8c85300562721ac3327ab7be8137effbfeb136fb6"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/user-observations.json",
+      "bytes": 2736,
+      "sha256": "de10fa340b39152b512f61000c3e47bfc5517b1c0cc4f18be0ccb5c45eb0c8c6"
+    },
+    {
+      "path": "artifacts/endurance-hardware-20261022/verify-fix.py",
+      "bytes": 1843,
+      "sha256": "bd8d85b7f9e077a09dc989e17dbe59d995e0ddafd6c20be1fa75283d4540a20c"
+    }
+  ]
+}

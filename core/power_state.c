@@ -6,6 +6,9 @@ bool wristflow_power_equal(const wristflow_power_snapshot_t *a, const wristflow_
         a->voltage_valid == b->voltage_valid && a->millivolts == b->millivolts &&
         a->charge == b->charge && a->charge_reason == b->charge_reason &&
         a->charge_cycle == b->charge_cycle && a->estimate_valid == b->estimate_valid &&
+        a->input_observation.valid == b->input_observation.valid &&
+        a->input_observation.good == b->input_observation.good &&
+        a->input_observation.insertions == b->input_observation.insertions &&
         a->estimated_percent == b->estimated_percent;
 }
 
