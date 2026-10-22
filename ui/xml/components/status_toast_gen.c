@@ -48,9 +48,9 @@ lv_obj_t * status_toast_create(lv_obj_t * parent)
         lv_obj_set_flag(lv_obj_0, LV_OBJ_FLAG_HIDDEN, true);
         lv_obj_set_flag(lv_obj_0, LV_OBJ_FLAG_CLICKABLE, false);
         lv_obj_set_flag(lv_obj_0, LV_OBJ_FLAG_SCROLLABLE, false);
-        lv_obj_set_style_bg_color(lv_obj_0, lv_color_hex(0x194f78), 0);
+        lv_obj_set_style_bg_color(lv_obj_0, lv_color_hex(0x303030), 0);
         lv_obj_set_style_bg_opa(lv_obj_0, (255 * 100 / 100), 0);
-        lv_obj_set_style_border_color(lv_obj_0, lv_color_hex(0x427d9b), 0);
+        lv_obj_set_style_border_color(lv_obj_0, lv_color_hex(0x666666), 0);
         lv_obj_set_style_border_width(lv_obj_0, 1, 0);
         lv_obj_set_style_radius(lv_obj_0, 30, 0);
         lv_obj_set_style_pad_all(lv_obj_0, 0, 0);

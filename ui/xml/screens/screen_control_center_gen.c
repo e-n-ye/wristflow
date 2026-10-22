@@ -59,7 +59,7 @@ lv_obj_t * screen_control_center_create(void)
         lv_obj_set_height(lv_obj_1, 4);
         lv_obj_set_flag(lv_obj_1, LV_OBJ_FLAG_CLICKABLE, false);
         lv_obj_set_flag(lv_obj_1, LV_OBJ_FLAG_SCROLLABLE, false);
-        lv_obj_set_style_bg_color(lv_obj_1, lv_color_hex(0x55baff), 0);
+        lv_obj_set_style_bg_color(lv_obj_1, lv_color_hex(0x777777), 0);
         lv_obj_set_style_bg_opa(lv_obj_1, (255 * 100 / 100), 0);
         lv_obj_set_style_border_width(lv_obj_1, 0, 0);
         lv_obj_set_style_radius(lv_obj_1, 2, 0);
@@ -101,7 +101,7 @@ lv_obj_t * screen_control_center_create(void)
         lv_obj_set_y(connection_status, 39);
         lv_label_set_text(connection_status, "");
         lv_obj_set_style_text_font(connection_status, icons_20, 0);
-        lv_obj_set_style_text_color(connection_status, FG_MUTED, 0);
+        lv_obj_set_style_text_color(connection_status, lv_color_hex(0x707070), 0);
 
         lv_obj_t * control_clock = lv_label_create(lv_obj_0);
         lv_obj_set_name(control_clock, "control_clock");
@@ -118,7 +118,7 @@ lv_obj_t * screen_control_center_create(void)
         lv_obj_set_y(dnd_button, 88);
         lv_obj_set_width(dnd_button, 100);
         lv_obj_set_height(dnd_button, 100);
-        lv_obj_set_style_bg_color(dnd_button, lv_color_hex(0x183453), 0);
+        lv_obj_set_style_bg_color(dnd_button, lv_color_hex(0x252525), 0);
         lv_obj_set_style_bg_opa(dnd_button, (255 * 100 / 100), 0);
         lv_obj_set_style_border_width(dnd_button, 0, 0);
         lv_obj_set_style_radius(dnd_button, 50, 0);
@@ -134,7 +134,7 @@ lv_obj_t * screen_control_center_create(void)
         lv_obj_set_y(silent_button, 88);
         lv_obj_set_width(silent_button, 100);
         lv_obj_set_height(silent_button, 100);
-        lv_obj_set_style_bg_color(silent_button, lv_color_hex(0x183453), 0);
+        lv_obj_set_style_bg_color(silent_button, lv_color_hex(0x252525), 0);
         lv_obj_set_style_bg_opa(silent_button, (255 * 100 / 100), 0);
         lv_obj_set_style_border_width(silent_button, 0, 0);
         lv_obj_set_style_radius(silent_button, 50, 0);
@@ -150,7 +150,7 @@ lv_obj_t * screen_control_center_create(void)
         lv_obj_set_y(wrist_button, 88);
         lv_obj_set_width(wrist_button, 100);
         lv_obj_set_height(wrist_button, 100);
-        lv_obj_set_style_bg_color(wrist_button, lv_color_hex(0x183453), 0);
+        lv_obj_set_style_bg_color(wrist_button, lv_color_hex(0x252525), 0);
         lv_obj_set_style_bg_opa(wrist_button, (255 * 100 / 100), 0);
         lv_obj_set_style_border_width(wrist_button, 0, 0);
         lv_obj_set_style_radius(wrist_button, 50, 0);
@@ -166,7 +166,7 @@ lv_obj_t * screen_control_center_create(void)
         lv_obj_set_y(settings_button, 204);
         lv_obj_set_width(settings_button, 100);
         lv_obj_set_height(settings_button, 100);
-        lv_obj_set_style_bg_color(settings_button, lv_color_hex(0x183453), 0);
+        lv_obj_set_style_bg_color(settings_button, lv_color_hex(0x252525), 0);
         lv_obj_set_style_bg_opa(settings_button, (255 * 100 / 100), 0);
         lv_obj_set_style_border_width(settings_button, 0, 0);
         lv_obj_set_style_radius(settings_button, 50, 0);
@@ -182,7 +182,7 @@ lv_obj_t * screen_control_center_create(void)
         lv_obj_set_y(flashlight_button, 204);
         lv_obj_set_width(flashlight_button, 100);
         lv_obj_set_height(flashlight_button, 100);
-        lv_obj_set_style_bg_color(flashlight_button, lv_color_hex(0x183453), 0);
+        lv_obj_set_style_bg_color(flashlight_button, lv_color_hex(0x252525), 0);
         lv_obj_set_style_bg_opa(flashlight_button, (255 * 100 / 100), 0);
         lv_obj_set_style_border_width(flashlight_button, 0, 0);
         lv_obj_set_style_radius(flashlight_button, 50, 0);
@@ -199,7 +199,7 @@ lv_obj_t * screen_control_center_create(void)
         lv_obj_set_width(phone_button, 100);
         lv_obj_set_height(phone_button, 100);
         lv_obj_set_flag(phone_button, LV_OBJ_FLAG_CLICKABLE, false);
-        lv_obj_set_style_bg_color(phone_button, lv_color_hex(0x183453), 0);
+        lv_obj_set_style_bg_color(phone_button, lv_color_hex(0x252525), 0);
         lv_obj_set_style_bg_opa(phone_button, (255 * 100 / 100), 0);
         lv_obj_set_style_border_width(phone_button, 0, 0);
         lv_obj_set_style_radius(phone_button, 50, 0);
@@ -216,7 +216,7 @@ lv_obj_t * screen_control_center_create(void)
         lv_obj_set_width(drain_button, 100);
         lv_obj_set_height(drain_button, 100);
         lv_obj_set_flag(drain_button, LV_OBJ_FLAG_CLICKABLE, false);
-        lv_obj_set_style_bg_color(drain_button, lv_color_hex(0x183453), 0);
+        lv_obj_set_style_bg_color(drain_button, lv_color_hex(0x252525), 0);
         lv_obj_set_style_bg_opa(drain_button, (255 * 100 / 100), 0);
         lv_obj_set_style_border_width(drain_button, 0, 0);
         lv_obj_set_style_radius(drain_button, 50, 0);
@@ -232,7 +232,7 @@ lv_obj_t * screen_control_center_create(void)
         lv_obj_set_y(endurance_button, 320);
         lv_obj_set_width(endurance_button, 100);
         lv_obj_set_height(endurance_button, 100);
-        lv_obj_set_style_bg_color(endurance_button, lv_color_hex(0x183453), 0);
+        lv_obj_set_style_bg_color(endurance_button, lv_color_hex(0x252525), 0);
         lv_obj_set_style_bg_opa(endurance_button, (255 * 100 / 100), 0);
         lv_obj_set_style_border_width(endurance_button, 0, 0);
         lv_obj_set_style_radius(endurance_button, 50, 0);
@@ -248,7 +248,7 @@ lv_obj_t * screen_control_center_create(void)
         lv_obj_set_y(keep_awake_button, 320);
         lv_obj_set_width(keep_awake_button, 100);
         lv_obj_set_height(keep_awake_button, 100);
-        lv_obj_set_style_bg_color(keep_awake_button, lv_color_hex(0x183453), 0);
+        lv_obj_set_style_bg_color(keep_awake_button, lv_color_hex(0x252525), 0);
         lv_obj_set_style_bg_opa(keep_awake_button, (255 * 100 / 100), 0);
         lv_obj_set_style_border_width(keep_awake_button, 0, 0);
         lv_obj_set_style_radius(keep_awake_button, 50, 0);

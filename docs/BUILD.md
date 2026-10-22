@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-10-22 控制中心灰阶底色修正
+
+从`main@2f6d819`进入同版上板验收，用户指出默认圆钮偏蓝，修正控制中心及轻量提示为中性灰；开启蓝色保留。只改本页XML、官方输出及运行时颜色，设置／业务逻辑不改。Pro2.0.1 Community GUI Ctrl+B成功，LVGL9.4.0，100%预览及真实LVGL关闭／开启／提示截图通过；既有`settings_ui`和`ui_navigation`两项Debug回归2/2（3.07秒）。
+
+分别执行`pwsh -NoProfile -File scripts/Build.ps1 -Example product -Jobs 4`及同入口`-Example ui_demo -Jobs 4`，仍调用官方SCons；Product`20261022-151715-051`／BIN`7a313abc…`及Demo`20261022-151812-642`／BIN`528c6743…`均退出0，497／447源码及29／22产物字节重哈希一致，SDK锁保持。链接RWX与缺dfu等既有提示保留；[本轮证据](evidence/2026-10-22/control-center-hardware.json)区分初版`1ab8fd5d…`硬件第一组与本次配色固件的独立设备结论。
+
 ## 2026-10-22 控制中心与共用选时
 
 从`ac74f27`实现[九格控制中心](CONTROL-CENTER.md)、定时勿扰与静音偏好，记录v9仍24B；按用户指出的重复选时，将原闹钟的双滚轮与确认按钮抽为`time_picker.xml`供闹钟／勿扰共同使用。Pro2.0.1 Community GUI末次Ctrl+B预览编译成功，LVGL9.4.0，100%检查及实际LVGL九图标／中文／`~100%`／选时与确认框通过。GCC15.2.0／CMake4.2.3／Ninja1.13.2，最终完整Debug55/55（24.89秒）、保留断言Release相关12/12（6.11秒，含闹钟）通过，定点独立复审无剩余阻断。

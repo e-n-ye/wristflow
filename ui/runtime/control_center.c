@@ -151,14 +151,14 @@ void wristflow_control_center_update(wristflow_control_center_t *view, const wri
     else snprintf(text, sizeof text, "%02u:%02u", snapshot->hour_24, snapshot->minute);
     label(named(view->root, "control_clock"), text);
     lv_obj_set_style_text_color(named(view->root, "connection_status"),
-        lv_color_hex(wristflow_ui_shell_phone_connected(view->shell) ? 0x55baff : 0x64748b), 0);
+        lv_color_hex(wristflow_ui_shell_phone_connected(view->shell) ? 0x55baff : 0x707070), 0);
     wristflow_settings_t settings;
     if (!wristflow_ui_shell_get_settings(view->shell, &settings)) return;
     const char *names[] = {"dnd_button", "silent_button", "wrist_button", "keep_awake_button"};
     bool active[] = {wristflow_ui_shell_dnd(view->shell), settings.silent_mode,
         settings.wrist_wake, wristflow_ui_shell_keep_minutes(view->shell) != 0};
     for (unsigned i = 0; i < 4; ++i)
-        lv_obj_set_style_bg_color(named(view->root, names[i]), lv_color_hex(active[i] ? 0x008cff : 0x183453), 0);
+        lv_obj_set_style_bg_color(named(view->root, names[i]), lv_color_hex(active[i] ? 0x008cff : 0x252525), 0);
 }
 
 void wristflow_control_center_destroy(wristflow_control_center_t *view)
