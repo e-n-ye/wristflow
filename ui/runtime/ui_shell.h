@@ -23,6 +23,7 @@ typedef wristflow_save_state_t (*wristflow_settings_status_cb_t)(uint32_t reques
 typedef uint32_t (*wristflow_vibration_preview_cb_t)(wristflow_vibration_mode_t, void *);
 typedef void (*wristflow_vibration_cancel_cb_t)(uint32_t request, void *);
 typedef uint32_t (*wristflow_reminder_vibration_cb_t)(wristflow_vibration_mode_t, void *);
+typedef wristflow_input_observation_t (*wristflow_input_observation_cb_t)(void *);
 
 typedef struct {
     const wristflow_watchface_t *watchface;
@@ -147,6 +148,9 @@ void wristflow_ui_shell_set_dnd(wristflow_ui_shell_t *shell, bool enabled);
 bool wristflow_ui_shell_phone_connected(const wristflow_ui_shell_t *shell);
 bool wristflow_ui_shell_endurance(const wristflow_ui_shell_t *);
 bool wristflow_ui_shell_set_endurance(wristflow_ui_shell_t *, bool enabled);
+/* Cached qualification only, no I/O. Refreshes the entry baseline at the
+ * accepted mode boundary so an earlier insertion cannot look like a new one. */
+void wristflow_ui_shell_bind_input_observation(wristflow_ui_shell_t *, wristflow_input_observation_cb_t, void *);
 void wristflow_ui_shell_endurance_prompt(wristflow_ui_shell_t *);
 void wristflow_ui_shell_endurance_key(wristflow_ui_shell_t *, bool down, uint32_t press_id, uint32_t elapsed_ms);
 void wristflow_ui_shell_endurance_services(wristflow_ui_shell_t *, bool ready, bool failed);

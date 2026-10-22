@@ -1,10 +1,17 @@
 #include "endurance.h"
-void wristflow_endurance_init(wristflow_endurance_t *p, bool enabled, bool valid, bool good)
-{ *p = (wristflow_endurance_t){.enabled = enabled, .usb_absent = valid && !good}; }
-bool wristflow_endurance_usb(wristflow_endurance_t *p, bool valid, bool good)
+void wristflow_endurance_init(wristflow_endurance_t *p, bool enabled, const wristflow_input_observation_t *input)
 {
-    if (!p->enabled || !valid) return false;
-    if (!good) { p->usb_absent = true; return false; }
+    *p = (wristflow_endurance_t){.enabled = enabled,
+        .usb_absent = input->valid && !input->good, .usb_insertions = input->insertions};
+}
+bool wristflow_endurance_usb(wristflow_endurance_t *p, const wristflow_input_observation_t *input)
+{
+    if (!p->enabled) return false;
+    if (input->insertions != p->usb_insertions) return true;
+    if (!input->valid) return false;
+    if (!input->good) { p->usb_absent = true; return false; }
+    /* The producer remembers a qualified replug even if UI events coalesced
+     * and the consumer never saw the intermediate absence. */
     return p->usb_absent;
 }
 void wristflow_endurance_block(wristflow_endurance_t *p)

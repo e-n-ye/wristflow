@@ -10,6 +10,9 @@ static unsigned brightness;
 static wristflow_ui_shell_t *shell;
 static wristflow_settings_t saved;
 static wristflow_save_state_t save_state;
+static wristflow_input_observation_t cached_input;
+static wristflow_input_observation_t read_input(void *context)
+{ assert(context==&cached_input);return cached_input; }
 static uint32_t tick(void) { return ticks; }
 static void flush(lv_display_t *d,const lv_area_t *a,uint8_t *p)
 { (void)a;(void)p;lv_display_flush_ready(d); }
@@ -42,6 +45,7 @@ int main(void)
     wristflow_settings_t prefs=wristflow_settings_default();prefs.brightness=27;prefs.wrist_wake=true;
     wristflow_watch_snapshot_t s=wristflow_product_snapshot(true,1792656000U);
     s.power.input_valid=true;s.power.input_good=true;
+    s.power.input_observation=(wristflow_input_observation_t){.valid=true,.good=true};
     create(&s,&prefs);
     assert(wristflow_ui_shell_keep_awake(shell,5));
     mode(true);surface(WRISTFLOW_SURFACE_ENDURANCE);
@@ -87,14 +91,31 @@ int main(void)
     assert(!active.endurance_mode && active.wrist_wake);
     mode(true);advance(310000);mode(false);assert(!wristflow_ui_shell_keep_minutes(shell));
     mode(true);
-    s.power.input_valid=false;s.power.input_good=false;wristflow_ui_shell_update(shell,&s);
-    s.power.input_valid=true;s.power.input_good=true;wristflow_ui_shell_update(shell,&s);
+    s.power.input_observation.valid=false;s.power.input_observation.good=false;wristflow_ui_shell_update(shell,&s);
+    s.power.input_observation.valid=true;s.power.input_observation.good=true;wristflow_ui_shell_update(shell,&s);
     assert(wristflow_ui_shell_endurance(shell)); /* Unknown does not invent unplug. */
-    s.power.input_good=false;wristflow_ui_shell_update(shell,&s);
-    s.power.input_valid=false;s.power.input_good=true;wristflow_ui_shell_update(shell,&s);
+    s.power.input_observation.good=false;wristflow_ui_shell_update(shell,&s);
+    s.power.input_observation.valid=false;s.power.input_observation.good=true;wristflow_ui_shell_update(shell,&s);
     assert(wristflow_ui_shell_endurance(shell));
-    s.power.input_valid=true;wristflow_ui_shell_charging_event(shell,&s);advance(240);
+    s.power.input_observation.valid=true;wristflow_ui_shell_charging_event(shell,&s);advance(240);
     assert(!wristflow_ui_shell_endurance(shell));surface(WRISTFLOW_SURFACE_HOME);
+    cached_input=s.power.input_observation;
+    ++cached_input.insertions; /* Confirmed before entering, old UI snapshot. */
+    wristflow_ui_shell_bind_input_observation(shell,read_input,&cached_input);
+    mode(true);s.power.input_observation=cached_input;wristflow_ui_shell_update(shell,&s);
+    assert(wristflow_ui_shell_endurance(shell));mode(false);
+    wristflow_ui_shell_bind_input_observation(shell,NULL,NULL);
+    /* Screen-off ADC cache is empty, both charger mailbox edges coalesced,
+     * and no charging presentation exists (full/fault/refused). */
+    mode(true);advance(11000);assert(wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_OFF);
+    s.power.input_valid=false;s.power.voltage_valid=false;s.power.charge_cycle=0;
+    ++s.power.input_observation.insertions;
+    lv_timer_enable(false);wristflow_ui_shell_charging_event(shell,&s);
+    assert(!wristflow_ui_shell_endurance(shell));lv_timer_enable(true);advance(240);surface(WRISTFLOW_SURFACE_HOME);
+    mode(true);++s.power.input_observation.insertions;s.power.input_observation.good=false;
+    wristflow_ui_shell_charging_event(shell,&s);advance(240);
+    assert(!wristflow_ui_shell_endurance(shell)); /* Merged low/high/low. */
+    s.power.input_observation.good=true;wristflow_ui_shell_update(shell,&s);
     mode(true);wristflow_ui_shell_sync_settings_save(shell);
     uint8_t record[WRISTFLOW_SETTINGS_BYTES];assert(wristflow_settings_encode(&saved,record));
     wristflow_settings_t restored;assert(wristflow_settings_decode(&restored,record,sizeof record));

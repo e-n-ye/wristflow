@@ -111,6 +111,13 @@ MSH_CMD_EXPORT(wf_ui, Read cached carousel state without changing UI);
 
 static volatile bool endurance_key_enabled, key_down, key_mode_press;
 static volatile uint32_t key_pressed_tick, key_press_id;
+static wristflow_input_observation_t input_observation(void *context)
+{
+    (void)context;
+    wristflow_power_snapshot_t cached = {0};
+    wristflow_product_charger_display(&cached);
+    return cached.input_observation;
+}
 static void sync_wrist_setting(void)
 {
     wristflow_settings_t settings;
@@ -338,6 +345,7 @@ int main(void)
         &layout, wristflow_product_services_layout, wristflow_product_services_layout_status, NULL, countdown, alarm);
     RT_ASSERT(shell);
     product_shell = shell;
+    wristflow_ui_shell_bind_input_observation(shell, input_observation, NULL);
     wristflow_ui_shell_bind_settings_store(shell, wristflow_product_services_settings,
         wristflow_product_services_settings_status, NULL);
     wristflow_ui_shell_bind_notification_delete(shell, wristflow_product_ble_delete, NULL);

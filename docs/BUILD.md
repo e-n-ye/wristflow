@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-10-22 长续航息屏USB退出修复
+
+初版同BIN验收发现黑屏拔USB15秒接回未退出。新增实际charger service→空ADC快照断言在旧服务失败复现；[修复](ENDURANCE.md)由charger发布独立资格化PG／低高接入代次及事件，shell进入时取最新无I/O基线，保留充电控制与ADC／估算路径。最终Debug58/58（24.46秒）、全库保留断言Release58/58（12.08秒）及两项独立只读复核通过，覆盖启动高、未知／状态INT、无ADC／无ACTIVE、合并末态低／未知和旧UI快照等边界。
+
+原官方`Build.ps1 -Example product/ui_demo -Jobs 4`分别编译成功：Product`20261022-200833-351`／BIN7,971,020B／`ead3a735…`，Demo`20261022-200904-895`／7,722,600B／`5318707d…`，506／456源码与29／22产物字节重哈希一致；主BIN较初版增432B。SDK及子模块锁干净，Python3.13.15／SCons4.10.1／ArmGCC14.2.1与主机工具不变。既有FinSH、RWX／ftab syscall／entry和缺dfu提示保留；无XML／资源变更，未重复官方GUI导出。retained钩子仍在0x200033bc，假分支不调用Flash。先期成功编译被最终进入基线／合并末态补强版替代；[设备轮证据](evidence/2026-10-22/endurance-hardware.json)区分初版通过／失败、新版下载及USB／BLE补验，不混用版本。
+
 ## 2026-10-22 长续航模式软件轮
 
 从`9836b21`实现[长续航模式](ENDURANCE.md)，v10／24B保存、KEY1三秒／新USB退出、保留计步与提醒、BLE连接／广播及腕暂停恢复。官方Pro2.0.1 Community经Ctrl+B导出并成功编译预览，LVGL9.4.0；极简页、电池页100%及实际LVGL滚动／中文／确认／退出环检查完成。新增字形检查修复“点”缺字；电池滚动容器前景继承已在XML显式修正并官方重导出，未手改生成C。

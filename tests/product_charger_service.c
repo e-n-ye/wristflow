@@ -2,6 +2,7 @@
 #include "../apps/product/src/product_charger_service.c"
 #include <assert.h>
 #include <stdio.h>
+#include "endurance.h"
 
 static struct rt_thread thread;
 static struct rt_i2c_bus_device bus;
@@ -120,6 +121,45 @@ static void background(void)
 }
 static int command(const char *action, const char *duration)
 { char *args[]={"wf_charger",(char *)action,(char *)duration}; return wf_charger(duration ? 3 : 2,args); }
+static void input_observation_tests(void)
+{
+    assert(!pm && !rail_leased);
+    /* A boot with USB already present must not create an insertion. */
+    session=(wristflow_charge_session_t){.state=WF_CHARGE_STOPPED,.reason=WF_CHARGE_MANUAL};
+    input_known=cached_input_known=false;input_good=cached_input_good=false;
+    insertion_armed=false;input_insertions=cached_input_insertions=0;
+    auto_blocked=true;published_charge=WF_POWER_CHARGE_STOPPED;
+    presentation_cycle=cached_presentation_cycle=0;
+    regs[8]=0x42;regs[9]=0;input_changed();background();
+    wristflow_power_snapshot_t off={0};wristflow_product_charger_display(&off);
+    assert(off.input_observation.valid && off.input_observation.good && !off.input_observation.insertions);
+    assert(!off.input_valid && !off.voltage_valid && !off.charge_cycle);
+    wristflow_endurance_t mode;wristflow_endurance_init(&mode,true,&off.input_observation);
+    assert(!wristflow_endurance_usb(&mode,&off.input_observation));
+    unsigned notifications=ui_events;
+    regs[8]=0x40;input_changed();background();
+    assert(published_charge==WF_POWER_CHARGE_STOPPED && ui_events>notifications);
+    /* No consumer read between low and high: the durable insertion survives
+     * merged mailbox bits, even if entry is refused and no ACTIVE cycle exists. */
+    fail_io=true;input_changed();background();
+    wristflow_product_charger_display(&off);assert(!off.input_observation.valid);
+    fail_io=false;adc_fail=true;regs[8]=0x42;input_changed();background();adc_fail=false;
+    wristflow_product_charger_display(&off);
+    assert(off.input_observation.valid && off.input_observation.good && off.input_observation.insertions==1);
+    assert(!off.charge_cycle && wristflow_endurance_usb(&mode,&off.input_observation));
+    wristflow_endurance_init(&mode,true,&off.input_observation);
+    fail_io=true;input_changed();background();fail_io=false;
+    input_changed();background();wristflow_product_charger_display(&off);
+    assert(off.input_observation.insertions==1 && !wristflow_endurance_usb(&mode,&off.input_observation));
+    input_changed();wristflow_product_charger_display(&off);assert(!off.input_observation.valid);
+    background();wristflow_product_charger_display(&off);
+    assert(off.input_observation.insertions==1 && !wristflow_endurance_usb(&mode,&off.input_observation));
+    /* Full indication also has no automatic ACTIVE presentation identity. */
+    regs[8]=0x40;input_changed();background();regs[8]=0x5a;input_changed();background();
+    wristflow_product_charger_display(&off);
+    assert(off.charge==WF_POWER_CHARGE_FULL && !off.charge_cycle && off.input_observation.insertions==2);
+    assert(wristflow_endurance_usb(&mode,&off.input_observation));
+}
 int main(void)
 {
     assert(command("start","1") != RT_EOK && !transfers);
@@ -136,6 +176,12 @@ int main(void)
     regs[1]=0xac; regs[2]=9; regs[4]=0x9b; regs[5]=0x1a; regs[8]=0x42; regs[10]=0x49; regs[11]=0x43;
     regs[8] = 0x40; background(); /* Initial USB-absent check, then no polling. */
     assert(input_known && !input_good && !pm && !auto_blocked);
+    /* The voltage worker clears its cache while off. USB policy must still
+     * receive the charger's qualified PG without requesting an ADC sample. */
+    wristflow_power_snapshot_t off={0};
+    wristflow_product_charger_display(&off);
+    assert(off.input_observation.valid && !off.input_observation.good);
+    assert(!off.input_valid && !off.voltage_valid);
     regs[8] = 0x42;
     assert(command("start","0") != RT_EOK && command("start","61") != RT_EOK);
     assert(command("start","-1") != RT_EOK && command("start","1abc") != RT_EOK);
@@ -329,6 +375,7 @@ int main(void)
     assert(command("stop",NULL)==RT_EOK); publish();
     before=transfers; wristflow_product_charger_display(&display);
     assert(!display.charge_cycle && transfers==before); background(); assert(!pm);
+    input_observation_tests();
     puts("charger worker: asynchronous commands, stop precedence, initialization, PM, recursive lock and fault cleanup passed");
     return 0;
 }

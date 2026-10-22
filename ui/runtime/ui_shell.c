@@ -93,6 +93,8 @@ struct wristflow_ui_shell {
     wristflow_endurance_t endurance;
     uint32_t suspended_keep_at, suspended_keep_ms;
     bool endurance_services_ready, endurance_services_failed;
+    wristflow_input_observation_cb_t input_observation;
+    void *input_observation_context;
 };
 
 static void gesture(lv_event_t *event);
@@ -718,7 +720,7 @@ bool wristflow_ui_shell_update(wristflow_ui_shell_t *shell,
     if (!shell || !wristflow_snapshot_valid(snapshot))
         return false;
     shell->snapshot = *snapshot;
-    if (wristflow_endurance_usb(&shell->endurance, snapshot->power.input_valid, snapshot->power.input_good))
+    if (wristflow_endurance_usb(&shell->endurance, &snapshot->power.input_observation))
         wristflow_ui_shell_set_endurance(shell, false);
     if (wristflow_ui_shell_dnd(shell) &&
         wristflow_notification_view_alert(shell->notifications) != WF_ALERT_NONE)
@@ -740,7 +742,7 @@ bool wristflow_ui_shell_charging_event(wristflow_ui_shell_t *shell,
     const wristflow_watch_snapshot_t *snapshot)
 {
     if (!shell || !wristflow_snapshot_valid(snapshot)) return false;
-    if (wristflow_endurance_usb(&shell->endurance, snapshot->power.input_valid, snapshot->power.input_good))
+    if (wristflow_endurance_usb(&shell->endurance, &snapshot->power.input_observation))
         wristflow_ui_shell_set_endurance(shell, false);
     bool was_active = wristflow_ui_shell_charging_active(shell);
     bool opened = wristflow_charging_view_update(shell->charging, snapshot,
@@ -1470,8 +1472,9 @@ bool wristflow_ui_shell_set_endurance(wristflow_ui_shell_t *shell, bool enabled)
         wristflow_notification_view_hide(shell->notifications);
         if (wristflow_ui_shell_charging_active(shell)) dismiss_charging(shell);
     }
-    wristflow_endurance_init(&shell->endurance, enabled,
-        shell->snapshot.power.input_valid, shell->snapshot.power.input_good);
+    if (enabled && shell->input_observation)
+        shell->snapshot.power.input_observation = shell->input_observation(shell->input_observation_context);
+    wristflow_endurance_init(&shell->endurance, enabled, &shell->snapshot.power.input_observation);
     shell->preferences.endurance_mode = enabled;
     shell->endurance_services_ready = false;
     shell->endurance_services_failed = false;
@@ -1492,6 +1495,18 @@ bool wristflow_ui_shell_set_endurance(wristflow_ui_shell_t *shell, bool enabled)
 
 static void endurance_cancel(lv_event_t *event)
 { (void)event; wristflow_settings_dismiss(lv_screen_active()); }
+void wristflow_ui_shell_bind_input_observation(wristflow_ui_shell_t *shell,
+    wristflow_input_observation_cb_t read, void *context)
+{
+    if (!shell) return;
+    shell->input_observation = read;
+    shell->input_observation_context = context;
+    /* Startup mode may have been restored before the cached source was bound. */
+    if (shell->endurance.enabled && read) {
+        shell->snapshot.power.input_observation = read(context);
+        wristflow_endurance_init(&shell->endurance,true,&shell->snapshot.power.input_observation);
+    }
+}
 static void endurance_accept(lv_event_t *event)
 {
     wristflow_ui_shell_t *shell = lv_event_get_user_data(event);

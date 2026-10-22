@@ -15,6 +15,12 @@ typedef enum {
     WF_POWER_CHARGE_REASON_INPUT, WF_POWER_CHARGE_REASON_FAULT, WF_POWER_CHARGE_REASON_VOLTAGE,
     WF_POWER_CHARGE_REASON_REGULATION
 } wristflow_charge_display_reason_t;
+/* Charger worker's debounced PG observation, independent of screen/ADC. Only
+ * a confirmed low followed by high advances insertions; boot-high does not. */
+typedef struct {
+    bool valid, good;
+    uint32_t insertions;
+} wristflow_input_observation_t;
 typedef struct {
     bool input_valid;
     bool input_good;
@@ -25,6 +31,7 @@ typedef struct {
     /* First confirmed automatic ACTIVE in an input cycle; zero after confirmed
      * unplug. Status IRQs never allocate a new identity. Not persistent. */
     uint32_t charge_cycle;
+    wristflow_input_observation_t input_observation;
     /* Identity/time of an actual ADC completion, not of a UI read or PG update. */
     uint32_t voltage_sequence, voltage_sampled_ms;
     bool estimate_valid;
