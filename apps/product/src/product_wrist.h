@@ -7,4 +7,7 @@ void wristflow_product_wrist_enable(bool enabled);
 /* Consume a coalesced, source-validated wake on the UI thread. Disable clears
  * pending wakes immediately, before asynchronous register cleanup. */
 bool wristflow_product_wrist_take_wake(void);
+/* Cached worker publication; no device IO on the caller. */
+bool wristflow_product_wrist_suspended(void);
+bool wristflow_product_wrist_failed(void);
 #endif

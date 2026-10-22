@@ -36,30 +36,10 @@ static void toast(wristflow_control_center_t *view, const char *text)
 void wristflow_control_center_leave(wristflow_control_center_t *view)
 { if (view) hide_toast(view->toast_timer); }
 
-static void cancel_endurance(lv_event_t *event)
-{
-    wristflow_control_center_t *view = lv_event_get_user_data(event);
-    lv_obj_t *dialog = lv_obj_find_by_name(view->root, "settings_confirm");
-    if (dialog) lv_obj_delete(dialog);
-}
-
-static void confirm_endurance(lv_event_t *event)
-{
-    wristflow_control_center_t *view = lv_event_get_user_data(event);
-    cancel_endurance(event);
-    toast(view, "长续航模式待实现");
-}
-
 static void endurance_prompt(wristflow_control_center_t *view)
 {
-    if (lv_obj_find_by_name(view->root, "settings_confirm")) return;
     wristflow_control_center_leave(view);
-    lv_obj_t *dialog = component_confirm_create(view->root);
-    lv_obj_set_name(dialog, "settings_confirm");
-    lv_label_set_text(named(dialog, "confirm_text"), "是否进入长续航模式？\n功能待实现，本次不会切换模式。");
-    lv_obj_remove_flag(dialog, LV_OBJ_FLAG_EVENT_BUBBLE | LV_OBJ_FLAG_GESTURE_BUBBLE);
-    lv_obj_add_event_cb(named(dialog, "confirm_cancel"), cancel_endurance, LV_EVENT_SHORT_CLICKED, view);
-    lv_obj_add_event_cb(named(dialog, "confirm_accept"), confirm_endurance, LV_EVENT_SHORT_CLICKED, view);
+    wristflow_ui_shell_endurance_prompt(view->shell);
 }
 
 static void action(lv_event_t *event)
@@ -105,7 +85,7 @@ static void action(lv_event_t *event)
                 toast(view, enabled ? "持续亮屏5分钟" : "持续亮屏已关闭");
         }
     } else if (!strcmp(name, "endurance_button")) {
-        if (long_press) destination = WRISTFLOW_SURFACE_ENDURANCE_SETTINGS;
+        if (long_press) destination = WRISTFLOW_SURFACE_SYSTEM;
         else endurance_prompt(view);
     }
     if (destination != WRISTFLOW_SURFACE_COUNT)

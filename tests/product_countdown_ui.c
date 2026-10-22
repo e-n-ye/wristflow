@@ -204,6 +204,15 @@ int main(int argc, char **argv)
     assert(task().phase==WRISTFLOW_COUNTDOWN_RUNNING && task().duration_ms==3000);
     assert(wristflow_ui_shell_navigation(shell)->surface==WRISTFLOW_SURFACE_HOME);
     advance(3200); alert_press("countdown_close");
+    /* A real backend expiry is retained while endurance's LVGL timers sleep. */
+    start(20); assert(wristflow_ui_shell_set_endurance(shell,true)); advance(240);
+    assert(task().phase==WRISTFLOW_COUNTDOWN_RUNNING);
+    advance(11000);sleep_for(10000);present();
+    assert(wristflow_ui_shell_endurance(shell));
+    assert(wristflow_ui_shell_navigation(shell)->surface==WRISTFLOW_SURFACE_ENDURANCE);
+    alert_press("countdown_close");assert(task().phase==WRISTFLOW_COUNTDOWN_IDLE);
+    assert(wristflow_ui_shell_endurance(shell));
+    assert(wristflow_ui_shell_set_endurance(shell,false));advance(240);
     wristflow_ui_shell_destroy(shell); shell=NULL; lv_timer_handler();
     assert(timers()==initial_timers && !test_countdown_wait());
     assert(!lv_obj_find_by_name(lv_layer_top(),"reminder_host"));

@@ -11,7 +11,9 @@
 #define WF_EVENT_ALARM     32u
 #define WF_EVENT_CHARGER   64u
 #define WF_EVENT_WRIST     128u
-#define WF_EVENT_ALL       255u
+#define WF_EVENT_KEY_STATE 256u
+#define WF_EVENT_RADIO     512u
+#define WF_EVENT_ALL       1023u
 
 void wristflow_product_pm_start(void);
 void wristflow_product_event_send(rt_uint32_t events);

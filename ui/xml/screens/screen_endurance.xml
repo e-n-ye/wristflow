@@ -1,0 +1,19 @@
+<screen>
+    <styles><style name="hidden_knob" bg_opa="0%" pad_all="0" /></styles>
+    <view name="endurance_page" width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_color="#fg_primary" style_text_font="notification_22">
+        <lv_label name="endurance_date" x="24" y="102" width="342" text="10/22 周四" style_text_align="center" />
+        <lv_label name="endurance_time" x="24" y="139" width="342" text="15:55" style_text_font="clock_80" style_text_align="center" />
+        <lv_label name="endurance_battery" x="24" y="245" width="342" text="~83%" style_text_align="center" />
+        <lv_label name="endurance_steps" x="24" y="360" width="342" text="步数 0" style_text_align="center" />
+        <lv_label name="endurance_status" x="24" y="296" width="342" text="" style_text_align="center" style_text_color="#fg_secondary" />
+        <lv_label name="endurance_save" x="24" y="401" width="342" text="" style_text_align="center" style_text_color="#fg_secondary" />
+        <lv_obj name="endurance_exit" width="390" height="450" hidden="true" clickable="false" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0">
+            <lv_arc name="endurance_ring" x="121" y="93" width="148" height="148" clickable="false" value="0" bg_start_angle="0" bg_end_angle="360" rotation="270" style_arc_color="0x303030" style_arc_width="10">
+                <style name="hidden_knob" selector="knob" />
+            </lv_arc>
+            <lv_image x="163" y="135" src="control_battery" />
+            <lv_label x="24" y="278" width="342" text="按住按键3秒退出长续航模式" style_text_align="center" style_text_font="notification_22" style_text_color="#fg_primary" />
+            <lv_label x="24" y="344" width="342" text="松开取消" style_text_align="center" style_text_font="notification_22" style_text_color="#fg_secondary" />
+        </lv_obj>
+    </view>
+</screen>

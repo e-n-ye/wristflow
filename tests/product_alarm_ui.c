@@ -255,7 +255,17 @@ int main(int argc,char**argv) {
     assert(vibration_cancels==11&&vibration_starts==12);advance(32);assert(vibration_starts==12);
     click(named(lv_layer_top(),"countdown_reminder"),"countdown_close");
     assert(wristflow_countdown_start(&countdown,1,now(NULL)));advance(1100);assert(vibration_starts==13);
+    click(named(lv_layer_top(),"countdown_reminder"),"countdown_close");
+    assert(wristflow_ui_shell_set_endurance(shell,true));advance(240);
+    alarms.pending[0]=(wristflow_alarm_pending_t){.alarm=alarms.data.alarms.entries[0],
+        .due_ms=clock_value.monotonic_ms,.sequence=500,.active=true};
+    assert(wristflow_ui_shell_reminder_event(shell));assert(current_alarm());
+    assert(vibration_starts==14 && wristflow_ui_shell_endurance(shell));
+    click(current_alarm(),"alarm_reminder_close");assert(!wristflow_ui_shell_reminder_active(shell));
+    assert(wristflow_ui_shell_navigation(shell)->surface==WRISTFLOW_SURFACE_ENDURANCE);
+    assert(wristflow_ui_shell_set_endurance(shell,false));advance(240);
+    assert(wristflow_countdown_start(&countdown,1,now(NULL)));advance(1100);assert(vibration_starts==15);
     wristflow_ui_shell_destroy(shell);shell=NULL;lv_indev_delete(input);assert(timers()==initial);
-    assert(vibration_cancels==12); /* Destruction cancels the currently owned request once. */
+    assert(vibration_cancels==14); /* Destruction cancels the currently owned request once. */
     lv_display_delete(d);lv_deinit();puts("Product alarm UI: save/failure/delete/six-source queue/coalesce/context passed");return 0;
 }

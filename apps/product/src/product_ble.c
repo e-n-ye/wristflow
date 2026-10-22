@@ -28,6 +28,17 @@ static wf_phone_t phone;
 static sibles_hdl service;
 static volatile uint8_t connection = 0xff, subscribed;
 static volatile uint32_t generation;
+static uint32_t pause_epoch;
+static wf_radio_policy_t radio;
+static uint32_t radio_now(void)
+{ return (uint32_t)((uint64_t)rt_tick_get() * 1000U / RT_TICK_PER_SECOND); }
+wf_radio_policy_t wristflow_product_ble_radio(void)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    wf_radio_policy_t value = radio;
+    rt_hw_interrupt_enable(level);
+    return value;
+}
 static uint8_t cccd[2];
 static bool ready, gps_reply, weather_reply, weather_v2_attempted;
 static uint32_t revision, alert_sequence;
@@ -69,8 +80,10 @@ BLE_GATT_SERVICE_DEFINE_128(attributes) {
 
 static bool enqueue(unsigned kind, const uint8_t *data, unsigned size, uint32_t request)
 {
-    uint32_t peer = generation;
-    return wf_phone_queue_send(&sender, packets, peer, kind, data, size, request);
+    rt_base_t level = rt_hw_interrupt_disable();
+    uint32_t peer = generation, epoch = pause_epoch;
+    rt_hw_interrupt_enable(level);
+    return wf_phone_queue_send_epoch(&sender, packets, peer, epoch, kind, data, size, request);
 }
 static bool queue_weather(uint32_t request, void *context)
 {
@@ -86,21 +99,40 @@ static uint8_t *read_value(uint8_t conn, uint8_t index, uint16_t *size)
 }
 static uint8_t write_value(uint8_t conn, sibles_set_cbk_t *v)
 {
-    if (conn != connection) return 0x0e;
+    rt_base_t level = rt_hw_interrupt_disable();
+    bool allowed = conn == connection && radio.enabled;
+    uint32_t peer = generation, epoch = pause_epoch;
+    rt_hw_interrupt_enable(level);
+    if (!allowed) return 0x0e;
     if (v->idx == RX_VALUE)
-        return enqueue(PACKET_RX, v->value, v->len, 0) ? 0 : 0x11;
+        return wf_phone_queue_send_epoch(&sender, packets, peer, epoch,
+            PACKET_RX, v->value, v->len, 0) ? 0 : 0x11;
     if (v->idx == TX_CCCD) {
         if (v->len != 2 || v->value[1] || v->value[0] > 1) return 0x0d;
+        level = rt_hw_interrupt_disable();
+        if (peer != generation || epoch != pause_epoch || !radio.enabled || conn != connection) {
+            rt_hw_interrupt_enable(level); return 0x0e;
+        }
         cccd[0] = v->value[0]; cccd[1] = 0; subscribed = cccd[0];
-        enqueue(PACKET_SUBSCRIBE, NULL, 0, 0);
+        rt_hw_interrupt_enable(level);
+        wf_phone_queue_send_epoch(&sender, packets, peer, epoch, PACKET_SUBSCRIBE, NULL, 0, 0);
     }
     return 0;
 }
 static uint8_t adv_event(uint8_t event, void *context, void *data)
 {
     (void)context;
+    rt_base_t level = rt_hw_interrupt_disable();
+    if (event == SIBLES_ADV_EVT_ADV_STARTED) {
+        bool success = ((sibles_adv_evt_startted_t *)data)->status == 0;
+        wf_radio_adv(&radio, success ? WF_RADIO_STARTED : WF_RADIO_UNREADY, success, radio_now());
+    } else if (event == SIBLES_ADV_EVT_ADV_STOPPED)
+        wf_radio_adv(&radio, WF_RADIO_READY, true, radio_now());
+    rt_hw_interrupt_enable(level);
     if (event == SIBLES_ADV_EVT_ADV_STARTED)
         rt_kprintf("[ble] advertising status=%u name=%s\n", ((sibles_adv_evt_startted_t *)data)->status, WF_BLE_NAME);
+    enqueue(PACKET_RADIO, NULL, 0, 0);
+    wristflow_product_event_send(WF_EVENT_RADIO);
     return 0;
 }
 /* The SDK weak default is NON_DISC, which phone discovery may filter out. */
@@ -119,7 +151,7 @@ static void start_advertising(void)
     p.own_addr_type = GAPM_STATIC_ADDR;
     p.config.adv_mode = SIBLES_ADV_CONNECT_MODE;
     p.config.mode_config.conn_config.interval = 0xa0;
-    p.config.is_auto_restart = 1;
+    p.config.is_auto_restart = 0; /* Product owns restart and endurance suspension. */
     p.config.max_tx_pwr = 0x7f;
     p.evt_handler = adv_event;
     p.rsp_data.completed_name = rt_malloc(sizeof(sibles_adv_type_name_t) + strlen(WF_BLE_NAME));
@@ -140,19 +172,71 @@ static void start_advertising(void)
         rt_kprintf("[ble] address=%02X:%02X:%02X:%02X:%02X:%02X discoverable=general\n",
             address.addr[5], address.addr[4], address.addr[3], address.addr[2], address.addr[1], address.addr[0]);
     rt_kprintf("[ble] NUS registered; adv init=%u\n", result);
-    if (result == SIBLES_ADV_NO_ERR) sibles_advertising_start(advertising);
+    rt_base_t level = rt_hw_interrupt_disable();
+    wf_radio_adv(&radio, result == SIBLES_ADV_NO_ERR ? WF_RADIO_READY : WF_RADIO_UNREADY,
+        result == SIBLES_ADV_NO_ERR, radio_now());
+    rt_hw_interrupt_enable(level);
 }
-static bool transmit(const char *text, uint32_t peer)
+void wristflow_product_ble_enable(bool enabled)
+{
+    /* Serialize the effective pause edge with parser side effects. No SDK call
+     * runs under this mutex or the IRQ guard. The epoch survives a lost wake. */
+    if (!ready || wristflow_product_ble_radio().enabled == enabled) return;
+    rt_mutex_take(&phone_lock, RT_WAITING_FOREVER);
+    rt_base_t level = rt_hw_interrupt_disable();
+    bool changed = radio.enabled != enabled;
+    if (changed && !enabled) ++pause_epoch;
+    wf_radio_enable(&radio, enabled, radio_now());
+    rt_hw_interrupt_enable(level);
+    rt_mutex_release(&phone_lock);
+    if (changed) enqueue(PACKET_RADIO, NULL, 0, 0);
+}
+static void reconcile_radio(void)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    bool failed_before = radio.failed;
+    wf_radio_action_t action = wf_radio_next(&radio, radio_now());
+    uint32_t command_revision = action == WF_RADIO_DISCONNECT ? radio.link_revision : radio.adv_revision;
+    uint8_t peer = connection;
+    rt_hw_interrupt_enable(level);
+    uint8_t result = 0;
+    if (action == WF_RADIO_START) result = sibles_advertising_start(advertising);
+    else if (action == WF_RADIO_STOP) result = sibles_advertising_stop(advertising);
+    else if (action == WF_RADIO_DISCONNECT) {
+        ble_gap_disconnect_t request = {.conn_idx = peer, .reason = CO_ERROR_REMOTE_USER_TERM_CON};
+        result = ble_gap_disconnect(&request);
+    }
+    level = rt_hw_interrupt_disable();
+    wf_radio_result(&radio, action, command_revision, result == 0);
+    bool failed = radio.failed;
+    rt_hw_interrupt_enable(level);
+    if (action || failed != failed_before) {
+        rt_kprintf("[ble-radio] action=%u result=%u failed=%u\n", action, result, failed);
+        wristflow_product_event_send(WF_EVENT_RADIO);
+    }
+}
+static bool protocol_current(uint32_t peer, uint32_t epoch)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    bool current = peer == generation && epoch == pause_epoch && radio.enabled;
+    rt_hw_interrupt_enable(level);
+    return current;
+}
+static bool transmit(const char *text, uint32_t peer, uint32_t epoch)
 {
     size_t left = strlen(text);
-    while (left && subscribed && connection != 0xff && peer == generation) {
+    while (left && subscribed && connection != 0xff && protocol_current(peer, epoch)) {
         uint16_t n = (uint16_t)(left > 20 ? 20 : left); /* Works at the minimum ATT MTU. */
         sibles_value_t value = {0};
         value.hdl = service; value.idx = TX_VALUE; value.len = n; value.value = (uint8_t *)text;
         int result = 0;
         for (unsigned retry = 0; retry < 5; ++retry) {
-            if (!subscribed || connection == 0xff || peer != generation) return false;
+            rt_mutex_take(&phone_lock, RT_WAITING_FOREVER);
+            if (!subscribed || connection == 0xff || !protocol_current(peer, epoch)) {
+                rt_mutex_release(&phone_lock); return false;
+            }
             result = sibles_write_value(connection, &value);
+            rt_mutex_release(&phone_lock);
             if (result != 0) break;
             rt_thread_mdelay(20);
         }
@@ -161,11 +245,11 @@ static bool transmit(const char *text, uint32_t peer)
     }
     return left == 0;
 }
-static void send_weather(uint32_t request, uint32_t peer)
+static void send_weather(uint32_t request, uint32_t peer, uint32_t epoch)
 {
     if (!wristflow_weather_request_pending(request)) return;
     weather_v2_attempted = true;
-    if (!transmit("\r\n{\"t\":\"weather\",\"v\":2,\"f\":true}\r\n", peer))
+    if (!transmit("\r\n{\"t\":\"weather\",\"v\":2,\"f\":true}\r\n", peer, epoch))
         wristflow_weather_request_failed(request);
     wristflow_product_event_send(WF_EVENT_PHONE);
 }
@@ -191,13 +275,20 @@ static void worker(void *context)
     (void)context;
     wf_phone_packet_t p;
     for (;;) {
+        reconcile_radio();
         if (wristflow_weather_poll()) wristflow_product_event_send(WF_EVENT_PHONE);
         uint32_t remaining = wristflow_weather_request_remaining_ms();
         /* At most three hours between tick-extension samples, including while off. */
         rt_int32_t wait = rt_tick_from_millisecond(remaining ? remaining : (uint32_t)WRISTFLOW_WEATHER_EXPIRY_MS);
+        wf_radio_policy_t state = wristflow_product_ble_radio();
+        if (!state.failed && !wf_radio_settled(&state)) wait = rt_tick_from_millisecond(100);
         if (rt_mq_recv(packets, &p, sizeof p, wait) != RT_EOK) continue;
         rt_mutex_take(&phone_lock, RT_WAITING_FOREVER);
-        wf_phone_packet_action_t action = wf_phone_queue_receive(&receiver, &p, generation);
+        if (wf_phone_queue_barrier(&receiver, pause_epoch)) {
+            wf_phone_gap(&phone); gps_reply = weather_reply = false;
+            wristflow_weather_request_disconnected();
+        }
+        wf_phone_packet_action_t action = wf_phone_queue_receive_epoch(&receiver, &p, generation, pause_epoch);
         if (action == WF_PHONE_PACKET_STALE) {
             rt_mutex_release(&phone_lock);
             continue;
@@ -211,6 +302,15 @@ static void worker(void *context)
         if (p.kind == PACKET_POWER) {
             rt_mutex_release(&phone_lock);
             start_advertising();
+            continue;
+        }
+        if (p.kind == PACKET_RADIO) {
+            rt_mutex_release(&phone_lock);
+            continue;
+        }
+        if (!wristflow_product_ble_radio().enabled) {
+            gps_reply = weather_reply = false;
+            rt_mutex_release(&phone_lock);
             continue;
         }
         if (p.generation == generation && p.kind == PACKET_RX) wf_phone_feed(&phone, p.data, p.size);
@@ -227,16 +327,16 @@ static void worker(void *context)
         bool forecast_reply = weather_reply; weather_reply = false;
         rt_mutex_release(&phone_lock);
         if (p.kind == PACKET_LINK || p.kind == PACKET_SUBSCRIBE) wristflow_product_event_send(WF_EVENT_PHONE);
-        if (p.generation != generation) continue;
+        if (!protocol_current(p.generation, p.epoch)) continue;
         if (p.kind == PACKET_SUBSCRIBE && subscribed) {
             /* Gadgetbridge's Bangle.js line reader removes CR before LF. */
-            transmit("\r\n{\"t\":\"ver\",\"fw\":\"WristFlow Notify B1\",\"hw\":\"Huangshan\"}\r\n", peer);
-            send_weather(wristflow_weather_request_begin(NULL), peer);
+            transmit("\r\n{\"t\":\"ver\",\"fw\":\"WristFlow Notify B1\",\"hw\":\"Huangshan\"}\r\n", peer, p.epoch);
+            send_weather(wristflow_weather_request_begin(NULL), peer, p.epoch);
             rt_kprintf("[ble] subscribed: reset weather cache and requested weather from phone\n");
         }
-        if (p.kind == PACKET_TX_WEATHER_REQ) send_weather(p.request, peer);
-        else if (forecast_reply && subscribed) send_weather(wristflow_weather_request_begin(NULL), peer);
-        if (reply) transmit("\r\n{\"t\":\"gps_power\",\"status\":false}\r\n", peer);
+        if (p.kind == PACKET_TX_WEATHER_REQ) send_weather(p.request, peer, p.epoch);
+        else if (forecast_reply && subscribed) send_weather(wristflow_weather_request_begin(NULL), peer, p.epoch);
+        if (reply) transmit("\r\n{\"t\":\"gps_power\",\"status\":false}\r\n", peer, p.epoch);
     }
 }
 
@@ -245,13 +345,19 @@ static int ble_event(uint16_t e, uint8_t *data, uint16_t len, uint32_t context)
     (void)len; (void)context;
     if (e == BLE_POWER_ON_IND) enqueue(PACKET_POWER, NULL, 0, 0);
     else if (e == BLE_GAP_CONNECTED_IND) {
+        rt_base_t level = rt_hw_interrupt_disable();
         connection = ((ble_gap_connect_ind_t *)data)->conn_idx;
         ++generation; subscribed = 0; cccd[0] = 0;
+        wf_radio_link(&radio, true, radio_now());
+        rt_hw_interrupt_enable(level);
         enqueue(PACKET_LINK, NULL, 0, 0);
         rt_kprintf("[ble] connected index=%u generation=%u\n", connection, generation);
     } else if (e == BLE_GAP_DISCONNECTED_IND) {
         rt_kprintf("[ble] disconnected reason=%u\n", ((ble_gap_disconnected_ind_t *)data)->reason);
+        rt_base_t level = rt_hw_interrupt_disable();
         connection = 0xff; subscribed = 0; cccd[0] = 0; ++generation;
+        wf_radio_link(&radio, false, radio_now());
+        rt_hw_interrupt_enable(level);
         enqueue(PACKET_LINK, NULL, 0, 0);
     } else if (e == SIBLES_MTU_EXCHANGE_IND)
         rt_kprintf("[ble] MTU=%u\n", ((sibles_mtu_exchange_ind_t *)data)->mtu);
@@ -264,8 +370,9 @@ ble_common_update_type_t ble_request_public_address(bd_addr_t *addr)
     return bt_mac_addr_generate_via_uid_v2(addr) == 0 ? BLE_UPDATE_ONCE : BLE_UPDATE_NO_UPDATE;
 }
 #endif
-void wristflow_product_ble_start(void)
+void wristflow_product_ble_start(bool enabled)
 {
+    wf_radio_init(&radio, enabled);
     RT_ASSERT(rt_mutex_init(&phone_lock, "wf_phone", RT_IPC_FLAG_PRIO) == RT_EOK);
     wf_phone_init(&phone, phone_event, NULL);
     phone.trace = trace_notification;
@@ -305,7 +412,7 @@ void wristflow_product_ble_delete(bool all, int32_t id, const wf_phone_metadata_
 
 bool wristflow_product_ble_is_connected(void)
 {
-    return connection != 0xff && subscribed;
+    return connection != 0xff && subscribed && wristflow_product_ble_radio().enabled;
 }
 
 bool wristflow_product_ble_request_weather(void)
@@ -320,6 +427,12 @@ bool wristflow_product_ble_request_weather(void)
 static int wf_ble(int argc, char **argv)
 {
     if (!ready) return -RT_ERROR;
+    if (argc == 2 && !strcmp(argv[1], "radio")) {
+        wf_radio_policy_t state = wristflow_product_ble_radio();
+        rt_kprintf("[ble-radio] enabled=%u adv=%u connected=%u disconnecting=%u suspended=%u settled=%u failed=%u; link/advertising, not stack power\n",
+            state.enabled, state.adv, state.connected, state.disconnecting, wf_radio_suspended(&state), wf_radio_settled(&state), state.failed);
+        return 0;
+    }
     if (argc < 2) {
         rt_kprintf("wf_ble status | ids | meta | list | clear | clear_weather | weather | remove <id>\n");
         rt_kprintf("wf_ble trace on | off | dump\n"); return -RT_EINVAL;

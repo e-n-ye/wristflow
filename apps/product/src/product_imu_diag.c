@@ -41,6 +41,7 @@ static wf_imu_wrist_snapshot_t wrist_cached;
 static bool wrist_pending, wrist_busy;
 static bool wrist_route;
 static bool wrist_requested, wrist_runtime, wrist_wake_pending;
+static bool wrist_suspended_cached, wrist_failed_cached;
 static uint32_t wrist_wakes;
 static volatile bool wrist_cancel_requested;
 static unsigned wrist_seconds;
@@ -71,6 +72,18 @@ bool wristflow_product_wrist_take_wake(void)
     wrist_wake_pending = false;
     rt_hw_interrupt_enable(level);
     return wake;
+}
+bool wristflow_product_wrist_suspended(void)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    bool value = ready && !wrist_requested && wrist_suspended_cached;
+    rt_hw_interrupt_enable(level); return value;
+}
+bool wristflow_product_wrist_failed(void)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    bool value = wrist_failed_cached;
+    rt_hw_interrupt_enable(level); return value;
 }
 
 static uint32_t now_ms(void)
@@ -124,6 +137,9 @@ static void publish(void)
     rt_base_t level = rt_hw_interrupt_disable();
     cached = device.snapshot;
     wrist_cached = wrist.snapshot;
+    wrist_failed_cached = wrist.snapshot.phase == WF_IMU_FAULT;
+    wrist_suspended_cached = !wrist_runtime && !wrist.changed && !wrist_unresolved &&
+        !irq_state.owned && !irq_state.armed && !wrist_failed_cached;
     wrist_busy = wrist_pending || wrist.snapshot.phase == WF_IMU_RUNNING || wrist_unresolved;
     if (daily_mode) {
         daily_cached = daily.snapshot;

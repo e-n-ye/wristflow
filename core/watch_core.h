@@ -15,6 +15,7 @@ typedef struct {
     bool battery_unavailable;
     bool metrics_unavailable;
     uint32_t uptime_seconds;
+    uint32_t utc_seconds; /* Zero when no calendar date is supplied. */
     wristflow_power_snapshot_t power;
     wristflow_activity_snapshot_t activity;
 } wristflow_watch_snapshot_t;
@@ -64,6 +65,9 @@ typedef enum {
     WRISTFLOW_SURFACE_DND_START,
     WRISTFLOW_SURFACE_DND_END,
     WRISTFLOW_SURFACE_ENDURANCE_SETTINGS,
+    WRISTFLOW_SURFACE_BATTERY_OPTIMIZATION,
+    WRISTFLOW_SURFACE_BATTERY_INFO,
+    WRISTFLOW_SURFACE_ENDURANCE,
     WRISTFLOW_SURFACE_COUNT
 } wristflow_surface_t;
 

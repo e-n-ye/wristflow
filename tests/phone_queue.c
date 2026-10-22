@@ -199,13 +199,41 @@ static void test_bounds_and_wrap(void)
     assert(send_text(UINT32_MAX, "delayed\n"));
     assert(consume(0) == WF_PHONE_PACKET_STALE && receiver.generation == 0);
 }
+static void consume_epoch(uint32_t epoch)
+{
+    if (wf_phone_queue_barrier(&receiver, epoch)) wf_phone_gap(&phone);
+    wf_phone_packet_t *p = &queue.packets[queue.head];
+    wf_phone_packet_action_t action = wf_phone_queue_receive_epoch(&receiver, p, 1, epoch);
+    if (action == WF_PHONE_PACKET_RECONNECT) wf_phone_reconnect(&phone);
+    else if (action == WF_PHONE_PACKET_GAP) wf_phone_gap(&phone);
+    if (action != WF_PHONE_PACKET_STALE && p->kind == PACKET_RX) wf_phone_feed(&phone,p->data,p->size);
+    queue.head = (queue.head+1)%WF_PHONE_QUEUE_DEPTH; --queue.count;
+}
+static void test_pause_barrier(void)
+{
+    reset(); assert(send_text(1,prefix)); consume(1); assert(phone.used);
+    for (unsigned i=0;i<WF_PHONE_QUEUE_DEPTH;++i) assert(send_text(1,complete));
+    /* Pause/resume occurred before the owner ran, and the control wake was lost. */
+    assert(!wf_phone_queue_send_epoch(&sender,&queue,1,1,PACKET_RADIO,NULL,0,0));
+    while(queue.count) consume_epoch(1);
+    assert(!phone.count && !phone.used && receiver.stale==WF_PHONE_QUEUE_DEPTH);
+    assert(!wf_phone_queue_barrier(&receiver,1));
+    assert(wf_phone_queue_send_epoch(&sender,&queue,1,1,PACKET_RX,
+        (const uint8_t *)complete,sizeof complete-1,0));
+    consume_epoch(1); assert(phone.count==1 && phone.messages[0].id==43);
+    /* Epoch belongs to ingress, even if an old producer finishes copying later. */
+    assert(wf_phone_queue_send_epoch(&sender,&queue,1,0,PACKET_RX,
+        (const uint8_t *)suffix,sizeof suffix-1,0));
+    consume_epoch(1); assert(phone.count==1);
+}
 int main(void)
 {
-    assert(sizeof(wf_phone_packet_t) == 528);
+    assert(sizeof(wf_phone_packet_t) == 532);
     test_producer_order();
     test_full_queue_loss();
     test_stale_and_generation();
     test_bounds_and_wrap();
+    test_pause_barrier();
     puts("phone_queue: producer interleaving, overflow, stale peers, parser recovery and wrap PASS");
     return 0;
 }
