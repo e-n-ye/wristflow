@@ -13,7 +13,8 @@
 #define WF_EVENT_WRIST     128u
 #define WF_EVENT_KEY_STATE 256u
 #define WF_EVENT_RADIO     512u
-#define WF_EVENT_ALL       1023u
+#define WF_EVENT_AOD_PROBE 1024u
+#define WF_EVENT_ALL       2047u
 
 void wristflow_product_pm_start(void);
 void wristflow_product_event_send(rt_uint32_t events);
