@@ -66,13 +66,24 @@ static void press(const char *name)
     int x=(a.x1+a.x2)/2,y=(a.y1+a.y2)/2;
     assert(x>=0 && x<390 && y>=0 && y<450); tap(x,y);
 }
+static void hold(const char *name)
+{
+    lv_obj_t *o=named(lv_screen_active(),name); lv_area_t a;
+    lv_obj_scroll_to_view(o,LV_ANIM_OFF); advance(32); lv_obj_get_coords(o,&a);
+    int x=(a.x1+a.x2)/2, y=(a.y1+a.y2)/2;
+    sample(x,y,true); advance(800); sample(x,y,false); advance(240);
+}
 static void swipe(int x1,int y1,int x2,int y2)
 {
     sample(x1,y1,true);
     for(int i=1;i<=12;++i) sample(x1+(x2-x1)*i/12,y1+(y2-y1)*i/12,true);
     sample(x2,y2,false); advance(480);
 }
-static void surface(wristflow_surface_t s) { assert(wristflow_ui_shell_navigation(shell)->surface==s); }
+static void surface(wristflow_surface_t s) {
+    if (wristflow_ui_shell_navigation(shell)->surface!=s)
+        fprintf(stderr,"surface expected %u, actual %u at tick %u\n",s,wristflow_ui_shell_navigation(shell)->surface,ticks);
+    assert(wristflow_ui_shell_navigation(shell)->surface==s);
+}
 static wristflow_settings_t settings(void)
 { wristflow_settings_t s; assert(wristflow_ui_shell_get_settings(shell,&s)); return s; }
 static void back(void) { assert(wristflow_ui_shell_back(shell)); advance(240); }
@@ -159,7 +170,23 @@ int main(int argc,char **argv)
     reject_preview=false; press("vibration_2"); assert(previews==4);
     press("vibration_0"); assert(cancellations==3 && previews==4); /* Global OFF cancels owned request. */
     back(); back();
-    press("settings_dnd"); press("row_switch"); assert(settings().do_not_disturb); snapshot("dnd_on"); back();
+    press("settings_dnd"); press("dnd_mode_1"); assert(settings().dnd_mode==WRISTFLOW_DND_ALL_DAY); snapshot("dnd_on");
+    press("dnd_mode_2"); assert(settings().dnd_mode==WRISTFLOW_DND_SCHEDULED && !wristflow_ui_shell_dnd(shell));
+    snapshot("dnd_waiting");
+    state=wristflow_product_snapshot(true,WRISTFLOW_TIME_MIN+15*3600); /* local23:00 */
+    wristflow_ui_shell_update(shell,&state); assert(wristflow_ui_shell_dnd(shell));
+    press("dnd_end"); surface(WRISTFLOW_SURFACE_DND_END);
+    lv_roller_set_selected(named(lv_screen_active(),"time_hours"),22,LV_ANIM_OFF);
+    lv_roller_set_selected(named(lv_screen_active(),"time_minutes"),0,LV_ANIM_OFF);
+    press("time_accept"); surface(WRISTFLOW_SURFACE_DND_END);
+    assert(!lv_obj_has_flag(named(lv_screen_active(),"dnd_time_error"),LV_OBJ_FLAG_HIDDEN));
+    assert(settings().dnd_end_minute==480); snapshot("dnd_equal_rejected");
+    lv_roller_set_selected(named(lv_screen_active(),"time_hours"),8,LV_ANIM_OFF);
+    press("time_accept"); surface(WRISTFLOW_SURFACE_DND_SETTINGS);
+    press("dnd_start"); surface(WRISTFLOW_SURFACE_DND_START); snapshot("dnd_time");
+    lv_roller_set_selected(named(lv_screen_active(),"time_hours"),21,LV_ANIM_OFF);
+    back(); assert(settings().dnd_start_minute==1320); /* Return cancels the wheel draft. */
+    snapshot("dnd_scheduled"); press("dnd_mode_1"); back();
     press("settings_notifications"); snapshot("notifications"); back();
     press("settings_display"); snapshot("display");
     assert(!lv_obj_find_by_name(lv_screen_active(),"display_tap"));
@@ -182,12 +209,55 @@ int main(int argc,char **argv)
     back(); press("display_keep"); snapshot("keep");
     press("choice_10"); snapshot("keep_confirm"); press("confirm_cancel"); assert(!wristflow_ui_shell_keep_minutes(shell));
     press("choice_10"); press("confirm_accept"); assert(wristflow_ui_shell_keep_minutes(shell)==10); snapshot("keep10");
-    /* Controls and settings use the same session state; pending proposals do not survive exit. */
+    /* Controls start directly; settings retain their separate confirmation. */
     home(); assert(wristflow_ui_shell_open_controls(shell)); advance(240);
+    lv_obj_t *controls=lv_screen_active();
+    const char *control_buttons[]={"dnd_button","silent_button","wrist_button","settings_button",
+        "flashlight_button","phone_button","drain_button","endurance_button","keep_awake_button"};
+    for(unsigned i=0;i<9;++i) {
+        lv_obj_t *image=lv_obj_get_child(named(controls,control_buttons[i]),0);
+        assert(lv_obj_check_type(image,&lv_image_class));
+        assert(lv_image_get_src_width(image)==64 && lv_image_get_src_height(image)==64);
+    }
+    snapshot("controls_grid");
+    state.battery_unavailable=false; state.battery_percent=100; state.power.estimate_valid=true;
+    wristflow_ui_shell_update(shell,&state); advance(32);
+    assert(!strcmp(lv_label_get_text(named(controls,"control_battery_value")),"~100%"));
+    snapshot("controls_battery100");
+    state.battery_unavailable=true; state.power.estimate_valid=false;
+    wristflow_ui_shell_update(shell,&state); advance(32);
     press("keep_awake_button"); assert(!wristflow_ui_shell_keep_minutes(shell));
-    press("keep_awake_button"); snapshot("control_confirm"); key(); surface(WRISTFLOW_SURFACE_HOME);
-    assert(wristflow_ui_shell_open_controls(shell)); advance(240); assert(!lv_obj_find_by_name(lv_screen_active(),"settings_confirm"));
-    press("keep_awake_button"); press("confirm_accept"); assert(wristflow_ui_shell_keep_minutes(shell)==5); snapshot("control_active");
+    press("keep_awake_button"); assert(wristflow_ui_shell_keep_minutes(shell)==5);
+    assert(!lv_obj_find_by_name(controls,"settings_confirm")); snapshot("control_active");
+    assert(!strcmp(lv_label_get_text(named(controls,"toast_text")),"持续亮屏5分钟"));
+    press("dnd_button"); assert(settings().dnd_mode==WRISTFLOW_DND_OFF);
+    press("silent_button"); assert(settings().silent_mode && settings().vibration_mode==WRISTFLOW_VIBRATION_OFF);
+    assert(!strcmp(lv_label_get_text(named(controls,"toast_text")),"静音模式已开启"));
+    snapshot("control_silent"); advance(1000);
+    press("wrist_button"); assert(!settings().wrist_wake);
+    advance(1000); assert(!lv_obj_has_flag(named(controls,"control_toast"),LV_OBJ_FLAG_HIDDEN));
+    advance(1000); assert(lv_obj_has_flag(named(controls,"control_toast"),LV_OBJ_FLAG_HIDDEN));
+    press("silent_button"); assert(!settings().silent_mode);
+    lv_obj_t *control_reminder=lv_obj_create(lv_layer_top());
+    assert(wristflow_ui_shell_present_reminder(shell,control_reminder));
+    assert(lv_obj_has_flag(named(controls,"control_toast"),LV_OBJ_FLAG_HIDDEN));
+    wristflow_ui_shell_close_reminder(shell);
+    assert(lv_obj_has_flag(named(controls,"control_toast"),LV_OBJ_FLAG_HIDDEN));
+    press("silent_button"); assert(settings().silent_mode);
+    hold("wrist_button"); surface(WRISTFLOW_SURFACE_WAKE_SETTINGS);
+    assert(!settings().wrist_wake); /* A long press never performs the short toggle. */
+    press("wrist_row"); assert(settings().wrist_wake); back(); surface(WRISTFLOW_SURFACE_CONTROLS);
+    hold("silent_button"); surface(WRISTFLOW_SURFACE_SOUND_SETTINGS); assert(settings().silent_mode); back();
+    hold("dnd_button"); surface(WRISTFLOW_SURFACE_DND_SETTINGS); assert(settings().dnd_mode==WRISTFLOW_DND_OFF); back();
+    hold("keep_awake_button"); surface(WRISTFLOW_SURFACE_KEEP_AWAKE);
+    press("choice_10"); assert(wristflow_ui_shell_keep_minutes(shell)==5);
+    assert(lv_obj_find_by_name(lv_screen_active(),"settings_confirm")); press("confirm_cancel"); back();
+    press("phone_button"); press("drain_button"); surface(WRISTFLOW_SURFACE_CONTROLS);
+    hold("endurance_button"); surface(WRISTFLOW_SURFACE_ENDURANCE_SETTINGS); snapshot("endurance_pending"); back();
+    press("endurance_button"); snapshot("endurance_confirm"); press("confirm_accept");
+    assert(!strcmp(lv_label_get_text(named(controls,"toast_text")),"长续航模式待实现"));
+    key(); surface(WRISTFLOW_SURFACE_HOME);
+    assert(lv_obj_has_flag(named(controls,"control_toast"),LV_OBJ_FLAG_HIDDEN));
     wristflow_ui_shell_enable_display_policy(shell);
     assert(wristflow_ui_shell_keep_awake(shell,0));
     home(); key(); open(WRISTFLOW_SURFACE_SETTINGS); press("settings_sound"); press("vibration_mode");
@@ -263,7 +333,7 @@ int main(int argc,char **argv)
     shell=wristflow_product_ui_create(&state,&initial,set_brightness,NULL); advance(240);
     assert(!wristflow_ui_shell_keep_minutes(shell) && !settings().face_long_press && settings().screen_timeout==5 && brightness==27);
     assert(settings().vibration_mode==WRISTFLOW_VIBRATION_STANDARD && previews==5);
-    assert(settings().wrist_wake);
+    assert(settings().wrist_wake && settings().silent_mode);
     /* Same UI with a real asynchronous contract: never infer persistence from
      * changing an in-memory toggle or from re-entering the screen. */
     wristflow_ui_shell_bind_settings_store(shell,request_settings,settings_status,NULL);
@@ -287,7 +357,7 @@ int main(int argc,char **argv)
     press("settings_save_note"); assert(store_requests==3);
     store_state=WRISTFLOW_SAVE_DONE; advance(240);
     assert(!strcmp(lv_label_get_text(named(lv_screen_active(),"settings_save_note")),"已保存"));
-    reject_request=true; press("settings_dnd"); press("row_switch");
+    reject_request=true; press("settings_dnd"); press("dnd_mode_1");
     assert(store_requests==4 && wristflow_ui_shell_settings_save_state(shell)==WRISTFLOW_SAVE_FAILED);
     reject_request=false; press("settings_save_note"); assert(store_requests==5);
     /* A newer value supersedes the pending UI request; status is queried only

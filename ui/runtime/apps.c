@@ -10,6 +10,7 @@
 #include "game_2048_view.h"
 #include "activity_view.h"
 #include "reminders.h"
+#include "control_center.h"
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
@@ -18,6 +19,7 @@ struct wristflow_apps {
     wristflow_ui_shell_t *shell;
     lv_obj_t *screens[WRISTFLOW_SURFACE_COUNT];
     lv_obj_t *controls;
+    wristflow_control_center_t *control_center;
     lv_timer_t *timer;
     wristflow_stopwatch_t stopwatch;
     wristflow_countdown_view_t *countdown;
@@ -343,7 +345,6 @@ static void render_power(lv_obj_t *root, const wristflow_watch_snapshot_t *snaps
 
 static void sync_brightness(wristflow_apps_t *apps)
 {
-    lv_slider_set_value(named(apps->controls, "brightness_slider"), apps->brightness, LV_ANIM_OFF);
     lv_obj_t *settings = apps->screens[WRISTFLOW_SURFACE_SETTINGS];
     if (settings && !apps->product_mode) {
         lv_slider_set_value(named(settings, "settings_brightness"), apps->brightness, LV_ANIM_OFF);
@@ -387,22 +388,6 @@ static void brightness_changed(lv_event_t *event)
 {
     wristflow_apps_t *apps = lv_event_get_user_data(event);
     wristflow_apps_set_brightness(apps, (uint8_t)lv_slider_get_value(lv_event_get_current_target_obj(event)));
-}
-
-static void control_action(lv_event_t *event)
-{
-    wristflow_apps_t *apps = lv_event_get_user_data(event);
-    if (lv_event_get_current_target_obj(event) == named(apps->controls, "dnd_button")) {
-        wristflow_ui_shell_set_dnd(apps->shell, !wristflow_ui_shell_dnd(apps->shell));
-        return;
-    }
-    if (lv_event_get_current_target_obj(event) == named(apps->controls, "keep_awake_button")) {
-        wristflow_settings_keep_prompt(apps->controls, apps->shell);
-        return;
-    }
-    wristflow_surface_t destination = lv_event_get_current_target_obj(event) == named(apps->controls, "settings_button")
-        ? WRISTFLOW_SURFACE_SETTINGS : WRISTFLOW_SURFACE_FLASHLIGHT;
-    wristflow_ui_shell_open(apps->shell, destination);
 }
 
 static void open_battery(lv_event_t *event)
@@ -524,15 +509,7 @@ wristflow_apps_t *wristflow_apps_create(wristflow_ui_shell_t *shell, lv_obj_t *c
     apps->menu_layout = menu_layout;
     apps->timer = lv_timer_create(tick, 40, apps);
     lv_timer_pause(apps->timer);
-    bind_click(controls, "flashlight_button", control_action, apps);
-    bind_click(controls, "settings_button", control_action, apps);
-    lv_obj_t *slider = named(controls, "brightness_slider");
-    lv_slider_set_range(slider, 10, 100);
-    lv_obj_add_event_cb(slider, brightness_changed, LV_EVENT_VALUE_CHANGED, apps);
-    if (product_mode) bind_click(controls, "dnd_button", control_action, apps);
-    else lv_obj_add_state(named(controls, "dnd_button"), LV_STATE_DISABLED);
-    if (product_mode) bind_click(controls, "keep_awake_button", control_action, apps);
-    else lv_obj_add_state(named(controls, "keep_awake_button"), LV_STATE_DISABLED);
+    apps->control_center = wristflow_control_center_create(controls, shell, product_mode);
     if (brightness) brightness(apps->brightness, context);
     return apps;
 }
@@ -701,7 +678,8 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         sync_brightness(apps);
     } else if (apps->product_mode && (surface == WRISTFLOW_SURFACE_SETTINGS ||
         (surface >= WRISTFLOW_SURFACE_FACE_MANAGEMENT && surface <= WRISTFLOW_SURFACE_WAKE_SETTINGS) ||
-        surface == WRISTFLOW_SURFACE_VIBRATION_SETTINGS)) {
+        surface == WRISTFLOW_SURFACE_VIBRATION_SETTINGS || surface == WRISTFLOW_SURFACE_DND_START ||
+        surface == WRISTFLOW_SURFACE_DND_END || surface == WRISTFLOW_SURFACE_ENDURANCE_SETTINGS)) {
         wristflow_settings_refresh(root, surface, apps->shell);
     } else if (surface == WRISTFLOW_SURFACE_SETTINGS) {
         lv_obj_add_event_cb(named(root, "settings_brightness"), brightness_changed, LV_EVENT_VALUE_CHANGED, apps);
@@ -753,6 +731,7 @@ static void stop_view_effects(wristflow_apps_t *apps, wristflow_surface_t surfac
 void wristflow_apps_activate(wristflow_apps_t *apps, wristflow_surface_t surface)
 {
     if (!apps || apps->active == surface) return;
+    if (surface != WRISTFLOW_SURFACE_CONTROLS) wristflow_control_center_leave(apps->control_center);
     if (apps->active == WRISTFLOW_SURFACE_BREATHING) wristflow_breathing_view_leave(apps->breathing);
     stop_view_effects(apps, apps->active);
     if (apps->brightness_cb && (surface == WRISTFLOW_SURFACE_FLASHLIGHT || apps->active == WRISTFLOW_SURFACE_FLASHLIGHT))
@@ -790,6 +769,9 @@ void wristflow_apps_refresh_settings_save(wristflow_apps_t *apps)
         wristflow_settings_refresh(apps->screens[apps->active], apps->active, apps->shell);
 }
 
+void wristflow_apps_hide_control_hint(wristflow_apps_t *apps)
+{ if (apps) wristflow_control_center_leave(apps->control_center); }
+
 void wristflow_apps_update(wristflow_apps_t *apps, const wristflow_watch_snapshot_t *snapshot)
 {
     if (!apps) return;
@@ -811,19 +793,9 @@ void wristflow_apps_update(wristflow_apps_t *apps, const wristflow_watch_snapsho
     render_power(apps->screens[WRISTFLOW_SURFACE_SYSTEM], snapshot, apps->product_mode);
     wristflow_activity_render(apps->screens[WRISTFLOW_SURFACE_ACTIVITY], snapshot);
     wristflow_activity_render(apps->screens[WRISTFLOW_SURFACE_ACTIVITY_INFO], snapshot);
+    wristflow_control_center_update(apps->control_center, snapshot);
     if (apps->product_mode) {
         wristflow_settings_refresh(apps->screens[apps->active], apps->active, apps->shell);
-        bool awake = wristflow_ui_shell_keep_minutes(apps->shell) != 0;
-        lv_obj_t *button = named(apps->controls, "keep_awake_button");
-        lv_obj_set_style_bg_color(button, lv_color_hex(awake ? 0x38bdf8 : 0x191c20), 0);
-        lv_obj_set_style_text_color(button, lv_color_white(), 0);
-        button = named(apps->controls, "dnd_button");
-        lv_obj_set_style_bg_color(button, lv_color_hex(wristflow_ui_shell_dnd(apps->shell) ? 0x38bdf8 : 0x191c20), 0);
-        const char *input = !snapshot->power.input_valid ? "USB?" :
-                            snapshot->power.input_good ? "USB+" : "USB-";
-        lv_label_set_text_fmt(named(apps->controls, "connection_status"), "%s · %s",
-            input,
-            wristflow_ui_shell_phone_connected(apps->shell) ? "已连接" : "未连接");
     }
 }
 
@@ -856,6 +828,7 @@ void wristflow_apps_destroy(wristflow_apps_t *apps)
     if (apps->active == WRISTFLOW_SURFACE_FLASHLIGHT && apps->brightness_cb)
         apps->brightness_cb(apps->brightness, apps->context);
     lv_timer_delete(apps->timer);
+    wristflow_control_center_destroy(apps->control_center);
     for (unsigned i = 0; i < WRISTFLOW_SURFACE_COUNT; ++i)
         release_screen(apps, (wristflow_surface_t)i);
     wristflow_reminders_destroy(apps->reminders);

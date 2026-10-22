@@ -291,7 +291,7 @@ int main(int argc, char **argv)
     click("app_back");
     assert(settings_lifetime.deleted == 1);
     surface(shell, WRISTFLOW_SURFACE_CONTROLS);
-    assert(lv_slider_get_value(named("brightness_slider")) == (int)chosen);
+    assert(!lv_obj_find_by_name(lv_screen_active(),"brightness_slider"));
     click("flashlight_button");
     surface(shell, WRISTFLOW_SURFACE_FLASHLIGHT);
     assert(brightness == 100);

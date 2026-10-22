@@ -138,9 +138,10 @@ int main(void)
     assert(visible == 0);
     settle();
     lv_obj_t *controls = lv_screen_active();
-    lv_obj_t *slider = lv_obj_find_by_name(controls, "brightness_slider");
-    assert(slider);
-    lv_slider_set_value(slider, 71, LV_ANIM_OFF);
+    lv_obj_t *clock = lv_obj_find_by_name(controls, "control_clock");
+    assert(clock && lv_obj_find_by_name(controls, "keep_awake_button"));
+    /* This fixture disables apps: retain a local control property across face replacement. */
+    lv_label_set_text(clock, "23:59");
     wristflow_watch_snapshot_t snapshot = {23, 59, 0};
     assert(wristflow_ui_shell_update(shell, &snapshot));
     check_copies(carousel, "23:59 / 0");
@@ -162,7 +163,7 @@ int main(void)
     assert(strcmp(lv_label_get_text(lv_obj_find_by_name(home, "battery_label")), "0%") == 0);
     assert(wristflow_ui_shell_set_watchface(shell, &alternate));
     check_copies(carousel, "23:59 / 0");
-    assert(lv_screen_active() == controls && lv_slider_get_value(slider) == 71);
+    assert(lv_screen_active() == controls && !strcmp(lv_label_get_text(clock), "23:59"));
     assert(lv_obj_get_child(carousel, 2) == card && visible == 0);
     assert(wristflow_ui_shell_close_controls(shell));
     settle();

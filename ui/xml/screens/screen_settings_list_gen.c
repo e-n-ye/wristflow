@@ -54,6 +54,15 @@ lv_obj_t * screen_settings_list_create(void)
 
         app_header_create(lv_obj_0, "设置");
 
+        lv_obj_t * settings_clock = lv_label_create(lv_obj_0);
+        lv_obj_set_name(settings_clock, "settings_clock");
+        lv_obj_set_x(settings_clock, 270);
+        lv_obj_set_y(settings_clock, 25);
+        lv_obj_set_width(settings_clock, 96);
+        lv_label_set_text(settings_clock, "--:--");
+        lv_obj_set_style_text_font(settings_clock, title_24, 0);
+        lv_obj_set_style_text_align(settings_clock, LV_TEXT_ALIGN_RIGHT, 0);
+
         lv_obj_t * settings_scroll = lv_obj_create(lv_obj_0);
         lv_obj_set_name(settings_scroll, "settings_scroll");
         lv_obj_set_x(settings_scroll, 24);

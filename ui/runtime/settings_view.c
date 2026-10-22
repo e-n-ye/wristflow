@@ -115,10 +115,41 @@ static void long_press_row(lv_event_t *event)
     lv_obj_send_event(toggle, LV_EVENT_VALUE_CHANGED, NULL);
 }
 
-static void dnd_changed(lv_event_t *event)
+static void silent_changed(lv_event_t *event)
 {
     wristflow_ui_shell_t *shell = lv_event_get_user_data(event);
-    wristflow_ui_shell_set_dnd(shell, lv_obj_has_state(lv_event_get_current_target_obj(event), LV_STATE_CHECKED));
+    wristflow_settings_t settings;
+    wristflow_ui_shell_get_settings(shell, &settings);
+    settings.silent_mode = lv_obj_has_state(lv_event_get_current_target_obj(event), LV_STATE_CHECKED);
+    wristflow_ui_shell_configure(shell, &settings);
+}
+
+static void dnd_choice(lv_event_t *event)
+{
+    wristflow_ui_shell_t *shell = lv_event_get_user_data(event);
+    wristflow_settings_t settings;
+    wristflow_ui_shell_get_settings(shell, &settings);
+    settings.dnd_mode = (wristflow_dnd_mode_t)(uintptr_t)lv_obj_get_user_data(lv_event_get_current_target_obj(event));
+    if (!wristflow_ui_shell_configure(shell, &settings)) return;
+    wristflow_settings_refresh(lv_screen_active(), WRISTFLOW_SURFACE_DND_SETTINGS, shell);
+}
+
+static void dnd_time_accept(lv_event_t *event)
+{
+    wristflow_ui_shell_t *shell = lv_event_get_user_data(event);
+    lv_obj_t *root = lv_screen_active();
+    wristflow_settings_t settings;
+    wristflow_ui_shell_get_settings(shell, &settings);
+    unsigned minute = lv_roller_get_selected(named(root, "time_hours")) * 60U +
+        lv_roller_get_selected(named(root, "time_minutes"));
+    if (wristflow_ui_shell_navigation(shell)->surface == WRISTFLOW_SURFACE_DND_START)
+        settings.dnd_start_minute = (uint16_t)minute;
+    else settings.dnd_end_minute = (uint16_t)minute;
+    if (settings.dnd_start_minute == settings.dnd_end_minute || !wristflow_ui_shell_configure(shell, &settings)) {
+        lv_obj_remove_flag(named(root, "dnd_time_error"), LV_OBJ_FLAG_HIDDEN);
+        return;
+    }
+    wristflow_ui_shell_back(shell);
 }
 
 static void wrist_changed(lv_event_t *event)
@@ -179,8 +210,20 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
         return root;
     }
     if (surface == WRISTFLOW_SURFACE_BRIGHTNESS_ADJUST) return screen_brightness_adjust_create();
+    if (surface == WRISTFLOW_SURFACE_DND_START || surface == WRISTFLOW_SURFACE_DND_END) {
+        lv_obj_t *root = screen_dnd_time_create();
+        wristflow_settings_t settings;
+        wristflow_ui_shell_get_settings(shell, &settings);
+        bool start = surface == WRISTFLOW_SURFACE_DND_START;
+        unsigned minute = start ? settings.dnd_start_minute : settings.dnd_end_minute;
+        lv_label_set_text(named(root, "app_title"), start ? "开始时间" : "结束时间");
+        lv_roller_set_selected(named(root, "time_hours"), minute / 60U, LV_ANIM_OFF);
+        lv_roller_set_selected(named(root, "time_minutes"), minute % 60U, LV_ANIM_OFF);
+        lv_obj_add_event_cb(named(root, "time_accept"), dnd_time_accept, LV_EVENT_SHORT_CLICKED, shell);
+        return root;
+    }
     if ((surface < WRISTFLOW_SURFACE_FACE_MANAGEMENT || surface > WRISTFLOW_SURFACE_WAKE_SETTINGS) &&
-        surface != WRISTFLOW_SURFACE_VIBRATION_SETTINGS) return NULL;
+        surface != WRISTFLOW_SURFACE_VIBRATION_SETTINGS && surface != WRISTFLOW_SURFACE_ENDURANCE_SETTINGS) return NULL;
     lv_obj_t *root = screen_settings_list_create();
     lv_obj_t *list = named(root, "settings_scroll");
     lv_obj_remove_flag(list, LV_OBJ_FLAG_SCROLL_CHAIN);
@@ -228,11 +271,15 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
         break;
     case WRISTFLOW_SURFACE_SOUND_SETTINGS:
         title = "声音与振动";
+        obj = row(list, "silent_row", "静音模式", "");
+        lv_obj_add_event_cb(obj, long_press_row, LV_EVENT_SHORT_CLICKED, shell);
+        obj = named(obj, "row_switch"); lv_obj_remove_flag(obj, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_event_cb(obj, silent_changed, LV_EVENT_VALUE_CHANGED, shell);
         unavailable(list, "sound_disabled", "声音提醒", "暂未开放");
         route(row(list, "vibration_mode", "振动模式", "标准"), WRISTFLOW_SURFACE_VIBRATION_SETTINGS, shell);
         obj = settings_note_create(list, wristflow_ui_shell_has_reminder_vibration(shell) ?
-            "声音暂未接入。闹钟与倒计时按振动模式提醒，关闭后仅屏幕提醒。" :
-            "声音暂未接入。提醒仅通过屏幕显示。");
+            "静音偏好可保存；音频待接入。静音不关闭振动，闹钟和倒计时声音独立。当前提醒按振动模式执行。" :
+            "静音偏好可保存，音频待接入。提醒仅通过屏幕显示。");
         lv_obj_set_style_text_font(obj, notification_22, 0);
         break;
     case WRISTFLOW_SURFACE_VIBRATION_SETTINGS: {
@@ -254,11 +301,23 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
     }
     case WRISTFLOW_SURFACE_DND_SETTINGS:
         title = "勿扰模式";
-        obj = row(list, "dnd_row", "勿扰模式", "继续接收消息");
-        lv_obj_add_event_cb(obj, long_press_row, LV_EVENT_SHORT_CLICKED, shell);
-        obj = named(obj, "row_switch"); lv_obj_remove_flag(obj, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_event_cb(obj, dnd_changed, LV_EVENT_VALUE_CHANGED, shell);
+        for (unsigned i = 0; i < WRISTFLOW_DND_COUNT; ++i) {
+            static const char *names[] = {"关闭", "全天开启", "定时开启"};
+            char name[24]; snprintf(name, sizeof name, "dnd_mode_%u", i);
+            obj = settings_choice_create(list, names[i]); lv_obj_set_name(obj, name);
+            lv_obj_set_user_data(obj, (void *)(uintptr_t)i);
+            lv_obj_add_event_cb(obj, dnd_choice, LV_EVENT_SHORT_CLICKED, shell);
+        }
+        route(row(list, "dnd_start", "开始", "22:00"), WRISTFLOW_SURFACE_DND_START, shell);
+        route(row(list, "dnd_end", "结束", "次日08:00"), WRISTFLOW_SURFACE_DND_END, shell);
+        obj = settings_note_create(list, ""); lv_obj_set_name(obj, "dnd_clock_note");
+        lv_obj_set_style_text_font(obj, notification_22, 0);
         obj = settings_note_create(list, "开启后消息不亮屏、不显示预览。闹钟和倒计时不受影响。");
+        lv_obj_set_style_text_font(obj, notification_22, 0);
+        break;
+    case WRISTFLOW_SURFACE_ENDURANCE_SETTINGS:
+        title = "长续航模式";
+        obj = settings_note_create(list, "长续航模式待实现，当前未启用。进入与退出规则及实际省电效果将在后续独立验证。");
         lv_obj_set_style_text_font(obj, notification_22, 0);
         break;
     case WRISTFLOW_SURFACE_NOTIFICATION_SETTINGS:
@@ -301,6 +360,7 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
     default: break;
     }
     lv_label_set_text(named(root, "app_title"), title);
+    lv_obj_set_width(named(root, "app_title"), 175);
     wristflow_settings_refresh(root, surface, shell);
     return root;
 }
@@ -313,15 +373,39 @@ void wristflow_settings_refresh(lv_obj_t *root, wristflow_surface_t surface, wri
     if (!wristflow_ui_shell_get_settings(shell, &settings)) return;
     char value[40];
     unsigned minutes = wristflow_ui_shell_keep_minutes(shell);
+    lv_obj_t *clock = lv_obj_find_by_name(root, "settings_clock");
+    if (clock) {
+        const wristflow_watch_snapshot_t *snapshot = wristflow_ui_shell_snapshot(shell);
+        if (snapshot->time_unavailable) snprintf(value, sizeof value, "--:--");
+        else snprintf(value, sizeof value, "%02u:%02u", snapshot->hour_24, snapshot->minute);
+        label(clock, value);
+    }
     if (surface == WRISTFLOW_SURFACE_FACE_MANAGEMENT)
         lv_obj_set_state(named(root, "row_switch"), LV_STATE_CHECKED, settings.face_long_press);
-    else if (surface == WRISTFLOW_SURFACE_DND_SETTINGS)
-        lv_obj_set_state(named(root, "row_switch"), LV_STATE_CHECKED, settings.do_not_disturb);
+    else if (surface == WRISTFLOW_SURFACE_DND_SETTINGS) {
+        for (unsigned i = 0; i < WRISTFLOW_DND_COUNT; ++i) {
+            snprintf(value, sizeof value, "dnd_mode_%u", i);
+            lv_obj_set_flag(named(named(root, value), "row_check"), LV_OBJ_FLAG_HIDDEN, i != (unsigned)settings.dnd_mode);
+        }
+        bool scheduled = settings.dnd_mode == WRISTFLOW_DND_SCHEDULED;
+        lv_obj_set_flag(named(root, "dnd_start"), LV_OBJ_FLAG_HIDDEN, !scheduled);
+        lv_obj_set_flag(named(root, "dnd_end"), LV_OBJ_FLAG_HIDDEN, !scheduled);
+        snprintf(value, sizeof value, "%02u:%02u", settings.dnd_start_minute / 60U, settings.dnd_start_minute % 60U);
+        label(named(named(root, "dnd_start"), "row_detail"), value);
+        snprintf(value, sizeof value, "%s%02u:%02u", settings.dnd_end_minute < settings.dnd_start_minute ? "次日" : "",
+            settings.dnd_end_minute / 60U, settings.dnd_end_minute % 60U);
+        label(named(named(root, "dnd_end"), "row_detail"), value);
+        label(named(root, "dnd_clock_note"), !scheduled ? "" :
+            wristflow_ui_shell_snapshot(shell)->time_unavailable ? "等待校时，定时勿扰暂不生效。" :
+            wristflow_ui_shell_dnd(shell) ? "定时勿扰生效中。" : "当前不在勿扰时段。");
+    }
     else if (surface == WRISTFLOW_SURFACE_WAKE_SETTINGS)
         lv_obj_set_state(named(root, "row_switch"), LV_STATE_CHECKED, settings.wrist_wake);
     else if (surface == WRISTFLOW_SURFACE_NOTIFICATION_SETTINGS)
-        label(named(named(root, "notifications_dnd"), "row_detail"), settings.do_not_disturb ? "开启" : "关闭");
+        label(named(named(root, "notifications_dnd"), "row_detail"), settings.dnd_mode == WRISTFLOW_DND_SCHEDULED ? "定时开启" :
+            settings.dnd_mode == WRISTFLOW_DND_ALL_DAY ? "全天开启" : "关闭");
     else if (surface == WRISTFLOW_SURFACE_SOUND_SETTINGS) {
+        lv_obj_set_state(named(named(root, "silent_row"), "row_switch"), LV_STATE_CHECKED, settings.silent_mode);
         static const char *names[] = {"关闭", "标准", "增强"};
         label(named(named(root, "vibration_mode"), "row_detail"), names[settings.vibration_mode]);
         lv_obj_set_style_text_font(named(named(root, "vibration_mode"), "row_detail"), notification_22, 0);

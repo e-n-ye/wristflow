@@ -69,8 +69,8 @@ static void visible(const char *name, bool show)
 } assert(actual==show); }
 static void wheel(unsigned h, unsigned m)
 {
-    lv_roller_set_selected(named("alarm_hours"), h, LV_ANIM_OFF);
-    lv_roller_set_selected(named("alarm_minutes"), m, LV_ANIM_OFF); advance(32);
+    lv_roller_set_selected(named("time_hours"), h, LV_ANIM_OFF);
+    lv_roller_set_selected(named("time_minutes"), m, LV_ANIM_OFF); advance(32);
 }
 static void reveal(const char *name)
 { lv_obj_scroll_to_view(named(name), LV_ANIM_OFF); advance(400); }
@@ -115,21 +115,21 @@ int main(int argc, char **argv)
     assert(wristflow_ui_shell_key(shell)); advance(400); assert(named("launch_alarm"));
     open(shell); visible("alarm_empty",true); text(named("alarm_clock"),"13:40"); snapshot("alarm_empty");
     click("alarm_add"); visible("alarm_time_panel",true);
-    swipe(115,200,115,260); assert(lv_roller_get_selected(named("alarm_hours")) != 13);
+    swipe(115,200,115,260); assert(lv_roller_get_selected(named("time_hours")) != 13);
     wheel(0,0); snapshot("alarm_time_min");
-    lv_area_t a,b; lv_obj_get_coords(named("alarm_hours"),&a); lv_obj_get_coords(named("alarm_time_separator"),&b);
+    lv_area_t a,b; lv_obj_get_coords(named("time_hours"),&a); lv_obj_get_coords(named("time_separator"),&b);
     assert(LV_ABS(a.y1+a.y2-b.y1-b.y2)<=2);
-    assert(lv_obj_get_style_text_align(named("alarm_hours"),0)==LV_TEXT_ALIGN_CENTER);
-    click("alarm_time_accept"); visible("alarm_delete",false); text(named("alarm_draft_time"),"00:00");
+    assert(lv_obj_get_style_text_align(named("time_hours"),0)==LV_TEXT_ALIGN_CENTER);
+    click("time_accept"); visible("alarm_delete",false); text(named("alarm_draft_time"),"00:00");
     click("alarm_edit_repeat"); snapshot("alarm_repeat"); click("alarm_repeat_2"); click("alarm_repeat_accept");
     text(named("alarm_draft_rule"),"工作日（周一至五）"); back(shell); visible("alarm_empty",true);
-    click("alarm_add"); wheel(23,59); snapshot("alarm_time_max"); click("alarm_time_accept");
+    click("alarm_add"); wheel(23,59); snapshot("alarm_time_max"); click("time_accept");
     click("alarm_save"); lv_obj_send_event(named("alarm_save"),LV_EVENT_SHORT_CLICKED,NULL);
     visible("alarm_row_1",false); text(row(0,"alarm_time"),"23:59");
     assert(lv_obj_has_state(row(0,"alarm_enabled"),LV_STATE_CHECKED));
     assert(lv_obj_get_style_bg_opa(row(0,"alarm_enabled"),LV_PART_INDICATOR)==LV_OPA_COVER);
     click_obj(row(0,"alarm_enabled")); assert(!lv_obj_has_state(row(0,"alarm_enabled"),LV_STATE_CHECKED));
-    click_obj(row(0,"alarm_open")); click("alarm_edit_time"); wheel(0,0); click("alarm_time_accept");
+    click_obj(row(0,"alarm_open")); click("alarm_edit_time"); wheel(0,0); click("time_accept");
     click("alarm_edit_repeat"); swipe(175,292,175,112);
     assert(lv_obj_get_scroll_y(named("alarm_repeat_scroll"))>0); reveal("alarm_repeat_4"); snapshot("alarm_repeat_more");
     click("alarm_repeat_4"); visible("alarm_weekdays_panel",true);
@@ -148,7 +148,7 @@ int main(int argc, char **argv)
     click("alarm_delete"); click("confirm_accept"); visible("alarm_empty",true);
     const char *rules[]={"仅一次","每天","工作日（周一至五）","周末（周六、日）","仅一次"};
     for (unsigned i=0;i<5;++i) {
-        click("alarm_add"); wheel(i,i); click("alarm_time_accept");
+        click("alarm_add"); wheel(i,i); click("time_accept");
         if (i>0 && i<4) {
             click("alarm_edit_repeat"); char preset[32]; snprintf(preset,sizeof preset,"alarm_repeat_%u",i);
             reveal(preset); click(preset); click("alarm_repeat_accept");
@@ -172,15 +172,15 @@ int main(int argc, char **argv)
     text(row(2,"alarm_time"),"03:03"); text(row(2,"alarm_rule"),"周末（周六、日）");
     text(row(3,"alarm_time"),"04:04"); reveal("alarm_add"); visible("alarm_add",true); visible("alarm_limit",false);
     reveal("alarm_row_2"); click_obj(row(2,"alarm_enabled")); click_obj(row(2,"alarm_open"));
-    click("alarm_edit_time"); wheel(6,30); click("alarm_time_accept"); click("alarm_save");
+    click("alarm_edit_time"); wheel(6,30); click("time_accept"); click("alarm_save");
     text(row(2,"alarm_time"),"06:30"); assert(!lv_obj_has_state(row(2,"alarm_enabled"),LV_STATE_CHECKED));
     reveal("alarm_row_3"); click_obj(row(3,"alarm_open")); click("alarm_delete"); click("confirm_accept");
     for (unsigned i=3;i<5;++i) {
-        click("alarm_add"); wheel(i+4,i+4); click("alarm_time_accept"); click("alarm_save");
+        click("alarm_add"); wheel(i+4,i+4); click("time_accept"); click("alarm_save");
     }
     visible("alarm_add",false); reveal("alarm_limit"); visible("alarm_limit",true);
     text(row(2,"alarm_time"),"06:30"); text(row(4,"alarm_time"),"08:08"); reveal("alarm_row_4");
-    click_obj(row(4,"alarm_open")); click("alarm_edit_time"); wheel(22,22); click("alarm_time_accept");
+    click_obj(row(4,"alarm_open")); click("alarm_edit_time"); wheel(22,22); click("time_accept");
     assert(wristflow_ui_shell_key(shell)); advance(400); open(shell);
     text(row(4,"alarm_time"),"08:08"); /* Screen collection discards draft, retains committed model. */
     visible("alarm_add",false); visible("alarm_limit",false);
@@ -190,7 +190,7 @@ int main(int argc, char **argv)
     click("alarm_edit_time"); wheel(17,42);
     advance(5050); assert(wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_OFF); advance(60000);
     assert(wristflow_ui_shell_key(shell)); advance(400); visible("alarm_time_panel",true);
-    assert(lv_roller_get_selected(named("alarm_hours"))==17 && lv_roller_get_selected(named("alarm_minutes"))==42);
+    assert(lv_roller_get_selected(named("time_hours"))==17 && lv_roller_get_selected(named("time_minutes"))==42);
     back(shell); text(named("alarm_draft_time"),"00:00");
     click("alarm_edit_repeat"); reveal("alarm_repeat_4"); click("alarm_repeat_4"); click("alarm_day_0");
     advance(5050); assert(wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_OFF); advance(60000);

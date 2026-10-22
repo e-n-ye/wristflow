@@ -163,6 +163,7 @@ static void display_tick(lv_timer_t *timer)
         shell->navigation.surface == WRISTFLOW_SURFACE_FLASHLIGHT && !wristflow_ui_shell_charging_active(shell));
     if (shell->display.phase == WRISTFLOW_DISPLAY_OFF) {
         cancel_vibration_preview(shell);
+        wristflow_apps_hide_control_hint(shell->apps);
         wristflow_notification_view_hide(shell->notifications);
     }
     apply_brightness(shell, wristflow_display_brightness(&shell->display, wristflow_apps_brightness(shell->apps)));
@@ -705,6 +706,9 @@ bool wristflow_ui_shell_update(wristflow_ui_shell_t *shell,
     if (!shell || !wristflow_snapshot_valid(snapshot))
         return false;
     shell->snapshot = *snapshot;
+    if (wristflow_ui_shell_dnd(shell) &&
+        wristflow_notification_view_alert(shell->notifications) != WF_ALERT_NONE)
+        wristflow_ui_shell_notification_dismiss(shell, true);
     wristflow_apps_update(shell->apps, snapshot);
     for (unsigned int i = 0; i < slot_count(shell); ++i) {
         if (shell->slots[i].face)
@@ -729,6 +733,7 @@ bool wristflow_ui_shell_charging_event(wristflow_ui_shell_t *shell,
     if (was_active && !wristflow_ui_shell_charging_active(shell)) charging_closed(shell);
     if (opened) {
         cancel_vibration_preview(shell);
+        wristflow_apps_hide_control_hint(shell->apps);
         shell->pressed_card = NULL; shell->edge_press = false;
         lv_timer_pause(shell->card_hold);
         wristflow_components_suspend_confirm(shell->components, true);
@@ -1043,7 +1048,7 @@ bool wristflow_ui_shell_configure(wristflow_ui_shell_t *shell, const wristflow_s
         cancel_reminder_vibration(shell); /* A mode change never replays the same occurrence. */
     }
     shell->preferences = *settings;
-    if (settings->do_not_disturb && wristflow_notification_view_alert(shell->notifications) != WF_ALERT_NONE)
+    if (wristflow_ui_shell_dnd(shell) && wristflow_notification_view_alert(shell->notifications) != WF_ALERT_NONE)
         wristflow_ui_shell_notification_dismiss(shell, true);
     wristflow_apps_set_brightness(shell->apps, settings->brightness);
     wristflow_display_activity(&shell->display, lv_tick_get());
@@ -1231,10 +1236,10 @@ void wristflow_ui_shell_delete_notification(wristflow_ui_shell_t *shell, bool al
 bool wristflow_ui_shell_phone_connected(const wristflow_ui_shell_t *shell)
 { return shell && shell->phone_connected; }
 bool wristflow_ui_shell_dnd(const wristflow_ui_shell_t *shell)
-{ return shell && shell->preferences.do_not_disturb; }
+{ return shell && wristflow_settings_dnd_active(&shell->preferences, &shell->snapshot); }
 void wristflow_ui_shell_set_dnd(wristflow_ui_shell_t *shell, bool enabled)
 {
-    shell->preferences.do_not_disturb = enabled;
+    shell->preferences.dnd_mode = enabled ? WRISTFLOW_DND_ALL_DAY : WRISTFLOW_DND_OFF;
     if (enabled && wristflow_notification_view_alert(shell->notifications) != WF_ALERT_NONE)
         wristflow_ui_shell_notification_dismiss(shell, true);
     wristflow_apps_update(shell->apps, &shell->snapshot);
@@ -1254,7 +1259,7 @@ bool wristflow_ui_shell_notifications(wristflow_ui_shell_t *shell, const wristfl
     wristflow_notification_view_update(shell->notifications, snapshot);
     wristflow_apps_update(shell->apps, &shell->snapshot);
     if (!alert || wristflow_ui_shell_reminder_active(shell) || wristflow_apps_breathing_active(shell->apps) ||
-        shell->preferences.do_not_disturb ||
+        wristflow_ui_shell_dnd(shell) ||
         !wristflow_notification_view_contains(shell->notifications, snapshot->alert_id)) return false;
     bool off = shell->display.phase == WRISTFLOW_DISPLAY_OFF;
     bool preview = off || wristflow_notification_view_alert(shell->notifications) == WF_ALERT_PREVIEW;
@@ -1367,6 +1372,7 @@ bool wristflow_ui_shell_present_reminder(wristflow_ui_shell_t *shell, lv_obj_t *
     }
     wristflow_notification_view_hide(shell->notifications);
     if (!wristflow_reminder_host_present(shell->reminder, content, lv_tick_get())) return false;
+    wristflow_apps_hide_control_hint(shell->apps);
     cancel_vibration_preview(shell);
     wristflow_apps_breathing_cover(shell->apps, true);
     shell->reminder_session_exempt = session_exempt(shell);

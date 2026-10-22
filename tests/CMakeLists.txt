@@ -172,6 +172,7 @@ target_sources(wristflow_ui_host PRIVATE "${RUNTIME}/breathing_view.c" "${RUNTIM
 target_sources(wristflow_ui_host PRIVATE "${RUNTIME}/charging_view.c")
 target_sources(wristflow_ui_host PRIVATE "${RUNTIME}/game_2048_view.c")
 target_sources(wristflow_ui_host PRIVATE "${RUNTIME}/activity_view.c")
+target_sources(wristflow_ui_host PRIVATE "${RUNTIME}/control_center.c")
 add_executable(activity_ui activity_ui.c "${PRODUCT}/product_ui.c")
 target_include_directories(activity_ui PRIVATE "${PRODUCT}")
 target_link_libraries(activity_ui PRIVATE wristflow_ui_host)

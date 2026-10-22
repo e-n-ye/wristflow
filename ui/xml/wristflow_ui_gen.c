@@ -73,6 +73,24 @@ extern lv_font_t icons_20_data;
  *----------------*/
 
 /* Targets: any */
+const void * control_dnd = NULL;
+extern const void * control_dnd_data;
+const void * control_silent = NULL;
+extern const void * control_silent_data;
+const void * control_wrist = NULL;
+extern const void * control_wrist_data;
+const void * control_settings = NULL;
+extern const void * control_settings_data;
+const void * control_flashlight = NULL;
+extern const void * control_flashlight_data;
+const void * control_phone = NULL;
+extern const void * control_phone_data;
+const void * control_drain = NULL;
+extern const void * control_drain_data;
+const void * control_battery = NULL;
+extern const void * control_battery_data;
+const void * control_awake = NULL;
+extern const void * control_awake_data;
 const void * hour_unknown = NULL;
 extern const void * hour_unknown_data;
 const void * hour_1 = NULL;
@@ -216,6 +234,42 @@ void wristflow_ui_init_gen(const char * asset_path)
     /* Targets: any */
     #if WRISTFLOW_UI_CHECK_COMPILE_TARGET(WRISTFLOW_UI_TARGET_ALL)
     if (wristflow_ui_check_target(WRISTFLOW_UI_TARGET_ALL)) {
+        /* control_dnd */
+        if (!control_dnd) {
+            control_dnd = &control_dnd_data;
+        }
+        /* control_silent */
+        if (!control_silent) {
+            control_silent = &control_silent_data;
+        }
+        /* control_wrist */
+        if (!control_wrist) {
+            control_wrist = &control_wrist_data;
+        }
+        /* control_settings */
+        if (!control_settings) {
+            control_settings = &control_settings_data;
+        }
+        /* control_flashlight */
+        if (!control_flashlight) {
+            control_flashlight = &control_flashlight_data;
+        }
+        /* control_phone */
+        if (!control_phone) {
+            control_phone = &control_phone_data;
+        }
+        /* control_drain */
+        if (!control_drain) {
+            control_drain = &control_drain_data;
+        }
+        /* control_battery */
+        if (!control_battery) {
+            control_battery = &control_battery_data;
+        }
+        /* control_awake */
+        if (!control_awake) {
+            control_awake = &control_awake_data;
+        }
         /* hour_unknown */
         if (!hour_unknown) {
             hour_unknown = &hour_unknown_data;
@@ -345,6 +399,15 @@ void wristflow_ui_init_gen(const char * asset_path)
      * While running in the editor skip this step to update the preview when the XML changes */
 #if defined(LV_USE_XML) && LV_USE_XML && !defined(LV_EDITOR_PREVIEW)
     /* Register images */
+    lv_xml_register_image(NULL, "control_dnd", control_dnd);
+    lv_xml_register_image(NULL, "control_silent", control_silent);
+    lv_xml_register_image(NULL, "control_wrist", control_wrist);
+    lv_xml_register_image(NULL, "control_settings", control_settings);
+    lv_xml_register_image(NULL, "control_flashlight", control_flashlight);
+    lv_xml_register_image(NULL, "control_phone", control_phone);
+    lv_xml_register_image(NULL, "control_drain", control_drain);
+    lv_xml_register_image(NULL, "control_battery", control_battery);
+    lv_xml_register_image(NULL, "control_awake", control_awake);
     lv_xml_register_image(NULL, "hour_unknown", hour_unknown);
     lv_xml_register_image(NULL, "hour_1", hour_1);
     lv_xml_register_image(NULL, "hour_2", hour_2);

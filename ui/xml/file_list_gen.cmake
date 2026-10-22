@@ -45,10 +45,12 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/components/settings_entry_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/settings_note_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/settings_row_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/status_toast_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_full_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_grid_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_half_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_quarter_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/time_picker_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/battery_80_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/body_20_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/clock_80_data.c
@@ -59,6 +61,15 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/fonts/notification_22_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/title_24_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/value_36_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/images/control_awake_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/images/control_battery_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/images/control_dnd_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/images/control_drain_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/images/control_flashlight_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/images/control_phone_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/images/control_settings_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/images/control_silent_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/images/control_wrist_data.c
   ${CMAKE_CURRENT_LIST_DIR}/images/hour_1_data.c
   ${CMAKE_CURRENT_LIST_DIR}/images/hour_2_data.c
   ${CMAKE_CURRENT_LIST_DIR}/images/hour_3_data.c
@@ -86,6 +97,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_component_templates_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_control_center_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_countdown_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_dnd_time_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_face_picker_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_flashlight_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_game_2048_gen.c
