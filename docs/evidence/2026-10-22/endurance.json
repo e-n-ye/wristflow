@@ -1,0 +1,175 @@
+{
+  "date": "2026-10-22",
+  "scope": "长续航模式软件轮；无串口、烧录或设备操作",
+  "base_commit": "9836b2139d9695d56fddfed1c66bae000e3f7acd",
+  "branch": "codex/endurance-mode",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "contract": "docs/ENDURANCE.md",
+  "builds": [
+    {
+      "example": "product",
+      "result": "artifacts/product/20261022-183427-113/result.json",
+      "result_sha256": "5cdcebc50ea3bf8784224a62f7d77f336d0b3aba0e7d859210057c430c6c7f95",
+      "source_count": 506,
+      "artifact_count": 29,
+      "bin_bytes": 7970588,
+      "bin_sha256": "27e02ab579234b6941da7d282f19f0a921b343b0fbbefc10c22f1d2deba0f3b0",
+      "project_sources_sha256": "6652d048ea25936d9f1c9ec9a79ac3a16e8d6bdbcb5fb468cd26f2a2590713e2",
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": [
+        "SCons by Steven Knight et al.:",
+        "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021"
+      ],
+      "warnings": 7
+    },
+    {
+      "example": "ui_demo",
+      "result": "artifacts/ui_demo/20261022-183529-561/result.json",
+      "result_sha256": "442d40b09384636d7fdd11a27e357eafe2a1ab55c6f9a0d025593868fa824841",
+      "source_count": 456,
+      "artifact_count": 22,
+      "bin_bytes": 7722560,
+      "bin_sha256": "02004873590ece050583476fa371147d57ebe8f0137a9a4f2dc8042f9e31fb00",
+      "project_sources_sha256": "f249bdd4fef69547531d84455ac75ab55556f59a795782cdbb6236f509deddf6",
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": [
+        "SCons by Steven Knight et al.:",
+        "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021"
+      ],
+      "warnings": 1
+    }
+  ],
+  "sdk": {
+    "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "lock_sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af",
+    "vendor_clean": true,
+    "submodules": [
+      " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+      " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+    ]
+  },
+  "host": {
+    "cmake": "4.2.3",
+    "compiler": "MSYS2 UCRT64 GCC 15.2.0",
+    "ninja": "1.13.2",
+    "debug": {
+      "directory": "artifacts/host/control-center-debug",
+      "tests_passed": 58,
+      "total": 58,
+      "seconds": 24.27
+    },
+    "release": {
+      "directory": "artifacts/host/native-wrist-wake-release",
+      "c_flags_release": "-O3 -DNDEBUG -UNDEBUG",
+      "tests_passed": 58,
+      "total": 58,
+      "seconds": 6.57
+    }
+  },
+  "commands": [
+    "cmake --build artifacts/host/control-center-debug -j 6",
+    "ctest --test-dir artifacts/host/control-center-debug --output-on-failure",
+    "cmake --build artifacts/host/native-wrist-wake-release -j 6",
+    "ctest --test-dir artifacts/host/native-wrist-wake-release --output-on-failure",
+    "ctest --test-dir artifacts/host/native-wrist-wake-release -R '^product_motor$' --repeat until-fail:10 --output-on-failure",
+    "pwsh -NoProfile -File scripts/Build.ps1 -Example product -Jobs 4",
+    "pwsh -NoProfile -File scripts/Build.ps1 -Example ui_demo -Jobs 4"
+  ],
+  "visual": {
+    "editor": "LVGL Pro Editor 2.0.1 Community",
+    "preview_lvgl": "9.4.0",
+    "firmware_lvgl": "9.4.0",
+    "workflow": "官方GUI Ctrl+B导出，Project compiled successfully；电池与极简页100%检查；实际LVGL具名指针、字形、颜色及滚动快照",
+    "new_font_assets": false,
+    "local_renders": "artifacts/host/control-center-debug/renders/settings_*.ppm",
+    "contact_sheet": "artifacts/endurance-preview/contact.png"
+  },
+  "coverage": [
+    "v10/24B及v9/更旧格式迁移、模式保存重建、非法记录守卫",
+    "新USB、进入时已USB、未知PG不造拔线",
+    "三秒边界、取消、同按压一次完成、提醒中断与合并松手重按",
+    "长睡与禁LVGL timer、原临时常亮截止恢复、导航守卫",
+    "实际倒计时服务息屏到期；闹钟提醒及关闭返回模式",
+    "BLE延迟POWER、暂停反转、相关/无关回调与SDK拒绝、超时迟到安全清理、同值请求幂等",
+    "队满丢控制包、快速停开、epoch旧半帧隔离、保守丢包恢复"
+  ],
+  "review": {
+    "mode": "两项独立只读审查，主代理写入与执行",
+    "fixes": [
+      "BLE暂停epoch及phone mutex屏障；SDK相关域revision消解提交结果与有限收尾",
+      "新按压编号解除旧提醒阻断；保存状态立即render模式页",
+      "延迟POWER不误记已提交操作超时；CCCD及TX提交资格复核"
+    ],
+    "final": "定点复核无剩余确定阻断；真实SDK/按键时序仍待设备"
+  },
+  "failures_and_fixes": [
+    "首次主机构建先于官方新页面生成而失败，完成官方导出后解决。",
+    "先期旧占位/版本预期失败，更新为实际模式与v10记录后通过。",
+    "增加epoch后包大小旧528断言失败，更新为532并补数据屏障回归后通过。",
+    "新增页面全字形检查发现U+70B9“点”缺失，改用现有notification_22完整字库后通过。",
+    "官方预览发现滚动父容器导致电量数字继承深色，XML显式白色并官方重导出，加颜色回归后通过。",
+    "XML首次scroll_dir属性被官方导出器拒绝，改为手写运行时设置滚动方向；不改生成C。",
+    "Release一次完整运行product_motor段错误；该目标、测试与电机源码均未改。定点重复10/10及后续完整58/58通过，未复现，未宣称修复。",
+    "哈希汇总首次Python路径转义语法失败，无写入；改用Path.as_posix后通过。",
+    "早期重跑复用了同名本地日志，未保留其完整原始内容；上述失败事实来自本会话工具结果，最终日志与Release段错误日志分别保留。"
+  ],
+  "remaining": [
+    "同BIN实体KEY1从黑屏持续按3秒、提前释放、退出无CLICKED导航",
+    "真实广播/连接停止及恢复、抬腕暂停恢复、计步保留",
+    "实际Flash正常保存及普通reboot模式恢复、USB新插退出与充电安全共存",
+    "SDK stop底层拒绝可能留下STOPPING，当前失败提示和有限收尾，不承诺自动恢复",
+    "无测流/可用天数/容量标定或续航增益结论"
+  ],
+  "device": {
+    "operations": [],
+    "hardware_verified": false,
+    "previous_bin_sha256": "7a313abc8c403fe47fe8e3bf1eadaee17d50e563cf86959077445662f288a22a",
+    "port": "COM5 closed"
+  },
+  "resource": {
+    "product_bin_delta_from_palette_bytes": 7832,
+    "phone_packet_bytes": 532,
+    "previous_phone_packet_bytes": 528,
+    "queue_depth": 32,
+    "new_font_bytes": 0,
+    "new_workers": 0,
+    "runtime_stack_peak_measured": false,
+    "map": "新screen_endurance_create、endurance_view、endurance/radio_policy在非零链接地址；复用已编入完整notification_22。"
+  },
+  "logs": [
+    {
+      "path": "artifacts/endurance-host-build.log",
+      "sha256": "c56ed752520c127033458b07a521db170cc616286e7e1832a7a287d9bf08c90c"
+    },
+    {
+      "path": "artifacts/endurance-host-test.log",
+      "sha256": "e8da1e7e2c42a9519417ab1061013280286732e3b85d4b25b417e155a52c0e2e"
+    },
+    {
+      "path": "artifacts/endurance-release-build.log",
+      "sha256": "208168ad8c864307979ec0e07eb5de51bffa7502d1b2a1c9af45f622d6c1caf0"
+    },
+    {
+      "path": "artifacts/endurance-release-test.log",
+      "sha256": "a3e7a68e4588b0c8a361c4b4b101bac63a08c760d3196c9b5483e8942c3f8cb2"
+    },
+    {
+      "path": "artifacts/endurance-release-motor-repeat.log",
+      "sha256": "c6c46148d93312a217a10ae6bcb11b52d024ffcde54342a020e311e5fa206851"
+    },
+    {
+      "path": "artifacts/endurance-release-final-test.log",
+      "sha256": "481d8d565e31c77f9cb299a2a08d101917d0aeb710f2c82dd90c61a9f3ac59ae"
+    },
+    {
+      "path": "artifacts/endurance-product-build.log",
+      "sha256": "ed11a529f6cacf0fac0eaea2ead7445793435a03c30ec5b90a77957cb3e25955"
+    },
+    {
+      "path": "artifacts/endurance-ui-demo-build.log",
+      "sha256": "3d118f87967f69c3d4ee7768dbb102cffc4b0a5535fab4f615666252417953e6"
+    }
+  ]
+}

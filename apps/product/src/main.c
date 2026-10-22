@@ -109,15 +109,39 @@ static int wf_ui(int argc, char **argv)
 MSH_CMD_EXPORT(wf_ui, Read cached carousel state without changing UI);
 #endif
 
+static volatile bool endurance_key_enabled, key_down, key_mode_press;
+static volatile uint32_t key_pressed_tick, key_press_id;
 static void sync_wrist_setting(void)
 {
     wristflow_settings_t settings;
     if (wristflow_ui_shell_get_settings(product_shell, &settings) &&
-        (!wrist_setting_known || settings.wrist_wake != wrist_setting)) {
+        (!wrist_setting_known || (settings.wrist_wake && !settings.endurance_mode) != wrist_setting)) {
         wrist_setting_known = true;
-        wrist_setting = settings.wrist_wake;
+        wrist_setting = settings.wrist_wake && !settings.endurance_mode;
         wristflow_product_wrist_enable(wrist_setting);
     }
+}
+static void sync_endurance_services(void)
+{
+    bool enabled = wristflow_ui_shell_endurance(product_shell);
+    endurance_key_enabled = enabled;
+    wristflow_product_ble_enable(!enabled);
+    sync_wrist_setting();
+    if (enabled) {
+        wf_radio_policy_t radio = wristflow_product_ble_radio();
+        wristflow_ui_shell_endurance_services(product_shell,
+            wf_radio_suspended(&radio) && wristflow_product_wrist_suspended(),
+            radio.failed || wristflow_product_wrist_failed());
+    }
+}
+static void sync_endurance_key(void)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    bool down = key_down && key_mode_press;
+    uint32_t id = key_press_id, since = key_pressed_tick;
+    rt_hw_interrupt_enable(level);
+    uint32_t elapsed = (uint32_t)((uint64_t)(rt_tick_get() - since) * 1000U / RT_TICK_PER_SECOND);
+    wristflow_ui_shell_endurance_key(product_shell, down, id, elapsed);
 }
 
 static wristflow_watch_snapshot_t read_snapshot(bool force_power)
@@ -162,12 +186,19 @@ static void read_pointer(lv_indev_t *input, lv_indev_data_t *data)
 static void button_callback(int32_t pin, button_action_t action)
 {
     (void)pin;
+    if (action == BUTTON_PRESSED) {
+        key_down = true; key_pressed_tick = rt_tick_get(); ++key_press_id;
+        key_mode_press = endurance_key_enabled;
+        if (key_mode_press) wristflow_product_event_send(WF_EVENT_KEY_STATE);
+    }
     if (action == BUTTON_PRESSED && waiting_for_wake) {
         suppress_wake_click = true;
         wristflow_product_event_send(WF_EVENT_KEY);
-    } else if (action == BUTTON_CLICKED && !suppress_wake_click) {
+    } else if (action == BUTTON_CLICKED && !suppress_wake_click && !key_mode_press) {
         wristflow_product_event_send(WF_EVENT_KEY);
     } else if (action == BUTTON_RELEASED) {
+        key_down = false;
+        if (key_mode_press) wristflow_product_event_send(WF_EVENT_KEY_STATE);
         suppress_wake_click = false;
     }
 }
@@ -215,8 +246,10 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
          * An acknowledged reminder stays pending without repeatedly waking. */
         reminder = wristflow_ui_shell_reminder_event(product_shell);
         wristflow_watch_snapshot_t charge_snapshot = read_snapshot(false);
+        bool endurance_before = wristflow_ui_shell_endurance(product_shell);
         charging = wristflow_ui_shell_charging_event(product_shell, &charge_snapshot);
         wristflow_ui_shell_update(product_shell, &charge_snapshot);
+        sync_endurance_services();
         if (events & WF_EVENT_PHONE) {
             wristflow_product_pm_background();
             preview = sync_notifications();
@@ -225,9 +258,12 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
         /* KEY wins a coalesced batch: waking by wrist first would make the
          * same KEY look like an ACTIVE-screen navigation press. */
         if ((events & WF_EVENT_WRIST) && wristflow_product_wrist_take_wake() &&
-            !(events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE)))
+            !(events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE | WF_EVENT_KEY_STATE)))
             wrist = wristflow_ui_shell_wrist_wake(product_shell);
-        if (reminder || preview || charging || wrist || (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))) break;
+        if (reminder || preview || charging || wrist ||
+            (endurance_before && !wristflow_ui_shell_endurance(product_shell)) ||
+            (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE)) ||
+            ((events & WF_EVENT_KEY_STATE) && key_down && wristflow_ui_shell_endurance(product_shell))) break;
     }
     wristflow_product_pm_screen(false); /* Hold idle before restoring the display. */
     waiting_for_wake = false;
@@ -236,6 +272,7 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     /* Select the wake destination while dark; expose only its completed frame. */
     defer_brightness = true;
     if (!charging && (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))) wristflow_ui_shell_key(product_shell);
+    if (wristflow_ui_shell_endurance(product_shell)) sync_endurance_key();
     wristflow_watch_snapshot_t wake_snapshot = read_snapshot(false);
     wristflow_ui_shell_update(product_shell, &wake_snapshot);
     RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_POWERON, NULL) == RT_EOK);
@@ -287,7 +324,7 @@ int main(void)
     wristflow_layout_t layout;
     wristflow_product_services_start(&settings, &layout);
     const wristflow_alarm_port_t *alarm = wristflow_product_alarm_start();
-    wristflow_product_ble_start();
+    wristflow_product_ble_start(!settings.endurance_mode);
     wristflow_watch_snapshot_t snapshot = read_snapshot(true);
     RT_ASSERT(littlevgl2rtt_init("lcd") == RT_EOK);
     RT_ASSERT(lv_display_get_horizontal_resolution(NULL) == 390);
@@ -331,6 +368,7 @@ int main(void)
     if (!wristflow_product_power_start()) rt_kprintf("[power] service unavailable; display unknown\n");
     if (!wristflow_product_steps_start()) rt_kprintf("[steps] native daily service unavailable\n");
     sync_wrist_setting();
+    sync_endurance_services();
     if (!wristflow_product_charger_service_start()) rt_kprintf("[charger] control service unavailable; no manual start\n");
     rt_kprintf("[product] RTC=%s, %s, voltage_valid=%u VBAT=%umV, BLE active, PM auto when off\n",
                snapshot.time_unavailable ? "not synchronized" : "in range",
@@ -338,6 +376,8 @@ int main(void)
                snapshot.power.millivolts);
     uint32_t sampled = lv_tick_get();
     for (;;) {
+        if (wristflow_ui_shell_endurance(shell)) sync_endurance_key();
+        sync_endurance_services();
         uint32_t wait_ms = lv_timer_handler();
         uint32_t now = lv_tick_get();
         capture_battery();
@@ -378,7 +418,7 @@ int main(void)
         rt_uint32_t events = wristflow_product_event_wait(rt_tick_from_millisecond(LV_CLAMP(1, wait_ms, 20)));
         if (events & WF_EVENT_PM_SAMPLE) wristflow_product_pm_report();
         if ((events & WF_EVENT_WRIST) && wristflow_product_wrist_take_wake() &&
-            !(events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE)))
+            !(events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE | WF_EVENT_KEY_STATE)))
             wristflow_ui_shell_wrist_wake(shell);
         if (events & (WF_EVENT_ALARM | WF_EVENT_COUNTDOWN)) wristflow_ui_shell_reminder_event(shell);
         if (events & WF_EVENT_CHARGER) {
@@ -398,5 +438,6 @@ int main(void)
         if (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))
 
             wristflow_ui_shell_key(shell);
+        if (events & WF_EVENT_KEY_STATE) sync_endurance_key();
     }
 }

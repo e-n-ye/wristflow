@@ -167,6 +167,32 @@ static void notification_center(lv_event_t *event)
 static void unavailable(lv_obj_t *list, const char *name, const char *title, const char *detail)
 { lv_obj_add_state(row(list, name, title, detail), LV_STATE_DISABLED); }
 
+static void enable_endurance(lv_event_t *event)
+{ wristflow_ui_shell_endurance_prompt(lv_event_get_user_data(event)); }
+static void optimize_wrist(lv_event_t *event)
+{
+    wristflow_ui_shell_t *shell = lv_event_get_user_data(event);
+    wristflow_settings_t settings; wristflow_ui_shell_get_settings(shell, &settings);
+    settings.wrist_wake = false;
+    wristflow_ui_shell_configure(shell, &settings);
+    wristflow_settings_refresh(lv_screen_active(), WRISTFLOW_SURFACE_BATTERY_OPTIMIZATION, shell);
+}
+static void optimize_awake(lv_event_t *event)
+{
+    wristflow_ui_shell_t *shell = lv_event_get_user_data(event);
+    wristflow_ui_shell_keep_awake(shell, 0);
+    wristflow_settings_refresh(lv_screen_active(), WRISTFLOW_SURFACE_BATTERY_OPTIMIZATION, shell);
+}
+void wristflow_settings_battery_bind(lv_obj_t *root, wristflow_ui_shell_t *shell)
+{
+    lv_obj_t *scroll = named(root, "battery_scroll");
+    lv_obj_set_scroll_dir(scroll, LV_DIR_VER);
+    lv_obj_remove_flag(scroll, LV_OBJ_FLAG_SCROLL_CHAIN);
+    route(named(root, "battery_endurance"), WRISTFLOW_SURFACE_ENDURANCE_SETTINGS, shell);
+    route(named(root, "battery_optimize"), WRISTFLOW_SURFACE_BATTERY_OPTIMIZATION, shell);
+    route(named(root, "battery_info"), WRISTFLOW_SURFACE_BATTERY_INFO, shell);
+}
+
 static const unsigned timeouts[] = {5, 10, 20, 30, 60};
 static const unsigned awake_times[] = {0, 5, 10, 15, 20};
 
@@ -223,7 +249,8 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
         return root;
     }
     if ((surface < WRISTFLOW_SURFACE_FACE_MANAGEMENT || surface > WRISTFLOW_SURFACE_WAKE_SETTINGS) &&
-        surface != WRISTFLOW_SURFACE_VIBRATION_SETTINGS && surface != WRISTFLOW_SURFACE_ENDURANCE_SETTINGS) return NULL;
+        surface != WRISTFLOW_SURFACE_VIBRATION_SETTINGS && surface != WRISTFLOW_SURFACE_ENDURANCE_SETTINGS &&
+        surface != WRISTFLOW_SURFACE_BATTERY_OPTIMIZATION && surface != WRISTFLOW_SURFACE_BATTERY_INFO) return NULL;
     lv_obj_t *root = screen_settings_list_create();
     lv_obj_t *list = named(root, "settings_scroll");
     lv_obj_remove_flag(list, LV_OBJ_FLAG_SCROLL_CHAIN);
@@ -317,7 +344,29 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
         break;
     case WRISTFLOW_SURFACE_ENDURANCE_SETTINGS:
         title = "长续航模式";
-        obj = settings_note_create(list, "长续航模式待实现，当前未启用。进入与退出规则及实际省电效果将在后续独立验证。");
+        obj = row(list, "endurance_enable", "长续航模式", "开启前确认");
+        lv_obj_set_style_text_font(named(obj, "row_title"), notification_22, 0);
+        lv_obj_set_style_text_font(named(obj, "row_detail"), notification_22, 0);
+        lv_obj_remove_flag(named(obj, "row_switch"), LV_OBJ_FLAG_HIDDEN);
+        lv_obj_remove_flag(named(obj, "row_switch"), LV_OBJ_FLAG_CLICKABLE);
+        lv_obj_add_event_cb(obj, enable_endurance, LV_EVENT_SHORT_CLICKED, shell);
+        obj = settings_note_create(list, "开启后保留时间、计步、闹钟与倒计时。暂停蓝牙、抬腕和临时常亮。按住按键3秒或新接USB退出。重启后仍保持此模式。");
+        lv_obj_set_style_text_font(obj, notification_22, 0);
+        break;
+    case WRISTFLOW_SURFACE_BATTERY_OPTIMIZATION:
+        title = "续航优化";
+        obj = row(list, "optimize_wrist", "抬腕亮屏", "点击关闭");
+        lv_obj_set_style_text_font(named(obj, "row_detail"), notification_22, 0);
+        lv_obj_add_event_cb(obj, optimize_wrist, LV_EVENT_SHORT_CLICKED, shell);
+        obj = row(list, "optimize_awake", "持续亮屏", "点击关闭");
+        lv_obj_set_style_text_font(named(obj, "row_detail"), notification_22, 0);
+        lv_obj_add_event_cb(obj, optimize_awake, LV_EVENT_SHORT_CLICKED, shell);
+        obj = settings_note_create(list, ""); lv_obj_set_name(obj, "optimize_note");
+        lv_obj_set_style_text_font(obj, notification_22, 0);
+        break;
+    case WRISTFLOW_SURFACE_BATTERY_INFO:
+        title = "说明";
+        obj = settings_note_create(list, "电量为电压估算，仅供参考。尚无本电池可用时长与节省小时数的测量依据。\n\n续航优化只显示当前已开启的相关功能，可逐项关闭；心率与血氧后台尚未接入。\n\n长续航模式保留已有提醒，暂停蓝牙连接和广播，不代表蓝牙芯片已断电。实际省电效果需独立测量。");
         lv_obj_set_style_text_font(obj, notification_22, 0);
         break;
     case WRISTFLOW_SURFACE_NOTIFICATION_SETTINGS:
@@ -360,6 +409,8 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
     default: break;
     }
     lv_label_set_text(named(root, "app_title"), title);
+    if (surface == WRISTFLOW_SURFACE_ENDURANCE_SETTINGS || surface == WRISTFLOW_SURFACE_BATTERY_OPTIMIZATION ||
+        surface == WRISTFLOW_SURFACE_BATTERY_INFO) lv_obj_set_style_text_font(named(root, "app_title"), notification_22, 0);
     lv_obj_set_width(named(root, "app_title"), 175);
     wristflow_settings_refresh(root, surface, shell);
     return root;
@@ -372,6 +423,12 @@ void wristflow_settings_refresh(lv_obj_t *root, wristflow_surface_t surface, wri
     wristflow_settings_t settings;
     if (!wristflow_ui_shell_get_settings(shell, &settings)) return;
     char value[40];
+    if (surface == WRISTFLOW_SURFACE_BATTERY_OPTIMIZATION) {
+        bool wrist = settings.wrist_wake, awake = wristflow_ui_shell_keep_minutes(shell) != 0;
+        lv_obj_set_flag(named(root, "optimize_wrist"), LV_OBJ_FLAG_HIDDEN, !wrist);
+        lv_obj_set_flag(named(root, "optimize_awake"), LV_OBJ_FLAG_HIDDEN, !awake);
+        label(named(root, "optimize_note"), wrist || awake ? "关闭以下功能可减少相关活动。" : "暂无可关闭的优化项。");
+    }
     unsigned minutes = wristflow_ui_shell_keep_minutes(shell);
     lv_obj_t *clock = lv_obj_find_by_name(root, "settings_clock");
     if (clock) {

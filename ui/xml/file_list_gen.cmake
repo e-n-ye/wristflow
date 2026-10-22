@@ -98,6 +98,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_control_center_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_countdown_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_dnd_time_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_endurance_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_face_picker_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_flashlight_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_game_2048_gen.c

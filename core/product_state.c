@@ -39,6 +39,7 @@ bool wristflow_settings_equal(const wristflow_settings_t *a, const wristflow_set
         a->screen_timeout == b->screen_timeout && a->dnd_mode == b->dnd_mode &&
         a->breathing_minutes == b->breathing_minutes && a->vibration_mode == b->vibration_mode &&
         a->wrist_wake == b->wrist_wake && a->silent_mode == b->silent_mode &&
+        a->endurance_mode == b->endurance_mode &&
         a->dnd_start_minute == b->dnd_start_minute && a->dnd_end_minute == b->dnd_end_minute;
 }
 
@@ -65,13 +66,15 @@ bool wristflow_settings_encode(const wristflow_settings_t *settings, uint8_t dat
 {
     if (!data || !wristflow_settings_valid(settings)) return false;
     memset(data, 0, WRISTFLOW_SETTINGS_BYTES);
-    data[0] = 'W'; data[1] = 'F'; data[2] = 9; data[3] = settings->brightness;
+    data[0] = 'W'; data[1] = 'F'; data[2] = 10; data[3] = settings->brightness;
     memcpy(data + 4, settings->face_id, strlen(settings->face_id));
-    /* v9 packs flags into byte13 and vibration/breathing into byte14, retaining
+    /* v10 adds endurance at bit6 to v9's flags in byte13; byte14 keeps
+     * vibration/breathing, retaining
      * the v8 nine-character ID and the 24-byte record/checksum boundary.
      * v5 belongs to the separate wrist-wake draft and is never reinterpreted. */
     data[13] = (uint8_t)(settings->wrist_wake | settings->silent_mode << 1 |
-        settings->face_long_press << 2 | settings->menu_layout << 3 | settings->dnd_mode << 4);
+        settings->face_long_press << 2 | settings->menu_layout << 3 | settings->dnd_mode << 4 |
+        settings->endurance_mode << 6);
     data[14] = (uint8_t)(settings->vibration_mode | settings->breathing_minutes << 2);
     data[15] = settings->screen_timeout;
     data[16] = (uint8_t)settings->dnd_start_minute;
@@ -86,13 +89,14 @@ bool wristflow_settings_encode(const wristflow_settings_t *settings, uint8_t dat
 bool wristflow_settings_decode(wristflow_settings_t *settings, const uint8_t *data, size_t size)
 {
     if (!settings || !data || size != WRISTFLOW_SETTINGS_BYTES ||
-        data[0] != 'W' || data[1] != 'F' || data[2] < 1 || data[2] > 9 || data[2] == 5) return false;
+        data[0] != 'W' || data[1] != 'F' || data[2] < 1 || data[2] > 10 || data[2] == 5) return false;
     uint32_t hash = checksum(data);
     for (unsigned i = 0; i < 4; ++i)
         if (data[20 + i] != (uint8_t)(hash >> (i * 8))) return false;
     wristflow_settings_t decoded = wristflow_settings_default();
-    if (data[2] == 9) {
-        if ((data[13] & 0xc0U) || (data[14] & 0xe0U)) return false;
+    if (data[2] >= 9) {
+        if ((data[13] & (data[2] == 9 ? 0xc0U : 0x80U)) || (data[14] & 0xe0U)) return false;
+        decoded.endurance_mode = data[2] == 10 && (data[13] & 0x40U);
         decoded.brightness = data[3];
         memset(decoded.face_id, 0, sizeof decoded.face_id);
         memcpy(decoded.face_id, data + 4, 9);
@@ -144,6 +148,7 @@ wristflow_watch_snapshot_t wristflow_product_snapshot(bool rtc_read, uint32_t ut
         snapshot.hour_24 = (uint8_t)(minute / 60U);
         snapshot.minute = (uint8_t)(minute % 60U);
         snapshot.time_unavailable = false;
+        snapshot.utc_seconds = utc_seconds;
     }
     return snapshot;
 }

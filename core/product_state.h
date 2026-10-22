@@ -35,6 +35,7 @@ typedef struct {
     wristflow_vibration_mode_t vibration_mode;
     bool wrist_wake;
     bool silent_mode;
+    bool endurance_mode;
     uint16_t dnd_start_minute, dnd_end_minute;
 } wristflow_settings_t;
 

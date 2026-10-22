@@ -65,10 +65,23 @@ lv_obj_t * screen_battery_create(void)
         lv_obj_set_style_text_font(battery_time, body_20, 0);
         lv_obj_set_style_text_align(battery_time, LV_TEXT_ALIGN_RIGHT, 0);
 
-        lv_obj_t * battery_badge = lv_obj_create(battery_page);
+        lv_obj_t * battery_scroll = lv_obj_create(battery_page);
+        lv_obj_set_name(battery_scroll, "battery_scroll");
+        lv_obj_set_x(battery_scroll, 0);
+        lv_obj_set_y(battery_scroll, 82);
+        lv_obj_set_width(battery_scroll, 390);
+        lv_obj_set_height(battery_scroll, 348);
+        lv_obj_set_scrollbar_mode(battery_scroll, LV_SCROLLBAR_MODE_OFF);
+        lv_obj_set_style_bg_opa(battery_scroll, (255 * 0 / 100), 0);
+        lv_obj_set_style_border_width(battery_scroll, 0, 0);
+        lv_obj_set_style_pad_all(battery_scroll, 0, 0);
+        lv_obj_set_style_radius(battery_scroll, 0, 0);
+        lv_obj_set_style_text_color(battery_scroll, FG_PRIMARY, 0);
+        lv_obj_set_style_text_font(battery_scroll, notification_22, 0);
+        lv_obj_t * battery_badge = lv_obj_create(battery_scroll);
         lv_obj_set_name(battery_badge, "battery_badge");
         lv_obj_set_x(battery_badge, 28);
-        lv_obj_set_y(battery_badge, 128);
+        lv_obj_set_y(battery_badge, 46);
         lv_obj_set_width(battery_badge, 54);
         lv_obj_set_height(battery_badge, 54);
         lv_obj_set_flag(battery_badge, LV_OBJ_FLAG_SCROLLABLE, false);
@@ -85,39 +98,39 @@ lv_obj_t * screen_battery_create(void)
         lv_obj_set_style_text_font(battery_icon, icons_20, 0);
         lv_obj_set_style_text_color(battery_icon, lv_color_hex(0x00dfc0), 0);
 
-        lv_obj_t * battery_percent = lv_label_create(battery_page);
+        lv_obj_t * battery_percent = lv_label_create(battery_scroll);
         lv_obj_set_name(battery_percent, "battery_percent");
         lv_obj_set_x(battery_percent, 94);
-        lv_obj_set_y(battery_percent, 96);
+        lv_obj_set_y(battery_percent, 14);
         lv_obj_set_width(battery_percent, 272);
         lv_obj_set_height(battery_percent, 112);
         lv_label_set_text(battery_percent, "~91%");
         lv_obj_set_style_text_font(battery_percent, battery_80, 0);
 
-        lv_obj_t * battery_status = lv_label_create(battery_page);
+        lv_obj_t * battery_status = lv_label_create(battery_scroll);
         lv_obj_set_name(battery_status, "battery_status");
         lv_obj_set_x(battery_status, 24);
-        lv_obj_set_y(battery_status, 214);
+        lv_obj_set_y(battery_status, 132);
         lv_obj_set_width(battery_status, 342);
         lv_obj_set_height(battery_status, 30);
         lv_label_set_text(battery_status, "充电中");
         lv_obj_set_style_text_align(battery_status, LV_TEXT_ALIGN_CENTER, 0);
         lv_obj_set_style_text_color(battery_status, lv_color_hex(0x00dfc0), 0);
 
-        lv_obj_t * battery_reason = lv_label_create(battery_page);
+        lv_obj_t * battery_reason = lv_label_create(battery_scroll);
         lv_obj_set_name(battery_reason, "battery_reason");
         lv_obj_set_x(battery_reason, 24);
-        lv_obj_set_y(battery_reason, 248);
+        lv_obj_set_y(battery_reason, 166);
         lv_obj_set_width(battery_reason, 342);
         lv_obj_set_height(battery_reason, 30);
         lv_label_set_text(battery_reason, "");
         lv_obj_set_style_text_align(battery_reason, LV_TEXT_ALIGN_CENTER, 0);
         lv_obj_set_style_text_color(battery_reason, FG_SECONDARY, 0);
 
-        lv_obj_t * battery_details = lv_obj_create(battery_page);
+        lv_obj_t * battery_details = lv_obj_create(battery_scroll);
         lv_obj_set_name(battery_details, "battery_details");
         lv_obj_set_x(battery_details, 24);
-        lv_obj_set_y(battery_details, 285);
+        lv_obj_set_y(battery_details, 203);
         lv_obj_set_width(battery_details, 342);
         lv_obj_set_height(battery_details, 98);
         lv_obj_set_flag(battery_details, LV_OBJ_FLAG_SCROLLABLE, false);
@@ -153,15 +166,63 @@ lv_obj_t * screen_battery_create(void)
         lv_label_set_text(battery_input, "USB 输入有效");
         lv_obj_set_style_text_color(battery_input, FG_SECONDARY, 0);
 
-        lv_obj_t * battery_source = lv_label_create(battery_page);
+        lv_obj_t * battery_source = lv_label_create(battery_scroll);
         lv_obj_set_name(battery_source, "battery_source");
         lv_obj_set_x(battery_source, 24);
-        lv_obj_set_y(battery_source, 402);
+        lv_obj_set_y(battery_source, 320);
         lv_obj_set_width(battery_source, 342);
         lv_obj_set_height(battery_source, 30);
         lv_label_set_text(battery_source, "电压估算，仅供参考");
         lv_obj_set_style_text_align(battery_source, LV_TEXT_ALIGN_CENTER, 0);
         lv_obj_set_style_text_color(battery_source, FG_SECONDARY, 0);
+
+        lv_obj_t * battery_endurance = lv_button_create(battery_scroll);
+        lv_obj_set_name(battery_endurance, "battery_endurance");
+        lv_obj_set_x(battery_endurance, 24);
+        lv_obj_set_y(battery_endurance, 368);
+        lv_obj_set_width(battery_endurance, 342);
+        lv_obj_set_height(battery_endurance, 90);
+        lv_obj_set_style_bg_color(battery_endurance, lv_color_hex(0x252525), 0);
+        lv_obj_set_style_border_width(battery_endurance, 0, 0);
+        lv_obj_set_style_radius(battery_endurance, 22, 0);
+        lv_obj_set_style_shadow_width(battery_endurance, 0, 0);
+        lv_obj_t * lv_label_1 = lv_label_create(battery_endurance);
+        lv_obj_set_align(lv_label_1, LV_ALIGN_CENTER);
+        lv_label_set_text(lv_label_1, "长续航模式");
+        lv_obj_set_style_text_font(lv_label_1, notification_22, 0);
+        lv_obj_set_style_text_color(lv_label_1, FG_PRIMARY, 0);
+
+        lv_obj_t * battery_optimize = lv_button_create(battery_scroll);
+        lv_obj_set_name(battery_optimize, "battery_optimize");
+        lv_obj_set_x(battery_optimize, 24);
+        lv_obj_set_y(battery_optimize, 470);
+        lv_obj_set_width(battery_optimize, 342);
+        lv_obj_set_height(battery_optimize, 90);
+        lv_obj_set_style_bg_color(battery_optimize, lv_color_hex(0x252525), 0);
+        lv_obj_set_style_border_width(battery_optimize, 0, 0);
+        lv_obj_set_style_radius(battery_optimize, 22, 0);
+        lv_obj_set_style_shadow_width(battery_optimize, 0, 0);
+        lv_obj_t * lv_label_2 = lv_label_create(battery_optimize);
+        lv_obj_set_align(lv_label_2, LV_ALIGN_CENTER);
+        lv_label_set_text(lv_label_2, "续航优化");
+        lv_obj_set_style_text_font(lv_label_2, notification_22, 0);
+        lv_obj_set_style_text_color(lv_label_2, FG_PRIMARY, 0);
+
+        lv_obj_t * battery_info = lv_button_create(battery_scroll);
+        lv_obj_set_name(battery_info, "battery_info");
+        lv_obj_set_x(battery_info, 161);
+        lv_obj_set_y(battery_info, 582);
+        lv_obj_set_width(battery_info, 68);
+        lv_obj_set_height(battery_info, 54);
+        lv_obj_set_style_bg_color(battery_info, lv_color_hex(0x252525), 0);
+        lv_obj_set_style_border_width(battery_info, 0, 0);
+        lv_obj_set_style_radius(battery_info, 27, 0);
+        lv_obj_set_style_shadow_width(battery_info, 0, 0);
+        lv_obj_t * lv_label_3 = lv_label_create(battery_info);
+        lv_obj_set_align(lv_label_3, LV_ALIGN_CENTER);
+        lv_label_set_text(lv_label_3, "");
+        lv_obj_set_style_text_font(lv_label_3, icons_20, 0);
+        lv_obj_set_style_text_color(lv_label_3, FG_PRIMARY, 0);
 
         the_root = battery_page;
     }

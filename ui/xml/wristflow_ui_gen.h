@@ -347,6 +347,7 @@ void wristflow_ui_init_gen(const char * asset_path);
 #include "screens/screen_control_center_gen.h"
 #include "screens/screen_countdown_gen.h"
 #include "screens/screen_dnd_time_gen.h"
+#include "screens/screen_endurance_gen.h"
 #include "screens/screen_face_picker_gen.h"
 #include "screens/screen_flashlight_gen.h"
 #include "screens/screen_game_2048_gen.h"

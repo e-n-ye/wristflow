@@ -40,7 +40,13 @@ int main(void)
     assert(wristflow_settings_equal(&chosen, &restored));
     assert(restored.dnd_mode);
     assert(restored.breathing_minutes == 5);
-    assert(record[2] == 9 && (record[13] & 1U) && (record[14] & 3U) == WRISTFLOW_VIBRATION_ENHANCED);
+    assert(record[2] == 10 && (record[13] & 1U) && (record[14] & 3U) == WRISTFLOW_VIBRATION_ENHANCED);
+    record[2] = 9; seal(record); /* Deployed v9 acquires mode off. */
+    assert(wristflow_settings_decode(&restored, record, sizeof record) && !restored.endurance_mode);
+    chosen.endurance_mode = true;
+    assert(wristflow_settings_encode(&chosen, record));
+    assert(wristflow_settings_decode(&restored, record, sizeof record) && restored.endurance_mode);
+    chosen.endurance_mode = false;
     restored = chosen; restored.wrist_wake = false;
     assert(!wristflow_settings_equal(&chosen, &restored));
     legacy_record(&chosen, 7, record);

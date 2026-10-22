@@ -1,4 +1,5 @@
 #include "apps.h"
+#include "endurance_view.h"
 #include "stopwatch.h"
 #include "app_registry.h"
 #include "settings_view.h"
@@ -619,6 +620,8 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         root = wristflow_2048_view_screen(apps->game);
     else if (surface == WRISTFLOW_SURFACE_ACTIVITY_INFO)
         root = screen_activity_info_create();
+    else if (surface == WRISTFLOW_SURFACE_ENDURANCE)
+        root = screen_endurance_create();
     else if (app)
         root = apps->product_mode && app->capability != WRISTFLOW_CAPABILITY_READY
             ? screen_product_placeholder_create() : app->create();
@@ -679,7 +682,8 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
     } else if (apps->product_mode && (surface == WRISTFLOW_SURFACE_SETTINGS ||
         (surface >= WRISTFLOW_SURFACE_FACE_MANAGEMENT && surface <= WRISTFLOW_SURFACE_WAKE_SETTINGS) ||
         surface == WRISTFLOW_SURFACE_VIBRATION_SETTINGS || surface == WRISTFLOW_SURFACE_DND_START ||
-        surface == WRISTFLOW_SURFACE_DND_END || surface == WRISTFLOW_SURFACE_ENDURANCE_SETTINGS)) {
+        surface == WRISTFLOW_SURFACE_DND_END || surface == WRISTFLOW_SURFACE_ENDURANCE_SETTINGS ||
+        surface == WRISTFLOW_SURFACE_BATTERY_OPTIMIZATION || surface == WRISTFLOW_SURFACE_BATTERY_INFO)) {
         wristflow_settings_refresh(root, surface, apps->shell);
     } else if (surface == WRISTFLOW_SURFACE_SETTINGS) {
         lv_obj_add_event_cb(named(root, "settings_brightness"), brightness_changed, LV_EVENT_VALUE_CHANGED, apps);
@@ -704,6 +708,9 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         wristflow_activity_render(root, &apps->snapshot);
     } else if (surface == WRISTFLOW_SURFACE_SYSTEM) {
         render_power(root, &apps->snapshot, apps->product_mode);
+        wristflow_settings_battery_bind(root, apps->shell);
+    } else if (surface == WRISTFLOW_SURFACE_ENDURANCE) {
+        wristflow_endurance_render(root, apps->shell);
     } else {
         lv_label_set_text(named(root, "app_title"), app->title);
         lv_label_set_text(named(root, "placeholder_icon"), app->icon);
@@ -765,8 +772,11 @@ void wristflow_apps_activate(wristflow_apps_t *apps, wristflow_surface_t surface
 
 void wristflow_apps_refresh_settings_save(wristflow_apps_t *apps)
 {
-    if (apps && apps->product_mode)
+    if (apps && apps->product_mode) {
         wristflow_settings_refresh(apps->screens[apps->active], apps->active, apps->shell);
+        if (apps->active == WRISTFLOW_SURFACE_ENDURANCE)
+            wristflow_endurance_render(apps->screens[apps->active], apps->shell);
+    }
 }
 
 void wristflow_apps_hide_control_hint(wristflow_apps_t *apps)
@@ -794,10 +804,14 @@ void wristflow_apps_update(wristflow_apps_t *apps, const wristflow_watch_snapsho
     wristflow_activity_render(apps->screens[WRISTFLOW_SURFACE_ACTIVITY], snapshot);
     wristflow_activity_render(apps->screens[WRISTFLOW_SURFACE_ACTIVITY_INFO], snapshot);
     wristflow_control_center_update(apps->control_center, snapshot);
+    wristflow_endurance_render(apps->screens[WRISTFLOW_SURFACE_ENDURANCE], apps->shell);
     if (apps->product_mode) {
         wristflow_settings_refresh(apps->screens[apps->active], apps->active, apps->shell);
     }
 }
+
+void wristflow_apps_endurance_progress(wristflow_apps_t *apps, unsigned progress, bool showing)
+{ if (apps) wristflow_endurance_progress(apps->screens[WRISTFLOW_SURFACE_ENDURANCE], progress, showing); }
 
 static void release_screen(wristflow_apps_t *apps, wristflow_surface_t surface)
 {

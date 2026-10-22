@@ -145,6 +145,12 @@ void wristflow_ui_shell_notification_dismiss(wristflow_ui_shell_t *shell, bool t
 bool wristflow_ui_shell_dnd(const wristflow_ui_shell_t *shell);
 void wristflow_ui_shell_set_dnd(wristflow_ui_shell_t *shell, bool enabled);
 bool wristflow_ui_shell_phone_connected(const wristflow_ui_shell_t *shell);
+bool wristflow_ui_shell_endurance(const wristflow_ui_shell_t *);
+bool wristflow_ui_shell_set_endurance(wristflow_ui_shell_t *, bool enabled);
+void wristflow_ui_shell_endurance_prompt(wristflow_ui_shell_t *);
+void wristflow_ui_shell_endurance_key(wristflow_ui_shell_t *, bool down, uint32_t press_id, uint32_t elapsed_ms);
+void wristflow_ui_shell_endurance_services(wristflow_ui_shell_t *, bool ready, bool failed);
+const char *wristflow_ui_shell_endurance_status(const wristflow_ui_shell_t *);
 /* UI-thread event reconciliation is safe with LVGL timers disabled. A mailbox
  * bit is a hint; the synchronized service snapshot is authoritative. */
 bool wristflow_ui_shell_countdown_event(wristflow_ui_shell_t *shell);
