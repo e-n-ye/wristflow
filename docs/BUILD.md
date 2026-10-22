@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-10-22 AOD A0面板诊断软件
+
+从`bf43474`准备[原生Idle有界诊断](AOD.md)，正式AOD设置／保存／样式／显示状态未接入。GCC15.2.0／CMake4.2.3／Ninja1.13.2，完整Debug59/59（13.31秒）及全库保留断言Release59/59（6.07秒）；最后增加缓存有效位和恢复等待边界后，受影响诊断目标Debug／Release各1/1再次通过。独立审查发现的“恢复失败仍放行正常LCD写入”已改为独占恢复等待，定点复核无剩余确定阻断；主机不代表实际面板恢复。
+
+`pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 4`调用官方SCons，最终Product`20261022-213241-312`退出0／BIN7,973,872B／`971a955b…`，508源码及29产物逐项字节重哈希一致；较前轮设备BIN增2,852B。Python3.13.15／SCons4.10.1／ArmGCC14.2.1与SDK／子模块锁不变。初版及恢复修正版构建保留，最终版消除新增的wait参数signedness警告，并补跨恢复结束的KEY整组消费；相关Debug／Release各1/1及定点独立复核通过。保留原FinSH宏转换（含新命令同类）、RWX／ftab syscall／entry及既有配置提示。`Flash.ps1 -Example product -Port COM5 -DryRun`退出0，仅本地三镜像核验，无开口／复位／下载。没有共享UI／Demo依赖或XML资源变化，不重复编译Demo或官方GUI导出。完整命令／日志／指纹及未验项见[精简证据](evidence/2026-10-22/aod-panel-probe.json)。
+
 ## 2026-10-22 长续航息屏USB退出修复
 
 初版同BIN验收发现黑屏拔USB15秒接回未退出。新增实际charger service→空ADC快照断言在旧服务失败复现；[修复](ENDURANCE.md)由charger发布独立资格化PG／低高接入代次及事件，shell进入时取最新无I/O基线，保留充电控制与ADC／估算路径。最终Debug58/58（24.46秒）、全库保留断言Release58/58（12.08秒）及两项独立只读复核通过，覆盖启动高、未知／状态INT、无ADC／无ACTIVE、合并末态低／未知和旧UI快照等边界。

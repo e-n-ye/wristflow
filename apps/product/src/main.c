@@ -19,6 +19,8 @@
 #include "product_alarm.h"
 #include "product_motor.h"
 #include "weather_screen.h"
+#include "aod_panel_probe.h"
+#include "drv_lcd.h"
 #include <string.h>
 #ifdef RT_USING_FINSH
 #include <finsh.h>
@@ -41,6 +43,34 @@ static uint8_t requested_brightness, acknowledged_brightness;
 static bool wrist_setting_known, wrist_setting;
 static wristflow_carousel_snapshot_t carousel_current, carousel_last_mismatch;
 static bool carousel_valid, carousel_mismatch_valid;
+/* UI thread owns panel I/O. FinSH only reserves a request and copies status. */
+static wf_aod_probe_t panel_probe, panel_probe_cache;
+static unsigned probe_seconds;
+static bool probe_reserved, probe_stop, probe_available;
+static wf_aod_probe_input_t probe_input;
+
+static uint32_t panel_now(void *context)
+{ (void)context; return (uint32_t)((uint64_t)rt_tick_get() * 1000U / RT_TICK_PER_SECOND); }
+
+static void panel_publish(const wf_aod_probe_t *value, void *context)
+{
+    (void)context;
+    rt_base_t level = rt_hw_interrupt_disable();
+    panel_probe_cache = *value;
+    rt_hw_interrupt_enable(level);
+}
+
+static void panel_unavailable(void)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    probe_available = false;
+    /* A request accepted just before OFF must not wait for a later wake. */
+    if (probe_seconds) {
+        probe_seconds = 0; probe_stop = false; probe_reserved = false;
+        panel_probe_cache = (wf_aod_probe_t){.phase = WF_AOD_PROBE_REJECTED};
+    }
+    rt_hw_interrupt_enable(level);
+}
 
 static void capture_battery(void)
 {
@@ -70,6 +100,9 @@ static void capture_carousel(void)
     rt_base_t level = rt_hw_interrupt_disable();
     carousel_current = value;
     carousel_valid = true;
+    probe_available = value.settled && value.surface == WRISTFLOW_SURFACE_HOME && value.page == 0 &&
+        value.display_phase == WRISTFLOW_DISPLAY_ACTIVE && !wristflow_ui_shell_endurance(product_shell) &&
+        !wristflow_ui_shell_charging_active(product_shell) && !wristflow_ui_shell_reminder_active(product_shell);
     if (value.mismatch) {
         carousel_last_mismatch = value;
         carousel_mismatch_valid = true;
@@ -107,6 +140,46 @@ static int wf_ui(int argc, char **argv)
     return 0;
 }
 MSH_CMD_EXPORT(wf_ui, Read cached carousel state without changing UI);
+
+static int wf_aod(int argc, char **argv)
+{
+    if (argc == 2 && !strcmp(argv[1], "status")) {
+        rt_base_t level = rt_hw_interrupt_disable();
+        wf_aod_probe_t p = panel_probe_cache;
+        bool reserved = probe_reserved, available = probe_available;
+        unsigned queued = probe_seconds;
+        rt_hw_interrupt_enable(level);
+        rt_kprintf("[aod-probe] phase=%u reserved=%u queued=%u available=%u valid=%u restore_pending=%u restored=%u\n",
+            p.phase, reserved, queued, available, p.valid, p.restore_pending, p.restored);
+        rt_kprintf("[aod-probe] start=%lu elapsed=%lu duration=%lu events=0x%lx\n",
+            (unsigned long)p.started_ms, (unsigned long)p.elapsed_ms,
+            (unsigned long)p.duration_ms, (unsigned long)p.interrupted_events);
+        rt_kprintf("[aod-probe] SDK-cache mode/brightness before=%u/%u entered=%u/%u after=%u/%u\n",
+            p.before.mode, p.before.brightness, p.entered.mode, p.entered.brightness, p.after.mode, p.after.brightness);
+        return 0;
+    }
+    if (argc == 2 && !strcmp(argv[1], "stop")) {
+        rt_base_t level = rt_hw_interrupt_disable();
+        if (probe_reserved) probe_stop = true;
+        rt_hw_interrupt_enable(level);
+        wristflow_product_event_send(WF_EVENT_AOD_PROBE);
+        return 0;
+    }
+    if (argc == 3 && !strcmp(argv[1], "start") && strlen(argv[2]) == 2 &&
+        argv[2][0] >= '1' && argv[2][0] <= '6' && argv[2][1] >= '0' && argv[2][1] <= '9') {
+        unsigned seconds = (unsigned)(argv[2][0] - '0') * 10U + (unsigned)(argv[2][1] - '0');
+        rt_base_t level = rt_hw_interrupt_disable();
+        bool accepted = seconds <= 60 && probe_available && !probe_reserved;
+        if (accepted) { probe_reserved = true; probe_seconds = seconds; probe_stop = false; }
+        rt_hw_interrupt_enable(level);
+        rt_kprintf("[aod-probe] start accepted=%u; diagnostic only, 5 percent request, UI holds IDLE\n", accepted);
+        if (accepted) wristflow_product_event_send(WF_EVENT_AOD_PROBE);
+        return accepted ? 0 : -1;
+    }
+    rt_kprintf("wf_aod status | start <10..60> | stop; requires settled HOME, awake, no overlays/endurance\n");
+    return -1;
+}
+MSH_CMD_EXPORT(wf_aod, Bounded CO5300 Idle panel diagnostic);
 #endif
 
 static volatile bool endurance_key_enabled, key_down, key_mode_press;
@@ -198,6 +271,14 @@ static void button_callback(int32_t pin, button_action_t action)
         key_mode_press = endurance_key_enabled;
         if (key_mode_press) wristflow_product_event_send(WF_EVENT_KEY_STATE);
     }
+    rt_base_t level = rt_hw_interrupt_disable();
+    bool pass = wf_aod_probe_filter_key(&probe_input, action == BUTTON_PRESSED, action == BUTTON_RELEASED);
+    rt_hw_interrupt_enable(level);
+    if (!pass) {
+        if (action == BUTTON_PRESSED) wristflow_product_event_send(WF_EVENT_AOD_PROBE);
+        if (action == BUTTON_RELEASED) key_down = false;
+        return;
+    }
     if (action == BUTTON_PRESSED && waiting_for_wake) {
         suppress_wake_click = true;
         wristflow_product_event_send(WF_EVENT_KEY);
@@ -219,8 +300,123 @@ static void set_brightness(uint8_t brightness, void *context)
     brightness_valid = true; /* Driver success, not measured luminance/PWM. */
 }
 
+static bool panel_observe(wf_panel_observation_t *out, void *context)
+{
+    LCD_DrvStatusTypeDef state = LCD_STATUS_NONE;
+    uint8_t brightness = 255;
+    if (rt_device_control(context, RTGRAPHIC_CTRL_GET_STATE, &state) != RT_EOK ||
+        rt_device_control(context, RTGRAPHIC_CTRL_GET_BRIGHTNESS, &brightness) != RT_EOK) return false;
+    *out = (wf_panel_observation_t){.brightness = brightness,
+        .mode = state == LCD_STATUS_IDLE_MODE ? WF_PANEL_IDLE :
+            state == LCD_STATUS_DISPLAY_ON ? WF_PANEL_NORMAL : WF_PANEL_OTHER};
+    return true;
+}
+static bool panel_brightness(uint8_t value, void *context)
+{
+    requested_brightness = value;
+    bool ok = rt_device_control(context, RTGRAPHIC_CTRL_SET_BRIGHTNESS, &value) == RT_EOK;
+    brightness_valid = ok;
+    if (ok) acknowledged_brightness = value;
+    return ok;
+}
+static bool panel_idle(bool enabled, void *context)
+{
+    uint8_t mode = enabled;
+    return rt_device_control(context, RTGRAPHIC_CTRL_SET_MODE, &mode) == RT_EOK;
+}
+static uint32_t panel_wait(uint32_t remaining, bool *cancelled, void *context)
+{
+    (void)context;
+    rt_base_t level = rt_hw_interrupt_disable();
+    *cancelled = probe_stop || (remaining && probe_input.cancel);
+    probe_stop = false;
+    probe_input.cancel = false;
+    rt_hw_interrupt_enable(level);
+    if (*cancelled) return 0;
+    rt_int32_t timeout = remaining ? (rt_int32_t)rt_tick_from_millisecond(remaining) : RT_WAITING_FOREVER;
+    uint32_t events = wristflow_product_event_wait(timeout);
+    level = rt_hw_interrupt_disable();
+    *cancelled = probe_stop || (remaining && probe_input.cancel);
+    probe_stop = false;
+    probe_input.cancel = false;
+    rt_hw_interrupt_enable(level);
+    return events & ~WF_EVENT_AOD_PROBE;
+}
+static bool panel_drain(rt_device_t lcd)
+{
+    uint32_t start = panel_now(NULL);
+    for (;;) {
+        bool busy = true;
+        if (rt_device_control(lcd, RTGRAPHIC_CTRL_GET_BUSY, &busy) != RT_EOK) return false;
+        if (!busy) return true;
+        if (panel_now(NULL) - start >= 1000U) return false;
+        rt_thread_mdelay(5);
+    }
+}
+
+static void run_panel_probe(rt_device_t lcd, lv_indev_t *pointer)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    unsigned seconds = probe_seconds;
+    bool stop = probe_stop;
+    probe_seconds = 0;
+    probe_stop = false;
+    rt_hw_interrupt_enable(level);
+    if (!seconds) return;
+    wristflow_carousel_snapshot_t current;
+    bool eligible = wristflow_ui_shell_carousel_snapshot(product_shell, &current) && current.settled &&
+        current.surface == WRISTFLOW_SURFACE_HOME && current.page == 0 &&
+        current.display_phase == WRISTFLOW_DISPLAY_ACTIVE &&
+        !wristflow_ui_shell_endurance(product_shell) && !wristflow_ui_shell_charging_active(product_shell) &&
+        !wristflow_ui_shell_reminder_active(product_shell);
+    if (stop || !eligible) {
+        panel_probe = (wf_aod_probe_t){.phase = stop ? WF_AOD_PROBE_CANCELLED : WF_AOD_PROBE_REJECTED};
+        panel_publish(&panel_probe, NULL);
+    } else {
+        const wf_aod_probe_io_t io = {panel_now, panel_observe, panel_brightness, panel_idle, panel_wait, panel_publish};
+        level = rt_hw_interrupt_disable();
+        probe_input.active = true; probe_input.cancel = false;
+        rt_hw_interrupt_enable(level);
+        lv_timer_enable(false);
+        if (panel_drain(lcd)) {
+            wf_aod_probe_run(&panel_probe, &io, lcd, seconds);
+            if (panel_probe.restore_pending) {
+                rt_kprintf("[aod-probe] RESTORE FAILED: UI frozen, LCD exclusively owned; wf_aod stop retries\n");
+                wf_aod_probe_await_restore(&panel_probe, &io, lcd);
+            }
+        } else {
+            panel_probe = (wf_aod_probe_t){.phase = WF_AOD_PROBE_REJECTED};
+            panel_publish(&panel_probe, NULL);
+        }
+        level = rt_hw_interrupt_disable();
+        probe_input.active = false; probe_input.cancel = false;
+        rt_hw_interrupt_enable(level);
+        lv_indev_reset(pointer, NULL);
+        lv_indev_wait_release(pointer);
+        lv_timer_enable(true);
+        wristflow_ui_shell_display_retry(product_shell);
+        if (panel_probe.restored) {
+            lv_obj_invalidate(lv_screen_active());
+            lv_obj_invalidate(lv_layer_top());
+        }
+        /* One KEY cancels the diagnostic. All other service events are handed
+         * back to normal arbitration; a mode/brightness error never eats them. */
+        uint32_t replay = panel_probe.interrupted_events &
+            ~(WF_EVENT_KEY | WF_EVENT_TEST_WAKE | WF_EVENT_KEY_STATE);
+        if (replay) wristflow_product_event_send(replay);
+    }
+    level = rt_hw_interrupt_disable();
+    probe_reserved = panel_probe.restore_pending;
+    probe_stop = false;
+    probe_available = false;
+    rt_hw_interrupt_enable(level);
+    rt_kprintf("[aod-probe] ended phase=%u restore_pending=%u restored=%u; SDK cache only\n",
+        panel_probe.phase, panel_probe.restore_pending, panel_probe.restored);
+}
+
 static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
 {
+    panel_unavailable();
     lv_timer_enable(false);
     rt_tick_t started = rt_tick_get();
     bool busy = true;
@@ -384,6 +580,7 @@ int main(void)
                snapshot.power.millivolts);
     uint32_t sampled = lv_tick_get();
     for (;;) {
+        run_panel_probe(lcd, pointer);
         if (wristflow_ui_shell_endurance(shell)) sync_endurance_key();
         sync_endurance_services();
         uint32_t wait_ms = lv_timer_handler();

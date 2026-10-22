@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-22",
+  "base_commit": "bf434743f32eea5a7cd2e711dd427227bd4ba81a",
+  "branch": "codex/aod-display",
+  "scope": "A0 CO5300 native Idle panel diagnostic only; A1 settings/styles/product AOD state not implemented",
+  "source_verified": true,
+  "compiled_verified": true,
+  "hardware_verified": false,
+  "device_io_performed": false,
+  "sdk": {
+    "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "submodules": [
+      " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+      " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+    ],
+    "changes": []
+  },
+  "decisions": {
+    "smart_mode": "visible disabled until real sleep/off-wrist source",
+    "first_modes": [
+      "off",
+      "scheduled"
+    ],
+    "styles": [
+      "centered digital",
+      "upper-left time/date/estimated battery"
+    ],
+    "editing": false
+  },
+  "implementation": {
+    "duration_seconds": [
+      10,
+      60
+    ],
+    "brightness_request_percent": 5,
+    "current_frame_only": true,
+    "normal_idle_hold_retained": true,
+    "mode_control": "RTGRAPHIC_CTRL_SET_MODE -> CO5300 39h/38h",
+    "observations": "SDK GET_STATE/GET_BRIGHTNESS caches; not panel register readback",
+    "failure": "Exclusive LCD quarantine until a fresh stop completes restoration; then replay business events"
+  },
+  "host_tools": {
+    "gcc": "15.2.0",
+    "cmake": "4.2.3",
+    "ninja": "1.13.2",
+    "release_flags": "-O3 -DNDEBUG -UNDEBUG"
+  },
+  "commands": [
+    "PATH=/d/msys64/ucrt64/bin:$PATH cmake -S tests -B artifacts/host/aod-panel-debug -G Ninja -DCMAKE_BUILD_TYPE=Debug",
+    "cmake --build artifacts/host/aod-panel-debug -j 4",
+    "ctest --test-dir artifacts/host/aod-panel-debug --output-on-failure",
+    "cmake -S tests -B artifacts/host/aod-panel-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE=\"-O3 -DNDEBUG -UNDEBUG\"",
+    "cmake --build artifacts/host/aod-panel-release -j 4",
+    "ctest --test-dir artifacts/host/aod-panel-release --output-on-failure",
+    "Final affected target, each debug/release directory: cmake --build <directory> --target aod_panel_probe -j 4; ctest --test-dir <directory> -R ^aod_panel_probe$ --output-on-failure",
+    "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 4",
+    "pwsh -NoProfile -File scripts/Flash.ps1 -Example product -Port COM5 -DryRun"
+  ],
+  "checks": [
+    {
+      "log_local": "artifacts/aod-host-verified-debug.log",
+      "sha256": "9d3edc1cc1953e7cc9a7496f9406eb68530bd06b36926338f655afd55c493c6f",
+      "ctest": [
+        "100",
+        "0",
+        "59"
+      ],
+      "elapsed_seconds": [
+        "13.31"
+      ]
+    },
+    {
+      "log_local": "artifacts/aod-host-verified-release.log",
+      "sha256": "2b4eb8359e3c15f9764c75d6f8e6764a594794c21320a2ffee65a8183ced112b",
+      "ctest": [
+        "100",
+        "0",
+        "59"
+      ],
+      "elapsed_seconds": [
+        "6.07"
+      ]
+    },
+    {
+      "log_local": "artifacts/aod-host-last-debug.log",
+      "sha256": "bd65b1dacc4adf45d3edbb2893dd0ec81caa8538ac92e3cf3cfa8b9e052bbaad",
+      "ctest": [
+        "100",
+        "0",
+        "1"
+      ],
+      "elapsed_seconds": [
+        "0.02"
+      ]
+    },
+    {
+      "log_local": "artifacts/aod-host-last-release.log",
+      "sha256": "e33e5a972701d6ed6e3d95be9c6df03f8e070a9c0b44765fc4c73cf75cb29256",
+      "ctest": [
+        "100",
+        "0",
+        "1"
+      ],
+      "elapsed_seconds": [
+        "0.02"
+      ]
+    },
+    {
+      "log_local": "artifacts/aod-host-key-debug.log",
+      "sha256": "9309f3f321ebf1988b64d3971be5d667fe3dcec773ae8df124c1dbadc853967b",
+      "ctest": [
+        "100",
+        "0",
+        "1"
+      ],
+      "elapsed_seconds": [
+        "0.08"
+      ]
+    },
+    {
+      "log_local": "artifacts/aod-host-key-release.log",
+      "sha256": "a626b5915706c46cfc997e4ddf6af0bf14fc427b1906027d0aed7e1c549069f7",
+      "ctest": [
+        "100",
+        "0",
+        "1"
+      ],
+      "elapsed_seconds": [
+        "0.07"
+      ]
+    },
+    {
+      "log_local": "artifacts/aod-panel-product-key-final.log",
+      "sha256": "e719410dfc2835d2cf6eb8181c50fcff8c2459525d8791e0773c403efc1a65cb",
+      "ctest": null,
+      "elapsed_seconds": []
+    },
+    {
+      "log_local": "artifacts/aod-panel-key-dry-run.log",
+      "sha256": "8802668d32d9a44c3c1407d3a9e62003749d66ee27b6c5927f33e20885f294b7",
+      "ctest": null,
+      "elapsed_seconds": []
+    }
+  ],
+  "product": {
+    "run_local": "artifacts/product/20261022-213241-312",
+    "result_sha256": "a2d0a80bddbb37ba9074f869dad6252a7fabdb8e6e09e64358cb8253885e66b3",
+    "exit_code": 0,
+    "artifact_validation_passed": true,
+    "source_count": 508,
+    "artifact_count": 29,
+    "all_rehashed": true,
+    "main_bin_sha256": "971a955b5fd700e7146addd19875139ebe7858e5d3f73e1b076d684b44ab5bef",
+    "main_bin_bytes": 7973872,
+    "python": "Python 3.13.15",
+    "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+    "scons": "4.10.1"
+  },
+  "code_fingerprints": [
+    {
+      "path": "apps/product/src/aod_panel_probe.c",
+      "sha256": "d88dc3d60be72187b5cf751485e74e304164cd19d222bcbbfa81b20062f75dda"
+    },
+    {
+      "path": "apps/product/src/aod_panel_probe.h",
+      "sha256": "f1d3003df93fc369a21694678f212a2040cdb40351ffdca99166c5054a99a5e1"
+    },
+    {
+      "path": "apps/product/src/main.c",
+      "sha256": "d6356590a85da5c2a920f5e63ad7c23301c07f5884c10d94eea65978c8d9a6c9"
+    },
+    {
+      "path": "apps/product/src/product_pm.h",
+      "sha256": "bb3bfb5655073f3ca316fcd2d4f87ee3ef510b8dc3198da4ad949be12490abd5"
+    },
+    {
+      "path": "tests/aod_panel_probe.c",
+      "sha256": "1dd0e9f243769a41ae51924adf3df5af14f0128621897ed14262ff6362a06e6f"
+    },
+    {
+      "path": "tests/CMakeLists.txt",
+      "sha256": "fb67460d605a31e4e3b102a429aadb4f110613cc7da70919549c241af1254971"
+    }
+  ],
+  "review": {
+    "requested_model": "gpt-6.1-sol",
+    "requested_reasoning_effort": "medium",
+    "actual_model_from_runtime": "not exposed by tool result",
+    "initial_blocker": "Failed restoration released normal LCD writers; later retry could restore stale brightness",
+    "resolution": "Blocking exclusive recovery wait, consume fresh stop once, retain events; focused rereview passed",
+    "primary_final_check": "Key arriving during restoration could leave a navigation click; added whole-press latch and cross-window tail tests, focused independent rereview passed"
+  },
+  "superseded": [
+    "Product 20261022-211409-375 predates exclusive recovery quarantine",
+    "Product 20261022-212059-724 replaced after signedness warning removal; not final candidate",
+    "Product 20261022-212227-280 replaced after whole-press KEY cancellation latch; not final candidate"
+  ],
+  "failures": [
+    "First metadata-generation heredoc failed with SyntaxError before writing; replaced by saved script"
+  ],
+  "warnings": [
+    "Existing FinSH callback cast warnings, including new command using same macro",
+    "Existing RWX warning; SDK/configuration warnings retained in raw logs"
+  ],
+  "remaining": [
+    "Same-BIN low-brightness/static frame/normal restoration and KEY cancellation on real panel",
+    "Panel scan frequency and power are unknown",
+    "A1 settings, migration, styles, minute updates, pixel shifting and wake/overlay/session integration"
+  ],
+  "next_bounded_experiment": "After checking current device/power and authorization, one concentrated same-BIN static hold/timeout restoration and KEY1 cancellation window; no current or battery-life claims"
+}
