@@ -1,0 +1,347 @@
+{
+  "schema": 1,
+  "recorded_at": "2026-10-23T15:07:55.322193+00:00",
+  "scope": "Bounded hardware acceptance of brightness page and existing manual behavior; actual automatic-brightness service remains unimplemented.",
+  "source": {
+    "commit": "cce84fb2a7a77592e100be83dae8c98ea31b226f",
+    "software_evidence": "docs/evidence/2026-10-23/brightness-page.json",
+    "build": "artifacts/product/20261023-223227-596/result.json",
+    "bin_sha256": "2a06be47e31ca74b843c08c4800ee865a35e7e3ba662353af6c661308213bf6e",
+    "bin_bytes": 8021812,
+    "new_firmware_build": false,
+    "device_identity_verified": false
+  },
+  "preflight": {
+    "endpoint": {
+      "device": "COM5",
+      "vid": 6790,
+      "pid": 29987,
+      "location": "1-1.1",
+      "serial_number": "",
+      "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+      "disable_modem": 1
+    },
+    "sources_verified": 540,
+    "newline_only_sources": [
+      "D:\\MY_Desk\\project\\wristflow\\ui\\xml\\wristflow_ui_gen.h",
+      "D:\\MY_Desk\\project\\wristflow\\ui\\xml\\components\\settings_row_gen.c",
+      "D:\\MY_Desk\\project\\wristflow\\ui\\xml\\components\\settings_switch_gen.c",
+      "D:\\MY_Desk\\project\\wristflow\\ui\\xml\\components\\settings_switch_gen.h",
+      "D:\\MY_Desk\\project\\wristflow\\ui\\xml\\components\\settings_switch.xml"
+    ],
+    "artifacts_verified": 29,
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "submodules": {
+      "middleware/bluetooth": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c",
+      "tools/SiliconSchema": "304658c6edd5497211b7d152932327ce6e4450ff"
+    },
+    "sdk_clean_verified": true,
+    "dry_run_passed": true,
+    "main_stack_bytes": 16384,
+    "overflow_check": true,
+    "helper_sha256": {
+      "artifacts/aod-a1-hardware-20261023/session.py": "c549012dcb0546f32be8b04bfb23b2b4413750a213e74efcd8d734cca3580e79",
+      "artifacts/aod-a1-hardware-20261023/observe.py": "458acfeaf4f8dd1378a8cd2c657d226448932d8fd7828fe133155571f8e5238f",
+      "scripts/battery_collect.py": "c42f5753b1f64f1539f3038460d5894611c27948461f021f1489d449f21a3db3",
+      "scripts/battery_device.py": "660a0de76420dc10f9ebcc62b12d8f09908c6179bd039a3ea8e59489274ba60c",
+      "scripts/Flash.ps1": "efda24097a5dd5686d0b7529d5ab2f661c14a02b6fe0a315e055bf75fe045d08"
+    }
+  },
+  "flash": {
+    "result": "artifacts/flash/product/20261023-225615-321/result.json",
+    "date": "2026-10-23T22:59:01.3850458+08:00",
+    "command": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+    "exit_code": 0,
+    "images": [
+      {
+        "name": "bootloader.bin",
+        "address": "0x12010000",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "name": "main.bin",
+        "address": "0x12020000",
+        "bytes": 8021812,
+        "sha256": "2a06be47e31ca74b843c08c4800ee865a35e7e3ba662353af6c661308213bf6e"
+      },
+      {
+        "name": "ftab.bin",
+        "address": "0x12000000",
+        "bytes": 11288,
+        "sha256": "ccf3ad415ddafe6387505c9744f2698b4cc2d2645e62a30a5b6e3fae99badc3c"
+      }
+    ]
+  },
+  "sessions": [
+    {
+      "name": "before-001",
+      "mode": "before",
+      "closed": "2026-10-23T14:55:51.997671+00:00",
+      "reset_events": [],
+      "commands": [
+        "wf_pm status",
+        "wf_pm hold",
+        "show_date",
+        "wf_steps status",
+        "wf_wrist status",
+        "wf_battery status",
+        "wf_ui status",
+        "wf_ble radio",
+        "wf_pm allow"
+      ],
+      "error": null,
+      "release_verified": true
+    },
+    {
+      "name": "startup-001",
+      "mode": "startup",
+      "closed": "2026-10-23T14:59:51.109964+00:00",
+      "reset_events": [
+        {
+          "at": "2026-10-23T14:59:35.477254+00:00",
+          "reset_once_ms": 150
+        }
+      ],
+      "commands": [
+        "wf_pm status",
+        "wf_pm hold",
+        "show_date",
+        "wf_time 1792767582",
+        "wf_steps status",
+        "wf_wrist status",
+        "wf_battery status",
+        "wf_ui status",
+        "wf_ble radio",
+        "wf_aod status",
+        "list_thread",
+        "list_mem",
+        "wf_pm allow"
+      ],
+      "error": null,
+      "release_verified": true
+    },
+    {
+      "name": "final-001",
+      "mode": "snapshot",
+      "closed": "2026-10-23T15:04:47.321753+00:00",
+      "reset_events": [],
+      "commands": [
+        "wf_pm status",
+        "wf_pm hold",
+        "show_date",
+        "wf_steps status",
+        "wf_wrist status",
+        "wf_battery status",
+        "wf_ui status",
+        "wf_ble radio",
+        "wf_aod status",
+        "list_thread",
+        "list_mem",
+        "wf_pm allow"
+      ],
+      "error": null,
+      "release_verified": true
+    }
+  ],
+  "passive_capture": {
+    "endpoint": {
+      "device": "COM5",
+      "vid": 6790,
+      "pid": 29987,
+      "location": "1-1.1",
+      "serial_number": "",
+      "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+      "disable_modem": 1
+    },
+    "started": "2026-10-23T15:00:17.701400+00:00",
+    "closed": "2026-10-23T15:04:23.994182+00:00",
+    "seconds_limit": 600,
+    "commands": [],
+    "reset": false,
+    "pm_control": false,
+    "clock_write": false,
+    "bytes": 27298,
+    "error": null,
+    "stop_seen": true,
+    "brightness_requests": 322,
+    "observed_endpoints": [
+      10,
+      100
+    ],
+    "last_brightness": 55,
+    "screen_off_and_key_wake_logged": true,
+    "observed_fault_markers": [],
+    "fault_marker_scope": "Passive UART interval only; not long-term stability proof."
+  },
+  "operator_feedback": [
+    {
+      "stage": "conditions",
+      "answer": "条件相同，现在可以配合",
+      "scope": "Same board/display, original battery + computer USB, loose wiring fixed, operator present"
+    },
+    {
+      "stage": "before_awake",
+      "answer": "已开启",
+      "scope": "KEY wake and temporary five-minute keep-awake before snapshot/flash"
+    },
+    {
+      "stage": "ui_group_1",
+      "recorded_at": "2026-10-23T15:02:50.879162+00:00",
+      "answer": "本组全部通过，已恢复55%",
+      "scope": [
+        "Display/touch/time normal",
+        "Auto row and switch remain disabled with unavailable note",
+        "Custom entry and vertical slider present; visible 10%/100% changes",
+        "Return/reenter retains restored 55%"
+      ]
+    },
+    {
+      "stage": "ui_group_2",
+      "recorded_at": "2026-10-23T15:04:23.991508+00:00",
+      "answer": "全部通过，原静音已恢复，常亮已开",
+      "scope": [
+        "Silent row and switch toggle once each; original state restored and retained after reentry",
+        "Flashlight visibly full-bright; exit restores normal brightness and manual value 55%",
+        "Natural screen-off and KEY wake preserve navigation/touch and 55%",
+        "Temporary five-minute keep-awake reopened for final snapshot"
+      ]
+    },
+    {
+      "stage": "closeout",
+      "recorded_at": "2026-10-23T15:06:40.774718+00:00",
+      "answer": "已关闭，末态正常",
+      "scope": [
+        "Temporary keep-awake off",
+        "Display/touch/time normal",
+        "Manual brightness 55%; original silent state restored",
+        "Wrist preference remains off"
+      ]
+    }
+  ],
+  "final_snapshot_excerpt": [
+    "[pm-p1] tick=300545 allow=1 off=0 own_idle=1 sdk_idle=1",
+    "[pm-p1] tick=301248 allow=0 off=0 own_idle=1 sdk_idle=1",
+    "Fri Oct 23 15:04:39 2026",
+    "[imu-steps] io_errors=0 incoherent=0; native counter, not daily steps",
+    "[steps] valid=1 total=0 day=20749 utc=1792767879 version=239 native=0 partial=1 restored=1",
+    "[steps-store] available=1 verified=1 dirty=0 failed=0 attempts=1 day=20749 total=0 generation=90",
+    "[wrist-wake] requested=0 continuous=1 armed=0 owned=0 irqs=0 wakes=0; software counts, not physical DEEP proof",
+    "[ui-ring] current ms=304904 surface=0 phase=0 page=0/4 mismatch=0",
+    "[aod-display] phase=0 owned=0 failed=0 minute=0; physical panel state, IDLE retained",
+    "wf_imu    24  suspend 0x200514b0 0x200515fc 0x00001800    18%   0x00000006 000",
+    "main      19  suspend 0x20040d38 0x20041980 0x00004000    46%   0x0000000e 000",
+    "total memory: 271484 used memory : 97828 maximum allocated memory: 105364",
+    "[pm-p1] tick=308492 allow=1 off=0 own_idle=1 sdk_idle=1"
+  ],
+  "observations_and_limits": [
+    "Initial before-status requests were empty while asleep. One partial shell command-not-found line was retained; subsequent complete hold=0 and allow=1 acknowledgments were confirmed.",
+    "One post-flash RTS pulse of 150 ms captured startup; RTC was 2000 and was synchronized from fresh host UTC with show_date readback.",
+    "Auto row/switch are disabled in Product. Auto-on hiding and fault/manual restoration remain host UI contract and future service work, not physical automatic-brightness acceptance.",
+    "10/100/55 are SDK brightness requests plus operator visible-change confirmation, not photometric measurement.",
+    "Manual value retained across return/reentry and natural screen-off/KEY wake. No ordinary reboot/power-cycle persistence test was added.",
+    "Original silent state restored by operator; its numeric initial state was not read from firmware. Wrist preference stayed off; final continuous=1 reflects temporary keep-awake, subsequently closed by operator.",
+    "No LTR sampling, lux calibration, auto mapping, BLE communication acceptance, physical DEEP, current, capacity or battery-life measurement."
+  ],
+  "local_evidence": {
+    "worktree": "D:\\MY_Desk\\project\\wristflow",
+    "available_in_repository": false,
+    "files": [
+      {
+        "path": "artifacts/product/20261023-223227-596/result.json",
+        "bytes": 109909,
+        "sha256": "bc6b34ab6314c3c169bd44c2f824f67567dc2f4e363293f06e62a3112cfe89f4"
+      },
+      {
+        "path": "artifacts/flash/product/20261023-225615-321/result.json",
+        "bytes": 1767,
+        "sha256": "5d604acf2f175bcfa8e2a13e98ba94b350e97f0e0f1101e90813854b4bc15654"
+      },
+      {
+        "path": "artifacts/brightness-page-hardware-20261023/preflight.json",
+        "bytes": 2243,
+        "sha256": "0dc9b018f6f68aa9c85f7bb93b4a216e7d8840ccf8c4ae969ea2db5254a8032b"
+      },
+      {
+        "path": "artifacts/brightness-page-hardware-20261023/operator-feedback.json",
+        "bytes": 1776,
+        "sha256": "c05a9b9095bd18a9b3b1be0e755dc883323aedc8d7dc98ec4851b30ccde57841"
+      },
+      {
+        "path": "artifacts/brightness-page-hardware-20261023/flash-dry-run.log",
+        "bytes": 452,
+        "sha256": "030472b4228a3e0be8169be5a7c5a8743eb6d2eece2feb48265621801d802842"
+      },
+      {
+        "path": "artifacts/brightness-page-hardware-20261023/flash.log",
+        "bytes": 901,
+        "sha256": "9fd0a8c98e9191a0aac579759bce56763881538ef60e7cdae13a5dcab9b0085e"
+      },
+      {
+        "path": "artifacts/brightness-page-hardware-20261023/write_evidence.py",
+        "bytes": 7023,
+        "sha256": "5fe2c4fa0f440571adadd3abc3d1e00ada0e2a94f9d10964334e61c76978785a"
+      },
+      {
+        "path": "artifacts/brightness-page-hardware-20261023/before-001/session.json",
+        "bytes": 10384,
+        "sha256": "3b39d2343e44bb11edfb20bdbe6ca6a7d452d2997942c7be0e30da59c57cd93d"
+      },
+      {
+        "path": "artifacts/brightness-page-hardware-20261023/before-001/uart.bin",
+        "bytes": 5851,
+        "sha256": "b2d0c47b1e864dc1cdfc8e084b632568ce8312398b4bb42dcaa7ab2aa2b0f900"
+      },
+      {
+        "path": "artifacts/brightness-page-hardware-20261023/before-001.log",
+        "bytes": 6460,
+        "sha256": "e5359f61a40870ab2fcc2055880d2c9f4533928d1f409215d56c0f5af65a5f83"
+      },
+      {
+        "path": "artifacts/brightness-page-hardware-20261023/startup-001/session.json",
+        "bytes": 10987,
+        "sha256": "4224c770fc0ab2788dc3787514fd5cc5c48bddbf6a4286db4eb9428e67868d83"
+      },
+      {
+        "path": "artifacts/brightness-page-hardware-20261023/startup-001/uart.bin",
+        "bytes": 12730,
+        "sha256": "19cb3265285009ce67a1c28010df2e577e12ad74d75b80aab56e94e5b88ff4ab"
+      },
+      {
+        "path": "artifacts/brightness-page-hardware-20261023/startup-001.log",
+        "bytes": 13185,
+        "sha256": "4f382b99497c49c30d87e52e6100014ff6fc2d76dbfad769c3e38ecaf14c2775"
+      },
+      {
+        "path": "artifacts/brightness-page-hardware-20261023/final-001/session.json",
+        "bytes": 9691,
+        "sha256": "d2a2e7afa49bb8366eefd6918140a8ec9cd5ca1c4558ff3ee1425d0319da0d97"
+      },
+      {
+        "path": "artifacts/brightness-page-hardware-20261023/final-001/uart.bin",
+        "bytes": 7123,
+        "sha256": "bfc04131c860f38fe9388d89ec2bd089b5eadcf955b3f60394a73a7574c8802d"
+      },
+      {
+        "path": "artifacts/brightness-page-hardware-20261023/final-001.log",
+        "bytes": 7516,
+        "sha256": "b5e3eb6adca58b6a76dd9d8ab77f9a75bd483d45ccd2a4814c0a527c1b246e64"
+      },
+      {
+        "path": "artifacts/brightness-page-hardware-20261023/ui-001/session.json",
+        "bytes": 492,
+        "sha256": "8b6d58b784d6ac6ae3bd3a0c2e6c5b4d9c9d179b4ea509e4dabf963869e48a07"
+      },
+      {
+        "path": "artifacts/brightness-page-hardware-20261023/ui-001/uart.bin",
+        "bytes": 27298,
+        "sha256": "d75e2997eb6e5f507bd4b29c01c836cc1937d47c40f2f71fc9340101af535f62"
+      },
+      {
+        "path": "artifacts/brightness-page-hardware-20261023/ui-001/uart.log",
+        "bytes": 28291,
+        "sha256": "4d4ccaef478d1d09134800ddcc6c70e6b72a8f94239ed3ba4774b30d72cd7dcd"
+      }
+    ]
+  }
+}
