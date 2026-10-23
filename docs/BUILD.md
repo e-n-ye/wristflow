@@ -1,5 +1,13 @@
 # 可复现构建基线
 
+## 2026-10-23 AOD A1设置与驻留
+
+从`b833666`在隔离工作树`C:/Users/13984/.codex/worktrees/aod-stack-regression/wristflow`完成[A1设置／独立显示状态](AOD.md#a1-20261023)。完整Debug61/61（38.62秒）、全库保留断言Release61/61（17.99秒）；ARM首次暴露回调`open()`与系统声明冲突，改名后受影响UI目标Debug／Release各3/3通过。主机工具为GCC15.2.0／CMake4.2.3／Ninja1.13.2。官方Editor2.0.1最终XML导出／预览编译与100%尺寸、实际LVGL渲染核对完成，固件与预览均为LVGL9.4.0。
+
+本机隔离包装器`artifacts/aod-a1-20261023/Build-Isolated.ps1`复用主目录`Set-LocalEnvironment.ps1`的官方环境及锁，目标工程／源码／产物指向上述工作树；分别以`-Example product -Jobs 4`和`-Example ui_demo -Jobs 4`执行官方`scons --board=sf32lb52-lchspi-ulp -j4`。最终Product`20261023-145827-448`／BIN7,985,056B／`b476e97f…`及Demo`20261023-145937-074`／BIN7,731,224B／`cb608ecf…`均退出0、产物校验通过，532／478源码和29／22产物字节重哈希一致。Python3.13.15／SCons4.10.1／ArmGCC14.2.1及SDK／子模块锁不变且干净；后续在主目录使用常规`scripts/Build.ps1`入口。包装器及原始长日志仅存本机，不新增共享环境配置。
+
+首次导出停滞及清单写入错误、导出清理与构建冲突、ARM命名冲突均保留失败日志／被替代产物；最终构建在导出完成后进行。保留既有FinSH转换、RTC signedness、LVGL及链接RWX等警告；六个新官方生成C带末尾空行，默认`git diff --check`仅报这六项，保持生成物原样，排除`blank-at-eof`后无空白错误。两路独立只读审查无确定阻断。完整哈希、命令、失败与未覆盖项见[软件证据](evidence/2026-10-23/aod-display.json)。A1无下载或设备I/O，主机／编译通过不证明新页触摸、真实保存恢复、面板分钟／时段切换、物理深睡或功耗。
+
 ## 2026-10-22 Product主线程栈溢出候选
 
 同版原AOD固件经新授权一次RTS恢复后，普通KEY唤醒捕获`thread:main stack overflow`、8KiB／100%且SP低于栈底20B；本轮未运行AOD，原冻结／IMU故障不追认同因。[有界修复](AOD.md#2026-10-22-恢复捕获与主栈候选)仅将Product主栈8192→16384，保留优先级及overflow check，额外8192B SRAM分配预算。

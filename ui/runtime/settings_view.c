@@ -1,4 +1,5 @@
 #include "settings_view.h"
+#include "aod_view.h"
 #include "wristflow_ui.h"
 #include <stdio.h>
 #include <string.h>
@@ -221,6 +222,7 @@ static void refresh_save_note(lv_obj_t *root, wristflow_ui_shell_t *shell)
 
 lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surface_t surface)
 {
+    if (wristflow_aod_settings_surface(surface)) return wristflow_aod_settings_screen(shell, surface);
     if (surface == WRISTFLOW_SURFACE_SETTINGS) {
         lv_obj_t *root = screen_product_settings_create();
         static const struct { const char *name; wristflow_surface_t surface; } destinations[] = {
@@ -274,6 +276,15 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
         route(row(list, "display_timeout", "熄屏时间", "10秒"), WRISTFLOW_SURFACE_SCREEN_TIMEOUT, shell);
         route(row(list, "display_wrist", "抬腕亮屏", "关闭"), WRISTFLOW_SURFACE_WAKE_SETTINGS, shell);
         route(row(list, "display_keep", "持续亮屏", "关闭"), WRISTFLOW_SURFACE_KEEP_AWAKE, shell);
+        obj = row(list, "display_aod", "息屏显示", "关闭");
+        lv_obj_set_style_text_font(named(obj, "row_title"), notification_22, 0);
+        route(obj, WRISTFLOW_SURFACE_AOD_SETTINGS, shell);
+        obj = row(list, "display_aod_styles", "默认息屏样式", "居中数字");
+        lv_obj_set_style_text_font(named(obj, "row_title"), notification_22, 0);
+        lv_obj_set_style_text_font(named(obj, "row_detail"), notification_22, 0);
+        route(obj, WRISTFLOW_SURFACE_AOD_STYLES, shell);
+        obj = settings_note_create(list, "开启后使用所选的默认息屏样式。");
+        lv_obj_set_style_text_font(obj, notification_22, 0);
         break;
     case WRISTFLOW_SURFACE_BRIGHTNESS_SETTINGS:
         title = "屏幕亮度";
@@ -419,6 +430,11 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
 void wristflow_settings_refresh(lv_obj_t *root, wristflow_surface_t surface, wristflow_ui_shell_t *shell)
 {
     if (!root) return;
+    if (wristflow_aod_settings_surface(surface)) {
+        wristflow_aod_settings_refresh(root, surface, shell);
+        refresh_save_note(root, shell);
+        return;
+    }
     refresh_save_note(root, shell);
     wristflow_settings_t settings;
     if (!wristflow_ui_shell_get_settings(shell, &settings)) return;
@@ -473,6 +489,8 @@ void wristflow_settings_refresh(lv_obj_t *root, wristflow_surface_t surface, wri
         }
     }
     else if (surface == WRISTFLOW_SURFACE_DISPLAY_SETTINGS) {
+        label(named(named(root, "display_aod"), "row_detail"), settings.aod_mode == WRISTFLOW_AOD_SCHEDULED ? "定时开启" : "关闭");
+        label(named(named(root, "display_aod_styles"), "row_detail"), settings.aod_style == WRISTFLOW_AOD_CENTER ? "居中数字" : "左上数字");
         label(named(named(root, "display_wrist"), "row_detail"), settings.wrist_wake ? "开启" : "关闭");
         snprintf(value, sizeof value, "%u%%", settings.brightness);
         label(named(named(root, "display_brightness"), "row_detail"), value);

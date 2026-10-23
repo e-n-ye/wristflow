@@ -1,0 +1,7 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="notification_22" style_text_color="#fg_primary">
+        <app_header title="开始时间" />
+        <time_picker name="aod_time_picker" />
+        <lv_label name="aod_time_error" x="24" y="306" width="342" hidden="true" text="开始与结束时间不能相同" style_text_align="center" style_text_color="#fg_secondary" />
+    </view>
+</screen>

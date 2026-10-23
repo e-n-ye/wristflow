@@ -21,7 +21,9 @@ SDK 和工具链已经装好，Hello World 与 BLE 外设示例已实际编译�
 
 产品任务成功时末尾为 `BUILD SUCCEEDED: product (...)`；它与 UI Demo、Bringup 一样只构建，不执行烧录。
 
-任务自动激活项目的官方 SDK 环境，并调用 `scripts/Build.ps1`。无需重新安装工具链，也不用每次先运行 export。编译任务不包含烧录动作。VS Code 顶部的“运行当前 C 文件”和 CMake 扩展的 Build 入口不是本项目的构建入口。
+任务自动激活项目的官方 SDK 环境，并调用 `scripts/Build.ps1`。无需重新安装工具链，也不用每次先运行 export。编译任务不包含烧录动作。VS Code 顶部的“运行当前 C 文件”和 CMake 扩展的 Build 入口不是本项目的固件构建入口。
+
+`.vscode/settings.json`的`cmake.sourceDirectory`使用`${workspaceFolder}/tests`，让CMake扩展定位已有主机测试工程，切换工作树或目录后仍指向当前工作区；`configureOnOpen`仍关闭，不会仅因打开项目自动运行测试。该编辑器路径不改变固件的官方SCons入口。
 
 `Done! SiFli-SDK profile default is active.` 表示环境已自动激活，不是还要点击的操作。末尾“终端将被任务重用，按任意键关闭”表示任务已结束，不是在等你输入编译命令。
 

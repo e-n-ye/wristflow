@@ -2,6 +2,7 @@
 #include "product_alarm.h"
 #include "product_settings_store.h"
 #include "product_steps.h"
+#include "product_pm.h"
 #include "steps_store.h"
 #include <rtthread.h>
 #include <rtdevice.h>
@@ -230,6 +231,7 @@ int wristflow_product_services_set_time(uint32_t seconds)
     rt_mutex_release(&rtc_lock);
     wristflow_product_alarm_clock_changed();
     wristflow_product_steps_clock_changed();
+    wristflow_product_event_send(WF_EVENT_TIME);
     if (result != RT_EOK || readback < seconds || readback - seconds > 1) {
         rt_kprintf("[product] RTC set/readback failed: %d\n", result);
         return -RT_ERROR;

@@ -1,0 +1,15 @@
+<component>
+    <api><prop name="center_hidden" type="bool" default="false" /><prop name="corner_hidden" type="bool" default="true" /></api>
+    <view extends="lv_obj" width="390" height="450" scrollable="false" clickable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_color="#fg_primary" style_text_font="notification_22">
+        <lv_obj name="aod_center" width="390" height="450" hidden="$center_hidden" scrollable="false" clickable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_color="#fg_primary">
+            <lv_label name="aod_center_time" x="20" y="156" width="350" text="09:28" style_text_font="clock_80" style_text_align="center" />
+            <lv_label name="aod_center_date" x="24" y="250" width="342" text="5月18日 周一" style_text_align="center" />
+        </lv_obj>
+        <lv_obj name="aod_corner" width="390" height="450" hidden="$corner_hidden" scrollable="false" clickable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_color="#fg_primary">
+            <lv_label name="aod_corner_time" x="42" y="66" width="310" text="09:28" style_text_font="metric_56" />
+            <lv_label name="aod_corner_date" x="44" y="136" width="190" text="5/18" style_text_font="metric_56" />
+            <lv_label name="aod_corner_weekday" x="240" y="160" width="100" text="周一" />
+            <lv_label name="aod_corner_battery" x="44" y="212" width="300" text="~83%" style_text_font="metric_56" />
+        </lv_obj>
+    </view>
+</component>

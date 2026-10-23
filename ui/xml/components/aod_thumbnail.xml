@@ -1,0 +1,6 @@
+<component>
+    <api><prop name="center_hidden" type="bool" default="false" /><prop name="corner_hidden" type="bool" default="true" /></api>
+    <view extends="lv_obj" y="6" width="234" height="286" clickable="true" scrollable="false" style_bg_color="#bg_black" style_border_width="1" style_border_color="0x454a50" style_border_post="true" style_clip_corner="true" style_radius="28" style_pad_all="0">
+        <aod_content name="aod_thumbnail_content" x="2" y="8" center_hidden="$center_hidden" corner_hidden="$corner_hidden" style_transform_scale_x="150" style_transform_scale_y="150" style_transform_pivot_x="0" style_transform_pivot_y="0" />
+    </view>
+</component>

@@ -1,0 +1,11 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="notification_22" style_text_color="#fg_primary">
+        <app_header title="默认息屏样式" />
+        <lv_obj name="aod_carousel" x="0" y="84" width="390" height="304" scrollbar_mode="off" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0">
+            <aod_thumbnail name="aod_style_0" x="78" />
+            <aod_thumbnail name="aod_style_1" x="344" center_hidden="true" corner_hidden="false" />
+            <lv_obj name="aod_carousel_pad" x="578" y="0" width="78" height="1" clickable="false" scrollable="false" style_bg_opa="0%" style_border_width="0" />
+        </lv_obj>
+        <lv_label name="aod_style_name" x="24" y="401" width="342" text="居中数字 · 已选" style_text_align="center" style_text_color="#fg_secondary" />
+    </view>
+</screen>
