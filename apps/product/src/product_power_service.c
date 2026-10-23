@@ -1,12 +1,14 @@
 #include "product_power.h"
+#include "product_pm.h"
 #include <rtthread.h>
 #include <rthw.h>
 #include <rtdevice.h>
 
 static struct rt_event requests;
 static wristflow_power_snapshot_t cached;
-static bool ready, lit;
-static uint32_t epoch;
+static bool ready, lit, aod;
+static uint32_t epoch, request_epoch;
+static uint32_t request_serial, consumed_serial;
 static uint32_t voltage_sequence;
 
 /* Short snapshot copy on this HCPU only; never hold this section over I/O. */
@@ -21,7 +23,7 @@ wristflow_power_snapshot_t wristflow_product_power_snapshot(void)
 static bool publish(const wristflow_power_snapshot_t *value, uint32_t generation)
 {
     rt_base_t level = rt_hw_interrupt_disable();
-    bool current = lit && epoch == generation;
+    bool current = (lit || aod) && epoch == generation;
     if (current) cached = *value;
     rt_hw_interrupt_enable(level);
     return current;
@@ -30,8 +32,9 @@ static bool publish(const wristflow_power_snapshot_t *value, uint32_t generation
 static void sample_once(void)
 {
     rt_base_t level = rt_hw_interrupt_disable();
-    bool active = lit;
-    uint32_t generation = epoch;
+    uint32_t generation = request_epoch;
+    bool active = request_serial != consumed_serial && (lit || aod) && epoch == generation;
+    consumed_serial = request_serial; /* A residual event bit cannot run this request twice. */
     rt_hw_interrupt_enable(level);
     if (!active) return;
 #ifdef RT_USING_PM
@@ -46,7 +49,16 @@ static void sample_once(void)
     }
     if (publish(&next, generation)) {
         wristflow_product_power_input(&next);
-        publish(&next, generation);
+        if (publish(&next, generation)) {
+            level = rt_hw_interrupt_disable();
+            bool notify = aod && epoch == generation;
+            rt_hw_interrupt_enable(level);
+            if (notify) {
+                rt_kprintf("[power] aod sample sequence=%lu voltage_valid=%u input_valid=%u\n",
+                    (unsigned long)next.voltage_sequence, next.voltage_valid, next.input_valid);
+                wristflow_product_event_send(WF_EVENT_POWER);
+            }
+        }
     }
     rt_tick_t elapsed = rt_tick_get() - started;
     if (elapsed >= rt_tick_from_millisecond(1000))
@@ -69,13 +81,29 @@ static void worker(void *context)
 
 void wristflow_product_power_request(void)
 {
-    if (ready && lit) rt_event_send(&requests, 1); /* Coalesced, never a sample queue. */
+    rt_base_t level = rt_hw_interrupt_disable();
+    bool active = ready && (lit || aod);
+    if (active) { request_epoch = epoch; ++request_serial; }
+    rt_hw_interrupt_enable(level);
+    if (active) rt_event_send(&requests, 1); /* Coalesced, never a sample queue. */
+}
+
+void wristflow_product_power_aod(bool active)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    if (aod != active) {
+        aod = active;
+        ++epoch;
+        cached = (wristflow_power_snapshot_t){0};
+    }
+    rt_hw_interrupt_enable(level);
 }
 
 void wristflow_product_power_screen(bool visible)
 {
     rt_base_t level = rt_hw_interrupt_disable();
     lit = visible;
+    aod = false;
     ++epoch;
     cached = (wristflow_power_snapshot_t){0};
     rt_hw_interrupt_enable(level);

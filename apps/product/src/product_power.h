@@ -12,6 +12,8 @@ void wristflow_product_power_input(wristflow_power_snapshot_t *sample);
 /* UI-facing operations only enqueue/copy. No device access or waiting. */
 bool wristflow_product_power_start(void);
 void wristflow_product_power_screen(bool lit);
+/* AOD only permits explicit coalesced requests; it creates no sampling timer. */
+void wristflow_product_power_aod(bool active);
 void wristflow_product_power_request(void);
 wristflow_power_snapshot_t wristflow_product_power_snapshot(void);
 

@@ -110,22 +110,6 @@ static void time_accept(lv_event_t *event)
     }
     wristflow_ui_shell_back(shell);
 }
-static void style_choice(lv_event_t *event)
-{
-    wristflow_ui_shell_t *shell = lv_event_get_user_data(event);
-    wristflow_settings_t settings;
-    wristflow_ui_shell_get_settings(shell, &settings);
-    settings.aod_style = (wristflow_aod_style_t)(uintptr_t)lv_obj_get_user_data(lv_event_get_current_target_obj(event));
-    wristflow_ui_shell_configure(shell, &settings);
-    wristflow_settings_refresh(lv_screen_active(), WRISTFLOW_SURFACE_AOD_STYLES, shell);
-}
-static void style_scroll(lv_event_t *event)
-{
-    wristflow_ui_shell_t *shell = lv_event_get_user_data(event);
-    wristflow_aod_settings_refresh(lv_obj_get_screen(lv_event_get_current_target_obj(event)),
-        WRISTFLOW_SURFACE_AOD_STYLES, shell);
-}
-
 lv_obj_t *wristflow_aod_settings_screen(wristflow_ui_shell_t *shell, wristflow_surface_t surface)
 {
     if (!wristflow_aod_settings_surface(surface)) return NULL;
@@ -143,16 +127,9 @@ lv_obj_t *wristflow_aod_settings_screen(wristflow_ui_shell_t *shell, wristflow_s
     } else if (surface == WRISTFLOW_SURFACE_AOD_STYLES) {
         root = screen_aod_styles_create();
         lv_obj_t *carousel = named(root, "aod_carousel");
-        lv_obj_set_scroll_dir(carousel, LV_DIR_HOR);
-        lv_obj_set_scroll_snap_x(carousel, LV_SCROLL_SNAP_CENTER);
-        lv_obj_remove_flag(carousel, LV_OBJ_FLAG_SCROLL_CHAIN | LV_OBJ_FLAG_SCROLL_MOMENTUM);
-        lv_obj_remove_flag(named(root, "aod_carousel_pad"), LV_OBJ_FLAG_SNAPPABLE);
-        for (unsigned i = 0; i < WRISTFLOW_AOD_STYLE_COUNT; ++i) {
-            lv_obj_t *obj = named(root, i ? "aod_style_1" : "aod_style_0");
-            lv_obj_set_user_data(obj, (void *)(uintptr_t)i);
-            lv_obj_add_event_cb(obj, style_choice, LV_EVENT_SHORT_CLICKED, shell);
-        }
-        lv_obj_add_event_cb(carousel, style_scroll, LV_EVENT_SCROLL_END, shell);
+        /* The apps picker owns dragging and settling, shared with the main
+         * watchface. Applying AOD returns to its retained settings parent. */
+        lv_obj_remove_flag(carousel, LV_OBJ_FLAG_SCROLLABLE);
         lv_obj_update_layout(root);
         lv_obj_scroll_to_x(carousel, settings.aod_style * 266, LV_ANIM_OFF);
     } else {

@@ -637,7 +637,8 @@ static void gesture(lv_event_t *event)
     /* The demo launcher and face picker own horizontal drags. The product
        launcher's list/grid only scroll vertically, leaving edge Back available. */
     if ((shell->navigation.surface == WRISTFLOW_SURFACE_LAUNCHER && !shell->components) ||
-        shell->navigation.surface == WRISTFLOW_SURFACE_FACE_PICKER)
+        shell->navigation.surface == WRISTFLOW_SURFACE_FACE_PICKER ||
+        shell->navigation.surface == WRISTFLOW_SURFACE_AOD_STYLES)
         return;
     bool handled = false;
     if (wristflow_apps_game_gesture(shell->apps, direction, shell->edge_press, shell->edge_origin))

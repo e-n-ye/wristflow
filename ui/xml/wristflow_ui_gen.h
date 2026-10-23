@@ -215,6 +215,9 @@ extern lv_style_t text_muted;
  *----------------*/
 
 /* Targets: any */
+extern lv_font_t * aod_preview_48;
+extern lv_font_t * aod_preview_32;
+extern lv_font_t * aod_preview_14;
 extern lv_font_t * notification_22;
 extern lv_font_t * body_20;
 extern lv_font_t * title_24;

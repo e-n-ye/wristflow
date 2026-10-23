@@ -209,9 +209,30 @@ static void tick(lv_timer_t *timer)
 
 static void picker_apply(wristflow_apps_t *apps)
 {
+    if (apps->active == WRISTFLOW_SURFACE_AOD_STYLES) {
+        wristflow_settings_t settings;
+        if (wristflow_ui_shell_get_settings(apps->shell, &settings)) {
+            settings.aod_style = (wristflow_aod_style_t)apps->picker_slot;
+            if (wristflow_ui_shell_configure(apps->shell, &settings))
+                wristflow_ui_shell_back(apps->shell);
+        }
+        return;
+    }
     if (wristflow_ui_shell_set_watchface(apps->shell, faces[apps->face_index]))
         wristflow_ui_shell_home(apps->shell);
 }
+
+static bool picker_surface(wristflow_surface_t surface)
+{ return surface == WRISTFLOW_SURFACE_FACE_PICKER || surface == WRISTFLOW_SURFACE_AOD_STYLES; }
+
+static lv_obj_t *picker_carousel(wristflow_apps_t *apps)
+{
+    return named(apps->screens[apps->active], apps->active == WRISTFLOW_SURFACE_AOD_STYLES ?
+        "aod_carousel" : "face_carousel");
+}
+
+static const char *picker_card(wristflow_apps_t *apps, unsigned slot)
+{ return apps->active == WRISTFLOW_SURFACE_AOD_STYLES ? (slot ? "aod_style_1" : "aod_style_0") : picker_slots[slot]; }
 
 static bool picker_slot_simple(unsigned int slot)
 {
@@ -225,8 +246,13 @@ static unsigned int picker_slot_face(unsigned int slot)
 
 static void picker_render(wristflow_apps_t *apps, unsigned int slot)
 {
-    lv_obj_t *root = apps->screens[WRISTFLOW_SURFACE_FACE_PICKER];
+    lv_obj_t *root = apps->screens[apps->active];
     if (!root) return;
+    if (apps->active == WRISTFLOW_SURFACE_AOD_STYLES) {
+        apps->picker_slot = slot > 1U ? 1U : slot;
+        wristflow_aod_settings_refresh(root, apps->active, apps->shell);
+        return;
+    }
     if (slot > 3U) slot = 3U;
     apps->picker_slot = slot;
     apps->face_index = picker_slot_face(slot);
@@ -238,7 +264,7 @@ static void picker_render(wristflow_apps_t *apps, unsigned int slot)
 static void picker_snap(void *context, int32_t value)
 {
     wristflow_apps_t *apps = context;
-    lv_obj_t *carousel = named(apps->screens[WRISTFLOW_SURFACE_FACE_PICKER], "face_carousel");
+    lv_obj_t *carousel = picker_carousel(apps);
     int32_t target = (int32_t)apps->picker_slot * 266;
     int32_t start = apps->picker_origin_scroll;
     lv_obj_scroll_to_x(carousel, start + (target - start) * value / 256, LV_ANIM_OFF);
@@ -249,7 +275,8 @@ static void picker_snap_ready(lv_anim_t *animation)
     wristflow_apps_t *apps = lv_anim_get_user_data(animation);
     apps->picker_settling = false;
     /* End clones make browsing wrap without exposing an empty edge. */
-    if (apps->picker_slot == 0 || apps->picker_slot == 3) {
+    if (apps->active == WRISTFLOW_SURFACE_FACE_PICKER &&
+        (apps->picker_slot == 0 || apps->picker_slot == 3)) {
         apps->picker_slot = apps->picker_slot == 0 ? 2 : 1;
         lv_obj_scroll_to_x(named(apps->screens[WRISTFLOW_SURFACE_FACE_PICKER], "face_carousel"),
                            (int32_t)apps->picker_slot * 266, LV_ANIM_OFF);
@@ -260,7 +287,7 @@ static void picker_snap_ready(lv_anim_t *animation)
 static void picker_touch(lv_event_t *event)
 {
     wristflow_apps_t *apps = lv_event_get_user_data(event);
-    if (apps->active != WRISTFLOW_SURFACE_FACE_PICKER) return;
+    if (!picker_surface(apps->active)) return;
     lv_event_code_t code = lv_event_get_code(event);
     if (code != LV_EVENT_PRESSED && code != LV_EVENT_PRESSING &&
         code != LV_EVENT_RELEASED && code != LV_EVENT_PRESS_LOST) return;
@@ -268,7 +295,8 @@ static void picker_touch(lv_event_t *event)
     if (!input) return;
     lv_point_t point;
     lv_indev_get_point(input, &point);
-    lv_obj_t *carousel = named(apps->screens[WRISTFLOW_SURFACE_FACE_PICKER], "face_carousel");
+    lv_obj_t *carousel = picker_carousel(apps);
+    unsigned max_slot = apps->active == WRISTFLOW_SURFACE_AOD_STYLES ? 1U : 3U;
     if (code == LV_EVENT_PRESSED) {
         bool interrupted = apps->picker_settling;
         lv_anim_delete(apps, picker_snap);
@@ -281,15 +309,15 @@ static void picker_touch(lv_event_t *event)
             apps->picker_dragged = true;
         if (apps->picker_dragged) {
             int32_t scroll = LV_CLAMP(0, apps->picker_origin_scroll -
-                                         (point.x - apps->picker_press.x), 798);
+                                         (point.x - apps->picker_press.x), (int32_t)max_slot * 266);
             lv_obj_scroll_to_x(carousel, scroll, LV_ANIM_OFF);
-            unsigned int slot = (unsigned int)LV_CLAMP(0, (scroll + 133) / 266, 3);
+            unsigned int slot = (unsigned int)LV_CLAMP(0, (scroll + 133) / 266, (int32_t)max_slot);
             if (slot != apps->picker_slot) picker_render(apps, slot);
         }
     } else if ((code == LV_EVENT_RELEASED || code == LV_EVENT_PRESS_LOST) &&
                apps->picker_dragged) {
         int32_t scroll = lv_obj_get_scroll_x(carousel);
-        apps->picker_slot = (unsigned int)LV_CLAMP(0, (scroll + 133) / 266, 3);
+        apps->picker_slot = (unsigned int)LV_CLAMP(0, (scroll + 133) / 266, (int32_t)max_slot);
         apps->picker_origin_scroll = scroll;
         apps->picker_settling = true;
         lv_anim_t animation;
@@ -305,8 +333,7 @@ static void picker_touch(lv_event_t *event)
     } else if (code == LV_EVENT_RELEASED && !apps->picker_dragged &&
                !apps->picker_settling) {
         lv_area_t area;
-        lv_obj_get_coords(named(apps->screens[WRISTFLOW_SURFACE_FACE_PICKER],
-                                picker_slots[apps->picker_slot]), &area);
+        lv_obj_get_coords(named(apps->screens[apps->active], picker_card(apps, apps->picker_slot)), &area);
         if (point.x >= area.x1 && point.x <= area.x2 &&
             point.y >= area.y1 && point.y <= area.y2)
             picker_apply(apps);
@@ -662,19 +689,26 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
     } else if (surface == WRISTFLOW_SURFACE_STOPWATCH) {
         bind_click(root, "stopwatch_toggle", stopwatch_action, apps);
         bind_click(root, "stopwatch_reset", stopwatch_action, apps);
-    } else if (surface == WRISTFLOW_SURFACE_FACE_PICKER) {
-        lv_obj_t *carousel = named(root, "face_carousel");
+    } else if (picker_surface(surface)) {
+        bool aod = surface == WRISTFLOW_SURFACE_AOD_STYLES;
+        lv_obj_t *carousel = named(root, aod ? "aod_carousel" : "face_carousel");
         lv_obj_remove_flag(carousel, LV_OBJ_FLAG_SCROLLABLE);
         lv_obj_add_flag(carousel, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_PRESS_LOCK);
-        for (unsigned int i = 0; i < 4; ++i) {
-            lv_obj_t *thumbnail = named(root, picker_slots[i]);
+        for (unsigned int i = 0; i < (aod ? 2U : 4U); ++i) {
+            lv_obj_t *thumbnail = named(root, aod ? (i ? "aod_style_1" : "aod_style_0") : picker_slots[i]);
             lv_obj_add_flag(thumbnail, LV_OBJ_FLAG_PRESS_LOCK);
-            lv_obj_set_flag(named(thumbnail, "thumb_simple"), LV_OBJ_FLAG_HIDDEN,
-                            !picker_slot_simple(i));
+            if (!aod) lv_obj_set_flag(named(thumbnail, "thumb_simple"), LV_OBJ_FLAG_HIDDEN,
+                                     !picker_slot_simple(i));
         }
         lv_obj_add_event_cb(carousel, picker_touch, LV_EVENT_ALL, apps);
-        apps->face_index = strcmp(wristflow_ui_shell_watchface_id(apps->shell), "simple") == 0 ? 1 : 0;
-        apps->picker_slot = apps->face_index == 1 ? 2 : 1;
+        if (aod) {
+            wristflow_settings_t settings;
+            wristflow_ui_shell_get_settings(apps->shell, &settings);
+            apps->picker_slot = (unsigned)settings.aod_style;
+        } else {
+            apps->face_index = strcmp(wristflow_ui_shell_watchface_id(apps->shell), "simple") == 0 ? 1 : 0;
+            apps->picker_slot = apps->face_index == 1 ? 2 : 1;
+        }
     } else if (surface == WRISTFLOW_SURFACE_FLASHLIGHT) {
         lv_obj_add_event_cb(root, back, LV_EVENT_SHORT_CLICKED, apps);
     } else if (surface == WRISTFLOW_SURFACE_BRIGHTNESS_ADJUST) {
@@ -731,7 +765,7 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
 static void stop_view_effects(wristflow_apps_t *apps, wristflow_surface_t surface)
 {
     if (surface == WRISTFLOW_SURFACE_LAUNCHER) lv_anim_delete(apps, menu_snap);
-    if (surface == WRISTFLOW_SURFACE_FACE_PICKER) {
+    if (picker_surface(surface)) {
         lv_anim_delete(apps, picker_snap);
         apps->picker_settling = false;
     }
@@ -760,13 +794,14 @@ void wristflow_apps_activate(wristflow_apps_t *apps, wristflow_surface_t surface
     if (surface == WRISTFLOW_SURFACE_SETTINGS) sync_brightness(apps);
     if (surface == WRISTFLOW_SURFACE_BREATHING) wristflow_breathing_view_clock(apps->breathing, &apps->snapshot);
     if (apps->product_mode) wristflow_settings_refresh(apps->screens[surface], surface, apps->shell);
-    if (surface == WRISTFLOW_SURFACE_FACE_PICKER) {
+    if (picker_surface(surface)) {
         /* Resume a retained parent at the selected slot; a new view starts at
            the current face. A cancelled snap must not leave it between cards. */
-        if (apps->picker_slot == 0 || apps->picker_slot == 3)
+        if (surface == WRISTFLOW_SURFACE_FACE_PICKER &&
+            (apps->picker_slot == 0 || apps->picker_slot == 3))
             apps->picker_slot = apps->picker_slot == 0 ? 2 : 1;
         apps->picker_settling = false;
-        lv_obj_scroll_to_x(named(apps->screens[surface], "face_carousel"),
+        lv_obj_scroll_to_x(picker_carousel(apps),
                            (int32_t)apps->picker_slot * 266, LV_ANIM_OFF);
         picker_render(apps, apps->picker_slot);
     }

@@ -1,6 +1,7 @@
 #ifndef WRISTFLOW_AOD_DISPLAY_H
 #define WRISTFLOW_AOD_DISPLAY_H
 #include "aod_panel_probe.h"
+#define WF_AOD_BRIGHTNESS 8U
 
 /* Physical panel state, separate from the sleeping navigation policy. AOD
  * retains panel power and the normal IDLE guard until retention is measured. */
@@ -19,7 +20,7 @@ typedef struct {
 } wf_aod_display_io_t;
 
 /* UI thread only. No periodic redraw when minute identity is unchanged. */
-bool wf_aod_display_frame(wf_aod_display_t *, const wf_aod_display_io_t *, void *, uint32_t minute);
+bool wf_aod_display_frame(wf_aod_display_t *, const wf_aod_display_io_t *, void *, uint32_t minute, bool content_changed);
 /* All recovery operations are attempted. Failure retains exclusive LCD ownership. */
 bool wf_aod_display_restore(wf_aod_display_t *, const wf_aod_display_io_t *, void *);
 #endif

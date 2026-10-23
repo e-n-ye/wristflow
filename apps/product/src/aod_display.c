@@ -18,17 +18,19 @@ bool wf_aod_display_restore(wf_aod_display_t *state, const wf_aod_display_io_t *
     return true;
 }
 
-bool wf_aod_display_frame(wf_aod_display_t *state, const wf_aod_display_io_t *io, void *context, uint32_t minute)
+bool wf_aod_display_frame(wf_aod_display_t *state, const wf_aod_display_io_t *io, void *context, uint32_t minute, bool content_changed)
 {
     if (state->failed || state->phase == WF_AOD_PANEL_FAULT) return false;
-    if (state->phase == WF_AOD_PANEL_RESIDENT && state->frame_minute == minute) return true;
+    if (!content_changed && state->phase == WF_AOD_PANEL_RESIDENT && state->frame_minute == minute) return true;
     state->owned = true;
     wf_panel_observation_t observed = {0};
     /* Draw only in NORMAL. The panel keeps the completed GRAM frame in Idle
      * between minute updates; this does not assert a lower scan frequency. */
+    /* The locked SDK's brightness command also invokes DisplayOn and resets
+     * its mode cache. Enter Idle last, matching the validated A0 sequence. */
     if (!io->brightness(0, context) || !io->idle(false, context) || !io->draw(context) ||
-        !io->idle(true, context) || !io->brightness(5, context) ||
-        !io->observe(&observed, context) || observed.mode != WF_PANEL_IDLE || observed.brightness != 5) {
+        !io->brightness(WF_AOD_BRIGHTNESS, context) || !io->idle(true, context) ||
+        !io->observe(&observed, context) || observed.mode != WF_PANEL_IDLE || observed.brightness != WF_AOD_BRIGHTNESS) {
         state->failed = true;
         state->phase = WF_AOD_PANEL_FAULT;
         wf_aod_display_restore(state, io, context);
