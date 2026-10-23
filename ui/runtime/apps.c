@@ -3,6 +3,7 @@
 #include "stopwatch.h"
 #include "app_registry.h"
 #include "settings_view.h"
+#include "aod_view.h"
 #include "wristflow_ui.h"
 #include "weather_screen.h"
 #include "countdown_view.h"
@@ -683,7 +684,8 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         (surface >= WRISTFLOW_SURFACE_FACE_MANAGEMENT && surface <= WRISTFLOW_SURFACE_WAKE_SETTINGS) ||
         surface == WRISTFLOW_SURFACE_VIBRATION_SETTINGS || surface == WRISTFLOW_SURFACE_DND_START ||
         surface == WRISTFLOW_SURFACE_DND_END || surface == WRISTFLOW_SURFACE_ENDURANCE_SETTINGS ||
-        surface == WRISTFLOW_SURFACE_BATTERY_OPTIMIZATION || surface == WRISTFLOW_SURFACE_BATTERY_INFO)) {
+        surface == WRISTFLOW_SURFACE_BATTERY_OPTIMIZATION || surface == WRISTFLOW_SURFACE_BATTERY_INFO ||
+        wristflow_aod_settings_surface(surface))) {
         wristflow_settings_refresh(root, surface, apps->shell);
     } else if (surface == WRISTFLOW_SURFACE_SETTINGS) {
         lv_obj_add_event_cb(named(root, "settings_brightness"), brightness_changed, LV_EVENT_VALUE_CHANGED, apps);

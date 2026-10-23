@@ -8,7 +8,8 @@ wristflow_settings_t wristflow_settings_default(void)
         .menu_layout = WRISTFLOW_MENU_LIST, .face_long_press = true,
         .screen_timeout = 10, .dnd_mode = WRISTFLOW_DND_OFF, .breathing_minutes = 1,
         .vibration_mode = WRISTFLOW_VIBRATION_STANDARD,
-        .dnd_start_minute = 22 * 60, .dnd_end_minute = 8 * 60};
+        .dnd_start_minute = 22 * 60, .dnd_end_minute = 8 * 60,
+        .aod_start_minute = 8 * 60, .aod_end_minute = 22 * 60};
 }
 
 bool wristflow_screen_timeout_valid(unsigned seconds)
@@ -24,6 +25,10 @@ bool wristflow_settings_valid(const wristflow_settings_t *settings)
         settings->breathing_minutes >= 1 && settings->breathing_minutes <= 5 &&
         (unsigned)settings->vibration_mode < WRISTFLOW_VIBRATION_COUNT &&
         (unsigned)settings->dnd_mode < WRISTFLOW_DND_COUNT &&
+        (unsigned)settings->aod_mode < WRISTFLOW_AOD_MODE_COUNT &&
+        (unsigned)settings->aod_style < WRISTFLOW_AOD_STYLE_COUNT &&
+        settings->aod_start_minute < 1440 && settings->aod_end_minute < 1440 &&
+        settings->aod_start_minute != settings->aod_end_minute &&
         settings->dnd_start_minute < 1440 && settings->dnd_end_minute < 1440 &&
         (settings->dnd_mode != WRISTFLOW_DND_SCHEDULED ||
             settings->dnd_start_minute != settings->dnd_end_minute) &&
@@ -40,7 +45,9 @@ bool wristflow_settings_equal(const wristflow_settings_t *a, const wristflow_set
         a->breathing_minutes == b->breathing_minutes && a->vibration_mode == b->vibration_mode &&
         a->wrist_wake == b->wrist_wake && a->silent_mode == b->silent_mode &&
         a->endurance_mode == b->endurance_mode &&
-        a->dnd_start_minute == b->dnd_start_minute && a->dnd_end_minute == b->dnd_end_minute;
+        a->dnd_start_minute == b->dnd_start_minute && a->dnd_end_minute == b->dnd_end_minute &&
+        a->aod_mode == b->aod_mode && a->aod_style == b->aod_style &&
+        a->aod_start_minute == b->aod_start_minute && a->aod_end_minute == b->aod_end_minute;
 }
 
 bool wristflow_settings_dnd_active(const wristflow_settings_t *settings,
@@ -55,6 +62,17 @@ bool wristflow_settings_dnd_active(const wristflow_settings_t *settings,
     return start < end ? minute >= start && minute < end : minute >= start || minute < end;
 }
 
+bool wristflow_settings_aod_active(const wristflow_settings_t *settings,
+    const wristflow_watch_snapshot_t *clock)
+{
+    if (!wristflow_settings_valid(settings) || settings->endurance_mode ||
+        settings->aod_mode != WRISTFLOW_AOD_SCHEDULED || !clock ||
+        clock->time_unavailable || clock->hour_24 > 23 || clock->minute > 59) return false;
+    unsigned minute = clock->hour_24 * 60U + clock->minute;
+    unsigned start = settings->aod_start_minute, end = settings->aod_end_minute;
+    return start < end ? minute >= start && minute < end : minute >= start || minute < end;
+}
+
 static uint32_t checksum(const uint8_t *data)
 {
     uint32_t value = 2166136261U;
@@ -66,12 +84,16 @@ bool wristflow_settings_encode(const wristflow_settings_t *settings, uint8_t dat
 {
     if (!data || !wristflow_settings_valid(settings)) return false;
     memset(data, 0, WRISTFLOW_SETTINGS_BYTES);
-    data[0] = 'W'; data[1] = 'F'; data[2] = 10; data[3] = settings->brightness;
-    memcpy(data + 4, settings->face_id, strlen(settings->face_id));
-    /* v10 adds endurance at bit6 to v9's flags in byte13; byte14 keeps
-     * vibration/breathing, retaining
-     * the v8 nine-character ID and the 24-byte record/checksum boundary.
+    data[0] = 'W'; data[1] = 'F'; data[2] = 11; data[3] = settings->brightness;
+    /* v11 uses an explicit face code (0 diffusion, 1 simple), freeing bytes
+     * 5..12 for AOD while retaining the 24-byte record/checksum boundary.
      * v5 belongs to the separate wrist-wake draft and is never reinterpreted. */
+    data[4] = strcmp(settings->face_id, "simple") == 0;
+    data[5] = (uint8_t)settings->aod_start_minute;
+    data[6] = (uint8_t)(settings->aod_start_minute >> 8);
+    data[7] = (uint8_t)settings->aod_end_minute;
+    data[8] = (uint8_t)(settings->aod_end_minute >> 8);
+    data[9] = (uint8_t)(settings->aod_mode | settings->aod_style << 1);
     data[13] = (uint8_t)(settings->wrist_wake | settings->silent_mode << 1 |
         settings->face_long_press << 2 | settings->menu_layout << 3 | settings->dnd_mode << 4 |
         settings->endurance_mode << 6);
@@ -89,17 +111,24 @@ bool wristflow_settings_encode(const wristflow_settings_t *settings, uint8_t dat
 bool wristflow_settings_decode(wristflow_settings_t *settings, const uint8_t *data, size_t size)
 {
     if (!settings || !data || size != WRISTFLOW_SETTINGS_BYTES ||
-        data[0] != 'W' || data[1] != 'F' || data[2] < 1 || data[2] > 10 || data[2] == 5) return false;
+        data[0] != 'W' || data[1] != 'F' || data[2] < 1 || data[2] > 11 || data[2] == 5) return false;
     uint32_t hash = checksum(data);
     for (unsigned i = 0; i < 4; ++i)
         if (data[20 + i] != (uint8_t)(hash >> (i * 8))) return false;
     wristflow_settings_t decoded = wristflow_settings_default();
     if (data[2] >= 9) {
         if ((data[13] & (data[2] == 9 ? 0xc0U : 0x80U)) || (data[14] & 0xe0U)) return false;
-        decoded.endurance_mode = data[2] == 10 && (data[13] & 0x40U);
+        decoded.endurance_mode = data[2] >= 10 && (data[13] & 0x40U);
         decoded.brightness = data[3];
         memset(decoded.face_id, 0, sizeof decoded.face_id);
-        memcpy(decoded.face_id, data + 4, 9);
+        if (data[2] == 11) {
+            if (data[4] > 1 || (data[9] & ~3U) || data[10] || data[11] || data[12]) return false;
+            strcpy(decoded.face_id, data[4] ? "simple" : "diffusion");
+            decoded.aod_start_minute = data[5] | (uint16_t)data[6] << 8;
+            decoded.aod_end_minute = data[7] | (uint16_t)data[8] << 8;
+            decoded.aod_mode = (wristflow_aod_mode_t)(data[9] & 1U);
+            decoded.aod_style = (wristflow_aod_style_t)((data[9] >> 1) & 1U);
+        } else memcpy(decoded.face_id, data + 4, 9);
         decoded.wrist_wake = (data[13] & 1U) != 0;
         decoded.silent_mode = (data[13] & 2U) != 0;
         decoded.face_long_press = (data[13] & 4U) != 0;

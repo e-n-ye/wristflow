@@ -9,12 +9,21 @@ static void seal(uint8_t *record)
     for (unsigned i = 0; i < 4; ++i) record[20+i] = (uint8_t)(hash >> (i*8));
 }
 
-/* Build deployed v6-v8 bytes independently of the current encoder. */
+/* Build deployed bytes independently of the current encoder. */
 static void legacy_record(const wristflow_settings_t *s, unsigned version, uint8_t *record)
 {
     memset(record, 0, WRISTFLOW_SETTINGS_BYTES);
     record[0] = 'W'; record[1] = 'F'; record[2] = (uint8_t)version; record[3] = s->brightness;
     memcpy(record + 4, s->face_id, strlen(s->face_id));
+    if (version >= 9) {
+        record[13] = (uint8_t)(s->wrist_wake | s->silent_mode << 1 | s->face_long_press << 2 |
+            s->menu_layout << 3 | s->dnd_mode << 4 | (version >= 10 && s->endurance_mode) << 6);
+        record[14] = (uint8_t)(s->vibration_mode | s->breathing_minutes << 2);
+        record[15] = s->screen_timeout;
+        record[16] = (uint8_t)s->dnd_start_minute; record[17] = (uint8_t)(s->dnd_start_minute >> 8);
+        record[18] = (uint8_t)s->dnd_end_minute; record[19] = (uint8_t)(s->dnd_end_minute >> 8);
+        seal(record); return;
+    }
     if (version == 8) record[13] = s->wrist_wake;
     if (version >= 7) record[14] = (uint8_t)s->vibration_mode;
     record[15] = s->breathing_minutes; record[16] = s->dnd_mode == WRISTFLOW_DND_ALL_DAY;
@@ -40,9 +49,13 @@ int main(void)
     assert(wristflow_settings_equal(&chosen, &restored));
     assert(restored.dnd_mode);
     assert(restored.breathing_minutes == 5);
-    assert(record[2] == 10 && (record[13] & 1U) && (record[14] & 3U) == WRISTFLOW_VIBRATION_ENHANCED);
-    record[2] = 9; seal(record); /* Deployed v9 acquires mode off. */
+    assert(record[2] == 11 && (record[13] & 1U) && (record[14] & 3U) == WRISTFLOW_VIBRATION_ENHANCED);
+    legacy_record(&chosen, 9, record); /* Deployed v9 acquires mode off. */
     assert(wristflow_settings_decode(&restored, record, sizeof record) && !restored.endurance_mode);
+    legacy_record(&chosen, 10, record);
+    assert(wristflow_settings_decode(&restored, record, sizeof record));
+    assert(wristflow_settings_equal(&restored, &chosen));
+    assert(restored.aod_mode == WRISTFLOW_AOD_OFF && restored.aod_style == WRISTFLOW_AOD_CENTER);
     chosen.endurance_mode = true;
     assert(wristflow_settings_encode(&chosen, record));
     assert(wristflow_settings_decode(&restored, record, sizeof record) && restored.endurance_mode);

@@ -1,0 +1,273 @@
+{
+  "date": "2026-10-23",
+  "scope": "A1 software delivery; no A1 serial, flash, or device I/O",
+  "base_commit": "b833666c5147cbd688dd23a6d4b9dd7964dfaa6c",
+  "branch": "codex/aod-display-a1",
+  "workspace_local": "C:/Users/13984/.codex/worktrees/aod-stack-regression/wristflow",
+  "contract": "docs/AOD.md#a1-20261023",
+  "source_verified": true,
+  "compiled_verified": true,
+  "hardware_verified": false,
+  "sdk": {
+    "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "lock_sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af",
+    "vendor_clean": true,
+    "submodules": [
+      " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+      " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+    ]
+  },
+  "builds": [
+    {
+      "example": "product",
+      "result_local": "artifacts/product/20261023-145827-448/result.json",
+      "result_sha256": "13205ae95976f94b9287cfc2698ff7fee039d8a6ea044c58b515b981da45d833",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "source_count": 532,
+      "artifact_count": 29,
+      "source_manifest_sha256": "3298d74414de5f3da037e75f3ec9f951f662a8cb4c632dedc6c7fe92fd589f4f",
+      "all_source_and_artifact_bytes_rehashed": true,
+      "bin_sha256": "b476e97f54022fe561a255406dc1ca536c2ede6151fbff0a772509220d17a04b",
+      "bin_bytes": 7985056,
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": [
+        "SCons by Steven Knight et al.:",
+        "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021"
+      ]
+    },
+    {
+      "example": "ui_demo",
+      "result_local": "artifacts/ui_demo/20261023-145937-074/result.json",
+      "result_sha256": "aa129508419ffa86446d41d36647ef8cf34523d998905a8bc2e19974446bdcbd",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "source_count": 478,
+      "artifact_count": 22,
+      "source_manifest_sha256": "7c0a068232437974c505c5ef82bbc527a038ed27c4d5f1754f7f1745c3574942",
+      "all_source_and_artifact_bytes_rehashed": true,
+      "bin_sha256": "cb608ecf1009d09b7724b67cfa79cd8a8aafd40f91f4481e35cea244088dd351",
+      "bin_bytes": 7731224,
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "scons": [
+        "SCons by Steven Knight et al.:",
+        "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "log_local": "artifacts/aod-a1-20261023/host-debug-final.log",
+      "sha256": "0414bafaec0e2141dd4e36ac783b07392c5a71c7560b74f18a519905a0985e83",
+      "passed": 61,
+      "total": 61,
+      "seconds": 38.62
+    },
+    {
+      "log_local": "artifacts/aod-a1-20261023/host-release-final.log",
+      "sha256": "f9a184a05f017ece022b86c42d28f34a93aefb582c25a69cf446d0672b39f250",
+      "passed": 61,
+      "total": 61,
+      "seconds": 17.99
+    },
+    {
+      "log_local": "artifacts/aod-a1-20261023/host-debug-rename.log",
+      "sha256": "5250b9502ac53ebce001ffeae7c2e16d5bc02ef1c48f9ab5cb53604e91cddf22",
+      "passed": 3,
+      "total": 3,
+      "seconds": 7.64
+    },
+    {
+      "log_local": "artifacts/aod-a1-20261023/host-release-rename.log",
+      "sha256": "4aa94a14b86386660725ca4c50d4189ea1229e24da8743994827e913230fb239",
+      "passed": 3,
+      "total": 3,
+      "seconds": 2.8
+    }
+  ],
+  "host_tools": {
+    "gcc": "15.2.0",
+    "cmake": "4.2.3",
+    "ninja": "1.13.2",
+    "release_flags": "-O3 -DNDEBUG -UNDEBUG"
+  },
+  "commands": [
+    "export PATH=\"/d/msys64/ucrt64/bin:$PATH\"",
+    "cmake -S tests -B artifacts/aod-a1-20261023/debug -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe -DCMAKE_MAKE_PROGRAM=D:/msys64/ucrt64/bin/ninja.exe -DWRISTFLOW_SDK_ROOT=D:/MY_Desk/project/wristflow/vendor/SiFli-SDK",
+    "cmake --build artifacts/aod-a1-20261023/debug -j4",
+    "ctest --test-dir artifacts/aod-a1-20261023/debug --output-on-failure",
+    "cmake -S tests -B artifacts/aod-a1-20261023/release -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE=\"-O3 -DNDEBUG -UNDEBUG\" -DCMAKE_C_COMPILER=D:/msys64/ucrt64/bin/gcc.exe -DCMAKE_MAKE_PROGRAM=D:/msys64/ucrt64/bin/ninja.exe -DWRISTFLOW_SDK_ROOT=D:/MY_Desk/project/wristflow/vendor/SiFli-SDK",
+    "cmake --build artifacts/aod-a1-20261023/release -j4",
+    "ctest --test-dir artifacts/aod-a1-20261023/release --output-on-failure",
+    "after callback rename: ctest --test-dir artifacts/aod-a1-20261023/{debug,release} -R \"^(aod_ui|settings_ui|product_ui)$\" --output-on-failure",
+    "pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/aod-a1-20261023/Build-Isolated.ps1 -Example product -Jobs 4",
+    "pwsh -NoProfile -ExecutionPolicy Bypass -File artifacts/aod-a1-20261023/Build-Isolated.ps1 -Example ui_demo -Jobs 4"
+  ],
+  "build_wrapper_local": {
+    "path": "artifacts/aod-a1-20261023/Build-Isolated.ps1",
+    "sha256": "759153cdcfb52f1d69eddaaea401fefe957faf99d15e9192284672a13b1318cf",
+    "purpose": "Reuse main workspace official locked environment; build only isolated worktree target; no flash"
+  },
+  "visual": {
+    "editor": "LVGL Pro Editor 2.0.1 Community GUI",
+    "preview_lvgl": "9.4.0",
+    "firmware_lvgl": "9.4.0",
+    "official_export_and_preview_succeeded": true,
+    "editor_success_record": "codex://threads/01a16757-7fa4-7523-9611-4309923d7256; final get_window_state success check",
+    "xml_parse": true,
+    "scale": "100%",
+    "screenshots_local": [
+      {
+        "path": "artifacts/aod-a1-20261023/editor-styles-100.jpg",
+        "sha256": "c5e9d268655d44eabd3beafea8594bf784f91af4084cf80c50fdc84eaa65b7fe"
+      },
+      {
+        "path": "artifacts/aod-a1-20261023/editor-time-100.jpg",
+        "sha256": "e63d30b152cd37004819ec79dd996a7bbf8d46bb1b6975021738eb5d07a24dbc"
+      },
+      {
+        "path": "artifacts/aod-a1-20261023/editor-resident-100.jpg",
+        "sha256": "ba2e255723cfd0939645a435b147d6bde5710e4c314a2ac7d6e14da423b14df9"
+      },
+      {
+        "path": "artifacts/aod-a1-20261023/debug/renders/aod_corner_unknown.png",
+        "sha256": "4f4c64ff0df91a6790f21db8b257525bf1ab42c5aa2901c0ff98750b7a22f38b"
+      },
+      {
+        "path": "artifacts/aod-a1-20261023/debug/renders/aod_info.png",
+        "sha256": "dbb5bb0ae9d8d4c6400b7d12774a405a3cb0ef2660454da171fcbfaa29907da3"
+      },
+      {
+        "path": "artifacts/aod-a1-20261023/debug/renders/aod_off.png",
+        "sha256": "7daa24fd86326204909e2eec9c988cd989b2f75673f23042b6ae776a63613f97"
+      },
+      {
+        "path": "artifacts/aod-a1-20261023/debug/renders/aod_overnight.png",
+        "sha256": "3fc40d67709d705a655ee8277d168456b219682ebe5ea044526d7f4160b1c99e"
+      },
+      {
+        "path": "artifacts/aod-a1-20261023/debug/renders/aod_power_confirmation.png",
+        "sha256": "8938554372fa3ad8e213dee57bf73a70c10e68ea4fc34e8c2711e5ace26e906d"
+      },
+      {
+        "path": "artifacts/aod-a1-20261023/debug/renders/aod_resident_2099.png",
+        "sha256": "eba3ceb40d4a3787a190b73a5e334b5493256e3f37636b0cef53fbf6fa67f357"
+      },
+      {
+        "path": "artifacts/aod-a1-20261023/debug/renders/aod_resident_center.png",
+        "sha256": "1022578272f59c39fc60e3d0e675ebce8a44ccd7eabee572ef03ef77993729db"
+      },
+      {
+        "path": "artifacts/aod-a1-20261023/debug/renders/aod_resident_corner.png",
+        "sha256": "4e426a91adc3d01f34287560c7b5a8976b77821506cb288b5816f6e82287eae1"
+      },
+      {
+        "path": "artifacts/aod-a1-20261023/debug/renders/aod_resident_unknown.png",
+        "sha256": "5a28896a3dd10bc4925fdc5c1c08eb41e97b5f2e9efaf9a4969da3db46c2c3c5"
+      },
+      {
+        "path": "artifacts/aod-a1-20261023/debug/renders/aod_same_time_rejected.png",
+        "sha256": "60505e37bbc64ed588d240f3afbfa6fc4a4e8282fffa6f0e065b7bc5d7cd5a08"
+      },
+      {
+        "path": "artifacts/aod-a1-20261023/debug/renders/aod_scheduled.png",
+        "sha256": "d0ecb7b0b989efb49681ffd1d0b6b5cababf11ffade824de8f0ba6c1b4044083"
+      },
+      {
+        "path": "artifacts/aod-a1-20261023/debug/renders/aod_styles_center.png",
+        "sha256": "f2ce79bc475e5f8da46fc64bd15163c365a70d0b6fe6a349cbad9d605e3d39b1"
+      },
+      {
+        "path": "artifacts/aod-a1-20261023/debug/renders/aod_styles_corner.png",
+        "sha256": "8c43fbeb141d2747298374fcbead59bbd8e057143aeaeefb9acd619101d1f296"
+      },
+      {
+        "path": "artifacts/aod-a1-20261023/debug/renders/aod_wrist_confirmation.png",
+        "sha256": "2ec482e4cf652d5088994b72b27d4964297dae31fc3429b394732445bf42242d"
+      }
+    ]
+  },
+  "independent_reviews": [
+    {
+      "task": "/root/aod_core_review",
+      "requested_model": "gpt-6.1-sol",
+      "requested_effort": "medium",
+      "result": "No definite P1/P2 issue in policy, LCD ownership, recovery and event arbitration; primary spot-check main.c:401-417,520-617 and aod_display.c:3-18"
+    },
+    {
+      "task": "/root/aod_ui_review",
+      "requested_model": "gpt-6-luna",
+      "requested_effort": "low",
+      "result": "No definite regression in atomic confirmation, back/cancel, style browsing, interval validation or v11 migration; primary spot-check aod_view.c:46-120 and product_state.c:65-145"
+    }
+  ],
+  "failures_and_fixes": [
+    "Unsupported XML scroll_dir moved to runtime LVGL adapter before official export.",
+    "Export stalled during cleanup; partial output archived; official editor reopened. One generated manifest write error retained. Final export/preview succeeded.",
+    "Initial Product compilation overlapped export cleanup and failed on temporarily missing generated file; later builds run after export completed.",
+    "Build-time style callback referenced previous active screen, tail spacer participated in snap, and old test omitted new settings defaults; fixed and rerun.",
+    "ARM compile exposed callback open conflicting with system declaration; renamed open_aod_surface, rebuilt Product/Demo and reran affected host UI targets.",
+    "Six new official generated C files contain trailing empty line; default diff --check reports only these. Keep official outputs; check all other whitespace with -blank-at-eof."
+  ],
+  "warnings": "Retained SDK/FinSH casts, RTC signedness, LVGL and linker RWX/entry/syscall warnings; no SDK edits.",
+  "source_fingerprints": {
+    "apps/product/src/aod_display.c": "7023ba73f8e1d4d0269665124fcf3c5d5f649483dceb3f3c0f85ccb4cf38a7c9",
+    "apps/product/src/aod_display.h": "bc2a82038e3c1971d008ff2058c34f010f92c5b3c5dd7eb1e5a2b8a44f84b174",
+    "apps/product/src/main.c": "b8d5004d90810aa03c401f821a1f541e84129ff1a77bacdb17cfb44026edbc0b",
+    "apps/product/src/product_pm.h": "7d82b4665080754fc85fa7b7806a8b27825ad76625a90906668e852454785935",
+    "apps/product/src/product_services.c": "5d926825b2badda07c152db2712d841ccda8931d7d0ce6194dfcfa3d043249fd",
+    "core/aod_policy.c": "fa2b8056be268c0ee4fb1c0563b0daad4a357a77c7cc55dc151e8781c4f77400",
+    "core/aod_policy.h": "48e00e590547adb70524ccae536415cbe0ed809a23166fabe71e328bc57165eb",
+    "core/product_state.c": "f194d30b58bd4f05386bead2dadabd9da9cd78788c4c632ffeb76e9c3d687594",
+    "core/product_state.h": "f3bb1be3f39f80b5ec1baed069775ea353422ed09b4627aac71f0d722f349857",
+    "core/watch_core.h": "9458b189d8ea77091bd4baba3b44836a2c9a4eeef55c726b06f8d763da7d1d1e",
+    "scripts/Generate-Ui-Assets.py": "e79e1ee71a379f686bfc2e9ef569c761441af788230b5bd62f4e43cbfbb725d1",
+    "tests/aod_display.c": "def77155176cc320a09f3a6ec75547c18ad6f062c7ddf8f62767d2e9b0e024fa",
+    "tests/aod_ui.c": "30b55dfec7eb5e9c40e5514179bf1be4d1cf1ad9b4a07dd1a3123867573d93b5",
+    "tests/product_state.c": "67698423ee18ae050cf16e3e4e9c62048bfc838504ab8e305831c4e081185470",
+    "tests/product_ui.c": "f0de54ee3be97c26e3c343e642ccecea464f8195c508e9eafe5a061c30feb4e6",
+    "ui/runtime/aod_view.c": "a986fe81761c4950ab45128b4d64eddfb7d982cf6e0bd8fa9cdb463087a1700b",
+    "ui/runtime/aod_view.h": "3775d76cf2048f2d2ef4f1b077d2aa0a80909c4d193adb95a28c0ba492924bd1",
+    "ui/runtime/apps.c": "b95b75d5c413e603c32c5a61b3b43a54ce66a0caaf69752d4900462d4138326b",
+    "ui/runtime/settings_view.c": "74a3d31cb367a212373ec7129089cbb72144d4646ab9c905a59df6e59930d2cb",
+    "ui/xml/components/aod_content.xml": "39d491e82618cb7d13c32bcda24f5e919761b15deec1b32a446059ac16715f8b",
+    "ui/xml/components/aod_content_gen.c": "2b6fadb3cad00f26ef6255826076e18400c45ff0785c9327034745a3b020629a",
+    "ui/xml/components/aod_content_gen.h": "ea434390eefce064a95dba70eefe30e30ed3d4595a54987e404e7f630882ad5a",
+    "ui/xml/components/aod_thumbnail.xml": "1c9b78fc959837f341c6f4c4183147392c41f6458c283226040f408ec1490cbf",
+    "ui/xml/components/aod_thumbnail_gen.c": "27d7a14fe742ae2cf95e963d166253a98fd191192fbd577e6737515bc1ab4134",
+    "ui/xml/components/aod_thumbnail_gen.h": "1983f8006aa20a53542e12186d0a46d5555ae298d48aa33fb77e64395f729e87",
+    "ui/xml/components/choice_confirm.xml": "d13b5e74663932d8e8ac27365f894073db03e9984b640685431f4da9b5f0d033",
+    "ui/xml/components/choice_confirm_gen.c": "02a40dd73a8a52d61d79233f537c0532ddc9d1a4f84bdf0e6a3f29b6c1145a50",
+    "ui/xml/components/choice_confirm_gen.h": "c061b7b59bf8b55a8a887894336dfa929c1be0dd2d981bd2d9bb55996f92dca2",
+    "ui/xml/fonts/WristFlowSans-Regular.ttf": "beb4c7489d67f8bdbd5a967a00bf95f6825e282c5886883ca1c907dc05de581a",
+    "ui/xml/fonts/body_20_data.c": "cd8f0f66e73debd0ec713ae4ee21796f773a952fa473f4ad4134fd79fd0bec2b",
+    "ui/xml/fonts/title_24_data.c": "2c19554fad3b4c3e1c6f17e065b3f59cd6d0b8e9a6756cd265df5e354f5728ea",
+    "ui/xml/globals.xml": "47d5d925b33dcc677ea80cd46427cdb71504786c76ed48ed2b921133f3cdec15",
+    "ui/xml/screens/screen_aod.xml": "a455d3500ac4ef21e1c35ebcd95381f8b83b309b75d0ace54b91d5f400569df7",
+    "ui/xml/screens/screen_aod_gen.c": "bd9b5382f3eb4e20e14c0a3d4f742e38c9a6e27128c23609b8015531c81042b3",
+    "ui/xml/screens/screen_aod_gen.h": "7869d642b449a01961496fc596618cd0f6c8a5da45d8d076b65091bbca8ce7d1",
+    "ui/xml/screens/screen_aod_styles.xml": "8ae76e65d1ba28698ca8467675191b9a9109c5129c7431c19333d0c3366a6180",
+    "ui/xml/screens/screen_aod_styles_gen.c": "51819140505e77a8674420a7adb05566dbff73d0b77960c78d598a356499bc0e",
+    "ui/xml/screens/screen_aod_styles_gen.h": "7f3a9cb6dafc7dbe01493f01ebc3e3e462e65694d59dfb6cb10988094c10dcf1",
+    "ui/xml/screens/screen_aod_time.xml": "a8bb574bf9e4dafd3512f79834e345ff85eafa11ebc5528ea29debafb3efbb4d",
+    "ui/xml/screens/screen_aod_time_gen.c": "cc4461e3ce122f43df40ae33cb8b77f4e546aaef747b5562c750725458dc3169",
+    "ui/xml/screens/screen_aod_time_gen.h": "edcc119357e73620b02bbecc1a49720914f71cb029d5f74291e2575e1e115a38",
+    "ui/xml/wristflow_ui_gen.h": "45cd5483700f9c0cf7d1bfcb96727408ed059c228983f0a699aa8374cc4f6778"
+  },
+  "unverified": [
+    "A1 device touch, actual Flash v11 save/reboot recovery and memory high-water marks",
+    "Natural minute and schedule boundaries, invalid/changed clock, KEY/wrist/notification/reminder/charging interruption on exact A1 BIN",
+    "Actual LCD restoration, synchronous SDK call wall-time bound and physical sleep",
+    "Panel scan frequency, measured current, battery capacity and endurance benefit"
+  ],
+  "next_bounded_experiment": "After software integration and separate device authorization, reuse exact Product BIN for one concentrated A1 UI/save-resume/natural residency and exit window; do not repeat A0 diagnostic.",
+  "editor_setting": {
+    "user_selected": "Preserve existing CMake source directory using ${workspaceFolder}/tests and commit it",
+    "configure_on_open": false,
+    "primary_original_backup_local": "artifacts/aod-a1-20261023/primary-vscode-settings-original.json",
+    "primary_original_sha256": "c6660f3747fafa617e2b41e808c268f70cdbbb2108ccf7059ea97f13e5cef03d",
+    "validation": "JSON parsed; portable path resolves to existing tests/CMakeLists.txt; firmware inputs unaffected"
+  }
+}

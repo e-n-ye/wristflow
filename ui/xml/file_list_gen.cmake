@@ -9,6 +9,8 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/components/alarm_item_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/alarm_option_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/alarm_reminder_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/aod_content_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/aod_thumbnail_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/app_header_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/app_list_item_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/breathing_controls_gen.c
@@ -19,6 +21,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/components/breathing_training_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/card_container_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/charging_panel_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/choice_confirm_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/component_confirm_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/component_group_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/countdown_indicator_gen.c
@@ -87,6 +90,9 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_activity_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_activity_info_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_alarm_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_aod_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_aod_styles_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_aod_time_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_app_placeholder_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_battery_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_breathing_gen.c

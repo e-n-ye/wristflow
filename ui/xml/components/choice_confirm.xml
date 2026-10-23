@@ -1,0 +1,8 @@
+<component>
+    <view extends="lv_obj" width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="notification_22" style_text_color="#fg_primary">
+        <lv_button name="choice_back" x="24" y="22" width="48" height="44" style_bg_opa="0%" style_shadow_width="0" style_pad_all="0"><lv_label align="center" text="&#xf053;" style_text_font="icons_20" /></lv_button>
+        <lv_label name="choice_text" x="36" y="100" width="318" text="请选择抬腕后显示的表盘，选择息屏表盘将关闭抬腕亮屏。" style_text_align="center" />
+        <lv_button name="choice_first" x="36" y="274" width="318" height="66" style_bg_color="#bg_surface" style_radius="33" style_shadow_width="0" style_pad_all="0"><lv_label name="choice_first_text" align="center" text="息屏表盘" /></lv_button>
+        <lv_button name="choice_second" x="36" y="352" width="318" height="66" style_bg_color="#bg_surface" style_radius="33" style_shadow_width="0" style_pad_all="0"><lv_label name="choice_second_text" align="center" text="主表盘" /></lv_button>
+    </view>
+</component>

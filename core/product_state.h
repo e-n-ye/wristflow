@@ -24,6 +24,14 @@ typedef enum {
     WRISTFLOW_DND_COUNT
 } wristflow_dnd_mode_t;
 
+typedef enum {
+    WRISTFLOW_AOD_OFF, WRISTFLOW_AOD_SCHEDULED, WRISTFLOW_AOD_MODE_COUNT
+} wristflow_aod_mode_t;
+
+typedef enum {
+    WRISTFLOW_AOD_CENTER, WRISTFLOW_AOD_CORNER, WRISTFLOW_AOD_STYLE_COUNT
+} wristflow_aod_style_t;
+
 typedef struct {
     uint8_t brightness;
     char face_id[16];
@@ -37,6 +45,9 @@ typedef struct {
     bool silent_mode;
     bool endurance_mode;
     uint16_t dnd_start_minute, dnd_end_minute;
+    wristflow_aod_mode_t aod_mode;
+    wristflow_aod_style_t aod_style;
+    uint16_t aod_start_minute, aod_end_minute;
 } wristflow_settings_t;
 
 bool wristflow_screen_timeout_valid(unsigned seconds);
@@ -47,6 +58,8 @@ bool wristflow_settings_equal(const wristflow_settings_t *a, const wristflow_set
 /* Local wall time, start inclusive/end exclusive. Unknown time never activates
  * a schedule. Effective state is derived, never persisted at a clock boundary. */
 bool wristflow_settings_dnd_active(const wristflow_settings_t *settings,
+    const wristflow_watch_snapshot_t *clock);
+bool wristflow_settings_aod_active(const wristflow_settings_t *settings,
     const wristflow_watch_snapshot_t *clock);
 bool wristflow_settings_encode(const wristflow_settings_t *settings, uint8_t data[WRISTFLOW_SETTINGS_BYTES]);
 /* Invalid records leave the caller's defaults intact. No raw C structs on flash. */
