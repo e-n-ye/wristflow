@@ -1,0 +1,2306 @@
+{
+  "date": "2026-10-23",
+  "scope": "LTR-303 explicit bounded raw-channel hardware bringup; no UI or automatic brightness",
+  "base_commit": "de99c5a8d919bac8819b2aef683f2401fbe45c65",
+  "branch": "codex/ltr303-diagnostic",
+  "active_workspace_local": "D:\\MY_Desk\\project\\wristflow",
+  "source_verified": true,
+  "compiled_verified": true,
+  "hardware_verified": "bounded identity, raw response, deadline/cancel restore; see limitations",
+  "native_capability": "LTR303 ALS/1x/100ms integration/500ms repeat/data frame latch; no custom replacement measurement algorithm; vendor and sdk.lock unchanged",
+  "datasheet": {
+    "title": "Lite-On LTR-303ALS-01 DS86-2013-0004 Rev A 07/09/2014",
+    "url": "https://cdn-learn.adafruit.com/assets/assets/000/115/506/original/LTR-303ALS-01_DS_V1.pdf?1664491385",
+    "printed_pages": "5-6 startup,12/16 identity,14/15 configuration,17-19 data latch/status,26 invalid handling",
+    "limits": "p13 vs p15 reset RATE default differs, explicit03 used; referenced Appendix A missing, no lux coefficients adopted"
+  },
+  "build": {
+    "record_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\product\\20261023-204817-177\\result.json",
+    "record_sha256": "c1b5f09df4bd2cf5d9cc8df586cb5993121b0282a4eb5ac9dcd766e72d2663d1",
+    "bin_sha256": "da25db883719c05d6127b98480e5a1bd1aafd1060026a45663a7d5f4ec64cc4a",
+    "sources": 537,
+    "artifacts": 29,
+    "all_bytes_rehashed": true,
+    "previous_c_tree_record": "artifacts/product/20261023-193919-504/result.json",
+    "previous_record_sha256": "c8b824b309c3a0bfe3a3f9a1f068c158a5bd563c05dd1f213ed57f5cd1230af0",
+    "previous_c_tree_exit_code": 0
+  },
+  "flash": {
+    "record_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\flash\\product\\20261023-205638-871\\result.json",
+    "record_sha256": "fbf3c965387cb3673dab7efdc7de116b64d99e98f3aeb2f29e0eeacd7a5ac29d",
+    "result": {
+      "date": "2026-10-23T20:59:23.6638990+08:00",
+      "example": "product",
+      "board": "sf32lb52-lchspi-ulp",
+      "port": "COM5",
+      "tool": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe",
+      "command": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+      "images": [
+        {
+          "name": "bootloader.bin",
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+          "address": "0x12010000",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "name": "main.bin",
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+          "address": "0x12020000",
+          "bytes": 8021436,
+          "sha256": "da25db883719c05d6127b98480e5a1bd1aafd1060026a45663a7d5f4ec64cc4a"
+        },
+        {
+          "name": "ftab.bin",
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+          "address": "0x12000000",
+          "bytes": 11288,
+          "sha256": "3a5a3eef595d3fcf816816c98037e0dcd35327c4a9d30182f0c25e2642c851be"
+        }
+      ],
+      "exit_code": 0,
+      "hardware_verified": false
+    },
+    "attempt": {
+      "started": "2026-10-23T12:56:37.875847+00:00",
+      "build_result": {
+        "build_result": "D:\\MY_Desk\\project\\wristflow\\artifacts\\product\\20261023-204817-177\\result.json",
+        "build_result_sha256": "c1b5f09df4bd2cf5d9cc8df586cb5993121b0282a4eb5ac9dcd766e72d2663d1",
+        "bin_sha256": "da25db883719c05d6127b98480e5a1bd1aafd1060026a45663a7d5f4ec64cc4a",
+        "source_count": 537,
+        "artifact_count": 29,
+        "sdk_clean": true,
+        "endpoint": {
+          "device": "COM5",
+          "vid": 6790,
+          "pid": 29987,
+          "location": "1-1.1",
+          "serial_number": "",
+          "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+          "disable_modem": 1
+        }
+      },
+      "command": [
+        "pwsh",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "scripts/Flash.ps1",
+        "-Example",
+        "product",
+        "-Port",
+        "COM5"
+      ],
+      "exit_code": 0,
+      "closed": "2026-10-23T12:59:23.724420+00:00"
+    }
+  },
+  "tests": {
+    "final_local_log": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\primary-host-test.log",
+    "sha256": "e868c6b9edc5ad7b4fc2e445a77cf9166b8d74bfc4d60b3ec7c53919b7d1bff9",
+    "result": "Debug ltr303_diag/product_imu_diag 2/2; previous full61 not repeated",
+    "failures": "Initial pending finite-wrist/old continuous-cache overlap assertion failed and fixed; legal old RATE6/7 rejection corrected after datasheet review. Retained C-tree original logs in ZIP."
+  },
+  "commands": [
+    "cmake --build artifacts/host/aod-panel-debug --target ltr303_diag product_imu_diag -j4",
+    "ctest --test-dir artifacts/host/aod-panel-debug -R \"^(ltr303_diag|product_imu_diag)$\" --output-on-failure",
+    "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 4",
+    "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Flash.ps1 -Example product -Port COM5 [-DryRun]",
+    "SDK Python artifacts/aod-a1-hardware-20261023/session.py --out <new directory> --mode before|startup|snapshot",
+    "SDK Python artifacts/ltr303-20261023/light_window.py --out <new directory> --seconds 1",
+    "SDK Python artifacts/ltr303-20261023/light_window.py --out <new directory> --seconds 10 --cancel-after 2"
+  ],
+  "sampling_method": "Operator sets one condition and confirms holding it before trigger; independently acquired ambient/shade/bright/recovery. First timed90s sequence not used for condition attribution.",
+  "sessions": [
+    {
+      "name": "before-001",
+      "report_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\before-001\\session.json",
+      "report_sha256": "eb95c6d328523ed56e039d7c657c76b0e6bd5b7ccd6a7864d6c1c54bda5f4187",
+      "report": {
+        "endpoint": {
+          "device": "COM5",
+          "vid": 6790,
+          "pid": 29987,
+          "location": "1-1.1",
+          "serial_number": "",
+          "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+          "disable_modem": 1
+        },
+        "mode": "before",
+        "events": [
+          {
+            "at": "2026-10-23T12:54:09.086746+00:00",
+            "command": "wf_pm status"
+          },
+          {
+            "at": "2026-10-23T12:54:09.796165+00:00",
+            "command": "wf_pm hold"
+          },
+          {
+            "at": "2026-10-23T12:54:10.552434+00:00",
+            "command": "show_date"
+          },
+          {
+            "at": "2026-10-23T12:54:11.280234+00:00",
+            "command": "wf_steps status"
+          },
+          {
+            "at": "2026-10-23T12:54:12.022189+00:00",
+            "command": "wf_wrist status"
+          },
+          {
+            "at": "2026-10-23T12:54:12.737357+00:00",
+            "command": "wf_battery status"
+          },
+          {
+            "at": "2026-10-23T12:54:13.465843+00:00",
+            "command": "wf_ui status"
+          },
+          {
+            "at": "2026-10-23T12:54:14.206987+00:00",
+            "command": "wf_ble radio"
+          },
+          {
+            "at": "2026-10-23T12:54:14.940109+00:00",
+            "command": "wf_pm allow"
+          }
+        ],
+        "error": null,
+        "release_verified": true,
+        "closed": "2026-10-23T12:54:15.959528+00:00"
+      },
+      "replies": [
+        {
+          "command": "wf_pm status",
+          "bytes": 255,
+          "sha256": "a3b3b41177a043687d254740e7714dfe007ff70428fa95473c99028103f1dd90"
+        },
+        {
+          "command": "wf_pm hold",
+          "bytes": 255,
+          "sha256": "59e18755c6de2173cd8f19dcfec8c11f37e68df219b1de481a3ada98ccad2259"
+        },
+        {
+          "command": "show_date",
+          "bytes": 50,
+          "sha256": "7d34ddedeb960c9829c5c2f99a52d2ae46a212e25fe18de8ddbeedd9f597d51f"
+        },
+        {
+          "command": "wf_steps status",
+          "bytes": 1106,
+          "sha256": "1b4fe3eccad1d99b7c746501a6a498ab615ca86b2014d95ac08aaee8d1450045"
+        },
+        {
+          "command": "wf_wrist status",
+          "bytes": 2370,
+          "sha256": "f00ca7bffed5be5fa26121e4f03dff4bda5ce66d2633589b891a300ed5ce546f"
+        },
+        {
+          "command": "wf_battery status",
+          "bytes": 157,
+          "sha256": "f79cbdb5d05c931dd0b9331c587b69e030c42ab161a70008728e10e2efeb6429"
+        },
+        {
+          "command": "wf_ui status",
+          "bytes": 392,
+          "sha256": "54cae4cb501357ce821ca8a88addb6009a9e3c6599e972ede89debdb452da5e7"
+        },
+        {
+          "command": "wf_ble radio",
+          "bytes": 147,
+          "sha256": "21e6729bde8d31fd4d36dbba2feb081e91fa5f0b463bbc7b879dbf94fd4dc5c5"
+        },
+        {
+          "command": "wf_pm allow",
+          "bytes": 255,
+          "sha256": "d5bf2b798c6bf2edc5ee3c2aec273838d2fccce59d53e57a3215f7772a904f63"
+        }
+      ],
+      "uart_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\before-001\\uart.bin",
+      "uart_bytes": 4987,
+      "uart_sha256": "09efd376ecba88ab83e2f069a73bab9669176a32147ea56fcdae0aa6d4f1807d",
+      "frames": []
+    },
+    {
+      "name": "startup-001",
+      "report_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\startup-001\\session.json",
+      "report_sha256": "721a5554d43ca576fc938658ed45fb99eb3b8fbf0eaff7191134b6e5ac4108a5",
+      "report": {
+        "endpoint": {
+          "device": "COM5",
+          "vid": 6790,
+          "pid": 29987,
+          "location": "1-1.1",
+          "serial_number": "",
+          "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+          "disable_modem": 1
+        },
+        "mode": "startup",
+        "events": [
+          {
+            "at": "2026-10-23T13:00:36.940379+00:00",
+            "reset_once_ms": 150
+          },
+          {
+            "at": "2026-10-23T13:00:42.127751+00:00",
+            "command": "wf_pm status"
+          },
+          {
+            "at": "2026-10-23T13:00:42.831313+00:00",
+            "command": "wf_pm hold"
+          },
+          {
+            "at": "2026-10-23T13:00:43.535447+00:00",
+            "command": "show_date"
+          },
+          {
+            "at": "2026-10-23T13:00:44.259875+00:00",
+            "command": "wf_time 1792760444"
+          },
+          {
+            "at": "2026-10-23T13:00:45.003263+00:00",
+            "command": "show_date"
+          },
+          {
+            "at": "2026-10-23T13:00:45.742165+00:00",
+            "command": "wf_steps status"
+          },
+          {
+            "at": "2026-10-23T13:00:46.475498+00:00",
+            "command": "wf_wrist status"
+          },
+          {
+            "at": "2026-10-23T13:00:47.209076+00:00",
+            "command": "wf_battery status"
+          },
+          {
+            "at": "2026-10-23T13:00:47.919734+00:00",
+            "command": "wf_ui status"
+          },
+          {
+            "at": "2026-10-23T13:00:48.636867+00:00",
+            "command": "wf_ble radio"
+          },
+          {
+            "at": "2026-10-23T13:00:49.387805+00:00",
+            "command": "wf_aod status"
+          },
+          {
+            "at": "2026-10-23T13:00:50.135922+00:00",
+            "command": "list_thread"
+          },
+          {
+            "at": "2026-10-23T13:00:50.871285+00:00",
+            "command": "list_mem"
+          },
+          {
+            "at": "2026-10-23T13:00:51.591256+00:00",
+            "command": "wf_pm allow"
+          }
+        ],
+        "error": null,
+        "release_verified": true,
+        "closed": "2026-10-23T13:00:52.620077+00:00"
+      },
+      "replies": [
+        {
+          "command": "wf_pm status",
+          "bytes": 250,
+          "sha256": "8a556019f5d6896f72c1f61f97bd8f7ff73ae7b82e27903decc3b243ac61d448"
+        },
+        {
+          "command": "wf_pm hold",
+          "bytes": 279,
+          "sha256": "435bea0ec151b77e9a89ab58d127aa2d489d494acf03445ade22653c5a0a7334"
+        },
+        {
+          "command": "show_date",
+          "bytes": 79,
+          "sha256": "e2ec43193a7b5c424fc70c65bbe498f898141a74c783c578167c573d188ed42c"
+        },
+        {
+          "command": "wf_time 1792760444",
+          "bytes": 123,
+          "sha256": "e4dd3ebefb4611bc80e3057ed7cfc70d1f508f729c80810b7ba3a98ca8e87719"
+        },
+        {
+          "command": "show_date",
+          "bytes": 108,
+          "sha256": "b2be9fc4ed7f42ec774f0648600759becc53d3ef5f27dc173d25333feeefa134"
+        },
+        {
+          "command": "wf_steps status",
+          "bytes": 1277,
+          "sha256": "50d04ef2c0ce636e0664accb5bff7c183b431703381338dbd05f8c9bcee77759"
+        },
+        {
+          "command": "wf_wrist status",
+          "bytes": 2875,
+          "sha256": "18840109aaa396392a0bbf21127b31585e788802dec52ee770c2428516aac072"
+        },
+        {
+          "command": "wf_battery status",
+          "bytes": 154,
+          "sha256": "0ace1c3211a1161471462c6195d4f9e1baa7cba60257eab1919dc03a9542fab0"
+        },
+        {
+          "command": "wf_ui status",
+          "bytes": 418,
+          "sha256": "995415a5dd3d4c73a38f267243a17057ca8802f473d802cc7c807ab1cc54b243"
+        },
+        {
+          "command": "wf_ble radio",
+          "bytes": 176,
+          "sha256": "9cb238ba4402ee83c2c88f5de486c0dc59ed07d94a3ba61dde7000c6e9c16327"
+        },
+        {
+          "command": "wf_aod status",
+          "bytes": 332,
+          "sha256": "f46ffc96e234c19dd4a6f585b86ba183770246a4fa2ff29d8607774b165ff11b"
+        },
+        {
+          "command": "list_thread",
+          "bytes": 1493,
+          "sha256": "6a6fa8640c3dc0d053e6b5d63fa68d7bb70fde888706f58e6183d990b0bf83bd"
+        },
+        {
+          "command": "list_mem",
+          "bytes": 128,
+          "sha256": "2fea699a5cc0799bcf7dd5df42bce89f83bad6bec3a863d1960929988a770601"
+        },
+        {
+          "command": "wf_pm allow",
+          "bytes": 280,
+          "sha256": "f396f821be21e8c055ff4679ccdcbe69c890fc09ab826c14c06163ced53f9647"
+        }
+      ],
+      "uart_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\startup-001\\uart.bin",
+      "uart_bytes": 12562,
+      "uart_sha256": "80f44cc4f1da0ac04a1a3112d80f3ed2419620489c1de569c3598dd14004a4e9",
+      "frames": []
+    },
+    {
+      "name": "light-001",
+      "report_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\light-001\\session.json",
+      "report_sha256": "56806a246aefc6d85a4edb55abb63744a2edf3893c2c840c458d340a209ab184",
+      "report": {
+        "endpoint": {
+          "device": "COM5",
+          "vid": 6790,
+          "pid": 29987,
+          "location": "1-1.1",
+          "serial_number": "",
+          "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+          "disable_modem": 1
+        },
+        "seconds": 90,
+        "cancel_after": 0,
+        "events": [
+          {
+            "at": "2026-10-23T13:04:23.234956+00:00",
+            "command": "wf_pm status"
+          },
+          {
+            "at": "2026-10-23T13:04:23.877763+00:00",
+            "command": "wf_pm hold"
+          },
+          {
+            "at": "2026-10-23T13:04:24.492380+00:00",
+            "command": "wf_light status"
+          },
+          {
+            "at": "2026-10-23T13:04:25.099013+00:00",
+            "command": "wf_steps status"
+          },
+          {
+            "at": "2026-10-23T13:04:25.752047+00:00",
+            "command": "wf_wrist status"
+          },
+          {
+            "at": "2026-10-23T13:04:26.408685+00:00",
+            "command": "wf_light start 90"
+          },
+          {
+            "at": "2026-10-23T13:05:59.498092+00:00",
+            "command": "wf_light status"
+          },
+          {
+            "at": "2026-10-23T13:06:00.112446+00:00",
+            "command": "wf_steps status"
+          },
+          {
+            "at": "2026-10-23T13:06:00.716745+00:00",
+            "command": "wf_wrist status"
+          },
+          {
+            "at": "2026-10-23T13:06:01.359587+00:00",
+            "command": "wf_pm allow"
+          }
+        ],
+        "error": null,
+        "cleanup_verified": true,
+        "expected_session": 1,
+        "reboot_detected": false,
+        "release_verified": true,
+        "closed": "2026-10-23T13:06:02.370869+00:00"
+      },
+      "replies": [
+        {
+          "command": "wf_pm status",
+          "bytes": 252,
+          "sha256": "0623d4ba555de7d71656aeac4ff4e289b8572aa1ff20ab3660508b165a72cf7d"
+        },
+        {
+          "command": "wf_pm hold",
+          "bytes": 252,
+          "sha256": "a4baf883b5413af05566052dcac931185c71b826de6b50b98c1eb22bd66aad5a"
+        },
+        {
+          "command": "wf_light status",
+          "bytes": 465,
+          "sha256": "03c4214a5f8abd5b9b1c0889c023bdab25533939ff1a39a6820c6234cb87d75f"
+        },
+        {
+          "command": "wf_steps status",
+          "bytes": 1134,
+          "sha256": "8d59d23df6cb890dbe68763b9af92cfbc3b1596d8d44ded4acdc87ef63e07597"
+        },
+        {
+          "command": "wf_wrist status",
+          "bytes": 2370,
+          "sha256": "f00ca7bffed5be5fa26121e4f03dff4bda5ce66d2633589b891a300ed5ce546f"
+        },
+        {
+          "command": "wf_light start 90",
+          "bytes": 240,
+          "sha256": "1e922ba0d9ab75dc1171d3080bc5889574ed395dbc0c23a6df6e628eca017f5e"
+        },
+        {
+          "command": "wf_light status",
+          "bytes": 483,
+          "sha256": "00510135663a8acebd1864a05337f1b8abc97de9ae26b8e1492c7912cb82b090"
+        },
+        {
+          "command": "wf_steps status",
+          "bytes": 1135,
+          "sha256": "79e424c0982e2f8d0daecfcac27fef7a0a8242af9760e9f87092ffc47caca004"
+        },
+        {
+          "command": "wf_wrist status",
+          "bytes": 2370,
+          "sha256": "f00ca7bffed5be5fa26121e4f03dff4bda5ce66d2633589b891a300ed5ce546f"
+        },
+        {
+          "command": "wf_pm allow",
+          "bytes": 252,
+          "sha256": "21e0ceacacdd79d05f30d06eaa30f9bc16270f7af5290806bd7fd7fd3072d950"
+        }
+      ],
+      "uart_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\light-001\\uart.bin",
+      "uart_bytes": 17394,
+      "uart_sha256": "7b829eaee485b6fabd4055bda7af5b8897818aa7ec0c4e534e26d43f49b05db3",
+      "frames": [
+        {
+          "session": 1,
+          "sequence": 1,
+          "sampled_ms": 227496,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 2,
+          "sampled_ms": 228518,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 3,
+          "sampled_ms": 229541,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 4,
+          "sampled_ms": 230564,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 5,
+          "sampled_ms": 231587,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 6,
+          "sampled_ms": 232610,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 7,
+          "sampled_ms": 233633,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 8,
+          "sampled_ms": 234656,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 9,
+          "sampled_ms": 235679,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 10,
+          "sampled_ms": 236702,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 11,
+          "sampled_ms": 237726,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 12,
+          "sampled_ms": 238748,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 13,
+          "sampled_ms": 239771,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 14,
+          "sampled_ms": 240794,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 15,
+          "sampled_ms": 241818,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 16,
+          "sampled_ms": 242841,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 17,
+          "sampled_ms": 243864,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 18,
+          "sampled_ms": 244886,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 19,
+          "sampled_ms": 245909,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 20,
+          "sampled_ms": 246932,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 21,
+          "sampled_ms": 247955,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 22,
+          "sampled_ms": 248978,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 23,
+          "sampled_ms": 250001,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 24,
+          "sampled_ms": 251024,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 25,
+          "sampled_ms": 252047,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 26,
+          "sampled_ms": 253070,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 27,
+          "sampled_ms": 254094,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 28,
+          "sampled_ms": 255117,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 29,
+          "sampled_ms": 256140,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 30,
+          "sampled_ms": 257163,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 31,
+          "sampled_ms": 258186,
+          "status": 4,
+          "ch0": 8,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 32,
+          "sampled_ms": 259210,
+          "status": 4,
+          "ch0": 8,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 33,
+          "sampled_ms": 260232,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 34,
+          "sampled_ms": 261256,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 35,
+          "sampled_ms": 262278,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 36,
+          "sampled_ms": 263301,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 37,
+          "sampled_ms": 264324,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 38,
+          "sampled_ms": 265347,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 39,
+          "sampled_ms": 266370,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 40,
+          "sampled_ms": 267393,
+          "status": 4,
+          "ch0": 8,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 41,
+          "sampled_ms": 268437,
+          "status": 4,
+          "ch0": 8,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 42,
+          "sampled_ms": 269459,
+          "status": 4,
+          "ch0": 8,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 43,
+          "sampled_ms": 270482,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 44,
+          "sampled_ms": 271505,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 45,
+          "sampled_ms": 272528,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 46,
+          "sampled_ms": 273551,
+          "status": 4,
+          "ch0": 8,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 47,
+          "sampled_ms": 274574,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 48,
+          "sampled_ms": 275597,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 49,
+          "sampled_ms": 276620,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 50,
+          "sampled_ms": 277643,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 51,
+          "sampled_ms": 278666,
+          "status": 4,
+          "ch0": 8,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 52,
+          "sampled_ms": 279690,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 53,
+          "sampled_ms": 280713,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 54,
+          "sampled_ms": 281736,
+          "status": 4,
+          "ch0": 8,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 55,
+          "sampled_ms": 282758,
+          "status": 4,
+          "ch0": 8,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 56,
+          "sampled_ms": 283781,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 57,
+          "sampled_ms": 284804,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 58,
+          "sampled_ms": 285828,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 59,
+          "sampled_ms": 286850,
+          "status": 4,
+          "ch0": 8,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 60,
+          "sampled_ms": 287873,
+          "status": 4,
+          "ch0": 8,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 61,
+          "sampled_ms": 288896,
+          "status": 4,
+          "ch0": 8,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 62,
+          "sampled_ms": 289919,
+          "status": 4,
+          "ch0": 8,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 63,
+          "sampled_ms": 290942,
+          "status": 4,
+          "ch0": 8,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 64,
+          "sampled_ms": 291965,
+          "status": 4,
+          "ch0": 8,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 65,
+          "sampled_ms": 292988,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 66,
+          "sampled_ms": 294012,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 67,
+          "sampled_ms": 295035,
+          "status": 4,
+          "ch0": 8,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 68,
+          "sampled_ms": 296058,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 69,
+          "sampled_ms": 297082,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 70,
+          "sampled_ms": 298104,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 71,
+          "sampled_ms": 299128,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 72,
+          "sampled_ms": 300180,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 73,
+          "sampled_ms": 301203,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 74,
+          "sampled_ms": 302226,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 75,
+          "sampled_ms": 303250,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 76,
+          "sampled_ms": 304272,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 77,
+          "sampled_ms": 305295,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 78,
+          "sampled_ms": 306318,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 79,
+          "sampled_ms": 307341,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 80,
+          "sampled_ms": 308364,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 81,
+          "sampled_ms": 309388,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 82,
+          "sampled_ms": 310411,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 83,
+          "sampled_ms": 311435,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 84,
+          "sampled_ms": 312458,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 85,
+          "sampled_ms": 313481,
+          "status": 4,
+          "ch0": 2,
+          "ch1": 1,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 86,
+          "sampled_ms": 314504,
+          "status": 4,
+          "ch0": 1,
+          "ch1": 1,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 87,
+          "sampled_ms": 315528,
+          "status": 4,
+          "ch0": 0,
+          "ch1": 1,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 1,
+          "sequence": 88,
+          "sampled_ms": 316550,
+          "status": 4,
+          "ch0": 0,
+          "ch1": 1,
+          "valid": true,
+          "saturated": false
+        }
+      ]
+    },
+    {
+      "name": "ambient-001",
+      "report_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\ambient-001\\session.json",
+      "report_sha256": "4ad868cb9601cea01a9e618b09d7cdae4729af567b4a23d057c903f0ff4bd9e8",
+      "report": {
+        "endpoint": {
+          "device": "COM5",
+          "vid": 6790,
+          "pid": 29987,
+          "location": "1-1.1",
+          "serial_number": "",
+          "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+          "disable_modem": 1
+        },
+        "seconds": 1,
+        "cancel_after": 0,
+        "events": [
+          {
+            "at": "2026-10-23T13:08:51.100329+00:00",
+            "command": "wf_pm status"
+          },
+          {
+            "at": "2026-10-23T13:08:51.762501+00:00",
+            "command": "wf_pm hold"
+          },
+          {
+            "at": "2026-10-23T13:08:52.406828+00:00",
+            "command": "wf_light status"
+          },
+          {
+            "at": "2026-10-23T13:08:53.031316+00:00",
+            "command": "wf_steps status"
+          },
+          {
+            "at": "2026-10-23T13:08:53.668591+00:00",
+            "command": "wf_wrist status"
+          },
+          {
+            "at": "2026-10-23T13:08:54.325293+00:00",
+            "command": "wf_light start 1"
+          },
+          {
+            "at": "2026-10-23T13:08:58.357903+00:00",
+            "command": "wf_light status"
+          },
+          {
+            "at": "2026-10-23T13:08:58.999277+00:00",
+            "command": "wf_steps status"
+          },
+          {
+            "at": "2026-10-23T13:08:59.613205+00:00",
+            "command": "wf_wrist status"
+          },
+          {
+            "at": "2026-10-23T13:09:00.234676+00:00",
+            "command": "wf_pm allow"
+          }
+        ],
+        "error": null,
+        "cleanup_verified": true,
+        "expected_session": 2,
+        "reboot_detected": false,
+        "release_verified": true,
+        "closed": "2026-10-23T13:09:01.286412+00:00"
+      },
+      "replies": [
+        {
+          "command": "wf_pm status",
+          "bytes": 252,
+          "sha256": "8a0c4b3f7058ea7630522ed45f0bcd29a2a32fdf615c8e12f1e6ea13104bee24"
+        },
+        {
+          "command": "wf_pm hold",
+          "bytes": 252,
+          "sha256": "e83acfaa726335154cbf8dbede8ba65ae478f0cbadf627ba1c49ab4bf25c59b6"
+        },
+        {
+          "command": "wf_light status",
+          "bytes": 514,
+          "sha256": "305a2f85ad29e59f9c580b84f94031549ab9ff2ca1bc17d206b995df3330c1ea"
+        },
+        {
+          "command": "wf_steps status",
+          "bytes": 1135,
+          "sha256": "4d9fd5552d68db112984008bb723d58849529881a50118a28a4084e471b0cc14"
+        },
+        {
+          "command": "wf_wrist status",
+          "bytes": 2370,
+          "sha256": "f00ca7bffed5be5fa26121e4f03dff4bda5ce66d2633589b891a300ed5ce546f"
+        },
+        {
+          "command": "wf_light start 1",
+          "bytes": 288,
+          "sha256": "6a4aa39f17f20ae276ca1d617b819c883c7345bd1f5bb80b1a2e30e9fa5eb106"
+        },
+        {
+          "command": "wf_light status",
+          "bytes": 481,
+          "sha256": "b7532d55e65a3111d38600eb418dec2000e041a75d85c1afeca25137a7d1c212"
+        },
+        {
+          "command": "wf_steps status",
+          "bytes": 1135,
+          "sha256": "fb9ff471df593d68f9081c5fff305c88dd8b806bafe45a6850fd58e106377d56"
+        },
+        {
+          "command": "wf_wrist status",
+          "bytes": 2370,
+          "sha256": "f00ca7bffed5be5fa26121e4f03dff4bda5ce66d2633589b891a300ed5ce546f"
+        },
+        {
+          "command": "wf_pm allow",
+          "bytes": 252,
+          "sha256": "940fc3db91e944d56f6afb4fde90374873e0710bdd0cb15c4dff6c780a5f247a"
+        }
+      ],
+      "uart_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\ambient-001\\uart.bin",
+      "uart_bytes": 9145,
+      "uart_sha256": "c8b9838d0754e6d5be3b344b3820a761bd86977ec1490ddadbd0923ca95e5509",
+      "frames": [
+        {
+          "session": 2,
+          "sequence": 1,
+          "sampled_ms": 495327,
+          "status": 4,
+          "ch0": 7,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        }
+      ]
+    },
+    {
+      "name": "shade-001",
+      "report_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\shade-001\\session.json",
+      "report_sha256": "08086487cd33a33a05a5d2ab0171bc02a78b2d8e2cdd2e512ed517f8c7d1b9e4",
+      "report": {
+        "endpoint": {
+          "device": "COM5",
+          "vid": 6790,
+          "pid": 29987,
+          "location": "1-1.1",
+          "serial_number": "",
+          "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+          "disable_modem": 1
+        },
+        "seconds": 1,
+        "cancel_after": 0,
+        "events": [
+          {
+            "at": "2026-10-23T13:10:17.246252+00:00",
+            "command": "wf_pm status"
+          },
+          {
+            "at": "2026-10-23T13:10:17.898820+00:00",
+            "command": "wf_pm hold"
+          },
+          {
+            "at": "2026-10-23T13:10:18.570025+00:00",
+            "command": "wf_light status"
+          },
+          {
+            "at": "2026-10-23T13:10:19.209853+00:00",
+            "command": "wf_steps status"
+          },
+          {
+            "at": "2026-10-23T13:10:19.859151+00:00",
+            "command": "wf_wrist status"
+          },
+          {
+            "at": "2026-10-23T13:10:20.476814+00:00",
+            "command": "wf_light start 1"
+          },
+          {
+            "at": "2026-10-23T13:10:24.546566+00:00",
+            "command": "wf_light status"
+          },
+          {
+            "at": "2026-10-23T13:10:25.185436+00:00",
+            "command": "wf_steps status"
+          },
+          {
+            "at": "2026-10-23T13:10:25.790758+00:00",
+            "command": "wf_wrist status"
+          },
+          {
+            "at": "2026-10-23T13:10:26.424401+00:00",
+            "command": "wf_pm allow"
+          }
+        ],
+        "error": null,
+        "cleanup_verified": true,
+        "expected_session": 3,
+        "reboot_detected": false,
+        "release_verified": true,
+        "closed": "2026-10-23T13:10:27.457375+00:00"
+      },
+      "replies": [
+        {
+          "command": "wf_pm status",
+          "bytes": 281,
+          "sha256": "e1523b92230a0e3fd79c4185ebd073a3338c0b5c5a52405bf5a479a65dc8dd49"
+        },
+        {
+          "command": "wf_pm hold",
+          "bytes": 323,
+          "sha256": "50f5361637fe9f3065413998bfbd22218b767798313d43bded6d5ff1d9651bd5"
+        },
+        {
+          "command": "wf_light status",
+          "bytes": 482,
+          "sha256": "abacd0745fc926c394435e6883f2a8a86d7d7e4b3083e701dd5eb73b134d027b"
+        },
+        {
+          "command": "wf_steps status",
+          "bytes": 1135,
+          "sha256": "d770956d15fb51c9816c39b2f93ed585a5d9f3a854e9dc210f82c16e27dff37e"
+        },
+        {
+          "command": "wf_wrist status",
+          "bytes": 2370,
+          "sha256": "f00ca7bffed5be5fa26121e4f03dff4bda5ce66d2633589b891a300ed5ce546f"
+        },
+        {
+          "command": "wf_light start 1",
+          "bytes": 288,
+          "sha256": "7400126ebc901b43d5a4ee5b170d1f685ba20ca8d126fe47566ebdfa0e82673d"
+        },
+        {
+          "command": "wf_light status",
+          "bytes": 481,
+          "sha256": "f5d6434ef32361a2d2bb7849d012080515593ad549d3e37669de2e18a6fde074"
+        },
+        {
+          "command": "wf_steps status",
+          "bytes": 1135,
+          "sha256": "8fbfe12865fa7c283e1be4a1d53911df112c9defd3a823baf0f8008da00f8d4a"
+        },
+        {
+          "command": "wf_wrist status",
+          "bytes": 2370,
+          "sha256": "f00ca7bffed5be5fa26121e4f03dff4bda5ce66d2633589b891a300ed5ce546f"
+        },
+        {
+          "command": "wf_pm allow",
+          "bytes": 252,
+          "sha256": "c501186b9d46d6f5a6c8454af0ebd7feb5475aebfd05105a739bfab10439aa6b"
+        }
+      ],
+      "uart_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\shade-001\\uart.bin",
+      "uart_bytes": 9284,
+      "uart_sha256": "c053322d1073225e95a76206dd87de94899e82155041a132f6daf023c2ffac2c",
+      "frames": [
+        {
+          "session": 3,
+          "sequence": 1,
+          "sampled_ms": 581471,
+          "status": 4,
+          "ch0": 1,
+          "ch1": 0,
+          "valid": true,
+          "saturated": false
+        }
+      ]
+    },
+    {
+      "name": "bright-001",
+      "report_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\bright-001\\session.json",
+      "report_sha256": "8c16ca8cc6b1d0a4847159a1f62cbcd8218eb5c44067a8fdc3d4cd10f19b83fb",
+      "report": {
+        "endpoint": {
+          "device": "COM5",
+          "vid": 6790,
+          "pid": 29987,
+          "location": "1-1.1",
+          "serial_number": "",
+          "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+          "disable_modem": 1
+        },
+        "seconds": 1,
+        "cancel_after": 0,
+        "events": [
+          {
+            "at": "2026-10-23T13:11:37.307129+00:00",
+            "command": "wf_pm status"
+          },
+          {
+            "at": "2026-10-23T13:11:37.955967+00:00",
+            "command": "wf_pm hold"
+          },
+          {
+            "at": "2026-10-23T13:11:38.559678+00:00",
+            "command": "wf_light status"
+          },
+          {
+            "at": "2026-10-23T13:11:39.162809+00:00",
+            "command": "wf_steps status"
+          },
+          {
+            "at": "2026-10-23T13:11:39.773826+00:00",
+            "command": "wf_wrist status"
+          },
+          {
+            "at": "2026-10-23T13:11:40.406614+00:00",
+            "command": "wf_light start 1"
+          },
+          {
+            "at": "2026-10-23T13:11:44.570867+00:00",
+            "command": "wf_light status"
+          },
+          {
+            "at": "2026-10-23T13:11:45.225109+00:00",
+            "command": "wf_steps status"
+          },
+          {
+            "at": "2026-10-23T13:11:45.826464+00:00",
+            "command": "wf_wrist status"
+          },
+          {
+            "at": "2026-10-23T13:11:46.444078+00:00",
+            "command": "wf_pm allow"
+          }
+        ],
+        "error": null,
+        "cleanup_verified": true,
+        "expected_session": 4,
+        "reboot_detected": false,
+        "release_verified": true,
+        "closed": "2026-10-23T13:11:47.467476+00:00"
+      },
+      "replies": [
+        {
+          "command": "wf_pm status",
+          "bytes": 281,
+          "sha256": "eff25f108261190e9a232410074ed9dc32379808ef538282cf3191d529ef64bc"
+        },
+        {
+          "command": "wf_pm hold",
+          "bytes": 252,
+          "sha256": "bcb9bf8f5b1d9f2dae69059d86b1de4694674096149cea4d190253710143e5d5"
+        },
+        {
+          "command": "wf_light status",
+          "bytes": 482,
+          "sha256": "c3f8beea54922780b067b5f46e2d59541d5e96ddb5e08110f2bbe49507785e8a"
+        },
+        {
+          "command": "wf_steps status",
+          "bytes": 1135,
+          "sha256": "0a2039acd451fabc8d75c234a8e6858b371d3854a82d1607ff62d1741a809425"
+        },
+        {
+          "command": "wf_wrist status",
+          "bytes": 2370,
+          "sha256": "f00ca7bffed5be5fa26121e4f03dff4bda5ce66d2633589b891a300ed5ce546f"
+        },
+        {
+          "command": "wf_light start 1",
+          "bytes": 360,
+          "sha256": "643b59d107c01ba8a8e75dc43f1336ee7e244c02bb805da19e3ac9ba0a1e3b3d"
+        },
+        {
+          "command": "wf_light status",
+          "bytes": 486,
+          "sha256": "522676eba7adff3dc13493b52c4cae2a1b965f08e243555591764ce9847be497"
+        },
+        {
+          "command": "wf_steps status",
+          "bytes": 1135,
+          "sha256": "2164cbfb7853e6a733993d934dc710be0d5f6fea2be182002de33d236f8a807f"
+        },
+        {
+          "command": "wf_wrist status",
+          "bytes": 2370,
+          "sha256": "f00ca7bffed5be5fa26121e4f03dff4bda5ce66d2633589b891a300ed5ce546f"
+        },
+        {
+          "command": "wf_pm allow",
+          "bytes": 252,
+          "sha256": "a3a8d2c2358e20afe5e8a21372c1ba1ed7bf8f0d4ce2ec0c2e3803a41846ad47"
+        }
+      ],
+      "uart_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\bright-001\\uart.bin",
+      "uart_bytes": 9223,
+      "uart_sha256": "f98c1db631dd3b5b98dced165cb38e630d618ed9cb2669f2c41803b7b01dfc05",
+      "frames": [
+        {
+          "session": 4,
+          "sequence": 1,
+          "sampled_ms": 661383,
+          "status": 4,
+          "ch0": 1347,
+          "ch1": 759,
+          "valid": true,
+          "saturated": false
+        }
+      ]
+    },
+    {
+      "name": "recovery-stop-001",
+      "report_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\recovery-stop-001\\session.json",
+      "report_sha256": "1b93f90e310f7409486fa624448c9ecb8a984ae7c8b3cddeb74f3b470370d8bc",
+      "report": {
+        "endpoint": {
+          "device": "COM5",
+          "vid": 6790,
+          "pid": 29987,
+          "location": "1-1.1",
+          "serial_number": "",
+          "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+          "disable_modem": 1
+        },
+        "seconds": 10,
+        "cancel_after": 2,
+        "events": [
+          {
+            "at": "2026-10-23T13:13:17.551029+00:00",
+            "command": "wf_pm status"
+          },
+          {
+            "at": "2026-10-23T13:13:18.187130+00:00",
+            "command": "wf_pm hold"
+          },
+          {
+            "at": "2026-10-23T13:13:18.849004+00:00",
+            "command": "wf_light status"
+          },
+          {
+            "at": "2026-10-23T13:13:19.503561+00:00",
+            "command": "wf_steps status"
+          },
+          {
+            "at": "2026-10-23T13:13:20.144801+00:00",
+            "command": "wf_wrist status"
+          },
+          {
+            "at": "2026-10-23T13:13:20.759700+00:00",
+            "command": "wf_light start 10"
+          },
+          {
+            "at": "2026-10-23T13:13:22.832170+00:00",
+            "command": "wf_light status"
+          },
+          {
+            "at": "2026-10-23T13:13:23.468994+00:00",
+            "command": "wf_light stop"
+          },
+          {
+            "at": "2026-10-23T13:13:24.470415+00:00",
+            "command": "wf_light status"
+          },
+          {
+            "at": "2026-10-23T13:13:25.078497+00:00",
+            "command": "wf_steps status"
+          },
+          {
+            "at": "2026-10-23T13:13:25.729578+00:00",
+            "command": "wf_wrist status"
+          },
+          {
+            "at": "2026-10-23T13:13:26.351680+00:00",
+            "command": "wf_pm allow"
+          }
+        ],
+        "error": null,
+        "cleanup_verified": true,
+        "expected_session": 5,
+        "reboot_detected": false,
+        "release_verified": true,
+        "closed": "2026-10-23T13:13:27.406057+00:00"
+      },
+      "replies": [
+        {
+          "command": "wf_pm status",
+          "bytes": 281,
+          "sha256": "41cc527f1536f1578d8d73f09b06e57611c95619d331a6d27407f9bdb5d5b2a9"
+        },
+        {
+          "command": "wf_pm hold",
+          "bytes": 252,
+          "sha256": "611a89eb90c46d37e209b93b7eebd66653546275f31377875ee2a31c0ca810fc"
+        },
+        {
+          "command": "wf_light status",
+          "bytes": 487,
+          "sha256": "29adf0d48be408c382507d11958b414507c6eecc099c666bba5b8a6aeb87ddde"
+        },
+        {
+          "command": "wf_steps status",
+          "bytes": 1135,
+          "sha256": "03d088fb90be55a2bc750edd6188ea639f15281a20bf200c95afda5e64da9d96"
+        },
+        {
+          "command": "wf_wrist status",
+          "bytes": 2370,
+          "sha256": "f00ca7bffed5be5fa26121e4f03dff4bda5ce66d2633589b891a300ed5ce546f"
+        },
+        {
+          "command": "wf_light start 10",
+          "bytes": 288,
+          "sha256": "56c43e5579be6935ebc9a5d79300c63c8a4befed7cfa232b6a861479c18b721d"
+        },
+        {
+          "command": "wf_light status",
+          "bytes": 634,
+          "sha256": "6fa9449287d6810b7f940a49ddd1164e3715a4040aabb7738b54f141b0bb9c98"
+        },
+        {
+          "command": "wf_light stop",
+          "bytes": 138,
+          "sha256": "402bbe92e632db7fb3c592002b0b4fec7f84ff05efec5ac9d816b9459ec9166b"
+        },
+        {
+          "command": "wf_light status",
+          "bytes": 482,
+          "sha256": "f2540b56a37d3fbe0e5454419bdddb65516fb71db6dbb62f14a23701c92c82f0"
+        },
+        {
+          "command": "wf_steps status",
+          "bytes": 1611,
+          "sha256": "e33c46bfe35980ac3e933c2876a64fc9c5558ca5304a00f57b62da4225e84417"
+        },
+        {
+          "command": "wf_wrist status",
+          "bytes": 2370,
+          "sha256": "f00ca7bffed5be5fa26121e4f03dff4bda5ce66d2633589b891a300ed5ce546f"
+        },
+        {
+          "command": "wf_pm allow",
+          "bytes": 252,
+          "sha256": "a28467fd049c21b20de1eeff867aead29aa9da2f0d332a83c814c0319f6e1139"
+        }
+      ],
+      "uart_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\recovery-stop-001\\uart.bin",
+      "uart_bytes": 10429,
+      "uart_sha256": "6f5cdf118f8ba0db22f54268101fc8f301e648a54c3d1a924d973b3cd3d2b321",
+      "frames": [
+        {
+          "session": 5,
+          "sequence": 1,
+          "sampled_ms": 761723,
+          "status": 4,
+          "ch0": 8,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 5,
+          "sequence": 2,
+          "sampled_ms": 762747,
+          "status": 4,
+          "ch0": 8,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        },
+        {
+          "session": 5,
+          "sequence": 3,
+          "sampled_ms": 763770,
+          "status": 4,
+          "ch0": 8,
+          "ch1": 6,
+          "valid": true,
+          "saturated": false
+        }
+      ]
+    },
+    {
+      "name": "final-001",
+      "report_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\final-001\\session.json",
+      "report_sha256": "87b6315f450ae3f8a1a62cb9f2febb6a02ac2bb56549f70cc11134555fe667ac",
+      "report": {
+        "endpoint": {
+          "device": "COM5",
+          "vid": 6790,
+          "pid": 29987,
+          "location": "1-1.1",
+          "serial_number": "",
+          "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+          "disable_modem": 1
+        },
+        "mode": "snapshot",
+        "events": [
+          {
+            "at": "2026-10-23T13:13:28.055268+00:00",
+            "command": "wf_pm status"
+          },
+          {
+            "at": "2026-10-23T13:13:28.763361+00:00",
+            "command": "wf_pm hold"
+          },
+          {
+            "at": "2026-10-23T13:13:29.476325+00:00",
+            "command": "show_date"
+          },
+          {
+            "at": "2026-10-23T13:13:30.238108+00:00",
+            "command": "wf_steps status"
+          },
+          {
+            "at": "2026-10-23T13:13:30.995552+00:00",
+            "command": "wf_wrist status"
+          },
+          {
+            "at": "2026-10-23T13:13:31.728962+00:00",
+            "command": "wf_battery status"
+          },
+          {
+            "at": "2026-10-23T13:13:32.458146+00:00",
+            "command": "wf_ui status"
+          },
+          {
+            "at": "2026-10-23T13:13:33.189508+00:00",
+            "command": "wf_ble radio"
+          },
+          {
+            "at": "2026-10-23T13:13:33.898191+00:00",
+            "command": "wf_aod status"
+          },
+          {
+            "at": "2026-10-23T13:13:34.619406+00:00",
+            "command": "list_thread"
+          },
+          {
+            "at": "2026-10-23T13:13:35.343090+00:00",
+            "command": "list_mem"
+          },
+          {
+            "at": "2026-10-23T13:13:36.046888+00:00",
+            "command": "wf_pm allow"
+          }
+        ],
+        "error": null,
+        "release_verified": true,
+        "closed": "2026-10-23T13:13:37.099084+00:00"
+      },
+      "replies": [
+        {
+          "command": "wf_pm status",
+          "bytes": 252,
+          "sha256": "5b5c9d213b525ad1c287af0934eb0efbcdb7706bd48c1c3ff165e00c552e15be"
+        },
+        {
+          "command": "wf_pm hold",
+          "bytes": 252,
+          "sha256": "06ad093cdfb96a0787c6f4738440c2a4051accaa9b839a174932deb949de83de"
+        },
+        {
+          "command": "show_date",
+          "bytes": 50,
+          "sha256": "e5ddce83d890a32adc722dcd53335d54a7c72281a2280aa19de4f73eb6856fb5"
+        },
+        {
+          "command": "wf_steps status",
+          "bytes": 1135,
+          "sha256": "4673dee0483ba44610f9b50dc4a3e1a4eaafc424118d1ec5ccc375ec037a18e8"
+        },
+        {
+          "command": "wf_wrist status",
+          "bytes": 2598,
+          "sha256": "e98cda18baec7197e323202717c8a27f1eb2893c5fc6981cc2f7f7bcdf438fab"
+        },
+        {
+          "command": "wf_battery status",
+          "bytes": 156,
+          "sha256": "38d9b9f98941e5f62286645f8dc98da6557c499fa88586bbc50becd6e62aa084"
+        },
+        {
+          "command": "wf_ui status",
+          "bytes": 391,
+          "sha256": "5650ef389751476afd9d70801665fc250ef126a83cad00aa65d7c760d23fe7af"
+        },
+        {
+          "command": "wf_ble radio",
+          "bytes": 147,
+          "sha256": "8c3970989588cab73c58b62d6ee89901b798b03866f9907f1e47290b4de5f6ba"
+        },
+        {
+          "command": "wf_aod status",
+          "bytes": 332,
+          "sha256": "82eec698ae0902d2643259f272eaaf25a8cb573b26db841574db1d8915631c8b"
+        },
+        {
+          "command": "list_thread",
+          "bytes": 1464,
+          "sha256": "97cb73862f94055946caafaec43646e307c242a3987005ba2f6e229a828776b3"
+        },
+        {
+          "command": "list_mem",
+          "bytes": 99,
+          "sha256": "449313376d485522479640a535ef04b32de667fce2a782543e7e3d04d6796bf2"
+        },
+        {
+          "command": "wf_pm allow",
+          "bytes": 252,
+          "sha256": "bebe57580dfe3b74021c764b16d6d9543b0be1c60df536653c2676ae41ca9c9b"
+        }
+      ],
+      "uart_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\final-001\\uart.bin",
+      "uart_bytes": 7128,
+      "uart_sha256": "2d986045f93cb0300a5341d16f4b980f412293e1a0de8a3be65d23b574af8ee6",
+      "frames": []
+    }
+  ],
+  "operator_observations": [
+    {
+      "scope": "conditions",
+      "result": "Operator confirmed same board/screen, original battery plus PC USB, loose wires secured and present; authorized diagnostic download and necessary RTC synchronization."
+    },
+    {
+      "scope": "startup",
+      "result": "Operator confirmed display/touch/time normal, temporary five-minute awake enabled."
+    },
+    {
+      "scope": "initial 90-second window",
+      "result": "Operator completed actions but reported timing was hard to control. Keep UART identity/fresh frames/automatic restore evidence, do not assign samples to physical light conditions. Superseded for light-response acceptance by separately prepared captures."
+    },
+    {
+      "scope": "ambient-001",
+      "result": "Operator confirmed board flat, hands and phone light removed, environment light held before triggering one-second capture. Session2 accepted sample CH0=7 CH1=6."
+    },
+    {
+      "scope": "shade-001",
+      "result": "Operator confirmed palm shading held before triggering one-second capture. Session3 accepted sample CH0=1 CH1=0."
+    },
+    {
+      "scope": "bright-001",
+      "result": "Operator confirmed phone light directed toward ALS and held before triggering one-second capture. Session4 accepted sample CH0=1347 CH1=759; phone light is not a lux reference."
+    },
+    {
+      "scope": "recovery-stop-001",
+      "result": "Operator confirmed phone light removed and environment light restored before capture. Session5 accepted three frames CH0=8 CH1=6, then script issued explicit stop on its ten-second session after approximately two seconds plus response overhead."
+    },
+    {
+      "scope": "operator closeout after final snapshot",
+      "result": "Operator: 常亮已关闭，其余正常. Display/touch/time normal, current AOD/wrist settings retained. This is later than final-001; no further serial I/O."
+    }
+  ],
+  "final_snapshot": {
+    "rtc_local": "2026-10-23 21:13:29 +08:00",
+    "steps_valid": true,
+    "steps_total": 0,
+    "imu_io_errors": 0,
+    "checkpoint_generation": 88,
+    "checkpoint_dirty": false,
+    "wrist_requested": false,
+    "wrist_armed": false,
+    "wrist_owned": false,
+    "light_session": 5,
+    "light_owned": false,
+    "light_restored": true,
+    "light_errors": 0,
+    "main_stack_bytes": 16384,
+    "main_stack_watermark_percent": 53,
+    "heap_total": 271484,
+    "heap_used": 97756,
+    "heap_peak": 105364,
+    "aod_panel_owned": true,
+    "aod_panel_failed": false,
+    "pm_allow": true,
+    "serial_closed": "2026-10-23T13:13:37.099084+00:00",
+    "note": "LTR and AOD ownership are distinct; final AOD retained its valid panel. Operator later confirmed awake off/display-touch-time normal; no further UART."
+  },
+  "workspace_cleanup": {
+    "archive_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\worktree-archives\\20261023\\aod-stack-regression-complete.zip",
+    "archive_sha256": "7f4084e739a31af8e3fb6b56ec148cf84c20422cb0fc0b17d6a2cfb262dd1aaf",
+    "archive_bytes": 374253484,
+    "preserved_files": 5946,
+    "preserved_bytes": 1421136404,
+    "manifest_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\worktree-archives\\20261023\\aod-stack-regression-manifest.json",
+    "manifest_sha256": "b5674275c3ea7fd16b0a745ff5bc384d78f50d30a70459aae12573b92f4a78f7",
+    "cleanup": {
+      "at": "2026-10-23T12:46:55.941091+00:00",
+      "removed_worktree": "C:\\Users\\13984\\.codex\\worktrees\\aod-stack-regression\\wristflow",
+      "remaining_worktrees": "worktree D:/MY_Desk/project/wristflow\nHEAD de99c5a8d919bac8819b2aef683f2401fbe45c65\nbranch refs/heads/codex/ltr303-diagnostic\n\n",
+      "archive_sha256": "7f4084e739a31af8e3fb6b56ec148cf84c20422cb0fc0b17d6a2cfb262dd1aaf",
+      "files_preserved": 5946,
+      "bytes_preserved": 1421136404,
+      "active_branch": "codex/ltr303-diagnostic"
+    },
+    "note": "Old paths kept inside historical evidence; map old relative path to wristflow/<relative path> in ZIP. Does not repair prior incomplete picker BIN archive."
+  },
+  "reviews": [
+    {
+      "task": "/root/ltr303_datasheet",
+      "requested_model": "gpt-6.1-sol",
+      "requested_effort": "medium",
+      "scope": "Datasheet and pure state-machine read-only review"
+    },
+    {
+      "task": "/root/ltr_worker_design",
+      "requested_model": "gpt-6.1-sol",
+      "requested_effort": "medium",
+      "scope": "Shared worker/PM/cancellation and collector session/boot ownership; evidence closeout"
+    }
+  ],
+  "files_local": [
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\ambient-001.log",
+      "bytes": 9625,
+      "sha256": "72673e0061c5fdebe20f5b19aa2f23466c6c1d6b14d76096ab2250256f231bbb"
+    },
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\before-001.log",
+      "bytes": 5299,
+      "sha256": "9bad84efd2bd50edd88c47730cf9f905761ebf58701a66a791994fe218436492"
+    },
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\bright-001.log",
+      "bytes": 9704,
+      "sha256": "62066e8ff58f2296788bac417547a3cf01e10d5ebb4b3ea8c9767f367458bad7"
+    },
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\dry-run.log",
+      "bytes": 452,
+      "sha256": "a577fecd20b2f0311400226b044ba110fc937532a859a4fac5b31da9d29a0b68"
+    },
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\execute_flash.py",
+      "bytes": 1941,
+      "sha256": "86a85aa80c559318cf7627abe82e6156a09abb3b9930ed3ac2bf7597a0fbf3a4"
+    },
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\final-001.log",
+      "bytes": 7522,
+      "sha256": "303358d37353546610b2048f90c8f26c390495ebfa40cfe28c023c6a6c5361e4"
+    },
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\final-review.diff",
+      "bytes": 24455,
+      "sha256": "2f7d2f53d8c282367f7d1b6f2692efe7ad1924b0f8822dc8d60abd1292078521"
+    },
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\flash-attempt.json",
+      "bytes": 877,
+      "sha256": "8adec25b2b03769dd315a86be4ab572fabfccaeceb48b0316850aed37cbbf73c"
+    },
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\flash-complete.json",
+      "bytes": 947,
+      "sha256": "447e153e4c39f936a1a8e0526923f02cdd9c2311173a4b49b80c4938b166fae4"
+    },
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\flash.log",
+      "bytes": 901,
+      "sha256": "215829e209db40cc9175224dd58252c86840eb1320f4302d9d8a9df77d73e75d"
+    },
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\light-001.log",
+      "bytes": 17987,
+      "sha256": "27e27b5be6a7c080d1e2784869eaf49ef0be3d078fbf3dcf7ff5ce1f3a31fe04"
+    },
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\light_window.py",
+      "bytes": 6132,
+      "sha256": "44f52843cbaeb533e7a7e7d7b055c26d1b236ee92d297da5655d075cdc1d0e8e"
+    },
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\operator-observations.json",
+      "bytes": 1704,
+      "sha256": "03d23a0e0e9ab2d211494821d8f3e6f82c0fd28c784f0ef41b540b60c25d09ba"
+    },
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\preflight.json",
+      "bytes": 580,
+      "sha256": "6bca0faa04158bdada613f070574e325625be92514bf3db8b82365778c05aad6"
+    },
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\primary-host-build.log",
+      "bytes": 857,
+      "sha256": "ea7939cbd9261dd907d7ae13670e9a2ab0269781f6151883450553baa7a8b755"
+    },
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\primary-host-test.log",
+      "bytes": 347,
+      "sha256": "e868c6b9edc5ad7b4fc2e445a77cf9166b8d74bfc4d60b3ec7c53919b7d1bff9"
+    },
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\primary-previous-product-artifacts.zip",
+      "bytes": 20944898,
+      "sha256": "21246d1235bce0616fe2776f0af446d5fb02bb26e1db837fbbc0ddd07b7449e9"
+    },
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\primary-product-build.log",
+      "bytes": 33084,
+      "sha256": "64212a18667918be24f3cd834e177d843028a14025a8af2c59855afe07becb82"
+    },
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\recovery-stop-001.log",
+      "bytes": 10958,
+      "sha256": "50ffc96b48f56af45b3e5ddb6283952e4ac4c5ea1fd278cad80dd329ea83c477"
+    },
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\shade-001.log",
+      "bytes": 9766,
+      "sha256": "7379b8fdd1600f4cdc289df846a6beae2f67671a02cd243eaac60a662ca9c952"
+    },
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\startup-001.log",
+      "bytes": 13012,
+      "sha256": "a1ebcd0273f1803d66488598c3ef76e487043ec588cbae313ca04581b256e1b0"
+    },
+    {
+      "path_local": "D:\\MY_Desk\\project\\wristflow\\artifacts\\ltr303-20261023\\write_evidence.py",
+      "bytes": 9632,
+      "sha256": "e8b9ecf9afce4cfda7cf0f24d4f92cfa4f8dc67102d15cfe9b7dd0e92bcb8b45"
+    }
+  ],
+  "limitations": [
+    "Raw light-response observations only: no verified lux conversion or calibrated photometric accuracy",
+    "Physical action attribution uses operator confirmations, not an instrument trigger; phone flashlight is not a calibrated reference",
+    "No automatic brightness/UI integration, long-run calibration, current, energy, SOC or physical DEEP evidence",
+    "Saved wrist setting remained off; no new positive wrist-gesture or wear/recognition-rate acceptance",
+    "Native/daily steps stayed zero; no nonzero counter retention, walking accuracy or activity recognition acceptance",
+    "I2C/Flash synchronous physical calls cannot be interrupted at the logical deadline; recovery failures only injected on host",
+    "No cryptographic on-device BIN attestation; binding uses exact build/flash images plus host endpoint and operator continuity"
+  ]
+}
