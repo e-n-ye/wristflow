@@ -1,0 +1,12 @@
+<component>
+    <styles>
+        <style name="switch_track" bg_color="#fg_muted" bg_opa="100%" radius="18" border_width="0" pad_all="4" />
+        <style name="switch_on" bg_color="#accent_blue" bg_opa="100%" radius="18" />
+        <style name="switch_knob" bg_color="#fg_primary" bg_opa="100%" radius="14" pad_all="0" />
+    </styles>
+    <view extends="lv_switch" x="-20" align="right_mid" width="64" height="36">
+        <style name="switch_track" />
+        <style name="switch_on" selector="indicator|checked" />
+        <style name="switch_knob" selector="knob" />
+    </view>
+</component>

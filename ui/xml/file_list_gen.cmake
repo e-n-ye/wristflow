@@ -48,6 +48,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/components/settings_entry_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/settings_note_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/settings_row_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/settings_switch_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/status_toast_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_full_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_grid_gen.c

@@ -24,6 +24,14 @@ typedef uint32_t (*wristflow_vibration_preview_cb_t)(wristflow_vibration_mode_t,
 typedef void (*wristflow_vibration_cancel_cb_t)(uint32_t request, void *);
 typedef uint32_t (*wristflow_reminder_vibration_cb_t)(wristflow_vibration_mode_t, void *);
 typedef wristflow_input_observation_t (*wristflow_input_observation_cb_t)(void *);
+/* UI-thread cache/query and command acceptance only; callbacks must not do I/O.
+ * Absent callbacks keep automatic brightness unavailable. The provider owns
+ * the mode and persistence; the manual brightness preference stays separate. */
+typedef struct {
+    bool (*automatic)(void *context);
+    bool (*request)(bool automatic, void *context);
+    void *context;
+} wristflow_brightness_mode_port_t;
 
 typedef struct {
     const wristflow_watchface_t *watchface;
@@ -108,6 +116,10 @@ void wristflow_ui_shell_rebuild_components(wristflow_ui_shell_t *shell, unsigned
 bool wristflow_ui_shell_finish_edit(wristflow_ui_shell_t *shell, unsigned selected);
 const wristflow_watch_snapshot_t *wristflow_ui_shell_snapshot(const wristflow_ui_shell_t *shell);
 bool wristflow_ui_shell_configure(wristflow_ui_shell_t *shell, const wristflow_settings_t *settings);
+void wristflow_ui_shell_bind_brightness_mode(wristflow_ui_shell_t *, const wristflow_brightness_mode_port_t *);
+bool wristflow_ui_shell_has_auto_brightness(const wristflow_ui_shell_t *);
+bool wristflow_ui_shell_auto_brightness(const wristflow_ui_shell_t *);
+bool wristflow_ui_shell_request_auto_brightness(wristflow_ui_shell_t *, bool automatic);
 /* Callbacks enqueue/cancel only. Binding/configuration never starts a preview.
  * Explicit changed selection on its visible page is the sole preview trigger. */
 void wristflow_ui_shell_bind_vibration_preview(wristflow_ui_shell_t *,

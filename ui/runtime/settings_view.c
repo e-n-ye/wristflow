@@ -162,6 +162,13 @@ static void wrist_changed(lv_event_t *event)
     wristflow_ui_shell_configure(shell, &settings);
 }
 
+static void auto_brightness_changed(lv_event_t *event)
+{
+    wristflow_ui_shell_t *shell = lv_event_get_user_data(event);
+    bool automatic = lv_obj_has_state(lv_event_get_current_target_obj(event), LV_STATE_CHECKED);
+    wristflow_ui_shell_request_auto_brightness(shell, automatic);
+}
+
 static void notification_center(lv_event_t *event)
 { wristflow_ui_shell_open_notification(lv_event_get_user_data(event), false, 0); }
 
@@ -288,9 +295,18 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
         break;
     case WRISTFLOW_SURFACE_BRIGHTNESS_SETTINGS:
         title = "屏幕亮度";
-        unavailable(list, "auto_brightness", "自动亮度", "暂未开放");
-        settings_note_create(list, "自动亮度功能待接入。");
-        route(row(list, "custom_brightness", "自定义亮度", "60%"), WRISTFLOW_SURFACE_BRIGHTNESS_ADJUST, shell);
+        obj = settings_choice_create(list, "自动亮度");
+        lv_obj_set_name(obj, "auto_brightness");
+        lv_obj_add_event_cb(obj, long_press_row, LV_EVENT_SHORT_CLICKED, shell);
+        obj = settings_switch_create(obj);
+        lv_obj_set_name(obj, "row_switch");
+        lv_obj_add_event_cb(obj, auto_brightness_changed, LV_EVENT_VALUE_CHANGED, shell);
+        obj = settings_choice_create(list, "自定义亮度");
+        lv_obj_set_name(obj, "custom_brightness");
+        route(obj, WRISTFLOW_SURFACE_BRIGHTNESS_ADJUST, shell);
+        obj = settings_note_create(list, "自动亮度暂不可用");
+        lv_obj_set_name(obj, "auto_brightness_unavailable");
+        lv_obj_set_style_text_font(obj, notification_22, 0);
         break;
     case WRISTFLOW_SURFACE_SCREEN_TIMEOUT:
     case WRISTFLOW_SURFACE_KEEP_AWAKE:
@@ -500,8 +516,13 @@ void wristflow_settings_refresh(lv_obj_t *root, wristflow_surface_t surface, wri
         else snprintf(value, sizeof value, "关闭");
         label(named(named(root, "display_keep"), "row_detail"), value);
     } else if (surface == WRISTFLOW_SURFACE_BRIGHTNESS_SETTINGS) {
-        snprintf(value, sizeof value, "%u%%", settings.brightness);
-        label(named(named(root, "custom_brightness"), "row_detail"), value);
+        bool available = wristflow_ui_shell_has_auto_brightness(shell);
+        bool automatic = wristflow_ui_shell_auto_brightness(shell);
+        lv_obj_set_state(named(root, "auto_brightness"), LV_STATE_DISABLED, !available);
+        lv_obj_set_state(named(root, "row_switch"), LV_STATE_DISABLED, !available);
+        lv_obj_set_state(named(root, "row_switch"), LV_STATE_CHECKED, automatic);
+        lv_obj_set_flag(named(root, "custom_brightness"), LV_OBJ_FLAG_HIDDEN, automatic);
+        lv_obj_set_flag(named(root, "auto_brightness_unavailable"), LV_OBJ_FLAG_HIDDEN, available);
     } else if (surface == WRISTFLOW_SURFACE_SCREEN_TIMEOUT || surface == WRISTFLOW_SURFACE_KEEP_AWAKE) {
         unsigned selected = surface == WRISTFLOW_SURFACE_SCREEN_TIMEOUT ? settings.screen_timeout : minutes;
         for (unsigned i = 0; i < 5; ++i) {

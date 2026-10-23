@@ -1,5 +1,13 @@
 # 可复现构建基线
 
+## 2026-10-23 亮度设置模板复用
+
+从`3e5125e`完成[亮度页面](PRODUCT-SETTINGS.md#brightness-page-20261023)，直接复用通用设置列表／单行模板，把旧设置行的开关抽为共同XML组件，原行API及默认隐藏保持；Product无自动模式提供者，未改采样、亮度策略或v11保存。最终相关Debug `ui_shell_lifecycle|ui_apps|settings_ui|endurance_ui|aod_ui`5/5（5.45秒）通过，不重复完整61项。主机GCC15.2.0／CMake4.2.3／Ninja1.13.2，命令与源码指纹见[证据](evidence/2026-10-23/brightness-page.json)。
+
+官方Editor2.0.1 Community导出／预览编译成功，预览与固件均LVGL9.4.0。初版独立页面／中间组件复用候选被最终整页模板复用替代，日志保留；初次编译成功后出现空预览／No draw buffer，Close Project停在加载页，正常退出并重开恢复，根因未知。最终完整页面通过真实LVGL快照核对，四种渲染与收拢前逐像素相同；不要求每个设置子页有独立XML。
+
+常规`pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example <product|ui_demo> -Jobs 4`仍调用官方SCons。最终Product`20261023-223227-596`／BIN8,021,812B／`2a06be47…`及UI Demo`20261023-223340-327`／7,762,576B／`c6dbfd2e…`均退出0，540／484源码与29／22产物逐字节重哈希一致。SDK／子模块锁定干净，Python3.13.15／SCons4.10.1／ArmGCC14.2.1不变。既有FinSH及链接syscall／entry／RWX／缺dfu提示保留，最终受影响主机编译无warning；新官方`settings_switch_gen.c`保留末尾空行，默认diff检查仅报告此项，排除`blank-at-eof`后通过。旧已下载LTR版29产物先保全到忽略目录ZIP并逐项核验，原始日志／截图／来源附录存主目录`artifacts/brightness-page-20261023/`。本轮无设备操作；UI Demo旧设置入口未迁移，编译不等于新页实机可用或自动亮度接通。
+
 ## 2026-10-23 LTR-303限时诊断
 
 用户要求开始LTR硬件跑通，先实现固定配置／双通道原值／有效性／停止恢复，复用已有传感器worker与I2C3，无UI或SDK改动。相关Debug `ltr303_diag|product_imu_diag`2/2通过；初版有限腕pending互斥断言失败已修复，手册合法旧RATE6／7误拒绝经复核修正。DATA部分失败释放锁、取消、恢复失败保留责任、总线准备失败及Flash耗时跨截止均定点覆盖，不重跑无关61项。
