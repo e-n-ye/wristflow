@@ -7,6 +7,10 @@
 #include <setjmp.h>
 
 static uint8_t user_regs[256], bank_regs[256], bank_b_regs[256], bank;
+static uint8_t light_regs[256];
+static unsigned light_reads, light_writes;
+static int light_failing_read = -1;
+static bool light_fail_restore, stop_light_in_prepare, duplicate_light_in_prepare;
 static uint16_t native_count;
 static rt_tick_t ticks;
 static unsigned irq, idle, reads, writes, rounds, deleted, detached;
@@ -47,6 +51,7 @@ static struct rt_i2c_bus_device fake_bus;
 static uint8_t step_records[2][WRISTFLOW_STEPS_RECORD_BYTES];
 static size_t step_lengths[2];
 static unsigned store_reads, store_writes;
+static unsigned store_delay_ms;
 static bool storage_available = true, fail_storage;
 static jmp_buf yield;
 rt_base_t rt_hw_interrupt_disable(void) { return irq++; }
@@ -75,6 +80,14 @@ int rt_thread_mdelay(rt_int32_t ms)
     if (retry_daily_in_prepare) {
         retry_daily_in_prepare=false;
         char *args[]={"wf_steps","retry"}; wf_steps(2,args);
+    }
+    if (stop_light_in_prepare) {
+        stop_light_in_prepare = false;
+        char *args[] = {"wf_light", "stop"}; wf_light(2, args);
+    }
+    if (duplicate_light_in_prepare) {
+        duplicate_light_in_prepare = false;
+        char *args[] = {"wf_light", "start", "120"}; wf_light(3, args);
     }
     return 0;
 }
@@ -133,6 +146,13 @@ size_t rt_i2c_mem_read(struct rt_i2c_bus_device *b, unsigned addr, unsigned reg,
     unsigned bits, void *out, size_t length)
 {
     assert(b == &fake_bus && bits == 8 && (length == 1 || (reg==0x28 && length==6)) && !irq && idle); ++reads;
+    if (addr == 0x29) {
+        assert(!bank && length == 1); ++light_reads;
+        if ((int)reg == light_failing_read) return 0;
+        *(uint8_t *)out = light_regs[reg];
+        if (reg == 0x8b) light_regs[0x8c] &= (uint8_t)~4U;
+        return 1;
+    }
     if (addr != 0x6a) return 0;
     if (length==6) { assert(!bank); memcpy(out,user_regs+reg,length); return length; }
     uint8_t value = bank == 0xa0 ? bank_b_regs[reg] : bank ? bank_regs[reg] : user_regs[reg];
@@ -146,7 +166,14 @@ size_t rt_i2c_mem_read(struct rt_i2c_bus_device *b, unsigned addr, unsigned reg,
 size_t rt_i2c_mem_write(struct rt_i2c_bus_device *b, unsigned addr, unsigned reg,
     unsigned bits, void *input, size_t length)
 {
-    assert(b == &fake_bus && addr == 0x6a && bits == 8 && length == 1 && !irq && idle); ++writes;
+    assert(b == &fake_bus && bits == 8 && length == 1 && !irq && idle); ++writes;
+    if (addr == 0x29) {
+        assert(!bank && (reg == 0x80 || reg == 0x85)); ++light_writes;
+        uint8_t value = *(uint8_t *)input;
+        if (light_fail_restore && reg == 0x80 && value == 0x0c) return 0;
+        light_regs[reg] = value; return 1;
+    }
+    assert(addr == 0x6a);
     if ((int)reg == failing_reg) return 0;
     uint8_t value = *(uint8_t *)input;
     if (reg == 1) bank = value;
@@ -180,6 +207,8 @@ static void wrist_cmd(const char *action, const char *span, const char *axis)
     char *args[] = {"wf_wrist", (char *)action, (char *)span, (char *)axis};
     wf_wrist(span ? 4 : 2, args);
 }
+static void light_cmd(const char *action, const char *span)
+{ char *args[] = {"wf_light", (char *)action, (char *)span}; wf_light(span ? 3 : 2, args); }
 bool wristflow_product_services_storage_ready(void) { return storage_available; }
 size_t wristflow_product_services_steps_read(unsigned key, uint8_t *record, size_t capacity, void *context)
 {
@@ -191,6 +220,7 @@ bool wristflow_product_services_steps_write(unsigned key, const uint8_t *record,
 {
     (void)context; assert(key<2 && idle && !irq); ++store_writes;
     memcpy(step_records[key],record,WRISTFLOW_STEPS_RECORD_BYTES);
+    ticks += store_delay_ms;
     step_lengths[key]=WRISTFLOW_STEPS_RECORD_BYTES; return !fail_storage;
 }
 int main(void)
@@ -439,5 +469,84 @@ int main(void)
     assert(cached.phase==WF_IMU_FAULT && !daily_cached.metric.total_valid);
     fail_bus_find=false; wrist_cmd("stop",NULL,NULL); cycle();
     assert(wrist_cached.stop_verified && cached.stop_verified && !idle);
+    /* LTR uses the same worker but a fixed, separate address. Default/status
+     * do no LTR I/O; the persistent wrist preference is never cancelled. */
+    assert(!light_reads && !light_writes && light_cached.phase == WF_LIGHT_IDLE);
+    before = reads + writes; light_cmd("status", NULL); assert(reads + writes == before);
+    daily_cmd("retry"); cycle(); wristflow_product_steps_screen(false); cycle();
+    wristflow_product_wrist_enable(true); cycle();
+    assert(wrist_runtime && irq_adapter.armed && !idle);
+    light_regs[0x86] = 0xa0; light_regs[0x87] = 5;
+    light_regs[0x80] = 0x0c; light_regs[0x85] = 4;
+    light_regs[0x88] = 20; light_regs[0x8a] = 100;
+    native_count = 17;
+    before = reads + writes;
+    light_cmd("start", "2"); light_cmd("start", "120");
+    assert(light_pending && light_seconds == 2 && reads + writes == before);
+    wrist_cmd("start", "2", "xneg"); assert(!wrist_pending);
+    duplicate_light_in_prepare = true; cycle();
+    assert(light_cached.phase == WF_LIGHT_RUNNING && !light_pending && light_cached.duration_ms == 2000 && idle);
+    before = reads + writes; light_cmd("status", NULL); assert(reads + writes == before);
+    cycle(); assert(last_wait == 100 && light_cached.entered_valid && light_regs[0x80] == 1);
+    light_regs[0x8c] = 4; cycle();
+    assert(last_wait == 200 && light_cached.samples == 1 && light_cached.sample_valid && light_cached.ch0 == 100);
+    assert(native_count == 17 && daily_cached.metric.total == 17 && wrist_requested && wrist_runtime && irq_adapter.armed);
+    light_cmd("stop", NULL); cycle();
+    assert(light_cached.restored && !light_cached.owned && !idle && light_regs[0x80] == 0x0c && light_regs[0x85] == 4);
+    assert(cached.phase == WF_IMU_RUNNING && native_count == 17 && wrist_runtime && irq_adapter.armed);
+    before = light_reads + light_writes; cycle();
+    assert(last_wait == 60000 && light_reads + light_writes == before);
+    light_cmd("start", "1"); stop_light_in_prepare = true; cycle(); cycle();
+    assert(light_cached.ended == WF_LIGHT_CANCELLED && !light_cached.owned && !idle && light_regs[0x80] == 0x0c);
+    light_cmd("start", "1"); cycle(); cycle();
+    ticks += 5000; cycle();
+    assert(light_cached.ended == WF_LIGHT_DEADLINE && light_cached.restored && !idle);
+    light_cmd("start", "2"); cycle(); cycle();
+    light_failing_read = 0x8c; cycle(); light_failing_read = -1;
+    assert(light_cached.phase == WF_LIGHT_FAULT && light_cached.restored && !light_cached.owned && !idle);
+    assert(cached.phase == WF_IMU_RUNNING && native_count == 17 && wrist_runtime && irq_adapter.armed);
+    light_cmd("start", "2"); cycle(); cycle();
+    light_fail_restore = true; light_cmd("stop", NULL); cycle();
+    assert(light_cached.phase == WF_LIGHT_FAULT && light_cached.owned && !light_cached.restored && idle);
+    before = light_reads + light_writes; cycle(); assert(light_reads + light_writes == before && idle);
+    light_cmd("start", "120"); wrist_cmd("start", "2", "xneg");
+    assert(!light_pending && !wrist_pending);
+    light_fail_restore = false; light_cmd("stop", NULL); cycle();
+    assert(light_cached.restored && !light_cached.owned && !idle && wrist_runtime && native_count == 17);
+    light_cmd("start", "2"); cycle(); cycle(); daily_cmd("stop"); cycle();
+    assert(light_cached.restored && !light_cached.owned && cached.stop_verified && !idle && !wrist_runtime);
+    daily_cmd("retry"); cycle();
+    wrist_cmd("start", "2", "xneg"); assert(wrist_pending);
+    light_cmd("start", "2"); assert(!light_pending); cycle();
+    wrist_cmd("stop", NULL, NULL); cycle();
+    /* Fail only the LTR preparation, after the daily counter's preparation
+     * succeeded. Its uncertain cleanup must not fault a healthy counter. */
+    for (unsigned failure = 0; failure < 2; ++failure) {
+        before = light_reads + light_writes;
+        light_cmd("start", "2");
+        if (failure) bus_config_fail_after = 2; else bus_find_fail_after = 2;
+        cycle();
+        assert(light_cached.phase == WF_LIGHT_FAULT && !light_cached.owned && !idle);
+        assert(light_reads + light_writes == before && cached.phase == WF_IMU_RUNNING);
+        light_cmd("start", "2"); cycle(); cycle();
+        if (failure) bus_config_fail_after = 2; else bus_find_fail_after = 2;
+        light_cmd("stop", NULL); cycle();
+        assert(light_cached.phase == WF_LIGHT_FAULT && light_cached.owned && idle);
+        assert(cached.phase == WF_IMU_RUNNING);
+        before = light_reads + light_writes; cycle();
+        assert(before == light_reads + light_writes && idle);
+        light_cmd("stop", NULL); cycle();
+        assert(light_cached.restored && !light_cached.owned && !idle);
+    }
+    /* Flash runs after light_work. A slow save may pass the deadline, but the
+     * next iteration stops using the original time instead of taking a sample. */
+    ready = false; storage_available = true; cancel_requested = false;
+    assert(wristflow_product_steps_start()); cycle();
+    light_cmd("start", "2"); cycle(); cycle();
+    native_count = 1; store_delay_ms = 5000; daily_cmd("save"); cycle(); store_delay_ms = 0;
+    assert(ticks - light_cached.started_ms >= light_cached.duration_ms && light_cached.phase == WF_LIGHT_RUNNING);
+    before = light_cached.samples; cycle();
+    assert(light_cached.phase == WF_LIGHT_DONE && light_cached.ended == WF_LIGHT_DEADLINE);
+    assert(light_cached.samples == before && light_cached.restored && !light_cached.owned && !idle);
     return 0;
 }

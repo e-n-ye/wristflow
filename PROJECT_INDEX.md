@@ -10,6 +10,7 @@
 | 找工程、配置、手写与生成边界 | [工程地图](docs/ENGINEERING-MAP.md)；术语按需查 [CONTEXT](CONTEXT.md) |
 | 选择硬件内置能力、驱动或自研算法 | [硬件能力选择与验证](docs/HARDWARE-CAPABILITIES.md)；型号／接线回 HARDWARE，活动项回 STATUS |
 | 板载光感／地磁／音频及TF、KEY2、RGB的开发顺序与采购准备 | [板载资源规划](docs/BOARD-RESOURCES.md)；逐器件硬件跑通→页面→功能，实际条件见 HARDWARE，活动项仍回 STATUS |
+| LTR-303双通道识别、限时读数、停止恢复 | [LTR专题](docs/LTR303.md)；原值／lux分开，复用传感器worker／I2C3，设备条件回 HARDWARE，活动项回 STATUS |
 | 环境与 SCons 固件构建 | [BUILD 当前机器入口](docs/BUILD.md#当前机器直接使用)、[SDK 锁](sdk.lock.json)；已有环境不重装 |
 | 主机测试与模拟器 | [SIMULATOR](docs/SIMULATOR.md)、[测试工程](tests/CMakeLists.txt) |
 | 电量回放、本地引导、模拟采集／实机负载记录与进度交接 | [协作测试工具](docs/HARDWARE-TEST-WORKFLOW.md)；实机先核HARDWARE，已有记录先保护，新实验须获授权并使用独立目录，活动项回STATUS |

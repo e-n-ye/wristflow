@@ -1,5 +1,13 @@
 # 可复现构建基线
 
+## 2026-10-23 LTR-303限时诊断
+
+用户要求开始LTR硬件跑通，先实现固定配置／双通道原值／有效性／停止恢复，复用已有传感器worker与I2C3，无UI或SDK改动。相关Debug `ltr303_diag|product_imu_diag`2/2通过；初版有限腕pending互斥断言失败已修复，手册合法旧RATE6／7误拒绝经复核修正。DATA部分失败释放锁、取消、恢复失败保留责任、总线准备失败及Flash耗时跨截止均定点覆盖，不重跑无关61项。
+
+最初复用C树的Product`20261023-193919-504`退出0；用户随后要求迁回主目录，旧树全部归档并清理，见[恢复映射](handoffs/WORKTREE-MOVE-20261023.md)。D盘主目录常规`pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 4`成功，记录`artifacts/product/20261023-204817-177/result.json`，BIN`da25db88…`，537源码／29产物字节哈希一致，SDK及子模块固定干净。迁回后相关2项通过，16KiB／overflow与retained钩子／DryRun复核成功；UI Demo源码未变，无重复构建。
+
+新旧构建、测试与失败日志保留在主目录`artifacts/ltr303-20261023/`及完整旧树ZIP；[精简证据](evidence/2026-10-23/ltr303-diagnostic.json)绑定源码／构建／下载。后来新授权的同BIN独立条件原值及到期／stop恢复有界通过，结果回[LTR专题](LTR303.md)，不从编译推导lux或功耗。
+
 ## 2026-10-23 AOD A1设备反馈修正
 
 从`55b73d7`在原隔离树`codex/aod-a1-hardware`修正样式应用返回／横滑和原尺寸缩略、亮度后进入Idle的SDK适配顺序、按样式异步电量请求及8%亮度。官方Editor2.0.1导出／预览编译与100%和真实LVGL检查完成；全页预览空白经正常重开同项目恢复，根因未知。运行既有Debug构建中的定点`ui_apps|settings_ui|aod_ui`3/3及`aod_display|product_power_service`2/2，不重复完整61项。亮度替身加入SDK DisplayOn副作用后旧代码失败、修正版通过；电量请求的取消／残留bit竞争已覆盖，独立只读复核无确定阻断。
