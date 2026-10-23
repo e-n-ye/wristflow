@@ -19,6 +19,17 @@ static unsigned previews, cancellations;
 static uint32_t preview_id;
 static wristflow_vibration_mode_t preview_mode;
 static bool reject_preview;
+static bool automatic_mode, reject_automatic, defer_automatic;
+static unsigned automatic_requests;
+static bool automatic(void *context)
+{ assert(context == &automatic_mode); return automatic_mode; }
+static bool request_automatic(bool enabled, void *context)
+{
+    assert(context == &automatic_mode); ++automatic_requests;
+    if (reject_automatic) return false;
+    if (!defer_automatic) automatic_mode = enabled;
+    return true;
+}
 static uint32_t preview(wristflow_vibration_mode_t mode, void *context)
 {
     assert(context == &preview_id && mode != WRISTFLOW_VIBRATION_OFF);
@@ -198,6 +209,46 @@ int main(int argc,char **argv)
     assert(!strcmp(lv_label_get_text(named(named(lv_screen_active(),"display_wrist"),"row_detail")),"开启"));
     press("display_brightness"); snapshot("brightness");
     assert(lv_obj_has_state(named(lv_screen_active(),"auto_brightness"),LV_STATE_DISABLED));
+    assert(lv_obj_has_state(named(lv_screen_active(),"row_switch"),LV_STATE_DISABLED));
+    assert(!wristflow_ui_shell_request_auto_brightness(shell,true) && !automatic_requests);
+    press("row_switch");
+    assert(!wristflow_ui_shell_auto_brightness(shell) && !automatic_requests);
+    wristflow_brightness_mode_port_t light_mode={automatic,request_automatic,&automatic_mode};
+    wristflow_ui_shell_bind_brightness_mode(shell,&light_mode);
+    assert(!lv_obj_has_state(named(lv_screen_active(),"auto_brightness"),LV_STATE_DISABLED));
+    assert(lv_obj_has_flag(named(lv_screen_active(),"auto_brightness_unavailable"),LV_OBJ_FLAG_HIDDEN));
+    snapshot("brightness_manual");
+    press("auto_brightness"); /* Tapping the row and the switch each sends one command. */
+    assert(automatic_requests==1 && automatic_mode && settings().brightness==27);
+    assert(lv_obj_has_flag(named(lv_screen_active(),"custom_brightness"),LV_OBJ_FLAG_HIDDEN));
+    assert(lv_obj_has_state(named(lv_screen_active(),"row_switch"),LV_STATE_CHECKED));
+    assert(!wristflow_ui_shell_open(shell,WRISTFLOW_SURFACE_BRIGHTNESS_ADJUST));
+    snapshot("brightness_automatic");
+    tap(180,238); /* The old custom-row coordinates cannot navigate once it is hidden. */
+    surface(WRISTFLOW_SURFACE_BRIGHTNESS_SETTINGS); assert(automatic_requests==1);
+    back(); press("display_brightness"); /* Provider mode survives page destruction/recreation. */
+    assert(automatic_mode && lv_obj_has_flag(named(lv_screen_active(),"custom_brightness"),LV_OBJ_FLAG_HIDDEN));
+    press("row_switch");
+    assert(automatic_requests==2 && !automatic_mode && settings().brightness==27);
+    assert(!lv_obj_has_flag(named(lv_screen_active(),"custom_brightness"),LV_OBJ_FLAG_HIDDEN));
+    reject_automatic=true; press("row_switch");
+    assert(automatic_requests==3 && !automatic_mode);
+    assert(!lv_obj_has_state(named(lv_screen_active(),"row_switch"),LV_STATE_CHECKED));
+    assert(!lv_obj_has_flag(named(lv_screen_active(),"custom_brightness"),LV_OBJ_FLAG_HIDDEN));
+    press("auto_brightness");
+    assert(automatic_requests==4 && !automatic_mode);
+    assert(!lv_obj_has_state(named(lv_screen_active(),"row_switch"),LV_STATE_CHECKED));
+    reject_automatic=false;
+    defer_automatic=true; press("row_switch");
+    assert(automatic_requests==5 && !automatic_mode); /* Accepted is not yet applied. */
+    assert(!lv_obj_has_state(named(lv_screen_active(),"row_switch"),LV_STATE_CHECKED));
+    assert(!lv_obj_has_flag(named(lv_screen_active(),"custom_brightness"),LV_OBJ_FLAG_HIDDEN));
+    automatic_mode=true; wristflow_ui_shell_update(shell,&state); advance(32);
+    assert(lv_obj_has_flag(named(lv_screen_active(),"custom_brightness"),LV_OBJ_FLAG_HIDDEN));
+    defer_automatic=false; press("row_switch");
+    assert(!automatic_mode && settings().brightness==27);
+    wristflow_ui_shell_bind_brightness_mode(shell,NULL);
+    assert(lv_obj_has_state(named(lv_screen_active(),"row_switch"),LV_STATE_DISABLED));
     press("custom_brightness"); snapshot("adjust27");
     lv_obj_t *slider=named(lv_screen_active(),"settings_brightness"); assert(lv_slider_get_value(slider)==27 && lv_obj_get_height(slider)>lv_obj_get_width(slider));
     swipe(195,330,195,220); assert(settings().brightness>27 && brightness==settings().brightness); snapshot("adjust_drag");

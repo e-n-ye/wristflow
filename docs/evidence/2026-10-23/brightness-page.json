@@ -1,0 +1,237 @@
+{
+  "date": "2026-10-23",
+  "root": "D:\\MY_Desk\\project\\wristflow",
+  "base_commit": "3e5125ef63d51745bb06b7e1d89fd6a618159920",
+  "branch": "codex/brightness-page",
+  "scope": "Brightness page using existing XML templates; no automatic sensor service or device operations",
+  "decisions": [
+    "Automatic mode hides the entire custom-brightness entry",
+    "Manual 10..100 percent value remains separate and is retained",
+    "Disabling automatic mode or sensor failure must restore manual value; failure behavior remains future service work",
+    "Repeated pages use existing templates and common event handling; no standalone XML is required for each settings subpage"
+  ],
+  "implementation": [
+    "Existing screen_settings_list and settings_choice; switch extracted from settings_row with unchanged API, style and default hidden state",
+    "Shared long_press_row handles both row and switch click paths",
+    "Optional cache/command port only; Product does not bind a provider and automatic remains unavailable",
+    "No settings format, sensor sampling, timer, worker, flashlight, AOD, DIM or endurance policy change"
+  ],
+  "source_inspection": {
+    "files": [
+      {
+        "path": "ui/runtime/settings_view.c",
+        "bytes": 32057,
+        "sha256": "6a44dd173b804c014c25349def17566c67a04551912021bdeb719eb64d1c5c5c"
+      },
+      {
+        "path": "ui/runtime/ui_shell.c",
+        "bytes": 76148,
+        "sha256": "d092ac9517d99d88bc4ab26cca72218186295b2b5c95d4b13bb2946916f61ea2"
+      },
+      {
+        "path": "ui/runtime/ui_shell.h",
+        "bytes": 12235,
+        "sha256": "5acdf0fa8f4b1d0e1a3abae785a5f5f1697caf9cd2da8b122d05dc8035995453"
+      },
+      {
+        "path": "ui/xml/components/settings_row.xml",
+        "bytes": 1190,
+        "sha256": "7db597c5faeb51c7182dba69418a16b621868f3beacf17129ffe6d55fb586a92"
+      },
+      {
+        "path": "ui/xml/components/settings_row_gen.c",
+        "bytes": 3953,
+        "sha256": "e4ff9f6e56ad7c1ee6e6eafa8ed875f0f70cc266d7966b2b676a95725e8d2f9e"
+      },
+      {
+        "path": "ui/xml/components/settings_switch.xml",
+        "bytes": 596,
+        "sha256": "91ea4f224a1313069d7ec1881c56fdbab89a30b24b4c34b5ce6bb0ac5650604e"
+      },
+      {
+        "path": "ui/xml/components/settings_switch_gen.c",
+        "bytes": 2514,
+        "sha256": "ee8905d93d0b1986fb1640347f6903c59a1f711eaa42309e1fb5e9f131751f7e"
+      },
+      {
+        "path": "ui/xml/components/settings_switch_gen.h",
+        "bytes": 752,
+        "sha256": "8c58ac864fb7b7c530f5f1abb411e78a5e72be3030aff75dab5465b08f86cb88"
+      },
+      {
+        "path": "ui/xml/file_list_gen.cmake",
+        "bytes": 8305,
+        "sha256": "a963f7fedc298be279df08c842334c9e016ca7713cedd30e9c1ca15c43e36526"
+      },
+      {
+        "path": "ui/xml/wristflow_ui_gen.h",
+        "bytes": 10442,
+        "sha256": "3db23dc2186acb72908c6ac7f818a3b2aa5c92b029b886234d2e566385be7ed8"
+      },
+      {
+        "path": "tests/settings_ui.c",
+        "bytes": 33659,
+        "sha256": "2848de172e8007311a6b445780f6fd33084349badc599f0231ad6aee0b8d95f0"
+      }
+    ],
+    "independent_read_only_review": "No remaining definite blocker after corrections and template reuse review"
+  },
+  "host": {
+    "directory": "artifacts/host/brightness-page-debug",
+    "build_type": "Debug",
+    "tests": 5,
+    "targets": [
+      "ui_shell_lifecycle",
+      "ui_apps",
+      "settings_ui",
+      "endurance_ui",
+      "aod_ui"
+    ],
+    "build_command": "cmake --build artifacts/host/brightness-page-debug --target settings_ui ui_apps ui_shell_lifecycle aod_ui endurance_ui -j 4",
+    "test_command": "ctest --test-dir artifacts/host/brightness-page-debug -R '^(settings_ui|ui_apps|ui_shell_lifecycle|aod_ui|endurance_ui)$' --output-on-failure",
+    "log": {
+      "path": "artifacts/brightness-page-20261023/host-template-tests.log",
+      "bytes": 639,
+      "sha256": "6fa524400d1edcb9b8ac0ea4309015a9fb85380f773fb98b2dfaaef1f5e93c76"
+    },
+    "cmake": "4.2.3",
+    "gcc": "15.2.0",
+    "ninja": "1.13.2",
+    "covers": [
+      "Real LVGL pointer row/switch clicks each send one request",
+      "Absent provider disabled; rejected row/switch request rolls UI back",
+      "Accepted but unapplied mode remains truthful until snapshot refresh",
+      "Entry hiding, direct route guard, page recreation and manual value retention",
+      "Existing settings switches, AOD, endurance, navigation and shell lifecycle"
+    ],
+    "renders": {
+      "image": {
+        "path": "docs/evidence/2026-10-23/brightness-page.png",
+        "bytes": 11678,
+        "sha256": "c68533c9b5450df0e47cc2a507406b1be9cc278dff4778501302f370864fdee9"
+      },
+      "source": "Real host LVGL 9.4.0 snapshots with sample clock; left manual / right automatic with host-only provider",
+      "template_reuse_pixels_equal_to_prior_candidate": true
+    }
+  },
+  "editor": {
+    "version": "2.0.1 Community",
+    "preview_lvgl": "9.4.0",
+    "firmware_lvgl": "9.4.0",
+    "source": "Official GUI Export Code and Recompile; no hand-written generated C",
+    "log": {
+      "path": "artifacts/brightness-page-20261023/editor-template-success.txt",
+      "bytes": 24426,
+      "sha256": "344c2de383ccf038d51af2f2234113c60d0ccdd95b4fd9f8c84d378c636c9cef"
+    },
+    "previous_100_percent_page": {
+      "path": "artifacts/brightness-page-20261023/editor-reuse-preview-100.png",
+      "bytes": 227783,
+      "sha256": "d369f09bc22504664e156af5f76f5e68f6fadb9f0ada2c2d8692f5bc8b250464"
+    },
+    "limitation": "Independent page candidate was superseded by shared screen_settings_list; final complete page is verified by host snapshots, editor previews shared templates"
+  },
+  "compilation": {
+    "product": {
+      "result": {
+        "path": "artifacts/product/20261023-223227-596/result.json",
+        "bytes": 109909,
+        "sha256": "bc6b34ab6314c3c169bd44c2f824f67567dc2f4e363293f06e62a3112cfe89f4"
+      },
+      "example": "product",
+      "sources": 540,
+      "artifacts": 29,
+      "current_bytes_verified": true,
+      "binary": {
+        "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+        "bytes": 8021812,
+        "sha256": "2a06be47e31ca74b843c08c4800ee865a35e7e3ba662353af6c661308213bf6e"
+      },
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example product -Jobs 4"
+    },
+    "ui_demo": {
+      "result": {
+        "path": "artifacts/ui_demo/20261023-223340-327/result.json",
+        "bytes": 97590,
+        "sha256": "dc8dab875cb7350cc16e45910355d8c58245362d22e9384ea4dbffed0c18f043"
+      },
+      "example": "ui_demo",
+      "sources": 484,
+      "artifacts": 22,
+      "current_bytes_verified": true,
+      "binary": {
+        "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+        "bytes": 7762576,
+        "sha256": "c6dbfd2e053feb151fad50c6f98c3b2c80c91ce87fc2d363149d3fd58071229c"
+      },
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "command": "pwsh -NoProfile -ExecutionPolicy Bypass -File scripts/Build.ps1 -Example ui_demo -Jobs 4"
+    },
+    "hardware_verified": false,
+    "note": "UI Demo is compiled for shared resources; its legacy settings entry is not migrated to the Product settings UI"
+  },
+  "source_document": {
+    "url": "https://raw.githubusercontent.com/latonita/datasheets-storage/main/sensors/LTR-303%20329_Appendix%20A%20Ver_1.0_22%20Feb%202013.pdf",
+    "file": {
+      "path": "artifacts/brightness-page-20261023/LTR303-Appendix-A-20130222.pdf",
+      "bytes": 167601,
+      "sha256": "3d4216e79021bf59b0a98ca7eb40d06270c37826b781297109db97f29d82a157"
+    },
+    "identity": "Lite-On attributed Appendix A, Rev1.0 22 Feb 2013, explicitly LTR-303ALS / LTR-329ALS; third-party mirror",
+    "inspected_pages": [
+      3,
+      4
+    ],
+    "limitation": "No authenticated original distribution chain, 50ms not tabulated, PFactor text unresolved, board window transmission and absolute lux accuracy unmeasured; no conversion implemented"
+  },
+  "prior_device_artifacts": {
+    "path": "artifacts/brightness-page-20261023/prior-ltr-product-29.zip",
+    "bytes": 22656656,
+    "sha256": "041223aaa7bdff2e875f5356809c79cc9ab552b4013478944f92831c7fe7b74c"
+  },
+  "references": [
+    {
+      "path": "artifacts/brightness-page-20261023/reference-automatic-on.jpg",
+      "bytes": 3684270,
+      "sha256": "38906c899f1a0cf80584410e6bb4d5a4d0c8c19fcdb173e1bd83a21d35568de8"
+    },
+    {
+      "path": "artifacts/brightness-page-20261023/reference-automatic-off.jpg",
+      "bytes": 2840343,
+      "sha256": "7e270eb58d6cf96eb0d3cb83e2b53819f4331236e77246354d1f2c5307eb4eb3"
+    }
+  ],
+  "failures_and_supersession": [
+    "Initial official compilation succeeded but preview became blank with No draw buffer; Close Project remained loading; normal application exit/reopen recovered it. Cause unknown. Logs retained.",
+    "Native automation minimized-window/external-input state was recovered by resetting only the JS control session and reselecting the returned editor window.",
+    "Initial standalone-page and intermediate component-reuse candidates were superseded by final shared page template; prior build/test/export logs retained.",
+    "Original read-only review raised two incorrect blockers, then retracted them after checking Product refresh and real pointer paths. Final review found none.",
+    "Existing SDK FinSH and linker syscall/entry/RWX/DFU warnings retained; no host compile warning in final affected build",
+    "Official settings_switch_gen.c retains a blank EOF line; default git diff --check reports only it, and the check excluding blank-at-eof passes"
+  ],
+  "hardware": {
+    "operations": false,
+    "serial_opened": false,
+    "flashed": false,
+    "device_binary_unchanged": "da25db88...",
+    "boundary": "Previous LTR hardware round remains separate; no new touch, light-response, physical sleep, current, capacity or battery-life verification"
+  },
+  "remaining": [
+    "Automatic brightness sensor scheduling, conversion, mapping, smoothing/hysteresis, preferences and fault fallback belong to the next bounded feature round",
+    "Exact final BIN device verification not performed",
+    "Absolute lux calibration and power conclusions remain open"
+  ]
+}

@@ -333,6 +333,7 @@ void wristflow_ui_init_gen(const char * asset_path);
 #include "components/settings_entry_gen.h"
 #include "components/settings_note_gen.h"
 #include "components/settings_row_gen.h"
+#include "components/settings_switch_gen.h"
 #include "components/status_toast_gen.h"
 #include "components/tile_full_gen.h"
 #include "components/tile_grid_gen.h"

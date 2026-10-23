@@ -75,6 +75,7 @@ struct wristflow_ui_shell {
     wristflow_brightness_cb_t brightness_cb;
     void *platform_context;
     uint8_t applied_brightness;
+    wristflow_brightness_mode_port_t brightness_mode;
     unsigned stopwatch_exit;
     wristflow_surface_t stopwatch_destination;
     unsigned breathing_exit;
@@ -482,6 +483,7 @@ bool wristflow_ui_shell_open(wristflow_ui_shell_t *shell, wristflow_surface_t su
     if (surface == WRISTFLOW_SURFACE_STEPS || surface == WRISTFLOW_SURFACE_STANDING)
         surface = WRISTFLOW_SURFACE_ACTIVITY;
     if (!shell || !shell->apps || shell->transitioning || wristflow_ui_shell_reminder_active(shell)) return false;
+    if (surface == WRISTFLOW_SURFACE_BRIGHTNESS_ADJUST && wristflow_ui_shell_auto_brightness(shell)) return false;
     if (!wristflow_apps_allows(shell->apps, surface)) return false;
     if (surface != shell->navigation.surface &&
         confirm_breathing_exit(shell, STOPWATCH_EXIT_OPEN, surface)) return true;
@@ -1077,6 +1079,26 @@ bool wristflow_ui_shell_configure(wristflow_ui_shell_t *shell, const wristflow_s
     wristflow_apps_set_brightness(shell->apps, settings->brightness);
     wristflow_display_activity(&shell->display, lv_tick_get());
     return true;
+}
+
+void wristflow_ui_shell_bind_brightness_mode(wristflow_ui_shell_t *shell,
+    const wristflow_brightness_mode_port_t *port)
+{
+    if (!shell) return;
+    shell->brightness_mode = port && port->automatic && port->request ? *port :
+        (wristflow_brightness_mode_port_t){0};
+    wristflow_apps_refresh_settings_save(shell->apps);
+}
+bool wristflow_ui_shell_has_auto_brightness(const wristflow_ui_shell_t *shell)
+{ return shell && shell->brightness_mode.automatic && shell->brightness_mode.request; }
+bool wristflow_ui_shell_auto_brightness(const wristflow_ui_shell_t *shell)
+{ return wristflow_ui_shell_has_auto_brightness(shell) && shell->brightness_mode.automatic(shell->brightness_mode.context); }
+bool wristflow_ui_shell_request_auto_brightness(wristflow_ui_shell_t *shell, bool automatic)
+{
+    if (!wristflow_ui_shell_has_auto_brightness(shell)) return false;
+    bool accepted = shell->brightness_mode.request(automatic, shell->brightness_mode.context);
+    wristflow_apps_refresh_settings_save(shell->apps);
+    return accepted;
 }
 
 void wristflow_ui_shell_bind_vibration_preview(wristflow_ui_shell_t *shell,
