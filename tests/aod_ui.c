@@ -120,9 +120,18 @@ int main(int argc,char **argv)
     assert(card.x1==78 && card.x2==311);
     assert(settings().aod_style==WRISTFLOW_AOD_CENTER);snapshot("styles_corner");
     press("aod_style_1");assert(settings().aod_style==WRISTFLOW_AOD_CORNER);
-    assert(submitted.aod_style==WRISTFLOW_AOD_CORNER);back();
+    assert(submitted.aod_style==WRISTFLOW_AOD_CORNER);
+    assert(wristflow_ui_shell_navigation(shell)->surface==WRISTFLOW_SURFACE_DISPLAY_SETTINGS);
+    assert(!strcmp(lv_label_get_text(named(named(lv_screen_active(),"display_aod_styles"),"row_detail")),"左上数字"));
     press("display_aod_styles");assert(lv_obj_get_scroll_x(named(lv_screen_active(),"aod_carousel"))==266);
     assert(strstr(lv_label_get_text(named(lv_screen_active(),"aod_style_name")),"已选"));
+    /* Re-selecting the current card also leaves. An interrupted snap never
+     * turns its release into a selection or outlives its picker screen. */
+    press("aod_style_1");assert(wristflow_ui_shell_navigation(shell)->surface==WRISTFLOW_SURFACE_DISPLAY_SETTINGS);
+    press("display_aod_styles");
+    pointer.point=(lv_point_t){100,230};pointer.state=LV_INDEV_STATE_PRESSED;advance(32);
+    pointer.point.x=270;advance(32);pointer.state=LV_INDEV_STATE_RELEASED;advance(32);
+    back();assert(settings().aod_style==WRISTFLOW_AOD_CORNER);
     uint8_t bytes[WRISTFLOW_SETTINGS_BYTES];prefs=settings();assert(wristflow_settings_encode(&prefs,bytes));
     wristflow_settings_t restored=wristflow_settings_default();assert(wristflow_settings_decode(&restored,bytes,sizeof bytes));
     assert(wristflow_settings_equal(&prefs,&restored));

@@ -233,7 +233,7 @@ static void sync_endurance_key(void)
 
 static wristflow_watch_snapshot_t read_snapshot(bool force_power)
 {
-    if (force_power || rt_tick_get() - power_sampled >= rt_tick_from_millisecond(5000)) {
+    if (!waiting_for_wake && (force_power || rt_tick_get() - power_sampled >= rt_tick_from_millisecond(5000))) {
         wristflow_product_power_request();
         power_sampled = rt_tick_get();
     }
@@ -502,6 +502,10 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     static resident_context_t resident;
     resident.lcd = lcd;
     wf_aod_display_t aod = {0};
+    uint32_t power_minute = UINT32_MAX;
+    bool power_updated = false;
+    bool rendered_battery_unknown = true, rendered_estimate = false;
+    uint8_t rendered_battery = 0;
     rt_uint32_t events;
     bool preview = false, reminder = false, charging = false, wrist = false;
     defer_brightness = true;
@@ -518,23 +522,45 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
         resident.style = settings.aod_style;
         events = 0;
         bool show_aod = !aod.failed && wristflow_settings_aod_active(&settings, &resident.snapshot);
+        /* Only the corner style consumes battery data. Neither this request
+         * nor its POWER completion creates a timer or another request. */
+        bool needs_power = show_aod && settings.aod_style == WRISTFLOW_AOD_CORNER;
+        wristflow_product_power_aod(needs_power);
+        uint32_t minute = resident.snapshot.utc_seconds / 60U;
+        if (!needs_power) power_minute = UINT32_MAX;
+        else if (power_minute != minute) {
+            power_minute = minute;
+            rt_kprintf("[aod-power] request minute=%lu\n", (unsigned long)minute);
+            wristflow_product_power_request();
+        }
         if (show_aod) {
             wristflow_product_pm_screen(false); /* AOD retains the known LCD IDLE guard. */
             if (!lcd_on) {
                 RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_POWERON, NULL) == RT_EOK);
                 lcd_on = true;
             }
-            uint32_t minute = resident.snapshot.utc_seconds / 60U;
-            bool changed = aod.phase != WF_AOD_PANEL_RESIDENT || aod.frame_minute != minute;
-            if (!wf_aod_display_frame(&aod, &resident_io, &resident, minute)) {
+            bool content_changed = needs_power && power_updated &&
+                (rendered_battery_unknown != resident.snapshot.battery_unavailable ||
+                 rendered_battery != resident.snapshot.battery_percent ||
+                 rendered_estimate != resident.snapshot.power.estimate_valid);
+            bool changed = aod.phase != WF_AOD_PANEL_RESIDENT || aod.frame_minute != minute || content_changed;
+            if (!wf_aod_display_frame(&aod, &resident_io, &resident, minute, content_changed)) {
                 rt_kprintf("[aod-display] frame failed; AOD disabled for this sleep session\n");
+                wristflow_product_power_aod(false);
                 if (aod.owned) events |= resident_restore(&aod, &resident);
                 show_aod = false;
-            } else if (changed) rt_kprintf("[aod-display] static minute=%lu style=%u brightness=5; IDLE retained\n",
-                (unsigned long)minute, settings.aod_style);
+            } else if (changed) {
+                rendered_battery_unknown = resident.snapshot.battery_unavailable;
+                rendered_battery = resident.snapshot.battery_percent;
+                rendered_estimate = resident.snapshot.power.estimate_valid;
+                rt_kprintf("[aod-display] minute=%lu style=%u brightness=%u battery_valid=%u percent=%u; IDLE retained\n",
+                    (unsigned long)minute, settings.aod_style, WF_AOD_BRIGHTNESS,
+                    !resident.snapshot.battery_unavailable, resident.snapshot.battery_percent);
+            }
             resident_publish(&aod);
         }
         if (!show_aod) {
+            wristflow_product_power_aod(false);
             if (aod.owned) events |= resident_restore(&aod, &resident);
             if (lcd_on) {
                 RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_POWEROFF, NULL) == RT_EOK);
@@ -544,6 +570,7 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
             wristflow_product_pm_screen(true);
         }
         capture_battery();
+        power_updated = false;
         clock = wristflow_product_services_time();
         wall = wristflow_product_snapshot(clock.valid, clock.utc);
         uint32_t wait_ms = aod.failed ? UINT32_MAX : wristflow_aod_wait_ms(&settings, &wall, clock.subsecond_ms);
@@ -565,6 +592,7 @@ arbitrate_sleep_events:
             preview = sync_notifications() || preview;
         }
         if (events & WF_EVENT_PM_SAMPLE) wristflow_product_pm_report();
+        if (events & WF_EVENT_POWER) power_updated = true;
         /* KEY wins a coalesced batch: waking by wrist first would make the
          * same KEY look like an ACTIVE-screen navigation press. */
         if ((events & WF_EVENT_WRIST) && wristflow_product_wrist_take_wake() &&
@@ -574,6 +602,7 @@ arbitrate_sleep_events:
             (endurance_before && !wristflow_ui_shell_endurance(product_shell)) ||
             (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE)) ||
             ((events & WF_EVENT_KEY_STATE) && key_down && wristflow_ui_shell_endurance(product_shell))) {
+            wristflow_product_power_aod(false); /* Cancel before any recovery wait. */
             if (aod.owned) {
                 uint32_t deferred = resident_restore(&aod, &resident);
                 if (deferred) {

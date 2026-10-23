@@ -47,6 +47,12 @@ static uint32_t wristflow_ui_target = WRISTFLOW_UI_TARGET_ALL;
  * Fonts
  *----------------*/
 
+lv_font_t * aod_preview_48;
+extern lv_font_t aod_preview_48_data;
+lv_font_t * aod_preview_32;
+extern lv_font_t aod_preview_32_data;
+lv_font_t * aod_preview_14;
+extern lv_font_t aod_preview_14_data;
 lv_font_t * notification_22;
 extern lv_font_t notification_22_data;
 lv_font_t * body_20;
@@ -164,6 +170,24 @@ void wristflow_ui_init_gen(const char * asset_path)
 
     #if WRISTFLOW_UI_CHECK_COMPILE_TARGET(WRISTFLOW_UI_TARGET_ALL)
     if (wristflow_ui_check_target(WRISTFLOW_UI_TARGET_ALL)) {
+        if (!aod_preview_48) {
+            /* aod_preview_48 */
+            /* get font 'aod_preview_48' from a C array */
+            aod_preview_48 = &aod_preview_48_data;
+
+        }
+        if (!aod_preview_32) {
+            /* aod_preview_32 */
+            /* get font 'aod_preview_32' from a C array */
+            aod_preview_32 = &aod_preview_32_data;
+
+        }
+        if (!aod_preview_14) {
+            /* aod_preview_14 */
+            /* get font 'aod_preview_14' from a C array */
+            aod_preview_14 = &aod_preview_14_data;
+
+        }
         if (!notification_22) {
             /* notification_22 */
             /* get font 'notification_22' from a C array */
@@ -367,6 +391,9 @@ void wristflow_ui_init_gen(const char * asset_path)
 
     /* Check all fonts / default if needed. This prevents fonts that are used in one target but
        defined in another from causing assertion failures during rendering of the Preview. */
+    check_font(&aod_preview_48, "aod_preview_48");
+    check_font(&aod_preview_32, "aod_preview_32");
+    check_font(&aod_preview_14, "aod_preview_14");
     check_font(&notification_22, "notification_22");
     check_font(&body_20, "body_20");
     check_font(&title_24, "title_24");
@@ -379,6 +406,9 @@ void wristflow_ui_init_gen(const char * asset_path)
     check_font(&icons_20, "icons_20");
 
     /* Register fonts */
+    lv_xml_register_font(NULL, "aod_preview_48", aod_preview_48);
+    lv_xml_register_font(NULL, "aod_preview_32", aod_preview_32);
+    lv_xml_register_font(NULL, "aod_preview_14", aod_preview_14);
     lv_xml_register_font(NULL, "notification_22", notification_22);
     lv_xml_register_font(NULL, "body_20", body_20);
     lv_xml_register_font(NULL, "title_24", title_24);

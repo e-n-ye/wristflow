@@ -54,6 +54,9 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_half_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_quarter_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/time_picker_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/fonts/aod_preview_14_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/fonts/aod_preview_32_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/fonts/aod_preview_48_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/battery_80_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/body_20_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/clock_80_data.c

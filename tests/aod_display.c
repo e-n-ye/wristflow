@@ -13,7 +13,15 @@ static bool operation(device_t *d) { return ++d->operations != d->fail_at; }
 static bool observe(wf_panel_observation_t *out, void *ctx)
 { device_t *d=ctx; if (!operation(d)) return false; *out=d->panel; return true; }
 static bool brightness(uint8_t value, void *ctx)
-{ device_t *d=ctx; if (!operation(d) || (d->fail_restore && !value)) return false; d->panel.brightness=value; return true; }
+{
+    device_t *d=ctx;
+    if (!operation(d) || (d->fail_restore && !value)) return false;
+    d->panel.brightness=value;
+    /* Locked SDK LCD_MSG_SET_BRIGHTNESS calls lcd_display_on afterwards,
+     * changing its state back to NORMAL even when the panel was in Idle. */
+    d->panel.mode=WF_PANEL_NORMAL;
+    return true;
+}
 static bool idle(bool value, void *ctx)
 { device_t *d=ctx; if (!operation(d) || (d->fail_restore && !value)) return false; d->panel.mode=value?WF_PANEL_IDLE:WF_PANEL_NORMAL; return true; }
 static bool draw(void *ctx) { device_t *d=ctx; assert(d->panel.mode==WF_PANEL_NORMAL && !d->panel.brightness); ++d->draws; return operation(d); }
@@ -23,24 +31,26 @@ static const wf_aod_display_io_t io={observe,brightness,idle,draw,hide};
 int main(void)
 {
     wf_aod_display_t state={0}; device_t d={.panel={WF_PANEL_NORMAL,0}};
-    assert(wf_aod_display_frame(&state,&io,&d,100));
+    assert(wf_aod_display_frame(&state,&io,&d,100,false));
     assert(state.phase==WF_AOD_PANEL_RESIDENT && state.owned && d.draws==1);
     unsigned calls=d.operations;
-    for(unsigned i=0;i<100;++i) assert(wf_aod_display_frame(&state,&io,&d,100));
+    for(unsigned i=0;i<100;++i) assert(wf_aod_display_frame(&state,&io,&d,100,false));
     assert(d.operations==calls && d.draws==1);
-    assert(wf_aod_display_frame(&state,&io,&d,101) && d.draws==2);
-    assert(wf_aod_display_frame(&state,&io,&d,99) && d.draws==3); /* Backward clock correction. */
+    assert(wf_aod_display_frame(&state,&io,&d,100,true) && d.draws==2);
+    assert(state.frame_minute==100 && d.panel.brightness==WF_AOD_BRIGHTNESS);
+    assert(wf_aod_display_frame(&state,&io,&d,101,false) && d.draws==3);
+    assert(wf_aod_display_frame(&state,&io,&d,99,false) && d.draws==4); /* Backward clock correction. */
     assert(wf_aod_display_restore(&state,&io,&d));
     assert(!state.owned && d.hides==1 && d.panel.mode==WF_PANEL_NORMAL && !d.panel.brightness);
     for(unsigned fail=1;fail<=6;++fail) {
         state=(wf_aod_display_t){0}; d=(device_t){.panel={WF_PANEL_NORMAL,0},.fail_at=fail};
-        assert(!wf_aod_display_frame(&state,&io,&d,100));
+        assert(!wf_aod_display_frame(&state,&io,&d,100,false));
         assert(state.failed && !state.owned && d.hides==1);
         calls=d.operations;
-        assert(!wf_aod_display_frame(&state,&io,&d,101) && d.operations==calls);
+        assert(!wf_aod_display_frame(&state,&io,&d,101,false) && d.operations==calls);
     }
     state=(wf_aod_display_t){0};d=(device_t){.panel={WF_PANEL_NORMAL,0}};
-    assert(wf_aod_display_frame(&state,&io,&d,200));d.fail_restore=true;
+    assert(wf_aod_display_frame(&state,&io,&d,200,false));d.fail_restore=true;
     assert(!wf_aod_display_restore(&state,&io,&d));
     assert(state.failed && state.owned && state.phase==WF_AOD_PANEL_FAULT && !d.hides);
     d.fail_restore=false;assert(wf_aod_display_restore(&state,&io,&d));

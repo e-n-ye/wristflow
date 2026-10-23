@@ -3,6 +3,8 @@
 <a id="current-power-system"></a>
 ## 2026-10-14 当前系统与低功耗说明
 
+2026-10-23 AOD增量：[独立驻留](AOD.md)在用户时段内保持面板供电和IDLE保护，按分钟提交并有限像素位移。样式按需求使用已有服务：居中时间／日期不请求电量；左上电量样式复用现有power worker，在AOD开始／墙钟分钟各显式异步请求一次，完成事件只更新AOD内容，不唤亮正常页、不形成下一采样请求。无新增采样timer／线程，普通黑屏仍停止并清缓存；计步／腕／充电安全服务沿自身契约。新值服从原15秒有效性，失败显示`--%`，不把上一分钟缓存当成新测量。8%为亮度请求，物理深睡及功耗仍未知。
+
 2026-10-20至21日腕增量：[原生AWT亮屏](HARDWARE-CAPABILITIES.md#native-wrist-wake)默认关闭，保存开启后PA31上升沿IRQ／AON索引7通知原IMU worker，完整清源验证后发独立事件128；main专用唤屏不复用KEY导航，KEY同批优先。持续等待不持本owner的IDLE，不新增100ms周期；失败停用继续保留责任。精确`751de5f5…`已有[实际LCD息屏→IRQ→亮屏、关闭不亮及普通reboot恢复](evidence/2026-10-21/native-wrist-wake-hardware.json)的有界设备结果；该轮PM enter／exit／deep_ticks均0且SDK IDLE仍1，不能写成物理DEEP或深睡腕唤醒通过，更不推导电流／续航。下方基线与旧C2边界保留原版本。
 
 2026-10-19计步增量：[原生今日步数接口](ACTIVITY.md#native-daily-steps)使IMU在Product启动后持续执行片上计步，HCPU亮屏约1秒／息屏约60秒恢复I2C读取；事件timeout使用锁定SDK tickless定时路径。仅准备／读取／清理序列持本服务IDLE，正常等待释放；未确认停止保留FAULT责任，计数更新不主动点亮屏幕。此项覆盖下文旧基线“没有使用IMU”的运行状态，不等于新负载下已实测DEEP计数连续性或省电；硬件及增量电流仍待本版验证。

@@ -6,6 +6,9 @@
 
 static rt_tick_t ticks;
 static unsigned irq, idle, adc_calls, input_calls, deleted, detached;
+static unsigned power_events;
+void wristflow_product_event_send(rt_uint32_t events)
+{ assert(events == WF_EVENT_POWER && !irq); ++power_events; }
 static bool fail_event, fail_create, fail_start, off_in_adc, off_in_input, cycle_in_input;
 static struct rt_thread fake_thread;
 bool wristflow_product_power_adc_init(void) { return true; }
@@ -50,7 +53,7 @@ void wristflow_product_power_input(wristflow_power_snapshot_t *value)
     assert(interim.voltage_sequence && interim.voltage_sequence == value->voltage_sequence);
     assert(interim.voltage_sampled_ms == value->voltage_sampled_ms && interim.voltage_sampled_ms == ticks);
     rt_tick_t before = ticks;
-    wristflow_product_power_request();
+    if (!aod) wristflow_product_power_request();
     assert(rt_tick_get() == before);
     if (off_in_input || cycle_in_input) wristflow_product_power_screen(false);
     if (cycle_in_input) wristflow_product_power_screen(true);
@@ -96,5 +99,29 @@ int main(void)
     assert(!wristflow_product_power_snapshot().input_valid); /* Reject previous wake epoch. */
     run_background();
     assert(wristflow_product_power_snapshot().input_good && !idle && !irq);
+    wristflow_product_power_screen(false);
+    wristflow_product_power_aod(true); /* No autonomous sample on mode entry. */
+    run_background(); assert(adc_calls == 5 && !power_events);
+    wristflow_product_power_request(); run_background();
+    assert(adc_calls == 6 && power_events == 1 && wristflow_product_power_snapshot().input_good);
+    /* Model an old recv already dispatched when a new request was installed:
+     * the leftover event bit cannot execute the same request serial twice. */
+    unsigned before_calls = adc_calls;
+    sample_once(); assert(adc_calls == before_calls);
+    wristflow_product_power_request(); wristflow_product_power_aod(false);
+    wristflow_product_power_aod(true); run_background();
+    assert(adc_calls == 6); /* Queued old epoch cannot run after re-entry. */
+    wristflow_product_power_request(); off_in_adc = true;
+    run_background(); off_in_adc = false;
+    assert(power_events == 1 && !wristflow_product_power_snapshot().voltage_valid);
+    wristflow_product_power_request(); run_background(); assert(adc_calls == 7);
+    wristflow_product_power_aod(true); wristflow_product_power_request();
+    rt_uint32_t old_bits;
+    assert(rt_event_recv(&requests, 1, 3, -1, &old_bits) == RT_EOK);
+    wristflow_product_power_aod(false); wristflow_product_power_aod(true);
+    wristflow_product_power_request();
+    sample_once(); /* Old dispatched worker claims the new pending serial once. */
+    assert(adc_calls == 8 && power_events == 2);
+    run_background(); assert(adc_calls == 8 && power_events == 2);
     return 0;
 }
