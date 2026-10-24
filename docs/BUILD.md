@@ -1,5 +1,13 @@
 # 可复现构建基线
 
+## 2026-10-24 encoded限时XYZ诊断
+
+从设备证据主线`e0be454`建立`codex/mmc5603-encoded-xyz`，新增显式`wf_mag sample encoded <1..120秒>`，复用原生自检PASS→Auto_SR单次XYZ／总截止／停止路径，保留默认raw80与selftest-only。相关`mmc5603_diag|product_imu_diag`在Debug／保留断言Release各2/2通过（均0.22秒），独立只读代码审查无阻断；未重跑无关UI／Demo，首次验证即通过。
+
+官方`pwsh -NoProfile -File scripts/Build.ps1 -Example product -Jobs 4`，Product `20261024-193909-557`退出0，BIN8,030,008B／`2438dc7c…`（比对照版增160B），545源码／29产物逐字节一致，SDK／子模块锁固定干净；Flash DryRun不开端口。旧5b230e1d版29产物及三份生产源码先ZIP逐项核验保全；无新诊断编译告警，既有FinSH及链接提示保留。worker6144B／main16384B及快照字段不变，新栈峰值未测。
+
+无新串口／下载／设备数据，不能由软件证明候选XYZ可用、轴向或航向准确；[软件证据](evidence/2026-10-24/mmc5603-encoded-xyz.json)绑定命令、产物、来源与未验项，详见[专题](MMC5603.md#encoded-xyz-20261024)。
+
 ## 2026-10-24 地磁仅自检阈值对照
 
 从来源证据主线`98d3dc2`建立`codex/mmc5603-selftest-compare`，完成显式`wf_mag selftest raw80|encoded`，候选仅换阈值、固定整轮逻辑截止、PASS／FAIL后局部停止且无普通XYZ，默认start保持raw80。相关五项`mmc5603_diag|product_imu_diag|imu_wrist_tilt|ltr303_diag|auto_brightness`在Debug／保留断言Release各5/5通过（0.22／0.37秒），独立只读代码审查无阻断。首次新集成测试沿用已被前序retry重建的native9、误要求begin前取消清空旧session结果，两项测试前提修正后通过，原失败日志保留。

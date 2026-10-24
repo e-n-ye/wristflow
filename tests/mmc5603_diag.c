@@ -217,5 +217,41 @@ int main(void)
     setup(&d,&s); s.ms=UINT32_MAX-30;
     assert(wf_mmc5603_begin_selftest(&d,s.ms,WF_MAG_THRESHOLD_ENCODED_EXPERIMENTAL)); finish_selftest(&d,&s);
     assert(d.snapshot.ended==WF_MAG_SELFTEST_COMPLETE && d.snapshot.stopped && d.snapshot.selftest_status_ms<100);
+    /* Explicit encoded sampling retains the native PASS gate and the existing
+     * single-shot data/stop state machine, rather than enabling continuous mode. */
+    setup(&d,&s);
+    assert(!wf_mmc5603_begin_encoded(&d,0,999) && !wf_mmc5603_begin_encoded(&d,0,120001));
+    s.factory[0]=0x63; s.factory[1]=0x7a; s.factory[2]=0x72;
+    assert(wf_mmc5603_begin_encoded(&d,0,2000));
+    for (unsigned i=0;i<10 && !d.snapshot.samples;++i) poll_next(&d,&s);
+    assert(d.snapshot.threshold_mode==WF_MAG_THRESHOLD_ENCODED_EXPERIMENTAL && !d.snapshot.selftest_only);
+    assert(d.snapshot.selftest_valid && d.snapshot.selftest_passed && d.snapshot.samples==1 && d.snapshot.sample_valid);
+    assert(d.snapshot.selftest_threshold[0]==0x5c && d.snapshot.selftest_threshold[1]==0x13 && d.snapshot.selftest_threshold[2]==0x2c);
+    assert(d.snapshot.x==12345 && d.snapshot.y==-23456 && d.snapshot.z==34567 && s.operations==16 && s.triggers==2);
+    uint8_t selftest_response[9]; memcpy(selftest_response,d.snapshot.selftest_raw,9);
+    ops=s.operations; wf_mmc5603_poll(&d); assert(s.operations==ops && d.snapshot.samples==1);
+    fake_mag_counts(&s,-100,200,-300); poll_next(&d,&s); poll_next(&d,&s);
+    assert(d.snapshot.samples==2 && d.snapshot.x==-100 && d.snapshot.y==200 && d.snapshot.z==-300);
+    assert(!memcmp(selftest_response,d.snapshot.selftest_raw,9));
+    s.ms=2000; wf_mmc5603_poll(&d);
+    assert(d.snapshot.ended==WF_MAG_DEADLINE && d.snapshot.stopped && !d.snapshot.owned);
+    first_frame(&d,&s);
+    assert(d.snapshot.threshold_mode==WF_MAG_THRESHOLD_RAW80 && !d.snapshot.selftest_only && d.snapshot.samples==1);
+    assert(d.snapshot.selftest_threshold[0]==0x4f && d.snapshot.selftest_threshold[1]==0x61 && d.snapshot.selftest_threshold[2]==0x5b);
+    setup(&d,&s); s.selftest_fail=true;
+    assert(wf_mmc5603_begin_encoded(&d,0,2000)); finish_selftest(&d,&s);
+    assert(d.snapshot.ended==WF_MAG_SELFTEST_FAILED && !d.snapshot.samples && d.snapshot.stopped && s.triggers==1);
+    for (unsigned operation=1;operation<=16;++operation) {
+        setup(&d,&s); s.fail_at=operation;
+        assert(wf_mmc5603_begin_encoded(&d,0,2000)); finish_selftest(&d,&s);
+        assert(d.snapshot.phase==WF_MAG_FAULT && !d.snapshot.samples && !d.snapshot.sample_valid);
+        ops=s.operations; wf_mmc5603_poll(&d); assert(s.operations==ops);
+    }
+    setup(&d,&s); s.ms=UINT32_MAX-30;
+    assert(wf_mmc5603_begin_encoded(&d,s.ms,2000));
+    for (unsigned i=0;i<10 && !d.snapshot.samples;++i) poll_next(&d,&s);
+    assert(d.snapshot.samples==1 && d.snapshot.sample_valid && d.snapshot.sampled_ms<100);
+    s.cancel_data=true; poll_next(&d,&s); poll_next(&d,&s);
+    assert(d.snapshot.ended==WF_MAG_CANCELLED && d.snapshot.samples==1 && d.snapshot.stopped);
     return 0;
 }

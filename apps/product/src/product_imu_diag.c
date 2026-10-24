@@ -762,8 +762,11 @@ static void mag_work(rt_uint32_t events)
         uint32_t started = now_ms();
         if (available) {
             bool prepared = prepare_bus();
-            bool began = selftest_only ? wf_mmc5603_begin_selftest(&mag, started, threshold_mode) :
-                wf_mmc5603_begin(&mag, started, span * 1000U);
+            bool began;
+            if (selftest_only) began = wf_mmc5603_begin_selftest(&mag, started, threshold_mode);
+            else if (threshold_mode == WF_MAG_THRESHOLD_ENCODED_EXPERIMENTAL)
+                began = wf_mmc5603_begin_encoded(&mag, started, span * 1000U);
+            else began = wf_mmc5603_begin(&mag, started, span * 1000U);
             if (began && !prepared) wf_mmc5603_bus_fault(&mag);
         }
         rt_kprintf("[mag] accepted=%u\n", mag.snapshot.phase == WF_MAG_RUNNING);
@@ -968,10 +971,15 @@ static void wf_mag(int argc, char **argv)
     unsigned span = 0;
     bool selftest_only = false;
     wf_mag_threshold_t threshold_mode = WF_MAG_THRESHOLD_RAW80;
-    if (argc == 3 && !strcmp(argv[1], "start")) {
+    const char *seconds = NULL;
+    if (argc == 3 && !strcmp(argv[1], "start")) seconds = argv[2];
+    else if (argc == 4 && !strcmp(argv[1], "sample") && !strcmp(argv[2], "encoded")) {
+        seconds = argv[3]; threshold_mode = WF_MAG_THRESHOLD_ENCODED_EXPERIMENTAL;
+    }
+    if (seconds) {
         char *end;
-        unsigned long value = strtoul(argv[2], &end, 10);
-        if (argv[2][0] >= '0' && argv[2][0] <= '9' && !*end && value >= 1 && value <= 120) span = (unsigned)value;
+        unsigned long value = strtoul(seconds, &end, 10);
+        if (seconds[0] >= '0' && seconds[0] <= '9' && !*end && value >= 1 && value <= 120) span = (unsigned)value;
     } else if (argc == 3 && !strcmp(argv[1], "selftest")) {
         if (!strcmp(argv[2], "raw80") || !strcmp(argv[2], "encoded")) {
             selftest_only = true;
@@ -980,7 +988,7 @@ static void wf_mag(int argc, char **argv)
         }
     }
     if (!span) {
-        rt_kprintf("wf_mag start <1..120 seconds> | selftest raw80|encoded | stop | status\n");
+        rt_kprintf("wf_mag start <1..120 seconds> | sample encoded <1..120 seconds> | selftest raw80|encoded | stop | status\n");
         rt_kprintf("selftest: 10s total limit, no XYZ; encoded is an experimental threshold hypothesis, not a validated correction\n");
         return;
     }

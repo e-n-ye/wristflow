@@ -788,5 +788,53 @@ int main(void)
     fake_mag_init(&mag_fake); wf_mag(3,selftest_encoded); cycle(); cycle();
     ticks+=10000; cycle();
     assert(mag_cached.ended==WF_MAG_DEADLINE && mag_cached.stopped && !mag_cached.selftest_valid && !mag_cached.samples && !idle);
+    char *sample_encoded[]={"wf_mag","sample","encoded","2"};
+    char *sample_invalid[]={"wf_mag","sample","encoded","0"};
+    const char *bad_seconds[]={"0","121","-1","+1","2x",""};
+    for (unsigned i=0;i<sizeof bad_seconds/sizeof bad_seconds[0];++i) {
+        sample_invalid[3]=(char *)bad_seconds[i]; wf_mag(4,sample_invalid); assert(!mag_pending);
+    }
+    sample_invalid[2]="raw80"; sample_invalid[3]="2"; wf_mag(4,sample_invalid); assert(!mag_pending);
+    /* The candidate can now sample, but only through its explicit entry point.
+     * A duplicate selftest or old start cannot replace the queued request. */
+    fake_mag_init(&mag_fake); mag_fake.factory[0]=0x63; mag_fake.factory[1]=0x7a; mag_fake.factory[2]=0x72;
+    wristflow_product_wrist_enable(true);
+    assert(wristflow_product_light_enable(true)); wristflow_product_light_active(true);
+    cycle(); light_regs[0x8c]=4; cycle(); light_generation=auto_generation;
+    uint16_t sample_native=native_count;
+    mag_log[0]=0;
+    wf_mag(4,sample_encoded); wf_mag(3,selftest_raw); wf_mag(3,mag_start);
+    assert(mag_pending && !mag_selftest_only && mag_threshold_mode==WF_MAG_THRESHOLD_ENCODED_EXPERIMENTAL && mag_seconds==2);
+    duplicate_mag_in_prepare=true; cycle();
+    for (unsigned i=0;i<30 && !mag_cached.samples;++i) { light_regs[0x8c]=4; cycle(); }
+    assert(mag_cached.phase==WF_MAG_RUNNING && mag_cached.selftest_passed && mag_cached.samples==1 && mag_cached.sample_valid);
+    assert(mag_cached.threshold_mode==WF_MAG_THRESHOLD_ENCODED_EXPERIMENTAL && !mag_cached.selftest_only && mag_cached.duration_ms==2000);
+    assert(mag_cached.selftest_threshold[0]==0x5c && mag_cached.selftest_threshold[1]==0x13 && mag_cached.selftest_threshold[2]==0x2c);
+    assert(mag_cached.x==12345 && mag_cached.y==-23456 && mag_cached.z==34567);
+    assert(strstr(mag_log,"selftest_only=0 threshold=encoded experimental=1") && strstr(mag_log,"[mag-data]"));
+    assert(auto_requested && auto_generation==light_generation && light.continuous && wrist_runtime && native_count==sample_native);
+    before=mag_fake.operations; wf_mag(2,mag_status); assert(mag_fake.operations==before);
+    wf_mag(2,mag_stop); cycle();
+    assert(mag_cached.ended==WF_MAG_CANCELLED && mag_cached.stopped && !mag_cached.owned && !mag_busy);
+    assert(wristflow_product_light_enable(false)); wristflow_product_wrist_enable(false); cycle();
+    wf_mag(3,mag_start); cycle();
+    for (unsigned i=0;i<30 && !mag_cached.samples;++i) cycle();
+    assert(mag_cached.threshold_mode==WF_MAG_THRESHOLD_RAW80 && !mag_cached.selftest_only && mag_cached.samples);
+    wf_mag(2,mag_stop); cycle();
+    fake_mag_init(&mag_fake); mag_fake.selftest_fail=true;
+    wf_mag(4,sample_encoded); cycle();
+    for (unsigned i=0;i<30 && mag_cached.phase==WF_MAG_RUNNING;++i) cycle();
+    assert(mag_cached.ended==WF_MAG_SELFTEST_FAILED && !mag_cached.samples && mag_cached.stopped && !idle);
+    fake_mag_init(&mag_fake); wf_mag(4,sample_encoded); cycle();
+    for (unsigned i=0;i<30 && !mag_cached.samples;++i) cycle();
+    before=mag_cached.samples; ticks+=2000; cycle();
+    assert(mag_cached.ended==WF_MAG_DEADLINE && mag_cached.samples==before && mag_cached.stopped && !idle);
+    fake_mag_init(&mag_fake); wf_mag(4,sample_encoded); cycle();
+    for (unsigned i=0;i<30 && !mag_cached.samples;++i) cycle();
+    mag_fake.fail_reset=true; wf_mag(2,mag_stop); cycle();
+    assert(mag_cached.owned && !mag_cached.stopped && mag_cached.ended==WF_MAG_IO_FAILURE && idle);
+    before=mag_fake.operations; cycle(); assert(mag_fake.operations==before);
+    wf_mag(4,sample_encoded); assert(!mag_pending);
+    mag_fake.fail_reset=false; wf_mag(2,mag_stop); cycle(); assert(!idle && mag_cached.stopped);
     return 0;
 }

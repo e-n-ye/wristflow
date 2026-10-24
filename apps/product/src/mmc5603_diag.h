@@ -58,6 +58,9 @@ typedef struct {
  * not arbitrary prior-state restoration or a current measurement. */
 void wf_mmc5603_init(wf_mmc5603_t *, wf_mmc5603_io_t);
 bool wf_mmc5603_begin(wf_mmc5603_t *, uint32_t started_ms, uint32_t duration_ms);
+/* Explicit encoded-threshold candidate; native selftest must PASS before
+ * bounded Auto_SR single-shot XYZ. Does not change the default begin(). */
+bool wf_mmc5603_begin_encoded(wf_mmc5603_t *, uint32_t started_ms, uint32_t duration_ms);
 /* Explicit diagnostic hypothesis only; fixed total deadline, no ordinary XYZ.
  * Both PASS and FAIL stop locally. The default begin() always uses raw80. */
 bool wf_mmc5603_begin_selftest(wf_mmc5603_t *, uint32_t started_ms, wf_mag_threshold_t);
