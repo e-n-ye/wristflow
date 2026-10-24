@@ -1,0 +1,474 @@
+{
+  "schema": 1,
+  "recorded_at": "2026-10-24T09:26:05.285269+00:00",
+  "scope": "One static MMC5603NJ native selftest with existing observability firmware; capture complete, native selftest FAIL and automatic stop confirmed.",
+  "source": {
+    "base": "b13682745f4740cbd1225ee236b9d84b8bae0468",
+    "software_evidence": {
+      "path": "docs/evidence/2026-10-24/mmc5603-selftest-trace.json",
+      "bytes": 12045,
+      "sha256": "f5176ec858848ec0817d2839147bc348fbdb100d219b3c8de3de325bedad605e"
+    },
+    "build": "artifacts/product/20261024-164647-118/result.json",
+    "bin_sha256": "f9007cbf3cc69da561b5f2d2af584dbaffcdcf7513fe50d7fdbf8465277e4b71",
+    "firmware_source_changed": false,
+    "recompiled": false,
+    "device_firmware_identity_authenticated": false
+  },
+  "preflight": {
+    "at": "2026-10-24T09:01:17.702360+00:00",
+    "base": "b13682745f4740cbd1225ee236b9d84b8bae0468",
+    "build": "artifacts/product/20261024-164647-118/result.json",
+    "bin_sha256": "f9007cbf3cc69da561b5f2d2af584dbaffcdcf7513fe50d7fdbf8465277e4b71",
+    "sources_verified": 545,
+    "source_newline_only": [],
+    "artifacts_verified": 29,
+    "sdk_clean": true,
+    "endpoint": {
+      "device": "COM5",
+      "vid": 6790,
+      "pid": 29987,
+      "location": "1-1.1",
+      "serial_number": "",
+      "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+      "disable_modem": 1
+    },
+    "conditions": "Operator reconfirmed same board/display, original battery+computer USB, fixed wiring and present. Authorized exact image download, one static selftest capture and stop confirmation; no threshold change/rotation/compass.",
+    "device_opened": false
+  },
+  "operator": {
+    "authorization": "Same board/display, original battery plus computer USB, fixed wiring, operator present; download and ONE static native selftest only.",
+    "before_capture": "Operator confirmed display/touch/time normal, temporary 5-minute keep-awake, screen up and static away from magnetic accessories; no rotation.",
+    "end_state": "Operator confirmed temporary keep-awake off, display/touch/time normal, automatic brightness/AOD/wrist preferences preserved.",
+    "no_further_device_operations": true
+  },
+  "flash": {
+    "record": {
+      "path": "artifacts/flash/product/20261024-170650-089/result.json",
+      "bytes": 1767,
+      "sha256": "b05927beff551c3cee0f5ed582e9aca0abd039e0c60baadfd595d429f628d46e"
+    },
+    "result": {
+      "date": "2026-10-24T17:09:36.1536383+08:00",
+      "example": "product",
+      "board": "sf32lb52-lchspi-ulp",
+      "port": "COM5",
+      "tool": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe",
+      "command": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+      "images": [
+        {
+          "name": "bootloader.bin",
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+          "address": "0x12010000",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "name": "main.bin",
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+          "address": "0x12020000",
+          "bytes": 8029336,
+          "sha256": "f9007cbf3cc69da561b5f2d2af584dbaffcdcf7513fe50d7fdbf8465277e4b71"
+        },
+        {
+          "name": "ftab.bin",
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+          "address": "0x12000000",
+          "bytes": 11288,
+          "sha256": "ec0ab2288fa9286c324f1d4bdf90a610e159e13869ece1cf3c3b1bf5012bcce3"
+        }
+      ],
+      "exit_code": 0,
+      "hardware_verified": false
+    }
+  },
+  "sessions": [
+    {
+      "name": "before-001",
+      "record": {
+        "path": "artifacts/mmc5603-selftest-hardware-20261024/before-001/session.json",
+        "bytes": 7059,
+        "sha256": "bf850dc0f5c1b243f674e282ab1962b2b4f7590b3c49d32ef961ee03a8a5b473"
+      },
+      "uart": {
+        "path": "artifacts/mmc5603-selftest-hardware-20261024/before-001/uart.bin",
+        "bytes": 5039,
+        "sha256": "db981804e041734b436527f54cd7829c20fcdadd3766ae0d7fbfe3a209680bee"
+      },
+      "closed_at": "2026-10-24T09:01:45.444116+00:00",
+      "error": null,
+      "commands": [
+        {
+          "at": "2026-10-24T09:01:38.530286+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-24T09:01:39.249077+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-24T09:01:39.993004+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T09:01:40.737006+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-24T09:01:41.492927+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-24T09:01:42.214029+00:00",
+          "command": "wf_battery status"
+        },
+        {
+          "at": "2026-10-24T09:01:42.945187+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-24T09:01:43.664325+00:00",
+          "command": "wf_ble radio"
+        },
+        {
+          "at": "2026-10-24T09:01:44.413951+00:00",
+          "command": "wf_pm allow"
+        }
+      ],
+      "release_verified": true,
+      "port_closed": null
+    },
+    {
+      "name": "startup-001",
+      "record": {
+        "path": "artifacts/mmc5603-selftest-hardware-20261024/startup-001/session.json",
+        "bytes": 10934,
+        "sha256": "e4f66b69585c106131546fece31b8485cb2ea63cf1880b16b7c7c461867502a3"
+      },
+      "uart": {
+        "path": "artifacts/mmc5603-selftest-hardware-20261024/startup-001/uart.bin",
+        "bytes": 12825,
+        "sha256": "cab6ef3e89c0a21223ac1c9caa8659d0359bc757155fe3202ff852a5a32aaf65"
+      },
+      "closed_at": "2026-10-24T09:10:28.437717+00:00",
+      "error": null,
+      "commands": [
+        {
+          "at": "2026-10-24T09:10:12.700312+00:00",
+          "reset_once_ms": 150
+        },
+        {
+          "at": "2026-10-24T09:10:17.871968+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-24T09:10:18.585609+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-24T09:10:19.317641+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T09:10:20.071015+00:00",
+          "command": "wf_time 1792833020"
+        },
+        {
+          "at": "2026-10-24T09:10:20.818757+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T09:10:21.549659+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-24T09:10:22.285269+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-24T09:10:23.018022+00:00",
+          "command": "wf_battery status"
+        },
+        {
+          "at": "2026-10-24T09:10:23.772889+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-24T09:10:24.519309+00:00",
+          "command": "wf_ble radio"
+        },
+        {
+          "at": "2026-10-24T09:10:25.232410+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-24T09:10:25.957571+00:00",
+          "command": "list_thread"
+        },
+        {
+          "at": "2026-10-24T09:10:26.690838+00:00",
+          "command": "list_mem"
+        },
+        {
+          "at": "2026-10-24T09:10:27.431347+00:00",
+          "command": "wf_pm allow"
+        }
+      ],
+      "release_verified": true,
+      "port_closed": null
+    },
+    {
+      "name": "static-001",
+      "record": {
+        "path": "artifacts/mmc5603-selftest-hardware-20261024/static-001/session.json",
+        "bytes": 9956,
+        "sha256": "ac4545873e1368efd22a3df0004b687ea85075ed06d1ea36fa5a938b11508c89"
+      },
+      "uart": {
+        "path": "artifacts/mmc5603-selftest-hardware-20261024/static-001/uart.bin",
+        "bytes": 7349,
+        "sha256": "0624ba10eb5fc1ed67ed937ddf0e1b18b2e211b867437316a6c217f91056f644"
+      },
+      "closed_at": "2026-10-24T09:18:02.003772+00:00",
+      "error": [],
+      "commands": [
+        {
+          "at": "2026-10-24T09:17:53.866678+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T09:17:54.585981+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-24T09:17:55.314922+00:00",
+          "command": "wf_mag status"
+        },
+        {
+          "at": "2026-10-24T09:17:56.040427+00:00",
+          "command": "wf_light status"
+        },
+        {
+          "at": "2026-10-24T09:17:56.769216+00:00",
+          "command": "wf_mag start 10"
+        },
+        {
+          "at": "2026-10-24T09:17:57.613472+00:00",
+          "command": "wf_mag status"
+        },
+        {
+          "at": "2026-10-24T09:17:58.350705+00:00",
+          "command": "wf_light status"
+        },
+        {
+          "at": "2026-10-24T09:17:59.091597+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-24T09:17:59.794311+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-24T09:18:00.512101+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-24T09:18:01.266182+00:00",
+          "command": "wf_pm status"
+        }
+      ],
+      "release_verified": null,
+      "port_closed": true
+    },
+    {
+      "name": "final-001",
+      "record": {
+        "path": "artifacts/mmc5603-selftest-hardware-20261024/final-001/session.json",
+        "bytes": 9448,
+        "sha256": "f2969a6e08c862781fc6bbb499d64b5ce3dc387fba8e3b73c4775dfabff19efd"
+      },
+      "uart": {
+        "path": "artifacts/mmc5603-selftest-hardware-20261024/final-001/uart.bin",
+        "bytes": 6894,
+        "sha256": "3fbbad648d729d05c6599886eb6bdcda4accb1cf0491dc82ad756386b15b18ce"
+      },
+      "closed_at": "2026-10-24T09:18:41.097847+00:00",
+      "error": null,
+      "commands": [
+        {
+          "at": "2026-10-24T09:18:32.124046+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-24T09:18:32.845548+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-24T09:18:33.555359+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T09:18:34.284530+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-24T09:18:34.998999+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-24T09:18:35.742407+00:00",
+          "command": "wf_battery status"
+        },
+        {
+          "at": "2026-10-24T09:18:36.481269+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-24T09:18:37.184930+00:00",
+          "command": "wf_ble radio"
+        },
+        {
+          "at": "2026-10-24T09:18:37.896396+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-24T09:18:38.630111+00:00",
+          "command": "list_thread"
+        },
+        {
+          "at": "2026-10-24T09:18:39.366367+00:00",
+          "command": "list_mem"
+        },
+        {
+          "at": "2026-10-24T09:18:40.089441+00:00",
+          "command": "wf_pm allow"
+        }
+      ],
+      "release_verified": true,
+      "port_closed": null
+    }
+  ],
+  "selftest": {
+    "session": 1,
+    "native_valid": true,
+    "passed": false,
+    "factory_hex": "63/7a/72",
+    "threshold_hex": "4f/61/5b",
+    "trace_hex": "7f",
+    "reset_status_hex": "10",
+    "observed_status_hex": "75",
+    "post_status_hex": "30",
+    "polls": 1,
+    "raw_hex": "7c/84/81/c3/7e/7c/00/00/70",
+    "software_times": {
+      "reset_status_read_ms": 462121,
+      "command_attempt_ms": 462123,
+      "command_ack_ms": 462123,
+      "status_read_ms": 462172,
+      "data_read_ms": 462173,
+      "post_status_read_ms": 462174
+    },
+    "software_intervals_ms": {
+      "reset_read_to_command": 2,
+      "command_to_ack": 0,
+      "ack_to_status": 49,
+      "status_to_data": 1,
+      "data_to_post": 1,
+      "command_to_post": 51
+    },
+    "time_interpretation": "Software read-completion/call observations with millisecond resolution; not chip-internal selftest duration or DONE edge. One poll only.",
+    "status_interpretation": "Before data 0x75 has OTP_READY, MAG_DONE and SAT_SENSOR; after data 0x30 has OTP_READY and SAT_SENSOR, MAG_DONE clear. Cleanup after_status is separately 0x10.",
+    "raw_interpretive_unsigned": [
+      510016,
+      531504,
+      518087
+    ],
+    "raw_interpretive_centered": [
+      -14272,
+      7216,
+      -6201
+    ],
+    "raw_interpretation": "Ordinary 20-bit layout applied only for interpretation. No endpoint values; not valid normal XYZ, calibration, field strength or native PASS. Native SAT_SENSOR is independent of numeric endpoint checks.",
+    "cached_final": {
+      "session": 1,
+      "phase": 3,
+      "end": 6,
+      "id": 16,
+      "identity_valid": 1,
+      "owned": 0,
+      "stopped": 1,
+      "errors": 0
+    },
+    "ordinary_sample_count": 0,
+    "stop_attempted": false,
+    "automatic_cleanup_verified": true
+  },
+  "coexistence": {
+    "automatic_brightness": "Same light session 2 seq19 to21; enabled/active/valid=1, brightness23, fault/cleanup=0, light errors0.",
+    "steps": "Total0/native0/hour sum0; final generation109 verified/clean, I/O errors0. Before snapshot first showed108 then logged automatic save109; not a loss.",
+    "wrist": "Saved requested/continuous/armed/owned=1 retained; no new wrist acceptance claim.",
+    "ui": "Final cached mismatch0; operator confirmed display/touch/time normal.",
+    "pm": "Static window only queried status; no PM control/reset/time write. Final snapshot hold released with allow1.",
+    "stack": "Final list_thread: main 16384B/46%, wf_imu 6144B/15%; software high-water observations for this run only.",
+    "heap_peak_bytes": 105364
+  },
+  "validation": {
+    "capture_script": {
+      "path": "artifacts/mmc5603-selftest-hardware-20261024/capture.py",
+      "bytes": 9283,
+      "sha256": "8a636802600a071077accb9fbac3e021de76e559baa06e9f97aa5be9ec56cc4e"
+    },
+    "replay_script": {
+      "path": "artifacts/mmc5603-selftest-hardware-20261024/replay_capture.py",
+      "bytes": 3911,
+      "sha256": "f1a7105a3681ca0fab564a98f04ac129161524b07ecac6eec255811a5af79101"
+    },
+    "summarizer": {
+      "path": "artifacts/mmc5603-selftest-hardware-20261024/record_hardware.py",
+      "bytes": 9013,
+      "sha256": "e7b870dfa4823a32e9d20c990b6e743b523811eac40a98c59be7557ad838c83e"
+    },
+    "host_safety_replay_log": {
+      "path": "artifacts/mmc5603-selftest-hardware-20261024/replay-001.log",
+      "bytes": 4144,
+      "sha256": "98a9b60a5378b59f2ae8fb866bb2f669a8f0137603986765063773ca16944e64"
+    },
+    "host_safety_replays": "4/4: native FAIL preserved, PASS stopped once, missing result not restarted, foreign operation protected; no device.",
+    "independent_readonly_review": "Capture script and saved outcome/timing reviewed; no execution blocker. Parent writes/build/Git/device only.",
+    "raw_log_consistency_verified": true,
+    "saved_text_line_endings": "Windows write_text expanded 103 CRLF to CRCRLF; undoing exactly that expansion reproduces ANSI-stripped uart.bin byte for byte. Binary is authoritative; originals preserved.",
+    "offline_record_failure": "First summarizer assertion used universal-newline text and failed; no device operation. Byte comparison identified only the saved-text newline expansion; corrected summary reads canonical binary.",
+    "new_firmware_build": false
+  },
+  "evidence_excerpt": [
+    "msh />msh />msh />msh />[mag] session=0 phase=0 end=0 id=00 identity_valid=0 owned=0 stopped=0 errors=0",
+    "[mag] start=0 duration=0 ms=0 seq=0 status=00 after=00 xyz=0/0/0 valid=0 saturated=0",
+    "[mag] selftest_valid=0 passed=0 status=00 factory=00/00/00 threshold=00/00/00; uncalibrated counts, no heading",
+    "[mag-selftest-time] session=0 trace=00 reset=00@0 command=0 ack=0 polls=0",
+    "[mag-selftest-state] session=0 observed=00@0 post=00@0 data_ms=0; software observation",
+    "[mag-selftest-raw] session=0 trace=00 bytes=00/00/00/00/00/00/00/00/00; response only",
+    "[auto-light] enabled=1 active=1 valid=1 fault=0 cleanup=0 brightness=23 mlux=17950 ms=460804 session=2 seq=19; uncalibrated",
+    "msh />msh />[mag] queued=1",
+    "msh />msh />[mag] accepted=1",
+    "[mag-state] session=1 phase=1 end=0 owned=0 stopped=0 errors=0",
+    "[mag-selftest] session=1 factory=63/7a/72 threshold=4f/61/5b status=75 passed=0",
+    "[mag-state] session=1 phase=3 end=6 owned=0 stopped=1 errors=0",
+    "[mag-selftest-time] session=1 trace=7f reset=10@462121 command=462123 ack=462123 polls=1",
+    "[mag-selftest-state] session=1 observed=75@462172 post=30@462174 data_ms=462173; software observation",
+    "[mag-selftest-raw] session=1 trace=7f bytes=7c/84/81/c3/7e/7c/00/00/70; response only",
+    "msh />msh />[mag] session=1 phase=3 end=6 id=10 identity_valid=1 owned=0 stopped=1 errors=0",
+    "[mag] start=462008 duration=10000 ms=0 seq=0 status=75 after=10 xyz=0/0/0 valid=0 saturated=0",
+    "[mag] selftest_valid=1 passed=0 status=75 factory=63/7a/72 threshold=4f/61/5b; uncalibrated counts, no heading",
+    "[mag-selftest-time] session=1 trace=7f reset=10@462121 command=462123 ack=462123 polls=1",
+    "[mag-selftest-state] session=1 observed=75@462172 post=30@462174 data_ms=462173; software observation",
+    "[mag-selftest-raw] session=1 trace=7f bytes=7c/84/81/c3/7e/7c/00/00/70; response only",
+    "[auto-light] enabled=1 active=1 valid=1 fault=0 cleanup=0 brightness=23 mlux=17950 ms=462884 session=2 seq=21; uncalibrated"
+  ],
+  "unverified": [
+    "Cause of SAT_SENSOR, factory-byte encoding/rounding and chip-internal completion timing.",
+    "External field, device/board, supply and command-timing contributions are not separated.",
+    "Normal XYZ/rotation/axis response, normal deadline/explicit-stop device path, calibration/compass accuracy.",
+    "Physical DEEP, current, battery capacity/life and long-term stability."
+  ],
+  "next_boundary": "Close this evidence-only delivery; no more device operations. Further MMC work needs traceable same-part guidance on factory threshold encoding/selftest completion before proposing a new bounded experiment; do not tune thresholds or repeat the same capture blindly."
+}
