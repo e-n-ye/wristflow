@@ -1,0 +1,632 @@
+{
+  "schema": 1,
+  "recorded_at": "2026-10-24T11:28:41.119399+00:00",
+  "scope": "Same-window raw80 nativeFAIL vs encoded nativePASS, onceeach, automaticstop, noordinaryXYZ; interruptedflash andsuccessfulrecovery retained.",
+  "source": {
+    "base": "7dfb8ba668a8dc2203e4f96be82a5ee852d2582e",
+    "software_evidence": {
+      "path": "docs/evidence/2026-10-24/mmc5603-selftest-compare.json",
+      "bytes": 15403,
+      "sha256": "a3c75c683cdccad69b860a309be550c266813ca8b2b58e97d2e0c73d89d8a4f8"
+    },
+    "bin_sha256": "5b230e1d04f7ae186c1175fe11b9e9f260792c0a8d4d5dd3efe0c35410a88d37",
+    "firmware_source_changed": false,
+    "recompiled": false,
+    "device_firmware_identity_authenticated": false
+  },
+  "preflight": {
+    "at": "2026-10-24T11:01:20.832378+00:00",
+    "base": "7dfb8ba668a8dc2203e4f96be82a5ee852d2582e",
+    "build": "artifacts/product/20261024-184219-549/result.json",
+    "bin_sha256": "5b230e1d04f7ae186c1175fe11b9e9f260792c0a8d4d5dd3efe0c35410a88d37",
+    "sources_verified": 545,
+    "source_newline_only": [],
+    "artifacts_verified": 29,
+    "sdk_clean": true,
+    "endpoint": {
+      "device": "COM5",
+      "vid": 6790,
+      "pid": 29987,
+      "location": "1-1.1",
+      "serial_number": "",
+      "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+      "disable_modem": 1
+    },
+    "conditions": "Operator reconfirmed same board/display, original battery+computerUSB, fixed wiring and present; exact image download plus raw80/encoded once each, static, stop confirmed, noXYZ/rotation/SET/environment change.",
+    "device_opened": false
+  },
+  "authorization": "Operator reconfirmed same board/display, original battery+computer USB, fixed wiring and presence; exactimage download andraw80/encoded onceeach; noXYZ/rotation/SET/environmentchange.",
+  "download": {
+    "initial_interruption": {
+      "record": {
+        "path": "artifacts/mmc5603-compare-hardware-20261024/flash-001-interrupted.json",
+        "bytes": 1058,
+        "sha256": "98f763db472b3485ed43e42fb2fb8fe630261fa7833832692970217bab86c643"
+      },
+      "log": {
+        "path": "artifacts/mmc5603-compare-hardware-20261024/flash-001.log",
+        "bytes": 402,
+        "sha256": "2decf2ad0230c7e92e539594cfc87be4d42423badbc6807c0bce1699a27983ec"
+      },
+      "observed": "Background process ended without an exit record; no success/result. No residual sftool/pwsh process; endpoint still enumerated. Cause unknown.",
+      "operator": "Black screen, KEY cannot wake. Operator did not report whethercomputer/USB hadrestarted; do not infer cause."
+    },
+    "launch_failures": [
+      {
+        "record": {
+          "path": "artifacts/mmc5603-compare-hardware-20261024/flash-002-recovery.log",
+          "bytes": 43,
+          "sha256": "f86cd53c47676e089a0b2adb907fd3978a432333be03da74f9e891c669462a27"
+        },
+        "device_opened": false,
+        "result": "Local alternate shell could not resolve command/binary path; did not execute Flash.ps1."
+      },
+      {
+        "record": {
+          "path": "artifacts/mmc5603-compare-hardware-20261024/flash-003-recovery.log",
+          "bytes": 141,
+          "sha256": "0f5dd487779479c04fe8cf209c05a635809dd340f6afee66fd25336b0d58d29d"
+        },
+        "device_opened": false,
+        "result": "Local alternate shell could not resolve command/binary path; did not execute Flash.ps1."
+      },
+      {
+        "record": {
+          "path": "artifacts/mmc5603-compare-hardware-20261024/flash-004-recovery.log",
+          "bytes": 145,
+          "sha256": "a76c3f020ccfe639683366edf38c861aad58c9e689c1e326f58ef60babd721ba"
+        },
+        "device_opened": false,
+        "result": "Local alternate shell could not resolve command/binary path; did not execute Flash.ps1."
+      }
+    ],
+    "recovery": {
+      "log": {
+        "path": "artifacts/mmc5603-compare-hardware-20261024/flash-005-recovery.log",
+        "bytes": 901,
+        "sha256": "f90803b2b3ad9eb2635bb47b6c9c86cc556f9ce2bf71dc961069b2659225a780"
+      },
+      "record": {
+        "path": "artifacts/flash/product/20261024-191144-332/result.json",
+        "bytes": 1767,
+        "sha256": "f993702fd33486db53f4a98b5686796e227eda71cf600cb257fb5732c2c41ada"
+      },
+      "result": {
+        "date": "2026-10-24T19:14:29.3421669+08:00",
+        "example": "product",
+        "board": "sf32lb52-lchspi-ulp",
+        "port": "COM5",
+        "tool": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe",
+        "command": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+        "images": [
+          {
+            "name": "bootloader.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+            "address": "0x12010000",
+            "bytes": 58496,
+            "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+          },
+          {
+            "name": "main.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+            "address": "0x12020000",
+            "bytes": 8029848,
+            "sha256": "5b230e1d04f7ae186c1175fe11b9e9f260792c0a8d4d5dd3efe0c35410a88d37"
+          },
+          {
+            "name": "ftab.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+            "address": "0x12000000",
+            "bytes": 11288,
+            "sha256": "be0a0ec79a0c10dc71fb02cb2025190583757439336fd3d5bedc3e5d924a28b4"
+          }
+        ],
+        "exit_code": 0,
+        "hardware_verified": false
+      },
+      "interpretation": "One actual complete recovery write+verify underexistingdownloadauthorization, exactsameimage. No separate reset before rewrite."
+    }
+  },
+  "startup": "Afterrecovery, one150msRTS forstartup capture. RTC2000 -> actualcurrentUTC set/readback. Storage/stepscheckpoint111/savedwrist restored;PMholdreleased andportclosed. Operatorconfirmed UI/touch/time normal andstaticcondition beforetests.",
+  "sessions": [
+    {
+      "name": "before-001",
+      "record": {
+        "path": "artifacts/mmc5603-compare-hardware-20261024/before-001/session.json",
+        "bytes": 7207,
+        "sha256": "eec2863b73d4f02c6f1e2b1bb02da3cbc9aed5a72f66a40f3233902be2ff3abf"
+      },
+      "uart": {
+        "path": "artifacts/mmc5603-compare-hardware-20261024/before-001/uart.bin",
+        "bytes": 5177,
+        "sha256": "8ffd624e896846eadfc6139b6eaa80c57fa2d902feefb4ff01295cb751b29d7b"
+      },
+      "closed_at": "2026-10-24T11:02:29.613539+00:00",
+      "release_verified": true,
+      "port_closed": null,
+      "error": null,
+      "events": [
+        {
+          "at": "2026-10-24T11:02:22.741200+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-24T11:02:23.479469+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-24T11:02:24.221301+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T11:02:24.957272+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-24T11:02:25.694146+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-24T11:02:26.399042+00:00",
+          "command": "wf_battery status"
+        },
+        {
+          "at": "2026-10-24T11:02:27.143639+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-24T11:02:27.857388+00:00",
+          "command": "wf_ble radio"
+        },
+        {
+          "at": "2026-10-24T11:02:28.598587+00:00",
+          "command": "wf_pm allow"
+        }
+      ]
+    },
+    {
+      "name": "startup-001",
+      "record": {
+        "path": "artifacts/mmc5603-compare-hardware-20261024/startup-001/session.json",
+        "bytes": 11969,
+        "sha256": "d4fbacae2c06df41ba12f16d55b0ffc4c779bea1e029bed420ebe1d048581535"
+      },
+      "uart": {
+        "path": "artifacts/mmc5603-compare-hardware-20261024/startup-001/uart.bin",
+        "bytes": 13826,
+        "sha256": "3fd3c330a4bd0ea83527dd4e3ed9f710ae0d02c000d25e4abeea9d58ac3d2e9e"
+      },
+      "closed_at": "2026-10-24T11:15:10.250730+00:00",
+      "release_verified": true,
+      "port_closed": null,
+      "error": null,
+      "events": [
+        {
+          "at": "2026-10-24T11:14:54.558814+00:00",
+          "reset_once_ms": 150
+        },
+        {
+          "at": "2026-10-24T11:14:59.730954+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-24T11:15:00.486037+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-24T11:15:01.195120+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T11:15:01.930914+00:00",
+          "command": "wf_time 1792840501"
+        },
+        {
+          "at": "2026-10-24T11:15:02.681933+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T11:15:03.412423+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-24T11:15:04.155128+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-24T11:15:04.870458+00:00",
+          "command": "wf_battery status"
+        },
+        {
+          "at": "2026-10-24T11:15:05.592157+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-24T11:15:06.312688+00:00",
+          "command": "wf_ble radio"
+        },
+        {
+          "at": "2026-10-24T11:15:07.029199+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-24T11:15:07.754898+00:00",
+          "command": "list_thread"
+        },
+        {
+          "at": "2026-10-24T11:15:08.462272+00:00",
+          "command": "list_mem"
+        },
+        {
+          "at": "2026-10-24T11:15:09.217365+00:00",
+          "command": "wf_pm allow"
+        }
+      ]
+    },
+    {
+      "name": "compare-001",
+      "record": {
+        "path": "artifacts/mmc5603-compare-hardware-20261024/compare-001/session.json",
+        "bytes": 15043,
+        "sha256": "0dd890e200bba12ab988e0bbab0d94b483eabc54b94625c3dd044494007b1fc3"
+      },
+      "uart": {
+        "path": "artifacts/mmc5603-compare-hardware-20261024/compare-001/uart.bin",
+        "bytes": 9763,
+        "sha256": "a2071851d5c341e5dc30543c171eb43a0c009994073c764053226e20c83eb661"
+      },
+      "closed_at": "2026-10-24T11:16:36.880312+00:00",
+      "release_verified": null,
+      "port_closed": true,
+      "error": [],
+      "events": [
+        {
+          "at": "2026-10-24T11:16:26.257737+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T11:16:27.093661+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-24T11:16:27.933423+00:00",
+          "command": "wf_mag status"
+        },
+        {
+          "at": "2026-10-24T11:16:28.736074+00:00",
+          "command": "wf_light status"
+        },
+        {
+          "at": "2026-10-24T11:16:29.563776+00:00",
+          "command": "wf_mag selftest raw80"
+        },
+        {
+          "at": "2026-10-24T11:16:29.914266+00:00",
+          "command": "wf_mag status"
+        },
+        {
+          "at": "2026-10-24T11:16:30.719826+00:00",
+          "command": "wf_light status"
+        },
+        {
+          "at": "2026-10-24T11:16:31.556539+00:00",
+          "command": "wf_mag selftest encoded"
+        },
+        {
+          "at": "2026-10-24T11:16:31.912794+00:00",
+          "command": "wf_mag status"
+        },
+        {
+          "at": "2026-10-24T11:16:32.733509+00:00",
+          "command": "wf_light status"
+        },
+        {
+          "at": "2026-10-24T11:16:33.571520+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-24T11:16:34.378630+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-24T11:16:35.231452+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-24T11:16:36.064487+00:00",
+          "command": "wf_pm status"
+        }
+      ]
+    },
+    {
+      "name": "final-001",
+      "record": {
+        "path": "artifacts/mmc5603-compare-hardware-20261024/final-001/session.json",
+        "bytes": 9790,
+        "sha256": "0c2aa5fc323565ad409eca69c1038a20ed8e709db078eae1da0c03ab7691ef7d"
+      },
+      "uart": {
+        "path": "artifacts/mmc5603-compare-hardware-20261024/final-001/uart.bin",
+        "bytes": 7243,
+        "sha256": "4425cc121ba1bbd6d3e721c76b84d4b8272ab7360b4f74cab0bf3516ee90299b"
+      },
+      "closed_at": "2026-10-24T11:17:33.678298+00:00",
+      "release_verified": true,
+      "port_closed": null,
+      "error": null,
+      "events": [
+        {
+          "at": "2026-10-24T11:17:24.628296+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-24T11:17:25.346119+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-24T11:17:26.062514+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T11:17:26.795672+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-24T11:17:27.511679+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-24T11:17:28.245448+00:00",
+          "command": "wf_battery status"
+        },
+        {
+          "at": "2026-10-24T11:17:28.975835+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-24T11:17:29.698823+00:00",
+          "command": "wf_ble radio"
+        },
+        {
+          "at": "2026-10-24T11:17:30.404518+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-24T11:17:31.129454+00:00",
+          "command": "list_thread"
+        },
+        {
+          "at": "2026-10-24T11:17:31.863529+00:00",
+          "command": "list_mem"
+        },
+        {
+          "at": "2026-10-24T11:17:32.618952+00:00",
+          "command": "wf_pm allow"
+        }
+      ]
+    }
+  ],
+  "comparison": [
+    {
+      "mode": "raw80",
+      "session": 1,
+      "threshold_hex": "4f/61/5b",
+      "native_valid": true,
+      "passed": false,
+      "reset_hex": "10",
+      "observed_hex": "75",
+      "post_hex": "30",
+      "raw_hex": "7c/5d/81/98/7e/89/00/00/d0",
+      "times_ms": {
+        "reset_read": 92839,
+        "command": 92841,
+        "ack": 92841,
+        "status_read": 92890,
+        "data_read": 92891,
+        "post_read": 92892
+      },
+      "polls": 1,
+      "ack_to_status_observation_ms": 49,
+      "trace_hex": "7f",
+      "automatic_stop": true,
+      "normal_samples": 0,
+      "final": {
+        "session": 1,
+        "phase": 3,
+        "end": 6,
+        "id": 16,
+        "identity_valid": 1,
+        "owned": 0,
+        "stopped": 1,
+        "errors": 0,
+        "selftest_only": true,
+        "mode": "raw80",
+        "experimental": false,
+        "native_valid": true,
+        "passed": false,
+        "status": 117,
+        "factory": [
+          99,
+          122,
+          114
+        ],
+        "threshold": [
+          79,
+          97,
+          91
+        ],
+        "start_ms": 92726,
+        "duration_ms": 10000,
+        "samples": 0,
+        "after_status": 16,
+        "sample_valid": false
+      }
+    },
+    {
+      "mode": "encoded",
+      "session": 2,
+      "threshold_hex": "5c/13/2c",
+      "native_valid": true,
+      "passed": true,
+      "reset_hex": "10",
+      "observed_hex": "55",
+      "post_hex": "10",
+      "raw_hex": "7c/5e/81/91/7e/8f/00/00/e0",
+      "times_ms": {
+        "reset_read": 94833,
+        "command": 94835,
+        "ack": 94835,
+        "status_read": 94884,
+        "data_read": 94885,
+        "post_read": 94886
+      },
+      "polls": 1,
+      "ack_to_status_observation_ms": 49,
+      "trace_hex": "7f",
+      "automatic_stop": true,
+      "normal_samples": 0,
+      "final": {
+        "session": 2,
+        "phase": 2,
+        "end": 8,
+        "id": 16,
+        "identity_valid": 1,
+        "owned": 0,
+        "stopped": 1,
+        "errors": 0,
+        "selftest_only": true,
+        "mode": "encoded",
+        "experimental": true,
+        "native_valid": true,
+        "passed": true,
+        "status": 85,
+        "factory": [
+          99,
+          122,
+          114
+        ],
+        "threshold": [
+          92,
+          19,
+          44
+        ],
+        "start_ms": 94720,
+        "duration_ms": 10000,
+        "samples": 0,
+        "after_status": 16,
+        "sample_valid": false
+      }
+    }
+  ],
+  "evidence_excerpt": [
+    "msh />msh />[mag] session=0 phase=0 end=0 id=00 identity_valid=0 owned=0 stopped=0 errors=0",
+    "[mag] start=0 duration=0 ms=0 seq=0 status=00 after=00 xyz=0/0/0 valid=0 saturated=0",
+    "[mag] selftest_valid=0 passed=0 status=00 factory=00/00/00 threshold=00/00/00; uncalibrated counts, no heading",
+    "[mag-mode] session=0 selftest_only=0 threshold=raw80 experimental=0",
+    "[mag-selftest-time] session=0 trace=00 reset=00@0 command=0 ack=0 polls=0",
+    "[mag-selftest-state] session=0 observed=00@0 post=00@0 data_ms=0; software observation",
+    "[mag-selftest-raw] session=0 trace=00 bytes=00/00/00/00/00/00/00/00/00; response only",
+    "[auto-light] enabled=1 active=1 valid=1 fault=0 cleanup=0 brightness=23 mlux=17950 ms=91474 session=4 seq=23; uncalibrated",
+    "msh />msh />[mag] queued=1",
+    "msh />msh />[mag] accepted=1",
+    "[mag-state] session=1 phase=1 end=0 owned=0 stopped=0 errors=0",
+    "[mag-selftest] session=1 factory=63/7a/72 threshold=4f/61/5b status=75 passed=0",
+    "[mag-state] session=1 phase=3 end=6 owned=0 stopped=1 errors=0",
+    "[mag-mode] session=1 selftest_only=1 threshold=raw80 experimental=0",
+    "[mag-selftest-time] session=1 trace=7f reset=10@92839 command=92841 ack=92841 polls=1",
+    "[mag-selftest-state] session=1 observed=75@92890 post=30@92892 data_ms=92891; software observation",
+    "[mag-selftest-raw] session=1 trace=7f bytes=7c/5d/81/98/7e/89/00/00/d0; response only",
+    "msh />msh />[mag] session=1 phase=3 end=6 id=10 identity_valid=1 owned=0 stopped=1 errors=0",
+    "[mag] start=92726 duration=10000 ms=0 seq=0 status=75 after=10 xyz=0/0/0 valid=0 saturated=0",
+    "[mag] selftest_valid=1 passed=0 status=75 factory=63/7a/72 threshold=4f/61/5b; uncalibrated counts, no heading",
+    "[mag-mode] session=1 selftest_only=1 threshold=raw80 experimental=0",
+    "[mag-selftest-time] session=1 trace=7f reset=10@92839 command=92841 ack=92841 polls=1",
+    "[mag-selftest-state] session=1 observed=75@92890 post=30@92892 data_ms=92891; software observation",
+    "[mag-selftest-raw] session=1 trace=7f bytes=7c/5d/81/98/7e/89/00/00/d0; response only",
+    "[auto-light] enabled=1 active=1 valid=1 fault=0 cleanup=0 brightness=23 mlux=17950 ms=93554 session=4 seq=25; uncalibrated",
+    "msh />msh />[mag] queued=1",
+    "msh />msh />[mag] accepted=1",
+    "[mag-state] session=2 phase=1 end=0 owned=0 stopped=0 errors=0",
+    "[mag-selftest] session=2 factory=63/7a/72 threshold=5c/13/2c status=55 passed=1",
+    "[mag-state] session=2 phase=2 end=8 owned=0 stopped=1 errors=0",
+    "[mag-mode] session=2 selftest_only=1 threshold=encoded experimental=1",
+    "[mag-selftest-time] session=2 trace=7f reset=10@94833 command=94835 ack=94835 polls=1",
+    "[mag-selftest-state] session=2 observed=55@94884 post=10@94886 data_ms=94885; software observation",
+    "[mag-selftest-raw] session=2 trace=7f bytes=7c/5e/81/91/7e/8f/00/00/e0; response only",
+    "msh />msh />[mag] session=2 phase=2 end=8 id=10 identity_valid=1 owned=0 stopped=1 errors=0",
+    "[mag] start=94720 duration=10000 ms=0 seq=0 status=55 after=10 xyz=0/0/0 valid=0 saturated=0",
+    "[mag] selftest_valid=1 passed=1 status=55 factory=63/7a/72 threshold=5c/13/2c; uncalibrated counts, no heading",
+    "[mag-mode] session=2 selftest_only=1 threshold=encoded experimental=1",
+    "[mag-selftest-time] session=2 trace=7f reset=10@94833 command=94835 ack=94835 polls=1",
+    "[mag-selftest-state] session=2 observed=55@94884 post=10@94886 data_ms=94885; software observation",
+    "[mag-selftest-raw] session=2 trace=7f bytes=7c/5e/81/91/7e/8f/00/00/e0; response only",
+    "[auto-light] enabled=1 active=1 valid=1 fault=0 cleanup=0 brightness=23 mlux=17950 ms=95633 session=4 seq=27; uncalibrated"
+  ],
+  "coexistence": {
+    "auto_light": "Session4 seq23->25->27, enabled/active/valid1,brightness23,fault0/cleanup0/errors0.",
+    "steps": "Total0/native0/hour sum0; checkpoint111 verified/clean before/startup/final. No loss claimed.",
+    "wrist": "Savedrequested1/continuous1/armed1/owned1 retained; not newgestureacceptance.",
+    "ui": "Finalcache mismatch0; operator confirmednormal display/touch/time.",
+    "final": "19:17:33 Asia/Shanghai allow1/portclosed; operatorconfirmedtemporarykeepawakeoff andautomatic/AOD/wrist preferencespreserved. No furtherdeviceoperations.",
+    "stack": "Final main16384B/53%,wf_imu6144B/15%;run-specific software high-water observations.",
+    "heap_peak_bytes": 105364
+  },
+  "validation": {
+    "collector": {
+      "path": "artifacts/mmc5603-compare-hardware-20261024/compare.py",
+      "bytes": 10569,
+      "sha256": "a9be10382e2f65f3c6c943bdbb48924104756dcea7060fba9406d0218fea3762"
+    },
+    "replay_script": {
+      "path": "artifacts/mmc5603-compare-hardware-20261024/replay.py",
+      "bytes": 4482,
+      "sha256": "2dbdc46e90a06d5935c149390aa9c872f221843fa6199362706bdd747b2a85db"
+    },
+    "replay_log": {
+      "path": "artifacts/mmc5603-compare-hardware-20261024/replay-001.log",
+      "bytes": 11017,
+      "sha256": "a3789f4d8d7f21f1e0593a1f744e1a98fdb2bdd1057ee833a1994dfed9f41de2"
+    },
+    "safety_replays": "6/6:FAIL/PASS,FAIL/FAIL,cleanupfailureblockssecond,foreignoperationprotected,missingACKnotretried,unexpectedRUNNINGcancelledonce.",
+    "independent_review": "Read-onlySol collector/codeandresultreview, no blocker; revisedpost-stop sessionguard beforeexecution. ParentverifiedcanonicalUARTbinary equals savedtext byteforbyte.",
+    "raw_text_exact": true
+  },
+  "conclusion": "This fixed-order single comparison supports thresholdinterpretation affectingnative result: samefactory, loggedcommand/sequence and49ms softwareobservation interval, raw80FAIL,encodedPASS. It doesnot prove complete rootcause or universalformula validity.",
+  "limits": [
+    "Onlyone fixed raw80->encoded order; cannot exclude prior selftest/cleanup,order,time or unmeasuredenvironmenteffects.",
+    "All timesare softwareobservations,notchipinternalcompletion orhardwareDONE edge;9Bnotstimulussubtractedresponse.",
+    "No normalXYZ/axis/calibration/compass,newphysicalcurrent/batterylife/DEEP/long-termstability evidence.",
+    "ThirdpartyBSP provenance andfactoryencodingremainlimited;PASSnotmanufacturerapproval ormagneticaccuracy."
+  ],
+  "official_board_reference": {
+    "url": "https://wiki.lckfb.com/zh-hans/hspi-sf32lb52/lckfb-hspi-sf32lb52/sensor.html",
+    "page": {
+      "path": "artifacts/mmc5603-compare-hardware-20261024/official-sensor-page.html",
+      "bytes": 144120,
+      "sha256": "822ec93ad0412a68ef14e5bbbc22ce20a6c3117caf30a4eef327aee46f414a38"
+    },
+    "visible_text": {
+      "path": "artifacts/mmc5603-compare-hardware-20261024/official-sensor-page.txt",
+      "bytes": 18536,
+      "sha256": "e24c86edb2b66acb84bad45e20b53a6a5f8621b0f665ceefeebd068981e351a4"
+    },
+    "page_fact": "Tutorial enables PA38/PA30, I2C3 PA39/PA40, calls rt_hw_mmc56x3_init, opens mag_mmc56x3 and printsXYZ every100ms. It doesnotinvoke nativeSELF_TEST; generic commandmacro list is not a call.",
+    "locked_sdk_files": [
+      {
+        "path": "vendor/SiFli-SDK/customer/peripherals/sensor/MMC56x3/mmc56x3.c",
+        "bytes": 4308,
+        "sha256": "f1dfe5c560cfc3a3a51c9f5726ce0f2d2173429726ae97321179e4744eff6ee7"
+      },
+      {
+        "path": "vendor/SiFli-SDK/customer/peripherals/sensor/MMC56x3/sensor_memsic_mmc56x3.c",
+        "bytes": 3131,
+        "sha256": "c8d58b5d89d3974b31df904a47534089ca4126dab6af7eeec37f759ca97b27f8"
+      }
+    ],
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "implementation_fact": "LockedSDK names matchtutorial: softwareReset20ms,magneticSET1ms,magneticRESET1ms,ODR100/continuous;9B->20bitcentered*0.0625mG. SELF_TEST=-RT_EINVAL,PowerDownempty. TutorialSDKrevisionnotstated; notproofthatpublishedpageusedthisexactcommit.",
+    "diagnostic_implication": "Projectselftestgate isdiagnosticpolicy, nottutorialrequirement. Pageneitherprovidesfactorythresholdencoding norverifiesnativeselftestPASS. NextXYZtestcanuseofficiallayoutbutretainnewdata/ownership/cleanupguards;donotcopyunsupportedPowerDownorwrite-onlyreadmodify.",
+    "parsing_failure": "Firstone-lineHTMLParsercommandhadquotingsyntaxerrorbeforewritingoutput;replacedbyreadablelocalparser,noeffectonpageorhardware."
+  },
+  "next_boundary": "Closehardwarewindow anddeliverthisevidenceandrequestedofficialreferencecheck. Prepareexplicitencoded limitedXYZsoftwarecandidate;do notswitchdefaultorentercompasspagehere. Anynewdevicerunneedsexactimageandcurrentconditions;no blindrepeats."
+}
