@@ -12,6 +12,9 @@
                 <launcher_icon name="launch_countdown" x="455" y="379" icon="&#xf252;" tint="0x008cff" />
                 <launcher_icon name="launch_alarm" x="95" y="379" icon="&#xf0f3;" tint="0x008cff" />
                 <launcher_icon name="launch_breathing" x="155" y="483" icon="&#xf192;" tint="0x008cff" />
+                <launcher_icon name="launch_compass" x="275" y="483" icon="" tint="0x173a69">
+                    <lv_image align="center" src="compass_icon" />
+                </launcher_icon>
             </lv_obj>
         </lv_obj>
         <lv_label name="launcher_caption" x="24" y="404" width="342" text="应用" style_text_align="center" style_text_color="#fg_secondary" />

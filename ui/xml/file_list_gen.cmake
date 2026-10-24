@@ -22,6 +22,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/components/card_container_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/charging_panel_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/choice_confirm_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/compass_calibration_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/component_confirm_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/component_group_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/countdown_indicator_gen.c
@@ -61,6 +62,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/fonts/battery_80_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/body_20_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/clock_80_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/fonts/compass_32_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/guide_40_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/icons_20_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/icons_44_data.c
@@ -68,6 +70,9 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/fonts/notification_22_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/title_24_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/value_36_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/images/compass_gesture_path_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/images/compass_icon_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/images/compass_pointer_data.c
   ${CMAKE_CURRENT_LIST_DIR}/images/control_awake_data.c
   ${CMAKE_CURRENT_LIST_DIR}/images/control_battery_data.c
   ${CMAKE_CURRENT_LIST_DIR}/images/control_dnd_data.c
@@ -101,6 +106,8 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_battery_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_breathing_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_brightness_adjust_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_compass_calibration_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_compass_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_component_editor_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_component_page_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_component_picker_gen.c

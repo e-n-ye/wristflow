@@ -1,5 +1,13 @@
 # 可复现构建基线
 
+## 2026-10-24 指南针UI
+
+从`71356c7`在主目录`codex/compass-ui`完成[指南针页面](COMPASS.md)：灰环／红北向、中文八方位、未知／校准显示和列表／三列图片图标，Product无测量提供者显式未知，305°只作预览／Demo样例。官方Editor2.0.1／预览及固件LVGL9.4.0，Ctrl+B导出并预览编译成功，主屏／校准100%和实际LVGL快照检查通过；资源脚本只产PNG和字体子集，生成C未手改。
+
+相关Debug4/4（3.33秒）、保留断言Release4/4（1.32秒），涵盖新显示状态／字形／方位分界、真实菜单点击／返回／KEY与现有Product／apps／生命周期回归。锁定SDK及子模块干净；`pwsh -NoProfile -File scripts/Build.ps1 -Example <product|ui_demo> -Jobs 4`沿用官方SCons／Python3.13.15／ArmGCC14.2.1。最终Product`20261024-225551-200`／8,272,568B／`c1fd4048…`、Demo`20261024-225803-337`／8,005,360B／`b68ca51e…`均退出0，563／504源码与29／22产物逐字节核验一致，官方新源清单及链接map符号核对通过。指针／图标／校准像素数据210,304B，Product较旧采样版增242,560B；旧29／22产物先ZIP逐哈希保全。
+
+首选Python缺fontTools后复用离线uv隔离依赖；初次资源重名、主机资源指针类型／访问器错误和旧Product数量／字体检查失败均保留，最终修正后通过。保留既有watch_core范围、FinSH、RTC signedness及链接提示，不改SDK。新官方生成C保留末尾空行，文档／手写代码空白检查与生成物分开。详细命令、完整哈希和未验项见[证据](evidence/2026-10-24/compass-ui.json)，本机原始记录在主目录`artifacts/compass-ui-20261024/`。本轮无串口／下载／设备验证；真实采样、校准判定、过期及生命周期留功能接入轮。
+
 ## 2026-10-24 encoded限时XYZ诊断
 
 从设备证据主线`e0be454`建立`codex/mmc5603-encoded-xyz`，新增显式`wf_mag sample encoded <1..120秒>`，复用原生自检PASS→Auto_SR单次XYZ／总截止／停止路径，保留默认raw80与selftest-only。相关`mmc5603_diag|product_imu_diag`在Debug／保留断言Release各2/2通过（均0.22秒），独立只读代码审查无阻断；未重跑无关UI／Demo，首次验证即通过。

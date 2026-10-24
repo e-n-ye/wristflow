@@ -215,6 +215,7 @@ extern lv_style_t text_muted;
  *----------------*/
 
 /* Targets: any */
+extern lv_font_t * compass_32;
 extern lv_font_t * aod_preview_48;
 extern lv_font_t * aod_preview_32;
 extern lv_font_t * aod_preview_14;
@@ -235,6 +236,9 @@ extern lv_font_t * icons_20;
  *----------------*/
 
 /* Targets: any */
+extern const void * compass_pointer;
+extern const void * compass_icon;
+extern const void * compass_gesture_path;
 extern const void * control_dnd;
 extern const void * control_silent;
 extern const void * control_wrist;
@@ -307,6 +311,7 @@ void wristflow_ui_init_gen(const char * asset_path);
 #include "components/card_container_gen.h"
 #include "components/charging_panel_gen.h"
 #include "components/choice_confirm_gen.h"
+#include "components/compass_calibration_gen.h"
 #include "components/component_confirm_gen.h"
 #include "components/component_group_gen.h"
 #include "components/countdown_indicator_gen.h"
@@ -350,6 +355,8 @@ void wristflow_ui_init_gen(const char * asset_path);
 #include "screens/screen_battery_gen.h"
 #include "screens/screen_breathing_gen.h"
 #include "screens/screen_brightness_adjust_gen.h"
+#include "screens/screen_compass_calibration_gen.h"
+#include "screens/screen_compass_gen.h"
 #include "screens/screen_component_editor_gen.h"
 #include "screens/screen_component_page_gen.h"
 #include "screens/screen_component_picker_gen.h"
