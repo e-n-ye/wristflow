@@ -1,0 +1,429 @@
+{
+  "schema": 1,
+  "recorded_at": "2026-10-24T09:52:52.875119+00:00",
+  "scope": "Pinned MMC5603X-family BSP source and exact C integer behavior investigation only; exact NJ revision applicability unverified, no production source or device change.",
+  "base": "eea5b2a812d9e10dd00741acd60f209fb63311e8",
+  "source": {
+    "repository": "https://github.com/radxa/allwinner-bsp",
+    "commit": "2045a3ca2a01f088c0314dc924bda59d154e363e",
+    "provenance": "Third-party BSP repository. C header claims Copyright(C)2012 MEMSIC; H header claims AKM2010. Not an authenticated MEMSIC release or device revision guarantee.",
+    "license": "C file GPLv2, H file GPLv2-or-later. Original source and exact extracted host harness remain in ignored artifacts; no BSP code copied into production.",
+    "downloads": [
+      {
+        "url": "https://raw.githubusercontent.com/radxa/allwinner-bsp/2045a3ca2a01f088c0314dc924bda59d154e363e/drivers/input/sensor/mmc5603/mmc5603.c",
+        "commit": "2045a3ca2a01f088c0314dc924bda59d154e363e",
+        "path": "artifacts/mmc5603-threshold-source-20261024/mmc5603.c",
+        "bytes": 26139,
+        "sha256": "c3fb3274857d60d7dd699a6496054aaa47ab94a3d02cebe89371a4fe78e4d0fb"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/radxa/allwinner-bsp/2045a3ca2a01f088c0314dc924bda59d154e363e/drivers/input/sensor/mmc5603/mmc5603.h",
+        "commit": "2045a3ca2a01f088c0314dc924bda59d154e363e",
+        "path": "artifacts/mmc5603-threshold-source-20261024/mmc5603.h",
+        "bytes": 5150,
+        "sha256": "c682ef99470b19fbeda142fdec9d9924e1c71253a0b2c0e7fbcd63467191d1d3"
+      }
+    ],
+    "github_blob_identity_verified": true,
+    "metadata": {
+      "path": "artifacts/mmc5603-threshold-source-20261024/github-files.json",
+      "bytes": 839,
+      "sha256": "c13a2f10c14a18e83f278fd70dd237daa9b85d922bcb27cf6a8f6aa19f8d936e"
+    },
+    "github": [
+      {
+        "download_url": "https://raw.githubusercontent.com/radxa/allwinner-bsp/2045a3ca2a01f088c0314dc924bda59d154e363e/drivers/input/sensor/mmc5603/mmc5603.c",
+        "html_url": "https://github.com/radxa/allwinner-bsp/blob/2045a3ca2a01f088c0314dc924bda59d154e363e/drivers/input/sensor/mmc5603/mmc5603.c",
+        "name": "mmc5603.c",
+        "path": "drivers/input/sensor/mmc5603/mmc5603.c",
+        "sha": "f94a4bb650dd8d88d41a3a7ced395bb67d1f550e",
+        "size": 26139
+      },
+      {
+        "download_url": "https://raw.githubusercontent.com/radxa/allwinner-bsp/2045a3ca2a01f088c0314dc924bda59d154e363e/drivers/input/sensor/mmc5603/mmc5603.h",
+        "html_url": "https://github.com/radxa/allwinner-bsp/blob/2045a3ca2a01f088c0314dc924bda59d154e363e/drivers/input/sensor/mmc5603/mmc5603.h",
+        "name": "mmc5603.h",
+        "path": "drivers/input/sensor/mmc5603/mmc5603.h",
+        "sha": "75f500917ec3b7c4438fb61b83ce37b83f10ddf9",
+        "size": 5150
+      }
+    ],
+    "relevant_lines": {
+      "copyright_c": [
+        1,
+        14
+      ],
+      "copyright_h": [
+        1,
+        17
+      ],
+      "factory_threshold": [
+        456,
+        509
+      ],
+      "auto_selftest": [
+        170,
+        196
+      ],
+      "saturation_set_recovery": [
+        199,
+        226
+      ],
+      "enable_call": [
+        595,
+        596
+      ],
+      "threshold_addresses_h": [
+        39,
+        45
+      ],
+      "id_status_h": [
+        93,
+        100
+      ]
+    }
+  },
+  "findings": {
+    "factory_encoding": "BSP expression centers raw byte at128 and multiplies by32; then subtracts one-fifth, divides by8 and clamps255.",
+    "literal_defect": "Intermediate st_thr_data is unsigned short. Negative products wrap on assignment; comparison with0 is always false on target-style16-bit unsigned short/32-bit int. Compiler warning and exact extracted function replay confirm this.",
+    "raw80": [
+      79,
+      97,
+      91
+    ],
+    "factory": [
+      99,
+      122,
+      114
+    ],
+    "literal_bsp": [
+      255,
+      255,
+      255
+    ],
+    "signed_magnitude_interpretation": [
+      92,
+      19,
+      44
+    ],
+    "interpretation_limits": "Signed-magnitude result is inferred intent, not the literal original result, official specification, approved production fix, or validated device behavior. It uses m-floor(m/5), then floor(/8), not an assumed interchangeable rounding expression.",
+    "command_difference": "BSP auto-selftest writes0x40, waits15ms and readsSat_sensor, then separateTM_M/wait8ms. Project/datasheet example uses0x41; threshold comparison must not also migrate timing/command/SET.",
+    "magnetic_set": "Software reset only clears registers/reloadsOTP. MagneticSET is separate; manual supports its role after strong-field exposure but does not mandate SET before each selftest. SET hypothesis is deferred to keep variables separate.",
+    "environment": "Operator reports RedmiWatch4 compass normal at similar distance. This is useful context, not evidence of identical sensors/layout/calibration/shielding or an environmental cause/exclusion."
+  },
+  "host_validation": {
+    "replay": {
+      "path": "artifacts/mmc5603-threshold-source-20261024/threshold-replay.json",
+      "bytes": 5122,
+      "sha256": "102de78c272a4569bb0bffd8ec155761f876a45c441d6f4a7131700ef319c9d4"
+    },
+    "result": {
+      "source_function_lines": [
+        456,
+        509
+      ],
+      "source_commit": "2045a3ca2a01f088c0314dc924bda59d154e363e",
+      "source_sha256": "c3fb3274857d60d7dd699a6496054aaa47ab94a3d02cebe89371a4fe78e4d0fb",
+      "exact_function_sha256": "cf66c6e9a30877e5526f75f2f40c7db8daa51412f8a530d09515ebccd39dd9fe",
+      "runs": [
+        {
+          "label": "debug",
+          "compiler": "cc.exe (Rev13, Built by MSYS2 project) 15.2.0",
+          "command": [
+            "D:/msys64/ucrt64/bin/cc.exe",
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wtype-limits",
+            "-O0",
+            "D:\\MY_Desk\\project\\wristflow\\artifacts\\mmc5603-threshold-source-20261024\\exact-bsp-host.c",
+            "-o",
+            "D:\\MY_Desk\\project\\wristflow\\artifacts\\mmc5603-threshold-source-20261024\\threshold-debug.exe"
+          ],
+          "returncode": 0,
+          "rows": 256,
+          "csv_sha256": "7348c8cc90f50d6e6bb37b7c955d0de3c7891a50d1603bb0cfd0e7bf9bdf8459",
+          "literal_vs_signed_differences": [
+            49,
+            50,
+            51,
+            52,
+            53,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+            60,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            74,
+            75,
+            76,
+            77,
+            78,
+            79,
+            80,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95,
+            96,
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117,
+            118,
+            119,
+            120,
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127
+          ],
+          "current_factory": [
+            {
+              "raw": 99,
+              "literal_bsp": 255,
+              "project_raw80": 79,
+              "interpreted_signed_magnitude": 92
+            },
+            {
+              "raw": 122,
+              "literal_bsp": 255,
+              "project_raw80": 97,
+              "interpreted_signed_magnitude": 19
+            },
+            {
+              "raw": 114,
+              "literal_bsp": 255,
+              "project_raw80": 91,
+              "interpreted_signed_magnitude": 44
+            }
+          ]
+        },
+        {
+          "label": "optimized",
+          "compiler": "cc.exe (Rev13, Built by MSYS2 project) 15.2.0",
+          "command": [
+            "D:/msys64/ucrt64/bin/cc.exe",
+            "-std=c11",
+            "-Wall",
+            "-Wextra",
+            "-Wtype-limits",
+            "-O2",
+            "D:\\MY_Desk\\project\\wristflow\\artifacts\\mmc5603-threshold-source-20261024\\exact-bsp-host.c",
+            "-o",
+            "D:\\MY_Desk\\project\\wristflow\\artifacts\\mmc5603-threshold-source-20261024\\threshold-optimized.exe"
+          ],
+          "returncode": 0,
+          "rows": 256,
+          "csv_sha256": "7348c8cc90f50d6e6bb37b7c955d0de3c7891a50d1603bb0cfd0e7bf9bdf8459",
+          "literal_vs_signed_differences": [
+            49,
+            50,
+            51,
+            52,
+            53,
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+            60,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66,
+            67,
+            68,
+            69,
+            70,
+            71,
+            72,
+            73,
+            74,
+            75,
+            76,
+            77,
+            78,
+            79,
+            80,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88,
+            89,
+            90,
+            91,
+            92,
+            93,
+            94,
+            95,
+            96,
+            97,
+            98,
+            99,
+            100,
+            101,
+            102,
+            103,
+            104,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            115,
+            116,
+            117,
+            118,
+            119,
+            120,
+            121,
+            122,
+            123,
+            124,
+            125,
+            126,
+            127
+          ],
+          "current_factory": [
+            {
+              "raw": 99,
+              "literal_bsp": 255,
+              "project_raw80": 79,
+              "interpreted_signed_magnitude": 92
+            },
+            {
+              "raw": 122,
+              "literal_bsp": 255,
+              "project_raw80": 97,
+              "interpreted_signed_magnitude": 19
+            },
+            {
+              "raw": 114,
+              "literal_bsp": 255,
+              "project_raw80": 91,
+              "interpreted_signed_magnitude": 44
+            }
+          ]
+        }
+      ],
+      "interpretation": "Literal unsigned C behavior reproduced for all bytes; signed-magnitude formula is an interpretation, not validated device behavior or approved production correction.",
+      "device_opened": false,
+      "production_source_changed": false,
+      "firmware_rebuilt": false
+    },
+    "files": [
+      {
+        "path": "artifacts/mmc5603-threshold-source-20261024/research.py",
+        "bytes": 1088,
+        "sha256": "916371d4c9e4b94d872171bbe1c473f10856b4f2eb71ce520a3aa55a792b0d1c"
+      },
+      {
+        "path": "artifacts/mmc5603-threshold-source-20261024/replay_threshold.py",
+        "bytes": 5112,
+        "sha256": "3814ef2c589530b4a2530d15ae8df4b8da502f73e97f54b00b56aa0f4d0486c8"
+      },
+      {
+        "path": "artifacts/mmc5603-threshold-source-20261024/exact-bsp-host.c",
+        "bytes": 3529,
+        "sha256": "096331e9466dd25960179ad19110cae8a6736c00c35b75987c12d26b6ad92f71"
+      },
+      {
+        "path": "artifacts/mmc5603-threshold-source-20261024/compile-debug.log",
+        "bytes": 425,
+        "sha256": "37d8155080bf01e7f0d0c69e84c704f5d265aeca569b7aadee37c3d1ddd7ab83"
+      },
+      {
+        "path": "artifacts/mmc5603-threshold-source-20261024/compile-optimized.log",
+        "bytes": 425,
+        "sha256": "37d8155080bf01e7f0d0c69e84c704f5d265aeca569b7aadee37c3d1ddd7ab83"
+      },
+      {
+        "path": "artifacts/mmc5603-threshold-source-20261024/threshold-debug.csv",
+        "bytes": 4058,
+        "sha256": "7348c8cc90f50d6e6bb37b7c955d0de3c7891a50d1603bb0cfd0e7bf9bdf8459"
+      },
+      {
+        "path": "artifacts/mmc5603-threshold-source-20261024/threshold-optimized.csv",
+        "bytes": 4058,
+        "sha256": "7348c8cc90f50d6e6bb37b7c955d0de3c7891a50d1603bb0cfd0e7bf9bdf8459"
+      },
+      {
+        "path": "artifacts/mmc5603-threshold-source-20261024/replay.log",
+        "bytes": 172,
+        "sha256": "d50dd988e24c6fac74a4a160085b2a6ee4f6ba541ba0df53982d8e2067d420ac"
+      }
+    ],
+    "conclusion": "Exact extracted function matches independent unsigned model for all256 bytes atO0 andO2; output tables identical.79 bytes differ from signed-magnitude interpretation. This verifies software arithmetic only."
+  },
+  "independent_review": "Read-only Sol review independently confirmed integer promotions, three observed-byte results, provenance limits, and command/context differences.",
+  "current_device": {
+    "bin_sha256": "f9007cbf3cc69da561b5f2d2af584dbaffcdcf7513fe50d7fdbf8465277e4b71",
+    "source_evidence": "docs/evidence/2026-10-24/mmc5603-selftest-hardware.json",
+    "changed": false,
+    "serial_opened": false,
+    "flashed": false,
+    "new_hardware_evidence": false,
+    "firmware_rebuilt": false
+  },
+  "decision": "Do not replace default threshold formula from this defective third-party source. Evidence supports a specifically labeled software-only candidate for a future single-variable native-selftest comparison, not threshold tuning untilPASS.",
+  "next_boundary": "Prepare an explicit experimental selftest-only threshold comparison retaining default raw80 and0x41/timing/cleanup; keepSET andenvironment fixed. No device run in this research round; new physical experiment requires exact firmware and current conditions."
+}
