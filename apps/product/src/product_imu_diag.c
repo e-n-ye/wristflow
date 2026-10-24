@@ -68,6 +68,8 @@ static wf_mmc5603_snapshot_t mag_cached;
 static bool mag_pending, mag_busy;
 static volatile bool mag_cancel_requested;
 static unsigned mag_seconds;
+static bool mag_selftest_only;
+static wf_mag_threshold_t mag_threshold_mode;
 static bool prepare_bus(void);
 static bool probe(void);
 static wristflow_steps_clock_t daily_clock(void);
@@ -721,6 +723,10 @@ static void light_work(rt_uint32_t events)
 }
 static void mag_trace_report(const wf_mmc5603_snapshot_t *s)
 {
+    rt_kprintf("[mag-mode] session=%lu selftest_only=%u threshold=%s experimental=%u\n",
+        (unsigned long)s->session, s->selftest_only,
+        s->threshold_mode == WF_MAG_THRESHOLD_RAW80 ? "raw80" : "encoded",
+        s->threshold_mode == WF_MAG_THRESHOLD_ENCODED_EXPERIMENTAL);
     rt_kprintf("[mag-selftest-time] session=%lu trace=%02x reset=%02x@%lu command=%lu ack=%lu polls=%lu\n",
         (unsigned long)s->session, s->selftest_trace, s->reset_status, (unsigned long)s->reset_observed_ms,
         (unsigned long)s->selftest_command_ms, (unsigned long)s->selftest_ack_ms, (unsigned long)s->selftest_polls);
@@ -737,6 +743,8 @@ static void mag_work(rt_uint32_t events)
     rt_base_t level = rt_hw_interrupt_disable();
     bool begin = mag_pending;
     unsigned span = mag_seconds;
+    bool selftest_only = mag_selftest_only;
+    wf_mag_threshold_t threshold_mode = mag_threshold_mode;
     mag_pending = false;
     rt_hw_interrupt_enable(level);
     wf_mmc5603_snapshot_t before = mag.snapshot;
@@ -754,7 +762,9 @@ static void mag_work(rt_uint32_t events)
         uint32_t started = now_ms();
         if (available) {
             bool prepared = prepare_bus();
-            if (wf_mmc5603_begin(&mag, started, span * 1000U) && !prepared) wf_mmc5603_bus_fault(&mag);
+            bool began = selftest_only ? wf_mmc5603_begin_selftest(&mag, started, threshold_mode) :
+                wf_mmc5603_begin(&mag, started, span * 1000U);
+            if (began && !prepared) wf_mmc5603_bus_fault(&mag);
         }
         rt_kprintf("[mag] accepted=%u\n", mag.snapshot.phase == WF_MAG_RUNNING);
     } else if (mag.snapshot.phase == WF_MAG_RUNNING) {
@@ -956,12 +966,24 @@ static void wf_mag(int argc, char **argv)
         return;
     }
     unsigned span = 0;
+    bool selftest_only = false;
+    wf_mag_threshold_t threshold_mode = WF_MAG_THRESHOLD_RAW80;
     if (argc == 3 && !strcmp(argv[1], "start")) {
         char *end;
         unsigned long value = strtoul(argv[2], &end, 10);
         if (argv[2][0] >= '0' && argv[2][0] <= '9' && !*end && value >= 1 && value <= 120) span = (unsigned)value;
+    } else if (argc == 3 && !strcmp(argv[1], "selftest")) {
+        if (!strcmp(argv[2], "raw80") || !strcmp(argv[2], "encoded")) {
+            selftest_only = true;
+            threshold_mode = !strcmp(argv[2], "encoded") ? WF_MAG_THRESHOLD_ENCODED_EXPERIMENTAL : WF_MAG_THRESHOLD_RAW80;
+            span = WF_MAG_SELFTEST_TIMEOUT_MS / 1000U;
+        }
     }
-    if (!span) { rt_kprintf("wf_mag start <1..120 seconds> | stop | status; local reset/selftest, raw XYZ, no compass\n"); return; }
+    if (!span) {
+        rt_kprintf("wf_mag start <1..120 seconds> | selftest raw80|encoded | stop | status\n");
+        rt_kprintf("selftest: 10s total limit, no XYZ; encoded is an experimental threshold hypothesis, not a validated correction\n");
+        return;
+    }
     rt_base_t level = rt_hw_interrupt_disable();
     bool accepted = cached.phase == WF_IMU_RUNNING && !daily_retry_pending && !cancel_requested &&
         !mag_busy && !mag_pending && !mag_cancel_requested && !mag_cached.owned &&
@@ -971,6 +993,7 @@ static void wf_mag(int argc, char **argv)
         (!light_busy || auto_owner);
     if (accepted) {
         mag_pending = mag_busy = true; mag_seconds = span;
+        mag_selftest_only = selftest_only; mag_threshold_mode = threshold_mode;
         rt_event_send(&work, EV_MAG);
     }
     rt_hw_interrupt_enable(level);
@@ -1115,6 +1138,7 @@ static bool start(bool daily_service)
     wf_mmc5603_init(&mag, (wf_mmc5603_io_t){NULL, mag_read, mag_write, io_clock, mag_cancelled, wrist_delay});
     mag_cached = mag.snapshot;
     mag_pending = mag_busy = mag_cancel_requested = false;
+    mag_selftest_only = false; mag_threshold_mode = WF_MAG_THRESHOLD_RAW80; mag_seconds = 0;
     light_cached = light.snapshot;
     light_pending = light_busy = light_cancel_requested = false;
     auto_requested = auto_active = auto_owner = auto_runtime = auto_retry = auto_fault = auto_cancel = false;

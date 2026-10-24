@@ -1,5 +1,13 @@
 # 可复现构建基线
 
+## 2026-10-24 地磁仅自检阈值对照
+
+从来源证据主线`98d3dc2`建立`codex/mmc5603-selftest-compare`，完成显式`wf_mag selftest raw80|encoded`，候选仅换阈值、固定整轮逻辑截止、PASS／FAIL后局部停止且无普通XYZ，默认start保持raw80。相关五项`mmc5603_diag|product_imu_diag|imu_wrist_tilt|ltr303_diag|auto_brightness`在Debug／保留断言Release各5/5通过（0.22／0.37秒），独立只读代码审查无阻断。首次新集成测试沿用已被前序retry重建的native9、误要求begin前取消清空旧session结果，两项测试前提修正后通过，原失败日志保留。
+
+官方`pwsh -NoProfile -File scripts/Build.ps1 -Example product -Jobs 4`，`20261024-184219-549`退出0，BIN8,029,848B／`5b230e1d…`，545源码／29产物逐字节哈希一致，SDK及子模块锁固定干净；Flash DryRun通过且不开端口。相对观测版增加512B，worker6144B／main16384B不变、无新线程／timer，新栈峰值未测。旧f9007cbf版29产物和三份相关生产源码先ZIP逐项核验保全。主机GCC15.2.0／CMake4.2.3，固件ArmGCC14.2.1／Python3.13.15不变；没有新诊断编译warning，原FinSH转换和链接提示保留。
+
+无UI／XML／Demo依赖变化，不重跑无关全量回归或Demo编译；未开串口／下载／设备实验，候选阈值仍未获实机验证。[软件证据](evidence/2026-10-24/mmc5603-selftest-compare.json)绑定命令／失败／指纹，[专题](MMC5603.md#selftest-compare-20261024)保存边界；原始资料留主目录忽略的`artifacts/mmc5603-selftest-compare-20261024/`。
+
 ## 2026-10-24 地磁自检响应取证
 
 从`096f15d`主目录`codex/mmc5603-selftest-evidence`补保存原有自检I/O的响应／状态／软件时间及独立证据位，不改阈值、原生判据、刺激或调度。相关`mmc5603_diag|product_imu_diag`在Debug／保留断言Release各2/2（0.21／0.19秒），补充部分缓冲已写后返回失败的最终两项各2/2（0.22／0.14秒）通过：验证正常／失败响应保留、命令尝试与ACK区分、部分传输／超时／取消不产生有效测量、跨回绕／新会话清零、status无I/O和普通样本不覆盖自检响应。独立只读复核无确定阻断；未运行无关UI／Demo或扩大传感器全量回归。

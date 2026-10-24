@@ -5,6 +5,8 @@
 #include "../apps/product/src/product_imu_diag.c"
 #include <assert.h>
 #include <setjmp.h>
+#include <stdarg.h>
+#include <stdio.h>
 #include "support/mmc5603_fake.h"
 
 static uint8_t user_regs[256], bank_regs[256], bank_b_regs[256], bank;
@@ -16,6 +18,7 @@ static bool pause_auto_in_light_read;
 static unsigned light_restore_attempts;
 static fake_mmc5603_t mag_fake;
 static bool stop_mag_in_prepare, duplicate_mag_in_prepare;
+static char mag_log[16384];
 static uint16_t native_count;
 static rt_tick_t ticks;
 static unsigned irq, idle, reads, writes, rounds, deleted, detached;
@@ -104,7 +107,14 @@ int rt_thread_mdelay(rt_int32_t ms)
     }
     return 0;
 }
-void rt_kprintf(const char *format, ...) { (void)format; }
+void rt_kprintf(const char *format, ...)
+{
+    if (strncmp(format,"[mag",4)) return;
+    size_t used=strlen(mag_log);
+    va_list args; va_start(args,format);
+    (void)vsnprintf(mag_log+used,sizeof mag_log-used,format,args);
+    va_end(args);
+}
 void rt_pm_request(unsigned mode) { assert(mode == PM_SLEEP_MODE_IDLE && !irq && !idle); ++idle; }
 void rt_pm_release(unsigned mode) { assert(mode == PM_SLEEP_MODE_IDLE && !irq && idle == 1); --idle; }
 int rt_event_init(struct rt_event *e, const char *name, unsigned flags)
@@ -710,5 +720,73 @@ int main(void)
     wf_mag(3,mag_start); cycle(); cycle();
     before=mag_cached.samples; ticks+=5000; cycle();
     assert(mag_cached.ended==WF_MAG_DEADLINE && mag_cached.stopped && mag_cached.samples==before && !idle);
+    /* Only an explicit accepted command may select the experimental decoder.
+     * Rejected duplicate/default/invalid requests cannot alter that selection. */
+    char *selftest_encoded[]={"wf_mag","selftest","encoded"};
+    char *selftest_raw[]={"wf_mag","selftest","raw80"};
+    char *selftest_invalid[]={"wf_mag","selftest","Encoded"};
+    char *selftest_extra[]={"wf_mag","selftest","encoded","10"};
+    wf_mag(3,selftest_invalid); wf_mag(4,selftest_extra);
+    assert(!mag_pending);
+    fake_mag_init(&mag_fake); mag_fake.factory[0]=0x63; mag_fake.factory[1]=0x7a; mag_fake.factory[2]=0x72;
+    mag_log[0]=0;
+    wf_mag(3,selftest_encoded); wf_mag(3,selftest_raw); wf_mag(3,mag_start);
+    assert(mag_pending && mag_selftest_only && mag_seconds==10 && mag_threshold_mode==WF_MAG_THRESHOLD_ENCODED_EXPERIMENTAL);
+    duplicate_mag_in_prepare=true; cycle();
+    for (unsigned i=0;i<30 && mag_cached.phase==WF_MAG_RUNNING;++i) cycle();
+    assert(mag_cached.phase==WF_MAG_DONE && mag_cached.ended==WF_MAG_SELFTEST_COMPLETE);
+    assert(mag_cached.selftest_only && mag_cached.threshold_mode==WF_MAG_THRESHOLD_ENCODED_EXPERIMENTAL);
+    assert(mag_cached.duration_ms==10000 && mag_cached.selftest_valid && mag_cached.selftest_passed);
+    assert(mag_cached.selftest_threshold[0]==0x5c && mag_cached.selftest_threshold[1]==0x13 && mag_cached.selftest_threshold[2]==0x2c);
+    assert(!mag_cached.samples && !mag_cached.sample_valid && mag_cached.stopped && !mag_cached.owned && !idle);
+    assert(mag_fake.triggers==1 && mag_fake.resets==2 && !strstr(mag_log,"[mag-data]"));
+    assert(strstr(mag_log,"selftest_only=1 threshold=encoded experimental=1"));
+    before=mag_fake.operations; wf_mag(2,mag_status); assert(mag_fake.operations==before);
+    assert(strstr(mag_log,"[mag-selftest-raw]") && strstr(mag_log,"[mag-mode]"));
+    /* The raw80 selftest-only control coexists with normal auto-light/wrist. */
+    uint16_t compare_native=native_count;
+    wristflow_product_wrist_enable(true);
+    assert(wristflow_product_light_enable(true)); wristflow_product_light_active(true);
+    cycle(); light_regs[0x8c]=4; cycle();
+    light_generation=auto_generation;
+    wf_mag(3,selftest_raw); cycle();
+    for (unsigned i=0;i<30 && mag_cached.phase==WF_MAG_RUNNING;++i) { light_regs[0x8c]=4; cycle(); }
+    assert(mag_cached.ended==WF_MAG_SELFTEST_COMPLETE && mag_cached.threshold_mode==WF_MAG_THRESHOLD_RAW80 && mag_cached.selftest_only);
+    assert(mag_cached.selftest_threshold[0]==0x4f && mag_cached.selftest_threshold[1]==0x61 && mag_cached.selftest_threshold[2]==0x5b);
+    assert(!mag_cached.samples && mag_cached.stopped && !mag_cached.owned && !mag_busy);
+    assert(auto_requested && auto_generation==light_generation && light.continuous && wrist_runtime);
+    assert(native_count==compare_native);
+    assert(strstr(mag_log,"selftest_only=1 threshold=raw80 experimental=0"));
+    assert(wristflow_product_light_enable(false)); wristflow_product_wrist_enable(false); cycle();
+    wf_mag(3,mag_start); cycle();
+    for (unsigned i=0;i<20 && !mag_cached.samples;++i) cycle();
+    assert(!mag_cached.selftest_only && mag_cached.threshold_mode==WF_MAG_THRESHOLD_RAW80 && mag_cached.samples);
+    wf_mag(2,mag_stop); cycle();
+    /* Native FAIL is still a fault, not a completed comparison/PASS. */
+    fake_mag_init(&mag_fake); mag_fake.selftest_fail=true;
+    wf_mag(3,selftest_encoded); cycle();
+    for (unsigned i=0;i<30 && mag_cached.phase==WF_MAG_RUNNING;++i) cycle();
+    assert(mag_cached.ended==WF_MAG_SELFTEST_FAILED && mag_cached.phase==WF_MAG_FAULT);
+    assert(mag_cached.selftest_valid && !mag_cached.selftest_passed && !mag_cached.samples && mag_cached.stopped && !idle);
+    /* A native PASS followed by failed cleanup keeps ownership and PM duty. */
+    fake_mag_init(&mag_fake); wf_mag(3,selftest_encoded); cycle();
+    for (unsigned i=0;i<20 && mag_fake.triggers==0;++i) cycle();
+    assert(mag_fake.triggers==1 && mag_cached.phase==WF_MAG_RUNNING);
+    mag_fake.fail_reset=true;
+    for (unsigned i=0;i<30 && mag_cached.phase==WF_MAG_RUNNING;++i) cycle();
+    assert(mag_cached.selftest_valid && mag_cached.selftest_passed && mag_cached.ended==WF_MAG_IO_FAILURE);
+    assert(mag_cached.owned && !mag_cached.stopped && !mag_cached.samples && idle && mag_busy);
+    before=mag_fake.operations; cycle(); assert(mag_fake.operations==before);
+    wf_mag(3,selftest_raw); assert(!mag_pending);
+    mag_fake.fail_reset=false; wf_mag(2,mag_stop); cycle(); assert(!idle && mag_cached.stopped);
+    /* Cancellation during the daily bus preparation can precede begin_session.
+     * Preserve the old result under its old session; never invent a new run. */
+    uint32_t previous_session=mag_cached.session;
+    fake_mag_init(&mag_fake); wf_mag(3,selftest_encoded); stop_mag_in_prepare=true; cycle(); cycle();
+    assert(mag_cached.ended==WF_MAG_CANCELLED && mag_cached.session==previous_session);
+    assert(mag_cached.selftest_valid && !mag_fake.triggers && !mag_cached.samples && !idle);
+    fake_mag_init(&mag_fake); wf_mag(3,selftest_encoded); cycle(); cycle();
+    ticks+=10000; cycle();
+    assert(mag_cached.ended==WF_MAG_DEADLINE && mag_cached.stopped && !mag_cached.selftest_valid && !mag_cached.samples && !idle);
     return 0;
 }
