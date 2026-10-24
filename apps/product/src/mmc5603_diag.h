@@ -17,6 +17,13 @@ typedef enum {
     WF_MAG_NO_END, WF_MAG_DEADLINE, WF_MAG_CANCELLED, WF_MAG_IO_FAILURE,
     WF_MAG_ID_MISMATCH, WF_MAG_NOT_READY, WF_MAG_SELFTEST_FAILED, WF_MAG_UNEXPECTED_DATA
 } wf_mag_end_t;
+/* Transport evidence bits, not a magnetic-validity or selftest-PASS mask.
+ * COMMAND records an attempt; ACK separately records its successful return. */
+enum {
+    WF_MAG_TRACE_RESET = 0x01, WF_MAG_TRACE_FACTORY = 0x02,
+    WF_MAG_TRACE_COMMAND = 0x04, WF_MAG_TRACE_ACK = 0x08,
+    WF_MAG_TRACE_STATUS = 0x10, WF_MAG_TRACE_DATA = 0x20, WF_MAG_TRACE_POST = 0x40
+};
 typedef struct {
     wf_mag_phase_t phase;
     wf_mag_end_t ended;
@@ -24,6 +31,9 @@ typedef struct {
     int32_t x, y, z; /* Centered 20-bit counts; 1 count = 6.25 nT, uncalibrated. */
     uint8_t identity, status, after_status, selftest_status;
     uint8_t selftest_factory[3], selftest_threshold[3], raw[9];
+    uint8_t selftest_trace, reset_status, selftest_post_status, selftest_raw[9];
+    uint32_t reset_observed_ms, selftest_command_ms, selftest_ack_ms;
+    uint32_t selftest_status_ms, selftest_data_ms, selftest_post_ms, selftest_polls;
     bool identity_valid, selftest_valid, selftest_passed;
     bool owned, stopped, sample_valid, saturated;
 } wf_mmc5603_snapshot_t;

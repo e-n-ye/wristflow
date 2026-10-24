@@ -659,6 +659,8 @@ int main(void)
     assert(mag_cached.phase==WF_MAG_RUNNING && mag_cached.duration_ms==2000 && idle);
     for (unsigned i=0;i<20 && !mag_cached.samples;++i) cycle();
     assert(mag_cached.selftest_valid && mag_cached.selftest_passed && mag_cached.samples==1 && mag_cached.sample_valid);
+    assert(mag_cached.selftest_trace==0x7f && mag_cached.reset_status==0x10 && mag_cached.selftest_post_status==0x10);
+    assert(!memcmp(mag_cached.selftest_raw,mag_fake.data,9) && mag_cached.selftest_polls==1);
     assert(mag_cached.x==12345 && mag_cached.y==-23456 && mag_cached.z==34567);
     assert(native_count==9 && daily_cached.metric.total==9 && wrist_runtime && irq_adapter.armed);
     before=mag_fake.operations; wf_mag(2,mag_status); assert(mag_fake.operations==before);

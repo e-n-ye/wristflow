@@ -719,6 +719,19 @@ static void light_work(rt_uint32_t events)
             light.snapshot.owned, light.snapshot.restored, (unsigned long)light.snapshot.io_errors);
     }
 }
+static void mag_trace_report(const wf_mmc5603_snapshot_t *s)
+{
+    rt_kprintf("[mag-selftest-time] session=%lu trace=%02x reset=%02x@%lu command=%lu ack=%lu polls=%lu\n",
+        (unsigned long)s->session, s->selftest_trace, s->reset_status, (unsigned long)s->reset_observed_ms,
+        (unsigned long)s->selftest_command_ms, (unsigned long)s->selftest_ack_ms, (unsigned long)s->selftest_polls);
+    rt_kprintf("[mag-selftest-state] session=%lu observed=%02x@%lu post=%02x@%lu data_ms=%lu; software observation\n",
+        (unsigned long)s->session, s->selftest_status, (unsigned long)s->selftest_status_ms,
+        s->selftest_post_status, (unsigned long)s->selftest_post_ms, (unsigned long)s->selftest_data_ms);
+    rt_kprintf("[mag-selftest-raw] session=%lu trace=%02x bytes=%02x/%02x/%02x/%02x/%02x/%02x/%02x/%02x/%02x; response only\n",
+        (unsigned long)s->session, s->selftest_trace,
+        s->selftest_raw[0], s->selftest_raw[1], s->selftest_raw[2], s->selftest_raw[3], s->selftest_raw[4],
+        s->selftest_raw[5], s->selftest_raw[6], s->selftest_raw[7], s->selftest_raw[8]);
+}
 static void mag_work(rt_uint32_t events)
 {
     rt_base_t level = rt_hw_interrupt_disable();
@@ -769,10 +782,13 @@ static void mag_work(rt_uint32_t events)
             s->status, (long)s->x, (long)s->y, (long)s->z, s->sample_valid, s->saturated);
     }
     if (mag.snapshot.phase != before.phase || (events & EV_MAG_STOP)) {
+        if (!mag.snapshot.selftest_valid && mag.snapshot.selftest_trace &&
+            mag.snapshot.phase != WF_MAG_RUNNING && before.phase == WF_MAG_RUNNING) mag_trace_report(&mag.snapshot);
         rt_kprintf("[mag-state] session=%lu phase=%u end=%u owned=%u stopped=%u errors=%lu\n",
             (unsigned long)mag.snapshot.session, mag.snapshot.phase, mag.snapshot.ended,
             mag.snapshot.owned, mag.snapshot.stopped, (unsigned long)mag.snapshot.io_errors);
     }
+    if (mag.snapshot.selftest_valid && !before.selftest_valid) mag_trace_report(&mag.snapshot);
 }
 static void report(void)
 {
@@ -928,6 +944,7 @@ static void wf_mag(int argc, char **argv)
             s.selftest_valid, s.selftest_passed, s.selftest_status,
             s.selftest_factory[0], s.selftest_factory[1], s.selftest_factory[2],
             s.selftest_threshold[0], s.selftest_threshold[1], s.selftest_threshold[2]);
+        mag_trace_report(&s);
         return;
     }
     if (!ready || !daily_mode) { rt_kprintf("[mag] shared sensor worker unavailable\n"); return; }

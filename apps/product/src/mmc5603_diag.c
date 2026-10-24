@@ -91,12 +91,26 @@ void wf_mmc5603_poll(wf_mmc5603_t *d)
         return;
     }
     if (!read_bytes(d, STATUS, &status, 1)) { fail(d, WF_MAG_IO_FAILURE); return; }
+    if (d->stage == RESET_WAIT) {
+        d->snapshot.reset_status = status;
+        d->snapshot.reset_observed_ms = now(d);
+        d->snapshot.selftest_trace |= WF_MAG_TRACE_RESET;
+    } else if (d->stage == SELFTEST_WAIT) {
+        /* Last successful observation in the existing wait path, with its
+         * software read-completion time. This does not prove chip-internal
+         * selftest completion merely because magnetic DONE is already set. */
+        d->snapshot.selftest_status = status;
+        d->snapshot.selftest_status_ms = now(d);
+        ++d->snapshot.selftest_polls;
+        d->snapshot.selftest_trace |= WF_MAG_TRACE_STATUS;
+    }
     if (ended(d)) return;
     d->snapshot.status = status;
     if (!(status & OTP_READY)) { fail(d, WF_MAG_NOT_READY); return; }
     if (d->stage == RESET_WAIT) {
         if (status & MAG_DONE) { fail(d, WF_MAG_UNEXPECTED_DATA); return; }
         if (!read_bytes(d, ST_FACTORY, d->snapshot.selftest_factory, 3)) { fail(d, WF_MAG_IO_FAILURE); return; }
+        d->snapshot.selftest_trace |= WF_MAG_TRACE_FACTORY;
         if (ended(d)) return;
         /* Rev.B p14 native selftest example: 80% of factory byte, no custom
          * coil stimulus or invented XYZ pass threshold. */
@@ -108,7 +122,11 @@ void wf_mmc5603_poll(wf_mmc5603_t *d)
             if (ended(d)) return;
         }
         d->frame_ms = now(d);
+        d->snapshot.selftest_command_ms = d->frame_ms;
+        d->snapshot.selftest_trace |= WF_MAG_TRACE_COMMAND;
         if (!write_reg(d, CTRL0, 0x41)) { fail(d, WF_MAG_IO_FAILURE); return; }
+        d->snapshot.selftest_ack_ms = now(d);
+        d->snapshot.selftest_trace |= WF_MAG_TRACE_ACK;
         if (ended(d)) return;
         d->stage = SELFTEST_WAIT; d->due_ms = now(d) + 10U;
         return;
@@ -131,9 +149,19 @@ void wf_mmc5603_poll(wf_mmc5603_t *d)
         d->due_ms = now(d) + 5U; return;
     }
     if (!read_bytes(d, DATA, raw, sizeof raw)) { fail(d, WF_MAG_IO_FAILURE); return; }
+    if (d->stage == SELFTEST_WAIT) {
+        for (unsigned i = 0; i < 9; ++i) d->snapshot.selftest_raw[i] = raw[i];
+        d->snapshot.selftest_data_ms = now(d);
+        d->snapshot.selftest_trace |= WF_MAG_TRACE_DATA;
+    }
     if (ended(d)) return;
     uint8_t after = 0;
     if (!read_bytes(d, STATUS, &after, 1)) { fail(d, WF_MAG_IO_FAILURE); return; }
+    if (d->stage == SELFTEST_WAIT) {
+        d->snapshot.selftest_post_status = after;
+        d->snapshot.selftest_post_ms = now(d);
+        d->snapshot.selftest_trace |= WF_MAG_TRACE_POST;
+    }
     if (ended(d)) return;
     if ((after & (OTP_READY | MAG_DONE)) != OTP_READY) { fail(d, WF_MAG_UNEXPECTED_DATA); return; }
     if (d->stage == SELFTEST_WAIT) {
