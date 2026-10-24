@@ -239,7 +239,11 @@ LTR跑通、目录迁回及证据已由PR #136 Rebase合入`3e5125e`；本次接
 
 设备对照及官方示例记录PR #146已Rebase合入`e0be454`，远端／主目录main干净同步。用户继续后，从该版建立`codex/mmc5603-encoded-xyz`，新增[显式encoded限时XYZ](MMC5603.md#encoded-xyz-20261024)软件入口：本会话原生PASS后沿原Auto_SR逐次采样，1–120秒总期限，默认raw80 start及selftest-only不变。相关Debug／Release各2/2（均0.22秒）、独立代码审查通过；官方Product `20261024-193909-557`／`2438dc7c…`／8,030,008B退出0，545源码／29产物逐字节核验、SDK锁干净及DryRun通过。旧5b230e1d产物／源码先保全；本轮无串口／下载／新实机数据，[软件证据](evidence/2026-10-24/mmc5603-encoded-xyz.json)保存命令与边界。
 
-**当前唯一下一步**：按CONTRIBUTING审阅交付新软件并同步干净main；随后确认精确`2438dc7c…`与当前现场，先做静置XYZ新帧／到期／共存检查，通过后再按用户确认的平放方向做有界旋转／显式stop。新设备窗口另行确认，不直接改默认或推进指南针；板上仍5b230e1d…已停止、原设置保留，普通XYZ／轴向、校准航向及功耗仍未验。
+采样版软件PR #147已Rebase合入`d4e5317`，回读MERGED／远端树与主目录干净main同步完成。用户新确认同板屏／原电池＋电脑USB／接线固定且人在旁，授权精确`2438dc7c…`下载及一次约10秒静置XYZ／到期停止检查，先不旋转，自动亮度／AOD／腕保留原设置。从该版建立`codex/mmc5603-encoded-hardware`，无固件修改／重编；545源码／29产物／SDK锁／COM5身份与禁Modem流控1及DryRun复核，新采集器独立只读审查及7项无设备安全回放通过。19:58:25前态allow1并关口，RTC当前、步数0／检查点111 clean／腕开启；原始资料存主目录忽略的`artifacts/mmc5603-encoded-hardware-20261024/`。
+
+**静置XYZ有界verified，设备轮已收束**：19:59:56–20:02:42标准三镜像write＋verify退出0，本次无中断／重试；启动单次150ms RTS、RTC2000校当前UTC读回、原storage／检查点111／腕开启恢复。用户确认新版正常并平放后，20:05:26仅一次encoded10：本session原生PASS／factory63/7a/72／threshold5c/13/2c，9帧status51／valid1／saturated0，自动到期phase2／end1／owned0／stopped1／after10／errors0，无显式stop或旋转。计步总0、检查点自动保存112 clean、常驻腕保留；自动亮度新BIN快照均enabled0／active0，用户随后确认自己手动关闭、忘记开启，与快照一致，不记作开启时共存通过或固件故障。20:06:16收尾allow1并关口，用户确认常亮已关、末态正常、原设置保留；[设备证据](evidence/2026-10-24/mmc5603-encoded-hardware.json)与[专题](MMC5603.md#encoded-hardware-20261024)记录新帧、栈及边界。
+
+**当前唯一下一步**：审阅交付本轮静置设备证据，按CONTRIBUTING合入／同步干净main；本轮不再操作设备。交付后再确认有界平放旋转／显式stop及实际自动亮度条件，轴向、校准航向、完整根因及功耗仍未验。
 
 <a id="history"></a>
 ## 2026-10-20 小时步数保存与上板闭环（历史，PR #104／#105已交付）

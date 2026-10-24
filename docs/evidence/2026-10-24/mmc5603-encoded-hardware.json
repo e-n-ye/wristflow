@@ -1,0 +1,671 @@
+{
+  "schema": 1,
+  "recorded_at": "2026-10-24T12:14:20.687667+00:00",
+  "source_base": "d4e53179171843bc361943c193ed65251f4a7ec0",
+  "scope": "Exact2438dc7c download and one10s static encoded XYZ/automatic-expiry/stop window. No rotation, no source changes or rebuild.",
+  "authorization": "Operator reconfirmed sameboard/display,originalbattery+computerUSB,fixedwiring,present;temporarykeepawake and staticplacement confirmed;finalkeepawakeoff/UI/touch/time normal and preferencespreserved reported.",
+  "preflight": {
+    "at": "2026-10-24T11:57:04.919111+00:00",
+    "base": "d4e53179171843bc361943c193ed65251f4a7ec0",
+    "build": "artifacts/product/20261024-193909-557/result.json",
+    "bin_sha256": "2438dc7cbc20a129a44dc3dd1f9623e696a6448a873ed33415e4396357e81584",
+    "sources_verified": 545,
+    "source_newline_only": [],
+    "artifacts_verified": 29,
+    "sdk_clean": true,
+    "endpoint": {
+      "device": "COM5",
+      "vid": 6790,
+      "pid": 29987,
+      "location": "1-1.1",
+      "serial_number": "",
+      "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+      "disable_modem": 1
+    },
+    "conditions": "Operator reconfirmed same board/display, original battery+computerUSB, fixed wiring and present; exact image download and one 10s static encoded XYZ/expiry/stop/coexistence window. No rotation or environment change; original auto brightness/AOD/wrist preferences preserved.",
+    "device_opened": false
+  },
+  "preflight_record": {
+    "path": "artifacts/mmc5603-encoded-hardware-20261024/preflight.json",
+    "bytes": 902,
+    "sha256": "28167e7a565aec9dc441ae67a7ddbf9cf67a14df8c07679f7a4a8a37092fa3e7"
+  },
+  "software_evidence": {
+    "path": "docs/evidence/2026-10-24/mmc5603-encoded-xyz.json",
+    "bytes": 14207,
+    "sha256": "9f9e06ba1967bdfa0a539f871775c187b51bc1fce7c06a75c5c24e9dbb593c94"
+  },
+  "flash": {
+    "wrapper": {
+      "path": "artifacts/mmc5603-encoded-hardware-20261024/flash-001.json",
+      "bytes": 415,
+      "sha256": "813c037b2bee927bc7947ee4d1b96c53cac19da56cc1c050b5504f6259352f85"
+    },
+    "log": {
+      "path": "artifacts/mmc5603-encoded-hardware-20261024/flash-001.log",
+      "bytes": 901,
+      "sha256": "f7f5c09f639149d4696003d82fcfa8a953c3c0cef1fc96db80a0a254ac3ad30f"
+    },
+    "record": {
+      "path": "artifacts/flash/product/20261024-195957-299/result.json",
+      "bytes": 1767,
+      "sha256": "e5ffd687b871bdbe54074b5f7dd2b545f6a481d703cac91b6c2ccca239487b8d"
+    },
+    "result": {
+      "date": "2026-10-24T20:02:42.3763111+08:00",
+      "example": "product",
+      "board": "sf32lb52-lchspi-ulp",
+      "port": "COM5",
+      "tool": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe",
+      "command": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+      "images": [
+        {
+          "name": "bootloader.bin",
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+          "address": "0x12010000",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "name": "main.bin",
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+          "address": "0x12020000",
+          "bytes": 8030008,
+          "sha256": "2438dc7cbc20a129a44dc3dd1f9623e696a6448a873ed33415e4396357e81584"
+        },
+        {
+          "name": "ftab.bin",
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+          "address": "0x12000000",
+          "bytes": 11288,
+          "sha256": "ecafc8164b43eb578eae0c0008b9bd0f71e2cd5137bdf6201005710eb15fce46"
+        }
+      ],
+      "exit_code": 0,
+      "hardware_verified": false
+    },
+    "started": "2026-10-24T11:59:56.345867+00:00",
+    "finished": "2026-10-24T12:02:42.424245+00:00",
+    "conclusion": "One standard threeimage write+verify exit0; local BIN exact. No interrupted/recovery attempt this round. Flash success is separate from runtime verification."
+  },
+  "startup": "One150msRTS startup capture;storage restoreyes,checkpoint111,wrist requested restored. RTC2000 -> currentUTC set/readback. Startup IMU alternate-address probe error retained;main0x6a matched. No extra reboot.",
+  "snapshots": [
+    {
+      "name": "before-001",
+      "record": {
+        "path": "artifacts/mmc5603-encoded-hardware-20261024/before-001/session.json",
+        "bytes": 1303,
+        "sha256": "b0b98f9b75b3e892f53c71392083405348192be8342d37fbf3e274cb0a21b7f4"
+      },
+      "uart": {
+        "path": "artifacts/mmc5603-encoded-hardware-20261024/before-001/uart.bin",
+        "bytes": 5099,
+        "sha256": "d2ff65a6964f5fc469e509b7003ff7a338ff281276416ff17a03dcb040fc9758"
+      },
+      "log": {
+        "path": "artifacts/mmc5603-encoded-hardware-20261024/before-001.log",
+        "bytes": 5361,
+        "sha256": "804a909646ec9d0e7326b41af0b075cc2264a1b63768e08693cc4b563da64948"
+      },
+      "reset_once": false,
+      "closed": "2026-10-24T11:58:25.436221+00:00",
+      "events": [
+        {
+          "at": "2026-10-24T11:58:16.717034+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-24T11:58:17.571425+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-24T11:58:18.403007+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T11:58:19.243361+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-24T11:58:20.291856+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-24T11:58:21.319154+00:00",
+          "command": "wf_battery status"
+        },
+        {
+          "at": "2026-10-24T11:58:22.321994+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-24T11:58:23.328004+00:00",
+          "command": "wf_ble status"
+        },
+        {
+          "at": "2026-10-24T11:58:24.388257+00:00",
+          "command": "wf_pm allow"
+        }
+      ]
+    },
+    {
+      "name": "startup-001",
+      "record": {
+        "path": "artifacts/mmc5603-encoded-hardware-20261024/startup-001/session.json",
+        "bytes": 2075,
+        "sha256": "bfc4dc9431f55bec53c6759488d2d9e818bc193b6cf935dc79c98b1cb59ad624"
+      },
+      "uart": {
+        "path": "artifacts/mmc5603-encoded-hardware-20261024/startup-001/uart.bin",
+        "bytes": 14210,
+        "sha256": "c80f9453198a43f491b8218ace398494669fbf739517cd7eb3ac2c43b98bce3d"
+      },
+      "log": {
+        "path": "artifacts/mmc5603-encoded-hardware-20261024/startup-001.log",
+        "bytes": 14677,
+        "sha256": "aa0d615b438fa5bf5dfa12e175a62689ddeacbe6f49e2eb6c4b3155f38525358"
+      },
+      "reset_once": true,
+      "closed": "2026-10-24T12:03:54.415243+00:00",
+      "events": [
+        {
+          "at": "2026-10-24T12:03:33.880090+00:00",
+          "reset_once_ms": 150
+        },
+        {
+          "at": "2026-10-24T12:03:39.073525+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-24T12:03:39.880729+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-24T12:03:40.697807+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T12:03:41.555030+00:00",
+          "command": "wf_time 1792843421"
+        },
+        {
+          "at": "2026-10-24T12:03:42.364201+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T12:03:43.178220+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-24T12:03:44.196401+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-24T12:03:45.211243+00:00",
+          "command": "wf_battery status"
+        },
+        {
+          "at": "2026-10-24T12:03:46.230139+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-24T12:03:47.257948+00:00",
+          "command": "wf_ble status"
+        },
+        {
+          "at": "2026-10-24T12:03:48.290379+00:00",
+          "command": "wf_light status"
+        },
+        {
+          "at": "2026-10-24T12:03:49.295674+00:00",
+          "command": "wf_mag status"
+        },
+        {
+          "at": "2026-10-24T12:03:50.327084+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-24T12:03:51.345156+00:00",
+          "command": "list_thread"
+        },
+        {
+          "at": "2026-10-24T12:03:52.363252+00:00",
+          "command": "list_mem"
+        },
+        {
+          "at": "2026-10-24T12:03:53.391492+00:00",
+          "command": "wf_pm allow"
+        }
+      ]
+    },
+    {
+      "name": "final-001",
+      "record": {
+        "path": "artifacts/mmc5603-encoded-hardware-20261024/final-001/session.json",
+        "bytes": 1787,
+        "sha256": "f12cbbed66888fe5f06241605b5bc485bc9054ae402a5b2e80de7931aff525ff"
+      },
+      "uart": {
+        "path": "artifacts/mmc5603-encoded-hardware-20261024/final-001/uart.bin",
+        "bytes": 8429,
+        "sha256": "27b78b69645ba609f0a10d8f5fc8431946bd0d93a9d297f5d84aabb9eabfe23e"
+      },
+      "log": {
+        "path": "artifacts/mmc5603-encoded-hardware-20261024/final-001.log",
+        "bytes": 8828,
+        "sha256": "54fb675216d371c60a4c0b942bebc3bc7946399e93506b40aeb853b78c5787e1"
+      },
+      "reset_once": false,
+      "closed": "2026-10-24T12:06:16.487357+00:00",
+      "events": [
+        {
+          "at": "2026-10-24T12:06:02.628480+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-24T12:06:03.460738+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-24T12:06:04.280019+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T12:06:05.136855+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-24T12:06:06.142344+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-24T12:06:07.165407+00:00",
+          "command": "wf_battery status"
+        },
+        {
+          "at": "2026-10-24T12:06:08.179406+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-24T12:06:09.206007+00:00",
+          "command": "wf_ble status"
+        },
+        {
+          "at": "2026-10-24T12:06:10.247075+00:00",
+          "command": "wf_light status"
+        },
+        {
+          "at": "2026-10-24T12:06:11.298053+00:00",
+          "command": "wf_mag status"
+        },
+        {
+          "at": "2026-10-24T12:06:12.312381+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-24T12:06:13.330395+00:00",
+          "command": "list_thread"
+        },
+        {
+          "at": "2026-10-24T12:06:14.368115+00:00",
+          "command": "list_mem"
+        },
+        {
+          "at": "2026-10-24T12:06:15.429143+00:00",
+          "command": "wf_pm allow"
+        }
+      ]
+    }
+  ],
+  "capture": {
+    "record": {
+      "path": "artifacts/mmc5603-encoded-hardware-20261024/static-001/session.json",
+      "bytes": 17249,
+      "sha256": "2b8a60346c809916a904d78bfb7db9ee77ce6927e18f9cc70e78aa1f9049ab82"
+    },
+    "uart": {
+      "path": "artifacts/mmc5603-encoded-hardware-20261024/static-001/uart.bin",
+      "bytes": 12883,
+      "sha256": "b08a01dd056f8920cc334136b5bd9bd09f9bb91cb4a5977cdff7a2f399367ad9"
+    },
+    "log": {
+      "path": "artifacts/mmc5603-encoded-hardware-20261024/static-001/uart.log",
+      "bytes": 12883,
+      "sha256": "b08a01dd056f8920cc334136b5bd9bd09f9bb91cb4a5977cdff7a2f399367ad9"
+    },
+    "events": [
+      {
+        "at": "2026-10-24T12:05:21.838899+00:00",
+        "command": "show_date"
+      },
+      {
+        "at": "2026-10-24T12:05:22.686475+00:00",
+        "command": "wf_pm status"
+      },
+      {
+        "at": "2026-10-24T12:05:23.518140+00:00",
+        "command": "wf_mag status"
+      },
+      {
+        "at": "2026-10-24T12:05:24.401827+00:00",
+        "command": "wf_light status"
+      },
+      {
+        "at": "2026-10-24T12:05:25.231757+00:00",
+        "command": "wf_steps status"
+      },
+      {
+        "at": "2026-10-24T12:05:26.084787+00:00",
+        "command": "wf_wrist status"
+      },
+      {
+        "at": "2026-10-24T12:05:26.924502+00:00",
+        "command": "wf_mag sample encoded 10"
+      },
+      {
+        "at": "2026-10-24T12:05:37.072296+00:00",
+        "command": "wf_mag status"
+      },
+      {
+        "at": "2026-10-24T12:05:37.878126+00:00",
+        "command": "wf_light status"
+      },
+      {
+        "at": "2026-10-24T12:05:38.691887+00:00",
+        "command": "wf_steps status"
+      },
+      {
+        "at": "2026-10-24T12:05:39.521312+00:00",
+        "command": "wf_wrist status"
+      },
+      {
+        "at": "2026-10-24T12:05:40.332436+00:00",
+        "command": "wf_ui status"
+      },
+      {
+        "at": "2026-10-24T12:05:41.166190+00:00",
+        "command": "wf_pm status"
+      }
+    ],
+    "before": {
+      "session": 0,
+      "phase": 0,
+      "end": 0,
+      "id": 0,
+      "identity_valid": 0,
+      "owned": 0,
+      "stopped": 0,
+      "errors": 0,
+      "selftest_only": false,
+      "mode": "raw80",
+      "experimental": false,
+      "native_valid": false,
+      "passed": false,
+      "status": 0,
+      "factory": [
+        0,
+        0,
+        0
+      ],
+      "threshold": [
+        0,
+        0,
+        0
+      ],
+      "start_ms": 0,
+      "duration_ms": 0,
+      "samples": 0,
+      "after_status": 0,
+      "sample_valid": false
+    },
+    "after": {
+      "session": 1,
+      "phase": 2,
+      "end": 1,
+      "id": 16,
+      "identity_valid": 1,
+      "owned": 0,
+      "stopped": 1,
+      "errors": 0,
+      "selftest_only": false,
+      "mode": "encoded",
+      "experimental": true,
+      "native_valid": true,
+      "passed": true,
+      "status": 85,
+      "factory": [
+        99,
+        122,
+        114
+      ],
+      "threshold": [
+        92,
+        19,
+        44
+      ],
+      "start_ms": 110828,
+      "duration_ms": 10000,
+      "samples": 9,
+      "after_status": 16,
+      "sample_valid": true
+    },
+    "frames": [
+      {
+        "session": 1,
+        "seq": 1,
+        "ms": 111090,
+        "status": 81,
+        "x": 2634,
+        "y": 7804,
+        "z": 6443,
+        "valid": 1,
+        "saturated": 0
+      },
+      {
+        "session": 1,
+        "seq": 2,
+        "ms": 112180,
+        "status": 81,
+        "x": 2635,
+        "y": 7752,
+        "z": 6487,
+        "valid": 1,
+        "saturated": 0
+      },
+      {
+        "session": 1,
+        "seq": 3,
+        "ms": 113270,
+        "status": 81,
+        "x": 2523,
+        "y": 7777,
+        "z": 6461,
+        "valid": 1,
+        "saturated": 0
+      },
+      {
+        "session": 1,
+        "seq": 4,
+        "ms": 114360,
+        "status": 81,
+        "x": 2560,
+        "y": 7752,
+        "z": 6479,
+        "valid": 1,
+        "saturated": 0
+      },
+      {
+        "session": 1,
+        "seq": 5,
+        "ms": 115450,
+        "status": 81,
+        "x": 2525,
+        "y": 7753,
+        "z": 6447,
+        "valid": 1,
+        "saturated": 0
+      },
+      {
+        "session": 1,
+        "seq": 6,
+        "ms": 116540,
+        "status": 81,
+        "x": 2556,
+        "y": 7749,
+        "z": 6449,
+        "valid": 1,
+        "saturated": 0
+      },
+      {
+        "session": 1,
+        "seq": 7,
+        "ms": 117630,
+        "status": 81,
+        "x": 2545,
+        "y": 7745,
+        "z": 6422,
+        "valid": 1,
+        "saturated": 0
+      },
+      {
+        "session": 1,
+        "seq": 8,
+        "ms": 118720,
+        "status": 81,
+        "x": 2480,
+        "y": 7725,
+        "z": 6534,
+        "valid": 1,
+        "saturated": 0
+      },
+      {
+        "session": 1,
+        "seq": 9,
+        "ms": 119810,
+        "status": 81,
+        "x": 2509,
+        "y": 7766,
+        "z": 6433,
+        "valid": 1,
+        "saturated": 0
+      }
+    ],
+    "errors": [],
+    "port_closed": true,
+    "closed_at": "2026-10-24T12:05:41.987867+00:00",
+    "start_attempts": 1,
+    "explicit_stop_attempts": 0,
+    "rotation": false,
+    "magnetic_set": false,
+    "reset": false,
+    "clock_write": false,
+    "pm_control": false
+  },
+  "observations": {
+    "native": "factory63/7a/72 threshold5c/13/2c,status55/post10,trace7f,nativePASS on thisnewsession.",
+    "ordinary_frames": 9,
+    "all_valid": true,
+    "all_unsaturated": true,
+    "ordinary_status_hex": "51",
+    "software_first_from_start_ms": 262,
+    "software_last_from_start_ms": 8982,
+    "software_frame_intervals_ms": [
+      1090,
+      1090,
+      1090,
+      1090,
+      1090,
+      1090,
+      1090,
+      1090
+    ],
+    "counts": {
+      "x": {
+        "min": 2480,
+        "max": 2635,
+        "mean": 2551.8888888888887
+      },
+      "y": {
+        "min": 7725,
+        "max": 7804,
+        "mean": 7758.111111111111
+      },
+      "z": {
+        "min": 6422,
+        "max": 6534,
+        "mean": 6461.666666666667
+      }
+    },
+    "units": "Centered uncalibrated counts. Times are software read-completion, not chip hardware timestamps; no reference-field accuracy or external interference assessment.",
+    "stop": "Automatic deadline phase2/end1 owned0/stopped1/errors0/after10. Existing local reset+OTP/noDONE baseline confirmed, no current measurement.",
+    "steps": "Total0/native0; checkpoint111 clean before,restored111 dirty atstartup,automaticcheckpoint112 verifiedclean before/after sampling and final. No manualsave/stop/retry.",
+    "wrist": "Requested/continuous/armed/owned1 retained during capture; no gesture or physicalDEEP claim.",
+    "light": "Newimage startup/staticbefore/staticafter/final all enabled0 active0 valid0 fault0 cleanup0 session0. No lightcontrol commands. Operator subsequently confirmed manuallyturning automaticbrightnessoff and forgettingtoreenable; thismatches runtime snapshots,not a provenfirmwarefailure. Cannot claim active automaticbrightness coexistence.",
+    "ui": "Cached mismatch0; operatorconfirmed display/touch/time normal afterflash and afterfinal. No independent fullUI regression.",
+    "budget": {
+      "main_stack_bytes": 16384,
+      "main_peak_percent": 46,
+      "worker_stack_bytes": 6144,
+      "worker_peak_percent": 18,
+      "heap_peak_bytes": 105364
+    },
+    "endstate": "Finalallow1; allUARTclosed; operatorconfirmed temporarykeepawakeoff,normaldisplay/touch/time,originalsettingspreserved. No furtherdeviceoperation in thisround."
+  },
+  "safety": {
+    "review": "Independentreadonlyscriptreview foundnoblocker; primary owns allwrites/device/Git.",
+    "host_replay": {
+      "path": "artifacts/mmc5603-encoded-hardware-20261024/replay-001.log",
+      "bytes": 14023,
+      "sha256": "1e334822d4edd235b8ee6f70b43393a734b8febf481e27dd360b3801b37065fc"
+    },
+    "scenarios": [
+      "valid",
+      "native-fail",
+      "cleanup-failed",
+      "foreign",
+      "no-ack",
+      "unexpected-running",
+      "invalid-frame"
+    ],
+    "passed": 7,
+    "scripts": [
+      {
+        "path": "artifacts/mmc5603-encoded-hardware-20261024/preflight.py",
+        "bytes": 2358,
+        "sha256": "1ab09d1f48a03922401f03b46f527f88bcde5c230c87c266b8acaac90c19843a"
+      },
+      {
+        "path": "artifacts/mmc5603-encoded-hardware-20261024/capture.py",
+        "bytes": 8572,
+        "sha256": "a28521b4bfd35097490d6bdb3b01278969338e8c7fa73f7106b064445505b899"
+      },
+      {
+        "path": "artifacts/mmc5603-encoded-hardware-20261024/replay.py",
+        "bytes": 4531,
+        "sha256": "f1c78e334cac4484857bb4770aed8b60a085e4d0b2d13b8bdecbcf5c1834e01a"
+      },
+      {
+        "path": "artifacts/mmc5603-encoded-hardware-20261024/flash.py",
+        "bytes": 1268,
+        "sha256": "0e563b147c8b212c57b7a08e83fc7fca8f1a5ab0943f0a805e2051dd264810c8"
+      },
+      {
+        "path": "artifacts/mmc5603-encoded-hardware-20261024/snapshot.py",
+        "bytes": 5490,
+        "sha256": "5264c85be96b6ca0c43488464276bdff9111a881a09679240f452bec0ee8c0e5"
+      }
+    ],
+    "parser": {
+      "path": "artifacts/mmc5603-compare-hardware-20261024/compare.py",
+      "bytes": 10569,
+      "sha256": "a9be10382e2f65f3c6c943bdbb48924104756dcea7060fba9406d0218fea3762"
+    }
+  },
+  "limitations": [
+    "Singlefixedenvironment/session, no axis/rotation/explicitstop verification.",
+    "NativePASS plus validframes does not prove universal thresholdencoding,fullrootcause or calibratedmagnetic accuracy.",
+    "Automaticbrightness runtime wasdisabled; previous activecoexistence evidence belongs to olderBIN.",
+    "No compass/calibration,current/batterylife,longtermorphysicalDEEP conclusions."
+  ],
+  "next_boundary": "Operatorconfirmed disabledautomaticbrightnesscondition; commit/review/merge evidence and sync cleanmain. No furtherdeviceoperation thisround. Afterwards separatelyconfirm boundedhorizontalrotation/explicitstop and actualautomaticbrightnesscondition."
+}
