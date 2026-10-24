@@ -1,0 +1,2 @@
+# Raw UART fixtures are byte evidence, including their original line endings.
+tests/fixtures/*.uart binary

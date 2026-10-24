@@ -5,7 +5,6 @@ No serial, flashing, device input, or firmware mutation is available here.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import pathlib
 import subprocess
@@ -14,6 +13,7 @@ import time
 import threading
 
 from battery_console import Cancelled, Console
+from lab_evidence import digest, write_json
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 POLICIES = ("baseline", "retain_30s", "settle_60s", "combined")
@@ -21,17 +21,6 @@ OUTPUT_KEYS = ("percent_valid", "percent", "filter", "filter_valid", "candidate"
 ROW_KEYS = ("session index obs eval seq adc age mv raw_valid display_valid usb_valid usb_good "
             "charge reason cycle mode decision filter filter_valid candidate percent percent_valid "
             "surface phase flags requested ack").split()
-
-
-def digest(path):
-    return hashlib.sha256(pathlib.Path(path).read_bytes()).hexdigest()
-
-
-def write_json(path, value):
-    path = pathlib.Path(path)
-    temporary = path.with_suffix(path.suffix + ".tmp")
-    temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    temporary.replace(path)
 
 
 def load_trace(path):

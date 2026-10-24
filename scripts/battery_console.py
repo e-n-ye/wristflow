@@ -150,7 +150,8 @@ class Console:
     def respond(self, prompt_id, answer):
         with self.condition:
             if (self.result or self.cancelled.is_set() or not self.prompt_value or self.prompt_value["id"] != prompt_id or
-                    self.answer is not None or time.monotonic() >= self.prompt_value["deadline"]):
+                    self.answer is not None or self.prompt_value.get("automatic") or
+                    time.monotonic() >= self.prompt_value["deadline"]):
                 raise ValueError("Prompt expired, already answered or replaced")
             if answer != "continue":
                 raise ValueError("Unsupported answer")
@@ -166,7 +167,9 @@ class Console:
             self.cancelled.set()
             self.condition.notify_all()
 
-    def prompt(self, key, message, timeout):
+    def prompt(self, key, message, timeout, *, pump=None):
+        if not 0 < timeout <= 900:
+            raise ValueError("Prompt timeout must be 0..900 seconds")
         with self.condition:
             self.stage(key, "waiting")
             self.answer = None
@@ -180,11 +183,50 @@ class Console:
                     remaining = self.prompt_value["deadline"] - time.monotonic()
                     if remaining <= 0:
                         raise TimeoutError("Operator confirmation expired")
-                    self.condition.wait(remaining)
+                    if pump is None:
+                        self.condition.wait(remaining)
+                    else:
+                        # UART work must run outside the HTTP response lock.
+                        self.condition.release()
+                        try:
+                            pump()
+                        finally:
+                            self.condition.acquire()
                 if self.cancelled.is_set():
                     raise Cancelled("Operator cancelled")
                 self.journal.event("confirmed", phase=key)
             finally:
+                self.prompt_value = None
+
+    def automatic(self, key, message, seconds, *, pump=None, until=None):
+        """Display a timed/observed stage; a click cannot complete this stage."""
+        if not 0 < seconds <= 900:
+            raise ValueError("Automatic stage must be 0..900 seconds")
+        self.stage(key, "running")
+        deadline = time.monotonic() + seconds
+        with self.condition:
+            self.prompt_value = {"id": secrets.token_hex(16), "phase": key,
+                                 "message": message, "deadline": deadline, "automatic": True}
+        self.journal.event("timed_stage_started", phase=key, seconds=seconds)
+        try:
+            while True:
+                if self.cancelled.is_set():
+                    raise Cancelled("Cancelled during automatic stage")
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    if until is not None:
+                        raise TimeoutError("Automatic observation deadline")
+                    break
+                if until is not None and until():
+                    break
+                if pump is None:
+                    self.cancelled.wait(min(remaining, .05))
+                else:
+                    pump()
+            self.journal.event("timed_stage_finished", phase=key)
+            self.stage(key, "complete")
+        finally:
+            with self.condition:
                 self.prompt_value = None
 
     def seal(self, outcome):

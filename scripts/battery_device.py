@@ -11,6 +11,7 @@ from battery_collect import (Client, FROZEN, PREFIX, PortLease, ProtocolError,
                              SerialTransport, SessionChanged, parse_page)
 from battery_console import Cancelled, Console
 from battery_lab import Journal, ROOT, digest, load_trace, write_json
+from lab_serial import lease_directory
 
 
 class ReadOnlyClient(Client):
@@ -236,7 +237,7 @@ def run_export(expected, binding, output, *, port=4444, timeout=300, transport=N
         journal.event("confirmed", phase=key)
 
     with console:
-        collector = ProtectedExport(journal, device, console.cancelled, ROOT / "artifacts/battery-port-locks", expected,
+        collector = ProtectedExport(journal, device, console.cancelled, lease_directory(ROOT), expected,
                                     identity_guard=identity_guard if transport is None else None)
         print(f"Protected battery export: {console.url}", flush=True)
         try:

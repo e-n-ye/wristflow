@@ -15,6 +15,33 @@
 
 24日地磁旋转曾使用聊天逐步确认，因120秒总期限未采齐；随后临时页面按钮无法工作，状态确认未启动新采集后已停用。这暴露了通用入口不醒目及未复用既有控制页的问题。随后专用适配复用Console／Journal，实际模拟点击验完整流程、取消及超时，再用于设备。五方向与显式停止取得证据，但原workflow因把seq0初始化日志算入普通样本而失败；保留原失败，按原始字节独立核验设备条件，并用聊天末态确认补充人工证据，不能回填为页面确认。过程和脚本指纹见[本轮证据](evidence/2026-10-24/mmc5603-compass-readiness.json)，实际进度只见STATUS。
 
+<a id="local-experiment-tools"></a>
+## 本地实验工具复用与接续
+
+新会话先由PROJECT_INDEX按任务进入本节，再用工程地图确定模块；活动任务仍只读STATUS当前区。先查已有入口及`--help`，只有协议、会话归属或清理语义确实不同才增加小型器件适配。版本、端口、时长和动作说明差异优先用参数；一次性探索可保留执行源码快照，但不得成为后续工具的运行时代码依赖。
+
+| 职责 | 正式位置与复用规则 |
+|---|---|
+| 原始收发、有限等待、短写检查及资源关闭 | `scripts/lab_serial.py`的RecordedClient／RecordedSession；PortLease／SerialTransport沿用既有实现，电量原导入名称兼容。基类默认拒绝全部命令；适配器声明白名单、冷启动标记及完成条件，设备停止由适配器负责 |
+| 协作页和阶段记录 | 原Console／Journal；`prompt(..., pump=...)`在等待人确认时持续采集，`automatic(..., pump=..., until=...)`表示程序判定的有界采样／计时；确认按钮不能完成自动阶段。无需复制页面、线程或直接写内部prompt字段 |
+| 文件哈希、显式清单与JSON输出 | `scripts/lab_evidence.py`；电量原digest／write_json导出兼容，不按目录扫描所有历史文件 |
+| 地磁已完成实验的模拟／回放 | `scripts/mmc5603_lab.py`，纯解析见mag_protocol／light_protocol；本阶段CLI只提供simulate／replay／status，不开放真实端点。五方向策略属于地磁适配，不变成通用步骤引擎 |
+| 构建／下载 | 继续使用Build.ps1／Flash.ps1；实验工具读取其结果，不复制下载包装器，不因电脑端整理重编固件 |
+| 输入与证据 | `tests/fixtures/`保存可分发的最小回放输入；`artifacts/`保存运行配置、UART原始字节、事件、报告和必要的执行源码快照；精简交付证据在docs/evidence |
+
+```bash
+python scripts/mmc5603_lab.py replay --out artifacts/mag-lab/replay-001
+python scripts/mmc5603_lab.py simulate --out artifacts/mag-lab/sim-001
+python scripts/mmc5603_lab.py status --run artifacts/mag-lab/sim-001
+python -m unittest discover -s tests -p 'test_lab_*.py' -v
+```
+
+输出目录必须是新路径；status只读取进度，不恢复进程或重启设备窗口。模拟不导入serial、不枚举COM、不打开端点；模拟逻辑时间与快速样本是替身输入，不是设备时序证据。设备适配函数将是否模拟、工具源码指纹、原始UART、启动意图／完整session-start-duration-mode身份、停止确认、端口关闭及人工末态确认分别保存；取消／超时只停止已确认所属窗口，冷启动、异窗口或不确定归属明确保留recovery_required。
+
+历史fixture包含26,117字节原UART及五方向索引，记录原session／events／workflow文件路径和SHA；旧workflow的error／passed=false原样保留。纯解析保留seq0／invalid行，地磁策略仅识别自检前唯一的全零初始化通知，不能将任意坏帧过滤成通过。离线得到86帧／五窗／停止证据不等于新实机通过，也不证明磁北、倾斜精度或功耗。旧实验仍从MMC5603等专题及docs/evidence中定位；不删除、移动或改写被引用的artifacts。
+
+整理分四个独立交付闭环：公共基础与地磁模拟／回放；亮度查询和AOD被动记录作为第二调用方；构建／证据／文档检查及失效规则收敛；入口发现、依赖隔离和新会话接续走查。完整范围覆盖这些闭环，实施状态只回STATUS。AOD复位／校时／PM控制、电量离线恢复、旧腕诊断与第三方参考不机械迁移；明确的新设备授权仍另核现场条件。
+
 ## 本轮范围与分工
 
 2026-10-21用户要求借电量排查改进人机协作。PR #120首轮复用B2实机记录，完成可重复B3回放和OpenHTF网页演练；后续用户要求继续，增加模拟采集适配器及共同本地控制页。AI制定实验、分析证据；本地程序持有阶段和输出；人只确认需要判断或实际动作的部分。软件验收由主代理在浏览器操作，没有让用户重复设备输入。

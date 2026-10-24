@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "source": {
+    "evidence": "docs/evidence/2026-10-24/mmc5603-compass-readiness.json",
+    "files": [
+      {
+        "path": "artifacts/mmc5603-compass-readiness-20261024/console-device-001/capture/uart.bin",
+        "bytes": 26117,
+        "sha256": "f3a990c67869f46bcdab4bc05dcb679165d8acf6b9822a4b83b14f31fdac1897"
+      },
+      {
+        "path": "artifacts/mmc5603-compass-readiness-20261024/console-device-001/capture/session.json",
+        "bytes": 47289,
+        "sha256": "afc18daaf96d0e432696f7753a52f5950b831304f67295b55e62917c2fefb765"
+      },
+      {
+        "path": "artifacts/mmc5603-compass-readiness-20261024/console-device-001/events.jsonl",
+        "bytes": 5216,
+        "sha256": "489a240ac844e6d401f5808633f43788dd70b3829493a8609d2d515250f1401e"
+      },
+      {
+        "path": "artifacts/mmc5603-compass-readiness-20261024/console-device-001/workflow.json",
+        "bytes": 271,
+        "sha256": "6227a6373ab795849c70693c8708c0a5921d487d06f6db9ac800615159913d90"
+      }
+    ],
+    "bin_sha256": "2438dc7cbc20a129a44dc3dd1f9623e696a6448a873ed33415e4396357e81584"
+  },
+  "uart": {
+    "path": "mag-readiness-20261024.uart",
+    "bytes": 26117,
+    "sha256": "f3a990c67869f46bcdab4bc05dcb679165d8acf6b9822a4b83b14f31fdac1897"
+  },
+  "original_workflow": {
+    "outcome": "error",
+    "passed": false,
+    "simulation": false,
+    "collector_complete": false,
+    "port_closed": true,
+    "operator_end_confirmed": false,
+    "detail": "RuntimeError('Bounded capture incomplete: [\"AssertionError(\\'Ordinary frame gap\\')\"]')"
+  },
+  "ordinary_frames": 86,
+  "windows": [
+    {
+      "label": "front",
+      "seqs": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "label": "right",
+      "seqs": [
+        21,
+        22,
+        23,
+        24,
+        25,
+        26
+      ]
+    },
+    {
+      "label": "rear",
+      "seqs": [
+        37,
+        38,
+        39,
+        40,
+        41,
+        42
+      ]
+    },
+    {
+      "label": "left",
+      "seqs": [
+        59,
+        60,
+        61,
+        62,
+        63,
+        64
+      ]
+    },
+    {
+      "label": "front_return",
+      "seqs": [
+        80,
+        81,
+        82,
+        83,
+        84,
+        85
+      ]
+    }
+  ],
+  "operator_confirmation": {
+    "source": "Historical chat 01a16cb4-a302-7a61-babc-b8a00e0152a7; separate from failed workflow",
+    "workflow_end_confirmed": false,
+    "chat_confirmed": true,
+    "scope": "Five positions complete; temporary keepawake off; normal end state; automatic brightness on, AOD/wrist preserved"
+  }
+}

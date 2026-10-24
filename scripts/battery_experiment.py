@@ -13,6 +13,7 @@ from battery_collect import Client, FROZEN, PREFIX, ProtocolError, SessionChange
 from battery_console import Cancelled, Console
 from battery_device import ProtectedExport, port_identity, prepare_binding
 from battery_lab import Journal, ROOT, digest, load_trace, write_json
+from lab_serial import lease_directory
 
 
 class ExperimentClient(Client):
@@ -244,24 +245,7 @@ def analyze(value):
 
 
 def countdown(console, key, message, seconds):
-    console.stage(key, "running")
-    with console.condition:
-        deadline = time.monotonic() + seconds
-        console.prompt_value = {"id": key, "phase": key, "message": message,
-                                "deadline": deadline, "automatic": True}
-        console.journal.event("timed_stage_started", phase=key, seconds=seconds)
-        try:
-            while True:
-                if console.cancelled.is_set():
-                    raise Cancelled("Cancelled while offline; recorder recovery may be required")
-                remaining = deadline - time.monotonic()
-                if remaining <= 0:
-                    break
-                console.condition.wait(min(remaining, .5))
-        finally:
-            console.prompt_value = None
-    console.journal.event("timed_stage_finished", phase=key)
-    console.stage(key, "complete")
+    console.automatic(key, message, seconds)
 
 
 def run(expected, binding, output, *, port=4444, timeout=900):
@@ -277,7 +261,7 @@ def run(expected, binding, output, *, port=4444, timeout=900):
             raise SessionChanged("Host endpoint changed")
     with Console(journal, phases, port, mode="实机纯电池负载／恢复对照") as console:
         collector_type = FreshFlashExperiment if fresh else Experiment
-        collector = collector_type(journal, transport, console.cancelled, ROOT / "artifacts/battery-port-locks",
+        collector = collector_type(journal, transport, console.cancelled, lease_directory(ROOT),
                                expected, identity_guard=guard)
         current, outcome, detail, analysis = "prepare", "passed", "", None
         print(f"Guided battery experiment: {console.url}", flush=True)

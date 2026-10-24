@@ -15,6 +15,7 @@
 | 环境与 SCons 固件构建 | [BUILD 当前机器入口](docs/BUILD.md#当前机器直接使用)、[SDK 锁](sdk.lock.json)；已有环境不重装 |
 | 主机测试与模拟器 | [SIMULATOR](docs/SIMULATOR.md)、[测试工程](tests/CMakeLists.txt) |
 | 复杂人机协作验收、多步动作／等待／采集／清理，以及电量回放与记录 | [统一协作测试流程](docs/HARDWARE-TEST-WORKFLOW.md#shared-operator-workflow)；优先评估复用协作页／阶段日志并增加专用适配，先模拟验交互；实机核HARDWARE与授权，活动项回STATUS |
+| 电脑端实验脚本复用、查已有工具、模拟／历史UART回放及接续进度 | [本地工具选择与职责](docs/HARDWARE-TEST-WORKFLOW.md#local-experiment-tools) → [工程地图](docs/ENGINEERING-MAP.md)；先选已有入口／参数，协议与清理差异才新增适配；历史artifacts只作证据／快照，不作新工具代码依赖 |
 | UI / XML / 字体资源 | [UI-DEMO](docs/UI-DEMO.md)、[UI 交互契约](docs/UI-INTERACTION.md)；先由地图确认源与输出，再定位对应专题，如 [控制中心／共用选时](docs/CONTROL-CENTER.md)、[充电画面](docs/CHARGING-UI.md)、[呼吸训练](docs/BREATHING.md)、[闹钟](docs/ALARM.md)、[倒计时](docs/COUNTDOWN.md)、[2048](docs/GAME-2048.md)、[活力指标](docs/ACTIVITY.md) |
 | BLE、PM 或产品集成 | [产品入口](docs/PRODUCT-RUNTIME.md)、[BLE](docs/BLE-FIRST-LINK.md)、[PM](docs/PM-EVENT-WAKE.md)、[AOD面板与显示](docs/AOD.md)，仅选相关域；倒计时后台边界见 [COUNTDOWN 第二轮](docs/COUNTDOWN.md#round2) |
 | 架构、裁剪或风险核查 | [ARCHITECTURE](docs/ARCHITECTURE.md) 相关契约与 [审查债务 §3](docs/ARCHITECTURE-REVIEW.md#3-债务清单全部未关闭)，先核对证据提交 |
