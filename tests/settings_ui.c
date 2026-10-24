@@ -200,6 +200,7 @@ int main(int argc,char **argv)
     snapshot("dnd_scheduled"); press("dnd_mode_1"); back();
     press("settings_notifications"); snapshot("notifications"); back();
     press("settings_display"); snapshot("display");
+    assert(!strcmp(lv_label_get_text(named(named(lv_screen_active(),"display_brightness"),"row_detail")),"27%"));
     assert(!lv_obj_find_by_name(lv_screen_active(),"display_tap"));
     press("display_wrist"); snapshot("wrist");
     assert(!settings().wrist_wake);
@@ -226,11 +227,25 @@ int main(int argc,char **argv)
     snapshot("brightness_automatic");
     tap(180,238); /* The old custom-row coordinates cannot navigate once it is hidden. */
     surface(WRISTFLOW_SURFACE_BRIGHTNESS_SETTINGS); assert(automatic_requests==1);
-    back(); press("display_brightness"); /* Provider mode survives page destruction/recreation. */
+    back(); surface(WRISTFLOW_SURFACE_DISPLAY_SETTINGS);
+    assert(!strcmp(lv_label_get_text(named(named(lv_screen_active(),"display_brightness"),"row_detail")),"自动亮度"));
+    snapshot("display_automatic");
+    /* A provider fault must also refresh the parent summary without navigation. */
+    wristflow_ui_shell_auto_brightness_sample(shell,true,42);
+    automatic_mode=false; wristflow_ui_shell_auto_brightness_sample(shell,false,0); advance(32);
+    assert(!strcmp(lv_label_get_text(named(named(lv_screen_active(),"display_brightness"),"row_detail")),"27%"));
+    assert(settings().brightness==27);
+    automatic_mode=true; wristflow_ui_shell_auto_brightness_sample(shell,true,42); advance(32);
+    assert(!strcmp(lv_label_get_text(named(named(lv_screen_active(),"display_brightness"),"row_detail")),"自动亮度"));
+    press("display_brightness"); /* Provider mode survives page destruction/recreation. */
     assert(automatic_mode && lv_obj_has_flag(named(lv_screen_active(),"custom_brightness"),LV_OBJ_FLAG_HIDDEN));
     press("row_switch");
     assert(automatic_requests==2 && !automatic_mode && settings().brightness==27);
+    wristflow_ui_shell_auto_brightness_sample(shell,false,0);
     assert(!lv_obj_has_flag(named(lv_screen_active(),"custom_brightness"),LV_OBJ_FLAG_HIDDEN));
+    back();
+    assert(!strcmp(lv_label_get_text(named(named(lv_screen_active(),"display_brightness"),"row_detail")),"27%"));
+    press("display_brightness");
     reject_automatic=true; press("row_switch");
     assert(automatic_requests==3 && !automatic_mode);
     assert(!lv_obj_has_state(named(lv_screen_active(),"row_switch"),LV_STATE_CHECKED));
@@ -339,6 +354,31 @@ int main(int argc,char **argv)
     home(); key(); open(WRISTFLOW_SURFACE_SETTINGS);
     wristflow_settings_t chosen=settings(); chosen.brightness=27; chosen.screen_timeout=5;
     assert(wristflow_ui_shell_configure(shell,&chosen));
+    /* A product runtime value never mutates the saved manual setting. Normal
+     * arbitration still owns DIM/OFF/flashlight and mode-only persistence. */
+    automatic_mode=true;
+    wristflow_ui_shell_bind_brightness_mode(shell,&light_mode);
+    wristflow_ui_shell_auto_brightness_sample(shell,true,90);
+    assert(brightness==90 && settings().brightness==27 && settings().auto_brightness);
+    assert(wristflow_ui_shell_auto_brightness_sampling(shell));
+    jump(4050); assert(brightness==18 && wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_DIM);
+    jump(1000); assert(brightness==0 && !wristflow_ui_shell_auto_brightness_sampling(shell));
+    wristflow_ui_shell_auto_brightness_sample(shell,true,80); assert(brightness==0);
+    key(); open(WRISTFLOW_SURFACE_FLASHLIGHT); advance(32);
+    assert(brightness==100 && !wristflow_ui_shell_auto_brightness_sampling(shell));
+    wristflow_ui_shell_auto_brightness_sample(shell,false,0); assert(brightness==100);
+    key(); advance(32); assert(brightness==27 && settings().brightness==27);
+    wristflow_ui_shell_auto_brightness_sample(shell,true,80); assert(brightness==80);
+    assert(wristflow_ui_shell_set_endurance(shell,true)); advance(320);
+    assert(!wristflow_ui_shell_auto_brightness_sampling(shell) && settings().auto_brightness);
+    wristflow_ui_shell_auto_brightness_sample(shell,true,90); advance(32);
+    assert(brightness==27 && settings().brightness==27);
+    assert(wristflow_ui_shell_set_endurance(shell,false)); advance(320);
+    assert(wristflow_ui_shell_auto_brightness_sampling(shell) && settings().auto_brightness);
+    automatic_mode=false; wristflow_ui_shell_auto_brightness_sample(shell,false,0);
+    assert(brightness==27 && !settings().auto_brightness);
+    wristflow_ui_shell_bind_brightness_mode(shell,NULL);
+    home(); key(); open(WRISTFLOW_SURFACE_SETTINGS);
     lv_obj_t *wake_page=lv_screen_active();
     jump(1000);
     assert(!wristflow_ui_shell_wrist_wake(shell)); /* ACTIVE motion does not reset timeout. */
@@ -474,6 +514,19 @@ int main(int argc,char **argv)
     store_bound=true; unsigned saves=store_requests;
     press("row_switch"); assert(!settings().wrist_wake && store_requests==saves+1 && !submitted.wrist_wake);
     store_state=WRISTFLOW_SAVE_DONE; advance(240); store_bound=false;
+    /* Provider mode changes persist, but successive live brightness samples
+     * cannot queue preference writes or replace the original slider value. */
+    saves=store_requests; unsigned manual=settings().brightness;
+    automatic_mode=true; wristflow_ui_shell_bind_brightness_mode(shell,&light_mode);
+    wristflow_ui_shell_auto_brightness_sample(shell,true,88);
+    wristflow_ui_shell_sync_settings_save(shell);
+    assert(store_requests==saves+1 && submitted.auto_brightness && submitted.brightness==manual);
+    wristflow_ui_shell_auto_brightness_sample(shell,true,95);
+    wristflow_ui_shell_sync_settings_save(shell); assert(store_requests==saves+1);
+    automatic_mode=false; wristflow_ui_shell_auto_brightness_sample(shell,false,0);
+    wristflow_ui_shell_sync_settings_save(shell);
+    assert(store_requests==saves+2 && !submitted.auto_brightness && submitted.brightness==manual);
+    wristflow_ui_shell_bind_brightness_mode(shell,NULL);
     wristflow_ui_shell_destroy(shell); shell=NULL;
     assert(cancellations==before_cancel+3); lv_deinit(); return 0;
 }

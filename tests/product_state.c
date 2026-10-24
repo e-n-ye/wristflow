@@ -16,6 +16,12 @@ static void legacy_record(const wristflow_settings_t *s, unsigned version, uint8
     record[0] = 'W'; record[1] = 'F'; record[2] = (uint8_t)version; record[3] = s->brightness;
     memcpy(record + 4, s->face_id, strlen(s->face_id));
     if (version >= 9) {
+        if (version >= 11) {
+            memset(record+4,0,9); record[4]=!strcmp(s->face_id,"simple");
+            record[5]=(uint8_t)s->aod_start_minute; record[6]=(uint8_t)(s->aod_start_minute>>8);
+            record[7]=(uint8_t)s->aod_end_minute; record[8]=(uint8_t)(s->aod_end_minute>>8);
+            record[9]=(uint8_t)(s->aod_mode | s->aod_style<<1);
+        }
         record[13] = (uint8_t)(s->wrist_wake | s->silent_mode << 1 | s->face_long_press << 2 |
             s->menu_layout << 3 | s->dnd_mode << 4 | (version >= 10 && s->endurance_mode) << 6);
         record[14] = (uint8_t)(s->vibration_mode | s->breathing_minutes << 2);
@@ -49,7 +55,26 @@ int main(void)
     assert(wristflow_settings_equal(&chosen, &restored));
     assert(restored.dnd_mode);
     assert(restored.breathing_minutes == 5);
-    assert(record[2] == 11 && (record[13] & 1U) && (record[14] & 3U) == WRISTFLOW_VIBRATION_ENHANCED);
+    assert(record[2] == 12 && (record[13] & 1U) && (record[14] & 3U) == WRISTFLOW_VIBRATION_ENHANCED);
+    /* The deployed explicit-face v11 keeps AOD/other preferences; mode defaults off. */
+    record[2]=11; seal(record);
+    assert(wristflow_settings_decode(&restored,record,sizeof record) && !restored.auto_brightness &&
+        wristflow_settings_equal(&chosen,&restored));
+    chosen.auto_brightness=true;
+    assert(wristflow_settings_encode(&chosen,record) && record[10]==1);
+    assert(wristflow_settings_decode(&restored,record,sizeof record) && restored.auto_brightness &&
+        wristflow_settings_equal(&chosen,&restored) && restored.brightness==37);
+    restored.auto_brightness=false; assert(!wristflow_settings_equal(&chosen,&restored));
+    record[10]=2; seal(record); assert(!wristflow_settings_decode(&restored,record,sizeof record));
+    record[10]=1; record[2]=11; seal(record); assert(!wristflow_settings_decode(&restored,record,sizeof record));
+    record[10]=0; record[2]=13; seal(record); assert(!wristflow_settings_decode(&restored,record,sizeof record));
+    chosen.auto_brightness=false;
+    wristflow_settings_t deployed=chosen;
+    deployed.aod_mode=WRISTFLOW_AOD_SCHEDULED; deployed.aod_style=WRISTFLOW_AOD_CORNER;
+    deployed.aod_start_minute=1320; deployed.aod_end_minute=480; deployed.silent_mode=true;
+    legacy_record(&deployed,11,record);
+    assert(wristflow_settings_decode(&restored,record,sizeof record) &&
+        !restored.auto_brightness && wristflow_settings_equal(&restored,&deployed));
     legacy_record(&chosen, 9, record); /* Deployed v9 acquires mode off. */
     assert(wristflow_settings_decode(&restored, record, sizeof record) && !restored.endurance_mode);
     legacy_record(&chosen, 10, record);

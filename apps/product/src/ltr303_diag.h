@@ -29,7 +29,7 @@ typedef struct {
     wf_ltr303_io_t io;
     wf_ltr303_snapshot_t snapshot;
     uint32_t due_ms;
-    bool changed, data_locked;
+    bool changed, data_locked, continuous;
 } wf_ltr303_t;
 
 /* Single sensor worker only. Explicit bounded run; no reset, IRQ or own timer.
@@ -37,6 +37,9 @@ typedef struct {
  * Values are raw channels, never labelled lux without a verified conversion. */
 void wf_ltr303_init(wf_ltr303_t *, wf_ltr303_io_t);
 bool wf_ltr303_begin(wf_ltr303_t *, uint32_t started_ms, uint32_t duration_ms);
+/* Same registers/ownership/restore path; product worker stops on policy exit.
+ * No rolling diagnostic sessions or implicit background restart. */
+bool wf_ltr303_begin_continuous(wf_ltr303_t *, uint32_t started_ms);
 void wf_ltr303_poll(wf_ltr303_t *);
 bool wf_ltr303_stop(wf_ltr303_t *, wf_light_end_t);
 void wf_ltr303_bus_fault(wf_ltr303_t *);

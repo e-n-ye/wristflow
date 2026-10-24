@@ -1,0 +1,1803 @@
+{
+  "schema": 1,
+  "recorded_at": "2026-10-24T06:55:25.721432+00:00",
+  "scope": "Bounded real automatic-brightness acceptance; initial shade failure retained, corrected candidate checked separately.",
+  "source": {
+    "base": "f5d0bc0695100eea30b420d50a52f6d7784fdb5b",
+    "software_evidence": "docs/evidence/2026-10-24/automatic-brightness.json",
+    "software_evidence_sha256": "675eae83d36890a7509958fbce54adb9a87e3e186886f6e8cd103e921e864832",
+    "bin_sha256": "7d7be0179731a07c06d696d65f0a8a8366e7f687b37bdadeb51da54eaab20db6",
+    "device_identity_verified": false
+  },
+  "conditions": "Operator confirmed same board/display, original battery plus computer USB, fixed wiring and operator present on2026-10-24.",
+  "preflight": {
+    "at": "2026-10-24T06:41:30.749415+00:00",
+    "build": "artifacts/product/20261024-143812-050/result.json",
+    "bin_sha256": "7d7be0179731a07c06d696d65f0a8a8366e7f687b37bdadeb51da54eaab20db6",
+    "sources_verified": 543,
+    "artifacts_verified": 29,
+    "production_source_changes_from_8e7d54c7": [
+      "ui/runtime/settings_view.c"
+    ],
+    "sdk_clean_verified": true,
+    "endpoint": {
+      "device": "COM5",
+      "vid": 6790,
+      "pid": 29987,
+      "location": "1-1.1",
+      "serial_number": "",
+      "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+      "disable_modem": 1
+    },
+    "previous_candidate_preserved": true,
+    "scope": "Authorized UI parent-summary correction; existing automatic strategy unchanged."
+  },
+  "flashes": [
+    {
+      "record": {
+        "path": "artifacts/flash/product/20261024-140012-145/result.json",
+        "bytes": 1767,
+        "sha256": "7e16852f3727240ce81cd59f896e5d79af3767a71f3ed6285818f6cd98f98ec1"
+      },
+      "result": {
+        "date": "2026-10-24T14:02:57.0764117+08:00",
+        "example": "product",
+        "board": "sf32lb52-lchspi-ulp",
+        "port": "COM5",
+        "tool": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe",
+        "command": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+        "images": [
+          {
+            "name": "bootloader.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+            "address": "0x12010000",
+            "bytes": 58496,
+            "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+          },
+          {
+            "name": "main.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+            "address": "0x12020000",
+            "bytes": 8024844,
+            "sha256": "b351fb8f8c3e14e6544d16ccca61bf2d77fe072c54bd32b0a80d59b23fdd6495"
+          },
+          {
+            "name": "ftab.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+            "address": "0x12000000",
+            "bytes": 11288,
+            "sha256": "344fd269fa97527243256ef72bcd7458ee42583703b61761fb3d7f69bca16510"
+          }
+        ],
+        "exit_code": 0,
+        "hardware_verified": false
+      }
+    },
+    {
+      "record": {
+        "path": "artifacts/flash/product/20261024-142049-014/result.json",
+        "bytes": 1767,
+        "sha256": "a3d7d135ce93c87acb6f76d077ac067473606fb52323c1daef01b08b4a38eb8a"
+      },
+      "result": {
+        "date": "2026-10-24T14:23:33.8902477+08:00",
+        "example": "product",
+        "board": "sf32lb52-lchspi-ulp",
+        "port": "COM5",
+        "tool": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe",
+        "command": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+        "images": [
+          {
+            "name": "bootloader.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+            "address": "0x12010000",
+            "bytes": 58496,
+            "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+          },
+          {
+            "name": "main.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+            "address": "0x12020000",
+            "bytes": 8024852,
+            "sha256": "8e7d54c7e855fe70c0cb965b797a0f99b3671003b8c6cb991c8b2f0700e1ff78"
+          },
+          {
+            "name": "ftab.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+            "address": "0x12000000",
+            "bytes": 11288,
+            "sha256": "9e4bb0a907c45459ef1d79156a394f7e3b8271b60ae58867c1f837dabdc233b4"
+          }
+        ],
+        "exit_code": 0,
+        "hardware_verified": false
+      }
+    },
+    {
+      "record": {
+        "path": "artifacts/flash/product/20261024-144150-194/result.json",
+        "bytes": 1767,
+        "sha256": "2cb20d00da1715500b0cfb2fa38befcdf096c89ae2ac28ce8987ea2ee8e0631b"
+      },
+      "result": {
+        "date": "2026-10-24T14:44:35.0909225+08:00",
+        "example": "product",
+        "board": "sf32lb52-lchspi-ulp",
+        "port": "COM5",
+        "tool": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe",
+        "command": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+        "images": [
+          {
+            "name": "bootloader.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+            "address": "0x12010000",
+            "bytes": 58496,
+            "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+          },
+          {
+            "name": "main.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+            "address": "0x12020000",
+            "bytes": 8024868,
+            "sha256": "7d7be0179731a07c06d696d65f0a8a8366e7f687b37bdadeb51da54eaab20db6"
+          },
+          {
+            "name": "ftab.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+            "address": "0x12000000",
+            "bytes": 11288,
+            "sha256": "bb26501443b39f05d44e3938f08fbf8076f2a3f7b8df521679a510c1dce03e38"
+          }
+        ],
+        "exit_code": 0,
+        "hardware_verified": false
+      }
+    }
+  ],
+  "sessions": [
+    {
+      "name": "before-001",
+      "record": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/before-001/session.json",
+        "bytes": 7142,
+        "sha256": "40137c4b05c177799ab488b7777863ec164fe2881d22b3c428ca915fbf7e67e0"
+      },
+      "uart": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/before-001/uart.bin",
+        "bytes": 5116,
+        "sha256": "3f610eb4a6388d4a871217ff22620cf6a31cf632a1eb3d320edd4e251f921494"
+      },
+      "mode": "before",
+      "closed": "2026-10-24T05:59:23.099103+00:00",
+      "events": [
+        {
+          "at": "2026-10-24T05:59:16.211278+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-24T05:59:16.956020+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-24T05:59:17.677704+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T05:59:18.452306+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-24T05:59:19.203571+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-24T05:59:19.925449+00:00",
+          "command": "wf_battery status"
+        },
+        {
+          "at": "2026-10-24T05:59:20.632521+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-24T05:59:21.355241+00:00",
+          "command": "wf_ble radio"
+        },
+        {
+          "at": "2026-10-24T05:59:22.063131+00:00",
+          "command": "wf_pm allow"
+        }
+      ],
+      "release_verified": true,
+      "error": null
+    },
+    {
+      "name": "startup-001",
+      "record": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/startup-001/session.json",
+        "bytes": 11309,
+        "sha256": "d13ab1bc861b41059d314b2b41898758155cedcd47cbb4fe8bc431a1d06af835"
+      },
+      "uart": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/startup-001/uart.bin",
+        "bytes": 12841,
+        "sha256": "250c47d92b9fc19d6287bef99f021366e627e9fece8ce03d78e89ca0033d0796"
+      },
+      "mode": "startup",
+      "closed": "2026-10-24T06:03:58.127868+00:00",
+      "events": [
+        {
+          "at": "2026-10-24T06:03:42.417005+00:00",
+          "reset_once_ms": 150
+        },
+        {
+          "at": "2026-10-24T06:03:47.605181+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-24T06:03:48.326163+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-24T06:03:49.058007+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T06:03:49.796472+00:00",
+          "command": "wf_time 1792821829"
+        },
+        {
+          "at": "2026-10-24T06:03:50.555104+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T06:03:51.267599+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-24T06:03:52.011079+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-24T06:03:52.760802+00:00",
+          "command": "wf_battery status"
+        },
+        {
+          "at": "2026-10-24T06:03:53.480250+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-24T06:03:54.200888+00:00",
+          "command": "wf_ble radio"
+        },
+        {
+          "at": "2026-10-24T06:03:54.934995+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-24T06:03:55.649318+00:00",
+          "command": "list_thread"
+        },
+        {
+          "at": "2026-10-24T06:03:56.387825+00:00",
+          "command": "list_mem"
+        },
+        {
+          "at": "2026-10-24T06:03:57.101077+00:00",
+          "command": "wf_pm allow"
+        }
+      ],
+      "release_verified": true,
+      "error": null
+    },
+    {
+      "name": "before-002",
+      "record": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/before-002/session.json",
+        "bytes": 7027,
+        "sha256": "c5f4a520c181012b2340cfe8a968ca113305f623f1833bf8471969ea89b647dc"
+      },
+      "uart": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/before-002/uart.bin",
+        "bytes": 4999,
+        "sha256": "c27389216aa9285f9e2076ba87ad18970b9f57965edf57e989660d5a3d90f3ba"
+      },
+      "mode": "before",
+      "closed": "2026-10-24T06:18:11.842276+00:00",
+      "events": [
+        {
+          "at": "2026-10-24T06:18:04.964692+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-24T06:18:05.690164+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-24T06:18:06.401597+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T06:18:07.112977+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-24T06:18:07.875016+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-24T06:18:08.596208+00:00",
+          "command": "wf_battery status"
+        },
+        {
+          "at": "2026-10-24T06:18:09.339643+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-24T06:18:10.076030+00:00",
+          "command": "wf_ble radio"
+        },
+        {
+          "at": "2026-10-24T06:18:10.811010+00:00",
+          "command": "wf_pm allow"
+        }
+      ],
+      "release_verified": true,
+      "error": null
+    },
+    {
+      "name": "startup-002",
+      "record": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/startup-002/session.json",
+        "bytes": 11309,
+        "sha256": "1253ff7b737fef47f2b6edf52003279bac42b6345a4689fe1c5fd6fe7661e430"
+      },
+      "uart": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/startup-002/uart.bin",
+        "bytes": 12870,
+        "sha256": "9f55a1d1e03a73b6513dd630f9413f8ffa784459089b2b0ee3ce49e2178da55b"
+      },
+      "mode": "startup",
+      "closed": "2026-10-24T06:24:28.466365+00:00",
+      "events": [
+        {
+          "at": "2026-10-24T06:24:12.753810+00:00",
+          "reset_once_ms": 150
+        },
+        {
+          "at": "2026-10-24T06:24:17.942991+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-24T06:24:18.678166+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-24T06:24:19.429074+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T06:24:20.187836+00:00",
+          "command": "wf_time 1792823060"
+        },
+        {
+          "at": "2026-10-24T06:24:20.890026+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T06:24:21.597291+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-24T06:24:22.353644+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-24T06:24:23.077609+00:00",
+          "command": "wf_battery status"
+        },
+        {
+          "at": "2026-10-24T06:24:23.786400+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-24T06:24:24.546946+00:00",
+          "command": "wf_ble radio"
+        },
+        {
+          "at": "2026-10-24T06:24:25.275000+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-24T06:24:25.985413+00:00",
+          "command": "list_thread"
+        },
+        {
+          "at": "2026-10-24T06:24:26.698411+00:00",
+          "command": "list_mem"
+        },
+        {
+          "at": "2026-10-24T06:24:27.447350+00:00",
+          "command": "wf_pm allow"
+        }
+      ],
+      "release_verified": true,
+      "error": null
+    },
+    {
+      "name": "before-003",
+      "record": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/before-003/session.json",
+        "bytes": 7028,
+        "sha256": "d052f1aed8da9f08041e89854ce85d972d6f316115e5402216561cede572c37b"
+      },
+      "uart": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/before-003/uart.bin",
+        "bytes": 5000,
+        "sha256": "23810f9ee2b9577e738d1a3701649f78c541747eb994367e9a4ea0ece16f56bc"
+      },
+      "mode": "before",
+      "closed": "2026-10-24T06:40:57.513963+00:00",
+      "events": [
+        {
+          "at": "2026-10-24T06:40:50.505771+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-24T06:40:51.250029+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-24T06:40:52.002821+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T06:40:52.777211+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-24T06:40:53.520475+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-24T06:40:54.257766+00:00",
+          "command": "wf_battery status"
+        },
+        {
+          "at": "2026-10-24T06:40:54.982147+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-24T06:40:55.736271+00:00",
+          "command": "wf_ble radio"
+        },
+        {
+          "at": "2026-10-24T06:40:56.481700+00:00",
+          "command": "wf_pm allow"
+        }
+      ],
+      "release_verified": true,
+      "error": null
+    },
+    {
+      "name": "startup-003",
+      "record": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/startup-003/session.json",
+        "bytes": 11308,
+        "sha256": "21707f8f7f3de031cb6aea9f0597a17aa162c1783239336527e4c8dd573c85d6"
+      },
+      "uart": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/startup-003/uart.bin",
+        "bytes": 12887,
+        "sha256": "e02273990637fdaa8a9d531a0b8fdab32f3e58db3c26b76507564d9014bc2c88"
+      },
+      "mode": "startup",
+      "closed": "2026-10-24T06:45:13.725975+00:00",
+      "events": [
+        {
+          "at": "2026-10-24T06:44:57.995870+00:00",
+          "reset_once_ms": 150
+        },
+        {
+          "at": "2026-10-24T06:45:03.178789+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-24T06:45:03.943306+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-24T06:45:04.677311+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T06:45:05.432372+00:00",
+          "command": "wf_time 1792824305"
+        },
+        {
+          "at": "2026-10-24T06:45:06.213562+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T06:45:06.956834+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-24T06:45:07.658967+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-24T06:45:08.392138+00:00",
+          "command": "wf_battery status"
+        },
+        {
+          "at": "2026-10-24T06:45:09.110937+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-24T06:45:09.827396+00:00",
+          "command": "wf_ble radio"
+        },
+        {
+          "at": "2026-10-24T06:45:10.530276+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-24T06:45:11.236312+00:00",
+          "command": "list_thread"
+        },
+        {
+          "at": "2026-10-24T06:45:11.973042+00:00",
+          "command": "list_mem"
+        },
+        {
+          "at": "2026-10-24T06:45:12.703165+00:00",
+          "command": "wf_pm allow"
+        }
+      ],
+      "release_verified": true,
+      "error": null
+    },
+    {
+      "name": "reboot-003",
+      "record": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/reboot-003/session.json",
+        "bytes": 19031,
+        "sha256": "7d6fc96582ea58dc92406331d0e745806136928078a3e018f08453f803aae0db"
+      },
+      "uart": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/reboot-003/uart.bin",
+        "bytes": 15435,
+        "sha256": "0f9a8e155981af7097cd453d887fedc1a104338e4fe134064417078f4a5c3c75"
+      },
+      "mode": "reboot",
+      "closed": "2026-10-24T06:49:49.135355+00:00",
+      "events": [
+        {
+          "at": "2026-10-24T06:49:31.392403+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-24T06:49:32.100970+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-24T06:49:32.805932+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T06:49:33.568732+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-24T06:49:34.342739+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-24T06:49:35.067490+00:00",
+          "command": "wf_battery status"
+        },
+        {
+          "at": "2026-10-24T06:49:35.775953+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-24T06:49:36.493113+00:00",
+          "command": "wf_ble radio"
+        },
+        {
+          "at": "2026-10-24T06:49:37.194053+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-24T06:49:37.943363+00:00",
+          "command": "list_thread"
+        },
+        {
+          "at": "2026-10-24T06:49:38.660253+00:00",
+          "command": "list_mem"
+        },
+        {
+          "at": "2026-10-24T06:49:39.457894+00:00",
+          "command": "reboot"
+        },
+        {
+          "at": "2026-10-24T06:49:45.476968+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T06:49:46.199645+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-24T06:49:46.907257+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-24T06:49:47.638392+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-24T06:49:48.377495+00:00",
+          "command": "wf_steps status"
+        }
+      ],
+      "release_verified": true,
+      "error": null
+    },
+    {
+      "name": "final-003",
+      "record": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/final-003/session.json",
+        "bytes": 9649,
+        "sha256": "49733b7bfa01484bfd5f16f2ac1e4745822daf83899a83395a1a444c856bac92"
+      },
+      "uart": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/final-003/uart.bin",
+        "bytes": 7079,
+        "sha256": "36de5885ce62183db7dea782bfc28b4ab07ff67960afcf06ef5f1ae40d73b706"
+      },
+      "mode": "snapshot",
+      "closed": "2026-10-24T06:53:32.092765+00:00",
+      "events": [
+        {
+          "at": "2026-10-24T06:53:22.964654+00:00",
+          "command": "wf_pm status"
+        },
+        {
+          "at": "2026-10-24T06:53:23.670579+00:00",
+          "command": "wf_pm hold"
+        },
+        {
+          "at": "2026-10-24T06:53:24.403248+00:00",
+          "command": "show_date"
+        },
+        {
+          "at": "2026-10-24T06:53:25.136354+00:00",
+          "command": "wf_steps status"
+        },
+        {
+          "at": "2026-10-24T06:53:25.896613+00:00",
+          "command": "wf_wrist status"
+        },
+        {
+          "at": "2026-10-24T06:53:26.633351+00:00",
+          "command": "wf_battery status"
+        },
+        {
+          "at": "2026-10-24T06:53:27.384977+00:00",
+          "command": "wf_ui status"
+        },
+        {
+          "at": "2026-10-24T06:53:28.127374+00:00",
+          "command": "wf_ble radio"
+        },
+        {
+          "at": "2026-10-24T06:53:28.852009+00:00",
+          "command": "wf_aod status"
+        },
+        {
+          "at": "2026-10-24T06:53:29.582937+00:00",
+          "command": "list_thread"
+        },
+        {
+          "at": "2026-10-24T06:53:30.338163+00:00",
+          "command": "list_mem"
+        },
+        {
+          "at": "2026-10-24T06:53:31.079512+00:00",
+          "command": "wf_pm allow"
+        }
+      ],
+      "release_verified": true,
+      "error": null
+    }
+  ],
+  "windows": [
+    {
+      "name": "ambient-001",
+      "candidate": "b351fb8f",
+      "record": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/ambient-001/session.json",
+        "bytes": 2456,
+        "sha256": "e4855431248d180fbc07aba9d20886a1957378999de5cce64749a7f492821fb6"
+      },
+      "uart": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/ambient-001/uart.bin",
+        "bytes": 3697,
+        "sha256": "978c22f0758a522a88c66d0394cbe59dac61d8920cfa7888b0ee8a56db785f50"
+      },
+      "started": "2026-10-24T06:06:26.164837+00:00",
+      "closed": "2026-10-24T06:06:46.406275+00:00",
+      "commands": [
+        {
+          "at": "2026-10-24T06:06:26.288804+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:06:31.326765+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:06:36.303999+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:06:41.332095+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:06:46.289657+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        }
+      ],
+      "observations": [
+        {
+          "at": "2026-10-24T06:06:26.349469+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 23,
+          "mlux": 17950,
+          "ms": 161008,
+          "session": 1,
+          "seq": 52
+        },
+        {
+          "at": "2026-10-24T06:06:31.399082+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 23,
+          "mlux": 17950,
+          "ms": 166122,
+          "session": 1,
+          "seq": 57
+        },
+        {
+          "at": "2026-10-24T06:06:36.366430+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 23,
+          "mlux": 17950,
+          "ms": 171238,
+          "session": 1,
+          "seq": 62
+        },
+        {
+          "at": "2026-10-24T06:06:41.399756+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 23,
+          "mlux": 17950,
+          "ms": 176353,
+          "session": 1,
+          "seq": 67
+        },
+        {
+          "at": "2026-10-24T06:06:46.347316+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 23,
+          "mlux": 17950,
+          "ms": 181468,
+          "session": 1,
+          "seq": 72
+        }
+      ],
+      "error": null,
+      "reset": false,
+      "pm_control": false,
+      "clock_write": false
+    },
+    {
+      "name": "shade-001",
+      "candidate": "b351fb8f",
+      "record": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/shade-001/session.json",
+        "bytes": 2447,
+        "sha256": "14d2a4830e1a29d3c278d24c6bc8b43de8c8f2dfd7f090e32966127c70ce2034"
+      },
+      "uart": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/shade-001/uart.bin",
+        "bytes": 4039,
+        "sha256": "f5350e824a033449f92bdcad8c4cfc02beb3a8a7775797ef8f7bbcf39d5f8ec6"
+      },
+      "started": "2026-10-24T06:08:10.323300+00:00",
+      "closed": "2026-10-24T06:08:30.626281+00:00",
+      "commands": [
+        {
+          "at": "2026-10-24T06:08:10.440991+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:08:15.470455+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:08:20.493365+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:08:25.459591+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:08:30.492085+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        }
+      ],
+      "observations": [
+        {
+          "at": "2026-10-24T06:08:10.507039+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 13,
+          "mlux": 1774,
+          "ms": 265356,
+          "session": 1,
+          "seq": 154
+        },
+        {
+          "at": "2026-10-24T06:08:15.544509+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 13,
+          "mlux": 1774,
+          "ms": 266378,
+          "session": 1,
+          "seq": 155
+        },
+        {
+          "at": "2026-10-24T06:08:20.563008+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 13,
+          "mlux": 0,
+          "ms": 271494,
+          "session": 1,
+          "seq": 160
+        },
+        {
+          "at": "2026-10-24T06:08:25.522394+00:00",
+          "enabled": 0,
+          "active": 0,
+          "valid": 0,
+          "fault": 1,
+          "cleanup": 0,
+          "brightness": 13,
+          "mlux": 0,
+          "ms": 271494,
+          "session": 1,
+          "seq": 160
+        },
+        {
+          "at": "2026-10-24T06:08:30.568977+00:00",
+          "enabled": 0,
+          "active": 0,
+          "valid": 0,
+          "fault": 1,
+          "cleanup": 0,
+          "brightness": 13,
+          "mlux": 0,
+          "ms": 271494,
+          "session": 1,
+          "seq": 160
+        }
+      ],
+      "error": null,
+      "reset": false,
+      "pm_control": false,
+      "clock_write": false
+    },
+    {
+      "name": "ambient-002",
+      "candidate": "8e7d54c7",
+      "record": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/ambient-002/session.json",
+        "bytes": 1671,
+        "sha256": "3096c575ead63d16164e4e73add69c19110256bf1ef6ce341bb8fb50c23fa089"
+      },
+      "uart": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/ambient-002/uart.bin",
+        "bytes": 2284,
+        "sha256": "7639f43ac053d0371aa4386d04d1a664374bb3cf1638a70d1b61768d9bfbc1ad"
+      },
+      "started": "2026-10-24T06:25:42.216440+00:00",
+      "closed": "2026-10-24T06:25:52.508079+00:00",
+      "commands": [
+        {
+          "at": "2026-10-24T06:25:42.324481+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:25:47.367151+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:25:52.362293+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        }
+      ],
+      "observations": [
+        {
+          "at": "2026-10-24T06:25:42.444929+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 23,
+          "mlux": 17950,
+          "ms": 86845,
+          "session": 1,
+          "seq": 11
+        },
+        {
+          "at": "2026-10-24T06:25:47.440612+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 23,
+          "mlux": 17950,
+          "ms": 91960,
+          "session": 1,
+          "seq": 16
+        },
+        {
+          "at": "2026-10-24T06:25:52.440882+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 23,
+          "mlux": 17950,
+          "ms": 97075,
+          "session": 1,
+          "seq": 21
+        }
+      ],
+      "error": null,
+      "reset": false,
+      "pm_control": false,
+      "clock_write": false
+    },
+    {
+      "name": "shade-002",
+      "candidate": "8e7d54c7",
+      "record": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/shade-002/session.json",
+        "bytes": 2456,
+        "sha256": "0cb9a46c6397b68e27d08566e5a4fb9e4dfaddc1272241e992a6673fb983c84f"
+      },
+      "uart": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/shade-002/uart.bin",
+        "bytes": 3861,
+        "sha256": "a203e0f6b0c8384349d349a482088f649906a5e9ca32da83f67e08b4b8224f20"
+      },
+      "started": "2026-10-24T06:29:05.404294+00:00",
+      "closed": "2026-10-24T06:29:25.631787+00:00",
+      "commands": [
+        {
+          "at": "2026-10-24T06:29:05.510884+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:29:10.514147+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:29:15.545942+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:29:20.546763+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:29:25.512563+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        }
+      ],
+      "observations": [
+        {
+          "at": "2026-10-24T06:29:05.576331+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 14,
+          "mlux": 2324,
+          "ms": 290424,
+          "session": 1,
+          "seq": 210
+        },
+        {
+          "at": "2026-10-24T06:29:10.578374+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 14,
+          "mlux": 4655,
+          "ms": 295539,
+          "session": 1,
+          "seq": 215
+        },
+        {
+          "at": "2026-10-24T06:29:15.612565+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 14,
+          "mlux": 2324,
+          "ms": 299631,
+          "session": 1,
+          "seq": 219
+        },
+        {
+          "at": "2026-10-24T06:29:20.660949+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 14,
+          "mlux": 2324,
+          "ms": 304746,
+          "session": 1,
+          "seq": 224
+        },
+        {
+          "at": "2026-10-24T06:29:25.574639+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 14,
+          "mlux": 2324,
+          "ms": 309861,
+          "session": 1,
+          "seq": 229
+        }
+      ],
+      "error": null,
+      "reset": false,
+      "pm_control": false,
+      "clock_write": false
+    },
+    {
+      "name": "bright-002",
+      "candidate": "8e7d54c7",
+      "record": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/bright-002/session.json",
+        "bytes": 795,
+        "sha256": "f24ccc25cb96e66a7c3d58c09bdf738a7b7da8954961df23480bb39a640dcecf"
+      },
+      "uart": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/bright-002/uart.bin",
+        "bytes": 1411,
+        "sha256": "b4d59150af9c20ee7adde3955a7ece1ba121c0fed2f5ba4379e5dc9b7c2dcb1b"
+      },
+      "started": "2026-10-24T06:29:57.172320+00:00",
+      "closed": "2026-10-24T06:30:01.439191+00:00",
+      "commands": [
+        {
+          "at": "2026-10-24T06:29:57.350843+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:29:59.388857+00:00",
+          "command": "wf_light status",
+          "attempt": 1
+        }
+      ],
+      "observations": [],
+      "error": "TimeoutError('Complete cached auto-light status missing')",
+      "reset": false,
+      "pm_control": false,
+      "clock_write": false
+    },
+    {
+      "name": "bright-003",
+      "candidate": "8e7d54c7",
+      "record": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/bright-003/session.json",
+        "bytes": 1680,
+        "sha256": "63a94b2dda21b426d1c12547f2604758d5a8299ab1233be954697b6a61da6a3e"
+      },
+      "uart": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/bright-003/uart.bin",
+        "bytes": 2285,
+        "sha256": "80965f516dd45a15d24eed51c5f9a4666444b1c9986d0324a45276e73001d220"
+      },
+      "started": "2026-10-24T06:31:25.055941+00:00",
+      "closed": "2026-10-24T06:31:35.291166+00:00",
+      "commands": [
+        {
+          "at": "2026-10-24T06:31:25.165252+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:31:30.214448+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:31:35.166171+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        }
+      ],
+      "observations": [
+        {
+          "at": "2026-10-24T06:31:25.238305+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 81,
+          "mlux": 2994436,
+          "ms": 429475,
+          "session": 2,
+          "seq": 18
+        },
+        {
+          "at": "2026-10-24T06:31:30.276469+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 81,
+          "mlux": 2975818,
+          "ms": 434590,
+          "session": 2,
+          "seq": 23
+        },
+        {
+          "at": "2026-10-24T06:31:35.231966+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 81,
+          "mlux": 3370368,
+          "ms": 439706,
+          "session": 2,
+          "seq": 28
+        }
+      ],
+      "error": null,
+      "reset": false,
+      "pm_control": false,
+      "clock_write": false
+    },
+    {
+      "name": "restored-002",
+      "candidate": "8e7d54c7",
+      "record": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/restored-002/session.json",
+        "bytes": 2456,
+        "sha256": "6d8481fa523bf99457629febfbe06bb9e473b9bf15ef9df18f0a1106153477aa"
+      },
+      "uart": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/restored-002/uart.bin",
+        "bytes": 3984,
+        "sha256": "ab3f22bb89e5b9df3e217c947a1bbe70e4ad480988b68fa58962ae07746ad518"
+      },
+      "started": "2026-10-24T06:32:04.147455+00:00",
+      "closed": "2026-10-24T06:32:24.417938+00:00",
+      "commands": [
+        {
+          "at": "2026-10-24T06:32:04.264334+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:32:09.312084+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:32:14.311202+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:32:19.310040+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:32:24.289466+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        }
+      ],
+      "observations": [
+        {
+          "at": "2026-10-24T06:32:04.388427+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 31,
+          "mlux": 13295,
+          "ms": 468490,
+          "session": 2,
+          "seq": 56
+        },
+        {
+          "at": "2026-10-24T06:32:09.375804+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 21,
+          "mlux": 13295,
+          "ms": 473610,
+          "session": 2,
+          "seq": 61
+        },
+        {
+          "at": "2026-10-24T06:32:14.380300+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 21,
+          "mlux": 13295,
+          "ms": 478732,
+          "session": 2,
+          "seq": 66
+        },
+        {
+          "at": "2026-10-24T06:32:19.382214+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 21,
+          "mlux": 15069,
+          "ms": 483847,
+          "session": 2,
+          "seq": 71
+        },
+        {
+          "at": "2026-10-24T06:32:24.351777+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 21,
+          "mlux": 13295,
+          "ms": 488962,
+          "session": 2,
+          "seq": 76
+        }
+      ],
+      "error": null,
+      "reset": false,
+      "pm_control": false,
+      "clock_write": false
+    },
+    {
+      "name": "after-sleep-002",
+      "candidate": "8e7d54c7",
+      "record": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/after-sleep-002/session.json",
+        "bytes": 891,
+        "sha256": "15cedc54204ea603000f663eb77b7ab08f4f7251d6e4418bf516affae76e8709"
+      },
+      "uart": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/after-sleep-002/uart.bin",
+        "bytes": 592,
+        "sha256": "ac67e96a15106ba9051c967fd00770e9480343ce03fe958e5c5c406731236581"
+      },
+      "started": "2026-10-24T06:34:43.482206+00:00",
+      "closed": "2026-10-24T06:34:43.724002+00:00",
+      "commands": [
+        {
+          "at": "2026-10-24T06:34:43.595247+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        }
+      ],
+      "observations": [
+        {
+          "at": "2026-10-24T06:34:43.660176+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 23,
+          "mlux": 17950,
+          "ms": 628635,
+          "session": 6,
+          "seq": 41
+        }
+      ],
+      "error": null,
+      "reset": false,
+      "pm_control": false,
+      "clock_write": false
+    },
+    {
+      "name": "summary-003",
+      "candidate": "7d7be017",
+      "record": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/summary-003/session.json",
+        "bytes": 891,
+        "sha256": "d35f722dc257faada294487703b3373645f65064b6b84d18ad0cbc385a67e016"
+      },
+      "uart": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/summary-003/uart.bin",
+        "bytes": 591,
+        "sha256": "5258d3e8d89cc79ec6bbfda3b925d27feefbf47dff64e8a1d311a204f21158a5"
+      },
+      "started": "2026-10-24T06:49:14.527459+00:00",
+      "closed": "2026-10-24T06:49:14.764012+00:00",
+      "commands": [
+        {
+          "at": "2026-10-24T06:49:14.652604+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        }
+      ],
+      "observations": [
+        {
+          "at": "2026-10-24T06:49:14.710402+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 24,
+          "mlux": 17950,
+          "ms": 254372,
+          "session": 3,
+          "seq": 23
+        }
+      ],
+      "error": null,
+      "reset": false,
+      "pm_control": false,
+      "clock_write": false
+    },
+    {
+      "name": "after-reboot-003",
+      "candidate": "7d7be017",
+      "record": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/after-reboot-003/session.json",
+        "bytes": 891,
+        "sha256": "235d2bccde5f653a39ecba0745069b55c61b803490424789cc381144b6b4fd11"
+      },
+      "uart": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/after-reboot-003/uart.bin",
+        "bytes": 621,
+        "sha256": "db09d8f59e80c5c45fe83465cf003f597e5cef5e37107765b8a37b80dd1b3020"
+      },
+      "started": "2026-10-24T06:53:05.846813+00:00",
+      "closed": "2026-10-24T06:53:06.122463+00:00",
+      "commands": [
+        {
+          "at": "2026-10-24T06:53:05.987054+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        }
+      ],
+      "observations": [
+        {
+          "at": "2026-10-24T06:53:06.047203+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 25,
+          "mlux": 18221,
+          "ms": 204178,
+          "session": 2,
+          "seq": 24
+        }
+      ],
+      "error": null,
+      "reset": false,
+      "pm_control": false,
+      "clock_write": false
+    }
+  ],
+  "passive_captures": [
+    {
+      "endpoint": {
+        "device": "COM5",
+        "vid": 6790,
+        "pid": 29987,
+        "location": "1-1.1",
+        "serial_number": "",
+        "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+        "disable_modem": 1
+      },
+      "started": "2026-10-24T06:32:40.209626+00:00",
+      "closed": "2026-10-24T06:34:33.558111+00:00",
+      "seconds_limit": 600,
+      "commands": [],
+      "reset": false,
+      "pm_control": false,
+      "clock_write": false,
+      "bytes": 9621,
+      "error": null,
+      "stop_seen": true,
+      "name": "transitions-002",
+      "record": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/transitions-002/session.json",
+        "bytes": 491,
+        "sha256": "765e9194ca369b00723e9f984f45a4811cf758eca5f526fc067148d88a8b79a6"
+      },
+      "uart": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/transitions-002/uart.bin",
+        "bytes": 9621,
+        "sha256": "768f0f92770875a9ddb7330a23f8196a313c67a3c7b94752293a43f395d7a5ae"
+      },
+      "brightness_values": [
+        0,
+        4,
+        5,
+        8,
+        14,
+        19,
+        20,
+        21,
+        23,
+        24,
+        26,
+        54,
+        55,
+        59,
+        64,
+        69,
+        100
+      ],
+      "brightness_requests": 38,
+      "fault_markers": [],
+      "excerpts": [
+        "[I/DBG] set brightness 55",
+        "[store] preferences request=2 verified=1",
+        "[store] preferences request=3 verified=1",
+        "[I/DBG] set brightness 100",
+        "[I/DBG] set brightness 55",
+        "[product] display sleeping; notification events active",
+        "[aod-power] request minute=29880393",
+        "[power] aod sample sequence=102 voltage_valid=1 input_valid=1",
+        "[I/DBG] set brightness 8",
+        "[aod-display] minute=29880393 style=1 brightness=8 battery_valid=0 percent=0; IDLE retained",
+        "[I/DBG] set brightness 8",
+        "[aod-display] minute=29880393 style=1 brightness=8 battery_valid=1 percent=97; IDLE retained",
+        "[product] wake event=KEY1",
+        "[I/DBG] set brightness 55",
+        "[product] display sleeping; notification events active",
+        "[aod-power] request minute=29880393",
+        "[I/DBG] set brightness 8",
+        "[aod-display] minute=29880393 style=1 brightness=8 battery_valid=0 percent=0; IDLE retained",
+        "[power] aod sample sequence=106 voltage_valid=1 input_valid=1",
+        "[I/DBG] set brightness 8",
+        "[aod-display] minute=29880393 style=1 brightness=8 battery_valid=1 percent=98; IDLE retained",
+        "[aod-power] request minute=29880394",
+        "[power] aod sample sequence=107 voltage_valid=1 input_valid=1",
+        "[I/DBG] set brightness 8",
+        "[aod-display] minute=29880394 style=1 brightness=8 battery_valid=1 percent=98; IDLE retained",
+        "[product] wake event=KEY1",
+        "[I/DBG] set brightness 55"
+      ]
+    },
+    {
+      "endpoint": {
+        "device": "COM5",
+        "vid": 6790,
+        "pid": 29987,
+        "location": "1-1.1",
+        "serial_number": "",
+        "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+        "disable_modem": 1
+      },
+      "started": "2026-10-24T06:45:41.884440+00:00",
+      "closed": "2026-10-24T06:49:07.298595+00:00",
+      "seconds_limit": 600,
+      "commands": [],
+      "reset": false,
+      "pm_control": false,
+      "clock_write": false,
+      "bytes": 9923,
+      "error": null,
+      "stop_seen": true,
+      "name": "summary-transitions-003",
+      "record": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/summary-transitions-003/session.json",
+        "bytes": 491,
+        "sha256": "612dccd795aa09d7e7196170ee3bb74e427f8fdb3277451370ffba181ffb3f8b"
+      },
+      "uart": {
+        "path": "artifacts/automatic-brightness-hardware-20261024/summary-transitions-003/uart.bin",
+        "bytes": 9923,
+        "sha256": "8fef40230b50e7722093788bd121732c7208504518097795b8bbcdbf87a03243"
+      },
+      "brightness_values": [
+        0,
+        8,
+        12,
+        21,
+        24,
+        25,
+        26,
+        55
+      ],
+      "brightness_requests": 20,
+      "fault_markers": [],
+      "excerpts": [
+        "[aod-power] request minute=29880406",
+        "[power] aod sample sequence=4 voltage_valid=1 input_valid=1",
+        "[I/DBG] set brightness 8",
+        "[aod-display] minute=29880406 style=1 brightness=8 battery_valid=0 percent=0; IDLE retained",
+        "[I/DBG] set brightness 8",
+        "[aod-display] minute=29880406 style=1 brightness=8 battery_valid=1 percent=98; IDLE retained",
+        "[aod-power] request minute=29880407",
+        "[power] aod sample sequence=5 voltage_valid=1 input_valid=1",
+        "[I/DBG] set brightness 8",
+        "[aod-display] minute=29880407 style=1 brightness=8 battery_valid=0 percent=0; IDLE retained",
+        "[I/DBG] set brightness 8",
+        "[aod-display] minute=29880407 style=1 brightness=8 battery_valid=1 percent=98; IDLE retained",
+        "[aod-power] request minute=29880408",
+        "[power] aod sample sequence=6 voltage_valid=1 input_valid=1",
+        "[I/DBG] set brightness 8",
+        "[aod-display] minute=29880408 style=1 brightness=8 battery_valid=0 percent=0; IDLE retained",
+        "[I/DBG] set brightness 8",
+        "[aod-display] minute=29880408 style=1 brightness=8 battery_valid=1 percent=98; IDLE retained",
+        "[product] wake event=KEY1",
+        "[I/DBG] set brightness 55",
+        "[I/DBG] set brightness 55",
+        "[store] preferences request=1 verified=1",
+        "[store] preferences request=2 verified=1"
+      ]
+    }
+  ],
+  "acceptance_by_candidate": [
+    {
+      "bin": "b351fb8f",
+      "result": "Indoor passed, shade failed on valid0/1; unintended fault closure restored manual55/custom entry. Superseded."
+    },
+    {
+      "bin": "8e7d54c7",
+      "result": "Indoor/shade/lamp/restored, manual restoration, flashlight100 and AOD8/KEY passed bounded checks. Parent mode summary incorrectly55; no ordinary reboot on this candidate."
+    },
+    {
+      "bin": "7d7be017",
+      "result": "Only production source change from8e7 is parent-summary conditional in settings_view.c. Final summary/manual restoration and ordinary reboot acceptance recorded with operator feedback below; earlier functional windows remain attributed to8e7."
+    }
+  ],
+  "operator_feedback": [
+    {
+      "stage": "conditions",
+      "answer": "条件相同，可以下载并配合验收"
+    },
+    {
+      "stage": "before_awake",
+      "answer": "已开启"
+    },
+    {
+      "stage": "enable_ambient",
+      "answer": "开启正常，正在保持室内环境",
+      "scope": "Time/touch normal; temporary keep-awake; original manual55%; auto remains on and entire custom entry disappears; operator holds ordinary indoor environment"
+    },
+    {
+      "stage": "shade",
+      "answer": "已遮光，保持中",
+      "window": "2026-10-24T06:08:10.323300+00:00..2026-10-24T06:08:30.626281+00:00"
+    },
+    {
+      "stage": "failed_candidate_fallback",
+      "at": "2026-10-24T06:14:12.617731+00:00",
+      "answer": "已恢复55%和入口，常亮已关",
+      "scope": "Operator confirms unintended shade failure closes auto, restores manual55/custom entry; temporary keep-awake off"
+    },
+    {
+      "stage": "before_fixed_awake",
+      "answer": "已开启"
+    },
+    {
+      "stage": "fixed_enable_ambient",
+      "answer": "开启正常，保持室内环境",
+      "scope": "Operator confirms KEY/temporary keep-awake and auto remains on with custom entry hidden after corrected8e7d54c7 download."
+    },
+    {
+      "stage": "fixed_shade",
+      "answer": "已遮光，保持中",
+      "window": "2026-10-24T06:29:05.404294+00:00..2026-10-24T06:29:25.631787+00:00"
+    },
+    {
+      "stage": "fixed_bright",
+      "answer": "已照光，保持中",
+      "scope": "Phone lamp directed at sensor; operator confirms condition ready before collector starts."
+    },
+    {
+      "stage": "fixed_bright_retry",
+      "answer": "常亮已重新开启，已照光",
+      "scope": "Previous bright-002 got no complete reply; operator explicitly renewed temporary keep-awake and confirmed auto remains enabled before bright-003."
+    },
+    {
+      "stage": "fixed_restore_room",
+      "answer": "已恢复室内，保持中"
+    },
+    {
+      "stage": "fixed_transitions",
+      "answer": "全部通过，常亮已开",
+      "scope": "Visible dim/bright/dim; auto off restores custom entry/manual55, reenable hides it; flashlight full and exit restores auto; natural AOD low brightness and KEY/touch/navigation/auto restore; renewed temporary keep-awake."
+    },
+    {
+      "stage": "fixed_parent_summary_bug",
+      "answer": "有一个问题，就是这个页面，屏幕亮度没有显示自动亮度，还是显示55%",
+      "image": "C:/Users/13984/AppData/Local/Temp/codex-clipboard-068b9e2b-697e-4269-a172-cd71869c5c52.jpg",
+      "scope": "Corrected8e7d54c7 candidate parent Display and Brightness page still shows saved manual55 under Screen Brightness while auto is enabled. Ordinary reboot acceptance paused for this UI fix."
+    },
+    {
+      "stage": "summary_fix_wait",
+      "answer": "常亮已关，自动保持开启"
+    },
+    {
+      "stage": "before_summary_awake",
+      "answer": "已开启"
+    },
+    {
+      "stage": "summary_acceptance",
+      "answer": "全部通过，保持常亮",
+      "scope": "7d7be017: before touching mode, parent summary says自动亮度; off restores55 summary and custom manual55; reenable restores自动亮度 and hides custom entry; temporary keep-awake maintained."
+    },
+    {
+      "stage": "ordinary_reboot_acceptance",
+      "answer": "重启后全部正常，常亮已开",
+      "scope": "7d7be017: without manually reenabling mode, parent summary自动亮度 and modeon/custom hidden restored; display/touch/back/time normal; temporary keep-awake opened for final snapshot."
+    },
+    {
+      "stage": "final_cleanup",
+      "answer": "常亮已关，末态正常，自动保持开启",
+      "scope": "After UART close, temporary keep-awake off, display/touch/time normal; auto on; AOD/wrist preferences preserved; no further serial operation."
+    }
+  ],
+  "final_snapshot": {
+    "record": {
+      "path": "artifacts/automatic-brightness-hardware-20261024/final-003.log",
+      "bytes": 7473,
+      "sha256": "d2e2117f1a9610d1693e41919f88316ef7918b34dcadb47e2001734c9563a739"
+    },
+    "excerpts": [
+      "msh />msh />Sat Oct 24 06:53:24 2026",
+      "[imu-steps] io_errors=0 incoherent=0; native counter, not daily steps",
+      "[steps] valid=1 total=0 day=20750 utc=1792824804 version=58 native=0 partial=1 restored=1",
+      "[steps-store] available=1 verified=1 dirty=0 failed=0 attempts=0 day=20750 total=0 generation=106",
+      "[wrist-wake] requested=0 continuous=0 armed=0 owned=0 irqs=0 wakes=0; software counts, not physical DEEP proof",
+      "[ui-ring] current ms=225771 surface=1 phase=0 page=0/4 mismatch=0",
+      "[ui-ring] current x=390 left=390 right=1560",
+      "[ui-ring] current settled=0 scrolling=0 settling=0 transition=0 recenter=0 dots=0/3 selected=0",
+      "[ui-ring] current first=0,390,0x4 last=1950,390,0x4; endpoint x,width,flags",
+      "[aod-display] phase=0 owned=0 failed=0 minute=29880412; physical panel state, IDLE retained",
+      "wf_imu    24  suspend 0x20051508 0x2005164c 0x00001800    15%   0x00000005 000",
+      "main      19  suspend 0x20040d78 0x200419d0 0x00004000    46%   0x0000000b 000",
+      "msh />msh />total memory: 271404 used memory : 97828 maximum allocated memory: 105364",
+      "CLOSED 2026-10-24T06:53:32.092765+00:00 release True"
+    ]
+  },
+  "ordinary_reboot": {
+    "record": {
+      "path": "artifacts/automatic-brightness-hardware-20261024/reboot-003.log",
+      "bytes": 15989,
+      "sha256": "91512abd66b4e315872858368cbe7bc326e5ae83165bdb08227b2877a5c711f9"
+    },
+    "sdk_reboots": 1,
+    "rts_resets": 0,
+    "clock_writes": 0,
+    "excerpts": [
+      "msh />msh />Sat Oct 24 06:49:32 2026",
+      "TX reboot",
+      "[product] storage=ready restore=yes brightness=55 face=diffusion breathing=2 rtc=available",
+      "msh />msh />Sat Oct 24 06:49:45 2026",
+      "CLOSED 2026-10-24T06:49:49.135355+00:00 release True"
+    ]
+  },
+  "limitations": [
+    "Raw ALS counts and formula millilux are separate; no cover compensation or calibrated lux/photometry.",
+    "Brightness numbers are SDK output requests and cached runtime values; visible changes require operator feedback.",
+    "Final shade window had CH0/CH1 mostly1/1, not the failed0/1 condition; exact0/1 regression also has final host coverage.",
+    "First candidate shade fault was unintended and failed; its fallback evidence is not final-candidate fault injection.",
+    "Final7d7 candidate did not repeat every8e7 lighting/AOD/flashlight window after the isolated parent-summary change.",
+    "Fault-marker scan covers the captured UART intervals only, not long-term stability; final snapshot is one bounded observation.",
+    "No deliberate final sensor disconnect/config fault, restore-failure injection, power-cut persistence, or long-duration stability test.",
+    "No PPK2/current/capacity/endurance, physical DEEP, calibrated SOC, or new BLE communication conclusion."
+  ],
+  "local_evidence": {
+    "worktree": "D:\\MY_Desk\\project\\wristflow",
+    "available_in_repository": false,
+    "directory": "artifacts/automatic-brightness-hardware-20261024"
+  },
+  "helper_hashes": {
+    "artifacts/automatic-brightness-hardware-20261024/status_window.py": "1440fbb885faf156d41af0d0490e3dbf811ebd9584e1274ea3b18cfa7a54427a",
+    "artifacts/aod-a1-hardware-20261023/session.py": "c549012dcb0546f32be8b04bfb23b2b4413750a213e74efcd8d734cca3580e79",
+    "artifacts/aod-a1-hardware-20261023/observe.py": "458acfeaf4f8dd1378a8cd2c657d226448932d8fd7828fe133155571f8e5238f"
+  }
+}

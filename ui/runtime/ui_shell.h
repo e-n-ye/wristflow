@@ -120,6 +120,10 @@ void wristflow_ui_shell_bind_brightness_mode(wristflow_ui_shell_t *, const wrist
 bool wristflow_ui_shell_has_auto_brightness(const wristflow_ui_shell_t *);
 bool wristflow_ui_shell_auto_brightness(const wristflow_ui_shell_t *);
 bool wristflow_ui_shell_request_auto_brightness(wristflow_ui_shell_t *, bool automatic);
+/* UI-thread runtime value only, never replaces/saves the manual preference.
+ * The product owner supplies validity/freshness and closes mode on fault. */
+void wristflow_ui_shell_auto_brightness_sample(wristflow_ui_shell_t *, bool valid, uint8_t value);
+bool wristflow_ui_shell_auto_brightness_sampling(const wristflow_ui_shell_t *);
 /* Callbacks enqueue/cancel only. Binding/configuration never starts a preview.
  * Explicit changed selection on its visible page is the sole preview trigger. */
 void wristflow_ui_shell_bind_vibration_preview(wristflow_ui_shell_t *,

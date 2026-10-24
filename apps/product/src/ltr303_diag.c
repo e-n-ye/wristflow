@@ -44,9 +44,17 @@ bool wf_ltr303_begin(wf_ltr303_t *d, uint32_t started_ms, uint32_t duration_ms)
     d->snapshot = (wf_ltr303_snapshot_t){.phase = WF_LIGHT_RUNNING, .session = session,
         .started_ms = started_ms, .duration_ms = duration_ms};
     d->changed = d->data_locked = false;
+    d->continuous = false;
     /* Even if the shared rail has only just been enabled, wait >=100ms
      * before configuring ALS. The wait is part of the original deadline. */
     d->due_ms = now(d) + 100U;
+    return true;
+}
+bool wf_ltr303_begin_continuous(wf_ltr303_t *d, uint32_t started_ms)
+{
+    if (!wf_ltr303_begin(d, started_ms, 1000U)) return false;
+    d->continuous = true;
+    d->snapshot.duration_ms = 0;
     return true;
 }
 bool wf_ltr303_stop(wf_ltr303_t *d, wf_light_end_t reason)
@@ -97,7 +105,7 @@ static void fail(wf_ltr303_t *d, wf_light_end_t reason)
 static bool ended(wf_ltr303_t *d)
 {
     if (cancelled(d)) { (void)wf_ltr303_stop(d, WF_LIGHT_CANCELLED); return true; }
-    if (now(d) - d->snapshot.started_ms >= d->snapshot.duration_ms) {
+    if (!d->continuous && now(d) - d->snapshot.started_ms >= d->snapshot.duration_ms) {
         (void)wf_ltr303_stop(d, WF_LIGHT_DEADLINE); return true;
     }
     return false;
@@ -165,6 +173,10 @@ void wf_ltr303_poll(wf_ltr303_t *d)
 int32_t wf_ltr303_wait_ms(const wf_ltr303_t *d, uint32_t time)
 {
     if (d->snapshot.phase != WF_LIGHT_RUNNING) return -1;
+    if (d->continuous) {
+        int32_t due = (int32_t)(d->due_ms - time);
+        return due > 0 ? due : 0;
+    }
     uint32_t elapsed = time - d->snapshot.started_ms;
     if (elapsed >= d->snapshot.duration_ms) return 0;
     uint32_t remaining = d->snapshot.duration_ms - elapsed;

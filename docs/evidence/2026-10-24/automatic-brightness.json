@@ -1,0 +1,318 @@
+{
+  "schema": 1,
+  "recorded_at": "2026-10-24T06:40:22.242714+00:00",
+  "scope": "Real LTR303 automatic brightness, existing UI/templates, independent manual value and v12 mode persistence.",
+  "source_base": "f5d0bc0695100eea30b420d50a52f6d7784fdb5b",
+  "changed_sources": [
+    {
+      "path": "apps/product/src/ltr303_diag.c",
+      "sha256": "ba4d7d2e86e1f3dc5f5acb2d7621c8ec12e43858e58a86e62837a2ed66513fd5",
+      "normalized_lf_sha256": "d945f58367aee3e9027008b97d1c8cd17b2340f2da9025d36f61b0f5c760ecbe"
+    },
+    {
+      "path": "apps/product/src/ltr303_diag.h",
+      "sha256": "cd00defd849f2c2322a6fa89cb2dacb569941375622da84a6a3b286b6cc8c783",
+      "normalized_lf_sha256": "a92bbc60924ee9381f6e35421f48dccf53ccb030e2420d029a87e78f4b3a4435"
+    },
+    {
+      "path": "apps/product/src/main.c",
+      "sha256": "89b95aa86526c336cfa47fc96d16e04a3f405ec6ff80a26c5035551ac8fa4e1d",
+      "normalized_lf_sha256": "d6e2357ed9082785a235d66cfd435686384733a3ab6a0ad9898404bcf9652b90"
+    },
+    {
+      "path": "apps/product/src/product_imu_diag.c",
+      "sha256": "013efa47dbe1962ca4523f183fa96cf990ef8900bf0d606a891ac32bfd71cd83",
+      "normalized_lf_sha256": "3af147290824bb0b71040258fd20bf912c5f9006a8b1d1900ed2a416e1b9b9c9"
+    },
+    {
+      "path": "apps/product/src/product_light.h",
+      "sha256": "a20f76a7b4491d892d8b5d67a7e729cf4c27f62563cbd42ed929243bf15a1ea0",
+      "normalized_lf_sha256": "a20f76a7b4491d892d8b5d67a7e729cf4c27f62563cbd42ed929243bf15a1ea0"
+    },
+    {
+      "path": "core/auto_brightness.c",
+      "sha256": "8f5634b175d026702e6b4b2e0d37d1e453d8b431c4858d0320cead605c129a65",
+      "normalized_lf_sha256": "8f5634b175d026702e6b4b2e0d37d1e453d8b431c4858d0320cead605c129a65"
+    },
+    {
+      "path": "core/auto_brightness.h",
+      "sha256": "58314b398adc538987d93aef8deb4728ef36cc22003fd8bb5b04c36864b1ba09",
+      "normalized_lf_sha256": "58314b398adc538987d93aef8deb4728ef36cc22003fd8bb5b04c36864b1ba09"
+    },
+    {
+      "path": "core/product_state.c",
+      "sha256": "df61021105ba0f8b3ef62d19d4fe3c6547b865a8af84c7aa84b49762ead4ba4f",
+      "normalized_lf_sha256": "3ccbe1f9248f02da2e6d441d47b155be694b5348d7ddef9420d335f1925687db"
+    },
+    {
+      "path": "core/product_state.h",
+      "sha256": "4449755e42d5a861ffc8208674617aef7fdc588dda69ca24de7ac046bc31b1e8",
+      "normalized_lf_sha256": "7ca3a956e12a532326abdf668191a2fd2ae4b3ce1a0a891ea9a2cd1469b65153"
+    },
+    {
+      "path": "tests/CMakeLists.txt",
+      "sha256": "debd2d120f86d433c670e88e56f6bfbb53af5ca859d208d69c05c7dc551c819d",
+      "normalized_lf_sha256": "8857306a44a60eb81522a2f9fa1734fcc99a5ae11accbc0acffe9923a1fd6552"
+    },
+    {
+      "path": "tests/auto_brightness.c",
+      "sha256": "b57332f84d3778282501e5dcc5a5841022745d0ba0f94c8814d49d9620a3f00c",
+      "normalized_lf_sha256": "b57332f84d3778282501e5dcc5a5841022745d0ba0f94c8814d49d9620a3f00c"
+    },
+    {
+      "path": "tests/ltr303_diag.c",
+      "sha256": "a4c84d74f619dfa0adb1838016ebb3958c4b04575c68638d4f599a2b142f9cd9",
+      "normalized_lf_sha256": "129ec7f2982586e4d16a7d92972378e1bfda0b8904d11d0dce02dc9122c3066f"
+    },
+    {
+      "path": "tests/product_imu_diag.c",
+      "sha256": "2d77d3feb814e32a377f477dc9f48008a8ef78a7bc4b3a7fc55b07ba08627e1f",
+      "normalized_lf_sha256": "cc9f7503422a2f80ef7486dc8784c007ca88fe3babc5933e025ac0e4e18164b2"
+    },
+    {
+      "path": "tests/product_settings_store.c",
+      "sha256": "a66b3e3e11680107a0bfcc6e8880439610ff483c3e32e7776a7ed0cfb0aebb12",
+      "normalized_lf_sha256": "b4cec8eb2838efa5fc85b60fea3f9eb94db2b5f52085988b6fd3105d74a764ce"
+    },
+    {
+      "path": "tests/product_state.c",
+      "sha256": "45ccb7c4cd4bdb51f11366d40b1514584e85cb925319978cc1a27564b709acfc",
+      "normalized_lf_sha256": "0d19379a62ec305743c18d13728c2041ec675c3886adda0f76fab109c0f7ca2f"
+    },
+    {
+      "path": "tests/settings_ui.c",
+      "sha256": "2909657482c8160c08edf1a59de101a4585a7dfde90238fee9491412ae241311",
+      "normalized_lf_sha256": "df8f694a4ead3388c93197d36b82a42e9979b1486b27bee435e25ad56a74992e"
+    },
+    {
+      "path": "ui/runtime/settings_view.c",
+      "sha256": "2dd402af416efde5568e6de0573a711d36479d35bfc4e56d12d2ee1c7182d071",
+      "normalized_lf_sha256": "9a47928eeae003b5d0cda68030b0841642f57a58454e75e6f1b15e143e6eebee"
+    },
+    {
+      "path": "ui/runtime/ui_shell.c",
+      "sha256": "a99c9c2f75812fea4a7a08bc5a52be23df7c53605b2b3158e7bb0ca5ad825e24",
+      "normalized_lf_sha256": "f6fc4aa3424b9327678e3d17774f13991935137f8c6a0f8c6901acc5c6fc4a2b"
+    },
+    {
+      "path": "ui/runtime/ui_shell.h",
+      "sha256": "51a259e1460a1d47bf5a24e96dbb38949b3abe1f1a4cde3c4e904907d20ab820",
+      "normalized_lf_sha256": "f9ba941294060d04972dfa6ff65d015e01ac117fb1ed0eed23793ec18e51a379"
+    }
+  ],
+  "implementation": {
+    "sensor": "Native LTR303 ALS; fixed1x/100ms/500ms repeat; existing sensor worker and restore path",
+    "formula_source": "Lite-On LTR303/329 Appendix A Rev1.0 22Feb2013 p3-4, manufacturer-authored third-party mirror",
+    "formula_sha256": "3d4216e79021bf59b0a98ca7eb40d06270c37826b781297109db97f29d82a157",
+    "formula_limits": "No cover compensation or absolute lux calibration; high-ratio ELSE estimates0, not proof of physical darkness.",
+    "curve_lux": [
+      0,
+      5,
+      20,
+      100,
+      300,
+      1000,
+      5000,
+      20000
+    ],
+    "curve_percent": [
+      10,
+      15,
+      25,
+      40,
+      55,
+      70,
+      90,
+      100
+    ],
+    "hysteresis": "Two-point deadband; brighten at >=3 points; dim after3 consecutive lower frames, at most5 points/frame.",
+    "raw_guards": "NEW, INVALID/gain, configuration readback, conservative FFFF saturation; last valid frame expires5s.",
+    "fault": "Closes mode, restores manual value/custom entry; only explicit enable retries uncertain cleanup. No physical five-second I/O hard deadline.",
+    "scheduling": "No new thread/timer/I2C owner. Qualified normal ACTIVE/DIM only; OFF/AOD/flashlight/endurance/panel diagnostic pause. Existing IDLE responsibility until verified restore.",
+    "persistence": "v12,24B,byte10=0/1 mode; manual byte3 unchanged; v1-4/6-11 defaultoff, v5 rejected; existing debounce/readback worker.",
+    "output": "UI runtime value is separate; existing OFF/DIM/flashlight100/AOD8 and first-frame wake arbitration retained."
+  },
+  "tests": [
+    {
+      "log": "artifacts/automatic-brightness-20261024/host-full-tests.log",
+      "sha256": "c52808c01424834d563f8c0bf3db40a578d88caa449fd3b802766d7fb42364d1",
+      "passed": 63,
+      "total": 63,
+      "seconds": 25.79,
+      "scope": "Debug full before shade correction"
+    },
+    {
+      "log": "artifacts/automatic-brightness-20261024/host-release-tests.log",
+      "sha256": "6315c576e6eec34b7c29d81ae149eab7c84056fc76d5fd06f14a8fffca73a3f2",
+      "passed": 11,
+      "total": 11,
+      "seconds": 2.88,
+      "scope": "Release -O2 -UNDEBUG affected targets before shade correction"
+    },
+    {
+      "log": "artifacts/automatic-brightness-20261024/final-debug-tests.log",
+      "sha256": "1144b7d46e4b86b505076afb463eaffd60ffa72bdaac6a1cdc9f765323e4580e",
+      "passed": 2,
+      "total": 2,
+      "seconds": 2.14,
+      "scope": "Debug added independent v11 migration and endurance qualification"
+    },
+    {
+      "log": "artifacts/automatic-brightness-20261024/final-release-tests.log",
+      "sha256": "8dcd9c3b1581853bf62f015456f11013578099a633c73814d649cb8fca8ecc01",
+      "passed": 2,
+      "total": 2,
+      "seconds": 0.93,
+      "scope": "Release added migration/endurance assertions"
+    },
+    {
+      "log": "artifacts/automatic-brightness-20261024/shade-fix-debug-tests-002.log",
+      "sha256": "f70b9c6606e53b52f74368bf9749d3aaa49c8fdcfe9d1a01816b4ebabb9d2620",
+      "passed": 2,
+      "total": 2,
+      "seconds": 0.14,
+      "scope": "Debug final formula and real worker shade regression"
+    },
+    {
+      "log": "artifacts/automatic-brightness-20261024/shade-fix-release-tests-002.log",
+      "sha256": "c67b44f068fb88763cfb10b08fceef703a375e9e9184920bab4c35d3a085037e",
+      "passed": 2,
+      "total": 2,
+      "seconds": 0.08,
+      "scope": "Release final formula and real worker shade regression"
+    },
+    {
+      "log": "artifacts/automatic-brightness-20261024/summary-final-debug-tests.log",
+      "sha256": "ec66ac6d442086717dcb5d71a4d394399906833530e12b204dde5043ede94b39",
+      "passed": 1,
+      "total": 1,
+      "seconds": 2.02,
+      "scope": "Debug parent mode/manual summary, navigation, live fault refresh and glyphs after hardware feedback"
+    },
+    {
+      "log": "artifacts/automatic-brightness-20261024/summary-final-release-tests.log",
+      "sha256": "9631e52d1e57a540dbf23e36731f85751ee25cc35bd0ba2a0d93a716c049f6fa",
+      "passed": 1,
+      "total": 1,
+      "seconds": 1.05,
+      "scope": "Release parent mode/manual summary and live fault refresh"
+    }
+  ],
+  "builds": [
+    {
+      "result": "artifacts/product/20261024-143812-050/result.json",
+      "result_sha256": "3bdadf9b040f8c9a007ea922515db1e6fa43106b79026fc30f46e6b60d590cd7",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "started": "2026-10-24T14:38:12.0667223+08:00",
+      "finished": "2026-10-24T14:38:54.6974103+08:00",
+      "sources": 543,
+      "artifacts": 29,
+      "firmware_bytes": 8024868,
+      "bin_sha256": "7d7be0179731a07c06d696d65f0a8a8366e7f687b37bdadeb51da54eaab20db6",
+      "exit_code": 0,
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "python": "Python 3.13.15",
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ]
+    },
+    {
+      "result": "artifacts/ui_demo/20261024-143816-853/result.json",
+      "result_sha256": "e33c1bee00d5091b3972c0043f2235c27352df0e72a0c2b0b6b17f31a6a8540e",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "started": "2026-10-24T14:38:16.8842414+08:00",
+      "finished": "2026-10-24T14:38:50.2089512+08:00",
+      "sources": 486,
+      "artifacts": 22,
+      "firmware_bytes": 7762784,
+      "bin_sha256": "01ed29c79b15583ad9510f624727fa4c58337b44449041a9ae7e6f044cc31255",
+      "exit_code": 0,
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "python": "Python 3.13.15",
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ]
+    }
+  ],
+  "failures": [
+    {
+      "log": "host-tests-001.log",
+      "reason": "Untimed flashlight output was overridden by normal brightness; fixed existing product_ui assertion."
+    },
+    {
+      "reason": "Read-only review found create-time callback before apps assignment and generation-change duplicate restore; both fixed with focused assertions."
+    },
+    {
+      "log": "ui-final-debug-tests.log",
+      "reason": "New endurance test attempted exit during the page transition; test waits320ms, no firmware change."
+    },
+    {
+      "log": "shade-fix-debug-tests.log",
+      "reason": "New test demanded exactly10 despite documented two-point deadband; corrected expected10..12; mode/sequence/time freshness assertions unchanged."
+    },
+    {
+      "bin": "b351fb8f8c3e14e6544d16ccca61bf2d77fe072c54bd32b0a80d59b23fdd6495",
+      "reason": "Hardware valid0/1 shade frames rejected by initial ratio policy, falsely timed out; corrected to manufacturer ELSE=0. Hardware outcome is recorded separately."
+    },
+    {
+      "bin": "8e7d54c7e855fe70c0cb965b797a0f99b3671003b8c6cb991c8b2f0700e1ff78",
+      "log": "summary-repro-tests.log",
+      "reason": "Operator photo showed parent summary55% while auto enabled; new UI assertion reproduces failure. Summary now uses actual mode; manual value preserved. No XML/generated changes."
+    }
+  ],
+  "preservation": {
+    "previous": [
+      {
+        "target": "D:\\MY_Desk\\project\\wristflow\\artifacts\\automatic-brightness-20261024\\product-previous-artifacts.zip",
+        "sha256": "6748c84192b02dbb09d0a5f86893b10cdb8d458226ba809d0357941f887c67a2",
+        "bytes": 21119432,
+        "artifacts": 29,
+        "verified": true
+      },
+      {
+        "target": "D:\\MY_Desk\\project\\wristflow\\artifacts\\automatic-brightness-20261024\\ui-demo-previous-artifacts.zip",
+        "sha256": "86c6ef7233327254780bde082d85597dec8cc3348767cb7dab339168c86467ec",
+        "bytes": 18631275,
+        "artifacts": 22,
+        "verified": true
+      }
+    ],
+    "failed_candidate": {
+      "path": "D:\\MY_Desk\\project\\wristflow\\artifacts\\automatic-brightness-hardware-20261024\\b351fb8f-failed-source-and-artifacts.zip",
+      "bytes": 32783386,
+      "sha256": "49009adfddcd5910b2ba99b3a83289c55aabafbc68e9a834ec38b76dae091e69",
+      "sources": 543,
+      "artifacts": 29,
+      "verified": true,
+      "reason": "Valid 0/1 low-light frame rejected by application ratio guard; shade window falsely closed automatic mode, returned55 and restored ALS with errors0."
+    },
+    "parent_summary_candidate": {
+      "path": "D:\\MY_Desk\\project\\wristflow\\artifacts\\automatic-brightness-hardware-20261024\\8e7d54c7-parent-summary-source-and-artifacts.zip",
+      "sha256": "7805d2f9a3b2b17db08231dc484687ff75c3b7aa048ae5a74115a11e613542de",
+      "bytes": 32772328,
+      "entries": 574,
+      "sources": 543,
+      "artifacts": 29,
+      "verified": true,
+      "reason": "Automatic lighting/transitions passed bounded acceptance, but parent summary incorrectly displays55%; preserve before UI-only rebuild."
+    }
+  },
+  "budgets": {
+    "main_stack_bytes": 16384,
+    "sensor_worker_stack_bytes": 6144,
+    "new_threads": 0,
+    "new_timers": 0,
+    "final_product_growth_from_page_bytes": 3056
+  },
+  "hardware_results_recorded_separately": true,
+  "local_evidence": {
+    "worktree": "D:\\MY_Desk\\project\\wristflow",
+    "available_in_repository": false,
+    "source_artifacts": "artifacts/automatic-brightness-20261024/",
+    "hardware_artifacts": "artifacts/automatic-brightness-hardware-20261024/"
+  }
+}

@@ -44,6 +44,7 @@ typedef struct {
     bool wrist_wake;
     bool silent_mode;
     bool endurance_mode;
+    bool auto_brightness;
     uint16_t dnd_start_minute, dnd_end_minute;
     wristflow_aod_mode_t aod_mode;
     wristflow_aod_style_t aod_style;
