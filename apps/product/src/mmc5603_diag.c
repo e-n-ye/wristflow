@@ -35,6 +35,8 @@ static bool begin_session(wf_mmc5603_t *d, uint32_t started_ms, uint32_t duratio
 }
 bool wf_mmc5603_begin(wf_mmc5603_t *d, uint32_t started_ms, uint32_t duration_ms)
 { return begin_session(d, started_ms, duration_ms, WF_MAG_THRESHOLD_RAW80, false); }
+bool wf_mmc5603_begin_encoded(wf_mmc5603_t *d, uint32_t started_ms, uint32_t duration_ms)
+{ return begin_session(d, started_ms, duration_ms, WF_MAG_THRESHOLD_ENCODED_EXPERIMENTAL, false); }
 bool wf_mmc5603_begin_selftest(wf_mmc5603_t *d, uint32_t started_ms, wf_mag_threshold_t mode)
 { return begin_session(d, started_ms, WF_MAG_SELFTEST_TIMEOUT_MS, mode, true); }
 static uint8_t selftest_threshold(uint8_t factory, wf_mag_threshold_t mode)

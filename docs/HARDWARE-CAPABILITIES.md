@@ -28,6 +28,8 @@
 
 随后新授权的[同窗静置设备对照](MMC5603.md#compare-hardware-20261024)中，精确5b230e1d…在首次下载中断／黑屏后完成一次完整恢复write＋verify；用户确认恢复正常后，仅raw80／encoded各一次，工厂字节相同、阈值分别4f/61/5b与5c/13/2c，nativeFAIL→PASS，均自动停止、零普通XYZ／I/O错误。原生检测继续负责判据，设备证据支持阈值解释影响结果；一次固定顺序对照不能证明全部根因、通用公式、校准或指南针能力，不直接改默认或替代原生算法。用户末态正常、串口已关，记录见[本轮证据](evidence/2026-10-24/mmc5603-compare-hardware.json)。
 
+后续[显式encoded限时XYZ软件轮](MMC5603.md#encoded-xyz-20261024)仅新增候选采样入口，仍由本会话原生自检PASS后采用片上Auto_SR逐次触发，默认raw80及selftest-only保持。相关Debug／Release各2/2和独立代码审查、Product `2438dc7c…`编译／字节核验通过；没有新实机XYZ／轴向或指南针结论，不以官方示例直接读取代替本版实际采样／停止验证。
+
 ## 2026-10-23 LTR-303限时诊断与有界设备结果
 
 24日后续[真实自动亮度轮](PRODUCT-SETTINGS.md#automatic-brightness-20261024)沿用已验证的同一原生ALS测量、固定配置／双通道锁存及恢复，没有自研替代硬件检测。附录明示软件换算，项目层只增加必要单位换算、产品曲线／滞回和显示资格；不采用SDK的CH1原值LUX标签，不改SDK锁／厂商树，不猜盖板补偿或声称绝对精度。原worker统一I2C3，运行／未清理责任沿用PM gate；本轮[分版本设备证据](evidence/2026-10-24/automatic-brightness-hardware.json)已记录真实明暗调节、退出恢复与最终摘要／普通reboot保存，不用旧原值测试替代。新增持续采样负载未测流，无功耗／续航结论。

@@ -1,0 +1,309 @@
+{
+  "schema": 1,
+  "recorded_at": "2026-10-24T11:43:15.554821+00:00",
+  "source_base": "e0be45492446e2dd84c9d2cbb7534367c2a9e0e4",
+  "scope": "Explicit encoded-threshold bounded XYZ entry point, retaining the native selftest PASS gate and default raw80. Software only.",
+  "changed_sources": [
+    {
+      "path": "apps/product/src/mmc5603_diag.c",
+      "bytes": 11155,
+      "sha256": "7a8c2495636cafa1e53b7dbb5783a35807bc97cb5a6a8fca6baaf1feb1e16404"
+    },
+    {
+      "path": "apps/product/src/mmc5603_diag.h",
+      "bytes": 3442,
+      "sha256": "2eed3d6e9e4e4948bda7a4595f6fb85fd26b9b6aa3664080c3af604682dc1319"
+    },
+    {
+      "path": "apps/product/src/product_imu_diag.c",
+      "bytes": 61324,
+      "sha256": "ac318012ae46b57f01c9fe72411b029e775931f4fbd96de28120a58997169cd5"
+    },
+    {
+      "path": "tests/mmc5603_diag.c",
+      "bytes": 17538,
+      "sha256": "2f4af8cff1eb44a1a000731844444e94b913c28914437379d3487b97ce297bee"
+    },
+    {
+      "path": "tests/product_imu_diag.c",
+      "bytes": 53268,
+      "sha256": "479bbac82a7c89bab20ae9ce48caff77c60143c751a6e0d0b63419655d836264"
+    }
+  ],
+  "prior_hardware_evidence": {
+    "path": "docs/evidence/2026-10-24/mmc5603-compare-hardware.json",
+    "bytes": 26318,
+    "sha256": "ee17bb6a681d47c87775daf380bd3687cfa18af895ea7bbe916f8880f48991c5"
+  },
+  "implementation": {
+    "command": "wf_mag sample encoded <1..120 seconds>",
+    "api": "wf_mmc5603_begin_encoded",
+    "behavior": "Selects existing encoded mode with selftest_only=false, then reuses the original native selftest and Auto_SR on-demand XYZ state machine.",
+    "default": "wf_mag start stays raw80; selftest raw80|encoded stays fixed-10s selftest-only.",
+    "unchanged": "No change to threshold formula,0x41 selftest,0x21 sampling,waits,DONE qualification,Sat_sensor gate,9B decode,saturation,total deadline,cancel,stop,worker,I2C3 or PM.",
+    "output": "Centered uncalibrated 20-bit counts; sampled_ms is software read completion, not hardware timestamp. No heading/calibration or continuous mode.",
+    "command_safety": "Exact argc/mode and1..120 duration checks; accepted-only pending fields. Rejected commands do not change the active/pending mode.",
+    "deadline": "Whole session includes preparation; synchronous I/O and cleanup may extend past the logical deadline."
+  },
+  "tests": [
+    {
+      "configuration": "debug",
+      "record": {
+        "path": "artifacts/mmc5603-encoded-xyz-20261024/debug-tests-001.log",
+        "bytes": 464,
+        "sha256": "8a52fb33f163f56d97af6af2b8ffc6a54d410c6acf6707ba2be9fdffac31575b"
+      },
+      "passed": 2,
+      "total": 2,
+      "seconds": 0.22,
+      "build_command": "cmake --build artifacts/host/native-wrist-wake-debug --target mmc5603_diag product_imu_diag -j4",
+      "test_command": "ctest --test-dir artifacts/host/native-wrist-wake-debug -R \"^(mmc5603_diag|product_imu_diag)$\" --output-on-failure",
+      "release_assertions": "Debug"
+    },
+    {
+      "configuration": "release",
+      "record": {
+        "path": "artifacts/mmc5603-encoded-xyz-20261024/release-tests-001.log",
+        "bytes": 468,
+        "sha256": "eccf6586310e1cad2a0e1ad8b0628c71e610a5e713e7c40fda9a68c6fc58850e"
+      },
+      "passed": 2,
+      "total": 2,
+      "seconds": 0.22,
+      "build_command": "cmake --build artifacts/host/native-wrist-wake-release --target mmc5603_diag product_imu_diag -j4",
+      "test_command": "ctest --test-dir artifacts/host/native-wrist-wake-release -R \"^(mmc5603_diag|product_imu_diag)$\" --output-on-failure",
+      "release_assertions": "-O3 -DNDEBUG -UNDEBUG"
+    }
+  ],
+  "coverage": [
+    "Explicit encoded PASS then valid ordinary XYZ and next changed frame, no duplicate cached frame, selftest raw response remains separate.",
+    "Actual observed factory thresholds5c/13/2c; encoded then default start restores4f/61/5b.",
+    "Native FAIL stops before ordinary XYZ; all16 first-frame transactions independently faulted, no autonomous retry.",
+    "Uint32 wrap and cancel inside ordinary data read;invalid CLI seconds/mode,duplicate request protection,mode logs,cached status noI/O.",
+    "Automatic brightness/native wrist coexist;deadline/explicit stop;failed cleanup keepsowned+PM and blocksnewrequest."
+  ],
+  "build": {
+    "record": {
+      "path": "artifacts/product/20261024-193909-557/result.json",
+      "bytes": 110813,
+      "sha256": "e34d6db2f63e9f48011cfda0ef8d3bea701e033f0ba06fb45f0370f10bfa3ab5"
+    },
+    "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+    "started": "2026-10-24T19:39:09.5672813+08:00",
+    "finished": "2026-10-24T19:40:46.7116023+08:00",
+    "exit_code": 0,
+    "bin_sha256": "2438dc7cbc20a129a44dc3dd1f9623e696a6448a873ed33415e4396357e81584",
+    "bin_bytes": 8030008,
+    "bin_growth_bytes": 160,
+    "sources": 545,
+    "artifacts": 29,
+    "byte_hashes_verified": true,
+    "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+    "python": "Python 3.13.15",
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "submodules": [
+      " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+      " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+    ],
+    "sdk_clean": true
+  },
+  "preservation": {
+    "path": "artifacts/mmc5603-encoded-xyz-20261024/previous-5b230e1d-artifacts-and-sources.zip",
+    "bytes": 21165826,
+    "sha256": "4d63687195531bfb22408e08f5f20028221a14dd27e3b79224599a245d86af3d",
+    "entries": [
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/.config",
+        "bytes": 36943,
+        "sha256": "4f5c5422135a2302c2861d9cd874aeec497853b713027af30409943be8b3abbb"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+        "bytes": 8029848,
+        "sha256": "5b230e1d04f7ae186c1175fe11b9e9f260792c0a8d4d5dd3efe0c35410a88d37"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.elf",
+        "bytes": 18964852,
+        "sha256": "9a19036c665c93c2bec7f212c81b93f852435af20becd0f72cea0800f7803c7a"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.elf.strip.elf",
+        "bytes": 8042224,
+        "sha256": "3466a7317bad60931e246c4b4671d49a1c91cfcd2f56aa05d9e3c3ea629c08e2"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.hex",
+        "bytes": 22586097,
+        "sha256": "27d61b3ec9353737cae514613fb648fc9ccd19b23b943238b0c1942ab1a0a9df"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.map",
+        "bytes": 8630164,
+        "sha256": "e8ec8d5134268422bb182606dac4c1a9b7fd95ac67a37f9bfa495863766fa914"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/rtconfig.h",
+        "bytes": 10566,
+        "sha256": "6a9fbd1e43e780d661cb9a5381aaea7cd1af8173472dd07e8a68f65834bb25dc"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/sftool_param.json",
+        "bytes": 382,
+        "sha256": "ac1fac7a2e52b46f7c96ddc7892cee7806c4233f16cbd155f7ee133c7de325f0"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/.config",
+        "bytes": 14914,
+        "sha256": "a3d1dec1c5f1ce61b91249a47f01cd4022adf0ecb30d7ab1f53b4434bb0dbddd"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.elf",
+        "bytes": 803596,
+        "sha256": "c23f1283b943b14719b430ad97939d1d458b8f575e34f3f09819f7a85839db29"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.elf.strip.elf",
+        "bytes": 65180,
+        "sha256": "155959a274a414a39aadf8a092cdc0b3a6509d6ceb44aaacd3e2c8982cbcc6ea"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.hex",
+        "bytes": 164615,
+        "sha256": "2f14cb6ae13c61ed97dbe7e1b5e4ed5b60f3b2d6c68abd45821ae1c0fdcc5e46"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.map",
+        "bytes": 1164449,
+        "sha256": "ffce68d7ff78a031e147d13eb20e186b87a8153f59daee2796e00a896aee30e3"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/rtconfig.h",
+        "bytes": 3591,
+        "sha256": "c87f5e10b0f52bc06d9f1ee76ab8140ac17c23c6bdd9e4401fe2c3a2974ee70d"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/.config",
+        "bytes": 16235,
+        "sha256": "f77393400edfbd6e87452c550c78624607a4448cdfb27d8a187a221e37708041"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+        "bytes": 11288,
+        "sha256": "be0a0ec79a0c10dc71fb02cb2025190583757439336fd3d5bedc3e5d924a28b4"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.elf",
+        "bytes": 19000,
+        "sha256": "5a73c1ad2bea92cc21319d5ce656b05d64b190dd740ba786c8f2cbf656e16cf1"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.elf.strip.elf",
+        "bytes": 15844,
+        "sha256": "1b4b2e9aa04cbd88ab1d06e85b98f84b858a1507e9c7400a110653835477cfd8"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.hex",
+        "bytes": 31818,
+        "sha256": "e7619e9445e0ed17429bf395b83cfa0908457a00df53562c7d1c4d32869ea867"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.map",
+        "bytes": 92482,
+        "sha256": "a3e22309294c519993a8547e81d5c1ab1deb6bec64cc28c94f5a188441527ad1"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/rtconfig.h",
+        "bytes": 4407,
+        "sha256": "47b82b2e63cd679d174d3c928069f0ecbc3bffc5d0d91d9dbca3413f15ba71fa"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/lcpu/.config",
+        "bytes": 14724,
+        "sha256": "e7d52c8fd7a8033bfb357c3fb60d608f401f506f92d6c49fbaa5e5dd268bb372"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/lcpu/lcpu.bin",
+        "bytes": 5444,
+        "sha256": "03c15186f14aced2ad2c1b7e76f11b29de65b76bc348c3d62b0ec139dedb1dad"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/lcpu/lcpu.elf",
+        "bytes": 344020,
+        "sha256": "d458de971325a369a88f701f55dd0534740e0d6bd72c7bfbfae7962e5da047ba"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/lcpu/lcpu.elf.strip.elf",
+        "bytes": 10240,
+        "sha256": "036cf1b1a5e755f6584336f03e460ca249f908e71dd8540a11a041376d94c43e"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/lcpu/lcpu.hex",
+        "bytes": 15372,
+        "sha256": "723c7ec19990a4c8768d1a32fb7863920f4ace40e3ae0670a32adc1ab59ff4cd"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/lcpu/lcpu.map",
+        "bytes": 1166696,
+        "sha256": "21cbc75aa0a5b860fa929c2c58a42fefcb41f175756bececd17b5326a71439e2"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/lcpu/rtconfig.h",
+        "bytes": 2670,
+        "sha256": "84dfc4ae25052f1651a90782006da76be199845e1d1e2fbf07d0cb6d3b52ec4a"
+      },
+      {
+        "name": "prior-source/apps/product/src/mmc5603_diag.c",
+        "bytes": 10744,
+        "sha256": "1d16d00c1e166b30565867b82c54ab6e02be6ede2cf13a71ada91ed008f5d847"
+      },
+      {
+        "name": "prior-source/apps/product/src/mmc5603_diag.h",
+        "bytes": 3131,
+        "sha256": "93344d433b05fa68297a286c82d90748fbce6a09225e90dccd7ec7358ff6afaf"
+      },
+      {
+        "name": "prior-source/apps/product/src/product_imu_diag.c",
+        "bytes": 59684,
+        "sha256": "43b426de731a7c32f784dcf449f24a34ff4df01e380e8fea919299ba143e6ad5"
+      }
+    ],
+    "verified": true
+  },
+  "dry_run": {
+    "record": {
+      "path": "artifacts/mmc5603-encoded-xyz-20261024/flash-dry-run.log",
+      "bytes": 452,
+      "sha256": "62e242f363a201df8d4700afaaa7511d20fc9370808c0623000a85a6ead64647"
+    },
+    "port_opened": false
+  },
+  "review": "Independent read-only code audit found no blocker; primary owns writes, builds, tests and Git.",
+  "failures": [],
+  "warnings": "Existing FinSH incompatible function casts and linker syscall/entry/RWX/missingdfu messages retained; no new handwritten diagnostic warning.",
+  "budget": {
+    "new_threads": 0,
+    "new_timers": 0,
+    "new_snapshot_fields": 0,
+    "worker_stack_bytes": 6144,
+    "main_stack_bytes": 16384,
+    "new_device_stack_watermark_measured": false
+  },
+  "device": {
+    "opened": false,
+    "flashed": false,
+    "new_xyz_data": false,
+    "current_bin": "5b230e1d04f7ae186c1175fe11b9e9f260792c0a8d4d5dd3efe0c35410a88d37",
+    "current": "Previous comparison stopped; operator confirmed normal endstate, temporary keep-awake off and original preferences preserved."
+  },
+  "unverified": [
+    "Real encoded normal XYZ/new-data/axis response,physical stop and runtime stack on newBIN.",
+    "Complete selftest rootcause/encoding universality,calibration/heading/current/battery life/long-term stability."
+  ],
+  "next_boundary": "Review and merge software, sync clean main. Then confirm exactnewBIN/site for bounded staticXYZ/expiry first; only after usable frames and operatorcondition confirmation consider bounded horizontalrotation/explicitstop. No compass or calibration claims."
+}
