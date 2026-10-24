@@ -30,7 +30,12 @@ void wristflow_compass_render(lv_obj_t *root, const wristflow_compass_display_t 
     else snprintf(heading, sizeof heading, "--°");
     lv_label_set_text(named(root, "compass_heading"), heading);
     lv_label_set_text(named(root, "compass_direction"), valid ? directions[((display->heading_degrees + 22) / 45) % 8] : "--");
-    lv_label_set_text(named(root, "compass_status"), valid ? "" : "等待数据");
+    const char *status = "等待数据";
+    if (display && (display->reason == WF_COMPASS_IO_FAILURE || display->reason == WF_COMPASS_SELFTEST_FAILURE))
+        status = "测量失败";
+    else if (display && display->reason == WF_COMPASS_BUSY) status = "暂不可用";
+    lv_label_set_text(named(root, "compass_status"), valid ? "" : status);
+    lv_label_set_text(named(root, "compass_notice"), display && display->uncalibrated ? "未校准，请保持水平" : "");
 
     /* An unknown heading has no north indication. Keep only a neutral ring. */
     const char *const marks[] = {"compass_n", "compass_e", "compass_s", "compass_w",

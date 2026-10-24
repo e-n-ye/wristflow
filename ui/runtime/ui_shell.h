@@ -8,6 +8,7 @@
 #include "notifications.h"
 #include "countdown_port.h"
 #include "alarm_port.h"
+#include "compass.h"
 
 typedef struct wristflow_ui_shell wristflow_ui_shell_t;
 typedef lv_obj_t *(*wristflow_screen_factory_t)(void);
@@ -124,6 +125,10 @@ bool wristflow_ui_shell_request_auto_brightness(wristflow_ui_shell_t *, bool aut
  * The product owner supplies validity/freshness and closes mode on fault. */
 void wristflow_ui_shell_auto_brightness_sample(wristflow_ui_shell_t *, bool valid, uint8_t value);
 bool wristflow_ui_shell_auto_brightness_sampling(const wristflow_ui_shell_t *);
+/* True only while the actual foreground compass is visible, including DIM.
+ * No I/O; Product calls qualification before/after input and before OFF. */
+bool wristflow_ui_shell_compass_sampling(const wristflow_ui_shell_t *);
+void wristflow_ui_shell_compass_sample(wristflow_ui_shell_t *, const wf_compass_snapshot_t *);
 /* Callbacks enqueue/cancel only. Binding/configuration never starts a preview.
  * Explicit changed selection on its visible page is the sole preview trigger. */
 void wristflow_ui_shell_bind_vibration_preview(wristflow_ui_shell_t *,

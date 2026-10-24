@@ -12,6 +12,7 @@
 #include "product_steps.h"
 #include "product_wrist.h"
 #include "product_light.h"
+#include "product_compass.h"
 #include "product_charger.h"
 #include "product_power.h"
 #include "battery_estimate.h"
@@ -222,6 +223,15 @@ static void sync_automatic_brightness(void)
     wristflow_product_light_active(wristflow_ui_shell_auto_brightness_sampling(product_shell));
     wristflow_product_light_snapshot_t sample = wristflow_product_light_snapshot();
     wristflow_ui_shell_auto_brightness_sample(product_shell, sample.valid, sample.brightness);
+}
+
+static void sync_compass(void)
+{
+    bool active = wristflow_ui_shell_compass_sampling(product_shell);
+    bool accepted = wristflow_product_compass_active(active);
+    wf_compass_snapshot_t value = wristflow_product_compass_snapshot();
+    if (active && !accepted) { value.valid = false; value.reason = WF_COMPASS_BUSY; }
+    wristflow_ui_shell_compass_sample(product_shell, &value);
 }
 static void sync_endurance_services(void)
 {
@@ -494,6 +504,9 @@ static void run_panel_probe(rt_device_t lcd, lv_indev_t *pointer)
 
 static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
 {
+    wristflow_product_compass_active(false);
+    wf_compass_snapshot_t compass = wristflow_product_compass_snapshot();
+    wristflow_ui_shell_compass_sample(product_shell, &compass);
     wristflow_product_light_active(false);
     wristflow_ui_shell_auto_brightness_sample(product_shell, false, 0);
     panel_unavailable();
@@ -754,6 +767,7 @@ int main(void)
         bool probing = probe_reserved;
         rt_hw_interrupt_enable(light_level);
         if (probing) {
+            wristflow_product_compass_active(false);
             wristflow_product_light_active(false);
             wristflow_ui_shell_auto_brightness_sample(shell, false, 0);
         }
@@ -761,7 +775,9 @@ int main(void)
         if (wristflow_ui_shell_endurance(shell)) sync_endurance_key();
         sync_endurance_services();
         sync_automatic_brightness();
+        sync_compass();
         uint32_t wait_ms = lv_timer_handler();
+        sync_compass();
         uint32_t now = lv_tick_get();
         capture_battery();
         if (wristflow_ui_shell_display_phase(shell) == WRISTFLOW_DISPLAY_OFF) {

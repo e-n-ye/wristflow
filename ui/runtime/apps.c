@@ -33,6 +33,7 @@ struct wristflow_apps {
     wristflow_countdown_port_t countdown_port;
     wristflow_alarm_port_t alarm_port;
     wristflow_watch_snapshot_t snapshot;
+    wristflow_compass_display_t compass_display;
     wristflow_brightness_cb_t brightness_cb;
     void *context;
     uint8_t brightness;
@@ -761,7 +762,9 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
     } else if (surface == WRISTFLOW_SURFACE_ENDURANCE) {
         wristflow_endurance_render(root, apps->shell);
     } else if (surface == WRISTFLOW_SURFACE_COMPASS) {
-        wristflow_compass_display_t display = {apps->product_mode ? WRISTFLOW_COMPASS_UNAVAILABLE : WRISTFLOW_COMPASS_HEADING, 305};
+        wristflow_compass_display_t display = {.state = apps->product_mode ? WRISTFLOW_COMPASS_UNAVAILABLE : WRISTFLOW_COMPASS_HEADING,
+            .heading_degrees = 305, .uncalibrated = apps->product_mode};
+        apps->compass_display = display;
         wristflow_compass_render(root, &display);
     } else {
         lv_label_set_text(named(root, "app_title"), app->title);
@@ -834,6 +837,18 @@ void wristflow_apps_refresh_settings_save(wristflow_apps_t *apps)
 
 void wristflow_apps_hide_control_hint(wristflow_apps_t *apps)
 { if (apps) wristflow_control_center_leave(apps->control_center); }
+
+void wristflow_apps_compass_sample(wristflow_apps_t *apps, const wf_compass_snapshot_t *sample)
+{
+    if (!apps || !apps->product_mode || !sample || !apps->screens[WRISTFLOW_SURFACE_COMPASS]) return;
+    wristflow_compass_display_t next = {.state = sample->valid ? WRISTFLOW_COMPASS_HEADING : WRISTFLOW_COMPASS_UNAVAILABLE,
+        .heading_degrees = sample->heading_degrees, .uncalibrated = true, .reason = sample->reason};
+    wristflow_compass_display_t *previous = &apps->compass_display;
+    if (next.state == previous->state && next.heading_degrees == previous->heading_degrees &&
+        next.reason == previous->reason && next.uncalibrated == previous->uncalibrated) return;
+    *previous = next;
+    wristflow_compass_render(apps->screens[WRISTFLOW_SURFACE_COMPASS], &next);
+}
 
 void wristflow_apps_update(wristflow_apps_t *apps, const wristflow_watch_snapshot_t *snapshot)
 {
