@@ -211,7 +211,11 @@ LTR跑通、目录迁回及证据已由PR #136 Rebase合入`3e5125e`；本次接
 
 14:41:50–14:44:35精确7d7三镜像write＋verify成功，启动单次150ms RTS后校真实UTC／原55恢复。用户确认父页自动摘要、关闭返回55／原手动55及重开摘要／入口隐藏；一次普通SDK reboot无RTS／补时，RTC06:49:32→06:49:45UTC连续、storage恢复，自动模式自行恢复，用户确认摘要／入口及显示／触摸／返回／时间正常。醒后自动enabled／active／valid均1、fault／cleanup均0。14:53:24末读计步valid1／io_errors0／总0／检查点106 clean、腕关闭、UI mismatch0，main16KiB／水印46%、worker6KiB／15%；14:53:32 allow1关口，用户随后确认常亮关闭、末态正常、自动保持开启，设备操作结束。明暗／手电筒／AOD窗仍归属8e7，最终7d7没有重跑全部窗口；无最终版故障注入、物理断电保存、校准lux、功耗／容量／续航或新BLE结论。分版本[硬件证据](evidence/2026-10-24/automatic-brightness-hardware.json)及原始记录保留于主目录`artifacts/automatic-brightness-hardware-20261024/`。
 
-**当前唯一下一步**：按CONTRIBUTING审阅并交付本轮自动亮度实现及分版本证据，Rebase合并后同步主目录干净main；本轮不再操作设备。24日AOD约5小时39分／显示64%的体验已记[HARDWARE](HARDWARE.md)，固定场景续航与轻量页面统计仅记[后续想法](BASELINE.md#experience-probes-20261024)，不扩入本轮；交付后下一功能范围另定。
+自动亮度已由PR #139 Rebase合入`a76a6ca`，回读MERGED、远端树及主目录干净main同步核对完成。24日AOD约5小时39分／显示64%的体验已记[HARDWARE](HARDWARE.md)，固定场景续航与轻量页面统计仍只记[后续想法](BASELINE.md#experience-probes-20261024)，不自动进入实现或实验。
+
+**当前：地磁硬件跑通的软件准备已验证**。用户随后选择地磁，从主目录干净`a76a6ca`建立`codex/mmc5603-diagnostic`。本轮按既定“硬件→页面→功能”只做MMC5603NJ限时原生自检／XYZ新数据、停止与共享总线共存，不做指南针页面／方向校准。MEMSIC Rev.B／2018-07-12手册镜像明确STATUS bit6及只写控制；p12 bit1例子冲突保留，采用器件局部复位建立已知停止基线，不冒称任意原配置读回恢复，不断共享PA30。原worker／I2C3串行协调自动亮度与常驻腕，有限诊断互斥，不改保存模式。相关Debug／保留断言Release各5/5，后补迟DONE、慢I/O跨总截止及反向互斥的最终两项各2/2通过；独立只读审查无确定阻断。官方Product `20261024-155722-493`／`5eb28e3c…`编译成功，545源码／29产物字节哈希一致，SDK锁定干净、DryRun通过；旧29产物ZIP保全，无XML／共享UI变化不重复Demo编译。命令／失败／边界见[地磁专题](MMC5603.md#diagnostic-20261024)及[软件证据](evidence/2026-10-24/mmc5603-diagnostic.json)。尚未开串口、下载或复位设备，板上仍为自动亮度`7d7be017…`末态。
+
+**当前唯一下一步**：审阅并按CONTRIBUTING交付本轮地磁诊断软件，合并后同步主目录干净main；随后绑定精确`5eb28e3c…`、重新核对现场板屏／供电／接线及人在旁条件，再进行一次集中静置／受控旋转与到期／显式停止窗口。没有地磁实机、自检／轴向／停止、校准航向或功耗通过结论；不自动开始指南针页面。
 
 <a id="history"></a>
 ## 2026-10-20 小时步数保存与上板闭环（历史，PR #104／#105已交付）

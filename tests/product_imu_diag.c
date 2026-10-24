@@ -5,6 +5,7 @@
 #include "../apps/product/src/product_imu_diag.c"
 #include <assert.h>
 #include <setjmp.h>
+#include "support/mmc5603_fake.h"
 
 static uint8_t user_regs[256], bank_regs[256], bank_b_regs[256], bank;
 static uint8_t light_regs[256];
@@ -13,6 +14,8 @@ static int light_failing_read = -1;
 static bool light_fail_restore, stop_light_in_prepare, duplicate_light_in_prepare;
 static bool pause_auto_in_light_read;
 static unsigned light_restore_attempts;
+static fake_mmc5603_t mag_fake;
+static bool stop_mag_in_prepare, duplicate_mag_in_prepare;
 static uint16_t native_count;
 static rt_tick_t ticks;
 static unsigned irq, idle, reads, writes, rounds, deleted, detached;
@@ -91,6 +94,14 @@ int rt_thread_mdelay(rt_int32_t ms)
         duplicate_light_in_prepare = false;
         char *args[] = {"wf_light", "start", "120"}; wf_light(3, args);
     }
+    if (stop_mag_in_prepare) {
+        stop_mag_in_prepare=false;
+        char *args[]={"wf_mag","stop"}; wf_mag(2,args);
+    }
+    if (duplicate_mag_in_prepare) {
+        duplicate_mag_in_prepare=false;
+        char *args[]={"wf_mag","start","120"}; wf_mag(3,args);
+    }
     return 0;
 }
 void rt_kprintf(const char *format, ...) { (void)format; }
@@ -147,7 +158,12 @@ int rt_i2c_configure(struct rt_i2c_bus_device *b, struct rt_i2c_configuration *c
 size_t rt_i2c_mem_read(struct rt_i2c_bus_device *b, unsigned addr, unsigned reg,
     unsigned bits, void *out, size_t length)
 {
-    assert(b == &fake_bus && bits == 8 && (length == 1 || (reg==0x28 && length==6)) && !irq && idle); ++reads;
+    assert(b == &fake_bus && bits == 8 && !irq && idle); ++reads;
+    if (addr==0x30) {
+        assert(!bank); mag_fake.ms=ticks;
+        return fake_mag_read(&mag_fake,(uint8_t)reg,out,length) ? length : 0;
+    }
+    assert(length == 1 || (reg==0x28 && length==6));
     if (addr == 0x29) {
         assert(!bank && length == 1); ++light_reads;
         if (reg == 0x88 && pause_auto_in_light_read) {
@@ -173,6 +189,10 @@ size_t rt_i2c_mem_write(struct rt_i2c_bus_device *b, unsigned addr, unsigned reg
     unsigned bits, void *input, size_t length)
 {
     assert(b == &fake_bus && bits == 8 && length == 1 && !irq && idle); ++writes;
+    if (addr==0x30) {
+        assert(!bank); mag_fake.ms=ticks;
+        return fake_mag_write(&mag_fake,(uint8_t)reg,*(uint8_t *)input) ? 1 : 0;
+    }
     if (addr == 0x29) {
         assert(!bank && (reg == 0x80 || reg == 0x85)); ++light_writes;
         uint8_t value = *(uint8_t *)input;
@@ -620,5 +640,73 @@ int main(void)
     light_regs[0x8c]=4; cycle();
     assert(cached.phase==WF_IMU_RUNNING && wristflow_product_light_snapshot().enabled && wristflow_product_light_snapshot().valid);
     assert(wristflow_product_light_enable(false)); cycle(); assert(!idle && light_cached.restored);
+    /* MMC has no boot/status I/O. Its independent on-demand address shares
+     * the existing worker while daily steps and native wrist keep ownership. */
+    assert(!mag_fake.operations && mag_cached.phase==WF_MAG_IDLE);
+    char *mag_status[]={"wf_mag","status"};
+    before=reads+writes; wf_mag(2,mag_status); assert(reads+writes==before);
+    fake_mag_init(&mag_fake);
+    char *mag_start[]={"wf_mag","start","2"};
+    char *mag_stop[]={"wf_mag","stop"};
+    char *mag_duplicate[]={"wf_mag","start","120"};
+    native_count=9;
+    wristflow_product_wrist_enable(true); cycle();
+    assert(wrist_runtime && irq_adapter.armed);
+    wf_mag(3,mag_start); wf_mag(3,mag_duplicate);
+    assert(mag_pending && mag_seconds==2 && !mag_fake.operations);
+    light_cmd("start","2"); assert(!light_pending);
+    duplicate_mag_in_prepare=true; cycle();
+    assert(mag_cached.phase==WF_MAG_RUNNING && mag_cached.duration_ms==2000 && idle);
+    for (unsigned i=0;i<20 && !mag_cached.samples;++i) cycle();
+    assert(mag_cached.selftest_valid && mag_cached.selftest_passed && mag_cached.samples==1 && mag_cached.sample_valid);
+    assert(mag_cached.x==12345 && mag_cached.y==-23456 && mag_cached.z==34567);
+    assert(native_count==9 && daily_cached.metric.total==9 && wrist_runtime && irq_adapter.armed);
+    before=mag_fake.operations; wf_mag(2,mag_status); assert(mag_fake.operations==before);
+    wf_mag(2,mag_stop); cycle();
+    assert(mag_cached.stopped && !mag_cached.owned && !idle && wrist_runtime);
+    /* Auto can already be running, or qualify during MMC. Neither mode nor
+     * generation is mutated by the magnetic diagnostic. */
+    assert(wristflow_product_light_enable(true)); wristflow_product_light_active(true);
+    cycle(); cycle(); light_regs[0x8c]=4; cycle();
+    assert(wristflow_product_light_snapshot().valid);
+    uint32_t light_generation=auto_generation;
+    wf_mag(3,mag_start); cycle();
+    for (unsigned i=0;i<20 && !mag_cached.samples;++i) { light_regs[0x8c]=4; cycle(); }
+    assert(mag_cached.samples && mag_cached.sample_valid && auto_generation==light_generation && auto_requested);
+    assert(light.continuous && light.snapshot.phase==WF_LIGHT_RUNNING && wrist_runtime && native_count==9);
+    wf_mag(2,mag_stop); cycle();
+    wristflow_product_light_active(false); cycle();
+    wf_mag(3,mag_start); cycle();
+    wristflow_product_light_active(true);
+    for (unsigned i=0;i<20 && !mag_cached.samples;++i) { light_regs[0x8c]=4; cycle(); }
+    assert(mag_cached.samples && auto_requested && light.continuous);
+    wf_mag(2,mag_stop); cycle();
+    assert(wristflow_product_light_enable(false)); cycle();
+    wristflow_product_wrist_enable(false); cycle();
+    wrist_cmd("start","2","xneg"); assert(wrist_pending);
+    wf_mag(3,mag_start); assert(!mag_pending); cycle();
+    wrist_cmd("stop",NULL,NULL); cycle();
+    light_cmd("start","2"); assert(light_pending);
+    wf_mag(3,mag_start); assert(!mag_pending); cycle();
+    light_cmd("stop",NULL); cycle();
+    /* Failed cleanup holds the single PM responsibility and never retries in
+     * the background. Only explicit stop can release this uncertain state. */
+    wf_mag(3,mag_start); cycle(); cycle();
+    mag_fake.fail_reset=true; wf_mag(2,mag_stop); cycle();
+    assert(mag_cached.phase==WF_MAG_FAULT && mag_cached.owned && !mag_cached.stopped && idle);
+    before=mag_fake.operations; cycle(); assert(mag_fake.operations==before && idle);
+    wf_mag(3,mag_start); light_cmd("start","2"); assert(!mag_pending && !light_pending);
+    mag_fake.fail_reset=false; wf_mag(2,mag_stop); cycle();
+    assert(mag_cached.stopped && !mag_cached.owned && !idle);
+    wf_mag(3,mag_start); stop_mag_in_prepare=true; cycle(); cycle();
+    assert(mag_cached.ended==WF_MAG_CANCELLED && !mag_cached.owned && !idle);
+    wf_mag(3,mag_start); cycle(); cycle(); daily_cmd("stop"); cycle();
+    assert(mag_cached.stopped && !mag_cached.owned && cached.stop_verified && !idle);
+    daily_cmd("retry"); cycle();
+    wf_mag(3,mag_start); bus_find_fail_after=2; cycle();
+    assert(mag_cached.phase==WF_MAG_FAULT && !mag_cached.owned && !idle && cached.phase==WF_IMU_RUNNING);
+    wf_mag(3,mag_start); cycle(); cycle();
+    before=mag_cached.samples; ticks+=5000; cycle();
+    assert(mag_cached.ended==WF_MAG_DEADLINE && mag_cached.stopped && mag_cached.samples==before && !idle);
     return 0;
 }

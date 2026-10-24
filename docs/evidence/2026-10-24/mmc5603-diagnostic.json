@@ -1,0 +1,172 @@
+{
+  "schema": 1,
+  "recorded_at": "2026-10-24T08:01:45.293346+00:00",
+  "scope": "MMC5603NJ bounded native selftest and on-demand raw XYZ diagnostic; no compass UI or calibrated heading.",
+  "source_base": "a76a6ca4d10a449cc7ea9aa1bb969c429536566f",
+  "changed_sources": [
+    {
+      "path": "apps/product/src/mmc5603_diag.c",
+      "sha256": "b3aa5495f4c98da2f2071c505ce6f246a6c3e87aa74a505456133303bbed94f7",
+      "normalized_lf_sha256": "b3aa5495f4c98da2f2071c505ce6f246a6c3e87aa74a505456133303bbed94f7"
+    },
+    {
+      "path": "apps/product/src/mmc5603_diag.h",
+      "sha256": "5a9a296f66f9e683c3475f4f5a2200cae4425aa88a0ed081a466b96fa92c67c5",
+      "normalized_lf_sha256": "5a9a296f66f9e683c3475f4f5a2200cae4425aa88a0ed081a466b96fa92c67c5"
+    },
+    {
+      "path": "apps/product/src/product_imu_diag.c",
+      "sha256": "2209fa80a584dafb3dc2cd63abe0f5ff4ed7b0dab8c8a5f3971c72a614f1a09f",
+      "normalized_lf_sha256": "5e9ba8703904007229873bda4da72280119d2cd0f98c2f566d05e5238730013c"
+    },
+    {
+      "path": "tests/CMakeLists.txt",
+      "sha256": "8c33f940f8e05055e9b9cf0365bb27ce2dcf64a586a7065a3bf89359798fc09e",
+      "normalized_lf_sha256": "f010c1e52a77ed79d9e10d2b05b3a11d31458411afd2d3bbb4abd36958fdc990"
+    },
+    {
+      "path": "tests/mmc5603_diag.c",
+      "sha256": "f50d6905eee4649384afcef8b1358884f2fc27585e2048188d69d98eba50a8af",
+      "normalized_lf_sha256": "f50d6905eee4649384afcef8b1358884f2fc27585e2048188d69d98eba50a8af"
+    },
+    {
+      "path": "tests/product_imu_diag.c",
+      "sha256": "9bf74bc1b13aa5ee0ed41a5a5566268abcc4d78e1bc06449aa36a16944a41156",
+      "normalized_lf_sha256": "97f0b5f6270d58eb7d7108378a50bd14be66bf02b8a03574060e280b757f7e13"
+    },
+    {
+      "path": "tests/support/mmc5603_fake.h",
+      "sha256": "bfd164e3fda925bb46b948838269795c92386d9f119f26f9bdeb18aab052b127",
+      "normalized_lf_sha256": "bfd164e3fda925bb46b948838269795c92386d9f119f26f9bdeb18aab052b127"
+    }
+  ],
+  "capability_choice": {
+    "native": "20-bit magnetic measurement, SET/RESET, Auto_SR, automatic selftest and continuous measurement",
+    "selected": "Native selftest with factory80% thresholds and0x41; on-demand0x21 Auto_SR, about1 raw frame/s; no continuous/IRQ.",
+    "source_url": "https://cdn-learn.adafruit.com/assets/assets/000/113/957/original/MMC5603NJ_RevB_7-12-18.pdf?1659554945",
+    "manufacturer_document": "MEMSIC MMC5603NJ Rev.B,18pages,2018-07-12; third-party Adafruit mirror",
+    "source_sha256": "b6d62d6790db517a3a4be62fc29a379a7f537261279da1d8ab171d8ac63b6c3d",
+    "visual_checked_pages": [
+      8,
+      14
+    ],
+    "conflicts": [
+      "p8 status table Meas_m_done bit6 differs from p12 example bit1; use table, actual device pending.",
+      "Controls/ODR/thresholds are write-only; SDK control readback/PowerDown are not valid restoration evidence."
+    ]
+  },
+  "implementation": {
+    "commands": "wf_mag start1..120 | stop | status; command/cache only, existing sensor worker owns I2C3/0x30.",
+    "startup": "Check ID0x10, own before write, sensor-local reset20ms/OTP; never power-cycle shared PA30.",
+    "sampling": "One outstanding on-demand trigger; require DONE0 before trigger, DONE1 before9B read and DONE0 after. Raw centered20-bit counts,6.25nT/count uncalibrated.",
+    "timing": "Original session deadline/cancel checked after I/O;50ms only faults when DONE is still absent at observation. Late completed single shot may be read within session; sampled_ms is software read completion, no hardware timestamp.",
+    "stop": "Sensor-local reset ACK,20ms wait, ID/OTP ready, drain DONE,20ms no new DONE. Known default stopped baseline only; no arbitrary prior-state restoration/current claim.",
+    "fault": "Unconfirmed cleanup retains owned/IDLE; no autonomous I/O retry. Explicit stop/daily recovery may retry.",
+    "coexistence": "Same worker serializes daily steps, continuous wrist, auto LTR and MMC. Auto mode/generation unchanged; finite wrist/LTR diagnostics exclude MMC both ways.",
+    "budgets": {
+      "new_threads": 0,
+      "new_timers": 0,
+      "worker_stack_bytes": 6144,
+      "main_stack_bytes": 16384,
+      "product_growth_bytes": 3780
+    }
+  },
+  "tests": [
+    {
+      "path": "artifacts/mmc5603-20261024/host-debug-tests-001.log",
+      "sha256": "6bd0bc7f589e3245b314763351c043d25358d05ef8f14456d07c2b89eb579e48",
+      "passed": 2,
+      "total": 2,
+      "scope": "Initial diagnostic and same-worker integration",
+      "seconds": 0.18
+    },
+    {
+      "path": "artifacts/mmc5603-20261024/host-debug-tests-002.log",
+      "sha256": "2d7356afad142bee32d3c12f84e60363567ab58271466550e697d3d046981ec2",
+      "passed": 5,
+      "total": 5,
+      "scope": "Debug affected sensor/wrist/light targets",
+      "seconds": 0.23
+    },
+    {
+      "path": "artifacts/mmc5603-20261024/host-release-tests-002.log",
+      "sha256": "e58d73d41e343a2662e529826f4fe71f3673234227ab1a575763fc8d0b881642",
+      "passed": 5,
+      "total": 5,
+      "scope": "Release affected targets with assertions",
+      "seconds": 0.29
+    },
+    {
+      "path": "artifacts/mmc5603-20261024/host-debug-final-tests.log",
+      "sha256": "4daa9ffa78a0c79449d1063d2503797aaea6cb5d7d62a08f3919ba48ef237da9",
+      "passed": 2,
+      "total": 2,
+      "scope": "Final Debug late-DONE, slow I/O deadline and reverse diagnostic exclusion",
+      "seconds": 0.16
+    },
+    {
+      "path": "artifacts/mmc5603-20261024/host-release-final-tests.log",
+      "sha256": "a3eef42f4567a07848cb0b6855e98691343ebe6d84a8621a057b3a6109bb4f6e",
+      "passed": 2,
+      "total": 2,
+      "scope": "Final Release same scope",
+      "seconds": 0.23
+    }
+  ],
+  "build": {
+    "result": "artifacts/product/20261024-155722-493/result.json",
+    "result_sha256": "abd76568932ce3a98f8a38944ee0679f113349d72c97ee2e00c013aba2e1663a",
+    "sources": 545,
+    "artifacts": 29,
+    "exit_code": 0,
+    "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+    "started": "2026-10-24T15:57:22.5052754+08:00",
+    "finished": "2026-10-24T15:57:49.5168412+08:00",
+    "bin_bytes": 8028648,
+    "bin_sha256": "5eb28e3ce47b2a823aa50c235966877453c1c2de6fb4f68e9236baca297ebc9c",
+    "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+    "python": "Python 3.13.15",
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "submodules": [
+      " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+      " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+    ],
+    "sdk_clean": true,
+    "source_artifact_bytes_verified": true
+  },
+  "dry_run": {
+    "path": "artifacts/mmc5603-20261024/flash-dry-run.log",
+    "sha256": "ac082ce55c9b2e240b89c25fe8bbbc1473b9b235143e934b4bfff4a752a66e7f",
+    "device_opened": false
+  },
+  "previous_product_artifacts": {
+    "path": "D:\\MY_Desk\\project\\wristflow\\artifacts\\mmc5603-20261024\\previous-7d7be017-product-artifacts.zip",
+    "bytes": 21125906,
+    "sha256": "23e6e2ad7864633998e4b68b4520ae5912bb98899bbe8722bb8622a6a95f8379",
+    "verified": true,
+    "artifacts": 29,
+    "source_result": "artifacts/product/20261024-143812-050/result.json"
+  },
+  "review": [
+    "Independent read-only integration review found no definite blocker.",
+    "Initial review labelled late DONE a50ms timeout defect; with sole outstanding trigger contract, reviewer retracted logic blocker. Misleading comment corrected; late-DONE and I/O-crossing-session-deadline regressions pass."
+  ],
+  "failures": [
+    "Source downloads without browser User-Agent returned403; normal TLS with User-Agent succeeded. Guessed manufacturer PDF and shop mirror paths returned404; successful manufacturer-authored mirror retained.",
+    "Bundled Python fitz module unavailable; used installed pypdf and pypdfium2 for extraction/render instead.",
+    "Metadata inspection queried nonexistent firmware_sha256 key after bytes validation; corrected to hash firmware_path bytes. No build failure.",
+    "First successful Product build superseded only by comment clarification and added tests; final result above binds current source bytes."
+  ],
+  "warnings": "Existing FinSH conversions/linker syscall/entry/RWX and missing dfu messages retained; final new driver compile no new warning.",
+  "hardware_verified": false,
+  "next_bounded_experiment": "After exact BIN/endpoint/current power/operator conditions, one combined static/controlled rotation/expiry-stop window; preserve daily/auto/wrist preferences and stop on identity/selftest/cleanup anomaly.",
+  "limitations": [
+    "No device identity/selftest/XYZ/axis/stop evidence yet.",
+    "No magnetic calibration, accurate north, tilt compensation, physical DEEP, power/current/endurance or new BLE conclusion."
+  ],
+  "local_evidence": {
+    "worktree": "D:\\MY_Desk\\project\\wristflow",
+    "directory": "artifacts/mmc5603-20261024",
+    "available_in_repository": false
+  }
+}

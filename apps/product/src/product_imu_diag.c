@@ -10,6 +10,7 @@
 #include "ltr303_diag.h"
 #include "product_light.h"
 #include "auto_brightness.h"
+#include "mmc5603_diag.h"
 #include <rtthread.h>
 #include <rthw.h>
 #include <rtdevice.h>
@@ -24,7 +25,8 @@
 
 enum { EV_COMMAND = 1, EV_STOP = 2, EV_DAILY_START = 4, EV_SCREEN = 8, EV_SAVE = 16,
     EV_WRIST = 32, EV_WRIST_STOP = 64, EV_WRIST_POLICY = 128, EV_WRIST_IRQ = 256,
-    EV_LIGHT = 512, EV_LIGHT_STOP = 1024, EV_AUTO_LIGHT = 2048 };
+    EV_LIGHT = 512, EV_LIGHT_STOP = 1024, EV_AUTO_LIGHT = 2048,
+    EV_MAG = 4096, EV_MAG_STOP = 8192 };
 enum command { CMD_NONE, CMD_PROBE, CMD_STEPS };
 static struct rt_event work;
 static struct rt_i2c_bus_device *bus;
@@ -61,10 +63,16 @@ static volatile bool auto_cancel;
 static uint32_t auto_generation, auto_applied_generation, auto_cached_generation, auto_started_ms, auto_sequence;
 static wf_auto_brightness_t auto_filter;
 static wristflow_product_light_snapshot_t auto_value, auto_cached;
+static wf_mmc5603_t mag;
+static wf_mmc5603_snapshot_t mag_cached;
+static bool mag_pending, mag_busy;
+static volatile bool mag_cancel_requested;
+static unsigned mag_seconds;
 static bool prepare_bus(void);
 static bool probe(void);
 static wristflow_steps_clock_t daily_clock(void);
 static void light_work(rt_uint32_t events);
+static void mag_work(rt_uint32_t events);
 static uint32_t now_ms(void);
 
 bool wristflow_product_light_enable(bool enabled)
@@ -173,6 +181,12 @@ static bool light_write(void *context, uint8_t reg, uint8_t value)
 { (void)context; return rt_i2c_mem_write(bus, 0x29, reg, 8, &value, 1) == 1; }
 static bool light_cancelled(void *context)
 { (void)context; return light_cancel_requested || cancel_requested || (auto_owner && auto_cancel); }
+static bool mag_read(void *context, uint8_t reg, uint8_t *data, size_t size)
+{ (void)context; return rt_i2c_mem_read(bus, 0x30, reg, 8, data, size) == size; }
+static bool mag_write(void *context, uint8_t reg, uint8_t value)
+{ (void)context; return rt_i2c_mem_write(bus, 0x30, reg, 8, &value, 1) == 1; }
+static bool mag_cancelled(void *context)
+{ (void)context; return mag_cancel_requested || cancel_requested; }
 static void gate(bool take)
 {
 #ifdef RT_USING_PM
@@ -192,11 +206,14 @@ static void publish(void)
     gate((active && !daily_mode) || unresolved ||
         (wrist.snapshot.phase == WF_IMU_RUNNING && !wrist.snapshot.continuous) ||
         (wrist_unresolved && wrist.snapshot.phase != WF_IMU_RUNNING) || (irq_state.owned && !irq_state.armed) ||
-        light.snapshot.phase == WF_LIGHT_RUNNING || light.snapshot.owned);
+        light.snapshot.phase == WF_LIGHT_RUNNING || light.snapshot.owned ||
+        mag.snapshot.phase == WF_MAG_RUNNING || mag.snapshot.owned);
     rt_base_t level = rt_hw_interrupt_disable();
     cached = device.snapshot;
     wrist_cached = wrist.snapshot;
     light_cached = light.snapshot;
+    mag_cached = mag.snapshot;
+    mag_busy = mag_pending || mag.snapshot.phase == WF_MAG_RUNNING || mag.snapshot.owned;
     auto_cached = auto_value;
     auto_cached_generation = auto_applied_generation;
     auto_cached.cleanup_pending = auto_owner && light.snapshot.owned && !auto_runtime;
@@ -400,7 +417,7 @@ static void wrist_work(rt_uint32_t events)
 static void daily_work(rt_uint32_t events)
 {
     gate(true);
-    if (events & (EV_STOP | EV_DAILY_START)) light_work(events);
+    if (events & (EV_STOP | EV_DAILY_START)) { light_work(events); mag_work(events); }
     wf_imu_wrist_snapshot_t before_wrist = wrist.snapshot;
     if (events & (EV_STOP | EV_DAILY_START)) {
         if (wrist.changed || wrist.snapshot.phase == WF_IMU_RUNNING ||
@@ -432,7 +449,7 @@ static void daily_work(rt_uint32_t events)
         wristflow_daily_steps_init(&daily);
         daily.snapshot.observation.version = version;
         if (boot_seed) (void)wristflow_daily_steps_seed(&daily, &checkpoint.saved);
-        bool prepared = !light.snapshot.owned && prepare_bus();
+        bool prepared = !light.snapshot.owned && !mag.snapshot.owned && prepare_bus();
         if (prepared && device.identified && device.snapshot.phase == WF_IMU_FAULT)
             prepared = wf_imu_pedometer_stop(&device, now_ms(), WF_IMU_USER_STOP);
         bool ok = prepared && !wrist.changed && !wristflow_product_wrist_irq_snapshot().owned &&
@@ -458,7 +475,10 @@ static void daily_work(rt_uint32_t events)
         wristflow_steps_store_offer(&checkpoint, &daily.snapshot, now);
         if (events & EV_SAVE) wristflow_steps_store_flush(&checkpoint, now);
     }
-    if (!(events & EV_STOP)) light_work(events & ~EV_DAILY_START);
+    if (!(events & EV_STOP)) {
+        light_work(events & ~EV_DAILY_START);
+        mag_work(events & ~EV_DAILY_START);
+    }
     publish(); /* Releases this owner's IDLE unless stopping remains unconfirmed. */
     if (wrist.snapshot.phase != before_wrist.phase || wrist.snapshot.observations != before_wrist.observations ||
         (events & (EV_WRIST | EV_WRIST_STOP | EV_WRIST_POLICY | EV_WRIST_IRQ))) wrist_report(false);
@@ -699,6 +719,61 @@ static void light_work(rt_uint32_t events)
             light.snapshot.owned, light.snapshot.restored, (unsigned long)light.snapshot.io_errors);
     }
 }
+static void mag_work(rt_uint32_t events)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    bool begin = mag_pending;
+    unsigned span = mag_seconds;
+    mag_pending = false;
+    rt_hw_interrupt_enable(level);
+    wf_mmc5603_snapshot_t before = mag.snapshot;
+    bool stopping = (events & (EV_STOP | EV_DAILY_START | EV_MAG_STOP)) || mag_cancel_requested;
+    if (stopping && (mag.snapshot.phase == WF_MAG_RUNNING || mag.snapshot.owned ||
+        begin || mag_cancel_requested || (events & EV_MAG_STOP))) {
+        if (!mag.snapshot.owned || prepare_bus()) (void)wf_mmc5603_stop(&mag, WF_MAG_CANCELLED);
+        else wf_mmc5603_bus_fault(&mag);
+        mag_cancel_requested = false;
+    } else if (!stopping && begin) {
+        bool available = device.snapshot.phase == WF_IMU_RUNNING && !cancel_requested &&
+            wrist.snapshot.phase != WF_IMU_FAULT &&
+            (wrist.snapshot.phase != WF_IMU_RUNNING || wrist.snapshot.continuous) &&
+            (light.snapshot.phase != WF_LIGHT_RUNNING || auto_owner);
+        uint32_t started = now_ms();
+        if (available) {
+            bool prepared = prepare_bus();
+            if (wf_mmc5603_begin(&mag, started, span * 1000U) && !prepared) wf_mmc5603_bus_fault(&mag);
+        }
+        rt_kprintf("[mag] accepted=%u\n", mag.snapshot.phase == WF_MAG_RUNNING);
+    } else if (mag.snapshot.phase == WF_MAG_RUNNING) {
+        if (device.snapshot.phase != WF_IMU_RUNNING || wrist.snapshot.phase == WF_IMU_FAULT) {
+            if (!mag.snapshot.owned || prepare_bus()) (void)wf_mmc5603_stop(&mag, WF_MAG_IO_FAILURE);
+            else wf_mmc5603_bus_fault(&mag);
+        } else if (mag_cancelled(NULL) || wf_mmc5603_wait_ms(&mag, now_ms()) == 0) {
+            if (!mag.snapshot.owned && (mag_cancelled(NULL) ||
+                now_ms() - mag.snapshot.started_ms >= mag.snapshot.duration_ms)) wf_mmc5603_poll(&mag);
+            else if (prepare_bus()) wf_mmc5603_poll(&mag);
+            else wf_mmc5603_bus_fault(&mag);
+        }
+    }
+    if (mag.snapshot.selftest_valid && !before.selftest_valid) {
+        wf_mmc5603_snapshot_t *s = &mag.snapshot;
+        rt_kprintf("[mag-selftest] session=%lu factory=%02x/%02x/%02x threshold=%02x/%02x/%02x status=%02x passed=%u\n",
+            (unsigned long)s->session, s->selftest_factory[0], s->selftest_factory[1], s->selftest_factory[2],
+            s->selftest_threshold[0], s->selftest_threshold[1], s->selftest_threshold[2],
+            s->selftest_status, s->selftest_passed);
+    }
+    if (mag.snapshot.samples != before.samples) {
+        wf_mmc5603_snapshot_t *s = &mag.snapshot;
+        rt_kprintf("[mag-data] session=%lu seq=%lu ms=%lu status=%02x xyz=%ld/%ld/%ld valid=%u saturated=%u; raw counts\n",
+            (unsigned long)s->session, (unsigned long)s->samples, (unsigned long)s->sampled_ms,
+            s->status, (long)s->x, (long)s->y, (long)s->z, s->sample_valid, s->saturated);
+    }
+    if (mag.snapshot.phase != before.phase || (events & EV_MAG_STOP)) {
+        rt_kprintf("[mag-state] session=%lu phase=%u end=%u owned=%u stopped=%u errors=%lu\n",
+            (unsigned long)mag.snapshot.session, mag.snapshot.phase, mag.snapshot.ended,
+            mag.snapshot.owned, mag.snapshot.stopped, (unsigned long)mag.snapshot.io_errors);
+    }
+}
 static void report(void)
 {
     rt_base_t level = rt_hw_interrupt_disable();
@@ -756,9 +831,15 @@ static void worker(void *context)
             if (!light_wait) light_wait = 1;
             if (wait == (rt_tick_t)RT_WAITING_FOREVER || light_wait < wait) wait = light_wait;
         }
+        int32_t mag_left = wf_mmc5603_wait_ms(&mag, now_ms());
+        if (mag_left >= 0) {
+            rt_tick_t mag_wait = rt_tick_from_millisecond((unsigned)mag_left);
+            if (!mag_wait) mag_wait = 1;
+            if (wait == (rt_tick_t)RT_WAITING_FOREVER || mag_wait < wait) wait = mag_wait;
+        }
         rt_uint32_t events = 0;
         rt_event_recv(&work, EV_COMMAND | EV_STOP | EV_DAILY_START | EV_SCREEN | EV_SAVE | EV_WRIST | EV_WRIST_STOP |
-            EV_WRIST_POLICY | EV_WRIST_IRQ | EV_LIGHT | EV_LIGHT_STOP | EV_AUTO_LIGHT,
+            EV_WRIST_POLICY | EV_WRIST_IRQ | EV_LIGHT | EV_LIGHT_STOP | EV_AUTO_LIGHT | EV_MAG | EV_MAG_STOP,
             RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, wait, &events);
         if (daily_mode) {
             daily_work(events);
@@ -830,6 +911,56 @@ static void wf_imu(int argc, char **argv)
 }
 MSH_CMD_EXPORT(wf_imu, bounded native step-counter diagnostic);
 
+static void wf_mag(int argc, char **argv)
+{
+    if (argc == 2 && !strcmp(argv[1], "status")) {
+        rt_base_t level = rt_hw_interrupt_disable();
+        wf_mmc5603_snapshot_t s = mag_cached;
+        rt_hw_interrupt_enable(level);
+        rt_kprintf("[mag] session=%lu phase=%u end=%u id=%02x identity_valid=%u owned=%u stopped=%u errors=%lu\n",
+            (unsigned long)s.session, s.phase, s.ended, s.identity, s.identity_valid,
+            s.owned, s.stopped, (unsigned long)s.io_errors);
+        rt_kprintf("[mag] start=%lu duration=%lu ms=%lu seq=%lu status=%02x after=%02x xyz=%ld/%ld/%ld valid=%u saturated=%u\n",
+            (unsigned long)s.started_ms, (unsigned long)s.duration_ms, (unsigned long)s.sampled_ms,
+            (unsigned long)s.samples, s.status, s.after_status, (long)s.x, (long)s.y, (long)s.z,
+            s.sample_valid, s.saturated);
+        rt_kprintf("[mag] selftest_valid=%u passed=%u status=%02x factory=%02x/%02x/%02x threshold=%02x/%02x/%02x; uncalibrated counts, no heading\n",
+            s.selftest_valid, s.selftest_passed, s.selftest_status,
+            s.selftest_factory[0], s.selftest_factory[1], s.selftest_factory[2],
+            s.selftest_threshold[0], s.selftest_threshold[1], s.selftest_threshold[2]);
+        return;
+    }
+    if (!ready || !daily_mode) { rt_kprintf("[mag] shared sensor worker unavailable\n"); return; }
+    if (argc == 2 && !strcmp(argv[1], "stop")) {
+        rt_base_t level = rt_hw_interrupt_disable();
+        mag_pending = false; mag_cancel_requested = true;
+        rt_event_send(&work, EV_MAG_STOP);
+        rt_hw_interrupt_enable(level);
+        return;
+    }
+    unsigned span = 0;
+    if (argc == 3 && !strcmp(argv[1], "start")) {
+        char *end;
+        unsigned long value = strtoul(argv[2], &end, 10);
+        if (argv[2][0] >= '0' && argv[2][0] <= '9' && !*end && value >= 1 && value <= 120) span = (unsigned)value;
+    }
+    if (!span) { rt_kprintf("wf_mag start <1..120 seconds> | stop | status; local reset/selftest, raw XYZ, no compass\n"); return; }
+    rt_base_t level = rt_hw_interrupt_disable();
+    bool accepted = cached.phase == WF_IMU_RUNNING && !daily_retry_pending && !cancel_requested &&
+        !mag_busy && !mag_pending && !mag_cancel_requested && !mag_cached.owned &&
+        !wrist_cancel_requested && wrist_cached.phase != WF_IMU_FAULT &&
+        !wrist_pending && (!wrist_busy || (wrist_runtime && wrist_cached.continuous)) &&
+        !light_pending && !light_cancel_requested && !auto_cached.cleanup_pending &&
+        (!light_busy || auto_owner);
+    if (accepted) {
+        mag_pending = mag_busy = true; mag_seconds = span;
+        rt_event_send(&work, EV_MAG);
+    }
+    rt_hw_interrupt_enable(level);
+    rt_kprintf("[mag] queued=%u\n", accepted);
+}
+MSH_CMD_EXPORT(wf_mag, bounded MMC5603 native selftest and raw XYZ on shared sensor worker);
+
 static void wf_light(int argc, char **argv)
 {
     if (argc == 2 && !strcmp(argv[1], "status")) { light_report(); return; }
@@ -853,7 +984,7 @@ static void wf_light(int argc, char **argv)
     bool accepted = cached.phase == WF_IMU_RUNNING && !daily_retry_pending && !cancel_requested &&
         !wrist_cancel_requested && wrist_cached.phase != WF_IMU_FAULT &&
         !wrist_pending && (!wrist_busy || (wrist_runtime && wrist_cached.continuous)) &&
-        !auto_requested && !light_busy && !light_pending && !light_cancel_requested &&
+        !auto_requested && !mag_busy && !mag_pending && !light_busy && !light_pending && !light_cancel_requested &&
         light_cached.phase != WF_LIGHT_RUNNING && !light_cached.owned;
     if (accepted) {
         light_pending = light_busy = true; light_seconds = span;
@@ -901,7 +1032,7 @@ static void wf_wrist(int argc, char **argv)
     rt_base_t level = rt_hw_interrupt_disable();
     bool accepted = !wrist_requested && cached.phase == WF_IMU_RUNNING && !wrist_busy && !cancel_requested &&
         !wrist_cancel_requested && wrist_cached.phase != WF_IMU_FAULT &&
-        !auto_requested && !light_busy && !light_pending && !light_cached.owned && light_cached.phase != WF_LIGHT_RUNNING;
+        !auto_requested && !mag_busy && !mag_pending && !light_busy && !light_pending && !light_cached.owned && light_cached.phase != WF_LIGHT_RUNNING;
     if (accepted) {
         wrist_busy = wrist_pending = true;
         wrist_seconds = span; wrist_mask = mask; wrist_latency = (uint8_t)latency;
@@ -964,6 +1095,9 @@ static bool start(bool daily_service)
     wf_imu_pedometer_init(&device, (wf_imu_io_t){NULL, read_reg, write_reg, io_clock, io_cancelled});
     wf_imu_wrist_init(&wrist, (wf_imu_io_t){NULL, read_reg, write_reg, io_clock, wrist_cancelled}, wrist_delay);
     wf_ltr303_init(&light, (wf_ltr303_io_t){NULL, light_read, light_write, io_clock, light_cancelled});
+    wf_mmc5603_init(&mag, (wf_mmc5603_io_t){NULL, mag_read, mag_write, io_clock, mag_cancelled, wrist_delay});
+    mag_cached = mag.snapshot;
+    mag_pending = mag_busy = mag_cancel_requested = false;
     light_cached = light.snapshot;
     light_pending = light_busy = light_cancel_requested = false;
     auto_requested = auto_active = auto_owner = auto_runtime = auto_retry = auto_fault = auto_cancel = false;
