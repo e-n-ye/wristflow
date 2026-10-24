@@ -1,0 +1,149 @@
+{
+  "schema": 1,
+  "stage": "1: shared primitives and completed magnetometer experiment",
+  "source_base": "f6563021d3cb2a94ae532a7e5364e5c606bbdf19",
+  "scope": "Host tools only; no firmware build, UART endpoint, flash, reset or new device experiment.",
+  "python": "3.12.9",
+  "dependencies": {
+    "openhtf": "1.6.1",
+    "pyserial": "3.5",
+    "installed": true,
+    "downloaded": false
+  },
+  "sources": [
+    {
+      "path": "scripts/lab_serial.py",
+      "bytes": 8516,
+      "sha256": "b8405fa6af76d0f5e3f431b9025df4662b7d2aadca1b8fb648e0bcdd2a91fa22"
+    },
+    {
+      "path": "scripts/lab_evidence.py",
+      "bytes": 1456,
+      "sha256": "52b44637187c2e317292bea6328ff1adb5d7e89ee8ce028746c6cb7ffe0b2fa4"
+    },
+    {
+      "path": "scripts/mag_protocol.py",
+      "bytes": 4807,
+      "sha256": "edd8583a289a3f89278a25044a7b448c327109692d8eb008df2c0fe1975cf533"
+    },
+    {
+      "path": "scripts/light_protocol.py",
+      "bytes": 1104,
+      "sha256": "085759afbb8281e7fa3f2bf0de7cd9fed9448656b510d0c72bed22eb87984b67"
+    },
+    {
+      "path": "scripts/mmc5603_lab.py",
+      "bytes": 23274,
+      "sha256": "2a0f42853ed30d548e597e8b5ff11dde9ddcbd09ca926f208fc3341a0fb625d3"
+    },
+    {
+      "path": "scripts/battery_collect.py",
+      "bytes": 23428,
+      "sha256": "304345942c16486a4626e49bb59bdd9a4126b3611630f81ba9b7d3081f0d2c05"
+    },
+    {
+      "path": "scripts/battery_console.py",
+      "bytes": 13885,
+      "sha256": "1298063edc037d1d4a84d33bf90f221f616fdb6e747ca6aa004ebf442cb1311e"
+    },
+    {
+      "path": "scripts/battery_lab.py",
+      "bytes": 24301,
+      "sha256": "cee5934f0bfc191bbbc90aab867f9613ab5ab621e8698e3c81ad3c6bd3da8785"
+    },
+    {
+      "path": "scripts/battery_device.py",
+      "bytes": 17306,
+      "sha256": "34b07b98c1f10afcc03111d262cdadcd41699caec7cdb56a8ea865af35ad6768"
+    },
+    {
+      "path": "scripts/battery_experiment.py",
+      "bytes": 22428,
+      "sha256": "5ad46cecebcac53bc4de2d345dde86b32f4989d1b0c15febec2c9d89c32d151d"
+    },
+    {
+      "path": "tests/test_lab_tools.py",
+      "bytes": 11755,
+      "sha256": "ed134aa8e2f22e846b1028c5f8bafd89818a763121b42756baa9614b6309895b"
+    },
+    {
+      "path": "tests/fixtures/mag-readiness-20261024.json",
+      "bytes": 2717,
+      "sha256": "44ed5d851864dfa607c6375002b046cd45e8ef60861e3f53cbb002eebffd4c2a"
+    },
+    {
+      "path": "tests/fixtures/mag-readiness-20261024.uart",
+      "bytes": 26117,
+      "sha256": "f3a990c67869f46bcdab4bc05dcb679165d8acf6b9822a4b83b14f31fdac1897"
+    }
+  ],
+  "validation": {
+    "battery_tests": {
+      "command": "CC=D:/msys64/ucrt64/bin/gcc.exe python -m unittest discover -s tests -p 'test_battery_*.py' -v",
+      "count": 94,
+      "result": "passed",
+      "log": {
+        "path": "artifacts/lab-reuse-stage1/battery-tests.log",
+        "bytes": 16254,
+        "sha256": "1cea54e87a23468579cdfa78886870528d30572fdff6a655aa2b4abd9bbcf27c"
+      }
+    },
+    "lab_tests": {
+      "command": "python -m unittest discover -s tests -p 'test_lab_tools.py' -v",
+      "count": 20,
+      "result": "passed",
+      "log": {
+        "path": "artifacts/lab-reuse-stage1/lab-tests.log",
+        "bytes": 3112,
+        "sha256": "dcb5d5fc2844973920e6f6f30a1882b8f7ae1833ab4052fdcf20f129fd338a29"
+      }
+    },
+    "optimized_tests": {
+      "command": "python -O -m unittest discover -s tests -p 'test_lab_tools.py' -v",
+      "count": 20,
+      "result": "passed",
+      "log": {
+        "path": "artifacts/lab-reuse-stage1/lab-optimized-tests.log",
+        "bytes": 3112,
+        "sha256": "bdc2cda7637eaec3ce36da2b28b93e62615a0a711c48712e6526f20f07ecc479"
+      }
+    }
+  },
+  "browser": {
+    "pass_report": {
+      "path": "artifacts/lab-reuse-stage1/browser-pass-002/workflow.json",
+      "bytes": 4497,
+      "sha256": "c6a45712027b1ee51cd6e91a53307c86526bc4b04e11afd14bd67059fda11b59"
+    },
+    "cancel_report": {
+      "path": "artifacts/lab-reuse-stage1/browser-cancel-001/workflow.json",
+      "bytes": 2614,
+      "sha256": "cf120f832eaee1f7cc60ec4f3ac57166b61fd666829e9d71260b0aed34ab9e6f"
+    },
+    "timeout_report": {
+      "path": "artifacts/lab-reuse-stage1/browser-pass-001/workflow.json",
+      "bytes": 3362,
+      "sha256": "e7f0839a2f5fc67dd36e5f6dc38ea65afed7ce502609304767ceb2d4c6823d51"
+    },
+    "scope": "Primary clicked the real loopback console with a simulated transport. Successful 8/8, owned-window cancel and prompt timeout; no physical actions."
+  },
+  "history": {
+    "original_uart_sha256": "f3a990c67869f46bcdab4bc05dcb679165d8acf6b9822a4b83b14f31fdac1897",
+    "unchanged": true,
+    "ordinary_frames": 86,
+    "windows": 5,
+    "original_workflow_error_preserved": true
+  },
+  "failures": [
+    "Initial tests used Windows C temporary directories and hit WinError5 replacing progress; output was moved to the existing D artifacts test convention. Failure logs retained.",
+    "First stream implementation lost complete/partial frames at request boundaries; independent review found both, fixed with a separate streaming buffer and regression.",
+    "Initial browser run exceeded a 30s position prompt; timeout and cleanup retained. Simulation now has separate interaction/host budgets; real adapter remains 120s."
+  ],
+  "review": "Independent read-only source review found no remaining definite blocker after bounded fixes.",
+  "limits": [
+    "CLI only simulate/replay/status in this stage; real endpoint entry remains for the binding stage.",
+    "No new firmware or device verification.",
+    "Browser pass-002 ran before the final streaming-buffer and cleanup-presentation changes; final host regressions cover these changes.",
+    "Second callers, shared build/document checks and fresh-session discovery remain within the authorized overall goal."
+  ]
+}

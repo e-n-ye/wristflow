@@ -2,9 +2,7 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
-import os
 import pathlib
 import re
 import threading
@@ -12,6 +10,8 @@ import time
 
 from battery_console import Cancelled, Console
 from battery_lab import Journal, ROOT, digest, load_trace, write_json
+from lab_serial import (PortLease, ProtocolError, RecordedClient, SerialTransport,
+                        SessionChanged, lease_directory)
 
 PREFIX = "[bat-trace] "
 STATUS = [r"schema=(\d+) session=(\d+) state=(\d+) count=(\d+) cap=(\d+)",
@@ -27,14 +27,6 @@ ROW_KEYS = [("session", "index", "obs", "eval", "seq"), ("adc", "age", "mv", "ra
             ("filter", "filter_valid", "candidate", "percent", "percent_valid"),
             ("surface", "phase", "flags", "requested", "ack"), ("end_session", "end_index")]
 FROZEN = ("schema", "session", "state", "count", "cap", "start", "duration")
-
-
-class ProtocolError(Exception):
-    pass
-
-
-class SessionChanged(ProtocolError):
-    pass
 
 
 def trace_lines(lines):
@@ -80,147 +72,8 @@ def parse_page(lines, expected, offset, count):
     return records
 
 
-class PortLease:
-    """Kernel lock survives no process; stale metadata is never an ownership claim."""
-    def __init__(self, endpoint, directory):
-        directory = pathlib.Path(directory).resolve()
-        directory.mkdir(parents=True, exist_ok=True)
-        self.path = directory / (hashlib.sha256(endpoint.strip().casefold().encode()).hexdigest() + ".lock")
-        self.endpoint = endpoint
-        self.stream = None
-
-    def __enter__(self):
-        self.stream = self.path.open("a+b")
-        try:
-            self.stream.seek(0, 2)
-            if not self.stream.tell():
-                self.stream.write(b"0")
-                self.stream.flush()
-            self.stream.seek(0)
-            if os.name == "nt":
-                import msvcrt
-                msvcrt.locking(self.stream.fileno(), msvcrt.LK_NBLCK, 1)
-            else:
-                import fcntl
-                fcntl.flock(self.stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except OSError as exc:
-            self.stream.close()
-            self.stream = None
-            raise RuntimeError("Endpoint already owned by another collector") from exc
-        return self
-
-    def __exit__(self, *args):
-        if self.stream:
-            self.stream.close()
-            self.stream = None
-
-
-class SerialTransport:
-    """Future real-device boundary; never instantiated by this round's CLI."""
-    def __init__(self, port, factory=None):
-        if factory is None:
-            import serial
-            factory = serial.Serial
-        self.port = port
-        self.serial = factory(port=None, baudrate=1000000, timeout=.05, write_timeout=1,
-                              rtscts=False, dsrdtr=False, xonxoff=False)
-        self.serial.dtr = False
-        self.serial.rts = False
-        self.serial.port = port
-
-    def open(self):
-        self.serial.open()
-
-    def close(self):
-        self.serial.close()
-
-    def read(self, count):
-        return self.serial.read(count)
-
-    def write(self, value):
-        written = self.serial.write(value)
-        self.serial.flush()
-        return written
-
-
-class Client:
-    def __init__(self, transport, raw, journal, cancel, timeout=1):
-        self.transport, self.raw, self.journal, self.cancel = transport, raw, journal, cancel
-        self.timeout = timeout
-        self.buffer = b""
-        self.tail = b""
-        self.last_bytes = bytearray()
-        self.booted = False
-
-    def read_chunk(self):
-        chunk = self.transport.read(8192)
-        if chunk:
-            self.raw.write(chunk)
-            self.raw.flush()
-            self.last_bytes.extend(chunk)
-            if b"[product] storage=" in self.tail + chunk:
-                self.booted = True
-                raise SessionChanged("Cold boot observed; RAM continuity cannot be assumed")
-            self.tail = (self.tail + chunk)[-64:]
-            self.buffer += chunk
-            if len(self.last_bytes) > 262144 or len(self.buffer) > 262144:
-                raise ProtocolError("Response byte bound exceeded")
-        return chunk
-
-    def drain(self):
-        """Bounded tail capture, not a claim to record future/unbounded UART."""
-        start = self.raw.tell()
-        end, quiet = time.monotonic()+.1, time.monotonic()+.01
-        while time.monotonic() < end:
-            if self.read_chunk():
-                quiet = time.monotonic()+.01
-            elif time.monotonic() >= quiet:
-                break
-            else:
-                time.sleep(.002)
-        if self.raw.tell() != start:
-            self.journal.event("drain_span", start=start, end=self.raw.tell())
-
-    def take_lines(self):
-        lines = []
-        while b"\n" in self.buffer:
-            line, self.buffer = self.buffer.split(b"\n", 1)
-            line = re.sub(rb"\x1b\[[0-9;]*[A-Za-z]", b"", line).replace(b"\r", b"")
-            lines.append(line.decode("ascii", errors="replace"))
-        return lines
-
-    def request(self, command, completion, *, cleanup=False):
-        if not re.fullmatch(r"wf_pm (?:status|hold|allow)|wf_battery (?:status|stop|start \d+|dump \d+ \d+ \d+)", command):
-            raise ValueError("Command outside collection allowlist")
-        if not cleanup and self.cancel.is_set():
-            raise Cancelled("Collection cancelled")
-        self.last_bytes = bytearray()
-        self.drain()
-        if self.buffer:
-            self.journal.event("orphan_bytes", count=len(self.buffer))
-        self.buffer = b""  # Already persisted; never join different command replies.
-        response_start = self.raw.tell()
-        self.journal.event("tx", command=command, cleanup=cleanup, raw_offset=response_start)
-        self.last_bytes = bytearray()
-        wire = (command + "\r\n").encode("ascii")
-        if self.transport.write(wire) != len(wire):
-            raise ProtocolError("Partial command write; control command is not retried")
-        deadline = time.monotonic() + self.timeout
-        lines = []
-        while time.monotonic() < deadline:
-            if not cleanup and self.cancel.is_set():
-                raise Cancelled("Collection cancelled")
-            chunk = self.read_chunk()
-            if not chunk:
-                time.sleep(.002)
-                continue
-            lines.extend(self.take_lines())
-            if any(completion(line) for line in lines):
-                self.drain()
-                lines.extend(self.take_lines())
-                self.journal.event("response_span", command=command, start=response_start, end=self.raw.tell())
-                return lines
-        raise TimeoutError("No complete response before deadline")
+class Client(RecordedClient):
+    COMMAND_PATTERN = r"wf_pm (?:status|hold|allow)|wf_battery (?:status|stop|start \d+|dump \d+ \d+ \d+)"
 
     def status(self, *, cleanup=False):
         for attempt in range(2):
@@ -516,7 +369,7 @@ def simulate(fixture_path, output, port=4444, timeout=300, scripted=None):
     console = Console(journal, phases, port, mode="模拟采集 · 没有连接真实设备")
     responses = iter(scripted) if scripted is not None else None
     device = SimulatedDevice(fixture)
-    collector = Collector(journal, device, console.cancelled, ROOT / "artifacts/battery-port-locks")
+    collector = Collector(journal, device, console.cancelled, lease_directory(ROOT))
     outcome, detail, exported = "passed", "", None
 
     def prompt(key, message):

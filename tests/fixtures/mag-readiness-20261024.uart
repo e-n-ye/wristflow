@@ -1,0 +1,342 @@
+msh />msh />Sat Oct 24 12:52:48 2026
+msh />msh />msh />msh />[pm-p1] tick=2954031 allow=1 off=0 own_idle=1 sdk_idle=2
+[pm-p1] enter=0 exit=0 deep_elapsed=0
+[pm-p1] deep_ticks=0 max_ticks=0 wake=0x0
+[pm-p1] screen_off=0 screen_on=0 tick_hz=1000
+[pm-p1] phone=0 phone_off=0 background=0
+msh />msh />msh />msh />[mag] session=2 phase=2 end=1 id=10 identity_valid=1 owned=0 stopped=1 errors=0
+[mag] start=1208051 duration=120000 ms=1327221 seq=110 status=51 after=10 xyz=-1562/1151/7010 valid=1 saturated=0
+[mag] selftest_valid=1 passed=1 status=55 factory=63/7a/72 threshold=5c/13/2c; uncalibrated counts, no heading
+[mag-mode] session=2 selftest_only=0 threshold=encoded experimental=1
+[mag-selftest-time] session=2 trace=7f reset=10@1208164 command=1208166 ack=1208166 polls=1
+[mag-selftest-state] session=2 observed=55@1208215 post=10@1208217 data_ms=1208216; software observation
+[mag-selftest-raw] session=2 trace=7f bytes=83/95/7e/ea/7e/f9/00/00/90; response only
+msh />msh />msh />msh />[light] session=5 phase=1 end=0 queued=0 owned=1 restored=0 errors=0
+[light-config] id_valid=1 part=a0 manufacturer=05 before_valid=1 ctrl=00 rate=03
+[light-config] entered_valid=1 ctrl=01 rate=03 after_valid=0 ctrl=00 rate=00
+[light-sample] session=5 seq=9 ms=2954342 age=924 status=04 ch0=22 ch1=14 valid=1 saturated=0; raw counts, not lux
+[light-time] start=2945572 duration=0 not_ready=0; 1x/100ms integration/500ms repeat, raw channels
+[auto-light] enabled=1 active=1 valid=1 fault=0 cleanup=0 brightness=31 mlux=54517 ms=2954342 session=5 seq=9; uncalibrated
+msh />msh />ch[7]voltage=41629;20834.78
+[power] USB OK voltage_valid=1 VBAT=4163mV; estimate_valid=1 SOC~100%
+msh />msh />[imu-steps] phase=2 end=0 counter_valid=1 steps=0 stop_verified=0
+[imu-steps] who=0x6a ths=0x10 deb=0x6e start=1576 duration=0 sample=2955351
+[imu-steps] io_errors=0 incoherent=0; native counter, not daily steps
+[steps] valid=1 total=0 day=20750 utc=1792846369 version=1547 native=0 partial=1 restored=1
+[steps-store] available=1 verified=1 dirty=0 failed=0 attempts=1 day=20750 total=0 generation=112
+[steps-hours] valid=0x1fffff sum=0 saved_valid=0x1fffff
+[steps-hour] hour=0 total=0
+[steps-hour] hour=1 total=0
+[steps-hour] hour=2 total=0
+[steps-hour] hour=3 total=0
+[steps-hour] hour=4 total=0
+[steps-hour] hour=5 total=0
+[steps-hour] hour=6 total=0
+[steps-hour] hour=7 total=0
+[steps-hour] hour=8 total=0
+[steps-hour] hour=9 total=0
+[steps-hour] hour=10 total=0
+[steps-hour] hour=11 total=0
+[steps-hour] hour=12 total=0
+[steps-hour] hour=13 total=0
+[steps-hour] hour=14 total=0
+[steps-hour] hour=15 total=0
+[steps-hour] hour=16 total=0
+[steps-hour] hour=17 total=0
+[steps-hour] hour=18 total=0
+[steps-hour] hour=19 total=0
+[steps-hour] hour=20 total=0
+msh />msh />msh />msh />[imu-wrist] phase=2 end=0 configured=1 source_valid=1 stop_verified=0
+[imu-wrist] mask=0x40 latency=15 ths=32 source=0x84 axes=0x00 observations=5 errors=0
+[imu-wrist] start=1597 duration=0 sample=2956410; latched source observations, not gestures
+[imu-wrist-route] int1=1; event is last accepted source bit0 frame
+[wrist-wake] requested=1 continuous=1 armed=1 owned=1 irqs=5 wakes=5; software counts, not physical DEEP proof
+[imu-wrist-frame] stage=before attempted=1 valid=0xffff begin=1590 end=1597
+[imu-wrist-regs] stage=before bank=00 who=6a xl=20 ctrl3=44 ctrl10=14 pulse=00 tap=00
+[imu-wrist-source] stage=before status=04 axes=00 source=84 ready=0 xyz_valid=1
+[imu-wrist-xyz] stage=before raw=00,00,00,00,00,00 x=0 y=0 z=0; counts, not mg
+[imu-wrist-pin] stage=before ctrl4=00 valid=3 pre=0 post=0 pre_ms=1596 post_ms=1597; PA31 raw levels
+[imu-wrist-other-routes] stage=before int1=00 int2=00 md1=00 md2=00
+[imu-wrist-frame] stage=running attempted=1 valid=0xffff begin=2956403 end=2956410
+[imu-wrist-regs] stage=running bank=00 who=6a xl=20 ctrl3=44 ctrl10=94 pulse=01 tap=01
+[imu-wrist-source] stage=running status=05 axes=00 source=84 ready=1 xyz_valid=1
+[imu-wrist-xyz] stage=running raw=fa,ff,f7,fe,2f,c0 x=-6 y=-265 z=-16337; counts, not mg
+[imu-wrist-pin] stage=running ctrl4=20 valid=3 pre=0 post=0 pre_ms=2956409 post_ms=2956410; PA31 raw levels
+[imu-wrist-other-routes] stage=running int1=00 int2=00 md1=00 md2=00
+[imu-wrist-frame] stage=after attempted=0 valid=0x000 begin=0 end=0
+[imu-wrist-regs] stage=after bank=00 who=00 xl=00 ctrl3=00 ctrl10=00 pulse=00 tap=00
+[imu-wrist-source] stage=after status=00 axes=00 source=00 ready=0 xyz_valid=0
+[imu-wrist-xyz] stage=after raw=00,00,00,00,00,00 x=0 y=0 z=0; counts, not mg
+[imu-wrist-pin] stage=after ctrl4=00 valid=0 pre=0 post=0 pre_ms=0 post_ms=0; PA31 raw levels
+[imu-wrist-other-routes] stage=after int1=00 int2=00 md1=00 md2=00
+[imu-wrist-frame] stage=event attempted=1 valid=0xffff begin=2945414 end=2945421
+[imu-wrist-regs] stage=event bank=00 who=6a xl=20 ctrl3=44 ctrl10=94 pulse=01 tap=01
+[imu-wrist-source] stage=event status=05 axes=40 source=85 ready=1 xyz_valid=1
+[imu-wrist-xyz] stage=event raw=e3,d5,cc,1b,ba,d9 x=-10781 y=7116 z=-9798; counts, not mg
+[imu-wrist-pin] stage=event ctrl4=20 valid=3 pre=1 post=0 pre_ms=2945420 post_ms=2945421; PA31 raw levels
+[imu-wrist-other-routes] stage=event int1=00 int2=00 md1=00 md2=00
+msh />msh />msh />msh />[mag] queued=1
+msh />msh />[mag] accepted=1
+[mag-data] session=3 seq=0 ms=0 status=00 xyz=0/0/0 valid=0 saturated=0; raw counts
+[mag-state] session=3 phase=1 end=0 owned=0 stopped=0 errors=0
+[mag-selftest] session=3 factory=63/7a/72 threshold=5c/13/2c status=55 passed=1
+[mag-mode] session=3 selftest_only=0 threshold=encoded experimental=1
+[mag-selftest-time] session=3 trace=7f reset=10@2957395 command=2957397 ack=2957397 polls=1
+[mag-selftest-state] session=3 observed=55@2957459 post=10@2957461 data_ms=2957460; software observation
+[mag-selftest-raw] session=3 trace=7f bytes=83/82/7e/e5/7e/ca/00/00/30; response only
+[mag-data] session=3 seq=1 ms=2957557 status=51 xyz=2349/8276/6747 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=2 ms=2958647 status=51 xyz=2370/8283/6670 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=3 ms=2959737 status=51 xyz=2437/8335/6634 valid=1 saturated=0; raw counts
+ch[7]voltage=41629;20834.78
+[mag-data] session=3 seq=4 ms=2960827 status=51 xyz=2379/8332/6727 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=5 ms=2961917 status=51 xyz=2331/8318/6703 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=6 ms=2963007 status=51 xyz=2366/8328/6686 valid=1 saturated=0; raw counts
+msh />msh />[light] session=5 phase=1 end=0 queued=0 owned=1 restored=0 errors=0
+[light-config] id_valid=1 part=a0 manufacturer=05 before_valid=1 ctrl=00 rate=03
+[light-config] entered_valid=1 ctrl=01 rate=03 after_valid=0 ctrl=00 rate=00
+[light-sample] session=5 seq=17 ms=2962648 age=427 status=04 ch0=23 ch1=14 valid=1 saturated=0; raw counts, not lux
+[light-time] start=2945572 duration=0 not_ready=0; 1x/100ms integration/500ms repeat, raw channels
+[auto-light] enabled=1 active=1 valid=1 fault=0 cleanup=0 brightness=31 mlux=56292 ms=2962648 session=5 seq=17; uncalibrated
+msh />msh />[mag-data] session=3 seq=7 ms=2964097 status=51 xyz=2390/8257/6656 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=8 ms=2965188 status=51 xyz=2411/8312/6669 valid=1 saturated=0; raw counts
+ch[7]voltage=41637;20838.96
+[power] USB OK voltage_valid=1 VBAT=4164mV; estimate_valid=1 SOC~100%
+[mag-data] session=3 seq=9 ms=2966279 status=51 xyz=2410/8288/6727 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=10 ms=2967369 status=51 xyz=2312/8289/6733 valid=1 saturated=0; raw counts
+[I/DBG] set brightness 35
+[I/DBG] display on
+[mag-data] session=3 seq=11 ms=2968459 status=51 xyz=4410/3701/6493 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=12 ms=2969549 status=51 xyz=4250/2502/6387 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=13 ms=2970639 status=51 xyz=4307/2528/6438 valid=1 saturated=0; raw counts
+ch[7]voltage=41643;20841.57
+[mag-data] session=3 seq=14 ms=2971729 status=51 xyz=4191/2143/6483 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=15 ms=2972819 status=51 xyz=4337/2447/6369 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=16 ms=2973909 status=51 xyz=4185/2555/6405 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=17 ms=2974999 status=51 xyz=4169/2545/6376 valid=1 saturated=0; raw counts
+ch[7]voltage=41639;20840.01
+[mag-data] session=3 seq=18 ms=2976089 status=51 xyz=4168/2552/6416 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=19 ms=2977192 status=51 xyz=4184/2565/6318 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=20 ms=2978281 status=51 xyz=4186/2577/6401 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=21 ms=2979371 status=51 xyz=4241/2600/6402 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=22 ms=2980461 status=51 xyz=4178/2575/6398 valid=1 saturated=0; raw counts
+ch[7]voltage=41628;20834.26
+[power] USB OK voltage_valid=1 VBAT=4163mV; estimate_valid=1 SOC~100%
+[mag-data] session=3 seq=23 ms=2981551 status=51 xyz=4179/2530/6407 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=24 ms=2982641 status=51 xyz=4181/2589/6408 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=25 ms=2983731 status=51 xyz=4178/2562/6416 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=26 ms=2984821 status=51 xyz=4163/2600/6443 valid=1 saturated=0; raw counts
+msh />msh />[light] session=5 phase=1 end=0 queued=0 owned=1 restored=0 errors=0
+[light-config] id_valid=1 part=a0 manufacturer=05 before_valid=1 ctrl=00 rate=03
+[light-config] entered_valid=1 ctrl=01 rate=03 after_valid=0 ctrl=00 rate=00
+[light-sample] session=5 seq=38 ms=2984459 age=424 status=04 ch0=28 ch1=17 valid=1 saturated=0; raw counts, not lux
+[light-time] start=2945572 duration=0 not_ready=0; 1x/100ms integration/500ms repeat, raw channels
+[auto-light] enabled=1 active=1 valid=1 fault=0 cleanup=0 brightness=35 mlux=68481 ms=2984459 session=5 seq=38; uncalibrated
+msh />msh />ch[7]voltage=41629;20834.78
+[mag-data] session=3 seq=27 ms=2985911 status=51 xyz=4239/2587/6371 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=28 ms=2987001 status=51 xyz=4180/2585/6454 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=29 ms=2988091 status=51 xyz=4217/2435/6379 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=30 ms=2989181 status=51 xyz=4187/2291/6403 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=31 ms=2990271 status=51 xyz=-1712/-230/6419 valid=1 saturated=0; raw counts
+ch[7]voltage=41638;20839.48
+[power] USB OK voltage_valid=1 VBAT=4164mV; estimate_valid=1 SOC~100%
+[mag-data] session=3 seq=32 ms=2991361 status=51 xyz=-1923/2/6499 valid=1 saturated=0; raw counts
+[I/DBG] set brightness 30
+[I/DBG] display on
+[mag-data] session=3 seq=33 ms=2992451 status=51 xyz=-1982/35/6510 valid=1 saturated=0; raw counts
+[I/DBG] set brightness 25
+[I/DBG] display on
+[mag-data] session=3 seq=34 ms=2993541 status=51 xyz=-1989/72/6496 valid=1 saturated=0; raw counts
+[I/DBG] set brightness 20
+[I/DBG] display on
+[mag-data] session=3 seq=35 ms=2994631 status=51 xyz=-1990/55/6444 valid=1 saturated=0; raw counts
+[I/DBG] set brightness 15
+[I/DBG] display on
+ch[7]voltage=41633;20836.87
+[mag-data] session=3 seq=36 ms=2995721 status=51 xyz=-2113/68/6441 valid=1 saturated=0; raw counts
+[power] USB OK voltage_valid=1 VBAT=4163mV; estimate_valid=1 SOC~100%
+[mag-data] session=3 seq=37 ms=2996811 status=51 xyz=-2106/130/6453 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=38 ms=2997901 status=51 xyz=-2086/108/6462 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=39 ms=2999004 status=51 xyz=-2056/120/6482 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=40 ms=3000093 status=51 xyz=-2066/62/6448 valid=1 saturated=0; raw counts
+ch[7]voltage=41638;20839.48
+[power] USB OK voltage_valid=1 VBAT=4164mV; estimate_valid=1 SOC~100%
+[mag-data] session=3 seq=41 ms=3001183 status=51 xyz=-2090/83/6408 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=42 ms=3002273 status=51 xyz=-1987/57/6449 valid=1 saturated=0; raw counts
+msh />msh />[light] session=5 phase=1 end=0 queued=0 owned=1 restored=0 errors=0
+[light-config] id_valid=1 part=a0 manufacturer=05 before_valid=1 ctrl=00 rate=03
+[light-config] entered_valid=1 ctrl=01 rate=03 after_valid=0 ctrl=00 rate=00
+[light-sample] session=5 seq=55 ms=3002111 age=221 status=04 ch0=3 ch1=2 valid=1 saturated=0; raw counts, not lux
+[light-time] start=2945572 duration=0 not_ready=0; 1x/100ms integration/500ms repeat, raw channels
+[auto-light] enabled=1 active=1 valid=1 fault=0 cleanup=0 brightness=15 mlux=7535 ms=3002111 session=5 seq=55; uncalibrated
+msh />msh />[mag-data] session=3 seq=43 ms=3003363 status=51 xyz=-1995/54/6453 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=44 ms=3004453 status=51 xyz=-2024/68/6438 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=45 ms=3005543 status=51 xyz=-2102/57/6493 valid=1 saturated=0; raw counts
+ch[7]voltage=41642;20841.05
+[mag-data] session=3 seq=46 ms=3006633 status=51 xyz=-2146/35/6415 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=47 ms=3007723 status=51 xyz=-4039/1109/6597 valid=1 saturated=0; raw counts
+[I/DBG] set brightness 18
+[I/DBG] display on
+[mag-data] session=3 seq=48 ms=3008813 status=51 xyz=-4011/5187/7168 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=49 ms=3009903 status=51 xyz=-3798/6659/7112 valid=1 saturated=0; raw counts
+ch[7]voltage=41643;20841.57
+[mag-data] session=3 seq=50 ms=3010993 status=51 xyz=-3604/6870/7063 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=51 ms=3012083 status=51 xyz=-3468/6925/7268 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=52 ms=3013173 status=51 xyz=-3284/7121/7231 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=53 ms=3014263 status=51 xyz=-3272/7183/7261 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=54 ms=3015353 status=51 xyz=-3327/7153/7185 valid=1 saturated=0; raw counts
+ch[7]voltage=41627;20833.74
+[power] USB OK voltage_valid=1 VBAT=4163mV; estimate_valid=1 SOC~100%
+[mag-data] session=3 seq=55 ms=3016443 status=51 xyz=-3355/7148/7218 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=56 ms=3017533 status=51 xyz=-3330/7135/7227 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=57 ms=3018623 status=51 xyz=-3256/7113/7142 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=58 ms=3019713 status=51 xyz=-3353/7113/7222 valid=1 saturated=0; raw counts
+ch[7]voltage=41632;20836.35
+[mag-data] session=3 seq=59 ms=3020816 status=51 xyz=-3331/7153/7149 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=60 ms=3021905 status=51 xyz=-3326/7119/7197 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=61 ms=3022995 status=51 xyz=-3350/7104/7189 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=62 ms=3024085 status=51 xyz=-3350/7093/7137 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=63 ms=3025180 status=51 xyz=-3366/7134/7135 valid=1 saturated=0; raw counts
+ch[7]voltage=41634;20837.39
+[mag-data] session=3 seq=64 ms=3026270 status=51 xyz=-3383/7114/7172 valid=1 saturated=0; raw counts
+msh />msh />[light] session=5 phase=1 end=0 queued=0 owned=1 restored=0 errors=0
+[light-config] id_valid=1 part=a0 manufacturer=05 before_valid=1 ctrl=00 rate=03
+[light-config] entered_valid=1 ctrl=01 rate=03 after_valid=0 ctrl=00 rate=00
+[light-sample] session=5 seq=78 ms=3026004 age=383 status=04 ch0=5 ch1=4 valid=1 saturated=0; raw counts, not lux
+[light-time] start=2945572 duration=0 not_ready=0; 1x/100ms integration/500ms repeat, raw channels
+[auto-light] enabled=1 active=1 valid=1 fault=0 cleanup=0 brightness=18 mlux=13295 ms=3026004 session=5 seq=78; uncalibrated
+msh />msh />[mag-data] session=3 seq=65 ms=3027360 status=51 xyz=-3362/7100/7199 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=66 ms=3028450 status=51 xyz=-3345/7086/7211 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=67 ms=3029540 status=51 xyz=-3337/7065/7154 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=68 ms=3030630 status=51 xyz=-3407/6979/7166 valid=1 saturated=0; raw counts
+ch[7]voltage=41625;20832.70
+[mag-data] session=3 seq=69 ms=3031720 status=51 xyz=-4567/4184/7058 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=70 ms=3032810 status=51 xyz=-4531/4065/6964 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=71 ms=3033900 status=51 xyz=-1182/8122/7437 valid=1 saturated=0; raw counts
+[I/DBG] set brightness 25
+[I/DBG] display on
+[mag-data] session=3 seq=72 ms=3034990 status=51 xyz=-4006/6578/7291 valid=1 saturated=0; raw counts
+ch[7]voltage=41625;20832.70
+[mag-data] session=3 seq=73 ms=3036080 status=51 xyz=-4484/3861/6537 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=74 ms=3037170 status=51 xyz=4144/3471/6223 valid=1 saturated=0; raw counts
+[I/DBG] set brightness 35
+[I/DBG] display on
+[mag-data] session=3 seq=75 ms=3038260 status=51 xyz=2291/7364/6596 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=76 ms=3039350 status=51 xyz=2286/8109/6663 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=77 ms=3040440 status=51 xyz=2367/7980/6431 valid=1 saturated=0; raw counts
+[I/DBG] set brightness 30
+[I/DBG] display on
+ch[7]voltage=41638;20839.48
+[power] USB OK voltage_valid=1 VBAT=4164mV; estimate_valid=1 SOC~100%
+[mag-data] session=3 seq=78 ms=3041530 status=51 xyz=2401/8040/6467 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=79 ms=3042633 status=51 xyz=2411/7974/6470 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=80 ms=3043722 status=51 xyz=2375/7942/6431 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=81 ms=3044812 status=51 xyz=2414/7950/6431 valid=1 saturated=0; raw counts
+ch[7]voltage=41626;20833.22
+[mag-data] session=3 seq=82 ms=3045902 status=51 xyz=2378/7923/6432 valid=1 saturated=0; raw counts
+[power] USB OK voltage_valid=1 VBAT=4163mV; estimate_valid=1 SOC~100%
+[mag-data] session=3 seq=83 ms=3046992 status=51 xyz=2392/7936/6426 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=84 ms=3048082 status=51 xyz=2415/7948/6441 valid=1 saturated=0; raw counts
+[mag-data] session=3 seq=85 ms=3049172 status=51 xyz=2427/7986/6455 valid=1 saturated=0; raw counts
+msh />msh />[light] session=5 phase=1 end=0 queued=0 owned=1 restored=0 errors=0
+[light-config] id_valid=1 part=a0 manufacturer=05 before_valid=1 ctrl=00 rate=03
+[light-config] entered_valid=1 ctrl=01 rate=03 after_valid=0 ctrl=00 rate=00
+[light-sample] session=5 seq=100 ms=3048860 age=378 status=04 ch0=20 ch1=13 valid=1 saturated=0; raw counts, not lux
+[light-time] start=2945572 duration=0 not_ready=0; 1x/100ms integration/500ms repeat, raw channels
+[auto-light] enabled=1 active=1 valid=1 fault=0 cleanup=0 brightness=30 mlux=49863 ms=3048860 session=5 seq=100; uncalibrated
+msh />msh />msh />msh />[mag] session=3 phase=1 end=0 id=10 identity_valid=1 owned=1 stopped=0 errors=0
+[mag] start=2957282 duration=120000 ms=3049172 seq=85 status=51 after=00 xyz=2427/7986/6455 valid=1 saturated=0
+[mag] selftest_valid=1 passed=1 status=55 factory=63/7a/72 threshold=5c/13/2c; uncalibrated counts, no heading
+[mag-mode] session=3 selftest_only=0 threshold=encoded experimental=1
+[mag-selftest-time] session=3 trace=7f reset=10@2957395 command=2957397 ack=2957397 polls=1
+[mag-selftest-state] session=3 observed=55@2957459 post=10@2957461 data_ms=2957460; software observation
+[mag-selftest-raw] session=3 trace=7f bytes=83/82/7e/e5/7e/ca/00/00/30; response only
+msh />msh />[mag-data] session=3 seq=86 ms=3050262 status=51 xyz=2445/7929/6439 valid=1 saturated=0; raw counts
+msh />msh />msh />msh />[mag-state] session=3 phase=2 end=2 owned=0 stopped=1 errors=0
+ch[7]voltage=41625;20832.70
+msh />msh />[mag] session=3 phase=2 end=2 id=10 identity_valid=1 owned=0 stopped=1 errors=0
+[mag] start=2957282 duration=120000 ms=3050262 seq=86 status=51 after=10 xyz=2445/7929/6439 valid=1 saturated=0
+[mag] selftest_valid=1 passed=1 status=55 factory=63/7a/72 threshold=5c/13/2c; uncalibrated counts, no heading
+[mag-mode] session=3 selftest_only=0 threshold=encoded experimental=1
+[mag-selftest-time] session=3 trace=7f reset=10@2957395 command=2957397 ack=2957397 polls=1
+[mag-selftest-state] session=3 observed=55@2957459 post=10@2957461 data_ms=2957460; software observation
+[mag-selftest-raw] session=3 trace=7f bytes=83/82/7e/e5/7e/ca/00/00/30; response only
+msh />msh />msh />msh />[mag] session=3 phase=2 end=2 id=10 identity_valid=1 owned=0 stopped=1 errors=0
+[mag] start=2957282 duration=120000 ms=3050262 seq=86 status=51 after=10 xyz=2445/7929/6439 valid=1 saturated=0
+[mag] selftest_valid=1 passed=1 status=55 factory=63/7a/72 threshold=5c/13/2c; uncalibrated counts, no heading
+[mag-mode] session=3 selftest_only=0 threshold=encoded experimental=1
+[mag-selftest-time] session=3 trace=7f reset=10@2957395 command=2957397 ack=2957397 polls=1
+[mag-selftest-state] session=3 observed=55@2957459 post=10@2957461 data_ms=2957460; software observation
+[mag-selftest-raw] session=3 trace=7f bytes=83/82/7e/e5/7e/ca/00/00/30; response only
+msh />msh />msh />msh />[light] session=5 phase=1 end=0 queued=0 owned=1 restored=0 errors=0
+[light-config] id_valid=1 part=a0 manufacturer=05 before_valid=1 ctrl=00 rate=03
+[light-config] entered_valid=1 ctrl=01 rate=03 after_valid=0 ctrl=00 rate=00
+[light-sample] session=5 seq=103 ms=3051980 age=836 status=04 ch0=21 ch1=13 valid=1 saturated=0; raw counts, not lux
+[light-time] start=2945572 duration=0 not_ready=0; 1x/100ms integration/500ms repeat, raw channels
+[auto-light] enabled=1 active=1 valid=1 fault=0 cleanup=0 brightness=30 mlux=51637 ms=3051980 session=5 seq=103; uncalibrated
+msh />msh />msh />msh />[imu-steps] phase=2 end=0 counter_valid=1 steps=0 stop_verified=0
+[imu-steps] who=0x6a ths=0x10 deb=0x6e start=1576 duration=0 sample=3052989
+[imu-steps] io_errors=0 incoherent=0; native counter, not daily steps
+[steps] valid=1 total=0 day=20750 utc=1792846467 version=1809 native=0 partial=1 restored=1
+[steps-store] available=1 verified=1 dirty=0 failed=0 attempts=1 day=20750 total=0 generation=112
+[steps-hours] valid=0x1fffff sum=0 saved_valid=0x1fffff
+[steps-hour] hour=0 total=0
+[steps-hour] hour=1 total=0
+[steps-hour] hour=2 total=0
+[steps-hour] hour=3 total=0
+[steps-hour] hour=4 total=0
+[steps-hour] hour=5 total=0
+[steps-hour] hour=6 total=0
+[steps-hour] hour=7 total=0
+[steps-hour] hour=8 total=0
+[steps-hour] hour=9 total=0
+[steps-hour] hour=10 total=0
+[steps-hour] hour=11 total=0
+[steps-hour] hour=12 total=0
+[steps-hour] hour=13 total=0
+[steps-hour] hour=14 total=0
+[steps-hour] hour=15 total=0
+[steps-hour] hour=16 total=0
+[steps-hour] hour=17 total=0
+[steps-hour] hour=18 total=0
+[steps-hour] hour=19 total=0
+[steps-hour] hour=20 total=0
+msh />msh />msh />msh />[imu-wrist] phase=2 end=0 configured=1 source_valid=1 stop_verified=0
+[imu-wrist] mask=0x40 latency=15 ths=32 source=0x84 axes=0x00 observations=5 errors=0
+[imu-wrist] start=1597 duration=0 sample=3054048; latched source observations, not gestures
+[imu-wrist-route] int1=1; event is last accepted source bit0 frame
+[wrist-wake] requested=1 continuous=1 armed=1 owned=1 irqs=5 wakes=5; software counts, not physical DEEP proof
+[imu-wrist-frame] stage=before attempted=1 valid=0xffff begin=1590 end=1597
+[imu-wrist-regs] stage=before bank=00 who=6a xl=20 ctrl3=44 ctrl10=14 pulse=00 tap=00
+[imu-wrist-source] stage=before status=04 axes=00 source=84 ready=0 xyz_valid=1
+[imu-wrist-xyz] stage=before raw=00,00,00,00,00,00 x=0 y=0 z=0; counts, not mg
+[imu-wrist-pin] stage=before ctrl4=00 valid=3 pre=0 post=0 pre_ms=1596 post_ms=1597; PA31 raw levels
+[imu-wrist-other-routes] stage=before int1=00 int2=00 md1=00 md2=00
+[imu-wrist-frame] stage=running attempted=1 valid=0xffff begin=3054041 end=3054048
+[imu-wrist-regs] stage=running bank=00 who=6a xl=20 ctrl3=44 ctrl10=94 pulse=01 tap=01
+[imu-wrist-source] stage=running status=05 axes=00 source=84 ready=1 xyz_valid=1
+[imu-wrist-xyz] stage=running raw=d7,ff,cf,fe,07,c0 x=-41 y=-305 z=-16377; counts, not mg
+[imu-wrist-pin] stage=running ctrl4=20 valid=3 pre=0 post=0 pre_ms=3054047 post_ms=3054048; PA31 raw levels
+[imu-wrist-other-routes] stage=running int1=00 int2=00 md1=00 md2=00
+[imu-wrist-frame] stage=after attempted=0 valid=0x000 begin=0 end=0
+[imu-wrist-regs] stage=after bank=00 who=00 xl=00 ctrl3=00 ctrl10=00 pulse=00 tap=00
+[imu-wrist-source] stage=after status=00 axes=00 source=00 ready=0 xyz_valid=0
+[imu-wrist-xyz] stage=after raw=00,00,00,00,00,00 x=0 y=0 z=0; counts, not mg
+[imu-wrist-pin] stage=after ctrl4=00 valid=0 pre=0 post=0 pre_ms=0 post_ms=0; PA31 raw levels
+[imu-wrist-other-routes] stage=after int1=00 int2=00 md1=00 md2=00
+[imu-wrist-frame] stage=event attempted=1 valid=0xffff begin=2945414 end=2945421
+[imu-wrist-regs] stage=event bank=00 who=6a xl=20 ctrl3=44 ctrl10=94 pulse=01 tap=01
+[imu-wrist-source] stage=event status=05 axes=40 source=85 ready=1 xyz_valid=1
+[imu-wrist-xyz] stage=event raw=e3,d5,cc,1b,ba,d9 x=-10781 y=7116 z=-9798; counts, not mg
+[imu-wrist-pin] stage=event ctrl4=20 valid=3 pre=1 post=0 pre_ms=2945420 post_ms=2945421; PA31 raw levels
+[imu-wrist-other-routes] stage=event int1=00 int2=00 md1=00 md2=00
+msh />msh />msh />msh />[ui-ring] cache_valid=1 last_mismatch_valid=0; cached only, ms is UI sample time
+[ui-ring] current ms=3054668 surface=0 phase=0 page=0/4 mismatch=0
+[ui-ring] current x=390 left=390 right=1560
+[ui-ring] current settled=1 scrolling=0 settling=0 transition=0 recenter=0 dots=0/3 selected=0
+[ui-ring] current first=0,390,0x4 last=1950,390,0x4; endpoint x,width,flags
+msh />msh />msh />msh />[pm-p1] tick=3055357 allow=1 off=0 own_idle=1 sdk_idle=2
+[pm-p1] enter=0 exit=0 deep_elapsed=0
+[pm-p1] deep_ticks=0 max_ticks=0 wake=0x0
+[pm-p1] screen_off=0 screen_on=0 tick_hz=1000
+[pm-p1] phone=0 phone_off=0 background=0
+msh />msh />ch[7]voltage=41628;20834.26
