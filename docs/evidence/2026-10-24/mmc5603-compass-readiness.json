@@ -1,0 +1,823 @@
+{
+  "schema": 1,
+  "recorded_at": "2026-10-24T12:58:42.607256+00:00",
+  "source_base": "fbf3307f5a4d7f55e2f6d8ce09524b6dc13da08c",
+  "scope": "Same2438dc7c horizontalrelativeorientation,explicitstop,activeautomaticbrightnesscoexistence; sharedoperatorworkflowdocumentation. No firmware/sourcechanges,build,flash,reset,clockwriteorPMcontrol.",
+  "operator_authorization": "User asked next round compassUI then integration,necessarytests thisround; confirmed autoON/temporarykeepawake/safehorizontalrotation and later allfivepositionscomplete/keepawakeOFF/normalUI,touch,time/autoON,AOD+wristpreserved.",
+  "bin_sha256": "2438dc7cbc20a129a44dc3dd1f9623e696a6448a873ed33415e4396357e81584",
+  "files": [
+    {
+      "path": "artifacts/mmc5603-compass-readiness-20261024/preflight.json",
+      "bytes": 490,
+      "sha256": "c372ca648f950c32b81975f4c7be1aded8380c0814199b132d1fa44da9c76f39"
+    },
+    {
+      "path": "artifacts/mmc5603-compass-readiness-20261024/rotation-001/session.json",
+      "bytes": 41921,
+      "sha256": "24147541a2520c9f6c7781c9e93efd2cb1083b910d9018bd5bc0da81e8fcd667"
+    },
+    {
+      "path": "artifacts/mmc5603-compass-readiness-20261024/rotation-001/uart.bin",
+      "bytes": 25775,
+      "sha256": "052d859f7322fb81220a966c1c132ecd666c020a2aa1ba7bf8627ea1fed2fa0f"
+    },
+    {
+      "path": "artifacts/mmc5603-compass-readiness-20261024/guide-button-failure-state.json",
+      "bytes": 243,
+      "sha256": "e575aa52da2b421f5ccbb8364a9984c33eddd053fb6b184600a7541b60f56518"
+    },
+    {
+      "path": "artifacts/mmc5603-compass-readiness-20261024/console-sim-001/workflow.json",
+      "bytes": 279,
+      "sha256": "59c14709724754f9cbe8d7d8a1b05f1d833ae08b4e35b1671ec279c69516e151"
+    },
+    {
+      "path": "artifacts/mmc5603-compass-readiness-20261024/console-sim-002/workflow.json",
+      "bytes": 178,
+      "sha256": "510577e73a941c2cebea05372b91101ce18b74bb28c0535dca4a69c14263b828"
+    },
+    {
+      "path": "artifacts/mmc5603-compass-readiness-20261024/console-sim-cancel-001/workflow.json",
+      "bytes": 279,
+      "sha256": "59c14709724754f9cbe8d7d8a1b05f1d833ae08b4e35b1671ec279c69516e151"
+    },
+    {
+      "path": "artifacts/mmc5603-compass-readiness-20261024/console-sim-cancel-002/workflow.json",
+      "bytes": 294,
+      "sha256": "4aba3c75cb92bd1967802234996910c6345a2425249fb37099bfa4be04f3c8b4"
+    },
+    {
+      "path": "artifacts/mmc5603-compass-readiness-20261024/console-device-001/workflow.json",
+      "bytes": 271,
+      "sha256": "6227a6373ab795849c70693c8708c0a5921d487d06f6db9ac800615159913d90"
+    },
+    {
+      "path": "artifacts/mmc5603-compass-readiness-20261024/console-device-001/events.jsonl",
+      "bytes": 5216,
+      "sha256": "489a240ac844e6d401f5808633f43788dd70b3829493a8609d2d515250f1401e"
+    },
+    {
+      "path": "artifacts/mmc5603-compass-readiness-20261024/console-device-001/capture/session.json",
+      "bytes": 47289,
+      "sha256": "afc18daaf96d0e432696f7753a52f5950b831304f67295b55e62917c2fefb765"
+    },
+    {
+      "path": "artifacts/mmc5603-compass-readiness-20261024/console-device-001/capture/uart.bin",
+      "bytes": 26117,
+      "sha256": "f3a990c67869f46bcdab4bc05dcb679165d8acf6b9822a4b83b14f31fdac1897"
+    },
+    {
+      "path": "artifacts/mmc5603-compass-readiness-20261024/console-device-001/capture/uart.log",
+      "bytes": 26117,
+      "sha256": "f3a990c67869f46bcdab4bc05dcb679165d8acf6b9822a4b83b14f31fdac1897"
+    },
+    {
+      "path": "artifacts/mmc5603-compass-readiness-20261024/shared_console.py",
+      "bytes": 7577,
+      "sha256": "735187142b55db063d154b97fc863261ae19b674e0be3606da496c00e34a4aeb"
+    },
+    {
+      "path": "artifacts/mmc5603-compass-readiness-20261024/rotation.py",
+      "bytes": 10923,
+      "sha256": "1d9b42102b95dc19b3c939eb657f45d93948db9c73b05e9166f626b898d3346a"
+    },
+    {
+      "path": "artifacts/mmc5603-compass-readiness-20261024/guide.py",
+      "bytes": 8943,
+      "sha256": "e384e4cd22580e6c25e0ecfa70d6cceb558a3a1e9c4339a21dd091e2b9774f93"
+    },
+    {
+      "path": "artifacts/mmc5603-compass-readiness-20261024/replay-001.log",
+      "bytes": 36578,
+      "sha256": "82e6d7d96dc38c160b7e3b1d2281cbb19ed6c61dfa21bb92738e4239a7e2f077"
+    }
+  ],
+  "shared_sources": [
+    {
+      "path": "scripts/battery_console.py",
+      "bytes": 11897,
+      "sha256": "2ebe5d0dd75b5d3d9db0444cd3270b24c579b9be6e071bcc09098c14a05f0ce7"
+    },
+    {
+      "path": "scripts/battery_lab.py",
+      "bytes": 24617,
+      "sha256": "10409f6257fd2c874b0237bd434d7d73ae0a0f75b0f3beb8e99b1d94659a75bb"
+    },
+    {
+      "path": "apps/product/src/product_imu_diag.c",
+      "bytes": 61324,
+      "sha256": "ac318012ae46b57f01c9fe72411b029e775931f4fbd96de28120a58997169cd5"
+    }
+  ],
+  "first_attempt": {
+    "session": 2,
+    "complete": false,
+    "reason": "Chat step confirmations exhausted120stotalwindow; onlyfront/right6frames each completed. NativePASS,110frames,automaticdeadline owned0/stopped1/after10/errors0;closed. No fullrotationor explicitstop claim.",
+    "record": {
+      "path": "artifacts/mmc5603-compass-readiness-20261024/rotation-001/session.json",
+      "bytes": 41921,
+      "sha256": "24147541a2520c9f6c7781c9e93efd2cb1083b910d9018bd5bc0da81e8fcd667"
+    }
+  },
+  "temporary_guide": {
+    "started": false,
+    "retired": true,
+    "reason": "Operatorreportedbuttonunusable;HTTPstateconfirmedready/startedfalse. Causeunresolved;guide stoppedbeforeUARToperation. Replacedwith existingConsole/Journal,not counted as devicefailure."
+  },
+  "shared_console": {
+    "reused": [
+      "scripts/battery_console.py Console",
+      "scripts/battery_lab.py Journal"
+    ],
+    "simulation_pass": {
+      "path": "artifacts/mmc5603-compass-readiness-20261024/console-sim-002/workflow.json",
+      "bytes": 178,
+      "sha256": "510577e73a941c2cebea05372b91101ce18b74bb28c0535dca4a69c14263b828"
+    },
+    "simulation_cancel": {
+      "path": "artifacts/mmc5603-compass-readiness-20261024/console-sim-cancel-002/workflow.json",
+      "bytes": 294,
+      "sha256": "4aba3c75cb92bd1967802234996910c6345a2425249fb37099bfa4be04f3c8b4"
+    },
+    "simulation_timeout_records": [
+      {
+        "path": "artifacts/mmc5603-compass-readiness-20261024/console-sim-001/workflow.json",
+        "bytes": 279,
+        "sha256": "59c14709724754f9cbe8d7d8a1b05f1d833ae08b4e35b1671ec279c69516e151"
+      },
+      {
+        "path": "artifacts/mmc5603-compass-readiness-20261024/console-sim-cancel-001/workflow.json",
+        "bytes": 279,
+        "sha256": "59c14709724754f9cbe8d7d8a1b05f1d833ae08b4e35b1671ec279c69516e151"
+      }
+    ],
+    "review": "Readonlyreviewcaught prestartcancel/bufferedframeboundaries; primary addedcontrollercancelcheck,continuousUARTpump duringprompt and2.2ssettle beforepositionoffset; finalreadonlyreview no blocker."
+  },
+  "original_workflow": {
+    "outcome": "error",
+    "passed": false,
+    "errors": [
+      "AssertionError('Ordinary frame gap')"
+    ],
+    "unchanged": true,
+    "record": {
+      "path": "artifacts/mmc5603-compass-readiness-20261024/console-device-001/workflow.json",
+      "bytes": 271,
+      "sha256": "6227a6373ab795849c70693c8708c0a5921d487d06f6db9ac800615159913d90"
+    }
+  },
+  "reconciliation": {
+    "method": "Exclude exactlyone new-session seq0/ms0/status00/xyz0/valid0/saturated0 resetlog before native selftest, not arbitrary invalidframes. Verify remainingseq1..86,time,quality,count,mode,session,stop andlight fromoriginalrawbytes.",
+    "reset_log": {
+      "session": 3,
+      "seq": 0,
+      "ms": 0,
+      "status": 0,
+      "x": 0,
+      "y": 0,
+      "z": 0,
+      "valid": 0,
+      "saturated": 0
+    },
+    "ordinary_frames": 86,
+    "all_valid": true,
+    "all_unsaturated": true,
+    "original_failure_preserved": true,
+    "bounded_device_checks_met": true,
+    "operator_confirmation": "Userexplicitlyconfirmedallfivepositionscompleted,temporarykeepawakeoff,endstatenormal;autoON/AOD+wristpreserved.",
+    "firmware_cause": "mag_work compares current samples with before snapshot; beginning a new session resets prior nonzero samplecount to0, so logger emits seq0 resetnotification. It is not a magneticmeasurement or realframegap."
+  },
+  "after": {
+    "session": 3,
+    "phase": 2,
+    "end": 2,
+    "id": 16,
+    "identity_valid": 1,
+    "owned": 0,
+    "stopped": 1,
+    "errors": 0,
+    "selftest_only": false,
+    "mode": "encoded",
+    "experimental": true,
+    "native_valid": true,
+    "passed": true,
+    "status": 85,
+    "factory": [
+      99,
+      122,
+      114
+    ],
+    "threshold": [
+      92,
+      19,
+      44
+    ],
+    "start_ms": 2957282,
+    "duration_ms": 120000,
+    "samples": 86,
+    "after_status": 16,
+    "sample_valid": true
+  },
+  "windows": [
+    {
+      "index": 0,
+      "label": "front",
+      "frames": [
+        {
+          "session": 3,
+          "seq": 1,
+          "ms": 2957557,
+          "status": 81,
+          "x": 2349,
+          "y": 8276,
+          "z": 6747,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 2,
+          "ms": 2958647,
+          "status": 81,
+          "x": 2370,
+          "y": 8283,
+          "z": 6670,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 3,
+          "ms": 2959737,
+          "status": 81,
+          "x": 2437,
+          "y": 8335,
+          "z": 6634,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 4,
+          "ms": 2960827,
+          "status": 81,
+          "x": 2379,
+          "y": 8332,
+          "z": 6727,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 5,
+          "ms": 2961917,
+          "status": 81,
+          "x": 2331,
+          "y": 8318,
+          "z": 6703,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 6,
+          "ms": 2963007,
+          "status": 81,
+          "x": 2366,
+          "y": 8328,
+          "z": 6686,
+          "valid": 1,
+          "saturated": 0
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "label": "right",
+      "frames": [
+        {
+          "session": 3,
+          "seq": 21,
+          "ms": 2979371,
+          "status": 81,
+          "x": 4241,
+          "y": 2600,
+          "z": 6402,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 22,
+          "ms": 2980461,
+          "status": 81,
+          "x": 4178,
+          "y": 2575,
+          "z": 6398,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 23,
+          "ms": 2981551,
+          "status": 81,
+          "x": 4179,
+          "y": 2530,
+          "z": 6407,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 24,
+          "ms": 2982641,
+          "status": 81,
+          "x": 4181,
+          "y": 2589,
+          "z": 6408,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 25,
+          "ms": 2983731,
+          "status": 81,
+          "x": 4178,
+          "y": 2562,
+          "z": 6416,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 26,
+          "ms": 2984821,
+          "status": 81,
+          "x": 4163,
+          "y": 2600,
+          "z": 6443,
+          "valid": 1,
+          "saturated": 0
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "label": "rear",
+      "frames": [
+        {
+          "session": 3,
+          "seq": 37,
+          "ms": 2996811,
+          "status": 81,
+          "x": -2106,
+          "y": 130,
+          "z": 6453,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 38,
+          "ms": 2997901,
+          "status": 81,
+          "x": -2086,
+          "y": 108,
+          "z": 6462,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 39,
+          "ms": 2999004,
+          "status": 81,
+          "x": -2056,
+          "y": 120,
+          "z": 6482,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 40,
+          "ms": 3000093,
+          "status": 81,
+          "x": -2066,
+          "y": 62,
+          "z": 6448,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 41,
+          "ms": 3001183,
+          "status": 81,
+          "x": -2090,
+          "y": 83,
+          "z": 6408,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 42,
+          "ms": 3002273,
+          "status": 81,
+          "x": -1987,
+          "y": 57,
+          "z": 6449,
+          "valid": 1,
+          "saturated": 0
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "label": "left",
+      "frames": [
+        {
+          "session": 3,
+          "seq": 59,
+          "ms": 3020816,
+          "status": 81,
+          "x": -3331,
+          "y": 7153,
+          "z": 7149,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 60,
+          "ms": 3021905,
+          "status": 81,
+          "x": -3326,
+          "y": 7119,
+          "z": 7197,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 61,
+          "ms": 3022995,
+          "status": 81,
+          "x": -3350,
+          "y": 7104,
+          "z": 7189,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 62,
+          "ms": 3024085,
+          "status": 81,
+          "x": -3350,
+          "y": 7093,
+          "z": 7137,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 63,
+          "ms": 3025180,
+          "status": 81,
+          "x": -3366,
+          "y": 7134,
+          "z": 7135,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 64,
+          "ms": 3026270,
+          "status": 81,
+          "x": -3383,
+          "y": 7114,
+          "z": 7172,
+          "valid": 1,
+          "saturated": 0
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "label": "front_return",
+      "frames": [
+        {
+          "session": 3,
+          "seq": 80,
+          "ms": 3043722,
+          "status": 81,
+          "x": 2375,
+          "y": 7942,
+          "z": 6431,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 81,
+          "ms": 3044812,
+          "status": 81,
+          "x": 2414,
+          "y": 7950,
+          "z": 6431,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 82,
+          "ms": 3045902,
+          "status": 81,
+          "x": 2378,
+          "y": 7923,
+          "z": 6432,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 83,
+          "ms": 3046992,
+          "status": 81,
+          "x": 2392,
+          "y": 7936,
+          "z": 6426,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 84,
+          "ms": 3048082,
+          "status": 81,
+          "x": 2415,
+          "y": 7948,
+          "z": 6441,
+          "valid": 1,
+          "saturated": 0
+        },
+        {
+          "session": 3,
+          "seq": 85,
+          "ms": 3049172,
+          "status": 81,
+          "x": 2427,
+          "y": 7986,
+          "z": 6455,
+          "valid": 1,
+          "saturated": 0
+        }
+      ]
+    }
+  ],
+  "lights": [
+    {
+      "enabled": 1,
+      "active": 1,
+      "valid": 1,
+      "fault": 0,
+      "cleanup": 0,
+      "brightness": 31,
+      "mlux": 54517,
+      "ms": 2954342,
+      "session": 5,
+      "seq": 9
+    },
+    {
+      "enabled": 1,
+      "active": 1,
+      "valid": 1,
+      "fault": 0,
+      "cleanup": 0,
+      "brightness": 31,
+      "mlux": 56292,
+      "ms": 2962648,
+      "session": 5,
+      "seq": 17
+    },
+    {
+      "enabled": 1,
+      "active": 1,
+      "valid": 1,
+      "fault": 0,
+      "cleanup": 0,
+      "brightness": 35,
+      "mlux": 68481,
+      "ms": 2984459,
+      "session": 5,
+      "seq": 38
+    },
+    {
+      "enabled": 1,
+      "active": 1,
+      "valid": 1,
+      "fault": 0,
+      "cleanup": 0,
+      "brightness": 15,
+      "mlux": 7535,
+      "ms": 3002111,
+      "session": 5,
+      "seq": 55
+    },
+    {
+      "enabled": 1,
+      "active": 1,
+      "valid": 1,
+      "fault": 0,
+      "cleanup": 0,
+      "brightness": 18,
+      "mlux": 13295,
+      "ms": 3026004,
+      "session": 5,
+      "seq": 78
+    },
+    {
+      "enabled": 1,
+      "active": 1,
+      "valid": 1,
+      "fault": 0,
+      "cleanup": 0,
+      "brightness": 30,
+      "mlux": 49863,
+      "ms": 3048860,
+      "session": 5,
+      "seq": 100
+    }
+  ],
+  "events": [
+    {
+      "at": "2026-10-24T12:52:48.618807+00:00",
+      "command": "show_date"
+    },
+    {
+      "at": "2026-10-24T12:52:49.246432+00:00",
+      "command": "wf_pm status"
+    },
+    {
+      "at": "2026-10-24T12:52:49.860858+00:00",
+      "command": "wf_mag status"
+    },
+    {
+      "at": "2026-10-24T12:52:50.478238+00:00",
+      "command": "wf_light status"
+    },
+    {
+      "at": "2026-10-24T12:52:51.192372+00:00",
+      "command": "wf_steps status"
+    },
+    {
+      "at": "2026-10-24T12:52:51.842210+00:00",
+      "command": "wf_wrist status"
+    },
+    {
+      "at": "2026-10-24T12:52:52.466137+00:00",
+      "command": "wf_mag sample encoded 120"
+    },
+    {
+      "at": "2026-10-24T12:52:58.283551+00:00",
+      "command": "wf_light status"
+    },
+    {
+      "at": "2026-10-24T12:53:11.765434+00:00",
+      "position_ack": "right"
+    },
+    {
+      "at": "2026-10-24T12:53:20.077227+00:00",
+      "command": "wf_light status"
+    },
+    {
+      "at": "2026-10-24T12:53:29.215278+00:00",
+      "position_ack": "rear"
+    },
+    {
+      "at": "2026-10-24T12:53:37.512777+00:00",
+      "command": "wf_light status"
+    },
+    {
+      "at": "2026-10-24T12:53:53.514744+00:00",
+      "position_ack": "left"
+    },
+    {
+      "at": "2026-10-24T12:54:01.560957+00:00",
+      "command": "wf_light status"
+    },
+    {
+      "at": "2026-10-24T12:54:16.268160+00:00",
+      "position_ack": "front_return"
+    },
+    {
+      "at": "2026-10-24T12:54:24.403749+00:00",
+      "command": "wf_light status"
+    },
+    {
+      "at": "2026-10-24T12:54:25.072416+00:00",
+      "command": "wf_mag status"
+    },
+    {
+      "at": "2026-10-24T12:54:25.717227+00:00",
+      "command": "wf_mag stop"
+    },
+    {
+      "at": "2026-10-24T12:54:26.721351+00:00",
+      "command": "wf_mag status"
+    },
+    {
+      "at": "2026-10-24T12:54:27.332827+00:00",
+      "command": "wf_mag status"
+    },
+    {
+      "at": "2026-10-24T12:54:27.981243+00:00",
+      "command": "wf_light status"
+    },
+    {
+      "at": "2026-10-24T12:54:28.639686+00:00",
+      "command": "wf_steps status"
+    },
+    {
+      "at": "2026-10-24T12:54:29.294755+00:00",
+      "command": "wf_wrist status"
+    },
+    {
+      "at": "2026-10-24T12:54:29.916923+00:00",
+      "command": "wf_ui status"
+    },
+    {
+      "at": "2026-10-24T12:54:30.523044+00:00",
+      "command": "wf_pm status"
+    }
+  ],
+  "port_closed": true,
+  "closed_at": "2026-10-24T12:54:31.167764+00:00",
+  "relative_analysis": {
+    "method": "Exploratory offline fourcardinalmean XY center and atan2; no productioncalibration,referencefieldornorthzero. Handturns nominal90deg,position/height/tilt variation uncontrolled.",
+    "means_xyz": [
+      [
+        2372,
+        8312,
+        6694.5
+      ],
+      [
+        4186.666666666667,
+        2576,
+        6412.333333333333
+      ],
+      [
+        -2065.1666666666665,
+        93.33333333333333,
+        6450.333333333333
+      ],
+      [
+        -3351,
+        7119.5,
+        7163.166666666667
+      ],
+      [
+        2400.1666666666665,
+        7947.5,
+        6436
+      ]
+    ],
+    "rough_xy_center_counts": [
+      285.6250000000001,
+      4525.208333333333
+    ],
+    "xy_angles_deg": [
+      61.14694437298804,
+      -26.54962743397501,
+      -117.9427419773806,
+      144.4967393818107,
+      58.28920002271247
+    ],
+    "relative_turns_deg": [
+      -87.69657180696305,
+      -91.3931145434056,
+      -97.56051864080871,
+      -86.20753935909823
+    ],
+    "return_delta_deg": -2.857744350275567,
+    "conclusion": "Allfourstep changes consistentnegativeXYrotation,approximately88/91/98/86deg;frontreturn about2.9deg by thisroughcenter. SupportsXYplane responseandfuture screenmapping validation; not absoluteaccuracy/tolerancepass."
+  },
+  "coexistence": {
+    "auto": "Enabled/active/valid1,fault0/cleanup0,samesession5 seq9->17->38->55->78->100; no enable/disablecommand fromcollector.",
+    "steps": "Total0/native0/checkpoint112verifiedclean preserved.",
+    "wrist": "Requested/continuous/armed/owned1 preserved.",
+    "pm": "allow1,not a physicalDEEPclaim."
+  },
+  "limitations": [
+    "No absolute northreference,hand90degree turns not precisionfixture.",
+    "RoughXYcenter isexploratoryonly; calibration/softiron/tiltcompensation/headingaccuracy not implementedorverified.",
+    "Originalworkflowerrored despiteboundeddevicechecks; keptunchangedand separatelyreconciledoffline.",
+    "No current/batterylife/longtermstabilityclaim."
+  ],
+  "next_boundary": "Merge reviewed evidence and genericsharedworkflowdocs, syncmain. Next round directlybuildcompassUI viaofficialLVGLworkflow,then integratevalidatedsensorpath with honestcalibration/validity/stale/lifecycle behavior; productUI/hardwareacceptance belongs toitsactualnewversion."
+}

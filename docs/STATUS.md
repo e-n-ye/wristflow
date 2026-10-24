@@ -243,7 +243,11 @@ LTR跑通、目录迁回及证据已由PR #136 Rebase合入`3e5125e`；本次接
 
 **静置XYZ有界verified，设备轮已收束**：19:59:56–20:02:42标准三镜像write＋verify退出0，本次无中断／重试；启动单次150ms RTS、RTC2000校当前UTC读回、原storage／检查点111／腕开启恢复。用户确认新版正常并平放后，20:05:26仅一次encoded10：本session原生PASS／factory63/7a/72／threshold5c/13/2c，9帧status51／valid1／saturated0，自动到期phase2／end1／owned0／stopped1／after10／errors0，无显式stop或旋转。计步总0、检查点自动保存112 clean、常驻腕保留；自动亮度新BIN快照均enabled0／active0，用户随后确认自己手动关闭、忘记开启，与快照一致，不记作开启时共存通过或固件故障。20:06:16收尾allow1并关口，用户确认常亮已关、末态正常、原设置保留；[设备证据](evidence/2026-10-24/mmc5603-encoded-hardware.json)与[专题](MMC5603.md#encoded-hardware-20261024)记录新帧、栈及边界。
 
-**当前唯一下一步**：审阅交付本轮静置设备证据，按CONTRIBUTING合入／同步干净main；本轮不再操作设备。交付后再确认有界平放旋转／显式stop及实际自动亮度条件，轴向、校准航向、完整根因及功耗仍未验。
+静置设备证据PR #148已Rebase合入`fbf3307`，回读MERGED／远端及主目录main干净同步。用户要求下一轮直接做指南针UI再接入、必要测试本轮集中完成，确认自动亮度已开、临时常亮、可安全平放转动。从该版建立`codex/mmc5603-compass-readiness`，复用板上2438dc7c…，无重编／下载／复位／校时。第一session2因聊天等待到期，仅完成前／右窗口，110帧后正常自动停止且关口，不计完整旋转；临时倒计时页按钮失效，确认未启动采集后停用。用户指出已有统一协作方式并要求沉入通用文档，本轮已同步AGENTS／索引／工程地图／文档职责／[协作工作流](HARDWARE-TEST-WORKFLOW.md#shared-operator-workflow)，复杂多步验收先评估复用Console／Journal及专用适配，模拟验交互后再上设备。
+
+**本轮接入前检查已收束**：复用统一协作页并实际模拟完整流程／取消／超时后，20:52:52新session3采齐前／右／后／左／回前各6帧，真实普通seq1–86连续有效、未饱和；原生PASS、20:54:25一次显式stop确认end2／owned0／stopped1／after10／errors0，20:54:31关口。自动亮度同session5 seq9→100持续有效、无fault／cleanup，计步0／检查点112 clean及常驻腕保留。原页面workflow因误计自检前全零seq0初始化日志报错，保留error不改写；主代理与独立只读复核原始字节，严格排除此行后单列有界设备条件满足。用户随后在聊天确认五方向完成、常亮关闭、末态正常，自动亮度本轮开启、AOD／腕保留。原失败、模拟、事件及离线核验见[证据](evidence/2026-10-24/mmc5603-compass-readiness.json)和[专题](MMC5603.md#compass-readiness-20261024)。
+
+**当前唯一下一步**：审阅交付本轮设备证据及通用协作入口，按CONTRIBUTING合入并同步干净main；本轮不再操作设备。下一轮按用户要求直接进入指南针UI，再接入已验测量路径；产品校准／有效性／过期及生命周期随实现处理并按实际新版本验收，绝对磁北／倾斜精度及功耗不由本次相对旋转推定。
 
 <a id="history"></a>
 ## 2026-10-20 小时步数保存与上板闭环（历史，PR #104／#105已交付）
