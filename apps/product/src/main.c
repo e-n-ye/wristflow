@@ -11,6 +11,7 @@
 #include "product_pm.h"
 #include "product_steps.h"
 #include "product_wrist.h"
+#include "product_light.h"
 #include "product_charger.h"
 #include "product_power.h"
 #include "battery_estimate.h"
@@ -207,6 +208,20 @@ static void sync_wrist_setting(void)
         wrist_setting = settings.wrist_wake && !settings.endurance_mode;
         wristflow_product_wrist_enable(wrist_setting);
     }
+}
+static bool automatic_brightness(void *context)
+{ (void)context; return wristflow_product_light_snapshot().enabled; }
+static bool request_automatic_brightness(bool enabled, void *context)
+{
+    bool accepted = wristflow_product_light_enable(enabled);
+    if (accepted) wristflow_ui_shell_auto_brightness_sample(context, false, 0);
+    return accepted;
+}
+static void sync_automatic_brightness(void)
+{
+    wristflow_product_light_active(wristflow_ui_shell_auto_brightness_sampling(product_shell));
+    wristflow_product_light_snapshot_t sample = wristflow_product_light_snapshot();
+    wristflow_ui_shell_auto_brightness_sample(product_shell, sample.valid, sample.brightness);
 }
 static void sync_endurance_services(void)
 {
@@ -479,6 +494,8 @@ static void run_panel_probe(rt_device_t lcd, lv_indev_t *pointer)
 
 static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
 {
+    wristflow_product_light_active(false);
+    wristflow_ui_shell_auto_brightness_sample(product_shell, false, 0);
     panel_unavailable();
     lv_timer_enable(false);
     rt_tick_t started = rt_tick_get();
@@ -718,6 +735,11 @@ int main(void)
     RT_ASSERT(button_enable(key_id) == SF_EOK);
     if (!wristflow_product_power_start()) rt_kprintf("[power] service unavailable; display unknown\n");
     if (!wristflow_product_steps_start()) rt_kprintf("[steps] native daily service unavailable\n");
+    else {
+        const wristflow_brightness_mode_port_t light_port = {automatic_brightness, request_automatic_brightness, shell};
+        (void)wristflow_product_light_enable(settings.auto_brightness);
+        wristflow_ui_shell_bind_brightness_mode(shell, &light_port);
+    }
     sync_wrist_setting();
     sync_endurance_services();
     if (!wristflow_product_charger_service_start()) rt_kprintf("[charger] control service unavailable; no manual start\n");
@@ -727,9 +749,18 @@ int main(void)
                snapshot.power.millivolts);
     uint32_t sampled = lv_tick_get();
     for (;;) {
+        /* The bounded panel diagnostic owns LCD state while this loop blocks. */
+        rt_base_t light_level = rt_hw_interrupt_disable();
+        bool probing = probe_reserved;
+        rt_hw_interrupt_enable(light_level);
+        if (probing) {
+            wristflow_product_light_active(false);
+            wristflow_ui_shell_auto_brightness_sample(shell, false, 0);
+        }
         run_panel_probe(lcd, pointer);
         if (wristflow_ui_shell_endurance(shell)) sync_endurance_key();
         sync_endurance_services();
+        sync_automatic_brightness();
         uint32_t wait_ms = lv_timer_handler();
         uint32_t now = lv_tick_get();
         capture_battery();

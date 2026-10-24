@@ -509,7 +509,7 @@ void wristflow_settings_refresh(lv_obj_t *root, wristflow_surface_t surface, wri
         label(named(named(root, "display_aod_styles"), "row_detail"), settings.aod_style == WRISTFLOW_AOD_CENTER ? "居中数字" : "左上数字");
         label(named(named(root, "display_wrist"), "row_detail"), settings.wrist_wake ? "开启" : "关闭");
         snprintf(value, sizeof value, "%u%%", settings.brightness);
-        label(named(named(root, "display_brightness"), "row_detail"), value);
+        label(named(named(root, "display_brightness"), "row_detail"), wristflow_ui_shell_auto_brightness(shell) ? "自动亮度" : value);
         snprintf(value, sizeof value, "%u秒", settings.screen_timeout);
         label(named(named(root, "display_timeout"), "row_detail"), value);
         if (minutes) snprintf(value, sizeof value, "%u分钟", minutes);

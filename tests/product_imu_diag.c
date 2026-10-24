@@ -11,6 +11,8 @@ static uint8_t light_regs[256];
 static unsigned light_reads, light_writes;
 static int light_failing_read = -1;
 static bool light_fail_restore, stop_light_in_prepare, duplicate_light_in_prepare;
+static bool pause_auto_in_light_read;
+static unsigned light_restore_attempts;
 static uint16_t native_count;
 static rt_tick_t ticks;
 static unsigned irq, idle, reads, writes, rounds, deleted, detached;
@@ -148,6 +150,10 @@ size_t rt_i2c_mem_read(struct rt_i2c_bus_device *b, unsigned addr, unsigned reg,
     assert(b == &fake_bus && bits == 8 && (length == 1 || (reg==0x28 && length==6)) && !irq && idle); ++reads;
     if (addr == 0x29) {
         assert(!bank && length == 1); ++light_reads;
+        if (reg == 0x88 && pause_auto_in_light_read) {
+            pause_auto_in_light_read=false;
+            wristflow_product_light_active(false);
+        }
         if ((int)reg == light_failing_read) return 0;
         *(uint8_t *)out = light_regs[reg];
         if (reg == 0x8b) light_regs[0x8c] &= (uint8_t)~4U;
@@ -170,6 +176,7 @@ size_t rt_i2c_mem_write(struct rt_i2c_bus_device *b, unsigned addr, unsigned reg
     if (addr == 0x29) {
         assert(!bank && (reg == 0x80 || reg == 0x85)); ++light_writes;
         uint8_t value = *(uint8_t *)input;
+        if (reg == 0x80 && value == 0x0c) ++light_restore_attempts;
         if (light_fail_restore && reg == 0x80 && value == 0x0c) return 0;
         light_regs[reg] = value; return 1;
     }
@@ -548,5 +555,70 @@ int main(void)
     before = light_cached.samples; cycle();
     assert(light_cached.phase == WF_LIGHT_DONE && light_cached.ended == WF_LIGHT_DEADLINE);
     assert(light_cached.samples == before && light_cached.restored && !light_cached.owned && !idle);
+    /* Product mode is a command/cache interface on the SAME sensor owner.
+     * Saved mode can be on while OFF/flashlight/AOD qualification is false. */
+    assert(!wristflow_product_light_snapshot().enabled);
+    before=light_reads+light_writes;
+    assert(wristflow_product_light_enable(true));
+    assert(wristflow_product_light_snapshot().enabled && !wristflow_product_light_snapshot().valid);
+    cycle(); assert(light_reads+light_writes==before && !idle);
+    wristflow_product_light_active(true); cycle(); cycle();
+    assert(light.continuous && light_cached.entered_valid && idle);
+    light_regs[0x8c]=4; cycle();
+    wristflow_product_light_snapshot_t automatic=wristflow_product_light_snapshot();
+    assert(automatic.enabled && automatic.valid && automatic.brightness>=10 && automatic.brightness<=100);
+    /* Device shade regression: native STATUS04 frames continue, but 0/1 has
+     * ratio1. Appendix ELSE estimates zero; it must not trip the stale timer. */
+    uint32_t shade_session=automatic.session;
+    light_regs[0x88]=1; light_regs[0x89]=light_regs[0x8a]=light_regs[0x8b]=0;
+    for (unsigned i=0;i<12;++i) {
+        uint32_t prior_sequence=automatic.sequence, prior_ms=automatic.sampled_ms;
+        light_regs[0x8c]=4; cycle(); automatic=wristflow_product_light_snapshot();
+        assert(automatic.enabled && automatic.valid && !automatic.fault && automatic.session==shade_session);
+        assert(automatic.sequence>prior_sequence && automatic.sampled_ms!=prior_ms);
+    }
+    assert(automatic.brightness>=10 && automatic.brightness<=12 && automatic.millilux==0); /* two-point deadband */
+    light_regs[0x88]=20; light_regs[0x8a]=100; light_regs[0x8c]=4; cycle();
+    before=light_reads+light_writes;
+    (void)wristflow_product_light_snapshot(); assert(before==light_reads+light_writes);
+    light_cmd("start","1"); wrist_cmd("start","1","xneg");
+    assert(!light_pending && !wrist_pending);
+    wristflow_product_light_active(false);
+    assert(!wristflow_product_light_snapshot().valid);
+    cycle(); assert(!idle && light_cached.restored && !light_cached.owned);
+    assert(wristflow_product_light_snapshot().enabled); /* pause does not overwrite mode */
+    before=light_reads+light_writes; cycle(); assert(light_reads+light_writes==before);
+    wristflow_product_light_active(true); cycle(); cycle(); light_regs[0x8c]=4; cycle();
+    assert(wristflow_product_light_snapshot().valid);
+    ticks+=121000; light_regs[0x8c]=4; cycle();
+    assert(light.continuous && light_cached.phase==WF_LIGHT_RUNNING && wristflow_product_light_snapshot().valid);
+    /* No NEW data makes the public cache stale and closes mode, without a
+     * fabricated zero sample or automatic sensor retry. */
+    ticks+=5000; assert(!wristflow_product_light_snapshot().valid); cycle();
+    assert(!wristflow_product_light_snapshot().enabled && wristflow_product_light_snapshot().fault && !idle);
+    before=light_reads+light_writes; cycle(); cycle(); assert(before==light_reads+light_writes);
+    assert(wristflow_product_light_enable(true)); cycle(); cycle(); light_regs[0x8c]=4; cycle();
+    assert(wristflow_product_light_snapshot().valid);
+    /* A policy change inside DATA I/O must not publish the old frame or retry
+     * failed restore twice. Ownership/IDLE stays until an explicit command. */
+    unsigned restores=light_restore_attempts;
+    pause_auto_in_light_read=true; light_fail_restore=true; light_regs[0x8c]=4; cycle();
+    automatic=wristflow_product_light_snapshot();
+    assert(!automatic.enabled && !automatic.valid && automatic.fault && automatic.cleanup_pending && idle);
+    assert(light_restore_attempts==restores+1);
+    before=light_reads+light_writes; cycle(); assert(before==light_reads+light_writes && idle);
+    light_fail_restore=false; assert(wristflow_product_light_enable(true)); cycle();
+    assert(!light_cached.owned && !idle); /* still paused; explicit cleanup only */
+    wristflow_product_light_active(true); cycle(); cycle(); light_regs[0x8c]=4; cycle();
+    assert(wristflow_product_light_snapshot().valid);
+    light_failing_read=0x8c; cycle(); light_failing_read=-1;
+    assert(!wristflow_product_light_snapshot().enabled && wristflow_product_light_snapshot().fault && !idle);
+    /* Restored-on startup request may race the first daily START event. */
+    ready=false; storage_available=false; cancel_requested=false;
+    assert(wristflow_product_steps_start());
+    assert(wristflow_product_light_enable(true)); wristflow_product_light_active(true); cycle(); cycle();
+    light_regs[0x8c]=4; cycle();
+    assert(cached.phase==WF_IMU_RUNNING && wristflow_product_light_snapshot().enabled && wristflow_product_light_snapshot().valid);
+    assert(wristflow_product_light_enable(false)); cycle(); assert(!idle && light_cached.restored);
     return 0;
 }

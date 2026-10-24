@@ -76,6 +76,8 @@ struct wristflow_ui_shell {
     void *platform_context;
     uint8_t applied_brightness;
     wristflow_brightness_mode_port_t brightness_mode;
+    uint8_t auto_brightness_value;
+    bool auto_brightness_valid, auto_display_mode;
     unsigned stopwatch_exit;
     wristflow_surface_t stopwatch_destination;
     unsigned breathing_exit;
@@ -145,6 +147,19 @@ static void apply_brightness(wristflow_ui_shell_t *shell, uint8_t value)
     shell->applied_brightness = value;
     if (shell->brightness_cb) shell->brightness_cb(value, shell->platform_context);
 }
+static uint8_t normal_brightness(const wristflow_ui_shell_t *shell)
+{
+    return !shell->endurance.enabled && shell->auto_brightness_valid &&
+        wristflow_ui_shell_auto_brightness(shell) ? shell->auto_brightness_value : wristflow_apps_brightness(shell->apps);
+}
+static uint8_t untimed_brightness(const wristflow_ui_shell_t *shell, uint8_t initial)
+{
+    if (!shell->apps) return initial; /* apps_create emits the initial value synchronously. */
+    if (shell->navigation.surface == WRISTFLOW_SURFACE_FLASHLIGHT &&
+        !wristflow_ui_shell_charging_active(shell) && !wristflow_ui_shell_reminder_active(shell) &&
+        wristflow_notification_view_alert(shell->notifications) != WF_ALERT_PREVIEW) return 100;
+    return normal_brightness(shell);
+}
 
 static void display_tick(lv_timer_t *timer)
 {
@@ -159,11 +174,11 @@ static void display_tick(lv_timer_t *timer)
     }
     if (wristflow_reminder_host_active(shell->reminder)) {
         bool off = wristflow_reminder_host_phase(shell->reminder, lv_tick_get()) == WRISTFLOW_DISPLAY_OFF;
-        apply_brightness(shell, off ? 0 : wristflow_apps_brightness(shell->apps));
+        apply_brightness(shell, off ? 0 : normal_brightness(shell));
         return;
     }
     if (wristflow_notification_view_alert(shell->notifications) == WF_ALERT_PREVIEW) {
-        apply_brightness(shell, wristflow_apps_brightness(shell->apps));
+        apply_brightness(shell, normal_brightness(shell));
         return;
     }
     uint32_t keep_before = shell->display.keep_ms;
@@ -174,7 +189,7 @@ static void display_tick(lv_timer_t *timer)
         wristflow_apps_hide_control_hint(shell->apps);
         wristflow_notification_view_hide(shell->notifications);
     }
-    apply_brightness(shell, wristflow_display_brightness(&shell->display, wristflow_apps_brightness(shell->apps)));
+    apply_brightness(shell, wristflow_display_brightness(&shell->display, normal_brightness(shell)));
     if (keep_before != shell->display.keep_ms) wristflow_apps_update(shell->apps, &shell->snapshot);
 }
 
@@ -184,7 +199,7 @@ static void brightness_changed(uint8_t value, void *context)
     if (shell->display_timer) {
         wristflow_display_activity(&shell->display, lv_tick_get());
         display_tick(shell->display_timer);
-    } else apply_brightness(shell, value);
+    } else apply_brightness(shell, untimed_brightness(shell, value));
 }
 
 static void bubble_events(lv_obj_t *obj)
@@ -1010,6 +1025,7 @@ bool wristflow_ui_shell_get_settings(const wristflow_ui_shell_t *shell, wristflo
         return false;
     wristflow_settings_t current = shell->preferences;
     current.brightness = wristflow_apps_brightness(shell->apps);
+    if (wristflow_ui_shell_has_auto_brightness(shell)) current.auto_brightness = wristflow_ui_shell_auto_brightness(shell);
     current.menu_layout = wristflow_apps_menu_layout(shell->apps);
     strcpy(current.face_id, shell->watchface->id);
     if (!wristflow_settings_valid(&current)) return false;
@@ -1099,6 +1115,31 @@ bool wristflow_ui_shell_request_auto_brightness(wristflow_ui_shell_t *shell, boo
     bool accepted = shell->brightness_mode.request(automatic, shell->brightness_mode.context);
     wristflow_apps_refresh_settings_save(shell->apps);
     return accepted;
+}
+void wristflow_ui_shell_auto_brightness_sample(wristflow_ui_shell_t *shell, bool valid, uint8_t value)
+{
+    if (!shell) return;
+    bool mode = wristflow_ui_shell_auto_brightness(shell);
+    valid = valid && mode && value >= 10 && value <= 100;
+    bool mode_changed = mode != shell->auto_display_mode;
+    bool changed = mode_changed || valid != shell->auto_brightness_valid ||
+        (valid && value != shell->auto_brightness_value);
+    shell->auto_display_mode = mode;
+    shell->auto_brightness_valid = valid;
+    shell->auto_brightness_value = value;
+    if (changed) {
+        if (shell->display_timer) display_tick(shell->display_timer);
+        else apply_brightness(shell, untimed_brightness(shell, value));
+    }
+    if (mode_changed) wristflow_apps_refresh_settings_save(shell->apps);
+}
+bool wristflow_ui_shell_auto_brightness_sampling(const wristflow_ui_shell_t *shell)
+{
+    return shell && !shell->endurance.enabled &&
+        wristflow_ui_shell_display_phase(shell) != WRISTFLOW_DISPLAY_OFF &&
+        (shell->navigation.surface != WRISTFLOW_SURFACE_FLASHLIGHT ||
+         wristflow_ui_shell_charging_active(shell) || wristflow_ui_shell_reminder_active(shell) ||
+         wristflow_notification_view_alert(shell->notifications) == WF_ALERT_PREVIEW);
 }
 
 void wristflow_ui_shell_bind_vibration_preview(wristflow_ui_shell_t *shell,
@@ -1205,7 +1246,7 @@ bool wristflow_ui_shell_acquire_awake(wristflow_ui_shell_t *shell, void *owner,
         owner, reason, duration_ms)) return false;
     shell->awake_expired = expired;
     if (shell->ready && !wristflow_ui_shell_reminder_active(shell))
-        apply_brightness(shell, wristflow_apps_brightness(shell->apps));
+        apply_brightness(shell, normal_brightness(shell));
     return true;
 }
 

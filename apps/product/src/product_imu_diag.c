@@ -8,6 +8,8 @@
 #include "product_services.h"
 #include "steps_store.h"
 #include "ltr303_diag.h"
+#include "product_light.h"
+#include "auto_brightness.h"
 #include <rtthread.h>
 #include <rthw.h>
 #include <rtdevice.h>
@@ -22,7 +24,7 @@
 
 enum { EV_COMMAND = 1, EV_STOP = 2, EV_DAILY_START = 4, EV_SCREEN = 8, EV_SAVE = 16,
     EV_WRIST = 32, EV_WRIST_STOP = 64, EV_WRIST_POLICY = 128, EV_WRIST_IRQ = 256,
-    EV_LIGHT = 512, EV_LIGHT_STOP = 1024 };
+    EV_LIGHT = 512, EV_LIGHT_STOP = 1024, EV_AUTO_LIGHT = 2048 };
 enum command { CMD_NONE, CMD_PROBE, CMD_STEPS };
 static struct rt_event work;
 static struct rt_i2c_bus_device *bus;
@@ -53,10 +55,52 @@ static wf_ltr303_snapshot_t light_cached;
 static bool light_pending, light_busy;
 static volatile bool light_cancel_requested;
 static unsigned light_seconds;
+static bool auto_requested, auto_active, auto_owner, auto_runtime;
+static bool auto_retry, auto_fault;
+static volatile bool auto_cancel;
+static uint32_t auto_generation, auto_applied_generation, auto_cached_generation, auto_started_ms, auto_sequence;
+static wf_auto_brightness_t auto_filter;
+static wristflow_product_light_snapshot_t auto_value, auto_cached;
 static bool prepare_bus(void);
 static bool probe(void);
 static wristflow_steps_clock_t daily_clock(void);
 static void light_work(rt_uint32_t events);
+static uint32_t now_ms(void);
+
+bool wristflow_product_light_enable(bool enabled)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    bool accepted = ready && daily_mode && (!enabled ||
+        (!light_pending && (!light_busy || auto_cached.cleanup_pending || auto_requested) &&
+         !wrist_pending && (!wrist_busy || (wrist_runtime && wrist_cached.continuous))));
+    if (accepted && (auto_requested != enabled || (enabled && auto_fault) || (!enabled && auto_cached.cleanup_pending))) {
+        auto_requested = enabled; auto_fault = false; auto_retry = true;
+        ++auto_generation; auto_cancel = true;
+        rt_event_send(&work, EV_AUTO_LIGHT);
+    }
+    rt_hw_interrupt_enable(level);
+    return accepted;
+}
+void wristflow_product_light_active(bool active)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    if (auto_active != active) {
+        auto_active = active; ++auto_generation; auto_cancel = true;
+        if (ready && daily_mode && (auto_requested || auto_cached.cleanup_pending)) rt_event_send(&work, EV_AUTO_LIGHT);
+    }
+    rt_hw_interrupt_enable(level);
+}
+wristflow_product_light_snapshot_t wristflow_product_light_snapshot(void)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    wristflow_product_light_snapshot_t value = auto_cached;
+    value.enabled = auto_requested; value.active = auto_requested && auto_active;
+    value.fault = auto_fault;
+    value.valid = value.valid && value.active && auto_cached_generation == auto_generation && !auto_cancel;
+    rt_hw_interrupt_enable(level);
+    if (value.valid && now_ms() - value.sampled_ms >= 5000U) value.valid = false;
+    return value;
+}
 
 static void wrist_irq_signal(void)
 { if (ready) rt_event_send(&work, EV_WRIST_IRQ); }
@@ -128,7 +172,7 @@ static bool light_read(void *context, uint8_t reg, uint8_t *value)
 static bool light_write(void *context, uint8_t reg, uint8_t value)
 { (void)context; return rt_i2c_mem_write(bus, 0x29, reg, 8, &value, 1) == 1; }
 static bool light_cancelled(void *context)
-{ (void)context; return light_cancel_requested || cancel_requested; }
+{ (void)context; return light_cancel_requested || cancel_requested || (auto_owner && auto_cancel); }
 static void gate(bool take)
 {
 #ifdef RT_USING_PM
@@ -153,6 +197,9 @@ static void publish(void)
     cached = device.snapshot;
     wrist_cached = wrist.snapshot;
     light_cached = light.snapshot;
+    auto_cached = auto_value;
+    auto_cached_generation = auto_applied_generation;
+    auto_cached.cleanup_pending = auto_owner && light.snapshot.owned && !auto_runtime;
     light_busy = light_pending || light.snapshot.phase == WF_LIGHT_RUNNING || light.snapshot.owned;
     wrist_failed_cached = wrist.snapshot.phase == WF_IMU_FAULT;
     wrist_suspended_cached = !wrist_runtime && !wrist.changed && !wrist_unresolved &&
@@ -411,7 +458,7 @@ static void daily_work(rt_uint32_t events)
         wristflow_steps_store_offer(&checkpoint, &daily.snapshot, now);
         if (events & EV_SAVE) wristflow_steps_store_flush(&checkpoint, now);
     }
-    if (!(events & (EV_STOP | EV_DAILY_START))) light_work(events);
+    if (!(events & EV_STOP)) light_work(events & ~EV_DAILY_START);
     publish(); /* Releases this owner's IDLE unless stopping remains unconfirmed. */
     if (wrist.snapshot.phase != before_wrist.phase || wrist.snapshot.observations != before_wrist.observations ||
         (events & (EV_WRIST | EV_WRIST_STOP | EV_WRIST_POLICY | EV_WRIST_IRQ))) wrist_report(false);
@@ -481,11 +528,130 @@ static void light_report(void)
     rt_kprintf("[light-sample] session=%lu seq=%lu ms=%lu age=%lu status=%02x ch0=%u ch1=%u valid=%u saturated=%u; raw counts, not lux\n",
         (unsigned long)s.session, (unsigned long)s.samples, (unsigned long)s.sampled_ms,
         (unsigned long)(s.samples ? now_ms() - s.sampled_ms : 0), s.status, s.ch0, s.ch1, s.sample_valid, s.saturated);
-    rt_kprintf("[light-time] start=%lu duration=%lu not_ready=%lu; 1x/100ms integration/500ms repeat, no automatic brightness\n",
+    rt_kprintf("[light-time] start=%lu duration=%lu not_ready=%lu; 1x/100ms integration/500ms repeat, raw channels\n",
         (unsigned long)s.started_ms, (unsigned long)s.duration_ms, (unsigned long)s.not_ready);
+    wristflow_product_light_snapshot_t a = wristflow_product_light_snapshot();
+    rt_kprintf("[auto-light] enabled=%u active=%u valid=%u fault=%u cleanup=%u brightness=%u mlux=%lu ms=%lu session=%lu seq=%lu; uncalibrated\n",
+        a.enabled, a.active, a.valid, a.fault, a.cleanup_pending, a.brightness,
+        (unsigned long)a.millilux, (unsigned long)a.sampled_ms, (unsigned long)a.session, (unsigned long)a.sequence);
+}
+static bool auto_stop(void)
+{
+    auto_value.valid = false;
+    if (light.snapshot.phase == WF_LIGHT_RUNNING || light.snapshot.owned) {
+        if (!light.snapshot.owned || prepare_bus()) (void)wf_ltr303_stop(&light, WF_LIGHT_CANCELLED);
+        else wf_ltr303_bus_fault(&light);
+    }
+    auto_runtime = false;
+    auto_owner = light.snapshot.owned;
+    return !auto_owner;
+}
+static void auto_fail(uint32_t generation)
+{
+    auto_value.valid = false;
+    rt_base_t level = rt_hw_interrupt_disable();
+    if (auto_generation == generation) {
+        auto_requested = false; auto_fault = true; auto_cancel = true; ++auto_generation;
+    }
+    rt_hw_interrupt_enable(level);
+    rt_kprintf("[auto-light] fault; manual fallback, explicit retry required\n");
+}
+static void auto_light_work(rt_uint32_t events)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    uint32_t generation = auto_generation;
+    bool enabled = auto_requested, active = auto_active, retry = auto_retry;
+    auto_retry = false;
+    rt_hw_interrupt_enable(level);
+    bool stop = events & (EV_STOP | EV_DAILY_START | EV_LIGHT_STOP);
+    if (stop && (auto_runtime || auto_owner || (events & (EV_STOP | EV_LIGHT_STOP)))) {
+        rt_base_t lock = rt_hw_interrupt_disable();
+        auto_requested = false; auto_cancel = true; ++auto_generation;
+        rt_hw_interrupt_enable(lock);
+        (void)auto_stop();
+        light_cancel_requested = false;
+        return;
+    }
+    if (events & EV_DAILY_START) return; /* New daily owner is not prepared yet. */
+    if (auto_runtime && (!enabled || !active || generation != auto_applied_generation)) {
+        if (!auto_stop()) { auto_fail(generation); return; }
+    }
+    if (!enabled || !active) {
+        auto_value.valid = false;
+        if (auto_owner && retry && !auto_stop()) auto_fail(generation);
+        return;
+    }
+    if (!auto_runtime) {
+        /* Failed cleanup is only retried by a user command, never by a timer
+         * or an OFF/ACTIVE transition. Never steal a diagnostic ALS owner. */
+        if (auto_owner && (!retry || !auto_stop())) { auto_fail(generation); return; }
+        if (light.snapshot.phase == WF_LIGHT_RUNNING || light.snapshot.owned ||
+            device.snapshot.phase != WF_IMU_RUNNING || wrist.snapshot.phase == WF_IMU_FAULT ||
+            (wrist.snapshot.phase == WF_IMU_RUNNING && !wrist.snapshot.continuous)) {
+            auto_fail(generation); return;
+        }
+        auto_applied_generation = generation;
+        auto_started_ms = now_ms(); auto_sequence = 0;
+        auto_filter = (wf_auto_brightness_t){0}; auto_value = (wristflow_product_light_snapshot_t){0};
+        rt_base_t lock = rt_hw_interrupt_disable();
+        if (auto_generation == generation) auto_cancel = false;
+        rt_hw_interrupt_enable(lock);
+        auto_owner = auto_runtime = wf_ltr303_begin_continuous(&light, auto_started_ms);
+        if (!auto_runtime) { auto_fail(generation); return; }
+    }
+    if (device.snapshot.phase != WF_IMU_RUNNING || wrist.snapshot.phase == WF_IMU_FAULT) {
+        (void)auto_stop(); auto_fail(generation); return;
+    }
+    if (wf_ltr303_wait_ms(&light, now_ms()) == 0 || auto_cancel) {
+        if (!light.snapshot.owned && auto_cancel) wf_ltr303_poll(&light);
+        else if (prepare_bus()) wf_ltr303_poll(&light);
+        else wf_ltr303_bus_fault(&light);
+    }
+    /* Recheck the generation after I/O. A cancelled old frame must never be
+     * published as the result of a newer enable/ACTIVE request. */
+    rt_base_t lock = rt_hw_interrupt_disable();
+    bool current = auto_generation == generation;
+    rt_hw_interrupt_enable(lock);
+    if (!current) {
+        if (light.snapshot.phase == WF_LIGHT_RUNNING) (void)auto_stop();
+        else {
+            auto_value.valid = false;
+            auto_runtime = false; auto_owner = light.snapshot.owned;
+        }
+        if (light.snapshot.phase == WF_LIGHT_FAULT || auto_owner) {
+            /* poll may already have attempted cancellation/restore. Never
+             * repeat that uncertain transaction on this generation change. */
+            rt_base_t state = rt_hw_interrupt_disable();
+            uint32_t failed_generation = auto_generation;
+            auto_retry = false;
+            rt_hw_interrupt_enable(state);
+            auto_fail(failed_generation);
+        }
+        return;
+    }
+    if (light.snapshot.phase != WF_LIGHT_RUNNING) {
+        /* poll already attempted restoration once. Keep unresolved ownership
+         * and IDLE; don't hide the failure by retrying in the same cycle. */
+        auto_runtime = false; auto_owner = light.snapshot.owned;
+        auto_fail(generation); return;
+    }
+    if (light.snapshot.samples != auto_sequence) {
+        auto_sequence = light.snapshot.samples;
+        uint32_t mlux;
+        if (light.snapshot.sample_valid && wf_light_millilux(light.snapshot.ch0, light.snapshot.ch1, &mlux)) {
+            auto_value = (wristflow_product_light_snapshot_t){.valid=true,
+                .brightness=wf_auto_brightness_observe(&auto_filter, mlux), .millilux=mlux,
+                .sampled_ms=light.snapshot.sampled_ms, .session=light.snapshot.session, .sequence=auto_sequence};
+        }
+    }
+    uint32_t last = auto_value.valid ? auto_value.sampled_ms : auto_started_ms;
+    if (now_ms() - last >= 5000U) {
+        (void)auto_stop(); auto_fail(generation);
+    }
 }
 static void light_work(rt_uint32_t events)
 {
+    if (auto_requested || auto_runtime || auto_owner) { auto_light_work(events); return; }
     rt_base_t level = rt_hw_interrupt_disable();
     bool begin = light_pending;
     unsigned span = light_seconds;
@@ -592,7 +758,7 @@ static void worker(void *context)
         }
         rt_uint32_t events = 0;
         rt_event_recv(&work, EV_COMMAND | EV_STOP | EV_DAILY_START | EV_SCREEN | EV_SAVE | EV_WRIST | EV_WRIST_STOP |
-            EV_WRIST_POLICY | EV_WRIST_IRQ | EV_LIGHT | EV_LIGHT_STOP,
+            EV_WRIST_POLICY | EV_WRIST_IRQ | EV_LIGHT | EV_LIGHT_STOP | EV_AUTO_LIGHT,
             RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, wait, &events);
         if (daily_mode) {
             daily_work(events);
@@ -687,7 +853,7 @@ static void wf_light(int argc, char **argv)
     bool accepted = cached.phase == WF_IMU_RUNNING && !daily_retry_pending && !cancel_requested &&
         !wrist_cancel_requested && wrist_cached.phase != WF_IMU_FAULT &&
         !wrist_pending && (!wrist_busy || (wrist_runtime && wrist_cached.continuous)) &&
-        !light_busy && !light_pending && !light_cancel_requested &&
+        !auto_requested && !light_busy && !light_pending && !light_cancel_requested &&
         light_cached.phase != WF_LIGHT_RUNNING && !light_cached.owned;
     if (accepted) {
         light_pending = light_busy = true; light_seconds = span;
@@ -735,7 +901,7 @@ static void wf_wrist(int argc, char **argv)
     rt_base_t level = rt_hw_interrupt_disable();
     bool accepted = !wrist_requested && cached.phase == WF_IMU_RUNNING && !wrist_busy && !cancel_requested &&
         !wrist_cancel_requested && wrist_cached.phase != WF_IMU_FAULT &&
-        !light_busy && !light_pending && !light_cached.owned && light_cached.phase != WF_LIGHT_RUNNING;
+        !auto_requested && !light_busy && !light_pending && !light_cached.owned && light_cached.phase != WF_LIGHT_RUNNING;
     if (accepted) {
         wrist_busy = wrist_pending = true;
         wrist_seconds = span; wrist_mask = mask; wrist_latency = (uint8_t)latency;
@@ -800,6 +966,9 @@ static bool start(bool daily_service)
     wf_ltr303_init(&light, (wf_ltr303_io_t){NULL, light_read, light_write, io_clock, light_cancelled});
     light_cached = light.snapshot;
     light_pending = light_busy = light_cancel_requested = false;
+    auto_requested = auto_active = auto_owner = auto_runtime = auto_retry = auto_fault = auto_cancel = false;
+    auto_generation = auto_applied_generation = auto_cached_generation = auto_started_ms = auto_sequence = 0;
+    auto_value = auto_cached = (wristflow_product_light_snapshot_t){0};
     wrist.read_int1 = wrist_int1_read;
     wrist_cached = wrist.snapshot;
     wrist_pending = wrist_busy = wrist_cancel_requested = false;

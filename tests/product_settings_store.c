@@ -123,6 +123,16 @@ int main(void)
     assert(state(newer)==WRISTFLOW_SAVE_PENDING && !saved_valid);
     fail_pref_read=false; ticks+=5000; background(); assert(state(newer)==WRISTFLOW_SAVE_DONE);
 
+    /* Mode-only writes use the existing debounce/readback, retain manual value,
+     * and a runtime fault turning auto off is a second ordinary preference. */
+    wristflow_settings_t automatic=saved; automatic.auto_brightness=true;
+    id=wristflow_product_settings_request(&automatic,NULL); ticks+=1500; background();
+    assert(state(id)==WRISTFLOW_SAVE_DONE && saved.auto_brightness && saved.brightness==36);
+    wristflow_settings_t decoded;
+    assert(wristflow_settings_decode(&decoded,pref_record,sizeof pref_record) && decoded.auto_brightness);
+    automatic.auto_brightness=false;
+    id=wristflow_product_settings_request(&automatic,NULL); ticks+=1500; background();
+    assert(state(id)==WRISTFLOW_SAVE_DONE && !saved.auto_brightness && saved.brightness==36);
     wristflow_layout_t value=wristflow_layout_default();
     fail_layout_write=true; id=wristflow_product_layout_request(&value,NULL);
     for(unsigned i=0;i<3;++i) { background(); ticks+=5000; }

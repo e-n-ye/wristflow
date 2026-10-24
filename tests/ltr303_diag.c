@@ -125,5 +125,16 @@ int main(void)
         setup(&d, &s); s.regs[0x85] = (uint8_t)rate; activate(&d, &s, 1000);
         assert(wf_ltr303_stop(&d, WF_LIGHT_CANCELLED) && s.regs[0x85] == rate && d.snapshot.restored);
     }
+    /* Continuous production mode shares the same configuration/restoration.
+     * It crosses 120s and tick wrap without rolling diagnostic sessions. */
+    setup(&d,&s); s.ms=UINT32_MAX-50;
+    assert(wf_ltr303_begin_continuous(&d,s.ms) && d.continuous && !d.snapshot.duration_ms);
+    s.ms+=100; wf_ltr303_poll(&d); s.ms+=200; frame(&s,100,20,4); wf_ltr303_poll(&d);
+    assert(d.snapshot.samples==1 && d.snapshot.sample_valid);
+    s.ms+=121000; frame(&s,200,20,4); wf_ltr303_poll(&d);
+    assert(d.snapshot.phase==WF_LIGHT_RUNNING && d.snapshot.samples==2 && wf_ltr303_wait_ms(&d,s.ms)==1000);
+    s.cancel=true; wf_ltr303_poll(&d);
+    assert(d.snapshot.restored && !d.snapshot.owned && d.snapshot.ended==WF_LIGHT_CANCELLED);
+    s.cancel=false; assert(wf_ltr303_begin(&d,s.ms,1000) && !d.continuous);
     return 0;
 }
