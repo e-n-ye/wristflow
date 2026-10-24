@@ -12,6 +12,8 @@ typedef struct {
     uint32_t read_delay_ms;
     bool reset_wait, measuring, selftest, selftest_fail, never_done, fail_reset;
     bool stuck_done, cancel, cancel_data, otp_missing;
+    bool clear_selftest_sat_on_read;
+    bool partial_data_failure;
 } fake_mmc5603_t;
 static void fake_mag_counts(fake_mmc5603_t *s, int32_t x, int32_t y, int32_t z)
 {
@@ -47,8 +49,10 @@ static bool fake_mag_read(fake_mmc5603_t *s, uint8_t reg, uint8_t *data, size_t 
     else if (reg==0x18) *data=s->status;
     else if (reg==0x27) memcpy(data,s->factory,3);
     else {
+        if (s->partial_data_failure) { data[0]=s->data[0]; return false; }
         memcpy(data,s->data,9);
         if (!s->stuck_done) s->status &= (uint8_t)~0x40U;
+        if (s->selftest && s->clear_selftest_sat_on_read) s->status &= (uint8_t)~0x20U;
         if (s->cancel_data) s->cancel=true;
     }
     if (reg==s->slow_reg) s->ms+=s->read_delay_ms;

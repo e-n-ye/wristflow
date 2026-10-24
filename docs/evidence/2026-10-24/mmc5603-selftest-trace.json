@@ -1,0 +1,250 @@
+{
+  "schema": 1,
+  "recorded_at": "2026-10-24T08:52:53.868200+00:00",
+  "scope": "MMC5603NJ selftest evidence only: preserve existing transfers, statuses and software times; no functional threshold/sequence change or device experiment.",
+  "source_base": "096f15dc668990a08aef0a9eac210169f965c325",
+  "changed_sources": [
+    {
+      "path": "apps/product/src/mmc5603_diag.c",
+      "sha256": "d508aebc9e4b1ac000a2c9e4edf43d31bf06905345760e21573d90331476db59",
+      "normalized_lf_sha256": "1d906dc53c7db879bcb41c307765d65169bb16bb2ef8482bbad0bb0edd51fa9c"
+    },
+    {
+      "path": "apps/product/src/mmc5603_diag.h",
+      "sha256": "005163ece5d25633ca0418d9ab077fec4cf6b6d6a0e6a7b071f19e0c3958d6c5",
+      "normalized_lf_sha256": "d917c44cd853a7459bd10883ce491008cf2bb1369bfcfd79df74c7265ca6dc4e"
+    },
+    {
+      "path": "apps/product/src/product_imu_diag.c",
+      "sha256": "7dfa9b29ed25d102d46fefd8a175731bde10b16bf0ddf6bacf69a06820367e98",
+      "normalized_lf_sha256": "5617f51e1f205de900690120790e53a4a0867340889e403aba27698584075d50"
+    },
+    {
+      "path": "tests/mmc5603_diag.c",
+      "sha256": "60b76b21245463b4578394fb53d21661ca406df9ea17b6882f4fb1a204f78830",
+      "normalized_lf_sha256": "ab2efd48fd8a0fafe25a348e79a4ac33c4ec47f9ec4a7c718d4fb6e74712f9c8"
+    },
+    {
+      "path": "tests/product_imu_diag.c",
+      "sha256": "4e0029a5feddf48aab493c33a7ec4dfc834c3bda03e48034e3d3d6f0c22e7480",
+      "normalized_lf_sha256": "225bb157b792e4c8f788780178b329bc2f21165e38eb14f4778b3a8e5ace2a37"
+    },
+    {
+      "path": "tests/support/mmc5603_fake.h",
+      "sha256": "c1d5957df1ade33ab8482ec801dc35f2a785f85ccb6ca68bd85cee26db3a7e65",
+      "normalized_lf_sha256": "afc3749f8135677c6508e1d6713a817676ebfd9f3a86d7657387c3e407f99f54"
+    }
+  ],
+  "research": {
+    "official_product_url": "https://www.memsic.com/magnetometer-2",
+    "official_pdf_url": "https://www.memsic.com/Public/Uploads/uploadfile/files/20220119/MMC5603NJDatasheetRev.B.pdf",
+    "official_document": "MEMSIC MMC5603NJ Rev.B,18pages,Formal release1/17/2022",
+    "official_record": {
+      "path": "artifacts/mmc5603-selftest-20261024/MMC5603NJDatasheetRev.B-official.pdf",
+      "bytes": 808421,
+      "sha256": "3b64ea625a9928363f847805b88406ffbee7b4b55f3ad7421cd73b5d9d816518"
+    },
+    "relevant_pages_compared": [
+      8,
+      9,
+      10,
+      11,
+      14,
+      15
+    ],
+    "visual_checked_pages": [
+      14
+    ],
+    "result": "Official2022 document retains80% readout/0x41/Sat_sensor, no factory signed/bias encoding, independent selftest completion marker or rounding guidance. No supported threshold fix.",
+    "official_provenance_records": [
+      {
+        "name": "official-product",
+        "url": "https://www.memsic.com/magnetometer-2",
+        "path": "artifacts/mmc5603-selftest-20261024/official-product.txt",
+        "bytes": 57844,
+        "sha256": "b6808cf7bf242afdaeb6a7f57163c20bb35471a57ca21c8ae73c0be867f7b459"
+      },
+      {
+        "name": "zephyr-source-version",
+        "url": "https://api.github.com/repos/zephyrproject-rtos/zephyr/commits?path=drivers/sensor/memsic/mmc56x3/mmc56x3.c&per_page=1",
+        "path": "artifacts/mmc5603-selftest-20261024/zephyr-source-version.txt",
+        "bytes": 3628,
+        "sha256": "638f69b80ff150467461dc44230b615f6469c18668da0e999b9598978f260c41",
+        "commit": "58f4292cd911aa58674f976c94f0f179768f2d85"
+      },
+      {
+        "name": "ardupilot-source-version",
+        "url": "https://api.github.com/repos/ArduPilot/ardupilot/commits?path=libraries/AP_Compass/AP_Compass_MMC5xx3.cpp&per_page=1",
+        "path": "artifacts/mmc5603-selftest-20261024/ardupilot-source-version.txt",
+        "bytes": 3384,
+        "sha256": "c6aedd2c0c7bc0c305ec0c51299a845874c874b22af199bb0c9f2abeb8041d82",
+        "commit": "1bd05a9ea39d9dddf4259ef8ac5c981c9a8c50dd"
+      }
+    ],
+    "pinned_ecosystem_source_records": [
+      {
+        "name": "zephyr-driver",
+        "repo": "zephyrproject-rtos/zephyr",
+        "commit": "58f4292cd911aa58674f976c94f0f179768f2d85",
+        "url": "https://raw.githubusercontent.com/zephyrproject-rtos/zephyr/58f4292cd911aa58674f976c94f0f179768f2d85/drivers/sensor/memsic/mmc56x3/mmc56x3.c",
+        "path": "artifacts/mmc5603-selftest-20261024/zephyr-driver-pinned.txt",
+        "bytes": 13413,
+        "sha256": "ba0e415cc056f01ffdf71fc70e1eedd7484d24366939b9841eab28c7a5aa8187",
+        "same_as_initial": true
+      },
+      {
+        "name": "ardupilot-driver",
+        "repo": "ArduPilot/ardupilot",
+        "commit": "1bd05a9ea39d9dddf4259ef8ac5c981c9a8c50dd",
+        "url": "https://raw.githubusercontent.com/ArduPilot/ardupilot/1bd05a9ea39d9dddf4259ef8ac5c981c9a8c50dd/libraries/AP_Compass/AP_Compass_MMC5xx3.cpp",
+        "path": "artifacts/mmc5603-selftest-20261024/ardupilot-driver-pinned.txt",
+        "bytes": 9544,
+        "sha256": "d8c9288dfc7f44c589be42ae45b795d4239aba01d828fb9218c6a997bfa5eb7b",
+        "same_as_initial": true
+      }
+    ],
+    "ecosystem_scope": "Only the saved Zephyr and ArduPilot MMC56x3 driver files were inspected; neither provides factory-byte automatic-selftest threshold decoding. Not manufacturer reference code.",
+    "independent_search": "Read-only researcher located official product/PDF; no verifiable original manufacturer MMC5603NJ selftest source found in bounded Android/SDK search. Different-chip formulas were not transferred.",
+    "limits": [
+      "GitHub code search401, grep.app429 and Sourcegraph403 reported by read-only researcher; not bypassed.",
+      "General search returned unrelated results or script-only page; not used as technical evidence.",
+      "No private manufacturer package/contact; public-source absence does not prove there is no encoding."
+    ]
+  },
+  "implementation": {
+    "trace_bits": {
+      "reset_status": 1,
+      "factory_transfer": 2,
+      "command_attempt": 4,
+      "command_ack": 8,
+      "last_wait_status": 16,
+      "raw_response": 32,
+      "post_status": 64
+    },
+    "trace_is_transport_only": true,
+    "trace_is_not_selftest_completion_or_pass": true,
+    "retained": "Reset status/time; command attempt+ACK/time; last existing wait status/time/count;9B selftest response/time; post-response status/time, separate from cleanup after_status and ordinary raw.",
+    "unchanged": "Native threshold floor80%,0x41,existing DONE gate/Sat_sensor decision,autoSR sampling,deadline/cancel/stop/ownership; no new I/O/delay/retry/policy.",
+    "expired_cancelled": "Successful response transfers may remain as diagnostic bytes with evidence bit even when later cancellation/deadline invalidates result; no ordinary frame publication.",
+    "failed_transfer": "No response bit/raw copy on false return, including partially modified local buffer.",
+    "reporting": "3cached status lines; once at selftest completion or trace-bearing aborted operation, no per-normal-frame telemetry logging.",
+    "budgets": {
+      "snapshot_bytes_before": 72,
+      "snapshot_bytes_after": 112,
+      "two_static_copies_growth_bytes": 80,
+      "new_threads": 0,
+      "new_timers": 0,
+      "worker_stack_bytes": 6144,
+      "main_stack_bytes": 16384,
+      "actual_new_stack_watermark_measured": false,
+      "product_bin_growth_bytes": 688
+    }
+  },
+  "tests": [
+    {
+      "record": {
+        "path": "artifacts/mmc5603-selftest-20261024/debug-tests-001.log",
+        "bytes": 354,
+        "sha256": "0a123a47275a2c4b5b8eff6a99ab4cfc788856adb29e864263e37f29d30c7bfe"
+      },
+      "scope": "Debug initial response/timing preservation and integration",
+      "passed": 2,
+      "total": 2,
+      "seconds": 0.21
+    },
+    {
+      "record": {
+        "path": "artifacts/mmc5603-selftest-20261024/release-tests-001.log",
+        "bytes": 361,
+        "sha256": "1097ebf5b7b9001598a98b11f2ac409420cf1ee8d566723681f9209518c93da9"
+      },
+      "scope": "Release initial response/timing preservation and integration",
+      "passed": 2,
+      "total": 2,
+      "seconds": 0.19
+    },
+    {
+      "record": {
+        "path": "artifacts/mmc5603-selftest-20261024/debug-tests-final.log",
+        "bytes": 354,
+        "sha256": "3c479f4b01653ca46d9f5ad84a78cc74d6477c033592bbe472d2b90cb6749476"
+      },
+      "scope": "Final Debug also partial-write failing transfer cannot expose raw response",
+      "passed": 2,
+      "total": 2,
+      "seconds": 0.22
+    },
+    {
+      "record": {
+        "path": "artifacts/mmc5603-selftest-20261024/release-tests-final.log",
+        "bytes": 361,
+        "sha256": "3708554a44c8bcfd70328b1aff68ec3fdfbe556a4e652a520b81a7541d8e74d4"
+      },
+      "scope": "Final Release same scope",
+      "passed": 2,
+      "total": 2,
+      "seconds": 0.14
+    }
+  ],
+  "build": {
+    "record": {
+      "path": "artifacts/product/20261024-164647-118/result.json",
+      "bytes": 110813,
+      "sha256": "7d602cb463b7f9928a081e1ade725005422aa6d18d21a97becfff5045671310c"
+    },
+    "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+    "started": "2026-10-24T16:46:47.1307814+08:00",
+    "finished": "2026-10-24T16:47:11.1183407+08:00",
+    "exit_code": 0,
+    "sources": 545,
+    "artifacts": 29,
+    "bin_bytes": 8029336,
+    "bin_sha256": "f9007cbf3cc69da561b5f2d2af584dbaffcdcf7513fe50d7fdbf8465277e4b71",
+    "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+    "python": "Python 3.13.15",
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "submodules": [
+      " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+      " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+    ],
+    "sdk_clean": true,
+    "bytes_verified": true
+  },
+  "dry_run": {
+    "record": {
+      "path": "artifacts/mmc5603-selftest-20261024/flash-dry-run.log",
+      "bytes": 452,
+      "sha256": "83e7773e9b5acaf9ec46c7629e5cf937c70907d7cae176aebf5053ab650529c0"
+    },
+    "device_opened": false
+  },
+  "preservation": {
+    "path": "D:\\MY_Desk\\project\\wristflow\\artifacts\\mmc5603-selftest-20261024\\previous-5eb28e3c-source-and-artifacts.zip",
+    "bytes": 21159175,
+    "sha256": "140583070cb3c3b5bc363efdd1c072e2e31b35ed1b4c7bd2173eb49d42ab7586",
+    "verified": true,
+    "artifacts": 29,
+    "source_commit": "096f15dc668990a08aef0a9eac210169f965c325",
+    "source_files": 3
+  },
+  "review": "Independent read-only causal audit and final code review found no definite blocker. Existing data/timing evidence gap fixed, not a claimed selftest root-cause fix.",
+  "failures": [
+    "Initial guessed Linux driver raw URL404; official MEMSIC product-discovered URL succeeded.",
+    "Optional BeautifulSoup parser unavailable; standard-library parsing used. General-search results were irrelevant and excluded.",
+    "No new host/firmware validation failure; no threshold tuning or device retry."
+  ],
+  "warnings": "Existing FinSH conversions/linker syscall/entry/RWX and missingdfu messages retained; no new diagnostic warning.",
+  "hardware_verified": false,
+  "device_operations_this_round": false,
+  "prior_hardware": "5eb28e3c first selftest failure remains authoritative; this new candidate not downloaded. Auto/AOD/wrist preferences and stopped MMC unchanged.",
+  "next_bounded_experiment": "Only after separate scope/current-condition confirmation: one selftest capture to compare reset/command/DONE/read/post statuses and raw response, then stop; no threshold tuning/rotation/compass.",
+  "limitations": [
+    "Selftest failure cause and internal completion timing remain unknown.",
+    "No new device/calibratedXYZ/axis/heading/power/current/endurance or physicalDEEP conclusion."
+  ],
+  "local_evidence": {
+    "worktree": "D:\\MY_Desk\\project\\wristflow",
+    "directory": "artifacts/mmc5603-selftest-20261024",
+    "available_in_repository": false
+  }
+}
