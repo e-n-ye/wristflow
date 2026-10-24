@@ -11,6 +11,7 @@
 #include "breathing_view.h"
 #include "game_2048_view.h"
 #include "activity_view.h"
+#include "compass_view.h"
 #include "reminders.h"
 #include "control_center.h"
 #include <stdint.h>
@@ -493,6 +494,18 @@ static void create_product_menu(wristflow_apps_t *apps, lv_obj_t *root)
         apps->menu_entries[index] = entry;
         lv_obj_t *row = app_list_item_create(list, entry->title, entry->icon, lv_color_hex(entry->color));
         lv_obj_t *icon = launcher_icon_create(grid, entry->icon, lv_color_hex(entry->color));
+        if (entry->icon_image) {
+            lv_obj_t *circle = named(row, "menu_circle");
+            lv_obj_add_flag(named(row, "launcher_icon_label"), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(named(icon, "launcher_icon_label"), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_t *list_image = lv_image_create(circle);
+            lv_image_set_src(list_image, *entry->icon_image);
+            lv_image_set_scale(list_image, 205); /* 100px asset in the existing 80px slot. */
+            lv_obj_center(list_image);
+            lv_obj_t *grid_image = lv_image_create(icon);
+            lv_image_set_src(grid_image, *entry->icon_image);
+            lv_obj_center(grid_image);
+        }
         lv_obj_set_name(row, entry->launcher_name);
         lv_obj_set_name(icon, entry->launcher_name);
         apps->menu_icons[index] = row;
@@ -747,6 +760,9 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         wristflow_settings_battery_bind(root, apps->shell);
     } else if (surface == WRISTFLOW_SURFACE_ENDURANCE) {
         wristflow_endurance_render(root, apps->shell);
+    } else if (surface == WRISTFLOW_SURFACE_COMPASS) {
+        wristflow_compass_display_t display = {apps->product_mode ? WRISTFLOW_COMPASS_UNAVAILABLE : WRISTFLOW_COMPASS_HEADING, 305};
+        wristflow_compass_render(root, &display);
     } else {
         lv_label_set_text(named(root, "app_title"), app->title);
         lv_label_set_text(named(root, "placeholder_icon"), app->icon);

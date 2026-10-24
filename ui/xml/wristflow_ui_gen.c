@@ -47,6 +47,8 @@ static uint32_t wristflow_ui_target = WRISTFLOW_UI_TARGET_ALL;
  * Fonts
  *----------------*/
 
+lv_font_t * compass_32;
+extern lv_font_t compass_32_data;
 lv_font_t * aod_preview_48;
 extern lv_font_t aod_preview_48_data;
 lv_font_t * aod_preview_32;
@@ -79,6 +81,12 @@ extern lv_font_t icons_20_data;
  *----------------*/
 
 /* Targets: any */
+const void * compass_pointer = NULL;
+extern const void * compass_pointer_data;
+const void * compass_icon = NULL;
+extern const void * compass_icon_data;
+const void * compass_gesture_path = NULL;
+extern const void * compass_gesture_path_data;
 const void * control_dnd = NULL;
 extern const void * control_dnd_data;
 const void * control_silent = NULL;
@@ -170,6 +178,12 @@ void wristflow_ui_init_gen(const char * asset_path)
 
     #if WRISTFLOW_UI_CHECK_COMPILE_TARGET(WRISTFLOW_UI_TARGET_ALL)
     if (wristflow_ui_check_target(WRISTFLOW_UI_TARGET_ALL)) {
+        if (!compass_32) {
+            /* compass_32 */
+            /* get font 'compass_32' from a C array */
+            compass_32 = &compass_32_data;
+
+        }
         if (!aod_preview_48) {
             /* aod_preview_48 */
             /* get font 'aod_preview_48' from a C array */
@@ -258,6 +272,18 @@ void wristflow_ui_init_gen(const char * asset_path)
     /* Targets: any */
     #if WRISTFLOW_UI_CHECK_COMPILE_TARGET(WRISTFLOW_UI_TARGET_ALL)
     if (wristflow_ui_check_target(WRISTFLOW_UI_TARGET_ALL)) {
+        /* compass_pointer */
+        if (!compass_pointer) {
+            compass_pointer = &compass_pointer_data;
+        }
+        /* compass_icon */
+        if (!compass_icon) {
+            compass_icon = &compass_icon_data;
+        }
+        /* compass_gesture_path */
+        if (!compass_gesture_path) {
+            compass_gesture_path = &compass_gesture_path_data;
+        }
         /* control_dnd */
         if (!control_dnd) {
             control_dnd = &control_dnd_data;
@@ -391,6 +417,7 @@ void wristflow_ui_init_gen(const char * asset_path)
 
     /* Check all fonts / default if needed. This prevents fonts that are used in one target but
        defined in another from causing assertion failures during rendering of the Preview. */
+    check_font(&compass_32, "compass_32");
     check_font(&aod_preview_48, "aod_preview_48");
     check_font(&aod_preview_32, "aod_preview_32");
     check_font(&aod_preview_14, "aod_preview_14");
@@ -406,6 +433,7 @@ void wristflow_ui_init_gen(const char * asset_path)
     check_font(&icons_20, "icons_20");
 
     /* Register fonts */
+    lv_xml_register_font(NULL, "compass_32", compass_32);
     lv_xml_register_font(NULL, "aod_preview_48", aod_preview_48);
     lv_xml_register_font(NULL, "aod_preview_32", aod_preview_32);
     lv_xml_register_font(NULL, "aod_preview_14", aod_preview_14);
@@ -429,6 +457,9 @@ void wristflow_ui_init_gen(const char * asset_path)
      * While running in the editor skip this step to update the preview when the XML changes */
 #if defined(LV_USE_XML) && LV_USE_XML && !defined(LV_EDITOR_PREVIEW)
     /* Register images */
+    lv_xml_register_image(NULL, "compass_pointer", compass_pointer);
+    lv_xml_register_image(NULL, "compass_icon", compass_icon);
+    lv_xml_register_image(NULL, "compass_gesture_path", compass_gesture_path);
     lv_xml_register_image(NULL, "control_dnd", control_dnd);
     lv_xml_register_image(NULL, "control_silent", control_silent);
     lv_xml_register_image(NULL, "control_wrist", control_wrist);

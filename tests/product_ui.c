@@ -219,7 +219,7 @@ int main(int argc, char **argv)
             assert(app->card_sizes & slot->size);
         }
     }
-    assert(instances == 10 && wristflow_app_count() == 19);
+    assert(instances == 10 && wristflow_app_count() == 20);
     assert(wristflow_app_find("game_2048")->capability == WRISTFLOW_CAPABILITY_READY);
     assert(wristflow_app_find("countdown")->demo_only);
     assert(!wristflow_app_find("breathing")->demo_only);
@@ -311,16 +311,21 @@ int main(int argc, char **argv)
     sample(100, 125, false); advance_ms(800);
     assert(wristflow_ui_shell_navigation(shell)->surface == WRISTFLOW_SURFACE_HOME);
     assert(wristflow_ui_shell_home(shell)); advance();
-    /* Each registry icon and label has an actual glyph in the exported fonts. */
+    /* Each registry icon resolves to an exported image or a real font glyph. */
     for (size_t i = 0; i < wristflow_app_count(); ++i) {
         const wristflow_app_descriptor_t *app = wristflow_app_at(i);
         assert(wristflow_app_for_surface(app->surface) ==
             (app->component_only ? wristflow_app_find("activity") : app));
         for (size_t j = 0; j < i; ++j) assert(strcmp(wristflow_app_at(j)->id, app->id));
-        const unsigned char *icon = (const unsigned char *)app->icon;
-        uint32_t cp = ((icon[0] & 15) << 12) | ((icon[1] & 63) << 6) | (icon[2] & 63);
-        lv_font_glyph_dsc_t glyph;
-        assert(lv_font_get_glyph_dsc(icons_44, &glyph, cp, 0) && !glyph.is_placeholder);
+        if (app->icon_image) {
+            assert(*app->icon_image && lv_image_src_get_type(*app->icon_image) == LV_IMAGE_SRC_VARIABLE);
+        } else {
+            const unsigned char *icon = (const unsigned char *)app->icon;
+            assert(strlen(app->icon) == 3);
+            uint32_t cp = ((icon[0] & 15) << 12) | ((icon[1] & 63) << 6) | (icon[2] & 63);
+            lv_font_glyph_dsc_t glyph;
+            assert(lv_font_get_glyph_dsc(icons_44, &glyph, cp, 0) && !glyph.is_placeholder);
+        }
         glyphs(body_20, app->title); glyphs(title_24, app->title);
         glyphs(body_20, app->reason);
     }
