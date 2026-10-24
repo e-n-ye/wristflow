@@ -11,6 +11,7 @@
 #include "product_light.h"
 #include "auto_brightness.h"
 #include "mmc5603_diag.h"
+#include "product_compass.h"
 #include <rtthread.h>
 #include <rthw.h>
 #include <rtdevice.h>
@@ -26,7 +27,7 @@
 enum { EV_COMMAND = 1, EV_STOP = 2, EV_DAILY_START = 4, EV_SCREEN = 8, EV_SAVE = 16,
     EV_WRIST = 32, EV_WRIST_STOP = 64, EV_WRIST_POLICY = 128, EV_WRIST_IRQ = 256,
     EV_LIGHT = 512, EV_LIGHT_STOP = 1024, EV_AUTO_LIGHT = 2048,
-    EV_MAG = 4096, EV_MAG_STOP = 8192 };
+    EV_MAG = 4096, EV_MAG_STOP = 8192, EV_COMPASS = 16384 };
 enum command { CMD_NONE, CMD_PROBE, CMD_STEPS };
 static struct rt_event work;
 static struct rt_i2c_bus_device *bus;
@@ -70,12 +71,51 @@ static volatile bool mag_cancel_requested;
 static unsigned mag_seconds;
 static bool mag_selftest_only;
 static wf_mag_threshold_t mag_threshold_mode;
+static bool compass_requested, compass_owner, compass_retry, compass_fault;
+static volatile bool compass_cancel;
+static uint32_t compass_generation, compass_applied_generation, compass_cached_generation;
+static wf_compass_snapshot_t compass_value, compass_cached;
 static bool prepare_bus(void);
 static bool probe(void);
 static wristflow_steps_clock_t daily_clock(void);
 static void light_work(rt_uint32_t events);
 static void mag_work(rt_uint32_t events);
 static uint32_t now_ms(void);
+
+bool wristflow_product_compass_active(bool active)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    bool accepted = ready && daily_mode && (!active || compass_requested ||
+        (cached.phase == WF_IMU_RUNNING && !daily_retry_pending && !cancel_requested &&
+         !compass_cached.cleanup_pending &&
+         !mag_pending && (!mag_busy || compass_owner) && !mag_cancel_requested &&
+         !wrist_cancel_requested && wrist_cached.phase != WF_IMU_FAULT &&
+         !wrist_pending && (!wrist_busy || (wrist_runtime && wrist_cached.continuous)) &&
+         !light_pending && !light_cancel_requested && !auto_cached.cleanup_pending &&
+         (!light_busy || auto_owner)));
+    if (accepted && compass_requested != active) {
+        compass_requested = active; compass_retry = true; compass_cancel = true;
+        ++compass_generation;
+        rt_event_send(&work, EV_COMPASS);
+    }
+    rt_hw_interrupt_enable(level);
+    return accepted;
+}
+
+wf_compass_snapshot_t wristflow_product_compass_snapshot(void)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    wf_compass_snapshot_t value = compass_cached;
+    value.requested = compass_requested;
+    bool current = compass_requested && compass_cached_generation == compass_generation && !compass_cancel;
+    value.active = value.active && current;
+    value.valid = value.valid && current;
+    rt_hw_interrupt_enable(level);
+    if (value.valid && now_ms() - value.sampled_ms >= 1000U) {
+        value.valid = false; value.reason = WF_COMPASS_STALE;
+    }
+    return value;
+}
 
 bool wristflow_product_light_enable(bool enabled)
 {
@@ -188,7 +228,7 @@ static bool mag_read(void *context, uint8_t reg, uint8_t *data, size_t size)
 static bool mag_write(void *context, uint8_t reg, uint8_t value)
 { (void)context; return rt_i2c_mem_write(bus, 0x30, reg, 8, &value, 1) == 1; }
 static bool mag_cancelled(void *context)
-{ (void)context; return mag_cancel_requested || cancel_requested; }
+{ (void)context; return mag_cancel_requested || cancel_requested || (compass_owner && compass_cancel); }
 static void gate(bool take)
 {
 #ifdef RT_USING_PM
@@ -215,6 +255,8 @@ static void publish(void)
     wrist_cached = wrist.snapshot;
     light_cached = light.snapshot;
     mag_cached = mag.snapshot;
+    compass_cached = compass_value;
+    compass_cached_generation = compass_applied_generation;
     mag_busy = mag_pending || mag.snapshot.phase == WF_MAG_RUNNING || mag.snapshot.owned;
     auto_cached = auto_value;
     auto_cached_generation = auto_applied_generation;
@@ -738,8 +780,112 @@ static void mag_trace_report(const wf_mmc5603_snapshot_t *s)
         s->selftest_raw[0], s->selftest_raw[1], s->selftest_raw[2], s->selftest_raw[3], s->selftest_raw[4],
         s->selftest_raw[5], s->selftest_raw[6], s->selftest_raw[7], s->selftest_raw[8]);
 }
+static void compass_work(rt_uint32_t events)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    bool requested = compass_requested, retry = compass_retry;
+    uint32_t generation = compass_generation;
+    compass_retry = false;
+    rt_hw_interrupt_enable(level);
+    bool explicit_stop = (events & (EV_STOP | EV_DAILY_START | EV_MAG_STOP)) || mag_cancel_requested;
+    if (retry || generation != compass_applied_generation || explicit_stop) {
+        /* A lifecycle cancellation invalidates data, but must not retry an
+         * already failed cleanup. Only an explicit diagnostic stop/recovery
+         * may touch that retained hardware ownership again. */
+        if (compass_owner && mag.snapshot.phase != WF_MAG_RUNNING && !explicit_stop) {
+            compass_value.valid = compass_value.active = false;
+            compass_value.generation = generation;
+            compass_applied_generation = generation;
+            level = rt_hw_interrupt_disable();
+            if (generation == compass_generation) compass_cancel = false;
+            rt_hw_interrupt_enable(level);
+            return;
+        }
+        bool stopped = true;
+        bool was_owner = compass_owner;
+        if (compass_owner && (mag.snapshot.phase == WF_MAG_RUNNING || mag.snapshot.owned)) {
+            if (!mag.snapshot.owned || prepare_bus()) stopped = wf_mmc5603_stop(&mag, WF_MAG_CANCELLED);
+            else { wf_mmc5603_bus_fault(&mag); stopped = false; }
+        }
+        compass_owner = compass_owner && mag.snapshot.owned;
+        compass_value = (wf_compass_snapshot_t){.generation = generation,
+            .session = mag.snapshot.session, .cleanup_pending = compass_owner,
+            .stopped = mag.snapshot.stopped, .io_errors = mag.snapshot.io_errors,
+            .fault = !stopped || (requested && explicit_stop),
+            .reason = !stopped ? WF_COMPASS_IO_FAILURE : (explicit_stop ? WF_COMPASS_BUSY : WF_COMPASS_WAITING)};
+        compass_applied_generation = generation;
+        compass_fault = !stopped || explicit_stop;
+        if (was_owner) rt_kprintf("[compass] stop generation=%lu session=%lu stopped=%u owned=%u errors=%lu\n",
+            (unsigned long)generation, (unsigned long)mag.snapshot.session, mag.snapshot.stopped,
+            mag.snapshot.owned, (unsigned long)mag.snapshot.io_errors);
+        if (explicit_stop) mag_cancel_requested = false;
+        level = rt_hw_interrupt_disable();
+        bool current = generation == compass_generation;
+        if (current) compass_cancel = false;
+        rt_hw_interrupt_enable(level);
+        if (!current || !requested || compass_fault) return;
+        bool available = device.snapshot.phase == WF_IMU_RUNNING && !cancel_requested &&
+            !mag_pending && wrist.snapshot.phase != WF_IMU_FAULT &&
+            (wrist.snapshot.phase != WF_IMU_RUNNING || wrist.snapshot.continuous) &&
+            (light.snapshot.phase != WF_LIGHT_RUNNING || auto_owner);
+        if (!available) {
+            compass_fault = compass_value.fault = true;
+            compass_value.reason = WF_COMPASS_BUSY;
+            return;
+        }
+        bool prepared = prepare_bus();
+        level = rt_hw_interrupt_disable();
+        current = generation == compass_generation && compass_requested && !compass_cancel && !cancel_requested;
+        rt_hw_interrupt_enable(level);
+        if (!current) return;
+        compass_owner = wf_mmc5603_begin_foreground(&mag, now_ms());
+        if (!compass_owner) {
+            compass_fault = compass_value.fault = true;
+            compass_value.reason = WF_COMPASS_BUSY;
+            return;
+        }
+        if (!prepared) wf_mmc5603_bus_fault(&mag);
+        rt_kprintf("[compass] start generation=%lu session=%lu; uncalibrated XY, no tilt compensation\n",
+            (unsigned long)generation, (unsigned long)mag.snapshot.session);
+    }
+    if (!requested || !compass_owner || compass_fault) return;
+    uint32_t previous = mag.snapshot.samples;
+    if (device.snapshot.phase != WF_IMU_RUNNING || wrist.snapshot.phase == WF_IMU_FAULT) {
+        if (!mag.snapshot.owned || prepare_bus()) (void)wf_mmc5603_stop(&mag, WF_MAG_IO_FAILURE);
+        else wf_mmc5603_bus_fault(&mag);
+    } else if (wf_mmc5603_wait_ms(&mag, now_ms()) == 0) {
+        if (prepare_bus()) wf_mmc5603_poll(&mag);
+        else wf_mmc5603_bus_fault(&mag);
+    }
+    wf_mmc5603_snapshot_t *s = &mag.snapshot;
+    compass_value.active = s->phase == WF_MAG_RUNNING;
+    compass_value.session = s->session;
+    compass_value.sequence = s->samples;
+    compass_value.sampled_ms = s->sampled_ms;
+    compass_value.x = s->x; compass_value.y = s->y; compass_value.z = s->z;
+    compass_value.selftest_passed = s->selftest_valid && s->selftest_passed;
+    compass_value.stopped = s->stopped;
+    compass_value.io_errors = s->io_errors;
+    compass_value.cleanup_pending = s->owned && s->phase != WF_MAG_RUNNING;
+    if (s->samples != previous) {
+        compass_value.valid = s->sample_valid && compass_value.selftest_passed &&
+            wf_compass_raw_heading(s->x, s->y, &compass_value.heading_degrees);
+        compass_value.reason = compass_value.valid ? WF_COMPASS_WAITING : WF_COMPASS_INVALID_FIELD;
+    }
+    if (s->phase != WF_MAG_RUNNING) {
+        compass_value.valid = false;
+        compass_fault = compass_value.fault = true;
+        compass_value.reason = s->ended == WF_MAG_SELFTEST_FAILED ? WF_COMPASS_SELFTEST_FAILURE : WF_COMPASS_IO_FAILURE;
+        compass_owner = s->owned;
+        rt_kprintf("[compass] ended generation=%lu session=%lu end=%u owned=%u stopped=%u errors=%lu\n",
+            (unsigned long)generation, (unsigned long)s->session, s->ended, s->owned, s->stopped,
+            (unsigned long)s->io_errors);
+    }
+}
+
 static void mag_work(rt_uint32_t events)
 {
+    if (compass_requested || compass_owner || compass_retry) { compass_work(events); return; }
     rt_base_t level = rt_hw_interrupt_disable();
     bool begin = mag_pending;
     unsigned span = mag_seconds;
@@ -868,7 +1014,7 @@ static void worker(void *context)
         }
         rt_uint32_t events = 0;
         rt_event_recv(&work, EV_COMMAND | EV_STOP | EV_DAILY_START | EV_SCREEN | EV_SAVE | EV_WRIST | EV_WRIST_STOP |
-            EV_WRIST_POLICY | EV_WRIST_IRQ | EV_LIGHT | EV_LIGHT_STOP | EV_AUTO_LIGHT | EV_MAG | EV_MAG_STOP,
+            EV_WRIST_POLICY | EV_WRIST_IRQ | EV_LIGHT | EV_LIGHT_STOP | EV_AUTO_LIGHT | EV_MAG | EV_MAG_STOP | EV_COMPASS,
             RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, wait, &events);
         if (daily_mode) {
             daily_work(events);
@@ -994,6 +1140,7 @@ static void wf_mag(int argc, char **argv)
     }
     rt_base_t level = rt_hw_interrupt_disable();
     bool accepted = cached.phase == WF_IMU_RUNNING && !daily_retry_pending && !cancel_requested &&
+        !compass_requested && !compass_owner && !compass_retry &&
         !mag_busy && !mag_pending && !mag_cancel_requested && !mag_cached.owned &&
         !wrist_cancel_requested && wrist_cached.phase != WF_IMU_FAULT &&
         !wrist_pending && (!wrist_busy || (wrist_runtime && wrist_cached.continuous)) &&
@@ -1008,6 +1155,19 @@ static void wf_mag(int argc, char **argv)
     rt_kprintf("[mag] queued=%u\n", accepted);
 }
 MSH_CMD_EXPORT(wf_mag, bounded MMC5603 native selftest and raw XYZ on shared sensor worker);
+
+static void wf_compass(int argc, char **argv)
+{
+    if (argc != 2 || strcmp(argv[1], "status")) { rt_kprintf("wf_compass status (cache only)\n"); return; }
+    wf_compass_snapshot_t s = wristflow_product_compass_snapshot();
+    rt_kprintf("[compass] requested=%u active=%u valid=%u fault=%u cleanup=%u generation=%lu session=%lu seq=%lu ms=%lu heading=%u reason=%u\n",
+        s.requested, s.active, s.valid, s.fault, s.cleanup_pending,
+        (unsigned long)s.generation, (unsigned long)s.session, (unsigned long)s.sequence,
+        (unsigned long)s.sampled_ms, s.heading_degrees, s.reason);
+    rt_kprintf("[compass-raw] xyz=%ld/%ld/%ld selftest=%u stopped=%u errors=%lu; uncalibrated XY, mounting zero/tilt unverified\n",
+        (long)s.x, (long)s.y, (long)s.z, s.selftest_passed, s.stopped, (unsigned long)s.io_errors);
+}
+MSH_CMD_EXPORT(wf_compass, foreground compass cache only);
 
 static void wf_light(int argc, char **argv)
 {
@@ -1032,7 +1192,8 @@ static void wf_light(int argc, char **argv)
     bool accepted = cached.phase == WF_IMU_RUNNING && !daily_retry_pending && !cancel_requested &&
         !wrist_cancel_requested && wrist_cached.phase != WF_IMU_FAULT &&
         !wrist_pending && (!wrist_busy || (wrist_runtime && wrist_cached.continuous)) &&
-        !auto_requested && !mag_busy && !mag_pending && !light_busy && !light_pending && !light_cancel_requested &&
+        !auto_requested && !compass_requested && !compass_owner && !compass_retry &&
+        !mag_busy && !mag_pending && !light_busy && !light_pending && !light_cancel_requested &&
         light_cached.phase != WF_LIGHT_RUNNING && !light_cached.owned;
     if (accepted) {
         light_pending = light_busy = true; light_seconds = span;
@@ -1080,7 +1241,8 @@ static void wf_wrist(int argc, char **argv)
     rt_base_t level = rt_hw_interrupt_disable();
     bool accepted = !wrist_requested && cached.phase == WF_IMU_RUNNING && !wrist_busy && !cancel_requested &&
         !wrist_cancel_requested && wrist_cached.phase != WF_IMU_FAULT &&
-        !auto_requested && !mag_busy && !mag_pending && !light_busy && !light_pending && !light_cached.owned && light_cached.phase != WF_LIGHT_RUNNING;
+        !auto_requested && !compass_requested && !compass_owner && !compass_retry &&
+        !mag_busy && !mag_pending && !light_busy && !light_pending && !light_cached.owned && light_cached.phase != WF_LIGHT_RUNNING;
     if (accepted) {
         wrist_busy = wrist_pending = true;
         wrist_seconds = span; wrist_mask = mask; wrist_latency = (uint8_t)latency;
@@ -1147,6 +1309,9 @@ static bool start(bool daily_service)
     mag_cached = mag.snapshot;
     mag_pending = mag_busy = mag_cancel_requested = false;
     mag_selftest_only = false; mag_threshold_mode = WF_MAG_THRESHOLD_RAW80; mag_seconds = 0;
+    compass_requested = compass_owner = compass_retry = compass_fault = compass_cancel = false;
+    compass_generation = compass_applied_generation = compass_cached_generation = 0;
+    compass_value = compass_cached = (wf_compass_snapshot_t){0};
     light_cached = light.snapshot;
     light_pending = light_busy = light_cancel_requested = false;
     auto_requested = auto_active = auto_owner = auto_runtime = auto_retry = auto_fault = auto_cancel = false;

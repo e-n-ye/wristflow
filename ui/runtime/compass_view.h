@@ -1,6 +1,7 @@
 #ifndef WRISTFLOW_COMPASS_VIEW_H
 #define WRISTFLOW_COMPASS_VIEW_H
 #include "lvgl.h"
+#include "compass.h"
 
 typedef enum {
     WRISTFLOW_COMPASS_UNAVAILABLE,
@@ -12,6 +13,8 @@ typedef enum {
 typedef struct {
     wristflow_compass_display_state_t state;
     unsigned heading_degrees; /* Clockwise from north, valid only in [0, 359]. */
+    bool uncalibrated;
+    wf_compass_reason_t reason;
 } wristflow_compass_display_t;
 
 void wristflow_compass_render(lv_obj_t *root, const wristflow_compass_display_t *display);

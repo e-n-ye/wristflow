@@ -30,6 +30,7 @@ static bool begin_session(wf_mmc5603_t *d, uint32_t started_ms, uint32_t duratio
         .started_ms = started_ms, .duration_ms = duration_ms,
         .threshold_mode = threshold_mode, .selftest_only = selftest_only};
     d->stage = IDENTIFY;
+    d->interval_ms = 1000U;
     d->due_ms = now(d) + 5U; /* Rev.B p15: >=5ms after shared supply becomes valid. */
     return true;
 }
@@ -37,6 +38,14 @@ bool wf_mmc5603_begin(wf_mmc5603_t *d, uint32_t started_ms, uint32_t duration_ms
 { return begin_session(d, started_ms, duration_ms, WF_MAG_THRESHOLD_RAW80, false); }
 bool wf_mmc5603_begin_encoded(wf_mmc5603_t *d, uint32_t started_ms, uint32_t duration_ms)
 { return begin_session(d, started_ms, duration_ms, WF_MAG_THRESHOLD_ENCODED_EXPERIMENTAL, false); }
+bool wf_mmc5603_begin_foreground(wf_mmc5603_t *d, uint32_t started_ms)
+{
+    if (!begin_session(d, started_ms, 120000U, WF_MAG_THRESHOLD_ENCODED_EXPERIMENTAL, false)) return false;
+    d->snapshot.foreground = true;
+    d->snapshot.duration_ms = 0;
+    d->interval_ms = 200U;
+    return true;
+}
 bool wf_mmc5603_begin_selftest(wf_mmc5603_t *d, uint32_t started_ms, wf_mag_threshold_t mode)
 { return begin_session(d, started_ms, WF_MAG_SELFTEST_TIMEOUT_MS, mode, true); }
 static uint8_t selftest_threshold(uint8_t factory, wf_mag_threshold_t mode)
@@ -55,7 +64,7 @@ bool wf_mmc5603_stop(wf_mmc5603_t *d, wf_mag_end_t reason)
     bool ok = true;
     if (d->snapshot.owned) {
         /* Rev.B p9-10: controls are WRITE ONLY. Never claim a configuration
-         * readback. This device has no other Product consumer; local reset
+         * readback. The serialized magnetic owner uses local reset, which
          * clears controls/thresholds and reloads OTP, without touching PA30. */
         ok = write_reg(d, CTRL1, 0x80);
         if (ok) {
@@ -88,7 +97,7 @@ void wf_mmc5603_bus_fault(wf_mmc5603_t *d)
 static bool ended(wf_mmc5603_t *d)
 {
     if (d->io.cancelled(d->io.context)) { (void)wf_mmc5603_stop(d, WF_MAG_CANCELLED); return true; }
-    if (now(d) - d->snapshot.started_ms >= d->snapshot.duration_ms) {
+    if (!d->snapshot.foreground && now(d) - d->snapshot.started_ms >= d->snapshot.duration_ms) {
         (void)wf_mmc5603_stop(d, WF_MAG_DEADLINE); return true;
     }
     return false;
@@ -208,11 +217,15 @@ void wf_mmc5603_poll(wf_mmc5603_t *d)
         d->snapshot.sample_valid = !d->snapshot.saturated && !(status & SAT_SENSOR);
     }
     d->stage = TRIGGER;
-    d->due_ms = now(d) + (d->snapshot.samples ? 1000U : 1U);
+    d->due_ms = now(d) + (d->snapshot.samples ? d->interval_ms : 1U);
 }
 int32_t wf_mmc5603_wait_ms(const wf_mmc5603_t *d, uint32_t time)
 {
     if (d->snapshot.phase != WF_MAG_RUNNING) return -1;
+    if (d->snapshot.foreground) {
+        int32_t due = (int32_t)(d->due_ms - time);
+        return due <= 0 ? 0 : due;
+    }
     uint32_t elapsed = time - d->snapshot.started_ms;
     if (elapsed >= d->snapshot.duration_ms) return 0;
     uint32_t remaining = d->snapshot.duration_ms - elapsed;

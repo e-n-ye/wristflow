@@ -1,0 +1,223 @@
+{
+  "date": "2026-10-24",
+  "base": "94e283a0620f89e7c8af1aa62134849aee494237",
+  "branch": "codex/compass-live-data",
+  "worktree": "D:\\MY_Desk\\project\\wristflow",
+  "scope": "Foreground uncalibrated XY heading; user defers figure-eight calibration, mounting zero and tilt compensation",
+  "native_choice": "Existing encoded native selftest plus Auto_SR single measurement; no native algorithm replacement or SDK changes",
+  "lifecycle": "Existing single sensor worker, 200ms trigger interval plus conversion and worker overhead; current-generation cache, 1000ms stale limit, immediate invalidation on leave/OFF; failed cleanup retains ownership/IDLE until explicit recovery",
+  "host": {
+    "debug": "66/66 before final UI fixture additions; final compass UI and worker 2/2, then stop-log-only worker 1/1",
+    "release_assertions_enabled": "8/8, then stop-log-only worker 1/1",
+    "coverage": [
+      "XY projection quadrants, zero and extreme inputs",
+      "foreground start/leave/reenter, stale data, preparation cancellation",
+      "native failure, cleanup failure and explicit retry",
+      "automatic light and persistent wrist coexistence",
+      "actual LVGL uncalibrated/failure glyphs, stale display, reminder suppression, OFF and KEY resume, edge return"
+    ]
+  },
+  "editor": {
+    "version": "2.0.1",
+    "preview_and_firmware_lvgl": "9.4.0",
+    "export": "Official GUI Export Code and Recompile",
+    "success": "Project compiled successfully; generated compass_notice verified; 100% preview and actual LVGL render checked"
+  },
+  "commands": [
+    "cmake --build artifacts/host/native-wrist-wake-debug -j4; ctest --test-dir artifacts/host/native-wrist-wake-debug --output-on-failure",
+    "cmake --build artifacts/host/native-wrist-wake-<debug|release> --target <affected targets> -j4; ctest --test-dir <same> -R <affected tests> --output-on-failure",
+    "pwsh -NoProfile -File scripts/Build.ps1 -Example <product|ui_demo> -Jobs 4"
+  ],
+  "builds": [
+    {
+      "target": "product",
+      "run": "20261024-235713-265",
+      "manifest": "artifacts/product/20261024-235713-265/result.json",
+      "manifest_sha256": "eac1dfd969436e1448333d722d218abc2b57ba8e6b8e00c593ead0fd18c99be1",
+      "bin_sha256": "3b78180c47e2de71352f95af2710020cb4742d9bec239357270fafb3048014ec",
+      "bin_bytes": 8276644,
+      "sources_verified": 566,
+      "artifacts_verified": 29,
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "python": "Python 3.13.15",
+      "map_symbols_verified": [
+        "screen_compass_create",
+        "wristflow_compass_render",
+        "wf_compass_raw_heading",
+        "wristflow_product_compass_active",
+        "wristflow_product_compass_snapshot",
+        "__cmd_wf_compass"
+      ]
+    },
+    {
+      "target": "ui_demo",
+      "run": "20261024-235138-151",
+      "manifest": "artifacts/ui_demo/20261024-235138-151/result.json",
+      "manifest_sha256": "da984dd484deeb66bff1b7a4cac9485a63f4a93c1535a514f48b9cc8b37fdbfc",
+      "bin_sha256": "98cded93bec1d7b6390d37105f9570d0c1aa2a1ffeec7b200e16d6b13c433aa8",
+      "bin_bytes": 8005648,
+      "sources_verified": 506,
+      "artifacts_verified": 22,
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": [
+        " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+        " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+      ],
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "python": "Python 3.13.15",
+      "map_symbols_verified": [
+        "screen_compass_create",
+        "wristflow_compass_render",
+        "wf_compass_raw_heading"
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "path": "apps/product/src/main.c",
+      "sha256": "68bc002211e159c971c866e4a21bcbeeb74288f0a052de673c58934622683495"
+    },
+    {
+      "path": "apps/product/src/mmc5603_diag.c",
+      "sha256": "beba6ecdd04274e0a9c30a5e691abcc6621e257d7a87697fefda6339325f4e0a"
+    },
+    {
+      "path": "apps/product/src/mmc5603_diag.h",
+      "sha256": "08f48dd9f1c8e7825aae0266a9c0f0e81962ee6f958cf24917ee13078cffae24"
+    },
+    {
+      "path": "apps/product/src/product_compass.h",
+      "sha256": "473b7c856f0490788e0228f925ae135b24dfcf8e971f7ba0a3ab1ea001c62992"
+    },
+    {
+      "path": "apps/product/src/product_imu_diag.c",
+      "sha256": "a6d597e1e283c3135b37e0f6e9e5852fb91dd8d47b7e6f64007b6ae70338f1d8"
+    },
+    {
+      "path": "core/compass.c",
+      "sha256": "c5c0fd54e75cd207d2cfbdcbc4d9b3af4dad5a68e89912acb9646dd85aec5f0e"
+    },
+    {
+      "path": "core/compass.h",
+      "sha256": "e6d0fc3b20630b656ccc040648b845a826f16cbfa7f0aeb35031ddccfb470d96"
+    },
+    {
+      "path": "tests/CMakeLists.txt",
+      "sha256": "252daae620ba89a0e1bf6155331818c2f4f4f7a0f6c27d096847c56337213115"
+    },
+    {
+      "path": "tests/compass.c",
+      "sha256": "21e9e7e96efe56f8268d883858a4072dbc9ce682cf3f8bf99a1b1a8a32711687"
+    },
+    {
+      "path": "tests/compass_ui.c",
+      "sha256": "ee076800701e814b9eed062e7ee9cad0a1a821bcb23be1131ef312fffa928e53"
+    },
+    {
+      "path": "tests/mmc5603_diag.c",
+      "sha256": "3f126a8eb5c09815a54af147e9d579264321fc4acab3ea7edc62ec80d3164dd0"
+    },
+    {
+      "path": "tests/product_imu_diag.c",
+      "sha256": "818767a16c649b8ba772cdd7f9c4fbd816b95b887a158bd4b29dff7b67d442ea"
+    },
+    {
+      "path": "ui/runtime/apps.c",
+      "sha256": "6987830a2954d6d0f31dde550fbc40936fb84399eaa9cbab5d06c3cdb14ed34e"
+    },
+    {
+      "path": "ui/runtime/apps.h",
+      "sha256": "4e70fe8c32b113973a0c788a0457efa3e8b0185aca79702d34966772182736e0"
+    },
+    {
+      "path": "ui/runtime/compass_view.c",
+      "sha256": "b4c28c3292c23e5139bde498030da6eddb916ee28aaf84dd011c76879beae73b"
+    },
+    {
+      "path": "ui/runtime/compass_view.h",
+      "sha256": "7e6a866ead6d5b69ffc77eefb5eb2fb698ed43f9bfd7f4c28ccf36a27d6e72f3"
+    },
+    {
+      "path": "ui/runtime/ui_shell.c",
+      "sha256": "3420ede9c8b65b1f87a371c3527d565026c28f361fd92bf7643cad5cf4f4cae6"
+    },
+    {
+      "path": "ui/runtime/ui_shell.h",
+      "sha256": "d6f6eff67e8bd155bf423f3912beee70f86184a57614c759014a34e5f692a425"
+    },
+    {
+      "path": "ui/xml/screens/screen_compass.xml",
+      "sha256": "54dd8427126c57ce69d4e5ee8e30bf30c3b18dde59aff0bdccd616a30caada79"
+    },
+    {
+      "path": "ui/xml/screens/screen_compass_gen.c",
+      "sha256": "966c797d1fa283e20321f5ba1169493622da77ce92427acdc4224833becf1a7e"
+    }
+  ],
+  "source_snapshot": {
+    "path": "artifacts/compass-live-data-20261024/verified-sources.zip",
+    "files": 578,
+    "sha256": "fe073df9206f769b2e11d37c82ee091dbdd17517bf9c596894c3ef1117c0433b"
+  },
+  "logs": [
+    {
+      "path": "artifacts/compass-live-data-20261024/debug-tests-001.log",
+      "sha256": "005393a3e856b9d54b69c7d0f9651ea0154aeeb4af48054e51eb28c08bcbede5"
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/debug-tests-004.log",
+      "sha256": "a7f28f24056c546af9e659adec957186206212496f11918e25ed6f03e585ebb3"
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/debug-tests-005.log",
+      "sha256": "f9afde8ddb78df501953b8165f13569eabc8703dbc2c88cc29e6646ce557b3f5"
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/release-tests-004.log",
+      "sha256": "515820d39b3adaa988778096a634ab2bb8e3b77aae06ee7ace1749b238837675"
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/release-tests-005.log",
+      "sha256": "b92f0521efdc00d15c365c817247daaa54483a3eb738d15a2d3d65d23a864e24"
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/product-build-003.log",
+      "sha256": "151b0eef4953af9f08008871575aa84dff62a63da81ffdeb0684481bbf398c59"
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/demo-build-002.log",
+      "sha256": "098db1caf98c6b026d758cb197acb87063a6442f9a3be4db6458a3c2a773d97f"
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/preservation.log",
+      "sha256": "e003b4f566f81ab4dbeb08a3ffe3c838e08a797db86a194124124010c39e2339"
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/editor-success.txt",
+      "sha256": "7912beab323ba1ab84f0791c90e0e517fe69e1771c1d8973330399a5fb5ad7f1"
+    }
+  ],
+  "failures_preserved": [
+    "release-build-001: nonexistent brightness_ui target; corrected to settings_ui",
+    "product-build-001/debug-build-002: continuation agent accidentally duplicated existing wf_compass command; removed duplicate",
+    "debug-tests-003: new sleep fixture did not enable display policy; enabled existing policy API and reran",
+    "UI export initially appeared at cleaning in accessibility text while visible log had advanced; checked final success and generated output"
+  ],
+  "review": "default gpt-6.1-sol/medium read-only worker review: no definite blocker; gpt-6-luna/low UI review raised speculative paths; navigation surface gate, initialization and synchronous panel ownership inspected by primary",
+  "warnings": "Existing watch_core range, FinSH function cast and RTC signedness warnings remain; no SDK upgrade",
+  "hardware": {
+    "operated": false,
+    "board_bin_before": "2438dc7cbc20a129a44dc3dd1f9623e696a6448a873ed33415e4396357e81584"
+  },
+  "not_verified": [
+    "new BIN device display/touch/data/lifecycle",
+    "absolute magnetic north or mounting zero",
+    "hard/soft iron calibration and tilt compensation",
+    "current, battery life and physical deep sleep"
+  ]
+}

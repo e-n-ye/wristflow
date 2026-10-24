@@ -253,5 +253,26 @@ int main(void)
     assert(d.snapshot.samples==1 && d.snapshot.sample_valid && d.snapshot.sampled_ms<100);
     s.cancel_data=true; poll_next(&d,&s); poll_next(&d,&s);
     assert(d.snapshot.ended==WF_MAG_CANCELLED && d.snapshot.samples==1 && d.snapshot.stopped);
+    /* Foreground sampling has a 200ms sample interval and no diagnostic expiry.
+     * It still requires native PASS and the same verified local-reset cleanup. */
+    setup(&d,&s); assert(wf_mmc5603_begin_foreground(&d,0));
+    for (unsigned i=0;i<10 && !d.snapshot.samples;++i) poll_next(&d,&s);
+    assert(d.snapshot.foreground && !d.snapshot.duration_ms && d.snapshot.selftest_passed && d.snapshot.samples==1);
+    uint32_t first_ms=d.snapshot.sampled_ms;
+    fake_mag_counts(&s,200,100,-300); poll_next(&d,&s); poll_next(&d,&s);
+    assert(d.snapshot.samples==2 && d.snapshot.sampled_ms-first_ms==210 && d.snapshot.x==200);
+    s.ms+=120001; poll_next(&d,&s); poll_next(&d,&s);
+    assert(d.snapshot.phase==WF_MAG_RUNNING && d.snapshot.samples==3);
+    s.cancel=true; wf_mmc5603_poll(&d);
+    assert(d.snapshot.ended==WF_MAG_CANCELLED && d.snapshot.stopped && !d.snapshot.owned);
+    setup(&d,&s); s.selftest_fail=true;
+    assert(wf_mmc5603_begin_foreground(&d,0)); finish_selftest(&d,&s);
+    assert(d.snapshot.ended==WF_MAG_SELFTEST_FAILED && !d.snapshot.samples && d.snapshot.stopped);
+    setup(&d,&s); assert(wf_mmc5603_begin_foreground(&d,0));
+    for (unsigned i=0;i<10 && !d.snapshot.samples;++i) poll_next(&d,&s);
+    s.fail_reset=true; assert(!wf_mmc5603_stop(&d,WF_MAG_CANCELLED));
+    assert(d.snapshot.owned && !d.snapshot.stopped && !wf_mmc5603_begin_foreground(&d,s.ms));
+    ops=s.operations; wf_mmc5603_poll(&d); assert(s.operations==ops);
+    s.fail_reset=false; assert(wf_mmc5603_stop(&d,WF_MAG_CANCELLED));
     return 0;
 }

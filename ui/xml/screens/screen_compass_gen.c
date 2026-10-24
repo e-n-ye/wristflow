@@ -252,6 +252,17 @@ lv_obj_t * screen_compass_create(void)
         lv_obj_set_style_text_color(compass_status, FG_SECONDARY, 0);
         lv_obj_set_style_text_align(compass_status, LV_TEXT_ALIGN_CENTER, 0);
 
+        lv_obj_t * compass_notice = lv_label_create(compass_dial);
+        lv_obj_set_name(compass_notice, "compass_notice");
+        lv_obj_set_x(compass_notice, 24);
+        lv_obj_set_y(compass_notice, 420);
+        lv_obj_set_width(compass_notice, 342);
+        lv_obj_set_height(compass_notice, 26);
+        lv_label_set_text(compass_notice, "");
+        lv_obj_set_style_text_font(compass_notice, body_20, 0);
+        lv_obj_set_style_text_color(compass_notice, FG_SECONDARY, 0);
+        lv_obj_set_style_text_align(compass_notice, LV_TEXT_ALIGN_CENTER, 0);
+
         lv_obj_t * compass_calibration_panel = compass_calibration_create(compass_page);
         lv_obj_set_name(compass_calibration_panel, "compass_calibration_panel");
         lv_obj_set_flag(compass_calibration_panel, LV_OBJ_FLAG_HIDDEN, true);

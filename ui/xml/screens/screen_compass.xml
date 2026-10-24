@@ -24,6 +24,7 @@
             <lv_label name="compass_heading" x="85" y="173" width="220" height="84" text="305°" style_text_font="metric_56" style_text_align="center" />
             <lv_label name="compass_direction" x="95" y="259" width="200" height="52" text="西北" style_text_align="center" />
             <lv_label name="compass_status" x="55" y="312" width="280" text="" style_text_font="body_20" style_text_color="#fg_secondary" style_text_align="center" />
+            <lv_label name="compass_notice" x="24" y="420" width="342" height="26" text="" style_text_font="body_20" style_text_color="#fg_secondary" style_text_align="center" />
         </lv_obj>
         <compass_calibration name="compass_calibration_panel" hidden="true" />
     </view>
