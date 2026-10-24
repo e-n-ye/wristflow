@@ -1,5 +1,13 @@
 # 可复现构建基线
 
+## 2026-10-24 MMC5603NJ限时诊断
+
+从`a76a6ca`主目录`codex/mmc5603-diagnostic`完成[地磁硬件跑通准备](MMC5603.md#diagnostic-20261024)，只加Product状态机／原worker集成及受影响测试；无SDK／工具链／公共构建入口、UI／XML变化。Debug及保留断言Release受影响传感器五项各5/5（0.23／0.29秒），随后补充迟DONE、慢I/O跨会话截止与反向有限诊断互斥，最终两项各2/2（0.16／0.23秒）通过，不重跑无关UI或Demo。主机GCC15.2.0／CMake4.2.3／Ninja1.13.2沿用缓存。
+
+官方`pwsh -NoProfile -File scripts/Build.ps1 -Example product -Jobs 4`最终`20261024-155722-493`退出0，BIN8,028,648B／`5eb28e3c…`，545源码及29产物逐字节重哈希一致；Python3.13.15／SCons4.10.1／ArmGCC14.2.1及SDK／子模块锁不变且干净。旧自动亮度`7d7be017…`29产物在重建前ZIP逐项核验保全；Product增3,780B，无新线程／timer，worker仍6144B／main16384B。最终新地磁文件无新编译warning，既有FinSH转换／链接syscall／entry／RWX／缺dfu提示保留。首个成功构建后仅修正期限说明注释并补测试，被上述最终构建替代；未操作设备。
+
+原始资料、渲染页、主机／编译及DryRun日志存主目录忽略的`artifacts/mmc5603-20261024/`，来源403／404、缺fitz改用现有pypdf／pypdfium2、元数据查询键名修正均记录在[精简证据](evidence/2026-10-24/mmc5603-diagnostic.json)。DryRun不打开端口；本轮软件结论不证明器件自检／XYZ／轴向／停止、电流或航向精度，下一实物窗口回STATUS。
+
 ## 2026-10-24 真实自动亮度
 
 从`f5d0bc0`在主目录`codex/automatic-brightness`接入[真实自动亮度](PRODUCT-SETTINGS.md#automatic-brightness-20261024)：原LTR状态机／唯一worker增加持续生命周期，整数附录换算及产品曲线／滞回，UI运行值与手动值分离，v12仍24B保存模式。没有XML／生成资源变化，不重复编辑器导出。
