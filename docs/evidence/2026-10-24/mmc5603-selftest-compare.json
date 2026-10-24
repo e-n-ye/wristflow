@@ -1,0 +1,340 @@
+{
+  "schema": 1,
+  "recorded_at": "2026-10-24T10:47:08.199973+00:00",
+  "source_base": "98d3dc26e81256a5d18b33d257c6af99c445d060",
+  "scope": "Explicit experimental threshold comparison software; one native selftest per command, no ordinary XYZ and no device operations.",
+  "changed_sources": [
+    {
+      "path": "apps/product/src/mmc5603_diag.c",
+      "bytes": 10963,
+      "sha256": "3ac32f49f05073321573b89266db23a6ded85ecc95766d6aafb7ff606595fb00"
+    },
+    {
+      "path": "apps/product/src/mmc5603_diag.h",
+      "bytes": 3199,
+      "sha256": "933964bf3a2628072511d5ede7eaae837114c55f021d40c36b2da5bc4190eaea"
+    },
+    {
+      "path": "apps/product/src/product_imu_diag.c",
+      "bytes": 60851,
+      "sha256": "9785b25ba6335ff0abbc2982484f304bd532d3cbf22bb0d9dfb299d11a5508f2"
+    },
+    {
+      "path": "tests/mmc5603_diag.c",
+      "bytes": 14743,
+      "sha256": "62e861fc6b0ee8555a77fc63f0aa35e030e045a7f7b22c527d52a77356964f94"
+    },
+    {
+      "path": "tests/product_imu_diag.c",
+      "bytes": 49504,
+      "sha256": "d604f7a46348a2c2b47b4c4bc42d7fcd96bd3c41ebb60b4b3db10c04560a74c4"
+    }
+  ],
+  "threshold_provenance": {
+    "path": "docs/evidence/2026-10-24/mmc5603-threshold-source.json",
+    "bytes": 14508,
+    "sha256": "88523162b91f318ac8940dea109b573f5428c5277d29b4a7ac08a0572556e2f5"
+  },
+  "commands": {
+    "default": "wf_mag start1..120 stays raw80 with ordinary XYZ afterPASS",
+    "controls": [
+      "wf_mag selftest raw80",
+      "wf_mag selftest encoded"
+    ],
+    "total_logical_deadline_ms": 10000,
+    "selftest_only": true,
+    "automatic_stop_after_pass_or_fail": true,
+    "no_normal_samples": true
+  },
+  "implementation": {
+    "candidate": "center=int32(raw)-128; m=abs(center)*32; min255,(m-m/5)/8; explicit hypothesis only, not validated device spec or copied BSP code.",
+    "default_unchanged": "Raw80/default start,0x41,existing delays/DONE/Sat_sensor,sharedworker/I2C3/PM,cleanup andno automatic retry.",
+    "new_end": "SELFTEST_COMPLETE=8 appended; existing0..7 unchanged; nativeFAIL=end6,cleanupFAIL=end3+owned.",
+    "log": "New[mag-mode]session/selftest_only/threshold/experimental from cached snapshot; old log formats preserved, status noI/O.",
+    "cancel_before_begin": "May preserve previous result under previous session; collection must verify new session. No fabricated new selftest.",
+    "timing_limit": "Logical deadline checks after synchronousIO,not a hard-real-time10s return. Cleanup may extend past it."
+  },
+  "tests": [
+    {
+      "record": {
+        "path": "artifacts/mmc5603-selftest-compare-20261024/debug-tests-004.log",
+        "bytes": 763,
+        "sha256": "e4fdcfda3987a4af5b6683e83459d7d36f210bbd321e56508dc9a42bb7755df8"
+      },
+      "passed": 5,
+      "total": 5,
+      "seconds": 0.22,
+      "build_command": "cmake --build artifacts/host/native-wrist-wake-debug --target mmc5603_diag product_imu_diag imu_wrist_tilt ltr303_diag auto_brightness -j4",
+      "test_command": "ctest --test-dir artifacts/host/native-wrist-wake-debug -R \"^(mmc5603_diag|product_imu_diag|imu_wrist_tilt|ltr303_diag|auto_brightness)$\" --output-on-failure",
+      "release_assertions": "Debug"
+    },
+    {
+      "record": {
+        "path": "artifacts/mmc5603-selftest-compare-20261024/release-tests-001.log",
+        "bytes": 767,
+        "sha256": "b505ac8e5d35fda3c356a627861a7e1faa2f972b5ce24a5c856a156afeb3f90d"
+      },
+      "passed": 5,
+      "total": 5,
+      "seconds": 0.37,
+      "build_command": "cmake --build artifacts/host/native-wrist-wake-release --target mmc5603_diag product_imu_diag imu_wrist_tilt ltr303_diag auto_brightness -j4",
+      "test_command": "ctest --test-dir artifacts/host/native-wrist-wake-release -R \"^(mmc5603_diag|product_imu_diag|imu_wrist_tilt|ltr303_diag|auto_brightness)$\" --output-on-failure",
+      "release_assertions": "-O3 -DNDEBUG -UNDEBUG"
+    }
+  ],
+  "coverage": [
+    "All256 byte candidate outputs match independent rational-distance model,clamping/current observed factory values.",
+    "Both modes one trigger/no normal frames/PASS stops;FAIL preserved;all15 transport/cleanup transactions independently faulted.",
+    "Cleanup failure afterPASS retainsownership/PM and blocks newcommands;no background retries.",
+    "Cancel beforecommand/duringwait/dataread,slowIO crosses totaldeadline,uint32wrap,invalidmode rejects.",
+    "Atomic pendingmode/duplicate reject/default restoration,cachedstatus noIO,mode logging,nativewrist/autobrightness coexist."
+  ],
+  "build": {
+    "record": {
+      "path": "artifacts/product/20261024-184219-549/result.json",
+      "bytes": 110813,
+      "sha256": "b5afbf0b03fa0c104dfac05cc447dc35bb7bec4d1b3a8d91a19eb78b085589e7"
+    },
+    "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+    "started": "2026-10-24T18:42:19.5588714+08:00",
+    "finished": "2026-10-24T18:42:45.2884943+08:00",
+    "bin_sha256": "5b230e1d04f7ae186c1175fe11b9e9f260792c0a8d4d5dd3efe0c35410a88d37",
+    "bin_bytes": 8029848,
+    "bin_growth_bytes": 512,
+    "exit_code": 0,
+    "sources": 545,
+    "artifacts": 29,
+    "byte_hashes_verified": true,
+    "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+    "python": "Python 3.13.15",
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "submodules": [
+      " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+      " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+    ],
+    "sdk_clean": true
+  },
+  "preservation": {
+    "path": "artifacts/mmc5603-selftest-compare-20261024/previous-f9007cbf-artifacts-and-sources.zip",
+    "bytes": 21176068,
+    "sha256": "75f9bb803fbb21713aa68286787f669a8495e7ae71780afde11579a7628e1bf2",
+    "entries": [
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/.config",
+        "bytes": 36943,
+        "sha256": "4f5c5422135a2302c2861d9cd874aeec497853b713027af30409943be8b3abbb"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+        "bytes": 8029336,
+        "sha256": "f9007cbf3cc69da561b5f2d2af584dbaffcdcf7513fe50d7fdbf8465277e4b71"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.elf",
+        "bytes": 18961504,
+        "sha256": "69b0314e33e9e55f0a6408e8d4477531e83507848550b93a55d93ab14a4a8e49"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.elf.strip.elf",
+        "bytes": 8042224,
+        "sha256": "22a4acf39979fc23c6b2b43397d78f08a088f914cc2db0209a96f10d1e2d6249"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.hex",
+        "bytes": 22584657,
+        "sha256": "cd21fd8d83638ddf1e58c7cfb3a9adbb5e19fe013515f6917b24fb1c626294a4"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.map",
+        "bytes": 8629378,
+        "sha256": "a121db338231d72142cf9faa16a7d22bc97b748267fba26d727f4755c3d3450d"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/rtconfig.h",
+        "bytes": 10566,
+        "sha256": "6a9fbd1e43e780d661cb9a5381aaea7cd1af8173472dd07e8a68f65834bb25dc"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/sftool_param.json",
+        "bytes": 382,
+        "sha256": "ac1fac7a2e52b46f7c96ddc7892cee7806c4233f16cbd155f7ee133c7de325f0"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/.config",
+        "bytes": 14914,
+        "sha256": "a3d1dec1c5f1ce61b91249a47f01cd4022adf0ecb30d7ab1f53b4434bb0dbddd"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.bin",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.elf",
+        "bytes": 803596,
+        "sha256": "c23f1283b943b14719b430ad97939d1d458b8f575e34f3f09819f7a85839db29"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.elf.strip.elf",
+        "bytes": 65180,
+        "sha256": "155959a274a414a39aadf8a092cdc0b3a6509d6ceb44aaacd3e2c8982cbcc6ea"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.hex",
+        "bytes": 164615,
+        "sha256": "2f14cb6ae13c61ed97dbe7e1b5e4ed5b60f3b2d6c68abd45821ae1c0fdcc5e46"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/bootloader.map",
+        "bytes": 1164449,
+        "sha256": "ffce68d7ff78a031e147d13eb20e186b87a8153f59daee2796e00a896aee30e3"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/bootloader/rtconfig.h",
+        "bytes": 3591,
+        "sha256": "c87f5e10b0f52bc06d9f1ee76ab8140ac17c23c6bdd9e4401fe2c3a2974ee70d"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/.config",
+        "bytes": 16235,
+        "sha256": "f77393400edfbd6e87452c550c78624607a4448cdfb27d8a187a221e37708041"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.bin",
+        "bytes": 11288,
+        "sha256": "ec0ab2288fa9286c324f1d4bdf90a610e159e13869ece1cf3c3b1bf5012bcce3"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.elf",
+        "bytes": 19000,
+        "sha256": "256232b9ae1064082dd81d12c813a80e025aafb163602ce8950fb634632200a2"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.elf.strip.elf",
+        "bytes": 15844,
+        "sha256": "dbcd81615b6cf3eaef1ffd5388965e6633698176669c5f71c711e83cb78644f0"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.hex",
+        "bytes": 31818,
+        "sha256": "c816aee567be8393e59d982e674d5a741065dee7585b5ed23d194b1d26ee493e"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/ftab.map",
+        "bytes": 92482,
+        "sha256": "a3e22309294c519993a8547e81d5c1ab1deb6bec64cc28c94f5a188441527ad1"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/ftab/rtconfig.h",
+        "bytes": 4407,
+        "sha256": "47b82b2e63cd679d174d3c928069f0ecbc3bffc5d0d91d9dbca3413f15ba71fa"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/lcpu/.config",
+        "bytes": 14724,
+        "sha256": "e7d52c8fd7a8033bfb357c3fb60d608f401f506f92d6c49fbaa5e5dd268bb372"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/lcpu/lcpu.bin",
+        "bytes": 5444,
+        "sha256": "03c15186f14aced2ad2c1b7e76f11b29de65b76bc348c3d62b0ec139dedb1dad"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/lcpu/lcpu.elf",
+        "bytes": 344020,
+        "sha256": "d458de971325a369a88f701f55dd0534740e0d6bd72c7bfbfae7962e5da047ba"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/lcpu/lcpu.elf.strip.elf",
+        "bytes": 10240,
+        "sha256": "036cf1b1a5e755f6584336f03e460ca249f908e71dd8540a11a041376d94c43e"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/lcpu/lcpu.hex",
+        "bytes": 15372,
+        "sha256": "723c7ec19990a4c8768d1a32fb7863920f4ace40e3ae0670a32adc1ab59ff4cd"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/lcpu/lcpu.map",
+        "bytes": 1166696,
+        "sha256": "21cbc75aa0a5b860fa929c2c58a42fefcb41f175756bececd17b5326a71439e2"
+      },
+      {
+        "name": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/lcpu/rtconfig.h",
+        "bytes": 2670,
+        "sha256": "84dfc4ae25052f1651a90782006da76be199845e1d1e2fbf07d0cb6d3b52ec4a"
+      },
+      {
+        "name": "prior-source/apps/product/src/mmc5603_diag.c",
+        "bytes": 9285,
+        "sha256": "1d906dc53c7db879bcb41c307765d65169bb16bb2ef8482bbad0bb0edd51fa9c"
+      },
+      {
+        "name": "prior-source/apps/product/src/mmc5603_diag.h",
+        "bytes": 2645,
+        "sha256": "d917c44cd853a7459bd10883ce491008cf2bb1369bfcfd79df74c7265ca6dc4e"
+      },
+      {
+        "name": "prior-source/apps/product/src/product_imu_diag.c",
+        "bytes": 58333,
+        "sha256": "5617f51e1f205de900690120790e53a4a0867340889e403aba27698584075d50"
+      }
+    ],
+    "verified": true
+  },
+  "dry_run": {
+    "record": {
+      "path": "artifacts/mmc5603-selftest-compare-20261024/flash-dry-run.log",
+      "bytes": 452,
+      "sha256": "b63bf3556f5dbb8c8a50ec283552aab65dd5030311b158eb1549fe2fcbbfd5e2"
+    },
+    "port_opened": false
+  },
+  "review": "Independent read-only causal/code audit no blocker; primary owns writes/build/tests/Git. Model/runtime records retained by app.",
+  "failures": [
+    {
+      "record": {
+        "path": "artifacts/mmc5603-selftest-compare-20261024/debug-tests-001.log",
+        "bytes": 1087,
+        "sha256": "d92f36a742139063ddf50cd78eb30e6f16b3d076c8b776e7e263262b2788b18d"
+      },
+      "cause": "Newtest incorrectly assumednative9 survivedearlier dailyretry; compareagainst currentbefore value instead."
+    },
+    {
+      "record": {
+        "path": "artifacts/mmc5603-selftest-compare-20261024/debug-tests-002.log",
+        "bytes": 681,
+        "sha256": "29b896dab15bfe17404c62863a9420e1fb0ab98124570ed4c2eac9e5156dae12"
+      },
+      "cause": "Newtest incorrectly requiredclearingold validresult when cancelprecedesnewbegin; retainoldsession and verify0triggers instead."
+    },
+    {
+      "record": {
+        "path": "artifacts/mmc5603-selftest-compare-20261024/debug-tests-003.log",
+        "bytes": 753,
+        "sha256": "a12f39147c1468eaefa0cb756c31166e67cf70ec45121b7d6bb7a9a658d9d205"
+      },
+      "cause": "Diagnostic print confirmedend2/valid1/zero samples; noimplementation failure,replay03 retained."
+    }
+  ],
+  "warnings": "No new handwritten C diagnostic warning;existing FinSH cast/linker syscalls,entry,RWX/missingdfu retained.",
+  "device": {
+    "opened": false,
+    "flashed": false,
+    "new_results": false,
+    "current_bin": "f9007cbf3cc69da561b5f2d2af584dbaffcdcf7513fe50d7fdbf8465277e4b71",
+    "current": "Prior nativeFAIL andautomaticstop,user confirmednormalandtemporarykeepawakeoff;preferencesunchanged."
+  },
+  "budget": {
+    "new_threads": 0,
+    "new_timers": 0,
+    "worker_stack_bytes": 6144,
+    "main_stack_bytes": 16384,
+    "new_actual_stack_peak_measured": false
+  },
+  "unverified": [
+    "Candidate threshold encoding validity onexactpart/revision,nativeselftestPASS/cause.",
+    "Normal XYZ/axis/compass,power/current/long-termstability,newmodephysicalcleanup."
+  ],
+  "next_boundary": "Review/merge software andsyncmain;then reconfirmexactnewBIN/sitebeforeoneboundedraw80+encodedselftestcomparison. No rotation,ordinaryXYZ,SET,environmentchange or repeated tuninguntilPASS."
+}

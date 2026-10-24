@@ -26,6 +26,11 @@ static void first_frame(wf_mmc5603_t *d, fake_mmc5603_t *s)
     assert(wf_mmc5603_begin(d,s->ms,2000));
     for (unsigned i=0;i<10 && !d->snapshot.samples && d->snapshot.phase==WF_MAG_RUNNING;++i) poll_next(d,s);
 }
+static void finish_selftest(wf_mmc5603_t *d, fake_mmc5603_t *s)
+{
+    for (unsigned i=0;i<20 && d->snapshot.phase==WF_MAG_RUNNING;++i) poll_next(d,s);
+    assert(d->snapshot.phase!=WF_MAG_RUNNING);
+}
 int main(void)
 {
     wf_mmc5603_t d; fake_mmc5603_t s;
@@ -34,6 +39,7 @@ int main(void)
     assert(!wf_mmc5603_begin(&d,0,999) && !wf_mmc5603_begin(&d,0,120001));
     first_frame(&d,&s);
     assert(d.snapshot.phase==WF_MAG_RUNNING && d.snapshot.selftest_valid && d.snapshot.selftest_passed);
+    assert(!d.snapshot.selftest_only && d.snapshot.threshold_mode==WF_MAG_THRESHOLD_RAW80);
     assert(d.snapshot.samples==1 && d.snapshot.sample_valid && d.snapshot.x==12345 && d.snapshot.y==-23456 && d.snapshot.z==34567);
     assert(!memcmp(d.snapshot.raw,s.data,9) && s.threshold[0]==80 && s.threshold[1]==120 && s.threshold[2]==160);
     assert(d.snapshot.selftest_trace==0x7f && !memcmp(d.snapshot.selftest_raw,s.data,9));
@@ -138,5 +144,78 @@ int main(void)
     s.slow_reg=-1;
     assert(wf_mmc5603_begin(&d,s.ms,1000));
     assert(!d.snapshot.selftest_trace && !d.snapshot.selftest_valid && !d.snapshot.selftest_polls);
+    /* The explicit candidate is bounded to one native selftest; the old start
+     * must still select raw80 and ordinary sampling even after a candidate. */
+    setup(&d,&s);
+    assert(!wf_mmc5603_begin_selftest(&d,0,(wf_mag_threshold_t)-1));
+    assert(!wf_mmc5603_begin_selftest(&d,0,(wf_mag_threshold_t)2) && !s.operations);
+    for (unsigned mode=0;mode<2;++mode) {
+        setup(&d,&s); s.factory[0]=0x63; s.factory[1]=0x7a; s.factory[2]=0x72;
+        assert(wf_mmc5603_begin_selftest(&d,s.ms,(wf_mag_threshold_t)mode));
+        assert(d.snapshot.selftest_only && d.snapshot.duration_ms==10000 && d.snapshot.threshold_mode==(wf_mag_threshold_t)mode);
+        wf_mmc5603_snapshot_t pending=d.snapshot;
+        assert(!wf_mmc5603_begin_selftest(&d,s.ms,WF_MAG_THRESHOLD_RAW80));
+        assert(!memcmp(&d.snapshot,&pending,sizeof pending));
+        poll_next(&d,&s); poll_next(&d,&s);
+        const uint8_t expected[2][3]={{0x4f,0x61,0x5b},{0x5c,0x13,0x2c}};
+        assert(!memcmp(s.threshold,expected[mode],3)); /* Actual written bytes. */
+        finish_selftest(&d,&s);
+        assert(d.snapshot.phase==WF_MAG_DONE && d.snapshot.ended==WF_MAG_SELFTEST_COMPLETE);
+        assert(d.snapshot.selftest_valid && d.snapshot.selftest_passed && d.snapshot.selftest_trace==0x7f);
+        assert(d.snapshot.stopped && !d.snapshot.owned && !d.snapshot.samples && !d.snapshot.sample_valid);
+        assert(s.triggers==1 && s.resets==2 && s.operations==15);
+        ops=s.operations; s.ms+=20000; wf_mmc5603_poll(&d); assert(s.operations==ops);
+        first_frame(&d,&s);
+        assert(d.snapshot.samples==1 && !d.snapshot.selftest_only && d.snapshot.threshold_mode==WF_MAG_THRESHOLD_RAW80);
+        assert(!memcmp(d.snapshot.selftest_threshold,expected[0],3));
+    }
+    /* Differential full-byte check against a separate rational-distance model.
+     * This checks arithmetic/clamping only, never the hardware interpretation. */
+    for (unsigned value=0;value<256;++value) {
+        setup(&d,&s); memset(s.factory,(int)value,3);
+        assert(wf_mmc5603_begin_selftest(&d,0,WF_MAG_THRESHOLD_ENCODED_EXPERIMENTAL));
+        poll_next(&d,&s); poll_next(&d,&s);
+        unsigned distance=value>128 ? value-128 : 128-value;
+        unsigned reference=distance*16/5;
+        if (reference>255) reference=255;
+        assert(s.threshold[0]==reference && s.threshold[1]==reference && s.threshold[2]==reference);
+        finish_selftest(&d,&s);
+        assert(!d.snapshot.samples && s.triggers==1);
+    }
+    for (unsigned mode=0;mode<2;++mode) {
+        setup(&d,&s); s.selftest_fail=true;
+        assert(wf_mmc5603_begin_selftest(&d,0,(wf_mag_threshold_t)mode)); finish_selftest(&d,&s);
+        assert(d.snapshot.phase==WF_MAG_FAULT && d.snapshot.ended==WF_MAG_SELFTEST_FAILED);
+        assert(d.snapshot.selftest_valid && !d.snapshot.selftest_passed && d.snapshot.stopped && !d.snapshot.owned);
+        assert(!d.snapshot.samples && s.triggers==1);
+        /* Every selftest/cleanup transaction is independently faultable. */
+        for (unsigned operation=1;operation<=15;++operation) {
+            setup(&d,&s); s.fail_at=operation;
+            assert(wf_mmc5603_begin_selftest(&d,0,(wf_mag_threshold_t)mode)); finish_selftest(&d,&s);
+            assert(d.snapshot.phase==WF_MAG_FAULT && d.snapshot.ended==WF_MAG_IO_FAILURE);
+            assert(!d.snapshot.samples && !d.snapshot.sample_valid);
+            ops=s.operations; wf_mmc5603_poll(&d); assert(s.operations==ops);
+            if (operation>=12) assert(d.snapshot.selftest_valid && d.snapshot.selftest_passed && d.snapshot.owned && !d.snapshot.stopped);
+        }
+    }
+    setup(&d,&s);
+    assert(wf_mmc5603_begin_selftest(&d,0,WF_MAG_THRESHOLD_ENCODED_EXPERIMENTAL));
+    s.cancel=true; wf_mmc5603_poll(&d);
+    assert(d.snapshot.ended==WF_MAG_CANCELLED && !s.operations && !s.triggers);
+    setup(&d,&s);
+    assert(wf_mmc5603_begin_selftest(&d,0,WF_MAG_THRESHOLD_ENCODED_EXPERIMENTAL));
+    poll_next(&d,&s); poll_next(&d,&s); s.cancel=true; wf_mmc5603_poll(&d);
+    assert(d.snapshot.ended==WF_MAG_CANCELLED && d.snapshot.stopped && !d.snapshot.selftest_valid && s.triggers==1);
+    setup(&d,&s); s.cancel_data=true;
+    assert(wf_mmc5603_begin_selftest(&d,0,WF_MAG_THRESHOLD_ENCODED_EXPERIMENTAL)); finish_selftest(&d,&s);
+    assert(d.snapshot.ended==WF_MAG_CANCELLED && !d.snapshot.selftest_valid && d.snapshot.selftest_trace==0x3f);
+    setup(&d,&s);
+    assert(wf_mmc5603_begin_selftest(&d,0,WF_MAG_THRESHOLD_ENCODED_EXPERIMENTAL));
+    poll_next(&d,&s); poll_next(&d,&s); s.slow_reg=0; s.read_delay_ms=10000; poll_next(&d,&s);
+    assert(d.snapshot.ended==WF_MAG_DEADLINE && d.snapshot.stopped && !d.snapshot.selftest_valid && !d.snapshot.samples);
+    assert(d.snapshot.selftest_trace==0x3f && d.snapshot.selftest_data_ms>=10000);
+    setup(&d,&s); s.ms=UINT32_MAX-30;
+    assert(wf_mmc5603_begin_selftest(&d,s.ms,WF_MAG_THRESHOLD_ENCODED_EXPERIMENTAL)); finish_selftest(&d,&s);
+    assert(d.snapshot.ended==WF_MAG_SELFTEST_COMPLETE && d.snapshot.stopped && d.snapshot.selftest_status_ms<100);
     return 0;
 }

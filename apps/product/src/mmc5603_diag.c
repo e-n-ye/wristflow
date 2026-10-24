@@ -19,16 +19,34 @@ static bool write_reg(wf_mmc5603_t *d, uint8_t reg, uint8_t value)
 }
 void wf_mmc5603_init(wf_mmc5603_t *d, wf_mmc5603_io_t io)
 { *d = (wf_mmc5603_t){.io = io}; }
-bool wf_mmc5603_begin(wf_mmc5603_t *d, uint32_t started_ms, uint32_t duration_ms)
+static bool begin_session(wf_mmc5603_t *d, uint32_t started_ms, uint32_t duration_ms,
+    wf_mag_threshold_t threshold_mode, bool selftest_only)
 {
     if (d->snapshot.owned || d->snapshot.phase == WF_MAG_RUNNING ||
-        duration_ms < 1000U || duration_ms > 120000U) return false;
+        duration_ms < 1000U || duration_ms > 120000U ||
+        (threshold_mode != WF_MAG_THRESHOLD_RAW80 && threshold_mode != WF_MAG_THRESHOLD_ENCODED_EXPERIMENTAL)) return false;
     uint32_t session = d->snapshot.session + 1U;
     d->snapshot = (wf_mmc5603_snapshot_t){.phase = WF_MAG_RUNNING, .session = session,
-        .started_ms = started_ms, .duration_ms = duration_ms};
+        .started_ms = started_ms, .duration_ms = duration_ms,
+        .threshold_mode = threshold_mode, .selftest_only = selftest_only};
     d->stage = IDENTIFY;
     d->due_ms = now(d) + 5U; /* Rev.B p15: >=5ms after shared supply becomes valid. */
     return true;
+}
+bool wf_mmc5603_begin(wf_mmc5603_t *d, uint32_t started_ms, uint32_t duration_ms)
+{ return begin_session(d, started_ms, duration_ms, WF_MAG_THRESHOLD_RAW80, false); }
+bool wf_mmc5603_begin_selftest(wf_mmc5603_t *d, uint32_t started_ms, wf_mag_threshold_t mode)
+{ return begin_session(d, started_ms, WF_MAG_SELFTEST_TIMEOUT_MS, mode, true); }
+static uint8_t selftest_threshold(uint8_t factory, wf_mag_threshold_t mode)
+{
+    if (mode == WF_MAG_THRESHOLD_RAW80) return (uint8_t)((unsigned)factory * 4U / 5U);
+    /* Explicit hypothesis, independently expressed as bounded arithmetic.
+     * docs/MMC5603.md#threshold-source-20261024 records provenance and limits.
+     * It is not the literal defective BSP output or an approved device spec. */
+    int32_t centered = (int32_t)factory - 128;
+    uint32_t magnitude = (uint32_t)(centered < 0 ? -centered : centered) * 32U;
+    uint32_t threshold = (magnitude - magnitude / 5U) / 8U;
+    return (uint8_t)(threshold > 255U ? 255U : threshold);
 }
 bool wf_mmc5603_stop(wf_mmc5603_t *d, wf_mag_end_t reason)
 {
@@ -54,7 +72,7 @@ bool wf_mmc5603_stop(wf_mmc5603_t *d, wf_mag_end_t reason)
         d->snapshot.stopped = ok;
     }
     d->snapshot.ended = ok ? reason : WF_MAG_IO_FAILURE;
-    d->snapshot.phase = ok && reason <= WF_MAG_CANCELLED ? WF_MAG_DONE : WF_MAG_FAULT;
+    d->snapshot.phase = ok && (reason <= WF_MAG_CANCELLED || reason == WF_MAG_SELFTEST_COMPLETE) ? WF_MAG_DONE : WF_MAG_FAULT;
     if (!ok || reason > WF_MAG_CANCELLED) d->snapshot.sample_valid = false;
     return ok;
 }
@@ -112,10 +130,10 @@ void wf_mmc5603_poll(wf_mmc5603_t *d)
         if (!read_bytes(d, ST_FACTORY, d->snapshot.selftest_factory, 3)) { fail(d, WF_MAG_IO_FAILURE); return; }
         d->snapshot.selftest_trace |= WF_MAG_TRACE_FACTORY;
         if (ended(d)) return;
-        /* Rev.B p14 native selftest example: 80% of factory byte, no custom
-         * coil stimulus or invented XYZ pass threshold. */
+        /* Rev.B p14 native selftest; raw80 remains the default. The explicit
+         * encoded hypothesis changes thresholds only, never coil/command/timing. */
         for (unsigned i = 0; i < 3; ++i) {
-            d->snapshot.selftest_threshold[i] = (uint8_t)((unsigned)d->snapshot.selftest_factory[i] * 4U / 5U);
+            d->snapshot.selftest_threshold[i] = selftest_threshold(d->snapshot.selftest_factory[i], d->snapshot.threshold_mode);
             if (!write_reg(d, (uint8_t)(ST_THRESHOLD + i), d->snapshot.selftest_threshold[i])) {
                 fail(d, WF_MAG_IO_FAILURE); return;
             }
@@ -169,6 +187,10 @@ void wf_mmc5603_poll(wf_mmc5603_t *d)
         d->snapshot.selftest_valid = true;
         d->snapshot.selftest_passed = !(status & SAT_SENSOR);
         if (!d->snapshot.selftest_passed) { fail(d, WF_MAG_SELFTEST_FAILED); return; }
+        if (d->snapshot.selftest_only) {
+            (void)wf_mmc5603_stop(d, WF_MAG_SELFTEST_COMPLETE);
+            return;
+        }
     } else {
         int32_t counts[3];
         d->snapshot.saturated = false;
