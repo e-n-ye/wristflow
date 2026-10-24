@@ -1,5 +1,13 @@
 # 黄山派选型复评
 
+## 2026-10-24 encoded静置XYZ与到期停止
+
+软件PR #147／`d4e5317`交付后，用户新确认同板屏／原电池＋电脑USB／接线固定且人在旁，授权精确`2438dc7c…`下载和一次约10秒静置XYZ，不旋转。545源码／29产物逐字节、SDK锁／COM5及禁Modem流控1／DryRun核对；19:58:25前态allow1关口，RTC当前、总0／检查点111 clean／腕开启。19:59:56–20:02:42标准Flash.ps1三镜像write＋verify退出0，本次无中断或恢复重写；随后单次150ms RTS启动，storage恢复／检查点111／腕开启，RTC2000校回当前UTC并读回，串口关闭。启动旧IMU备用地址探测错误保留，主0x6a匹配，不能混算为地磁I/O错误。
+
+用户确认界面正常、重开临时常亮并平放后，20:05:26仅一次`wf_mag sample encoded 10`。本session原生PASS／status55／factory63/7a/72／threshold5c/13/2c，随后9帧status51／valid1／saturated0，约1090ms软件读完间隔；到期phase2／end1／owned0／stopped1／after10／errors0，无显式stop、重试或追加磁SET。未校准counts及时间边界见[专题](MMC5603.md#encoded-hardware-20261024)与[设备证据](evidence/2026-10-24/mmc5603-encoded-hardware.json)。
+
+计步总0／原生0，启动自动保存到检查点112 verified／clean；常驻腕requested／armed／owned1保留。新镜像启动及采样前后自动亮度快照均enabled0／active0／valid0／session0，没有发送light控制命令；用户随后确认“自动亮度是我自己手动关的，忘记开了”，与快照一致，不记为固件故障或自动亮度开启时共存通过。收尾main16KiB峰46%、worker6KiB峰18%、堆峰105364B；20:06:16末态allow1并关口，用户确认常亮已关、显示／触摸／时间正常及原设置保留。本轮设备操作结束；静置读数／到期停止有界通过，轴向／旋转／显式stop、指南针精度、功耗及长期稳定性仍未验。
+
 ## 2026-10-24 地磁阈值对照与下载恢复收尾
 
 用户新确认同板屏／原电池＋电脑USB／接线固定且人在旁，授权`5b230e1d…`下载及raw80／encoded各一次静置对照，不旋转／普通XYZ／追加SET或改环境。545源码／29产物逐字节一致，SDK锁／COM5复核；前态总0／检查点111 clean／腕开启。首次下载进程意外消失、无退出或成功记录，随后用户黑屏／KEY无法唤醒；原因未知。另一路本机工具3次PATH／路径启动失败未接触设备，最后一次实际完整恢复下载于19:11:44–19:14:29三镜像write＋verify退出0。启动单次150ms RTS后RTC2000，校真实UTC读回，storage／检查点111／腕开启恢复。用户确认界面正常并平放后才开始自检，不能把中断当成功或遗漏黑屏过程。
