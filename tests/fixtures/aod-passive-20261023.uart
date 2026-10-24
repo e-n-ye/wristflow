@@ -1,0 +1,192 @@
+[product] wake event=KEY1
+[pm-p1] tick=90318 allow=1 off=0 own_idle=1 sdk_idle=1
+[pm-p1] enter=2 exit=2 deep_elapsed=2
+[pm-p1] deep_ticks=82361 max_ticks=59866 wake=0x40002
+[pm-p1] screen_off=1 screen_on=1 tick_hz=1000
+[pm-p1] phone=0 phone_off=0 background=0
+[I/DBG] Power on
+[I/DBG] drv_gpu opened.
+[I/DBG] HW open
+[I/DBG] Init LCD co5300
+[32m[I/TOUCH] Power up[0m
+
+CO5300_ReadID 0x331100 
+[I/co5300] LCD module use CO5300 IC 
+
+[E/drv.ft6146] ft6146 id_H=64
+[E/drv.ft6146] ft6146 id_L=56
+[32m[I/TOUCH] Power up done.[0m
+[I/DBG] HW open done.
+[I/DBG] [OFF] -> [INITIALIZED]
+[I/DBG] Power on done.
+[I/DBG] Auto turn on display.
+[I/DBG] set brightness 0
+[I/DBG] display on
+[I/DBG] [INITIALIZED] -> [ON]
+[I/DBG] set brightness 55
+[I/DBG] display on
+[product] screen on
+ch[7]voltage=41637;20838.96
+[power] USB OK voltage_valid=1 VBAT=4164mV; estimate_valid=1 SOC~100%
+ch[7]voltage=41628;20834.26
+[power] USB OK voltage_valid=1 VBAT=4163mV; estimate_valid=1 SOC~100%
+ch[7]voltage=41631;20835.83
+[I/DBG] set brightness 11
+[I/DBG] display on
+[I/DBG] set brightness 55
+[I/DBG] display on
+ch[7]voltage=41625;20832.70
+[I/DBG] set brightness 11
+[I/DBG] display on
+[I/DBG] set brightness 0
+[I/DBG] display on
+[32m[I/TOUCH] Power off[0m
+[32m[I/TOUCH] Power off done.[0m
+[product] display sleeping; notification events active
+[power] USB ? voltage_valid=0 VBAT=0mV; estimate_valid=0 SOC~0%
+[I/DBG] Power off
+[I/DBG] drv_gpu closed.
+[I/DBG] display off
+[I/DBG] [ON] -> [OFF]
+[I/DBG] HW close
+[I/DBG] HW close done.
+[I/DBG] Power off done
+[product] screen off; notification events active
+[I/DBG] Power on
+[I/DBG] drv_gpu opened.
+[I/DBG] HW open
+[I/DBG] Init LCD co5300
+Warning: Alloc an KV (preferences max_size 16384 sec_size 8192 size 135) failed when new KV. Now will GC then retry.
+empty sector: 1. sec_num 2 collect_num 2
+do_gc: 37 (ms)
+empty sector: 2. 39 (ms)
+[alarm] saved request=0 generation=719
+
+CO5300_ReadID 0x331100 
+[I/co5300] LCD module use CO5300 IC 
+
+[I/DBG] HW open done.
+[I/DBG] [OFF] -> [INITIALIZED]
+[I/DBG] Power on done.
+[I/DBG] set brightness 0
+[I/DBG] display on
+[I/DBG] [INITIALIZED] -> [ON]
+[I/DBG] idle mode on=0
+[I/DBG] set brightness 5
+[I/DBG] display on
+[I/DBG] idle mode on=1
+[I/DBG] [ON] -> [IDLEMODE]
+[aod-display] static minute=29879100 style=1 brightness=5; IDLE retained
+[I/DBG] set brightness 0
+[I/DBG] display on
+[I/DBG] [IDLEMODE] -> [ON]
+[I/DBG] idle mode on=0
+[I/DBG] set brightness 5
+[I/DBG] display on
+[I/DBG] idle mode on=1
+[I/DBG] [ON] -> [IDLEMODE]
+[aod-display] static minute=29879101 style=1 brightness=5; IDLE retained
+[I/DBG] idle mode on=0
+[I/DBG] [IDLEMODE] -> [ON]
+[I/DBG] set brightness 0
+[I/DBG] display on
+[product] wake event=KEY1
+[pm-p1] tick=221296 allow=1 off=0 own_idle=1 sdk_idle=1
+[pm-p1] enter=4 exit=4 deep_elapsed=4
+[pm-p1] deep_ticks=125457 max_ticks=59866 wake=0x4
+[pm-p1] screen_off=2 screen_on=2 tick_hz=1000
+[pm-p1] phone=0 phone_off=0 background=0
+[32m[I/TOUCH] Power up[0m
+[I/DBG] set brightness 55
+[I/DBG] display on
+[product] screen on
+[E/drv.ft6146] ft6146 id_H=64
+[E/drv.ft6146] ft6146 id_L=56
+[32m[I/TOUCH] Power up done.[0m
+[steps-store] verified=1 dirty=0 failed=0 attempts=1 day=20749 total=0 generation=84
+ch[7]voltage=41630;20835.30
+[power] USB OK voltage_valid=1 VBAT=4163mV; estimate_valid=1 SOC~100%
+[I/DBG] set brightness 11
+[I/DBG] display on
+[I/DBG] set brightness 0
+[I/DBG] display on
+[32m[I/TOUCH] Power off[0m
+[32m[I/TOUCH] Power off done.[0m
+[product] display sleeping; notification events active
+[power] USB ? voltage_valid=0 VBAT=0mV; estimate_valid=0 SOC~0%
+[I/DBG] set brightness 0
+[I/DBG] display on
+[I/DBG] idle mode on=0
+[I/DBG] set brightness 5
+[I/DBG] display on
+[I/DBG] idle mode on=1
+[I/DBG] [ON] -> [IDLEMODE]
+[aod-display] static minute=29879101 style=1 brightness=5; IDLE retained
+[I/DBG] set brightness 0
+[I/DBG] display on
+[I/DBG] [IDLEMODE] -> [ON]
+[I/DBG] idle mode on=0
+[I/DBG] set brightness 5
+[I/DBG] display on
+[I/DBG] idle mode on=1
+[I/DBG] [ON] -> [IDLEMODE]
+[aod-display] static minute=29879102 style=1 brightness=5; IDLE retained
+[I/DBG] idle mode on=0
+[I/DBG] [IDLEMODE] -> [ON]
+[I/DBG] set brightness 0
+[I/DBG] display on
+[I/DBG] Power off
+[I/DBG] drv_gpu closed.
+[I/DBG] display off
+[I/DBG] [ON] -> [OFF]
+[I/DBG] HW close
+[I/DBG] HW close done.
+[I/DBG] Power off done
+[product] screen off; notification events active
+[product] wake event=KEY1
+[pm-p1] tick=341438 allow=1 off=0 own_idle=1 sdk_idle=1
+[pm-p1] enter=5 exit=5 deep_elapsed=5
+[pm-p1] deep_ticks=133112 max_ticks=59866 wake=0x40002
+[pm-p1] screen_off=3 screen_on=3 tick_hz=1000
+[pm-p1] phone=0 phone_off=0 background=0
+[I/DBG] Power on
+[I/DBG] drv_gpu opened.
+[I/DBG] HW open
+[I/DBG] Init LCD co5300
+[32m[I/TOUCH] Power up[0m
+
+CO5300_ReadID 0x331100 
+[I/co5300] LCD module use CO5300 IC 
+
+[E/drv.ft6146] ft6146 id_H=64
+[E/drv.ft6146] ft6146 id_L=56
+[32m[I/TOUCH] Power up done.[0m
+[I/DBG] HW open done.
+[I/DBG] [OFF] -> [INITIALIZED]
+[I/DBG] Power on done.
+[I/DBG] Auto turn on display.
+[I/DBG] set brightness 0
+[I/DBG] display on
+[I/DBG] [INITIALIZED] -> [ON]
+[I/DBG] set brightness 55
+[I/DBG] display on
+[product] screen on
+ch[7]voltage=41636;20838.44
+[power] USB OK voltage_valid=1 VBAT=4164mV; estimate_valid=1 SOC~100%
+ch[7]voltage=41639;20840.01
+[I/DBG] set brightness 11
+[I/DBG] display on
+[I/DBG] set brightness 0
+[I/DBG] display on
+[32m[I/TOUCH] Power off[0m
+[32m[I/TOUCH] Power off done.[0m
+[product] display sleeping; notification events active
+[power] USB ? voltage_valid=0 VBAT=0mV; estimate_valid=0 SOC~0%
+[I/DBG] Power off
+[I/DBG] drv_gpu closed.
+[I/DBG] display off
+[I/DBG] [ON] -> [OFF]
+[I/DBG] HW close
+[I/DBG] HW close done.
+[I/DBG] Power off done
+[product] screen off; notification events active

@@ -26,6 +26,7 @@
 | 协作页和阶段记录 | 原Console／Journal；`prompt(..., pump=...)`在等待人确认时持续采集，`automatic(..., pump=..., until=...)`表示程序判定的有界采样／计时；确认按钮不能完成自动阶段。无需复制页面、线程或直接写内部prompt字段 |
 | 文件哈希、显式清单与JSON输出 | `scripts/lab_evidence.py`；电量原digest／write_json导出兼容，不按目录扫描所有历史文件 |
 | 地磁已完成实验的模拟／回放 | `scripts/mmc5603_lab.py`，纯解析见mag_protocol／light_protocol；本阶段CLI只提供simulate／replay／status，不开放真实端点。五方向策略属于地磁适配，不变成通用步骤引擎 |
+| 简单亮度查询／AOD被动记录 | `scripts/serial_lab.py`复用同一RecordedClient／RecordedSession；light仅允许`wf_light status`，passive不允许发送任何命令，不使用完整网页。参数表达时长／间隔，纯解析只认缓存字段，不控制亮度或AOD |
 | 构建／下载 | 继续使用Build.ps1／Flash.ps1；实验工具读取其结果，不复制下载包装器，不因电脑端整理重编固件 |
 | 输入与证据 | `tests/fixtures/`保存可分发的最小回放输入；`artifacts/`保存运行配置、UART原始字节、事件、报告和必要的执行源码快照；精简交付证据在docs/evidence |
 
@@ -33,12 +34,18 @@
 python scripts/mmc5603_lab.py replay --out artifacts/mag-lab/replay-001
 python scripts/mmc5603_lab.py simulate --out artifacts/mag-lab/sim-001
 python scripts/mmc5603_lab.py status --run artifacts/mag-lab/sim-001
+python scripts/serial_lab.py simulate --mode light --out artifacts/serial-lab/light-001
+python scripts/serial_lab.py simulate --mode passive --out artifacts/serial-lab/passive-001
+python scripts/serial_lab.py replay --fixture tests/fixtures/light-status-20261024.json --out artifacts/serial-lab/light-replay-001
+python scripts/serial_lab.py replay --fixture tests/fixtures/aod-passive-20261023.json --out artifacts/serial-lab/aod-replay-001
 python -m unittest discover -s tests -p 'test_lab_*.py' -v
 ```
 
 输出目录必须是新路径；status只读取进度，不恢复进程或重启设备窗口。模拟不导入serial、不枚举COM、不打开端点；模拟逻辑时间与快速样本是替身输入，不是设备时序证据。设备适配函数将是否模拟、工具源码指纹、原始UART、启动意图／完整session-start-duration-mode身份、停止确认、端口关闭及人工末态确认分别保存；取消／超时只停止已确认所属窗口，冷启动、异窗口或不确定归属明确保留recovery_required。
 
 历史fixture包含26,117字节原UART及五方向索引，记录原session／events／workflow文件路径和SHA；旧workflow的error／passed=false原样保留。纯解析保留seq0／invalid行，地磁策略仅识别自检前唯一的全零初始化通知，不能将任意坏帧过滤成通过。离线得到86帧／五窗／停止证据不等于新实机通过，也不证明磁北、倾斜精度或功耗。旧实验仍从MMC5603等专题及docs/evidence中定位；不删除、移动或改写被引用的artifacts。
+
+亮度fixture为原ambient-002的2,284B UART，回放三条同session缓存seq11／16／21；AOD fixture为原natural-001的5,901B纯被动流，原session commands为空。二者都保留来源路径／SHA及原会话元数据，只证明历史字节可读，不重判物理亮度／面板效果。简单采集的`seconds`约束查询与有限重试的发送／接收窗口；窗末只做原始尾采集（名义100ms加一次最多50ms read），不发新查询，窗外返回不能算该窗成功响应。取消后关闭主机资源，不发送器件stop／PM／复位命令。
 
 整理分四个独立交付闭环：公共基础与地磁模拟／回放；亮度查询和AOD被动记录作为第二调用方；构建／证据／文档检查及失效规则收敛；入口发现、依赖隔离和新会话接续走查。完整范围覆盖这些闭环，实施状态只回STATUS。AOD复位／校时／PM控制、电量离线恢复、旧腕诊断与第三方参考不机械迁移；明确的新设备授权仍另核现场条件。
 
