@@ -25,6 +25,7 @@
 | 原始收发、有限等待、短写检查及资源关闭 | `scripts/lab_serial.py`的RecordedClient／RecordedSession；PortLease／SerialTransport沿用既有实现，电量原导入名称兼容。基类默认拒绝全部命令；适配器声明白名单、冷启动标记及完成条件，设备停止由适配器负责 |
 | 协作页和阶段记录 | 原Console／Journal；`prompt(..., pump=...)`在等待人确认时持续采集，`automatic(..., pump=..., until=...)`表示程序判定的有界采样／计时；确认按钮不能完成自动阶段。无需复制页面、线程或直接写内部prompt字段 |
 | 文件哈希、显式清单与JSON输出 | `scripts/lab_evidence.py`；电量原digest／write_json导出兼容，不按目录扫描所有历史文件 |
+| 构建／证据／改动文档检查 | `scripts/lab_check.py`的build／files／docs；读取既有结果，不构建、不下载、不枚举或打开设备。每次重新读输入，不把旧passed报告当缓存 |
 | 地磁已完成实验的模拟／回放 | `scripts/mmc5603_lab.py`，纯解析见mag_protocol／light_protocol；本阶段CLI只提供simulate／replay／status，不开放真实端点。五方向策略属于地磁适配，不变成通用步骤引擎 |
 | 简单亮度／指南针查询及AOD被动记录 | `scripts/serial_lab.py`复用同一RecordedClient／RecordedSession；light仅允许`wf_light status`，compass仅允许`wf_compass status`，passive不允许发送命令，不要求完整网页。参数表达时长／间隔，纯解析只认缓存字段，不控制页面／传感器／亮度或AOD |
 | 构建／下载 | 继续使用Build.ps1／Flash.ps1；实验工具读取其结果，不复制下载包装器，不因电脑端整理重编固件 |
@@ -52,6 +53,32 @@ python -m unittest discover -s tests -p 'test_lab_*.py' -v
 指南针fixture保留25日device-002全部48,056B UART，`compass_protocol.snapshots`只接受相邻完整缓存／raw两行，得到120份（51份valid）；invalid／stale状态保留，交错或残缺行保留原始字节，不拼补。它不是磁北精度或新的实机验收。新增指南针device_workflow已经复用Console／Journal／RecordedSession，不存在导入旧artifacts代码的链；其startup的复位／校时仍是历史专用流程，不混入只读工具。资源生成脚本和编译保全／map专题分析有独立职责，不能按.py数量机械合并。
 
 整理分四个独立交付闭环：公共基础与地磁模拟／回放；亮度查询和AOD被动记录作为第二调用方；构建／证据／文档检查及失效规则收敛；入口发现、依赖隔离和新会话接续走查。完整范围覆盖这些闭环，实施状态只回STATUS。AOD复位／校时／PM控制、电量离线恢复、旧腕诊断与第三方参考不机械迁移；明确的新设备授权仍另核现场条件。
+
+### 公共检查与重验条件
+
+在仓库根目录运行；下例的result、ZIP与flash路径由本次实验明确选择，不自动把日期最新的文件当作正确版本。`--out`放在子命令前且必须为新路径，可省略后仅输出JSON。失败退出1并保留错误；不要通过改写旧报告消除失败。
+
+```bash
+python scripts/lab_check.py --help
+python scripts/lab_check.py --out artifacts/lab-check/build-001.json build --result <Build结果路径>
+python scripts/lab_check.py --out artifacts/lab-check/evidence-001.json files --manifest <证据JSON> --key files
+python scripts/lab_check.py --out artifacts/lab-check/docs-001.json docs --base HEAD
+```
+
+build核现有Build.ps1的成功记录、SDK／子模块锁及当前干净SDK、非空显式源码清单、全部产物哈希、必须产物及三镜像地址；可用`--flash <Flash结果路径>`核已有成功传输记录与同一三镜像。它不运行Flash／DryRun，不证明板上身份。默认严格比较源码字节；遇Git换行差异时，只有显式`--source-archive <原始源码ZIP>`才允许例外：ZIP条目使用仓库相对路径，先匹配原构建SHA，再严格证明仅CRLF／LF变化，并在报告单列。产物永远按字节。构建记录不能证明依赖收集完整；新纳入源码／配置需重新构建，不能凭旧清单通过代替。
+
+files只核明确选定的记录列表（`--key sources`或点分字段亦可），拒绝空列表、重复路径、缺文件或哈希／大小变化；不递归猜测历史JSON中的每个SHA。历史工具指纹与当前工具不一致可能是合理历史，选对适用的列表后再核。输入接纳时核验一次，输出完成后再封存读回；后续引用同一记录，变更或跨会话读取时复核。
+
+docs比较`--base`与当前工作树，包含已暂存、未暂存和未忽略的新文件；UTF-8仅查变更文本，Markdown只查新增行的本地行内／引用式链接、ATX标题与显式锚点，围栏代码示例不当链接。可重复`--path`进一步限定变更文件；提交后使用`--base origin/main`等实际基线，避免HEAD已包含改动却检不到差异。目标文件按新增链接读取，不通扫历史文档；远端URL、复杂Markdown语法及文档语义仍由审阅负责。输出记录输入与所读目标哈希，不形成新的任务状态。
+
+| 事实 | 重验时机与复用边界 |
+|---|---|
+| 编译／链接及配置／map性质 | 按源码、SDK、工具链及产物版本验证；只改电脑端工具不重编固件，map专题断言仍由专题负责 |
+| 本地构建／下载记录、源码与镜像身份 | 准备时集中核；输入路径、清单、源码、镜像、SDK或来源变化后重核；实际下载前仍由Flash入口重新核镜像 |
+| 解析器／工具／fixture | 相关文件变化后运行受影响主机验证；原始UART不做换行归一化 |
+| 端点、驱动与锁 | 每次开口／重连核；本地镜像或COM号不能证明板上版本 |
+| 设备会话／停止与恢复 | 启动前、重连后、停止前后核；下载、重启、会话或冷启动变化使旧连续性失效，不由公共检查报告抵扣 |
+| 证据／文档 | 接纳输入、封存输出及接续引用时核；同一最终版本集中检查变更文档，修改后重核；不跨会话缓存passed |
 
 ## 本轮范围与分工
 
