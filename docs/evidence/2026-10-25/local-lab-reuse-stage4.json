@@ -1,0 +1,116 @@
+{
+  "schema": 1,
+  "source_base": "ab00c8be7cc3b676c6c7576c5f14a08d2ec0448b",
+  "scope": "Final closure of local experiment tool reuse: bound read-only capture, isolated dependency/entry acceptance, fresh-context discovery and continuation.",
+  "sources": [
+    {
+      "path": "scripts/serial_lab.py",
+      "bytes": 13569,
+      "sha256": "747c34bb052f1cf56c1743701a4a1452a160879df44ce84c9ce9293c56f21b08"
+    },
+    {
+      "path": "tests/test_lab_checks.py",
+      "bytes": 12957,
+      "sha256": "9b086f03b2cc34effb1fc9881a65b2275fa2e9e14020dbd84a1e94bcdf0a9858"
+    }
+  ],
+  "validation": {
+    "python": "3.14.3",
+    "lab_tests": 48,
+    "optimized_check_tests": 15,
+    "isolated_lab_tests": 48,
+    "commands": [
+      "python -m unittest discover -s tests -p 'test_lab_*.py' -v",
+      "python -O -m unittest discover -s tests -p 'test_lab_checks.py' -v",
+      "python scripts/lab_check.py docs --base HEAD"
+    ],
+    "isolation": {
+      "directory": "D:/MY_Desk/project/wristflow/artifacts/lab-stage4-isolated-002",
+      "old_artifacts_code_available": false,
+      "vendor_sdk_available": false,
+      "serial_import_blocked": true,
+      "copied_inputs": 23,
+      "entries": "3 serial simulations, 3 serial historical replays, mag historical replay, serial/mag status, lab_check and capture help, 48 lab tests"
+    },
+    "binding_guards": "Missing current confirmation, wrong BIN/flash port, preparation-to-open file changes and endpoint changes rejected; no transport open or TX on endpoint mismatch; keyboard cancel closes resources without device cleanup.",
+    "fresh_context_walkthrough": {
+      "passed": true,
+      "kind": "read_only_fresh_context_walkthrough",
+      "requested_model": "gpt-6-luna",
+      "requested_reasoning": "low",
+      "effective_model": "not exposed in tool result",
+      "route": [
+        "AGENTS.md",
+        "PROJECT_INDEX.md",
+        "docs/STATUS.md#current (latest relevant section)",
+        "docs/HARDWARE-TEST-WORKFLOW.md",
+        "docs/DOCUMENTATION-WORKFLOW.md"
+      ],
+      "scenarios": {
+        "new_sensor": "Found Console/Journal, pump/automatic, dedicated protocol/ownership/cleanup adapter, simulation before real device, device authorization not inherited from historical commands.",
+        "simple_observation": "Found serial_lab compass/passive/capture and historical replay, lab_check build/files/docs, current build/BIN and endpoint binding.",
+        "continuation": "Found STATUS as sole active task, status reads journal and does not resume processes or restart device windows, outputs require new directories.",
+        "handoff": "Update affected workflow/topic/evidence and STATUS, reviewed PR with Rebase merge and clean local-main synchronization."
+      },
+      "implementation_review": "Separate read-only review requested gpt-6.1-sol/medium found no definite blocker in binding and shared-lock/open ordering.",
+      "limits": [
+        "No Git, tests, file writes or device operation by reviewers.",
+        "Walkthrough establishes documented discovery, not physical CH340 behavior or installed firmware attestation."
+      ]
+    }
+  },
+  "files": [
+    {
+      "path": "artifacts/lab-stage4-tests-002.log",
+      "bytes": 7321,
+      "sha256": "d6090fa5b512ce65710f91c33bc26978bb2d46033c2ac651c35a6b5a3ea50905"
+    },
+    {
+      "path": "artifacts/lab-stage4-checks-optimized-001.log",
+      "bytes": 2423,
+      "sha256": "37e428c6d53f96c8d73738b047784baf543b35446be8c5d1bc1aeef2f3eec6ba"
+    },
+    {
+      "path": "artifacts/lab-stage4-isolation-002.json",
+      "bytes": 4308,
+      "sha256": "97e3e762e11e24814e2cb58c662e335d7b053aa01e2304941a87b3abe83402fb"
+    },
+    {
+      "path": "artifacts/lab-stage4-isolation-002.log",
+      "bytes": 789,
+      "sha256": "50ec28531b8eaeef112513b16f46f5e8119684d5373b689559b1b60ade03b148"
+    },
+    {
+      "path": "artifacts/lab-stage4-walkthrough.json",
+      "bytes": 1444,
+      "sha256": "21fe8dfcee118fb86a26d8add3ed3bd941bb3c90233a90735ff9f238a871f383"
+    },
+    {
+      "path": "artifacts/lab-stage4-docs-001.json",
+      "bytes": 1647,
+      "sha256": "d1d456264c8511c7e787b94ac51e705dec14c25ab46b56b9920f4fe7ccc8844a"
+    },
+    {
+      "path": "artifacts/lab-stage4-tests-001.log",
+      "bytes": 9088,
+      "sha256": "f8d7470f5fa095fa36662c026ff273d4e653910dbe27d9aea2d9e00cdb7bfe7a"
+    },
+    {
+      "path": "artifacts/lab-stage4-isolation-001.log",
+      "bytes": 1426,
+      "sha256": "4fe5447b548662a869f7b3c8bb07fdb0ea745da6995f834acd83bf8a2c28f00b"
+    }
+  ],
+  "failures_preserved": [
+    "Initial binding mocks reused result.json as both build and flash input; duplicate guard correctly rejected the fixture. Corrected to distinct records.",
+    "First isolated runner used runpy without script-directory sys.path and failed to import battery_lab; runner now matches direct-script import behavior, with serial import explicitly blocked. No tool dependency on old artifacts was needed."
+  ],
+  "limits": [
+    "No new firmware build, serial enumeration, real capture, flash, reset, clock write or device verification.",
+    "Local Build/Flash/USB checks plus current operator confirmation are not board firmware attestation.",
+    "Historical artifacts, old errors and SHA references remain untouched; no mechanical migration of all old experiments.",
+    "Old AOD reset/time/PM flows, battery offline recovery, wrist diagnostics, one-off map/calibration research and third-party sources remain historical/domain-specific.",
+    "Compass calibration, mounting zero, tilt, magnetic-north accuracy, power and battery-life validation are outside this tool cleanup."
+  ],
+  "result": "All four agreed tool-reuse closures have host evidence. Final reviewed PR merge and local-main synchronization close delivery; no further device experiment is required for this cleanup."
+}

@@ -11,6 +11,7 @@ import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 import lab_check as check
+import serial_lab as lab
 from lab_evidence import file_record, write_json
 
 
@@ -167,6 +168,69 @@ class CheckTests(unittest.TestCase):
         self.assertIn("guide", found)
         self.assertNotIn("fake", found)
         self.assertNotIn("inline", found)
+
+    def binding(self, report):
+        with patch.object(check, "check_build", return_value=report), patch.object(check, "load", return_value=self.lock):
+            return lab.prepare_capture(self.result, self.root / "flash.json",
+                                       next(i["sha256"] for i in report["images"] if i["name"] == "main.bin"),
+                                       "COM5", "1-1.1", True)
+
+    def test_capture_requires_current_confirmation_hash_and_flash_endpoint(self):
+        with patch.object(check, "check_build") as build:
+            with self.assertRaisesRegex(ValueError, "confirmation required"):
+                lab.prepare_capture(self.result, self.result, "wrong", "COM5", "1-1.1", False)
+            build.assert_not_called()
+        report = self.run_build()
+        report.update(flash_port="COM5", flash_result=file_record(self.result))
+        with patch.object(check, "check_build", return_value=report):
+            with self.assertRaisesRegex(ValueError, "firmware hash"):
+                lab.prepare_capture(self.result, self.result, "wrong", "COM5", "1-1.1", True)
+            report["flash_port"] = "COM6"
+            with self.assertRaisesRegex(ValueError, "flash endpoint"):
+                self.binding(report)
+
+    def test_bound_capture_rechecks_files_sdk_and_endpoint_before_open(self):
+        report = self.run_build()
+        write_json(self.root / "flash.json", {"fixture": "separate transfer record"})
+        report.update(flash_port="COM5", flash_result=file_record(self.root / "flash.json"))
+        endpoint = {"device": "COM5", "location": "1-1.1"}
+        with patch("battery_device.port_identity", return_value=endpoint) as port, patch.object(check, "check_sdk") as sdk:
+            binding, guard = self.binding(report)
+            self.assertFalse(binding["device_identity_verified"])
+            self.assertEqual(guard(), endpoint)
+            sdk.assert_called_once()
+            self.assertEqual(port.call_count, 2)
+            self.source.write_bytes(b"changed after preparation")
+            with self.assertRaisesRegex(ValueError, "Evidence changed"):
+                guard()
+            self.assertEqual(port.call_count, 2)
+
+    def test_endpoint_change_rejected_under_lease_without_opening_or_commands(self):
+        report = self.run_build()
+        write_json(self.root / "flash.json", {"fixture": "separate transfer record"})
+        report.update(flash_port="COM5", flash_result=file_record(self.root / "flash.json"))
+        endpoint = {"device": "COM5", "serial_number": "one"}
+        with patch("battery_device.port_identity", return_value=endpoint) as port, patch.object(check, "check_sdk"):
+            binding, guard = self.binding(report)
+            port.return_value = dict(endpoint, serial_number="other")
+            peer = lab.Simulation("light")
+            result = lab.record(self.root / "capture", peer, mode="light", seconds=.1,
+                                identity_check=guard, binding=binding, locks=self.root / "locks")
+        self.assertFalse(result["passed"])
+        self.assertIn("Endpoint identity changed", result["detail"])
+        self.assertFalse(peer.opened)
+        self.assertTrue(peer.closed)
+        self.assertEqual(peer.commands, [])
+
+    def test_keyboard_cancel_preserves_evidence_and_closes_without_device_cleanup(self):
+        peer = lab.Simulation("passive")
+        def interrupt(_):
+            raise KeyboardInterrupt()
+        result = lab.record(self.root / "capture", peer, mode="passive", seconds=.1, ready=interrupt,
+                            identity_check=lambda: {}, binding={"simulation": True}, locks=self.root / "locks")
+        self.assertEqual(result["outcome"], "cancelled")
+        self.assertTrue(result["resources_closed"])
+        self.assertEqual(peer.commands, [])
 
 
 if __name__ == "__main__":
