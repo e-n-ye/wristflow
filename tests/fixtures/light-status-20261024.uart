@@ -1,0 +1,33 @@
+msh />msh />[light] session=1 phase=1 end=0 queued=0 owned=1 restored=0 errors=0
+[light-config] id_valid=1 part=a0 manufacturer=05 before_valid=1 ctrl=00 rate=03
+[light-config] entered_valid=1 ctrl=01 rate=03 after_valid=0 ctrl=00 rate=00
+[light-sample] session=1 seq=11 ms=86845 age=462 status=04 ch0=7 ch1=5 valid=1 saturated=0; raw counts, not lux
+[light-time] start=76262 duration=0 not_ready=0; 1x/100ms integration/500ms repeat, raw channels
+[auto-light] enabled=1 active=1 valid=1 fault=0 cleanup=0 brightness=23 mlux=17950 ms=86845 session=1 seq=11; uncalibrated
+msh />msh />ch[7]voltage=41624;20832.17
+[power] USB OK voltage_valid=1 VBAT=4162mV; estimate_valid=1 SOC~97%
+ch[7]voltage=41630;20835.30
+ch[7]voltage=41625;20832.70
+ch[7]voltage=41627;20833.74
+ch[7]voltage=41634;20837.39
+ch[7]voltage=41623;20831.65
+msh />msh />[light] session=1 phase=1 end=0 queued=0 owned=1 restored=0 errors=0
+[light-config] id_valid=1 part=a0 manufacturer=05 before_valid=1 ctrl=00 rate=03
+[light-config] entered_valid=1 ctrl=01 rate=03 after_valid=0 ctrl=00 rate=00
+[light-sample] session=1 seq=16 ms=91960 age=395 status=04 ch0=7 ch1=5 valid=1 saturated=0; raw counts, not lux
+[light-time] start=76262 duration=0 not_ready=0; 1x/100ms integration/500ms repeat, raw channels
+[auto-light] enabled=1 active=1 valid=1 fault=0 cleanup=0 brightness=23 mlux=17950 ms=91960 session=1 seq=16; uncalibrated
+msh />msh />ch[7]voltage=41627;20833.74
+[power] USB OK voltage_valid=1 VBAT=4163mV; estimate_valid=1 SOC~97%
+ch[7]voltage=41632;20836.35
+ch[7]voltage=41622;20831.13
+ch[7]voltage=41624;20832.17
+ch[7]voltage=41619;20829.56
+ch[7]voltage=41626;20833.22
+msh />msh />[light] session=1 phase=1 end=0 queued=0 owned=1 restored=0 errors=0
+[light-config] id_valid=1 part=a0 manufacturer=05 before_valid=1 ctrl=00 rate=03
+[light-config] entered_valid=1 ctrl=01 rate=03 after_valid=0 ctrl=00 rate=00
+[light-sample] session=1 seq=21 ms=97075 age=280 status=04 ch0=7 ch1=5 valid=1 saturated=0; raw counts, not lux
+[light-time] start=76262 duration=0 not_ready=0; 1x/100ms integration/500ms repeat, raw channels
+[auto-light] enabled=1 active=1 valid=1 fault=0 cleanup=0 brightness=23 mlux=17950 ms=97075 session=1 seq=21; uncalibrated
+msh />msh />ch[7]voltage=41630;20835.30

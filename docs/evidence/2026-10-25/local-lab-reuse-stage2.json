@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "source_base": "54c1834cdd0513d6280475b785ab4528904b6d0f",
+  "previous_pr": 150,
+  "scope": "Second callers: light/compass cached queries and passive AOD byte capture; host-only simulation/replay, no hardware operation.",
+  "sources": [
+    {
+      "path": "scripts/serial_lab.py",
+      "bytes": 9844,
+      "sha256": "1bfb8207568690f32ac6ee60223c6c419c144b7ba3f2771dc045ea1824183042"
+    },
+    {
+      "path": "scripts/compass_protocol.py",
+      "bytes": 1455,
+      "sha256": "2ac6c1edf1d22c392a9d07402cfc4184c74d780d106c90b4ac2bc4760ebbe533"
+    },
+    {
+      "path": "scripts/lab_serial.py",
+      "bytes": 9088,
+      "sha256": "8ac5b08fc0f7d68180b1f657d91d7bc11d4b3cc349d6603bde59e90710c49703"
+    },
+    {
+      "path": "tests/test_lab_callers.py",
+      "bytes": 7257,
+      "sha256": "2e914f69a0987a435326ce2ee45882d5ae5298c21ac71004248288cce258b3ea"
+    },
+    {
+      "path": "tests/fixtures/aod-passive-20261023.json",
+      "bytes": 1421,
+      "sha256": "7ecf6eb20d5d88a607086b6d424543adbdf2d177b59268d3be1b28694c1ca469"
+    },
+    {
+      "path": "tests/fixtures/aod-passive-20261023.uart",
+      "bytes": 5901,
+      "sha256": "34338d154df98ced29017ff7354d8c0dc50fdb38f818fcaa79806c8a1fb579b7"
+    },
+    {
+      "path": "tests/fixtures/light-status-20261024.json",
+      "bytes": 2852,
+      "sha256": "ab4381d45ca8fd26cedff93bb016197b413e0dfbfa1f31d074e6107db0e1e21b"
+    },
+    {
+      "path": "tests/fixtures/light-status-20261024.uart",
+      "bytes": 2284,
+      "sha256": "7639f43ac053d0371aa4386d04d1a664374bb3cf1638a70d1b61768d9bfbc1ad"
+    },
+    {
+      "path": "tests/fixtures/compass-observer-20261025.json",
+      "bytes": 1347,
+      "sha256": "ff85ead025aca75677e73a96d7c3ee9ea4a88b17cd18a33c25cbf7f0352e32a0"
+    },
+    {
+      "path": "tests/fixtures/compass-observer-20261025.uart",
+      "bytes": 48056,
+      "sha256": "88820d372f3a6f0afd25bbdb4a6b1a82debdb50f842e74f3429f375e18d37523"
+    }
+  ],
+  "tests": [
+    {
+      "command": "CC=D:/msys64/ucrt64/bin/gcc.exe python -m unittest discover -s tests -p 'test_battery_*.py' -v",
+      "passed": 94,
+      "log": {
+        "path": "artifacts/lab-stage2-battery-tests.log",
+        "bytes": 16392,
+        "sha256": "754b50fc0660af37ec79c9ebd8cd9f949ca3940031bc9b28f7eb00fdf5cb2dc8"
+      }
+    },
+    {
+      "command": "python -m unittest discover -s tests -p 'test_lab_*.py' -v",
+      "passed": 33,
+      "log": {
+        "path": "artifacts/lab-stage2-tests.log",
+        "bytes": 5002,
+        "sha256": "5830bc3158faae8649a3d2df77437f8b681c25b42cd808cafbac1d4258c26b15"
+      }
+    }
+  ],
+  "environment": {
+    "python": "3.12.9",
+    "existing_environment": true,
+    "downloads": false
+  },
+  "review": "Primary and independent read-only source review; no remaining definite blocker.",
+  "boundaries": [
+    "Light/compass permit only their own status command; passive permits no transmission.",
+    "Total query deadline and cancellation checked after pre-TX drain and final capture; failures close host resources.",
+    "Historical UARTs are byte-exact snapshots with source provenance. Incomplete compass pairs are not repaired, invalid values remain.",
+    "No device control, reset, clock write, firmware build or new hardware verification.",
+    "CLI real-entry binding and shared checks follow in next closure."
+  ],
+  "failures": [
+    "Initial resumed tests in previous session exposed a final-query budget race; insufficient tail budget now prevents a new query, expired request budget blocks TX.",
+    "Pre-TX cancellation during drain is now guarded and regression covered."
+  ],
+  "history": {
+    "brightness_observations": 3,
+    "aod_passive_bytes": 5901,
+    "compass_cache_pairs": 120,
+    "compass_valid_pairs": 51
+  },
+  "remaining": "Shared build/flash/SDK/evidence/document checks, bound real entry, isolated dependency and fresh-session navigation acceptance."
+}

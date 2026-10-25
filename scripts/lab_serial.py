@@ -140,13 +140,17 @@ class RecordedClient:
             lines.append(line.decode("ascii", errors="replace"))
         return lines
 
-    def request(self, command, completion, *, cleanup=False):
+    def request(self, command, completion, *, cleanup=False, deadline=None):
         if self.COMMAND_PATTERN is None or not re.fullmatch(self.COMMAND_PATTERN, command):
             raise ValueError("Command outside collection allowlist")
         if not cleanup and self.cancel.is_set():
             raise Cancelled("Collection cancelled")
         self.last_bytes = bytearray()
         self.drain()
+        if not cleanup and self.cancel.is_set():
+            raise Cancelled("Cancelled during pre-request capture")
+        if deadline is not None and time.monotonic() >= deadline:
+            raise TimeoutError("Request budget expired before transmission")
         if self.buffer:
             self.journal.event("orphan_bytes", count=len(self.buffer))
         self.buffer = b""  # Persisted bytes must not become a new command reply.
@@ -156,7 +160,7 @@ class RecordedClient:
         wire = (command + "\r\n").encode("ascii")
         if self.transport.write(wire) != len(wire):
             raise ProtocolError("Partial command write; control command is not retried")
-        deadline = time.monotonic() + self.timeout
+        deadline = min(deadline, time.monotonic()+self.timeout) if deadline is not None else time.monotonic()+self.timeout
         lines = []
         while time.monotonic() < deadline:
             if not cleanup and self.cancel.is_set():
