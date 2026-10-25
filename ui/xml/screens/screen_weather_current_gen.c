@@ -56,10 +56,11 @@ lv_obj_t * screen_weather_current_create(void)
         lv_obj_set_y(weather_city, 42);
         lv_obj_set_width(weather_city, 390);
         lv_obj_set_height(weather_city, 34);
-        lv_label_set_text(weather_city, "乐清市");
+        lv_label_set_text(weather_city, "--");
         lv_obj_set_style_text_font(weather_city, notification_22, 0);
         lv_obj_set_style_text_color(weather_city, FG_PRIMARY, 0);
         lv_obj_set_style_text_align(weather_city, LV_TEXT_ALIGN_CENTER, 0);
+        lv_label_set_long_mode(weather_city, LV_LABEL_LONG_MODE_CLIP);
 
         lv_obj_t * weather_update = lv_label_create(lv_obj_0);
         lv_obj_set_name(weather_update, "weather_update");
@@ -67,10 +68,11 @@ lv_obj_t * screen_weather_current_create(void)
         lv_obj_set_y(weather_update, 80);
         lv_obj_set_width(weather_update, 390);
         lv_obj_set_height(weather_update, 30);
-        lv_label_set_text(weather_update, "刚刚更新");
+        lv_label_set_text(weather_update, "");
         lv_obj_set_style_text_font(weather_update, notification_22, 0);
         lv_obj_set_style_text_color(weather_update, FG_PRIMARY, 0);
         lv_obj_set_style_text_align(weather_update, LV_TEXT_ALIGN_CENTER, 0);
+        lv_label_set_long_mode(weather_update, LV_LABEL_LONG_MODE_CLIP);
 
         lv_obj_t * weather_temp = lv_label_create(lv_obj_0);
         lv_obj_set_name(weather_temp, "weather_temp");
@@ -78,10 +80,11 @@ lv_obj_t * screen_weather_current_create(void)
         lv_obj_set_y(weather_temp, 132);
         lv_obj_set_width(weather_temp, 390);
         lv_obj_set_height(weather_temp, 72);
-        lv_label_set_text(weather_temp, "30°");
+        lv_label_set_text(weather_temp, "--");
         lv_obj_set_style_text_font(weather_temp, metric_56, 0);
         lv_obj_set_style_text_color(weather_temp, FG_PRIMARY, 0);
         lv_obj_set_style_text_align(weather_temp, LV_TEXT_ALIGN_CENTER, 0);
+        lv_label_set_long_mode(weather_temp, LV_LABEL_LONG_MODE_CLIP);
 
         lv_obj_t * weather_condition = lv_label_create(lv_obj_0);
         lv_obj_set_name(weather_condition, "weather_condition");
@@ -89,10 +92,11 @@ lv_obj_t * screen_weather_current_create(void)
         lv_obj_set_y(weather_condition, 232);
         lv_obj_set_width(weather_condition, 390);
         lv_obj_set_height(weather_condition, 34);
-        lv_label_set_text(weather_condition, "多云");
+        lv_label_set_text(weather_condition, "--");
         lv_obj_set_style_text_font(weather_condition, notification_22, 0);
         lv_obj_set_style_text_color(weather_condition, FG_PRIMARY, 0);
         lv_obj_set_style_text_align(weather_condition, LV_TEXT_ALIGN_CENTER, 0);
+        lv_label_set_long_mode(weather_condition, LV_LABEL_LONG_MODE_CLIP);
 
         lv_obj_t * weather_range = lv_label_create(lv_obj_0);
         lv_obj_set_name(weather_range, "weather_range");
@@ -100,10 +104,11 @@ lv_obj_t * screen_weather_current_create(void)
         lv_obj_set_y(weather_range, 270);
         lv_obj_set_width(weather_range, 390);
         lv_obj_set_height(weather_range, 30);
-        lv_label_set_text(weather_range, "31°/24°");
+        lv_label_set_text(weather_range, "--/--");
         lv_obj_set_style_text_font(weather_range, notification_22, 0);
         lv_obj_set_style_text_color(weather_range, FG_PRIMARY, 0);
         lv_obj_set_style_text_align(weather_range, LV_TEXT_ALIGN_CENTER, 0);
+        lv_label_set_long_mode(weather_range, LV_LABEL_LONG_MODE_CLIP);
 
         lv_obj_t * weather_aqi_caption = lv_label_create(lv_obj_0);
         lv_obj_set_name(weather_aqi_caption, "weather_aqi_caption");
@@ -122,10 +127,11 @@ lv_obj_t * screen_weather_current_create(void)
         lv_obj_set_y(weather_aqi, 392);
         lv_obj_set_width(weather_aqi, 390);
         lv_obj_set_height(weather_aqi, 34);
-        lv_label_set_text(weather_aqi, "优");
+        lv_label_set_text(weather_aqi, "--");
         lv_obj_set_style_text_font(weather_aqi, notification_22, 0);
         lv_obj_set_style_text_color(weather_aqi, FG_PRIMARY, 0);
         lv_obj_set_style_text_align(weather_aqi, LV_TEXT_ALIGN_CENTER, 0);
+        lv_label_set_long_mode(weather_aqi, LV_LABEL_LONG_MODE_CLIP);
 
         the_root = lv_obj_0;
     }

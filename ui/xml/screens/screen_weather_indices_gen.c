@@ -66,8 +66,8 @@ lv_obj_t * screen_weather_indices_create(void)
         lv_obj_set_y(weather_indices_clock, 26);
         lv_obj_set_width(weather_indices_clock, 70);
         lv_obj_set_height(weather_indices_clock, 30);
-        lv_label_set_text(weather_indices_clock, "15:00");
-        lv_obj_set_style_text_font(weather_indices_clock, notification_22, 0);
+        lv_label_set_text(weather_indices_clock, "--:--");
+        lv_obj_set_style_text_font(weather_indices_clock, body_20, 0);
         lv_obj_set_style_text_color(weather_indices_clock, FG_PRIMARY, 0);
         lv_obj_set_style_text_align(weather_indices_clock, LV_TEXT_ALIGN_RIGHT, 0);
 
@@ -77,7 +77,7 @@ lv_obj_t * screen_weather_indices_create(void)
         lv_obj_set_y(weather_index_0_value, 78);
         lv_obj_set_width(weather_index_0_value, 88);
         lv_obj_set_height(weather_index_0_value, 58);
-        lv_label_set_text(weather_index_0_value, "41");
+        lv_label_set_text(weather_index_0_value, "--");
         lv_obj_set_style_text_font(weather_index_0_value, metric_56, 0);
         lv_obj_set_style_text_color(weather_index_0_value, FG_PRIMARY, 0);
 
@@ -108,7 +108,7 @@ lv_obj_t * screen_weather_indices_create(void)
         lv_obj_set_y(weather_index_1_value, 162);
         lv_obj_set_width(weather_index_1_value, 88);
         lv_obj_set_height(weather_index_1_value, 58);
-        lv_label_set_text(weather_index_1_value, "80");
+        lv_label_set_text(weather_index_1_value, "--");
         lv_obj_set_style_text_font(weather_index_1_value, metric_56, 0);
         lv_obj_set_style_text_color(weather_index_1_value, FG_PRIMARY, 0);
 
@@ -139,7 +139,7 @@ lv_obj_t * screen_weather_indices_create(void)
         lv_obj_set_y(weather_index_2_value, 246);
         lv_obj_set_width(weather_index_2_value, 88);
         lv_obj_set_height(weather_index_2_value, 58);
-        lv_label_set_text(weather_index_2_value, "3");
+        lv_label_set_text(weather_index_2_value, "--");
         lv_obj_set_style_text_font(weather_index_2_value, metric_56, 0);
         lv_obj_set_style_text_color(weather_index_2_value, FG_PRIMARY, 0);
 
@@ -160,7 +160,7 @@ lv_obj_t * screen_weather_indices_create(void)
         lv_obj_set_y(weather_index_2_label, 262);
         lv_obj_set_width(weather_index_2_label, 170);
         lv_obj_set_height(weather_index_2_label, 30);
-        lv_label_set_text(weather_index_2_label, "东南风");
+        lv_label_set_text(weather_index_2_label, "风力");
         lv_obj_set_style_text_font(weather_index_2_label, notification_22, 0);
         lv_obj_set_style_text_color(weather_index_2_label, FG_PRIMARY, 0);
 
@@ -170,7 +170,7 @@ lv_obj_t * screen_weather_indices_create(void)
         lv_obj_set_y(weather_index_3_value, 330);
         lv_obj_set_width(weather_index_3_value, 88);
         lv_obj_set_height(weather_index_3_value, 58);
-        lv_label_set_text(weather_index_3_value, "4");
+        lv_label_set_text(weather_index_3_value, "--");
         lv_obj_set_style_text_font(weather_index_3_value, metric_56, 0);
         lv_obj_set_style_text_color(weather_index_3_value, FG_PRIMARY, 0);
 

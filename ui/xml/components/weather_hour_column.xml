@@ -1,0 +1,10 @@
+<component>
+    <view extends="lv_obj" width="92" height="320" scrollable="false" clickable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0">
+        <lv_label name="hour_time" x="0" y="18" width="92" height="30" text="--:--" style_text_font="body_20" style_text_color="#fg_primary" style_text_align="center" long_mode="clip" />
+        <lv_label name="hour_temp" x="0" y="68" width="92" height="42" text="--" style_text_font="title_24" style_text_color="#fg_primary" style_text_align="center" long_mode="clip" />
+        <lv_label name="hour_icon" x="0" y="120" width="92" height="48" text="" style_text_font="icons_44" style_text_color="#fg_primary" style_text_align="center" long_mode="clip" />
+        <lv_label name="hour_wind_icon" x="32" y="180" width="28" height="34" text="&#xf1d8;" style_text_font="icons_20" style_text_color="#fg_primary" style_text_align="center" long_mode="clip" />
+        <lv_label name="hour_wind" x="0" y="215" width="92" height="30" text="--" style_text_font="body_20" style_text_color="#fg_primary" style_text_align="center" long_mode="clip" />
+        <lv_label name="hour_air" x="0" y="252" width="92" height="30" text="--" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="center" long_mode="clip" />
+    </view>
+</component>

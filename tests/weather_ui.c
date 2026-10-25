@@ -75,7 +75,11 @@ static lv_obj_t *named(lv_obj_t *root, const char *name)
     return object;
 }
 static void text(lv_obj_t *root, const char *name, const char *expected)
-{ assert(strcmp(lv_label_get_text(named(root, name)), expected) == 0); }
+{
+    const char *actual = lv_label_get_text(named(root, name));
+    if (strcmp(actual, expected)) fprintf(stderr, "%s: expected=[%s] actual=[%s]\n", name, expected, actual);
+    assert(strcmp(actual, expected) == 0);
+}
 static void click(lv_obj_t *object)
 {
     lv_area_t area;
@@ -107,6 +111,19 @@ static void snapshot(const char *directory, const char *name)
 }
 static bool at_offset(lv_coord_t value, lv_coord_t expected)
 { return value == expected || value == -expected; }
+static void theme(lv_obj_t *screen, lv_color_t background)
+{
+    static const char *const pages[] = {"current", "hourly", "daily", "indices", "sun"};
+    assert(lv_color_eq(lv_obj_get_style_bg_color(screen, 0), background));
+    for (unsigned i = 0; i < 5; ++i) {
+        char name[48];
+        snprintf(name, sizeof name, "weather_content_%s", pages[i]);
+        assert(lv_color_eq(lv_obj_get_style_bg_color(named(screen, name), 0), background));
+    }
+    lv_color_t dim = lv_color_mix(FG_PRIMARY, background, 48);
+    assert(lv_color_eq(lv_obj_get_style_bg_color(named(screen, "weather_hourly_dots_1"), 0), dim));
+    assert(lv_color_eq(lv_obj_get_style_bg_color(named(screen, "weather_daily_dots_1"), 0), dim));
+}
 static void glyph(const lv_font_t *font, const char *string)
 {
     const unsigned char *bytes = (const unsigned char *)string;
@@ -175,6 +192,7 @@ int main(int argc, char **argv)
         codepoint_glyph(notification_22, cp);
     }
     codepoint_glyph(notification_22, 0x00b7);
+    codepoint_glyph(body_20, 0x7ea7);
 
     lv_obj_t *screen = wristflow_weather_screen_create_with_data(NULL);
     lv_screen_load(screen);
@@ -258,6 +276,15 @@ int main(int argc, char **argv)
     text(screen, "weather_index_2_value", "12 km/h");
     text(screen, "weather_index_3_value", "--");
     assert(lv_color_eq(lv_obj_get_style_bg_color(named(screen, "weather_page_sun"), 0), WEATHER_BLUE));
+    theme(screen, WEATHER_BLUE);
+    current.code = 802;
+    wristflow_weather_update(&current, 0);
+    wristflow_weather_screen_refresh(screen);
+    theme(screen, WEATHER_CLOUDY);
+    current.code = 800;
+    wristflow_weather_update(&current, 0);
+    wristflow_weather_screen_refresh(screen);
+    theme(screen, WEATHER_BLUE);
     snapshot(argv[1], "weather_product_current");
     text(screen, "weather_update", "刚刚接收");
     ticks += WRISTFLOW_WEATHER_EXPIRY_MS;
@@ -386,6 +413,19 @@ int main(int argc, char **argv)
     assert(lv_color_eq(lv_obj_get_style_bg_color(named(screen, "weather_page_sun"), 0),
                        lv_color_hex(0x687f91)));
     assert(lv_color_eq(lv_obj_get_style_text_color(named(screen, "weather_temp"), 0), FG_PRIMARY));
+    theme(screen, WEATHER_CLOUDY);
+    lv_obj_t *last_hour = named(screen, "weather_hour_23");
+    assert(lv_obj_get_parent(last_hour) == named(named(screen, "weather_hourly_pager"), "forecast_page_5"));
+    text(last_hour, "hour_time", "14:00");
+    text(last_hour, "hour_temp", "27°");
+    text(last_hour, "hour_wind", "1级");
+    text(last_hour, "hour_air", "良");
+    lv_obj_t *last_day_page = named(named(screen, "weather_daily_pager"), "forecast_page_1");
+    assert(lv_obj_get_parent(named(screen, "weather_day_6")) == last_day_page);
+    for (unsigned i = 2; i < 5; ++i) {
+        char name[16]; snprintf(name, sizeof name, "row_%u", i);
+        assert(lv_obj_has_flag(named(last_day_page, name), LV_OBJ_FLAG_HIDDEN));
+    }
     assert(!lv_obj_find_by_name(screen, "app_title"));
     assert(!lv_obj_find_by_name(screen, "weather_dots"));
     snapshot(argv[1], "weather_current");
