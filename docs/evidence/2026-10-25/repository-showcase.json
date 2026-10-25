@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "source_base": "3a607ce0c4b719102b9feb905844b20329e2ec1b",
+  "scope": "Chinese GitHub README first edition with five user-provided device photos, seven existing host-rendered UI images, quick start and engineering guide. Full-feature video explicitly deferred by the user.",
+  "sources": [
+    {
+      "path": "README.md",
+      "bytes": 11024,
+      "sha256": "d3a90aa42d686e4d0531b4285c9039b1af9141bb7426dc2fa32b9e58f07e0147"
+    },
+    {
+      "path": "docs/media/README.md",
+      "bytes": 3594,
+      "sha256": "3b349594ad5b0b643f7ee7ff31ccc395708891765be1f0144c2af82ed49d3799"
+    },
+    {
+      "path": "docs/media/manifest.json",
+      "bytes": 8562,
+      "sha256": "ed1e6464f46ca04120a8f82c21c007babb72440def04a5e6d3f26e64b65297c2"
+    }
+  ],
+  "validation": {
+    "commands": [
+      "python scripts/lab_check.py docs --base HEAD",
+      "python scripts/lab_check.py files --manifest docs/media/manifest.json",
+      "gh api --method POST markdown --input artifacts/showcase-markdown-request.json",
+      "git diff --check"
+    ],
+    "assets": "Twelve unique local README image paths; all originals and publication hashes checked. Seven PNGs byte-identical; five JPEG encoded image scan byte streams identical after removing metadata.",
+    "browser": "GitHub Markdown API output rendered in a localhost preview with approximate GitHub-style CSS; 1280px desktop and 390px phone viewport visually inspected. All12 images decoded, no document horizontal overflow; gallery anchor clicked. Actual GitHub page readback follows PR publication.",
+    "review": "Primary source/image review plus independent read-only review requested gpt-6.1-sol/medium; no definite blocker. Effective model is not exposed in the tool result.",
+    "firmware_build": "not run; documentation/media only",
+    "hardware_operation": "none; user supplied photos, no serial enumeration, reset, flash or new device acceptance"
+  },
+  "files": [
+    {
+      "path": "artifacts/showcase-docs-002.json",
+      "bytes": 12084,
+      "sha256": "23e406e74020a2a0e84b1c4f284d6d86ea679aa262dc7697267058a4cdac9738"
+    },
+    {
+      "path": "artifacts/showcase-media-002.json",
+      "bytes": 3008,
+      "sha256": "566c3299a84f911212bdaeb09f5e4833d5ef1ff361a246f0ec6c0cdaf7408c86"
+    },
+    {
+      "path": "artifacts/showcase-asset-verification.json",
+      "bytes": 215,
+      "sha256": "ed15d14805c5e7d3e0a88bf034e8704a34ca1809bd9f491bee7e0c9652f53d7a"
+    },
+    {
+      "path": "artifacts/showcase-rendered-github.html",
+      "bytes": 14482,
+      "sha256": "181191b4694fe211c1530f347f73d2e5b6ffd68ce49d717a1d2abb9aa905a863"
+    },
+    {
+      "path": "artifacts/showcase-desktop.jpg",
+      "bytes": 46235,
+      "sha256": "24dce05a9783d03edb97c9c53dfea692555b2e1925ce526396a88c118c1f9f69"
+    },
+    {
+      "path": "artifacts/showcase-mobile.jpg",
+      "bytes": 44816,
+      "sha256": "7570d5a23b0a02563758229a35ce23c138ba865f6c1d95fc3c5184a5c33521ed"
+    },
+    {
+      "path": "artifacts/showcase-mobile-gallery.jpg",
+      "bytes": 43746,
+      "sha256": "4fb56ea099e4a46f25df6d039968467453ce802670042007ad18aabc202e0909"
+    }
+  ],
+  "failures_preserved": [
+    "System Python lacked Pillow for metadata inspection. Used standard-library JPEG marker checks instead; no package installation.",
+    "An initial JPEG preflight detected EXIF and stopped before publication; publication copies remove metadata while retaining original encoded scan bytes.",
+    "Initial preview tab expired across user input; recreated only the task preview, leaving reference tabs unchanged."
+  ],
+  "limits": [
+    "Five original-resolution device photos dominate the23,948,151B media payload; no thumbnail resizing or pixel edits in this edition.",
+    "Exact capture source commits were not recorded for historical UI images; current board BIN was not independently queried for new user photos.",
+    "Root project code license remains unspecified; no license chosen or new image sublicense added.",
+    "No new current/DEEP/battery-life, magnetic-north, calibration, health algorithm, BLE security or all-feature hardware claim.",
+    "Video is deferred to a later full-feature recording by explicit user instruction."
+  ]
+}
