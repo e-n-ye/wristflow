@@ -1,0 +1,18 @@
+<screen>
+    <view width="390" height="450" scrollable="false" style_bg_color="#weather_cloudy" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="body_20" style_text_color="#fg_primary">
+        <lv_obj name="weather_pager" x="0" y="0" width="390" height="450" scrollable="false" clickable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0">
+            <lv_obj name="weather_page_current" x="0" y="0" width="390" height="450" scrollable="false" clickable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0" />
+            <lv_obj name="weather_page_hourly" x="0" y="450" width="390" height="450" scrollable="false" clickable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0" />
+            <lv_obj name="weather_page_daily" x="0" y="900" width="390" height="450" scrollable="false" clickable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0" />
+            <lv_obj name="weather_page_indices" x="0" y="1350" width="390" height="450" scrollable="false" clickable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0" />
+            <lv_obj name="weather_page_sun" x="0" y="1800" width="390" height="450" scrollable="false" clickable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0" />
+        </lv_obj>
+        <lv_obj name="weather_state_panel" x="0" y="0" width="390" height="450" scrollable="false" clickable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0">
+        <lv_label name="weather_state_icon" x="0" y="148" width="390" height="50" text="&#xf0c2;" style_text_font="icons_44" style_text_color="#fg_primary" style_text_align="center" long_mode="clip" />
+        <lv_label name="weather_state_label" x="24" y="214" width="342" height="30" text="正在同步天气" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="center" long_mode="clip" />
+            <lv_button name="weather_retry" x="134" y="276" width="122" height="42" scrollable="false" style_bg_opa="0%" style_border_color="#fg_primary" style_border_width="1" style_radius="0" style_shadow_width="0" style_pad_all="0">
+        <lv_label name="weather_retry_label" x="0" y="8" width="122" height="26" text="重试" style_text_font="notification_22" style_text_color="#fg_primary" style_text_align="center" long_mode="clip" />
+            </lv_button>
+        </lv_obj>
+    </view>
+</screen>

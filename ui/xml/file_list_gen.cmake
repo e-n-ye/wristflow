@@ -57,6 +57,10 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_half_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_quarter_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/time_picker_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/weather_day_page_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/weather_day_row_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/weather_hour_column_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/weather_hour_page_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/aod_preview_14_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/aod_preview_32_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/aod_preview_48_data.c
@@ -146,6 +150,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_watchface_simple_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_weather_current_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_weather_daily_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_weather_host_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_weather_hourly_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_weather_indices_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/screens/screen_weather_sun_gen.c

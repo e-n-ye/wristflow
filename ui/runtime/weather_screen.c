@@ -1,7 +1,6 @@
 #include "weather_screen.h"
 #include "mount_screen.h"
 #include "wristflow_ui.h"
-#include "screens/screen_weather_sun_gen.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -21,6 +20,7 @@ typedef struct {
     lv_obj_t *state_panel;
     lv_obj_t *state_label;
     lv_obj_t *state_retry;
+    lv_obj_t *contents[WEATHER_PAGE_COUNT];
     unsigned outer_page;
     unsigned hourly_page;
     unsigned daily_page;
@@ -46,60 +46,12 @@ static lv_color_t weather_dot_dim(wristflow_weather_theme_t theme)
     return lv_color_mix(FG_PRIMARY, weather_background(theme), 48);
 }
 
-static lv_obj_t *label(lv_obj_t *parent, const char *name, int x, int y, int width,
-                       int height, const char *text, const lv_font_t *font, lv_color_t color,
-                       lv_text_align_t align)
+static lv_obj_t *named(lv_obj_t *root, const char *name)
 {
-    lv_obj_t *obj = lv_label_create(parent);
-    lv_obj_set_name(obj, name);
-    lv_obj_set_pos(obj, x, y);
-    lv_obj_set_size(obj, width, height);
-    lv_label_set_text(obj, text ? text : "");
-    lv_obj_set_style_text_font(obj, font, 0);
-    lv_obj_set_style_text_color(obj, color, 0);
-    lv_obj_set_style_text_align(obj, align, 0);
-    lv_label_set_long_mode(obj, LV_LABEL_LONG_MODE_CLIP);
+    lv_obj_t *obj = lv_obj_find_by_name(root, name);
+    LV_ASSERT(obj);
     return obj;
 }
-
-static lv_obj_t *panel(lv_obj_t *parent, const char *name, int x, int y, int width, int height,
-                       lv_color_t color)
-{
-    lv_obj_t *obj = lv_obj_create(parent);
-    /* Clear defaults first; geometry is stored in the local style and must survive. */
-    lv_obj_remove_style_all(obj);
-    lv_obj_set_name(obj, name);
-    lv_obj_set_pos(obj, x, y);
-    lv_obj_set_size(obj, width, height);
-    lv_obj_set_style_bg_color(obj, color, 0);
-    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, 0);
-    lv_obj_set_style_radius(obj, 0, 0);
-    lv_obj_set_style_pad_all(obj, 0, 0);
-    lv_obj_set_style_border_width(obj, 0, 0);
-    lv_obj_clear_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
-    return obj;
-}
-
-static void dots(lv_obj_t *parent, const char *name, unsigned count, unsigned active, int y,
-                 lv_color_t background, lv_color_t dim)
-{
-    lv_obj_t *host = panel(parent, name, 0, y, WEATHER_WIDTH, 10, background);
-    lv_obj_set_style_bg_opa(host, LV_OPA_TRANSP, 0);
-    int left = (WEATHER_WIDTH - ((int)count * 6 + ((int)count - 1) * 12)) / 2;
-    for (unsigned i = 0; i < count; ++i) {
-        lv_obj_t *dot = lv_obj_create(host);
-        char dot_name[48];
-        snprintf(dot_name, sizeof dot_name, "%s_%u", name, i);
-        lv_obj_remove_style_all(dot);
-        lv_obj_set_name(dot, dot_name);
-        lv_obj_set_pos(dot, left + (int)i * 18, 2);
-        lv_obj_set_size(dot, 6, 6);
-        lv_obj_set_style_bg_color(dot, i == active ? FG_PRIMARY : dim, 0);
-        lv_obj_set_style_bg_opa(dot, LV_OPA_COVER, 0);
-        lv_obj_set_style_radius(dot, LV_RADIUS_CIRCLE, 0);
-    }
-}
-
 static void update_dots(lv_obj_t *host, unsigned count, unsigned active, lv_color_t dim)
 {
     if (!host) return;
@@ -155,54 +107,6 @@ static const char *weather_icon(const char *condition)
     /* The generated icon font contains tint (F043), but not the newer cloud-rain glyph. */
     if (strcmp(condition, "rain") == 0) return "\xef\x81\x83";
     return "\xef\x83\x82";
-}
-
-static void page_header(lv_obj_t *page, const char *title_name, const char *title,
-                        const char *clock_name)
-{
-    label(page, title_name, 24, 24, 220, 34, title, notification_22, FG_PRIMARY, LV_TEXT_ALIGN_LEFT);
-    label(page, clock_name, 296, 26, 70, 30, "--:--", body_20, FG_PRIMARY, LV_TEXT_ALIGN_RIGHT);
-}
-
-static void render_hour_page(weather_view_t *view, lv_obj_t *page, unsigned page_index)
-{
-    for (unsigned column = 0; column < 4; ++column) {
-        unsigned data_index = page_index * 4U + column;
-        int x = 10 + (int)column * 96;
-        char name[24];
-        snprintf(name, sizeof name, "weather_hour_%u", data_index);
-        lv_obj_t *host = panel(page, name, x, 0, 92, WEATHER_FORECAST_HEIGHT, view->background);
-        lv_obj_set_style_bg_opa(host, LV_OPA_TRANSP, 0);
-        label(host, "hour_time", 0, 18, 92, 30, "--:--", body_20, FG_PRIMARY, LV_TEXT_ALIGN_CENTER);
-        label(host, "hour_temp", 0, 68, 92, 42, "--", title_24, FG_PRIMARY, LV_TEXT_ALIGN_CENTER);
-        label(host, "hour_icon", 0, 120, 92, 48, "", icons_44,
-              FG_PRIMARY, LV_TEXT_ALIGN_CENTER);
-        label(host, "hour_wind_icon", 32, 180, 28, 34, "\xef\x87\x98", icons_20,
-              FG_PRIMARY, LV_TEXT_ALIGN_CENTER);
-        label(host, "hour_wind", 0, 215, 92, 30, "--", body_20, FG_PRIMARY,
-              LV_TEXT_ALIGN_CENTER);
-        label(host, "hour_air", 0, 252, 92, 30, "--", notification_22, FG_PRIMARY,
-              LV_TEXT_ALIGN_CENTER);
-    }
-}
-
-static void render_daily_page(weather_view_t *view, lv_obj_t *page, unsigned page_index)
-{
-    unsigned first = page_index * 5U;
-    unsigned count = page_index == 0U ? 5U : 2U;
-    for (unsigned row = 0; row < count; ++row) {
-        int y = 14 + (int)row * 58;
-        char name[24];
-        snprintf(name, sizeof name, "weather_day_%u", first + row);
-        lv_obj_t *host = panel(page, name, 0, y, WEATHER_WIDTH, 58, view->background);
-        lv_obj_set_style_bg_opa(host, LV_OPA_TRANSP, 0);
-        label(host, "day_icon", 18, 4, 52, 44, "", icons_44,
-              FG_PRIMARY, LV_TEXT_ALIGN_CENTER);
-        label(host, "day_name", 88, 10, 104, 32, "--", notification_22, FG_PRIMARY,
-              LV_TEXT_ALIGN_LEFT);
-        label(host, "day_range", 220, 10, 148, 32, "--/--", title_24, FG_PRIMARY,
-              LV_TEXT_ALIGN_RIGHT);
-    }
 }
 
 static void render_ready(weather_view_t *view)
@@ -271,10 +175,10 @@ static void render_state(weather_view_t *view)
     view->background = weather_background(view->theme);
     lv_obj_set_style_bg_color(view->root, view->background, 0);
     lv_obj_set_style_bg_color(view->state_panel, view->background, 0);
-    for (unsigned i = 0; i < WEATHER_PAGE_COUNT; ++i)
+    for (unsigned i = 0; i < WEATHER_PAGE_COUNT; ++i) {
         lv_obj_set_style_bg_color(lv_obj_get_child(view->outer, i), view->background, 0);
-    lv_obj_t *sun = lv_obj_get_child(lv_obj_get_child(view->outer, 4), 0);
-    lv_obj_set_style_bg_color(sun, view->background, 0);
+        lv_obj_set_style_bg_color(view->contents[i], view->background, 0);
+    }
     update_dots(lv_obj_find_by_name(view->root, "weather_hourly_dots"), 6,
                 view->hourly_page, weather_dot_dim(view->theme));
     update_dots(lv_obj_find_by_name(view->root, "weather_daily_dots"), 2,
@@ -368,107 +272,51 @@ static void deleted(lv_event_t *event)
     }
 }
 
-static void create_current_page(weather_view_t *view, lv_obj_t *page)
+static void attach_pages(weather_view_t *view)
 {
-    label(page, "weather_city", 0, 42, WEATHER_WIDTH, 34, "--", notification_22,
-          FG_PRIMARY, LV_TEXT_ALIGN_CENTER);
-    label(page, "weather_update", 0, 80, WEATHER_WIDTH, 30, "", notification_22,
-          FG_PRIMARY, LV_TEXT_ALIGN_CENTER);
-    label(page, "weather_temp", 0, 132, WEATHER_WIDTH, 72, "--", metric_56,
-          FG_PRIMARY, LV_TEXT_ALIGN_CENTER);
-    label(page, "weather_condition", 0, 232, WEATHER_WIDTH, 34, "--", notification_22,
-          FG_PRIMARY, LV_TEXT_ALIGN_CENTER);
-    label(page, "weather_range", 0, 270, WEATHER_WIDTH, 30, "--/--", notification_22,
-          FG_PRIMARY, LV_TEXT_ALIGN_CENTER);
-    label(page, "weather_aqi_caption", 0, 360, WEATHER_WIDTH, 28, "空气质量", notification_22,
-          FG_PRIMARY, LV_TEXT_ALIGN_CENTER);
-    label(page, "weather_aqi", 0, 392, WEATHER_WIDTH, 34, "--", notification_22,
-          FG_PRIMARY, LV_TEXT_ALIGN_CENTER);
-    (void)view;
-}
-
-static void create_hourly_page(weather_view_t *view, lv_obj_t *page)
-{
-    page_header(page, "weather_hourly_title", "天气预测", "weather_hourly_clock");
-    view->hourly = panel(page, "weather_hourly_pager", 0, WEATHER_FORECAST_TOP,
-                         WEATHER_WIDTH, WEATHER_FORECAST_HEIGHT, view->background);
-    lv_obj_set_style_bg_opa(view->hourly, LV_OPA_TRANSP, 0);
-    for (unsigned i = 0; i < 6; ++i) {
-        lv_obj_t *hour_page = panel(view->hourly, "weather_hour_page", (int)i * WEATHER_INNER_WIDTH, 0,
-                                    WEATHER_INNER_WIDTH, WEATHER_FORECAST_HEIGHT, view->background);
-        lv_obj_set_style_bg_opa(hour_page, LV_OPA_TRANSP, 0);
-        render_hour_page(view, hour_page, i);
+    static const char *const names[] = {"current", "hourly", "daily", "indices", "sun"};
+    static lv_obj_t *(*const factories[])(void) = {screen_weather_current_create,
+        screen_weather_hourly_create, screen_weather_daily_create,
+        screen_weather_indices_create, screen_weather_sun_create};
+    for (unsigned i = 0; i < WEATHER_PAGE_COUNT; ++i) {
+        char name[48]; snprintf(name, sizeof name, "weather_page_%s", names[i]);
+        view->contents[i] = wristflow_mount_screen(named(view->root, name), factories[i]());
+        snprintf(name, sizeof name, "weather_content_%s", names[i]);
+        lv_obj_set_name(view->contents[i], name);
     }
-    configure_scroll(view->hourly, LV_DIR_HOR, LV_SCROLL_SNAP_START, true, false);
-    lv_obj_set_scroll_snap_x(view->hourly, LV_SCROLL_SNAP_NONE);
-    dots(page, "weather_hourly_dots", 6, 0, 420, view->background,
-         weather_dot_dim(view->theme));
-    lv_obj_add_event_cb(view->hourly, scroll_begin, LV_EVENT_SCROLL_BEGIN, view);
-    lv_obj_add_event_cb(view->hourly, scroll_end, LV_EVENT_SCROLL_END, view);
-}
-
-static void create_daily_page(weather_view_t *view, lv_obj_t *page)
-{
-    page_header(page, "weather_daily_title", "未来天气", "weather_daily_clock");
-    view->daily = panel(page, "weather_daily_pager", 0, WEATHER_FORECAST_TOP,
-                        WEATHER_WIDTH, WEATHER_FORECAST_HEIGHT, view->background);
-    lv_obj_set_style_bg_opa(view->daily, LV_OPA_TRANSP, 0);
+    wristflow_weather_screen_set_time(view->root, "--:--");
+    view->hourly = named(view->root, "weather_hourly_pager");
+    view->daily = named(view->root, "weather_daily_pager");
+    /* XML owns repeated geometry; only stable data identities are assigned here. */
+    for (unsigned i = 0; i < WRISTFLOW_WEATHER_HOURLY_COUNT; ++i) {
+        char name[40]; snprintf(name, sizeof name, "forecast_page_%u", i / 4);
+        lv_obj_t *page = named(view->hourly, name);
+        snprintf(name, sizeof name, "column_%u", i % 4);
+        lv_obj_t *column = named(page, name);
+        snprintf(name, sizeof name, "weather_hour_%u", i);
+        lv_obj_set_name(column, name);
+    }
+    for (unsigned i = 0; i < WRISTFLOW_WEATHER_DAILY_COUNT; ++i) {
+        char name[40]; snprintf(name, sizeof name, "forecast_page_%u", i / 5);
+        lv_obj_t *page = named(view->daily, name);
+        snprintf(name, sizeof name, "row_%u", i % 5);
+        lv_obj_t *row = named(page, name);
+        snprintf(name, sizeof name, "weather_day_%u", i);
+        lv_obj_set_name(row, name);
+    }
+    lv_obj_t *inner[] = {view->hourly, view->daily};
     for (unsigned i = 0; i < 2; ++i) {
-        lv_obj_t *daily_page = panel(view->daily, "weather_day_page", (int)i * WEATHER_INNER_WIDTH, 0,
-                                     WEATHER_INNER_WIDTH, WEATHER_FORECAST_HEIGHT, view->background);
-        lv_obj_set_style_bg_opa(daily_page, LV_OPA_TRANSP, 0);
-        render_daily_page(view, daily_page, i);
+        configure_scroll(inner[i], LV_DIR_HOR, LV_SCROLL_SNAP_NONE, true, false);
+        lv_obj_add_event_cb(inner[i], scroll_begin, LV_EVENT_SCROLL_BEGIN, view);
+        lv_obj_add_event_cb(inner[i], scroll_end, LV_EVENT_SCROLL_END, view);
     }
-    configure_scroll(view->daily, LV_DIR_HOR, LV_SCROLL_SNAP_START, true, false);
-    lv_obj_set_scroll_snap_x(view->daily, LV_SCROLL_SNAP_NONE);
-    dots(page, "weather_daily_dots", 2, 0, 420, view->background,
-         weather_dot_dim(view->theme));
-    lv_obj_add_event_cb(view->daily, scroll_begin, LV_EVENT_SCROLL_BEGIN, view);
-    lv_obj_add_event_cb(view->daily, scroll_end, LV_EVENT_SCROLL_END, view);
-}
-
-static void create_indices_page(lv_obj_t *page)
-{
-    static const char *const icons[] = {
-        "\xef\x83\x82", "\xef\x81\x83", "\xef\x81\x93", "\xef\x86\x85"
-    };
-    page_header(page, "weather_indices_title", "天气指数", "weather_indices_clock");
-    static const char *const labels[] = {"空气质量", "相对湿度(%)", "风力", "紫外线指数"};
-    for (unsigned i = 0; i < 4; ++i) {
-        char name[40];
-        int y = 78 + (int)i * 84;
-        snprintf(name, sizeof name, "weather_index_%u_value", i);
-        label(page, name, 30, y, 88, 58, "--", metric_56, FG_PRIMARY, LV_TEXT_ALIGN_LEFT);
-        snprintf(name, sizeof name, "weather_index_%u_icon", i);
-        label(page, name, 138, y + 12, 36, 36, icons[i], icons_20, FG_PRIMARY, LV_TEXT_ALIGN_CENTER);
-        snprintf(name, sizeof name, "weather_index_%u_label", i);
-        label(page, name, 184, y + 16, 170, 30, labels[i], notification_22, FG_PRIMARY, LV_TEXT_ALIGN_LEFT);
-    }
-}
-
-static void create_sun_page(lv_obj_t *page, lv_color_t background)
-{
-    lv_obj_t *generated = wristflow_mount_screen(page, screen_weather_sun_create());
-    lv_obj_set_style_bg_color(generated, background, 0);
-    lv_obj_set_style_bg_opa(generated, LV_OPA_COVER, 0);
-    set_text(generated, "weather_sun_clock", "--:--");
-    set_text(generated, "weather_sunrise", "--:--");
-    set_text(generated, "weather_sunset", "--:--");
-    lv_obj_add_flag(lv_obj_find_by_name(generated, "weather_sun_position"), LV_OBJ_FLAG_HIDDEN);
 }
 
 lv_obj_t *wristflow_weather_screen_create_with_data(const wristflow_weather_data_t *data)
 {
-    lv_obj_t *root = lv_obj_create(NULL);
+    lv_obj_t *root = screen_weather_host_create();
     lv_obj_set_name(root, "screen_weather");
-    lv_obj_remove_style_all(root);
-    lv_obj_set_size(root, WEATHER_WIDTH, WEATHER_HEIGHT);
     lv_color_t background = weather_background(data ? data->theme : WRISTFLOW_WEATHER_THEME_CLOUDY);
-    lv_obj_set_style_bg_color(root, background, 0);
-    lv_obj_set_style_bg_opa(root, LV_OPA_COVER, 0);
-    lv_obj_set_style_text_font(root, body_20, 0);
-    lv_obj_set_style_text_color(root, FG_PRIMARY, 0);
-    lv_obj_clear_flag(root, LV_OBJ_FLAG_SCROLLABLE);
 
     weather_view_t *view = lv_malloc_zeroed(sizeof *view);
     LV_ASSERT_MALLOC(view);
@@ -482,43 +330,14 @@ lv_obj_t *wristflow_weather_screen_create_with_data(const wristflow_weather_data
     lv_obj_set_user_data(root, view);
     lv_obj_add_event_cb(root, deleted, LV_EVENT_DELETE, NULL);
 
-    view->outer = panel(root, "weather_pager", 0, 0, WEATHER_WIDTH, WEATHER_HEIGHT, background);
-    lv_obj_set_style_bg_opa(view->outer, LV_OPA_TRANSP, 0);
-    lv_obj_t *current = panel(view->outer, "weather_page_current", 0, 0, WEATHER_WIDTH,
-                              WEATHER_PAGE_HEIGHT, background);
-    create_current_page(view, current);
-    lv_obj_t *hourly = panel(view->outer, "weather_page_hourly", 0, WEATHER_PAGE_HEIGHT,
-                             WEATHER_WIDTH, WEATHER_PAGE_HEIGHT, background);
-    create_hourly_page(view, hourly);
-    lv_obj_t *daily = panel(view->outer, "weather_page_daily", 0, WEATHER_PAGE_HEIGHT * 2,
-                            WEATHER_WIDTH, WEATHER_PAGE_HEIGHT, background);
-    create_daily_page(view, daily);
-    lv_obj_t *indices = panel(view->outer, "weather_page_indices", 0, WEATHER_PAGE_HEIGHT * 3,
-                              WEATHER_WIDTH, WEATHER_PAGE_HEIGHT, background);
-    create_indices_page(indices);
-    lv_obj_t *sun = panel(view->outer, "weather_page_sun", 0, WEATHER_PAGE_HEIGHT * 4,
-                          WEATHER_WIDTH, WEATHER_PAGE_HEIGHT, background);
-    create_sun_page(sun, background);
+    view->outer = named(root, "weather_pager");
+    attach_pages(view);
     configure_scroll(view->outer, LV_DIR_VER, LV_SCROLL_SNAP_START, false, true);
     lv_obj_add_event_cb(view->outer, scroll_end, LV_EVENT_SCROLL_END, view);
 
-    view->state_panel = panel(root, "weather_state_panel", 0, 0, WEATHER_WIDTH, WEATHER_HEIGHT,
-                              background);
-    label(view->state_panel, "weather_state_icon", 0, 148, WEATHER_WIDTH, 50, "\xef\x83\x82",
-          icons_44, FG_PRIMARY, LV_TEXT_ALIGN_CENTER);
-    view->state_label = label(view->state_panel, "weather_state_label", 24, 214, 342, 30,
-                              "正在同步天气", notification_22, FG_PRIMARY, LV_TEXT_ALIGN_CENTER);
-    view->state_retry = lv_button_create(view->state_panel);
-    lv_obj_remove_style_all(view->state_retry);
-    lv_obj_set_name(view->state_retry, "weather_retry");
-    lv_obj_set_pos(view->state_retry, 134, 276);
-    lv_obj_set_size(view->state_retry, 122, 42);
-    lv_obj_set_style_bg_opa(view->state_retry, LV_OPA_TRANSP, 0);
-    lv_obj_set_style_border_color(view->state_retry, FG_PRIMARY, 0);
-    lv_obj_set_style_border_width(view->state_retry, 1, 0);
-    lv_obj_set_style_radius(view->state_retry, 0, 0);
-    label(view->state_retry, "weather_retry_label", 0, 8, 122, 26, "重试", notification_22,
-          FG_PRIMARY, LV_TEXT_ALIGN_CENTER);
+    view->state_panel = named(root, "weather_state_panel");
+    view->state_label = named(root, "weather_state_label");
+    view->state_retry = named(root, "weather_retry");
     lv_obj_add_event_cb(view->state_retry, retry, LV_EVENT_SHORT_CLICKED, view);
     render_state(view);
     return root;

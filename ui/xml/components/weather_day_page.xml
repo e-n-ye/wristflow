@@ -1,0 +1,10 @@
+<component>
+    <api><prop name="short_page" type="bool" default="false" /></api>
+    <view extends="lv_obj" width="390" height="320" scrollable="false" clickable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0">
+        <weather_day_row name="row_0" x="0" y="14" />
+        <weather_day_row name="row_1" x="0" y="72" />
+        <weather_day_row name="row_2" x="0" y="130" hidden="$short_page" />
+        <weather_day_row name="row_3" x="0" y="188" hidden="$short_page" />
+        <weather_day_row name="row_4" x="0" y="246" hidden="$short_page" />
+    </view>
+</component>

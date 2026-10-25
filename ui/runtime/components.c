@@ -5,12 +5,6 @@
 #include <string.h>
 #include <stdio.h>
 
-typedef struct {
-    struct wristflow_components *owner;
-    const wristflow_app_descriptor_t *app;
-    uint8_t variant;
-} choice_t;
-
 struct wristflow_components {
     wristflow_ui_shell_t *shell;
     wristflow_layout_t layout;
@@ -20,7 +14,6 @@ struct wristflow_components {
     bool dragged, confirmation_suspended;
     lv_point_t press;
     lv_obj_t *screens[3], *confirmation, *failure;
-    choice_t choices[32];
     wristflow_layout_request_cb_t request;
     wristflow_layout_status_cb_t status;
     void *context;
@@ -203,17 +196,17 @@ static void retry_layout_save(lv_event_t *event)
 static void render_editor(wristflow_components_t *c);
 static void choose_slot(lv_event_t *event);
 
-static void select_component(lv_event_t *event)
+static void select_component(lv_event_t *event, uint8_t variant)
 {
-    choice_t *choice = lv_event_get_user_data(event);
-    wristflow_components_t *c = choice->owner;
-    if (c->dragged) return;
+    wristflow_components_t *c = lv_event_get_user_data(event);
+    const wristflow_app_descriptor_t *app = lv_obj_get_user_data(lv_event_get_current_target_obj(event));
+    if (!app || c->dragged) return;
     if (c->draft) {
         wristflow_component_t *slot = &c->draft_page.slots[c->slot];
-        strcpy(slot->app_id, choice->app->id); slot->variant = choice->variant;
+        strcpy(slot->app_id, app->id); slot->variant = variant;
         slot->size = wristflow_template_size(c->draft_page.template_id, c->slot);
     } else {
-        if (!wristflow_layout_replace(&c->layout, c->page, c->slot, choice->app->id, choice->variant)) return;
+        if (!wristflow_layout_replace(&c->layout, c->page, c->slot, app->id, variant)) return;
         persist(c);
         wristflow_ui_shell_rebuild_components(c->shell, c->page + 1);
     }
@@ -221,13 +214,16 @@ static void select_component(lv_event_t *event)
     wristflow_ui_shell_back(c->shell);
 }
 
+static void select_neutral(lv_event_t *event) { select_component(event, 0); }
+static void select_color(lv_event_t *event) { select_component(event, 1); }
+
 static void populate_picker(wristflow_components_t *c, lv_obj_t *root)
 {
     lv_obj_t *list = named(root, "component_choices");
     lv_obj_set_scroll_dir(list, LV_DIR_VER);
     wristflow_layout_page_t *page = c->draft ? &c->draft_page : &c->layout.pages[c->page];
     wristflow_card_size_t size = wristflow_template_size(page->template_id, c->slot);
-    int y = 0; unsigned count = 0;
+    int y = 0;
     for (size_t i = 0; i < wristflow_app_count(); ++i) {
         const wristflow_app_descriptor_t *app = wristflow_app_at(i);
         if (!(app->card_sizes & size)) continue;
@@ -241,9 +237,10 @@ static void populate_picker(wristflow_components_t *c, lv_obj_t *root)
             char name[40]; snprintf(name, sizeof name, "choose_%s_%u", app->id, variant);
             lv_obj_set_name(card, name);
             lv_obj_add_flag(card, LV_OBJ_FLAG_CLICKABLE);
-            LV_ASSERT(count < sizeof c->choices / sizeof c->choices[0]);
-            c->choices[count] = (choice_t){c, app, (uint8_t)variant};
-            lv_obj_add_event_cb(card, select_component, LV_EVENT_SHORT_CLICKED, &c->choices[count++]);
+            /* Descriptors are static. The event belongs to the card; no bounded
+               parallel array or heap-owned choice record outlives the picker. */
+            lv_obj_set_user_data(card, (void *)app);
+            lv_obj_add_event_cb(card, variant ? select_color : select_neutral, LV_EVENT_SHORT_CLICKED, c);
             if (size != WRISTFLOW_CARD_QUARTER) y += (size == WRISTFLOW_CARD_FULL ? 362 : 174) + 14;
         }
         if (size == WRISTFLOW_CARD_QUARTER) y += 188;

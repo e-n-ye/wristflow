@@ -1,0 +1,140 @@
+{
+  "date": "2026-10-25",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/weather-xml-components",
+  "base_commit": "bdf4e6712bdc601a1f64fde0c3ce197ec8c5e557",
+  "scope": [
+    "天气四页、五页宿主和状态布局迁回官方XML，数据和手势留在runtime",
+    "24小时6×4列、7日5+2行组件模板复用",
+    "移除组件选择器choices[32]身份数组，事件随卡片保存静态描述符",
+    "补源字体和body_20的U+7EA7级；指数页统一既有风向图标"
+  ],
+  "deferred_by_user": {
+    "half_full_components": "当前阶段没必要加，先不做",
+    "local_drafts": "artifacts/component-visual-drafts-20261025/",
+    "drafts_in_xml_or_build": false
+  },
+  "official_export": {
+    "editor": "LVGL Pro Editor 2.0.1 Community",
+    "editor_lvgl": "9.4.0",
+    "firmware_lvgl": "9.4.0 (vendor/SiFli-SDK/external/lvgl_v9/lv_version.h)",
+    "method": "官方GUI Export Code and Recompile / Ctrl+B；未手改生成C",
+    "final_signal_source": "用户反馈：已编译成功（补级字源字体后）",
+    "computer_use_failure": "native pipe is unavailable；重试及重建会话失败",
+    "assistant_final_gui_screenshot": false,
+    "verification": [
+      "114份XML经ElementTree格式检查通过；格式检查不代替官方语义导出",
+      "源TTF cmap含U+7EA7；生成字体由实际LVGL非placeholder断言和快照验证",
+      "官方file_list_gen.cmake增加5个生成源，主机使用该清单；固件SCons收集新增源，map及链接成功",
+      "XML与生成页、模板实例、具名绑定及末页隐藏规则经只读审查对应"
+    ]
+  },
+  "host": {
+    "configuration": "artifacts/host-ui-build；Debug；Ninja；D:/msys64/ucrt64/bin/cc.exe",
+    "build_command": "PATH=\"/d/msys64/ucrt64/bin:$PATH\" '/c/Program Files/CMake/bin/cmake.exe' --build artifacts/host-ui-build --target weather_ui component_editor component_picker_capacity ui_preview product_ui activity_ui -j 6",
+    "test_command": "PATH=\"/d/msys64/ucrt64/bin:$PATH\" '/c/Program Files/CMake/bin/ctest.exe' --test-dir artifacts/host-ui-build -R '^(weather_ui|component_editor|component_picker_capacity|ui_preview|product_ui|activity_ui)$' --output-on-failure",
+    "result": "6/6 passed, 7.37s；最后仅补强容量真实指针点击，重建该目标后1/1 passed, 1.15s",
+    "capacity": "主机link wrapper将现有20应用配置为支持全部尺寸，40卡片身份逐一断言；quarter/half/full及两色、返回、旧32项后的指南针真实点击、反复销毁重建通过；fixture不进固件",
+    "weather": "空值、有效性、0与负温、过期/超时/重试、24小时末项、7日末页空行、横滑单页/竖向传递、分页点、边缘返回及真实快照通过",
+    "logs": [
+      {"path": "artifacts/weather-xml-20261025/host-glyph-build.log", "sha256": "6dbc1280f7628b32d158985adcbeb030e0ca47b8eef819393829aa7a57a4be9a"},
+      {"path": "artifacts/weather-xml-20261025/host-glyph-test.log", "sha256": "bbb3b4ef7e75278bce93ad6f7a3febb5eb7fabcb85111db12ff07408a5ecdbda"},
+      {"path": "artifacts/weather-xml-20261025/capacity-pointer-build.log", "sha256": "77ff1cab447c0641c5fcf5bf110c086036750438ba7e2561a50ebc14e3ee5ea6"},
+      {"path": "artifacts/weather-xml-20261025/capacity-pointer-test.log", "sha256": "235bca1ee6eebba1023d34fb3117dfefde621b06ce1e76a7ceb5304b66ad4c31"}
+    ],
+    "test_source_worktree_bytes": [
+      {"path": "tests/weather_ui.c", "sha256": "3c1c88db6f778d16d6139b1c3982cc7d6dd6c515620ec0eac6eb7cc1bc7cd0fe"},
+      {"path": "tests/ui_preview.c", "sha256": "5885f0b27350452c32d48efbf8ebc8c7926c366913abeda06db344a079f2a2cf"},
+      {"path": "tests/component_picker_capacity.c", "sha256": "dd5ec7e59b9ece21011c3e7cda965a4872ae26be78d849a7b26a839c96162a52"},
+      {"path": "tests/CMakeLists.txt", "sha256": "021ec2dbb2a213e74cac92c59f020097130a550493f9be06c104649a5b9b0e05"}
+    ]
+  },
+  "renders": {
+    "method": "生成C与锁定LVGL9.4.0的lv_snapshot_take真实390x450像素；Pillow仅转图/合图/比较",
+    "directory": "artifacts/host-ui-build/renders/",
+    "contact": {"path": "artifacts/weather-xml-20261025/weather-contact-final.png", "sha256": "9b2735860d87b9c4dea4d2827a72c6340ab58a2350ead93394e21a489594450d"},
+    "comparison": {"path": "artifacts/weather-xml-20261025/render-comparison-final.json", "sha256": "dae6d5ba1463116f8d4337349cc8e9e6edda9b26b5bcafe7b6322a6eaf874681"},
+    "observed": "当前/每日/日升日落/产品未知过期与实际km/h快照对迁移前像素一致；小时演示风级补字改变1356像素，指数风向图标每图215像素；XML独立预览随新模板更新。最终合图已目检字形、边界及无重叠。fixture为样例，不是板上数据。"
+  },
+  "firmware": {
+    "build_command": "pwsh -NoProfile -File scripts/Build.ps1 -Example <product|ui_demo> -Jobs 4",
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "sdk_submodules": {"middleware/bluetooth": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c", "tools/SiliconSchema": "304658c6edd5497211b7d152932327ce6e4450ff"},
+    "sdk_lock_unchanged_clean": true,
+    "python": "3.13.15",
+    "scons": "4.10.1",
+    "compiler": "Arm GNU Toolchain 14.2.Rel1 / GCC14.2.1",
+    "product": {
+      "result": "artifacts/product/20261025-202842-792/result.json",
+      "result_sha256": "dc43c5c036df930647adf2cc55b66629aa06a5a49e208414d82201e3074eec2a",
+      "exit_code": 0,
+      "sources": 586,
+      "artifacts": 29,
+      "main_bin_bytes": 8327188,
+      "main_bin_sha256": "80bd40fe8b64ad11ade0bdb4c9d3c64039b5b5a5f8bc016b1a6557ba4d104845",
+      "check": {"path": "artifacts/weather-xml-20261025/product-check-final.json", "passed": true, "sha256": "644ca6d831911340b7979905547185412cf4baa576bfce8681c1412d5c140a5f"},
+      "snapshot": {"path": "artifacts/weather-xml-20261025/final-product-20261025-202842-792.zip", "bytes": 33235549, "sha256": "7d72a6628a324312baa8a0cf4deb7caa112afc2a799324867fb2705b2981bf96"}
+    },
+    "ui_demo": {
+      "result": "artifacts/ui_demo/20261025-202959-459/result.json",
+      "result_sha256": "8b98c7ab802074d7510eca388baab31fe9878691c13789ad1618cce890b7b401",
+      "exit_code": 0,
+      "sources": 526,
+      "artifacts": 22,
+      "main_bin_bytes": 8056184,
+      "main_bin_sha256": "b62af42a2632ad1902a2f6891e1181dc2ab21311a163f9544ee341445e67472c",
+      "check": {"path": "artifacts/weather-xml-20261025/demo-check-final.json", "passed": true, "sha256": "0425e63fc14d1b64022f5afda77ceffb59c6538d70d16667ca6749142dc46b1f"},
+      "snapshot": {"path": "artifacts/weather-xml-20261025/final-ui_demo-20261025-202959-459.zip", "bytes": 30569812, "sha256": "998289234b4d959acd8f50520f2eaf8c33a92c4662f276beaec077c41c55f2ad"}
+    },
+    "recheck_commands": [
+      "python scripts/lab_check.py --out artifacts/weather-xml-20261025/product-check-final.json build --result artifacts/product/20261025-202842-792/result.json",
+      "python scripts/lab_check.py --out artifacts/weather-xml-20261025/demo-check-final.json build --result artifacts/ui_demo/20261025-202959-459/result.json"
+    ],
+    "recheck_result": "两目标所有记录源码与产物均逐字节一致；ZIP逐项复核SHA256并包含原result.json；上述命令仅本地只读，不开设备"
+  },
+  "capacity_and_memory": {
+    "product_rom_base": "0x12020000",
+    "product_rom_length": 8388608,
+    "product_rom_end_exclusive": "0x12820000",
+    "last_data_lma": "0x1281019c",
+    "last_data_size": "0xe78",
+    "image_end_exclusive": "0x12811014",
+    "image_remaining_bytes": 61420,
+    "baseline_bin_bytes": 8320588,
+    "bin_growth_bytes": 6600,
+    "reported_rom_used": 8408313,
+    "baseline_reported_rom_used": 8400378,
+    "report_explanation": "SDK sdk_size直接累加输入子段，string merge/relax后的部分子段地址重叠；当前.text输出段8292816B，汇总8373961B，多计81145B。基线已有相同现象；按实际输出/LMA/BIN未越界，未修SDK统计器。",
+    "evidence_locations": [
+      "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/link_copy.lds:1-2",
+      "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.map:31099,44720,44722,44733,50567",
+      "vendor/SiFli-SDK/tools/sdk_size/sdk_size.py:271,317,335,413",
+      "artifacts/product/20261025-183534-556/build.log:70,79"
+    ],
+    "static_ram_report_used": 252260,
+    "static_ram_report_total": 523264,
+    "limits": "应用Flash仅余约60KiB，后续功能须核体积；静态RAM报表不是运行堆/栈/PSRAM峰值；去除32数组不等于任意候选数量无内存上限。D12其他静态缓冲/分区债务保留。"
+  },
+  "failures_and_supersession": [
+    "host-test.log：weather_ui文本断言、capacity fixture断言失败；host-repair-test.log：天气命名对象仍失败。保留原失败，host-final-test.log六项通过；不把这些日志独自当作修复因果证明。",
+    "天气最终像素检查发现旧演示2级缺级字；补TEXT/源TTF/globals后官方重导出，并用host-glyph-test.log验证。此前product/demo构建来源及产物已另存pre-glyph ZIP，不冒充最终版。",
+    "最后容量测试从事件注入补强为真实指针点击，仅重建/重跑component_picker_capacity；生产源码与两目标构建输入未再变化。",
+    "首次暂存新生成文件的git diff --cached --check指出5个官方_gen.c的EOF空行；通过.gitattributes仅对官方_gen.c放行blank-at-eof，保留生成字节，不手改C，其余空白检查继续生效。",
+    "最终电脑操作管道不可用，官方GUI成功由用户回执确认；助手只独立核生成物和真实LVGL，不声称自己观察到最终GUI成功日志。",
+    "保留SDK/newlib/FinSH与链接既有告警；本轮未修改SDK或隐藏告警。"
+  ],
+  "reviews": [
+    "天气XML/生成C/24小时与7日/状态/手势独立只读审查未发现确定回归；未执行设备操作。",
+    "容量回调身份/生命周期与主机覆盖独立只读审查未发现确定问题。",
+    "ROM疑点独立只读核验定位到汇总重复计数，并对照基线；主代理抽查链接区、末加载段、重叠段和基线日志。"
+  ],
+  "hardware_verified": false,
+  "serial_opened": false,
+  "flashed": false,
+  "manual_cloud_baseline": "not run：未改SDK/工具链/公共构建入口",
+  "remaining": [
+    "同BIN天气显示/触摸/分页/重入及组件真实保存恢复，首批视觉/计次验收仍绑定各自版本",
+    "设备LVGL堆/栈/PSRAM峰值；长期压力、物理深睡电流与续航",
+    "新增half/full已延期；真实指南针校准与闪屏留各自独立小闭环"
+  ]
+}

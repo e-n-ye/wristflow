@@ -93,9 +93,13 @@ int main(int argc, char **argv)
     }
     snapshot(screen_component_templates_create(), argv[1], "layout_templates_neutral");
     lv_obj_t *hourly = screen_weather_hourly_create();
-    for (unsigned i = 1; i <= 4; ++i) {
-        char name[32]; snprintf(name, sizeof name, "hour_%u_wind_icon", i);
-        lv_obj_t *icon = lv_obj_find_by_name(hourly, name); assert(icon);
+    lv_obj_t *hour_pager = lv_obj_find_by_name(hourly, "weather_hourly_pager"); assert(hour_pager);
+    for (unsigned i = 0; i < 24; ++i) {
+        char name[32]; snprintf(name, sizeof name, "forecast_page_%u", i / 4);
+        lv_obj_t *page = lv_obj_find_by_name(hour_pager, name); assert(page);
+        snprintf(name, sizeof name, "column_%u", i % 4);
+        lv_obj_t *column = lv_obj_find_by_name(page, name); assert(column);
+        lv_obj_t *icon = lv_obj_find_by_name(column, "hour_wind_icon"); assert(icon);
         lv_font_glyph_dsc_t glyph;
         assert(!strcmp(lv_label_get_text(icon), "\xef\x87\x98"));
         assert(lv_font_get_glyph_dsc(lv_obj_get_style_text_font(icon, 0), &glyph, 0xf1d8, 0) && !glyph.is_placeholder);

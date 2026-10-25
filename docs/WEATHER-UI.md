@@ -1,5 +1,14 @@
 # 天气 UI 与同步分支记录
 
+<a id="weather-xml-20261025"></a>
+## 2026-10-25 天气布局迁回官方XML
+
+基线`bdf4e67`，分支`codex/weather-xml-components`。新增`screen_weather_host.xml`持有五页容器与无数据／重试状态；当前、小时、每日、指数页挂载各自官方生成页，日升日落页沿用原XML。小时采用6×4列模板、每日采用5＋2行模板；C仅绑定24小时／7日数据身份、有效性、主题与时间，保留横向单页手势、纵向传递和边缘返回，不再维护前四页的平行完整布局。指数页风向图标与小时页统一为已有纸飞机码点；补源字体及`body_20`的“级”，覆盖原演示风级缺字，产品`km/h`单位保持。
+
+沿用Editor2.0.1／LVGL9.4.0和锁定SDK。最终补字后的电脑操作连接报`native pipe is unavailable`；用户在已打开的官方项目执行编译并反馈“已编译成功”。生成C、字形、官方清单与真实LVGL快照已复核；这一最终GUI成功信号来自用户反馈，未补造助手截图。XML格式检查114份通过，主机6/6与补强容量指针1/1通过。当前天气、空值／超时／过期、24小时末项、7日末页隐藏行、分页点与手势均有主机覆盖；最终快照确认“2级”和`km/h`完整，无重叠。
+
+Product`20261025-202842-792`／BIN`80bd40fe…`与Demo`20261025-202959-459`／BIN`b62af42a…`编译成功，586／526源码、29／22产物逐项字节复核一致；最终输入与产物已校验存入本地ZIP。命令、失败及证据哈希见[精简证据](evidence/2026-10-25/weather-xml-capacity.json)。本轮未开串口／下载，不把旧版天气设备验收或主机手势当作本版真机显示／触摸通过。新增half／full组件已按用户决定延期，组件容量修复见[组件专题](COMPONENT-EDITOR.md#picker-capacity-20261025)。
+
 <a id="weather-aqi-display"></a>
 ## 2026-10-13 固件 AQI 接收显示闭环
 
@@ -162,6 +171,8 @@ CRLF 补构建 `artifacts/product/20261008-194850-771/result.json` 已成功，3
 本轮按 Redmi Watch 4 日升日落页实拍重做了曲线视觉。日升日落页使用一张 336×128 的透明 ARGB8888 贴图：白色日间弧线、虚线地平线和地平线下较暗的延伸线在贴图中固定；太阳点、标题、日出/日落文字和天气背景仍由页面控件与运行时负责。贴图没有嵌入整张手表照片，也没有把相机曝光、屏幕扫描线或透视差异当作设计目标。晴天使用明亮蓝色，阴天/多云使用明显偏灰的灰蓝色，背景由 fixture 状态驱动。
 
 ## XML、Pro 导出和运行时的准确关系
+
+以下描述2026-10-05历史实现；前四页手写布局已由[2026-10-25迁移](#weather-xml-20261025)替代，原导出证据仍只证明当时版本。
 
 - 视觉源是 `ui/xml/screens/screen_weather_sun.xml`；贴图源是 `ui/xml/images/weather_sun_track.png`，其生成脚本为 `scripts/Generate-Weather-Sun.py`。`ui/xml/globals.xml` 以 `argb8888` 注册 `weather_sun_track`。
 - 使用 LVGL Pro Editor 2.0.1 Community、LVGL 9.4.0 打开 `ui/xml/project.xml`，在目标 `huangshan_390x450` 中预览日升日落页并执行 `Ctrl+B`（Export Code and Recompile）。输出区记录 `Project compiled successfully`、`Initializing custom C code using LVGL v9.4.0`；原始输出保留在 `artifacts/lvgl-pro-weather/20261004/pro_output.txt`。
