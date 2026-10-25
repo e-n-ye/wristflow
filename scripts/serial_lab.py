@@ -9,12 +9,50 @@ import time
 
 from battery_lab import Journal, read_progress
 from lab_evidence import digest, file_record, verify_files, write_json
-from lab_serial import ProtocolError, RecordedClient, RecordedSession
+from lab_serial import ProtocolError, RecordedClient, RecordedSession, SerialTransport, lease_directory
 from battery_console import Cancelled
 from light_protocol import states
 from compass_protocol import snapshots
 
 ROOT = Path(__file__).resolve().parents[1]
+TOOL_SOURCES = ("serial_lab.py", "lab_serial.py", "lab_evidence.py", "light_protocol.py",
+                "compass_protocol.py", "battery_lab.py", "battery_console.py", "lab_check.py",
+                "battery_device.py", "battery_collect.py")
+
+
+def prepare_capture(result, flash, expected_bin, port, location, confirmed, *, source_archive=None):
+    """Bind local bytes and host identity; operator continuity is not attestation."""
+    if not confirmed:
+        raise ValueError("Current same-board/firmware and safe supply confirmation required")
+    from lab_check import check_build, check_sdk, load
+    from battery_device import port_identity
+    checked = check_build(result, source_archive=source_archive, flash=flash)
+    firmware = next(item for item in checked["images"] if item["name"] == "main.bin")
+    if firmware["sha256"] != expected_bin or checked["flash_port"] != port:
+        raise ValueError("Expected firmware hash or flash endpoint differs")
+    endpoint = port_identity(port, location)
+    inputs = (checked["recorded_sources"] + checked["artifacts"] +
+              [checked["build_result"], checked["sdk_lock"], checked["flash_result"]])
+    if checked["source_archive"]:
+        inputs.append(checked["source_archive"])
+    inputs += [file_record(ROOT / "scripts" / name) for name in TOOL_SOURCES]
+    lock = load(ROOT / "sdk.lock.json")
+
+    def identity():
+        # Called under PortLease immediately before opening; no cached passed flag.
+        verify_files(inputs)
+        check_sdk(ROOT, lock)
+        current = port_identity(port, location)
+        if current != endpoint:
+            raise ValueError("Endpoint identity changed since preparation")
+        return current
+
+    binding = {"simulation": False, "build": checked, "endpoint": endpoint,
+               "operator_confirmed_same_board_firmware_supply": True,
+               "device_identity_verified": False,
+               "identity_basis": "Explicit operator continuity plus local build/flash bytes and USB/driver metadata; no firmware attestation",
+               "policy": "Cached status or passive bytes only; no reset, time, PM, sensor control, reconnect or device cleanup"}
+    return binding, identity
 
 
 class LightClient(RecordedClient):
@@ -102,8 +140,7 @@ def record(output, transport, *, mode, seconds, interval=5, cancel=None, identit
         raise ValueError("Query interval must be .01..30 seconds")
     cancel = cancel or threading.Event()
     binding = dict(binding, mode=mode, seconds=seconds, interval=interval,
-                   sources=[file_record(ROOT / "scripts" / name, ROOT) for name in
-                            ("serial_lab.py", "lab_serial.py", "lab_evidence.py", "light_protocol.py", "compass_protocol.py", "battery_lab.py")])
+                   sources=[file_record(ROOT / "scripts" / name, ROOT) for name in TOOL_SOURCES])
     journal = Journal(output, binding=binding, mode="readonly_"+mode)
     client_type = {"light": LightClient, "compass": CompassClient, "passive": PassiveClient}[mode]
     session = RecordedSession(journal, transport, cancel, client_type,
@@ -130,7 +167,7 @@ def record(output, transport, *, mode, seconds, interval=5, cancel=None, identit
             if cancel.is_set():
                 raise Cancelled("Cancelled during final raw-byte capture")
     except BaseException as exc:
-        outcome = "cancelled" if isinstance(exc, Cancelled) else "timeout" if isinstance(exc, TimeoutError) else "error"
+        outcome = "cancelled" if isinstance(exc, (Cancelled, KeyboardInterrupt)) else "timeout" if isinstance(exc, TimeoutError) else "error"
         detail = repr(exc)
         journal.event("capture_error", outcome=outcome, error=detail)
     if cancel.is_set() and outcome == "passed":
@@ -188,11 +225,31 @@ def main():
     rep.add_argument("--out", type=Path, required=True)
     status = commands.add_parser("status")
     status.add_argument("--run", type=Path, required=True)
+    device = commands.add_parser("capture", help="Explicit bound real endpoint; only cached queries/passive bytes")
+    device.add_argument("--mode", choices=("light", "compass", "passive"), required=True)
+    device.add_argument("--seconds", type=float, required=True)
+    device.add_argument("--interval", type=float, default=5)
+    device.add_argument("--port", required=True)
+    device.add_argument("--location", required=True)
+    device.add_argument("--result", type=Path, required=True)
+    device.add_argument("--flash", type=Path, required=True)
+    device.add_argument("--expected-bin", required=True, help="Full SHA-256 of the selected current firmware")
+    device.add_argument("--source-archive", type=Path)
+    device.add_argument("--confirm-same-board-and-firmware", action="store_true", required=True,
+                        help="Operator currently confirms same board/BIN, safe supply/wiring and presence")
+    device.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
     if args.command == "status":
         report = read_progress(args.run)
     elif args.command == "replay":
         report = replay(args.fixture, args.out)
+    elif args.command == "capture":
+        binding, identity = prepare_capture(args.result, args.flash, args.expected_bin, args.port,
+                                            args.location, args.confirm_same_board_and_firmware,
+                                            source_archive=args.source_archive)
+        report = record(args.out, SerialTransport(args.port), mode=args.mode, seconds=args.seconds,
+                        interval=args.interval, identity_check=identity, binding=binding,
+                        locks=lease_directory())
     else:
         report = record(args.out, Simulation(args.mode), mode=args.mode, seconds=args.seconds, interval=.1,
                         identity_check=lambda: {"kind": "simulation"}, binding={"simulation": True},

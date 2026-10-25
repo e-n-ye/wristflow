@@ -46,6 +46,10 @@ python -m unittest discover -s tests -p 'test_lab_*.py' -v
 
 输出目录必须是新路径；status只读取进度，不恢复进程或重启设备窗口。模拟不导入serial、不枚举COM、不打开端点；模拟逻辑时间与快速样本是替身输入，不是设备时序证据。设备适配函数将是否模拟、工具源码指纹、原始UART、启动意图／完整session-start-duration-mode身份、停止确认、端口关闭及人工末态确认分别保存；取消／超时只停止已确认所属窗口，冷启动、异窗口或不确定归属明确保留recovery_required。
 
+`serial_lab capture --help`提供受绑定的真实端点入口，必须显式给mode／seconds、port／USB location、既有Build和Flash记录、完整预期BIN SHA及当前同板／同固件／安全供电接线且人在旁的`--confirm-same-board-and-firmware`。它先复用公共build核验，再在共享PortLease下、每次打开前复核所有绑定文件／工具、SDK及CH340端点／禁Modem握手设置；准备后有任何变化就拒绝开口。参数只是执行者当前确认的记录，不替代聊天中的设备授权，历史命令也不能复用为当前现场确认。没有固件证明协议，板上身份仍明确为未验证。
+
+light／compass最多30秒，passive最多600秒；Ctrl+C按取消保留数据并关闭主机资源，没有自动重连，不发送stop／PM／复位／校时／传感器控制。被动窗口仅收原始流，冷启动字节留作证据；缓存查询遇冷启动即失败。CLI的capture不恢复旧进程或设备窗口；多步动作仍用Console／Journal与专用适配。本轮仅用替身测试此入口，未运行真实capture。
+
 历史fixture包含26,117字节原UART及五方向索引，记录原session／events／workflow文件路径和SHA；旧workflow的error／passed=false原样保留。纯解析保留seq0／invalid行，地磁策略仅识别自检前唯一的全零初始化通知，不能将任意坏帧过滤成通过。离线得到86帧／五窗／停止证据不等于新实机通过，也不证明磁北、倾斜精度或功耗。旧实验仍从MMC5603等专题及docs/evidence中定位；不删除、移动或改写被引用的artifacts。
 
 亮度fixture为原ambient-002的2,284B UART，回放三条同session缓存seq11／16／21；AOD fixture为原natural-001的5,901B纯被动流，原session commands为空。二者都保留来源路径／SHA及原会话元数据，只证明历史字节可读，不重判物理亮度／面板效果。简单采集的`seconds`约束查询与有限重试的发送／接收窗口；窗末只做原始尾采集（名义100ms加一次最多50ms read），不发新查询，窗外返回不能算该窗成功响应。取消后关闭主机资源，不发送器件stop／PM／复位命令。
