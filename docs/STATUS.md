@@ -261,7 +261,11 @@ LTR跑通、目录迁回及证据已由PR #136 Rebase合入`3e5125e`；本次接
 
 13:32:42–13:34:43新窗复用Console／Journal只读观察，用户亲自确认相对转向、离页、短息屏恢复及末态，流程5/5；UART独立核对120缓存／51有效，session1–5原生自检及有效新帧、359→23→18等相对变化。完整stop1／2后新会话2／3证明停止／重开，但离页按钮确认后的快照已经重开，不冒充该时点停止；session3 end2为取消、owned0／stopped1／errors0，随后gen6无故障。明确display sleeping／AOD→stop4→KEY1→session5有效，后续另一次腕唤醒不计作受控KEY验收。末条stop12串口交错不补字节，使用后续完整缓存及mag回读确认requested0／active0／valid0／fault0／cleanup0、session6 phase2／end2／owned0／stopped1／after10／errors0。总0／检查点130／小时mask保持，腕开启，自动亮度enabled1／active1／valid1且无fault／cleanup；PM allow1、其他服务own_idle1不当作地磁未停或DEEP证据。13:34:43端口关闭。完整命令、原始字节、人工与程序边界见[设备证据](evidence/2026-10-25/compass-live-hardware.json)及[指南针专题](COMPASS.md#hardware-20261025)。
 
-**当前唯一下一步**：完成本轮设备证据PR交付；指南针当前以未校准状态使用，八字校准／安装零点／倾斜补偿保留待完成，下一功能方向等待用户选择。本次窗口结束，不自动重复采集或开展精度／功耗实验。
+指南针设备证据PR #153已Rebase合入`54c1834`，远端及本地主目录main干净同步；设备窗口已结束。25日用户恢复本聊天的目标模式，要求继续完整电脑端工具整理并纳入新增指南针脚本。沿用单线开发的最新主线／产物，记录实际身份，不重新询问版本；需要实机配合时再说明具体目的与现场条件，当前无需新设备操作。
+
+**工具第二闭环软件verified**：保留的`codex/lab-second-callers@80aa404`合入上述最新主线并保留指南针索引；新增serial_lab以light／compass仅缓存查询、passive不发命令复用原串口／资源与Journal，compass_protocol保留invalid及拒绝拼补交错行。三份历史UART按原字节入fixture：亮度2,284B三条、AOD5,901B被动流、指南针48,056B的120缓存／51valid。现版电量94项及工具33项通过，独立只读复核无确定阻断；无新固件构建或设备操作，详见[第二闭环证据](evidence/2026-10-25/local-lab-reuse-stage2.json)。
+
+**当前唯一下一步**：交付第二闭环并完成公共构建／证据／文档检查及既有导航的接续验收；指南针八字校准／安装零点／倾斜补偿保留待完成，不在电脑端整理中扩展。
 
 <a id="history"></a>
 ## 2026-10-20 小时步数保存与上板闭环（历史，PR #104／#105已交付）

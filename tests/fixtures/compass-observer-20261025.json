@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "mode": "compass",
+  "uart": {
+    "path": "compass-observer-20261025.uart",
+    "bytes": 48056,
+    "sha256": "88820d372f3a6f0afd25bbdb4a6b1a82debdb50f842e74f3429f375e18d37523"
+  },
+  "expected_observations": 120,
+  "source": {
+    "evidence": "docs/evidence/2026-10-25/compass-live-hardware.json",
+    "files": [
+      {
+        "path": "artifacts/compass-live-data-20261024/device-002/uart.bin",
+        "bytes": 48056,
+        "sha256": "88820d372f3a6f0afd25bbdb4a6b1a82debdb50f842e74f3429f375e18d37523"
+      },
+      {
+        "path": "artifacts/compass-live-data-20261024/device-002/workflow.json",
+        "bytes": 289,
+        "sha256": "2d9144994a3abc7b94edec10b6480cca4fbd2cdceee401317292050b24813464"
+      }
+    ],
+    "original_workflow": {
+      "passed": true,
+      "simulation": false,
+      "device_control_sent": false,
+      "port_closed": true,
+      "outcome": "passed",
+      "operator_only": true,
+      "hardware_verified": false,
+      "verification": "Operator confirmations and UART must be evaluated separately after this workflow"
+    },
+    "limits": "Historical read-only cache pairs, including invalid/stale values; incomplete/interleaved lines remain in raw input and are never repaired. Operator observations separate from cache, no north accuracy."
+  }
+}

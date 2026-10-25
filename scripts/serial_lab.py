@@ -12,6 +12,7 @@ from lab_evidence import digest, file_record, verify_files, write_json
 from lab_serial import ProtocolError, RecordedClient, RecordedSession
 from battery_console import Cancelled
 from light_protocol import states
+from compass_protocol import snapshots
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -27,18 +28,29 @@ class LightClient(RecordedClient):
                 if remaining <= 0:
                     raise TimeoutError("Read-only capture deadline")
                 self.timeout = min(1, remaining)
-                lines = self.request("wf_light status", lambda line: "[auto-light] " in line, deadline=deadline)
+                lines = self.request(self.COMMAND, lambda line: self.MARKER in line, deadline=deadline)
                 if time.monotonic() >= deadline:
                     raise TimeoutError("Response completed outside capture window")
-                values = states("\n".join(lines)+"\n")
+                values = self.PARSER("\n".join(lines)+"\n")
                 if len(values) != 1:
-                    raise ProtocolError("One complete light status required")
+                    raise ProtocolError("One complete cached status required")
                 return values[0]
             except (ProtocolError, TimeoutError) as exc:
                 from lab_serial import SessionChanged
                 if isinstance(exc, SessionChanged) or attempt:
                     raise
-                self.journal.event("readonly_retry", command="wf_light status", error=repr(exc))
+                self.journal.event("readonly_retry", command=self.COMMAND, error=repr(exc))
+
+    COMMAND = "wf_light status"
+    MARKER = "[auto-light] "
+    PARSER = staticmethod(states)
+
+
+class CompassClient(LightClient):
+    COMMAND_PATTERN = r"wf_compass status"
+    COMMAND = "wf_compass status"
+    MARKER = "[compass-raw] "
+    PARSER = staticmethod(snapshots)
 
 
 class PassiveClient(RecordedClient):
@@ -65,7 +77,11 @@ class Simulation:
     def write(self, value):
         self.commands.append(value.decode("ascii").strip())
         self.seq += 1
-        self.queue.extend((f"[auto-light] enabled=1 active=1 valid=1 fault=0 cleanup=0 brightness=23 mlux=100000 ms={self.seq*1000} session=1 seq={self.seq}; uncalibrated\r\n").encode())
+        if self.mode == "compass":
+            self.queue.extend((f"[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=1 session=1 seq={self.seq} ms={self.seq*100} heading=23 reason=0\r\n"
+                               "[compass-raw] xyz=100/200/300 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified\r\n").encode())
+        else:
+            self.queue.extend((f"[auto-light] enabled=1 active=1 valid=1 fault=0 cleanup=0 brightness=23 mlux=100000 ms={self.seq*1000} session=1 seq={self.seq}; uncalibrated\r\n").encode())
         return len(value)
 
     def read(self, count):
@@ -80,16 +96,17 @@ class Simulation:
 
 def record(output, transport, *, mode, seconds, interval=5, cancel=None, identity_check,
            binding, locks, ready=None):
-    if mode not in ("light", "passive") or not 0 < seconds <= (30 if mode == "light" else 600):
+    if mode not in ("light", "compass", "passive") or not 0 < seconds <= (600 if mode == "passive" else 30):
         raise ValueError("Light window must be 0..30s; passive window 0..600s")
     if not .01 <= interval <= 30:
         raise ValueError("Query interval must be .01..30 seconds")
     cancel = cancel or threading.Event()
     binding = dict(binding, mode=mode, seconds=seconds, interval=interval,
                    sources=[file_record(ROOT / "scripts" / name, ROOT) for name in
-                            ("serial_lab.py", "lab_serial.py", "lab_evidence.py", "light_protocol.py", "battery_lab.py")])
+                            ("serial_lab.py", "lab_serial.py", "lab_evidence.py", "light_protocol.py", "compass_protocol.py", "battery_lab.py")])
     journal = Journal(output, binding=binding, mode="readonly_"+mode)
-    session = RecordedSession(journal, transport, cancel, LightClient if mode == "light" else PassiveClient,
+    client_type = {"light": LightClient, "compass": CompassClient, "passive": PassiveClient}[mode]
+    session = RecordedSession(journal, transport, cancel, client_type,
                               identity=identity_check, locks=locks)
     observations, outcome, detail = [], "passed", ""
     try:
@@ -101,10 +118,10 @@ def record(output, transport, *, mode, seconds, interval=5, cancel=None, identit
             while time.monotonic() < deadline:
                 if cancel.is_set():
                     raise Cancelled("Read-only capture cancelled")
-                if (mode == "light" and time.monotonic() >= next_query and
+                if (mode != "passive" and time.monotonic() >= next_query and
                         deadline-time.monotonic() >= min(1, interval, seconds/3)):
                     observations.append(client.status(deadline))
-                    journal.event("light_observation", value=observations[-1])
+                    journal.event("cached_observation", mode=mode, value=observations[-1])
                     next_query = time.monotonic()+interval
                 else:
                     client.read_chunk()
@@ -120,7 +137,7 @@ def record(output, transport, *, mode, seconds, interval=5, cancel=None, identit
         outcome, detail = "cancelled", "Cancelled while closing host resources"
     report = {"outcome": outcome, "passed": outcome == "passed", "simulation": binding["simulation"],
               "hardware_verified": False, "mode": mode, "observations": observations,
-              "commands": [] if mode == "passive" else ["wf_light status"],
+              "commands": [] if mode == "passive" else [client_type.COMMAND],
               "port_closed": session.port_closed, "resources_closed": session.resources_closed,
               "device_control": False, "reset": False, "clock_write": False, "pm_control": False,
               "detail": detail}
@@ -142,8 +159,8 @@ def replay(fixture, output):
     raw = (fixture.parent / value["uart"]["path"]).read_bytes()
     import re
     text = re.sub(rb"\x1b\[[0-9;]*[A-Za-z]", b"", raw).decode("ascii", errors="replace")
-    rows = states(text) if value["mode"] == "light" else []
-    if value["mode"] not in ("light", "passive") or len(rows) != value["expected_observations"]:
+    rows = {"light": states, "compass": snapshots, "passive": lambda text: []}[value["mode"]](text)
+    if value["mode"] not in ("light", "compass", "passive") or len(rows) != value["expected_observations"]:
         raise ProtocolError("Replay mode/observation mismatch")
     journal = Journal(output, binding={"simulation": False, "historical": True, "fixture": file_record(fixture)})
     report = {"passed": True, "kind": "historical_readonly_replay", "hardware_verified": False,
@@ -163,7 +180,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     sim = commands.add_parser("simulate", help="Read-only light/passive fake peer; no endpoint access")
-    sim.add_argument("--mode", choices=("light", "passive"), required=True)
+    sim.add_argument("--mode", choices=("light", "compass", "passive"), required=True)
     sim.add_argument("--seconds", type=float, default=1)
     sim.add_argument("--out", type=Path, required=True)
     rep = commands.add_parser("replay", help="Historical explicit UART fixture")

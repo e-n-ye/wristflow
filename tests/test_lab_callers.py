@@ -11,6 +11,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from battery_lab import Journal, read_progress
 from lab_serial import ProtocolError
+from compass_protocol import snapshots
 import serial_lab as lab
 
 
@@ -125,6 +126,29 @@ class CallerTests(unittest.TestCase):
         self.assertEqual(passive["source"]["session"]["commands"], [])
         self.assertFalse(light["hardware_verified"])
         self.assertFalse(passive["hardware_verified"])
+
+    def test_compass_client_cannot_control_page_or_sensor(self):
+        peer, report = self.record("compass")
+        self.assertTrue(report["passed"], report)
+        self.assertEqual(set(peer.commands), {"wf_compass status"})
+        self.assertTrue(report["resources_closed"])
+        self.assertGreater(len(report["observations"]), 0)
+
+    def test_compass_pairs_keep_invalid_state_and_reject_broken_pair(self):
+        peer = lab.Simulation("compass")
+        peer.write(b"wf_compass status\r\n")
+        text = peer.queue.decode("ascii")
+        row = snapshots(text.replace("valid=1", "valid=0"))[0]
+        self.assertEqual(row["valid"], 0)
+        self.assertEqual(snapshots(text.replace("\r\n[compass-raw]", "\r\ninterleaved\r\n[compass-raw]")), [])
+        with self.assertRaises(ProtocolError):
+            snapshots(text.replace("heading=23", "heading=360"))
+
+    def test_historical_compass_replay_retains_incomplete_raw_pairs(self):
+        result = lab.replay(ROOT / "tests/fixtures/compass-observer-20261025.json", self.directory / "compass")
+        self.assertEqual(len(result["observations"]), 120)
+        self.assertEqual(sum(row["valid"] for row in result["observations"]), 51)
+        self.assertFalse(result["hardware_verified"])
 
 
 if __name__ == "__main__":
