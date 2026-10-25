@@ -1,5 +1,5 @@
 <component>
-    <view width="390" height="450" scrollable="false" clickable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_color="0xb9ddff" style_text_font="title_24">
+    <view width="390" height="450" scrollable="false" clickable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_color="0xb8b8b8" style_text_font="title_24">
         <lv_image name="compass_gesture" x="55" y="124" src="compass_gesture_path" />
         <lv_label name="compass_calibration_text" x="35" y="300" width="320" text="请把手表按图示方向&#10;移动进行校准" style_text_align="center" />
     </view>

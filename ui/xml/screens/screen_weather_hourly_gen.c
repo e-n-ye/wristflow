@@ -121,7 +121,7 @@ lv_obj_t * screen_weather_hourly_create(void)
         lv_obj_set_y(hour_1_wind_icon, 176);
         lv_obj_set_width(hour_1_wind_icon, 92);
         lv_obj_set_height(hour_1_wind_icon, 26);
-        lv_label_set_text(hour_1_wind_icon, "");
+        lv_label_set_text(hour_1_wind_icon, "");
         lv_obj_set_style_text_font(hour_1_wind_icon, icons_20, 0);
         lv_obj_set_style_text_color(hour_1_wind_icon, FG_PRIMARY, 0);
         lv_obj_set_style_text_align(hour_1_wind_icon, LV_TEXT_ALIGN_CENTER, 0);
@@ -187,7 +187,7 @@ lv_obj_t * screen_weather_hourly_create(void)
         lv_obj_set_y(hour_2_wind_icon, 176);
         lv_obj_set_width(hour_2_wind_icon, 92);
         lv_obj_set_height(hour_2_wind_icon, 26);
-        lv_label_set_text(hour_2_wind_icon, "");
+        lv_label_set_text(hour_2_wind_icon, "");
         lv_obj_set_style_text_font(hour_2_wind_icon, icons_20, 0);
         lv_obj_set_style_text_color(hour_2_wind_icon, FG_PRIMARY, 0);
         lv_obj_set_style_text_align(hour_2_wind_icon, LV_TEXT_ALIGN_CENTER, 0);
@@ -253,7 +253,7 @@ lv_obj_t * screen_weather_hourly_create(void)
         lv_obj_set_y(hour_3_wind_icon, 176);
         lv_obj_set_width(hour_3_wind_icon, 92);
         lv_obj_set_height(hour_3_wind_icon, 26);
-        lv_label_set_text(hour_3_wind_icon, "");
+        lv_label_set_text(hour_3_wind_icon, "");
         lv_obj_set_style_text_font(hour_3_wind_icon, icons_20, 0);
         lv_obj_set_style_text_color(hour_3_wind_icon, FG_PRIMARY, 0);
         lv_obj_set_style_text_align(hour_3_wind_icon, LV_TEXT_ALIGN_CENTER, 0);
@@ -319,7 +319,7 @@ lv_obj_t * screen_weather_hourly_create(void)
         lv_obj_set_y(hour_4_wind_icon, 176);
         lv_obj_set_width(hour_4_wind_icon, 82);
         lv_obj_set_height(hour_4_wind_icon, 26);
-        lv_label_set_text(hour_4_wind_icon, "");
+        lv_label_set_text(hour_4_wind_icon, "");
         lv_obj_set_style_text_font(hour_4_wind_icon, icons_20, 0);
         lv_obj_set_style_text_color(hour_4_wind_icon, FG_PRIMARY, 0);
         lv_obj_set_style_text_align(hour_4_wind_icon, LV_TEXT_ALIGN_CENTER, 0);

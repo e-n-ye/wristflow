@@ -12,13 +12,13 @@
 | [control-center.png](control-center.png) | 控制中心三状态主机渲染，示例时间／未知电量；找手机和排水图标不代表已实现 | [2026-10-22控制中心记录](../evidence/2026-10-22/control-center-hardware.json)中的render_local |
 | [activity.png](activity.png) | 活力总览，UI Demo演示数据；不是真实健康指标 | [2026-10-19活力页面](../ACTIVITY.md) |
 | [steps.png](steps.png) | 步数与小时图表，UI Demo演示数据；截图不是设备计步测量 | [活力数据边界](../ACTIVITY.md#数据边界) |
-| [countdown-picker.png](countdown-picker.png) | 倒计时预设，主机LVGL渲染 | [倒计时专题](../COUNTDOWN.md)及早期六状态快照 |
-| [countdown-running.png](countdown-running.png) | 倒计时运行，主机LVGL渲染，示例时间 | [倒计时专题](../COUNTDOWN.md)及早期六状态快照 |
+| [countdown-picker.png](countdown-picker.png) | 2026-10-25同版倒计时预设，灰色时间盘，主机LVGL渲染 | [本轮证据](../evidence/2026-10-25/ui-alignment.json) |
+| [countdown-running.png](countdown-running.png) | 同轮倒计时运行，左灰右蓝，示例时间 | 同上 |
 | [brightness.png](brightness.png) | 2026-10-23亮度页面主机渲染，自动模式演示状态；截图本身不证明光感效果 | [亮度软件记录](../evidence/2026-10-23/brightness-page.json) |
 | [compass.png](compass.png) | 2026-10-24指南针主机渲染，305°为演示输入，保留未校准提示 | [指南针软件记录](../evidence/2026-10-24/compass-live-data.json) |
 
 [manifest.json](manifest.json)记录文件大小、像素尺寸、当前及原始SHA-256、原本机路径、素材类别和相关证据。原始路径仅作本机追溯，不是GitHub可用链接。既有截图未逐图保存捕获源码提交；新照片拍摄时也未独立读取板上身份，因此capture_source_commit明确为null。相关软件／硬件记录只作语境，不能当作每张图的精确BIN身份。首版明确区别实拍与主机渲染，不把照片收集当作新的功能验收。12个发布素材共23,948,151B，JPEG保留原3072×4080分辨率；首版以原画面可追溯为先，未生成缩略图或重新有损编码。
 
-25日用户指出首页倒计时蓝图与实机灰色按键／时间盘不一致。当前`countdown_preset.xml`的背景已为`0x202124`、刻度灰，数字仍蓝；上表两张倒计时图明确保留为早期快照，不是最新配色证据。本轮只补历史标签，PNG与原SHA保持不变，同版重渲染与替换在[后续契约](../ARCHITECTURE-REVIEW.md#followup-20261025)中记录。
+25日用户指出首页倒计时蓝图与实机观感不一致，并在实施轮确认运行按键“左键灰、右键蓝，与新秒表一致”。两张PNG已由当前官方输出的真实LVGL快照替换，PPM转PNG不改像素；旧SHA及来源保留于manifest的history，原发布字节也可从`ba2dba2`追溯。本轮截图以源码指纹绑定，捕获时尚无最终提交号，不虚填capture_source_commit。照片偏蓝不能作为全局配色标准；新截图不证明设备上已运行此BIN。
 
 这些界面使用项目内字体和图片，原有来源与许可见[字体说明](../../ui/xml/fonts/README.md)及[图片说明](../../ui/xml/images/README.md)。本轮未对照片／截图或自有代码新增再授权声明。用户已明确视频后置，未来单独规划完整功能演示；参考[拍摄计划](../REPOSITORY-SHOWCASE.md#capture-plan)，不作为首版图片交付的阻断。

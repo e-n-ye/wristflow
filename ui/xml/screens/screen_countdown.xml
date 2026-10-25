@@ -37,7 +37,7 @@
         <lv_obj name="countdown_active_panel" x="0" y="78" width="390" height="350" hidden="true" scrollable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0">
             <lv_label name="countdown_remaining" x="24" y="93" width="342" text="00:00:57" style_text_font="metric_56" style_text_align="center" />
             <lv_label name="countdown_paused" x="24" y="162" width="342" text="已暂停" hidden="true" style_text_color="#fg_secondary" style_text_align="center" />
-            <lv_button name="countdown_cancel" x="42" y="279" width="144" height="66" style_radius="33" style_bg_color="0x143d63" style_shadow_width="0" style_pad_all="0">
+            <lv_button name="countdown_cancel" x="42" y="279" width="144" height="66" style_radius="33" style_bg_color="0x252525" style_shadow_width="0" style_pad_all="0">
                 <lv_label align="center" text="&#xf04d;" style_text_font="icons_44" />
             </lv_button>
             <lv_button name="countdown_toggle" x="204" y="279" width="144" height="66" style_radius="33" style_bg_color="0x008cff" style_shadow_width="0" style_pad_all="0">
@@ -47,7 +47,7 @@
         <lv_obj name="countdown_alert_panel" x="0" y="78" width="390" height="350" hidden="true" scrollable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0">
             <lv_label x="24" y="81" width="342" text="计时结束" style_text_font="value_36" style_text_align="center" />
             <lv_label name="countdown_original" x="24" y="134" width="342" text="00:01:00" style_text_font="title_24" style_text_align="center" />
-            <lv_button name="countdown_close" x="42" y="279" width="144" height="66" style_radius="33" style_bg_color="0x143d63" style_shadow_width="0" style_pad_all="0">
+            <lv_button name="countdown_close" x="42" y="279" width="144" height="66" style_radius="33" style_bg_color="0x252525" style_shadow_width="0" style_pad_all="0">
                 <lv_label align="center" text="&#xf00d;" style_text_font="icons_44" />
             </lv_button>
             <lv_button name="countdown_repeat" x="204" y="279" width="144" height="66" style_radius="33" style_bg_color="0x008cff" style_shadow_width="0" style_pad_all="0">

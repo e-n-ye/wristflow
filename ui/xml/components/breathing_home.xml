@@ -5,7 +5,7 @@
             <lv_label name="breathing_duration_text" x="0" y="10" width="164" text="1分钟" style_text_font="value_36" style_text_align="center" />
             <lv_label x="171" y="20" text="&#xf054;" style_text_font="icons_20" />
         </lv_button>
-        <lv_button name="breathing_start" x="30" y="289" width="330" height="66" style_bg_color="0x143d63" style_radius="33" style_shadow_width="0" style_pad_all="0">
+        <lv_button name="breathing_start" x="30" y="289" width="330" height="66" style_bg_color="0x252525" style_radius="33" style_shadow_width="0" style_pad_all="0">
             <lv_label align="center" text="开始" style_text_font="value_36" />
         </lv_button>
     </view>

@@ -279,7 +279,7 @@ lv_obj_t * screen_countdown_create(void)
         lv_obj_set_width(countdown_cancel, 144);
         lv_obj_set_height(countdown_cancel, 66);
         lv_obj_set_style_radius(countdown_cancel, 33, 0);
-        lv_obj_set_style_bg_color(countdown_cancel, lv_color_hex(0x143d63), 0);
+        lv_obj_set_style_bg_color(countdown_cancel, lv_color_hex(0x252525), 0);
         lv_obj_set_style_shadow_width(countdown_cancel, 0, 0);
         lv_obj_set_style_pad_all(countdown_cancel, 0, 0);
         lv_obj_t * lv_label_2 = lv_label_create(countdown_cancel);
@@ -338,7 +338,7 @@ lv_obj_t * screen_countdown_create(void)
         lv_obj_set_width(countdown_close, 144);
         lv_obj_set_height(countdown_close, 66);
         lv_obj_set_style_radius(countdown_close, 33, 0);
-        lv_obj_set_style_bg_color(countdown_close, lv_color_hex(0x143d63), 0);
+        lv_obj_set_style_bg_color(countdown_close, lv_color_hex(0x252525), 0);
         lv_obj_set_style_shadow_width(countdown_close, 0, 0);
         lv_obj_set_style_pad_all(countdown_close, 0, 0);
         lv_obj_t * lv_label_4 = lv_label_create(countdown_close);

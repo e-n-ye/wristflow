@@ -1,0 +1,217 @@
+{
+  "date": "2026-10-25",
+  "base_commit": "ba2dba224f127a3da5611687ea1114d6399dd00f",
+  "branch": "codex/editor-temperature-showcase",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "scope": [
+    "editor weather U+00B0",
+    "current countdown screenshots and explicitly chosen gray-left/blue-right actions",
+    "breathing neutral buttons and original concentric menu icon",
+    "stopwatch visual and explicitly authorized 50 cumulative lap records",
+    "battery information/action card consistency",
+    "reported XML forecast wind placeholder",
+    "neutral layout template blocks and compass calibration artwork"
+  ],
+  "not_completed_here": [
+    "four runtime weather pages migrated to XML",
+    "half/full component extension and picker capacity debt",
+    "real compass calibration",
+    "flashlight strobe interaction",
+    "same-BIN hardware visual/touch validation"
+  ],
+  "editor": {
+    "version": "2.0.1",
+    "preview_lvgl": "9.4.0",
+    "firmware_lvgl": "9.4.0",
+    "method": "official GUI Export Code and Recompile",
+    "success_observed": true,
+    "generated_files_edited_by_hand": false,
+    "syntax": "ElementTree all project XML passed",
+    "preview": "Official screenshots captured for stopwatch, battery and hourly; exact 390x450 generated-LVGL snapshots reviewed for all changed views.",
+    "local_screenshots": [
+      "editor-stopwatch.png",
+      "editor-battery-100.png",
+      "editor-weather-hourly.png"
+    ]
+  },
+  "host": {
+    "directory": "artifacts/host-ui-build",
+    "build_type": "Debug, assertions enabled",
+    "results": [
+      {
+        "targets": [
+          "core_navigation",
+          "compass_ui",
+          "ui_apps",
+          "breathing_ui",
+          "countdown_ui",
+          "product_countdown_ui",
+          "product_breathing_ui",
+          "product_ui",
+          "weather_ui",
+          "component_editor",
+          "settings_ui",
+          "notifications_ui"
+        ],
+        "passed": 12,
+        "total": 12,
+        "seconds": 23.86,
+        "log": "artifacts/ui-alignment-host-tests-final.log"
+      },
+      {
+        "targets": [
+          "ui_preview"
+        ],
+        "passed": 1,
+        "total": 1,
+        "log": "artifacts/ui-alignment-20261025/preview-host-test.log"
+      },
+      {
+        "targets": [
+          "countdown_ui",
+          "product_countdown_ui"
+        ],
+        "passed": 2,
+        "total": 2,
+        "seconds": 4.95,
+        "reason": "Final source change only gray countdown left actions",
+        "log": "artifacts/ui-alignment-20261025/countdown-final-test.log"
+      }
+    ],
+    "coverage": [
+      "degree on actual editor/card/picker fonts for top/bottom half and full, variants 0/1,20/-10/0/unknown",
+      "same-tick and uint32 wrap lap capture,50th/51st, pause/reset, real rows and scrolling",
+      "Product sleep,wake,exit confirmation,reminder overlay retains laps; accepted exit resets laps",
+      "weather XML uses existing F1D8 glyph",
+      "battery matching card color/radius and title glyphs"
+    ]
+  },
+  "firmware": [
+    {
+      "target": "product",
+      "record": "artifacts/product/20261025-183534-556/result.json",
+      "sources": 571,
+      "artifacts": 29,
+      "main_bin": {
+        "bytes": 8320588,
+        "sha256": "5e8e93805cde2aada506a2b8d5659c661d4c4faf256f1f1520aa037749ec03cd",
+        "delta_bytes_from_previous": 43944
+      },
+      "exit_code": 0,
+      "all_hashes_match": true,
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4"
+    },
+    {
+      "target": "ui_demo",
+      "record": "artifacts/ui_demo/20261025-183602-946/result.json",
+      "sources": 511,
+      "artifacts": 22,
+      "main_bin": {
+        "bytes": 8049584,
+        "sha256": "79c74c3d8f95b375f3b84182517fa7192c04029b4a582fef268ca6032692beac",
+        "delta_bytes_from_previous": 43936
+      },
+      "exit_code": 0,
+      "all_hashes_match": true,
+      "python": "Python 3.13.15",
+      "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4"
+    }
+  ],
+  "resource_tools": {
+    "fontTools": "4.66.1",
+    "Pillow": "12.3.0",
+    "commands": [
+      "uv run --offline --no-project --with pillow --with fonttools scripts/Generate-Ui-Assets.py --static-fonts-only",
+      "uv run --offline --no-project --with pillow --with fonttools scripts/Generate-Breathing-Icon.py",
+      "uv run --offline --no-project --with pillow --with fonttools scripts/Generate-Compass-Assets.py"
+    ],
+    "image_png_bytes": {
+      "breathing_icon": 6584,
+      "compass_calibration": 16237
+    }
+  },
+  "preservation": {
+    "old_product_artifacts": 29,
+    "old_demo_artifacts": 22,
+    "zip_entries_all_sha256_verified": true,
+    "local_directory": "artifacts/ui-alignment-20261025",
+    "old_countdown_public_bytes_preserved": true,
+    "old_countdown_provenance": "docs/media/manifest.json history; base commit media blobs"
+  },
+  "failures_and_corrections": [
+    "Default Python lacks fontTools; reused offline uv dependencies without install changes.",
+    "Initial XML used flex_flow without style_ prefix; official validation failed; corrected based on project pattern, export then passed.",
+    "First stopwatch preview inherited dark text; XML explicitly white; official regenerated and all 12 affected tests rerun.",
+    "Read-only review found lap_count omitted from session data predicate; included and added Product reminder/sleep lap checks.",
+    "Some generated files differ only Windows line endings; no semantic hand edits.",
+    "Editor minimized/user input caused focus retries; user explicitly returned editor for operation."
+  ],
+  "sdk_lock_changed": false,
+  "hardware": {
+    "performed": false,
+    "serial_opened": false,
+    "flashed": false,
+    "calibration_functional_claim": false,
+    "touch_or_power_claim": false
+  },
+  "source_sha256_at_validation": {
+    "core/stopwatch.c": "4e57ae22726842fe18241783619be81b0a39e2ab4d41680d67496ffc358a2891",
+    "core/stopwatch.h": "d3096b06cc1da9bdb5c2f7910a3cd146185b55aea88144c2b2278ba7b844d7fa",
+    "scripts/Generate-Breathing-Icon.py": "42dda6cd2c9e7aad877438c13b8badde30abdbcb4dd36c0ff86d6a5a2778c22f",
+    "scripts/Generate-Compass-Assets.py": "823b4fa92130edc1cc6d8ff271b9b9d9bbe543b12b5652f78e1ca68379f92a6a",
+    "scripts/Generate-Ui-Assets.py": "43a6897ab5b458ff14890fac570a9cb232a684ecac8fccc3a921b91932f8ac43",
+    "tests/component_editor.c": "ec8ac2eeb7a1c978456fb3f7ac63224fdb392f7f9b6986ab71daa35113a7bc5f",
+    "tests/core_navigation.c": "0a22171b83986121e8afd690fa231a9e43fba45fbdd8afbe198cd912db4222c3",
+    "tests/product_countdown_ui.c": "5e140eaec5488167cc3f9c1f0e312409974ccbf3fba94ad2ae816a7e19026ac1",
+    "tests/product_ui.c": "9bf998c420b180a97b7f88a9b5b49169f30a984664e709a0480cd7fb5baa308a",
+    "tests/settings_ui.c": "a0775c736fc7b6d983d3c7d872def92224d2606b4b95e8041cef64734dca4448",
+    "tests/ui_apps.c": "a51b01209a3a9b781602b73d541828d6e99048f66b520de681c5645996758245",
+    "tests/ui_preview.c": "05437d491424ee9d9488f45eea0775349ce469ce6830c38988c2c15992f34da3",
+    "ui/runtime/app_registry.c": "cb3c2146647aee0f59317bdadd8cb3a0c62cd385e9fab757d2bcd29db4bb59d9",
+    "ui/runtime/apps.c": "9d71661772cd45c3aa7512445cf771255c8fd793838d324cb9de23aa64f62b91",
+    "ui/xml/components/breathing_controls.xml": "403ecd8a3dcc79df60fe4eb5241d60bb7b69e68f948acf8d2c8dfef411141497",
+    "ui/xml/components/breathing_controls_gen.c": "d2add17b11a11773a946589c555ec69598328d722a428b6271b1350f29a154ff",
+    "ui/xml/components/breathing_home.xml": "eeed5cf736d753ac68348c1b8d9bacd063e12d6d9f012f3d1b79cd9147e08c6a",
+    "ui/xml/components/breathing_home_gen.c": "94f939857fe23ee07a997db235978f51910413d0737fd1aacb75a02b60008ebb",
+    "ui/xml/components/breathing_result.xml": "32425787c79cf0c04b9d3883b7c328ad4bd09088c8ab12cb941d897f2153f536",
+    "ui/xml/components/breathing_result_gen.c": "c32371a496ca97cdcbe509ddf2fd01dcc9edaaf24e115380a7d96575d0211374",
+    "ui/xml/components/compass_calibration.xml": "761d00253e1773c99c68fdff755191843e7cef3a11733e332464d1fb51452520",
+    "ui/xml/components/compass_calibration_gen.c": "e89d234655e7e4c61aee24819db5fb85c7b60bcc8b0e1c82d0276363672599e0",
+    "ui/xml/components/layout_block.xml": "f1d09b262d67668bb8fa91bf1fd551b6993a4adb9b4816e4b6f160722e1733aa",
+    "ui/xml/components/layout_block_gen.c": "72859ba2f9bc2fb7da4c84bb0d1ccb311ee34fe4e7e4a6455aa5cc8ad05fe740",
+    "ui/xml/components/stopwatch_lap.xml": "aed843eba2be7ead250fbf47fdb6eb2e809affa3111b8523b4695737a29a67fc",
+    "ui/xml/components/stopwatch_lap_gen.c": "791f3c9d9ae81108a5c3e6eb6aee11114d3dffd18dd184c719ccc6f0e2d458a4",
+    "ui/xml/components/stopwatch_lap_gen.h": "79b2a5f0f310a2a04a5b3bd0a7cdeca7ee5b8237db75b73fb45860337379ef85",
+    "ui/xml/file_list_gen.cmake": "7240141c7830b368a386af237ed9f538985fabb381a7cdcceadcc75b5c8332af",
+    "ui/xml/fonts/WristFlowIcons.ttf": "52ed4bc52ffc55efbe8bf1f080734241a140ca3cff2df3971f4973cd8fd7a732",
+    "ui/xml/fonts/WristFlowSans-Regular.ttf": "9a3c477f9cc818fff46d76e4ee79b33ee45e61813ca344626afd67a30687c6f2",
+    "ui/xml/fonts/icons_20_data.c": "a5848add963a29119e392a9b8ff0e29165814f37d58d28614a4db9168c8fbae7",
+    "ui/xml/fonts/icons_44_data.c": "e4eebd89e16e423fe4e2a4d9154ca8430b43824bf41cfeaac02a7f3e609b472a",
+    "ui/xml/fonts/title_24_data.c": "954a2468591b69af6cda96b381c19e335821e0516ffa4fb075c6151a0224d591",
+    "ui/xml/fonts/value_36_data.c": "55f8e39afb72c59f7312ccc8b0753ad5c6d731cf9e5af1c17b3d6a24bc602823",
+    "ui/xml/globals.xml": "7d699626ba47e619a6a52d321444f5d5cf46aa41dc48c2bdccc40251130daa8d",
+    "ui/xml/images/README.md": "eb3e40c6d1f699eae683e1e743b5e2cda76dce43fbd78504d3bfe75a7311da53",
+    "ui/xml/images/breathing_icon.png": "20056fe5480099c67552e34dd824331fbf3a95d490a2c11569824ce237fa6666",
+    "ui/xml/images/breathing_icon_data.c": "0b4adcd08f919b51f508e4598c3a4c20824aa307c11509fa0ae48e2ad25ef2c6",
+    "ui/xml/images/compass_calibration.png": "9f826f7c8022cf0d6245d2487e06e57021e39661a9510dc3a8df3e27a27b4538",
+    "ui/xml/images/compass_gesture_path_data.c": "79ba1dd3ef2fbd9ee21cece3c7099838afa7d65ca8aaf80307f33270f594be5c",
+    "ui/xml/screens/screen_battery.xml": "a1f055f7f2155c825a70e9e74c31d70b248065bb2ff30bfb072a8c41997815cb",
+    "ui/xml/screens/screen_battery_gen.c": "8cef4ad995ea82a9cf29f51a3c735e27659dbfca46cf7420e6f3cf737a6e4289",
+    "ui/xml/screens/screen_countdown.xml": "ce9f0ff19bdffcd68c3a60505a0c5778cf6da81d8fc38cf3d8e65d0331ab20b5",
+    "ui/xml/screens/screen_countdown_gen.c": "fac68e56d1347992afca83a19a4da48ef9f35024860b7fe54ae8ce7fbadba462",
+    "ui/xml/screens/screen_stopwatch.xml": "627b674a05aac24c716a85d745fa4143b3484e39d726ce8e2ce61c6727934c23",
+    "ui/xml/screens/screen_stopwatch_gen.c": "460ee1ca824df6c97ab97591de4aadb82b1d68e0785f875d8b36857f473cb8c9",
+    "ui/xml/screens/screen_weather_hourly.xml": "e4f3a0af667005ba095b6166e1475d7786f7f96c0a89ddf38f70554d1ff9fe07",
+    "ui/xml/screens/screen_weather_hourly_gen.c": "702cb52dea904ade456d2a70e708577d237220557e7839518ba3ee4af22393f3",
+    "ui/xml/wristflow_ui_gen.c": "a2dc927e02299c02dac565e51fae50b4a104059bffacff6cc3c44afb2b82f68d",
+    "ui/xml/wristflow_ui_gen.h": "256985e0409c7250e470d5e63309eb8c467a7c7260fc13c6959d9464804de8e7"
+  },
+  "render": {
+    "path": "docs/evidence/2026-10-25/ui-alignment.png",
+    "kind": "actual generated LVGL snapshots with test/demo inputs",
+    "sha256": "7e457db5f12e779eb7bb5694a833342150c1c5b2ea292f4a0e9102a29fd00fea"
+  }
+}

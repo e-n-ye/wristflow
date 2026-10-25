@@ -87,7 +87,7 @@ lv_obj_t * breathing_home_create(lv_obj_t * parent)
         lv_obj_set_y(breathing_start, 289);
         lv_obj_set_width(breathing_start, 330);
         lv_obj_set_height(breathing_start, 66);
-        lv_obj_set_style_bg_color(breathing_start, lv_color_hex(0x143d63), 0);
+        lv_obj_set_style_bg_color(breathing_start, lv_color_hex(0x252525), 0);
         lv_obj_set_style_radius(breathing_start, 33, 0);
         lv_obj_set_style_shadow_width(breathing_start, 0, 0);
         lv_obj_set_style_pad_all(breathing_start, 0, 0);

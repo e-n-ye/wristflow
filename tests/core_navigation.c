@@ -104,6 +104,19 @@ int main(void)
     assert(watch.elapsed_ms == 2500);
     wristflow_stopwatch_reset(&watch, 12000);
     assert(watch.elapsed_ms == 0 && !watch.running);
+    assert(!wristflow_stopwatch_lap(&watch, 12000));
+    wristflow_stopwatch_toggle(&watch, UINT32_MAX - 500);
+    assert(wristflow_stopwatch_lap(&watch, 499));
+    assert(watch.laps[0] == 1000 && watch.running);
+    assert(wristflow_stopwatch_lap(&watch, 499)); /* Same-tick input is a valid capture. */
+    for (unsigned i = 2; i < WRISTFLOW_STOPWATCH_MAX_LAPS; ++i)
+        assert(wristflow_stopwatch_lap(&watch, 499 + i * 10));
+    assert(!wristflow_stopwatch_lap(&watch, 2000));
+    assert(watch.lap_count == WRISTFLOW_STOPWATCH_MAX_LAPS && watch.laps[0] == 1000);
+    wristflow_stopwatch_toggle(&watch, 2000);
+    assert(!wristflow_stopwatch_lap(&watch, 3000));
+    wristflow_stopwatch_reset(&watch, 4000);
+    assert(!watch.lap_count && !watch.laps[0] && !watch.elapsed_ms && !watch.running);
     wristflow_watch_snapshot_t snapshot = {0, 0, 0};
     assert(wristflow_snapshot_valid(&snapshot));
     snapshot = (wristflow_watch_snapshot_t){23, 59, 100};
