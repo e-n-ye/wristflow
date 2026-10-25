@@ -1,0 +1,177 @@
+{
+  "schema": 1,
+  "selected_on": "2026-10-25",
+  "selection_base": "3a607ce0c4b719102b9feb905844b20329e2ec1b",
+  "policy": "Existing PNG copies are byte-identical. Five user-provided device JPEG originals are retained locally; publication copies remove metadata only and preserve encoded image scan bytes. No AI edits, crop, resampling or new relicense. Context evidence is not a per-image firmware attestation.",
+  "files": [
+    {
+      "path": "docs/media/control-center.png",
+      "bytes": 45941,
+      "sha256": "9a8792526bf6bd6ef5a54abb643919c34db3c49e5a931a812f8bd6fc4cf060e4",
+      "original_local": "artifacts/control-center-hardware-20261022/neutral-review.png",
+      "original_sha256": "9a8792526bf6bd6ef5a54abb643919c34db3c49e5a931a812f8bd6fc4cf060e4",
+      "kind": "主机LVGL渲染",
+      "width": 1170,
+      "height": 450,
+      "context_evidence": "docs/evidence/2026-10-22/control-center-hardware.json",
+      "capture_source_commit": null
+    },
+    {
+      "path": "docs/media/activity.png",
+      "bytes": 20080,
+      "sha256": "432e93ed298424b1d9765ea7aa3447ddd9ed12ee81f5816fd01301efa829f411",
+      "original_local": "artifacts/activity-pro/activity-overview.png",
+      "original_sha256": "432e93ed298424b1d9765ea7aa3447ddd9ed12ee81f5816fd01301efa829f411",
+      "kind": "主机LVGL/UI Demo，演示数据",
+      "width": 390,
+      "height": 450,
+      "context_evidence": "docs/ACTIVITY.md",
+      "capture_source_commit": null
+    },
+    {
+      "path": "docs/media/steps.png",
+      "bytes": 10928,
+      "sha256": "1f3d7e77405fe7a5d3de0b390803ba91c33a5cf28731154f7d3419e66ab11e31",
+      "original_local": "artifacts/activity-pro/activity-metric-1.png",
+      "original_sha256": "1f3d7e77405fe7a5d3de0b390803ba91c33a5cf28731154f7d3419e66ab11e31",
+      "kind": "主机LVGL/UI Demo，演示数据",
+      "width": 390,
+      "height": 450,
+      "context_evidence": "docs/ACTIVITY.md",
+      "capture_source_commit": null
+    },
+    {
+      "path": "docs/media/countdown-picker.png",
+      "bytes": 15562,
+      "sha256": "4c4afb7059be202e041cf62fee9fbc204d4f60648df11a63fc35744ad68e7658",
+      "original_local": "artifacts/countdown/picker.png",
+      "original_sha256": "4c4afb7059be202e041cf62fee9fbc204d4f60648df11a63fc35744ad68e7658",
+      "kind": "主机LVGL渲染，演示输入",
+      "width": 390,
+      "height": 450,
+      "context_evidence": "docs/COUNTDOWN.md",
+      "capture_source_commit": null
+    },
+    {
+      "path": "docs/media/countdown-running.png",
+      "bytes": 6983,
+      "sha256": "3a3973883a4b80e3ab95235973b142fb24dd1a2529cbd6e1419af7f37e845529",
+      "original_local": "artifacts/countdown/running.png",
+      "original_sha256": "3a3973883a4b80e3ab95235973b142fb24dd1a2529cbd6e1419af7f37e845529",
+      "kind": "主机LVGL渲染，演示输入",
+      "width": 390,
+      "height": 450,
+      "context_evidence": "docs/COUNTDOWN.md",
+      "capture_source_commit": null
+    },
+    {
+      "path": "docs/media/brightness.png",
+      "bytes": 6512,
+      "sha256": "4bcc4e2e5483732dac08310c1f765fbc90f1c18e291e60b45d16f644fc3e92be",
+      "original_local": "artifacts/brightness-page-20261023/final-brightness_automatic.png",
+      "original_sha256": "4bcc4e2e5483732dac08310c1f765fbc90f1c18e291e60b45d16f644fc3e92be",
+      "kind": "主机LVGL渲染，演示状态",
+      "width": 390,
+      "height": 450,
+      "context_evidence": "docs/evidence/2026-10-23/brightness-page.json",
+      "capture_source_commit": null
+    },
+    {
+      "path": "docs/media/compass.png",
+      "bytes": 20989,
+      "sha256": "8797dd74772317395783083d2b17c11db6f2fe189f17069a0961741a58ac85b4",
+      "original_local": "artifacts/compass-live-data-20261024/compass_uncalibrated.png",
+      "original_sha256": "8797dd74772317395783083d2b17c11db6f2fe189f17069a0961741a58ac85b4",
+      "kind": "主机LVGL渲染，305度演示输入",
+      "width": 390,
+      "height": 450,
+      "context_evidence": "docs/evidence/2026-10-24/compass-live-data.json",
+      "capture_source_commit": null
+    },
+    {
+      "path": "docs/media/watchface-device.jpg",
+      "bytes": 4966162,
+      "sha256": "bcc6f2a29cde70d4931caeb3b9e59914572ac46b7216b9fc3b9a5906a625aaa6",
+      "original_local": "artifacts/showcase-20261025/photo-originals/watchface-device.jpg",
+      "original_sha256": "cb3d2f4baf3ff7bc0e36f91baa9ce7414444d2d2d3963f55b4998ce199c22201",
+      "kind": "表盘实拍",
+      "width": 3072,
+      "height": 4080,
+      "context_evidence": "docs/REPOSITORY-SHOWCASE.md#photos-20261025",
+      "capture_source_commit": null,
+      "firmware_identity": "User-provided current-device photo; not independently read in this documentation task",
+      "processing": "JPEG APP1/APP13/comment metadata removed; encoded image scan bytes preserved exactly; no crop, resize, generation or pixel retouch",
+      "removed_segments": [
+        "0xe1"
+      ]
+    },
+    {
+      "path": "docs/media/control-center-device.jpg",
+      "bytes": 5635085,
+      "sha256": "1da6dcea46bdd713a085ce32182034095621016c16bcee699c01c0d10eae9a4a",
+      "original_local": "artifacts/showcase-20261025/photo-originals/control-center-device.jpg",
+      "original_sha256": "273f46538d14f598c0330dfb6d7978e6ef3ae88e0eca330c129e29255079863a",
+      "kind": "控制中心实拍",
+      "width": 3072,
+      "height": 4080,
+      "context_evidence": "docs/REPOSITORY-SHOWCASE.md#photos-20261025",
+      "capture_source_commit": null,
+      "firmware_identity": "User-provided current-device photo; not independently read in this documentation task",
+      "processing": "JPEG APP1/APP13/comment metadata removed; encoded image scan bytes preserved exactly; no crop, resize, generation or pixel retouch",
+      "removed_segments": [
+        "0xe1"
+      ]
+    },
+    {
+      "path": "docs/media/activity-device.jpg",
+      "bytes": 2827725,
+      "sha256": "93368f4694d226081f679b65fd85ba4f5c8df6bf885afd0e484529d89b692452",
+      "original_local": "artifacts/showcase-20261025/photo-originals/activity-device.jpg",
+      "original_sha256": "56d002d4f596bd283da83f24c7798d40ba9f0ba930e89e80e2874d90a6c30768",
+      "kind": "活动页面实拍，真实0与未知项",
+      "width": 3072,
+      "height": 4080,
+      "context_evidence": "docs/REPOSITORY-SHOWCASE.md#photos-20261025",
+      "capture_source_commit": null,
+      "firmware_identity": "User-provided current-device photo; not independently read in this documentation task",
+      "processing": "JPEG APP1/APP13/comment metadata removed; encoded image scan bytes preserved exactly; no crop, resize, generation or pixel retouch",
+      "removed_segments": [
+        "0xe1"
+      ]
+    },
+    {
+      "path": "docs/media/countdown-device.jpg",
+      "bytes": 4816333,
+      "sha256": "aaf8c5d3b2f74343ddf6912a15a265c755a35c388788292a58c8820b145e54fd",
+      "original_local": "artifacts/showcase-20261025/photo-originals/countdown-device.jpg",
+      "original_sha256": "10f3d215569e80f24511611d085e36b95ad97d3d5f17bbf94dafd0d05bdbed83",
+      "kind": "倒计时运行实拍",
+      "width": 3072,
+      "height": 4080,
+      "context_evidence": "docs/REPOSITORY-SHOWCASE.md#photos-20261025",
+      "capture_source_commit": null,
+      "firmware_identity": "User-provided current-device photo; not independently read in this documentation task",
+      "processing": "JPEG APP1/APP13/comment metadata removed; encoded image scan bytes preserved exactly; no crop, resize, generation or pixel retouch",
+      "removed_segments": [
+        "0xe1"
+      ]
+    },
+    {
+      "path": "docs/media/aod-device.jpg",
+      "bytes": 5575851,
+      "sha256": "ed77a78fc3262c82e1550d8c8092d10fd3e08ccdb4bd001668598b6403b09754",
+      "original_local": "artifacts/showcase-20261025/photo-originals/aod-device.jpg",
+      "original_sha256": "a44328cc39203fbc0149ef180a8b1e4b148e8c06cfc9fd8f26b370218709c994",
+      "kind": "AOD实拍",
+      "width": 3072,
+      "height": 4080,
+      "context_evidence": "docs/REPOSITORY-SHOWCASE.md#photos-20261025",
+      "capture_source_commit": null,
+      "firmware_identity": "User-provided current-device photo; not independently read in this documentation task",
+      "processing": "JPEG APP1/APP13/comment metadata removed; encoded image scan bytes preserved exactly; no crop, resize, generation or pixel retouch",
+      "removed_segments": [
+        "0xe1"
+      ]
+    }
+  ]
+}
