@@ -122,6 +122,14 @@ lv_obj_t * screen_launcher_create(void)
         lv_obj_set_x(launch_breathing, 155);
         lv_obj_set_y(launch_breathing, 483);
 
+        lv_obj_t * launch_compass = launcher_icon_create(launcher_canvas, "", lv_color_hex(0x173a69));
+        lv_obj_set_name(launch_compass, "launch_compass");
+        lv_obj_set_x(launch_compass, 275);
+        lv_obj_set_y(launch_compass, 483);
+        lv_obj_t * lv_image_0 = lv_image_create(launch_compass);
+        lv_obj_set_align(lv_image_0, LV_ALIGN_CENTER);
+        lv_image_set_src(lv_image_0, compass_icon);
+
         lv_obj_t * launcher_caption = lv_label_create(lv_obj_0);
         lv_obj_set_name(launcher_caption, "launcher_caption");
         lv_obj_set_x(launcher_caption, 24);

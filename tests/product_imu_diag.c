@@ -18,6 +18,7 @@ static bool pause_auto_in_light_read;
 static unsigned light_restore_attempts;
 static fake_mmc5603_t mag_fake;
 static bool stop_mag_in_prepare, duplicate_mag_in_prepare;
+static bool stop_compass_in_prepare;
 static char mag_log[16384];
 static uint16_t native_count;
 static rt_tick_t ticks;
@@ -104,6 +105,10 @@ int rt_thread_mdelay(rt_int32_t ms)
     if (duplicate_mag_in_prepare) {
         duplicate_mag_in_prepare=false;
         char *args[]={"wf_mag","start","120"}; wf_mag(3,args);
+    }
+    if (stop_compass_in_prepare) {
+        stop_compass_in_prepare=false;
+        assert(wristflow_product_compass_active(false));
     }
     return 0;
 }
@@ -836,5 +841,65 @@ int main(void)
     before=mag_fake.operations; cycle(); assert(mag_fake.operations==before);
     wf_mag(4,sample_encoded); assert(!mag_pending);
     mag_fake.fail_reset=false; wf_mag(2,mag_stop); cycle(); assert(!idle && mag_cached.stopped);
+    /* Product foreground owns the existing worker, and rejects bounded
+     * diagnostics even before the first worker turn publishes mag_busy. */
+    fake_mag_init(&mag_fake);
+    assert(wristflow_product_compass_active(true));
+    wf_mag(3,mag_start); assert(!mag_pending);
+    char *compass_light[]={"wf_light","start","2"}; wf_light(3,compass_light); assert(!light_pending);
+    char *compass_wrist[]={"wf_wrist","start","2","xpos"}; wf_wrist(4,compass_wrist); assert(!wrist_pending);
+    assert(!wristflow_product_compass_snapshot().valid);
+    cycle();
+    for (unsigned i=0;i<30 && !compass_cached.valid;++i) cycle();
+    wf_compass_snapshot_t cv=wristflow_product_compass_snapshot();
+    assert(cv.requested && cv.active && cv.valid && cv.selftest_passed && !cv.fault && cv.sequence==1);
+    assert(cv.x==12345 && cv.y==-23456 && mag.snapshot.foreground && idle);
+    uint32_t compass_session=cv.session, compass_seq=cv.sequence;
+    uint32_t saved_ticks=ticks; ticks+=1000;
+    assert(!wristflow_product_compass_snapshot().valid && wristflow_product_compass_snapshot().reason==WF_COMPASS_STALE);
+    ticks=saved_ticks;
+    fake_mag_counts(&mag_fake,10000,10000,5000);
+    for (unsigned i=0;i<5 && compass_cached.sequence==compass_seq;++i) cycle();
+    cv=wristflow_product_compass_snapshot(); assert(cv.valid && cv.heading_degrees==45 && cv.sequence>compass_seq);
+    assert(wristflow_product_compass_active(false));
+    assert(!wristflow_product_compass_snapshot().valid && !wristflow_product_compass_snapshot().active);
+    cycle(); assert(!compass_owner && mag_cached.stopped && !mag_cached.owned && !idle);
+    /* Rapid leave/re-enter must never replay the old cached sample. */
+    assert(wristflow_product_compass_active(true));
+    assert(!wristflow_product_compass_snapshot().valid); cycle();
+    for (unsigned i=0;i<30 && !compass_cached.valid;++i) cycle();
+    assert(compass_cached.valid && compass_cached.session>compass_session);
+    mag_fake.fail_reset=true; assert(wristflow_product_compass_active(false)); cycle();
+    assert(compass_cached.cleanup_pending && compass_owner && mag_cached.owned && !mag_cached.stopped && idle);
+    before=mag_fake.operations; cycle(); cycle(); assert(mag_fake.operations==before);
+    assert(wristflow_product_compass_active(false)); cycle(); assert(mag_fake.operations==before);
+    assert(!wristflow_product_compass_active(true));
+    /* Only the explicit stop command retries failed hardware cleanup. */
+    mag_fake.fail_reset=false; wf_mag(2,mag_stop); cycle();
+    assert(!compass_owner && mag_cached.stopped && !idle);
+    assert(wristflow_product_compass_active(true)); cycle();
+    for (unsigned i=0;i<30 && !compass_cached.valid;++i) cycle();
+    assert(compass_cached.valid && !compass_cached.cleanup_pending);
+    assert(wristflow_product_compass_active(false)); cycle();
+    /* Deactivation while preparing I2C cannot start a hidden session. */
+    fake_mag_init(&mag_fake); assert(wristflow_product_compass_active(true));
+    stop_compass_in_prepare=true; cycle(); cycle();
+    assert(!compass_requested && !compass_owner && !mag_fake.triggers && !idle);
+    fake_mag_init(&mag_fake); mag_fake.selftest_fail=true;
+    assert(wristflow_product_compass_active(true)); cycle();
+    for (unsigned i=0;i<30 && !compass_cached.fault;++i) cycle();
+    assert(compass_cached.fault && compass_cached.reason==WF_COMPASS_SELFTEST_FAILURE && !compass_cached.valid);
+    before=mag_fake.operations;
+    assert(wristflow_product_compass_active(true)); cycle(); assert(mag_fake.operations==before);
+    assert(wristflow_product_compass_active(false)); cycle();
+    /* Normal automatic brightness and persistent wrist policy survive a run. */
+    fake_mag_init(&mag_fake); wristflow_product_wrist_enable(true);
+    assert(wristflow_product_light_enable(true)); wristflow_product_light_active(true); cycle();
+    light_regs[0x8c]=4; cycle(); light_generation=auto_generation;
+    assert(wristflow_product_compass_active(true)); cycle();
+    for (unsigned i=0;i<30 && !compass_cached.valid;++i) { light_regs[0x8c]=4; cycle(); }
+    assert(compass_cached.valid && auto_generation==light_generation && auto_requested && wrist_runtime);
+    assert(wristflow_product_compass_active(false)); cycle();
+    assert(!compass_owner && mag_cached.stopped && auto_requested && wrist_runtime);
     return 0;
 }

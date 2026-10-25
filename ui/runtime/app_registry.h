@@ -31,6 +31,7 @@ typedef struct wristflow_app_descriptor {
     void (*read)(const wristflow_watch_snapshot_t *, wristflow_app_data_t *);
     bool demo_only;
     bool component_only;
+    const void *const *icon_image; /* Address of an official generated image resource. */
 } wristflow_app_descriptor_t;
 
 typedef struct {

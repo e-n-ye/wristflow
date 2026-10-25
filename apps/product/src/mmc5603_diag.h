@@ -42,12 +42,12 @@ typedef struct {
     uint32_t reset_observed_ms, selftest_command_ms, selftest_ack_ms;
     uint32_t selftest_status_ms, selftest_data_ms, selftest_post_ms, selftest_polls;
     bool identity_valid, selftest_valid, selftest_passed;
-    bool owned, stopped, sample_valid, saturated, selftest_only;
+    bool owned, stopped, sample_valid, saturated, selftest_only, foreground;
 } wf_mmc5603_snapshot_t;
 typedef struct {
     wf_mmc5603_io_t io;
     wf_mmc5603_snapshot_t snapshot;
-    uint32_t due_ms, frame_ms;
+    uint32_t due_ms, frame_ms, interval_ms;
     unsigned stage;
 } wf_mmc5603_t;
 
@@ -61,6 +61,10 @@ bool wf_mmc5603_begin(wf_mmc5603_t *, uint32_t started_ms, uint32_t duration_ms)
 /* Explicit encoded-threshold candidate; native selftest must PASS before
  * bounded Auto_SR single-shot XYZ. Does not change the default begin(). */
 bool wf_mmc5603_begin_encoded(wf_mmc5603_t *, uint32_t started_ms, uint32_t duration_ms);
+/* Explicit Product foreground consumer: same native encoded selftest / Auto_SR,
+ * 200ms sample interval, cancelled by its owner when the UI is not eligible.
+ * It is not the hardware continuous mode; diagnostic limits stay unchanged. */
+bool wf_mmc5603_begin_foreground(wf_mmc5603_t *, uint32_t started_ms);
 /* Explicit diagnostic hypothesis only; fixed total deadline, no ordinary XYZ.
  * Both PASS and FAIL stop locally. The default begin() always uses raw80. */
 bool wf_mmc5603_begin_selftest(wf_mmc5603_t *, uint32_t started_ms, wf_mag_threshold_t);

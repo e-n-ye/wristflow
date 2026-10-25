@@ -11,6 +11,7 @@
 #include "breathing_view.h"
 #include "game_2048_view.h"
 #include "activity_view.h"
+#include "compass_view.h"
 #include "reminders.h"
 #include "control_center.h"
 #include <stdint.h>
@@ -32,6 +33,7 @@ struct wristflow_apps {
     wristflow_countdown_port_t countdown_port;
     wristflow_alarm_port_t alarm_port;
     wristflow_watch_snapshot_t snapshot;
+    wristflow_compass_display_t compass_display;
     wristflow_brightness_cb_t brightness_cb;
     void *context;
     uint8_t brightness;
@@ -493,6 +495,18 @@ static void create_product_menu(wristflow_apps_t *apps, lv_obj_t *root)
         apps->menu_entries[index] = entry;
         lv_obj_t *row = app_list_item_create(list, entry->title, entry->icon, lv_color_hex(entry->color));
         lv_obj_t *icon = launcher_icon_create(grid, entry->icon, lv_color_hex(entry->color));
+        if (entry->icon_image) {
+            lv_obj_t *circle = named(row, "menu_circle");
+            lv_obj_add_flag(named(row, "launcher_icon_label"), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(named(icon, "launcher_icon_label"), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_t *list_image = lv_image_create(circle);
+            lv_image_set_src(list_image, *entry->icon_image);
+            lv_image_set_scale(list_image, 205); /* 100px asset in the existing 80px slot. */
+            lv_obj_center(list_image);
+            lv_obj_t *grid_image = lv_image_create(icon);
+            lv_image_set_src(grid_image, *entry->icon_image);
+            lv_obj_center(grid_image);
+        }
         lv_obj_set_name(row, entry->launcher_name);
         lv_obj_set_name(icon, entry->launcher_name);
         apps->menu_icons[index] = row;
@@ -747,6 +761,11 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
         wristflow_settings_battery_bind(root, apps->shell);
     } else if (surface == WRISTFLOW_SURFACE_ENDURANCE) {
         wristflow_endurance_render(root, apps->shell);
+    } else if (surface == WRISTFLOW_SURFACE_COMPASS) {
+        wristflow_compass_display_t display = {.state = apps->product_mode ? WRISTFLOW_COMPASS_UNAVAILABLE : WRISTFLOW_COMPASS_HEADING,
+            .heading_degrees = 305, .uncalibrated = apps->product_mode};
+        apps->compass_display = display;
+        wristflow_compass_render(root, &display);
     } else {
         lv_label_set_text(named(root, "app_title"), app->title);
         lv_label_set_text(named(root, "placeholder_icon"), app->icon);
@@ -818,6 +837,18 @@ void wristflow_apps_refresh_settings_save(wristflow_apps_t *apps)
 
 void wristflow_apps_hide_control_hint(wristflow_apps_t *apps)
 { if (apps) wristflow_control_center_leave(apps->control_center); }
+
+void wristflow_apps_compass_sample(wristflow_apps_t *apps, const wf_compass_snapshot_t *sample)
+{
+    if (!apps || !apps->product_mode || !sample || !apps->screens[WRISTFLOW_SURFACE_COMPASS]) return;
+    wristflow_compass_display_t next = {.state = sample->valid ? WRISTFLOW_COMPASS_HEADING : WRISTFLOW_COMPASS_UNAVAILABLE,
+        .heading_degrees = sample->heading_degrees, .uncalibrated = true, .reason = sample->reason};
+    wristflow_compass_display_t *previous = &apps->compass_display;
+    if (next.state == previous->state && next.heading_degrees == previous->heading_degrees &&
+        next.reason == previous->reason && next.uncalibrated == previous->uncalibrated) return;
+    *previous = next;
+    wristflow_compass_render(apps->screens[WRISTFLOW_SURFACE_COMPASS], &next);
+}
 
 void wristflow_apps_update(wristflow_apps_t *apps, const wristflow_watch_snapshot_t *snapshot)
 {

@@ -1142,6 +1142,23 @@ bool wristflow_ui_shell_auto_brightness_sampling(const wristflow_ui_shell_t *she
          wristflow_notification_view_alert(shell->notifications) == WF_ALERT_PREVIEW);
 }
 
+bool wristflow_ui_shell_compass_sampling(const wristflow_ui_shell_t *shell)
+{
+    return shell && !shell->transitioning && !shell->endurance.enabled &&
+        shell->navigation.surface == WRISTFLOW_SURFACE_COMPASS &&
+        wristflow_ui_shell_display_phase(shell) != WRISTFLOW_DISPLAY_OFF &&
+        !wristflow_ui_shell_charging_active(shell) && !wristflow_ui_shell_reminder_active(shell) &&
+        wristflow_notification_view_alert(shell->notifications) == WF_ALERT_NONE;
+}
+
+void wristflow_ui_shell_compass_sample(wristflow_ui_shell_t *shell, const wf_compass_snapshot_t *sample)
+{
+    if (!shell || !sample) return;
+    wf_compass_snapshot_t visible = *sample;
+    if (!wristflow_ui_shell_compass_sampling(shell)) visible.valid = false;
+    wristflow_apps_compass_sample(shell->apps, &visible);
+}
+
 void wristflow_ui_shell_bind_vibration_preview(wristflow_ui_shell_t *shell,
     wristflow_vibration_preview_cb_t preview, wristflow_vibration_cancel_cb_t cancel, void *context)
 {

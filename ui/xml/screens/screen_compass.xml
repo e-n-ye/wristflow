@@ -1,0 +1,31 @@
+<screen>
+    <styles>
+        <style name="compass_knob" bg_opa="0%" pad_all="0" />
+        <style name="compass_indicator" arc_opa="0%" />
+    </styles>
+    <view name="compass_page" width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_color="0xb9ddff" style_text_font="compass_32">
+        <lv_obj name="compass_dial" width="390" height="450" scrollable="false" clickable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_color="0xb9ddff" style_text_font="compass_32">
+            <lv_obj name="compass_index" x="192" y="38" width="6" height="22" clickable="false" scrollable="false" style_bg_color="0x56595e" style_bg_opa="100%" style_border_width="0" style_radius="3" style_pad_all="0" />
+            <lv_arc name="compass_ring_a" x="21" y="67" width="348" height="348" value="0" bg_start_angle="0" bg_end_angle="154" rotation="339" clickable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_arc_color="0x56595e" style_arc_width="22" style_arc_rounded="true">
+                <style name="compass_knob" selector="knob" /><style name="compass_indicator" selector="indicator" />
+            </lv_arc>
+            <lv_arc name="compass_ring_b" x="21" y="67" width="348" height="348" value="0" bg_start_angle="0" bg_end_angle="154" rotation="159" clickable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_arc_color="0x56595e" style_arc_width="22" style_arc_rounded="true">
+                <style name="compass_knob" selector="knob" /><style name="compass_indicator" selector="indicator" />
+            </lv_arc>
+            <lv_arc name="compass_north_arc" x="21" y="67" width="348" height="348" value="0" bg_start_angle="0" bg_end_angle="32" rotation="280" clickable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_arc_color="0xff354f" style_arc_width="16" style_arc_rounded="true">
+                <style name="compass_knob" selector="knob" /><style name="compass_indicator" selector="indicator" />
+            </lv_arc>
+            <lv_image name="compass_north_pointer" x="316" y="135" src="compass_pointer" rotation="550" style_image_recolor="0xff354f" style_image_recolor_opa="100%" />
+            <lv_image name="compass_south_pointer" x="50" y="323" src="compass_pointer" rotation="2350" style_image_recolor="0x71b9ff" style_image_recolor_opa="100%" />
+            <lv_label name="compass_n" x="274" y="147" width="48" height="44" text="N" style_text_color="0xff354f" style_text_align="center" style_transform_pivot_x="24" style_transform_pivot_y="22" style_transform_rotation="550" />
+            <lv_label name="compass_e" x="243" y="322" width="48" height="44" text="E" style_text_align="center" style_transform_pivot_x="24" style_transform_pivot_y="22" style_transform_rotation="1450" />
+            <lv_label name="compass_s" x="68" y="291" width="48" height="44" text="S" style_text_align="center" style_transform_pivot_x="24" style_transform_pivot_y="22" style_transform_rotation="2350" />
+            <lv_label name="compass_w" x="99" y="116" width="48" height="44" text="W" style_text_align="center" style_transform_pivot_x="24" style_transform_pivot_y="22" style_transform_rotation="3250" />
+            <lv_label name="compass_heading" x="85" y="173" width="220" height="84" text="305°" style_text_font="metric_56" style_text_align="center" />
+            <lv_label name="compass_direction" x="95" y="259" width="200" height="52" text="西北" style_text_align="center" />
+            <lv_label name="compass_status" x="55" y="312" width="280" text="" style_text_font="body_20" style_text_color="#fg_secondary" style_text_align="center" />
+            <lv_label name="compass_notice" x="24" y="420" width="342" height="26" text="" style_text_font="body_20" style_text_color="#fg_secondary" style_text_align="center" />
+        </lv_obj>
+        <compass_calibration name="compass_calibration_panel" hidden="true" />
+    </view>
+</screen>
