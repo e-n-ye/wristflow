@@ -236,6 +236,7 @@ extern lv_font_t * icons_20;
  *----------------*/
 
 /* Targets: any */
+extern const void * breathing_icon;
 extern const void * compass_pointer;
 extern const void * compass_icon;
 extern const void * compass_gesture_path;
@@ -340,6 +341,7 @@ void wristflow_ui_init_gen(const char * asset_path);
 #include "components/settings_row_gen.h"
 #include "components/settings_switch_gen.h"
 #include "components/status_toast_gen.h"
+#include "components/stopwatch_lap_gen.h"
 #include "components/tile_full_gen.h"
 #include "components/tile_grid_gen.h"
 #include "components/tile_half_gen.h"

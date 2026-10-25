@@ -8,7 +8,7 @@
         <lv_label x="30" y="155" text="训练时长" style_text_font="title_24" style_text_color="#fg_secondary" />
         <lv_label name="breathing_result_minutes" x="30" y="192" text="1" style_text_font="metric_56" />
         <lv_label x="74" y="222" text="分钟" style_text_font="title_24" />
-        <lv_button name="breathing_done" x="30" y="289" width="330" height="66" style_bg_color="0x143d63" style_radius="33" style_shadow_width="0" style_pad_all="0">
+        <lv_button name="breathing_done" x="30" y="289" width="330" height="66" style_bg_color="0x252525" style_radius="33" style_shadow_width="0" style_pad_all="0">
             <lv_label align="center" text="完成" style_text_font="value_36" />
         </lv_button>
     </view>

@@ -1,14 +1,14 @@
 <component>
     <view extends="lv_obj" width="390" height="374" scrollable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="body_20" style_text_color="#fg_primary">
-        <lv_button name="breathing_end" x="44" y="99" width="118" height="118" style_bg_color="0xff5025" style_radius="59" style_shadow_width="0" style_pad_all="0">
-            <lv_label align="center" text="&#xf04d;" style_text_font="icons_44" />
+        <lv_button name="breathing_end" x="44" y="99" width="118" height="118" style_bg_color="0x252525" style_radius="59" style_shadow_width="0" style_pad_all="0">
+            <lv_label align="center" text="&#xf04d;" style_text_font="icons_44" style_text_color="0xff714d" />
         </lv_button>
-        <lv_button name="breathing_restart" x="228" y="99" width="118" height="118" style_bg_color="0x00cabf" style_radius="59" style_shadow_width="0" style_pad_all="0">
-            <lv_label align="center" text="&#xf2f9;" style_text_font="icons_44" />
+        <lv_button name="breathing_restart" x="228" y="99" width="118" height="118" style_bg_color="0x252525" style_radius="59" style_shadow_width="0" style_pad_all="0">
+            <lv_label align="center" text="&#xf2f9;" style_text_font="icons_44" style_text_color="0x00cabf" />
         </lv_button>
         <lv_label x="36" y="241" width="134" text="结束" style_text_font="title_24" style_text_align="center" />
         <lv_label x="213" y="241" width="148" text="重新开始" style_text_font="title_24" style_text_align="center" />
-        <lv_obj x="185" y="346" width="8" height="8" scrollable="false" style_bg_color="0x164e80" style_bg_opa="100%" style_border_width="0" style_radius="4" />
+        <lv_obj x="185" y="346" width="8" height="8" scrollable="false" style_bg_color="0x444444" style_bg_opa="100%" style_border_width="0" style_radius="4" />
         <lv_obj x="201" y="346" width="8" height="8" scrollable="false" style_bg_color="#fg_primary" style_bg_opa="100%" style_border_width="0" style_radius="4" />
     </view>
 </component>

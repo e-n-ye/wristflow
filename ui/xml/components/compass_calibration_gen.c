@@ -50,7 +50,7 @@ lv_obj_t * compass_calibration_create(lv_obj_t * parent)
         lv_obj_set_style_border_width(lv_obj_0, 0, 0);
         lv_obj_set_style_pad_all(lv_obj_0, 0, 0);
         lv_obj_set_style_radius(lv_obj_0, 0, 0);
-        lv_obj_set_style_text_color(lv_obj_0, lv_color_hex(0xb9ddff), 0);
+        lv_obj_set_style_text_color(lv_obj_0, lv_color_hex(0xb8b8b8), 0);
         lv_obj_set_style_text_font(lv_obj_0, title_24, 0);
 
         lv_obj_t * compass_gesture = lv_image_create(lv_obj_0);

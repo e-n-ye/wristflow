@@ -81,6 +81,8 @@ extern lv_font_t icons_20_data;
  *----------------*/
 
 /* Targets: any */
+const void * breathing_icon = NULL;
+extern const void * breathing_icon_data;
 const void * compass_pointer = NULL;
 extern const void * compass_pointer_data;
 const void * compass_icon = NULL;
@@ -272,6 +274,10 @@ void wristflow_ui_init_gen(const char * asset_path)
     /* Targets: any */
     #if WRISTFLOW_UI_CHECK_COMPILE_TARGET(WRISTFLOW_UI_TARGET_ALL)
     if (wristflow_ui_check_target(WRISTFLOW_UI_TARGET_ALL)) {
+        /* breathing_icon */
+        if (!breathing_icon) {
+            breathing_icon = &breathing_icon_data;
+        }
         /* compass_pointer */
         if (!compass_pointer) {
             compass_pointer = &compass_pointer_data;
@@ -457,6 +463,7 @@ void wristflow_ui_init_gen(const char * asset_path)
      * While running in the editor skip this step to update the preview when the XML changes */
 #if defined(LV_USE_XML) && LV_USE_XML && !defined(LV_EDITOR_PREVIEW)
     /* Register images */
+    lv_xml_register_image(NULL, "breathing_icon", breathing_icon);
     lv_xml_register_image(NULL, "compass_pointer", compass_pointer);
     lv_xml_register_image(NULL, "compass_icon", compass_icon);
     lv_xml_register_image(NULL, "compass_gesture_path", compass_gesture_path);

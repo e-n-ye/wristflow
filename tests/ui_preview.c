@@ -91,6 +91,23 @@ int main(int argc, char **argv)
         snprintf(name, sizeof(name), "%s_scrolled", names[i]);
         snapshot(pickers[i], argv[1], name);
     }
+    snapshot(screen_component_templates_create(), argv[1], "layout_templates_neutral");
+    lv_obj_t *hourly = screen_weather_hourly_create();
+    for (unsigned i = 1; i <= 4; ++i) {
+        char name[32]; snprintf(name, sizeof name, "hour_%u_wind_icon", i);
+        lv_obj_t *icon = lv_obj_find_by_name(hourly, name); assert(icon);
+        lv_font_glyph_dsc_t glyph;
+        assert(!strcmp(lv_label_get_text(icon), "\xef\x87\x98"));
+        assert(lv_font_get_glyph_dsc(lv_obj_get_style_text_font(icon, 0), &glyph, 0xf1d8, 0) && !glyph.is_placeholder);
+    }
+    snapshot(hourly, argv[1], "weather_hourly_xml");
+    snapshot(screen_compass_calibration_create(), argv[1], "compass_calibration_neutral");
+    snapshot(screen_breathing_create(), argv[1], "breathing_neutral_xml");
+    lv_obj_t *battery = screen_battery_create();
+    snapshot(battery, argv[1], "battery_neutral_xml");
+    lv_obj_t *scroll = lv_obj_find_by_name(battery, "battery_scroll"); assert(scroll);
+    lv_obj_scroll_to_y(scroll, 260, LV_ANIM_OFF);
+    snapshot(battery, argv[1], "battery_neutral_cards");
     puts("PASS: generated LVGL UI, all time updates, four layouts and three scroll lists");
     return 0;
 }

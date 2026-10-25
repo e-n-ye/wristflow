@@ -51,6 +51,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/components/settings_row_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/settings_switch_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/status_toast_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/components/stopwatch_lap_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_full_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_grid_gen.c
   ${CMAKE_CURRENT_LIST_DIR}/components/tile_half_gen.c
@@ -70,6 +71,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/fonts/notification_22_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/title_24_data.c
   ${CMAKE_CURRENT_LIST_DIR}/fonts/value_36_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/images/breathing_icon_data.c
   ${CMAKE_CURRENT_LIST_DIR}/images/compass_gesture_path_data.c
   ${CMAKE_CURRENT_LIST_DIR}/images/compass_icon_data.c
   ${CMAKE_CURRENT_LIST_DIR}/images/compass_pointer_data.c

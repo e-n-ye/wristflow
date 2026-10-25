@@ -24,7 +24,7 @@ TEXT = (
     "管理与声音振动模式消息通知按键关于屏幕自定义熄屏抬腕暂开放允许更换进入过长会减少续航确定使用本仅生效到恢复尚硬件提醒可短打开或首次唤助手以下操作机出厂固版本设备黄山派校实际容量核实识别变持暗。/°"
     "计时结束重复每一三四五六末工作至已达上限个只（）：、呼吸训练结果前后"
     "卡路里千卡中高强度活动数据说明目标"
-    "静音全天定时次日起止相同长续航待实现切在段"
+    "静音全天定时次日起止相同长续航待实现切在段优化"
     "默认息屏样式智能指南针请把手表按图示方向移动进行校准保持水平等待数据东南西北"
 )
 
@@ -67,7 +67,7 @@ if not args.static_fonts_only:
                 message_codepoints)
 subset_font(LVGL / "scripts/built_in_font/FontAwesome5-Solid+Brands+Regular.woff",
             OUTPUT / "fonts/WristFlowIcons.ttf", "WristFlow Icons",
-            [0xf004, 0xf012, 0xf013, 0xf017, 0xf053, 0xf054, 0xf0eb, 0xf185, 0xf186,
+            [0xf004, 0xf012, 0xf013, 0xf017, 0xf024, 0xf053, 0xf054, 0xf0eb, 0xf185, 0xf186,
              0xf240, 0xf293, 0xf54b, 0xf04b, 0xf04c, 0xf2f1, 0xf00c, 0xf390, 0xf2f2,
              0xf043, 0xf062, 0xf118, 0xf70c, 0xf183, 0xf0c2, 0xf236, 0xf0f3, 0xf201, 0xf1d8, 0xf1f8, 0xf00d,
              0xf028, 0xf00a, 0xf0ad, 0xf05a, 0xf192, 0xf252, 0xf04d, 0xf2f9, 0xf067, 0xf0e7, 0xf06d])

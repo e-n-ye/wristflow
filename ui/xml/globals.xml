@@ -76,6 +76,7 @@
 	</subjects>
 
 		<images>
+            <data name="breathing_icon" src_path="images/breathing_icon.png" color_format="argb8888" />
             <data name="compass_pointer" src_path="images/compass_pointer.png" color_format="argb8888" />
             <data name="compass_icon" src_path="images/compass_icon.png" color_format="argb8888" />
             <data name="compass_gesture_path" src_path="images/compass_calibration.png" color_format="argb8888" />
@@ -111,12 +112,12 @@
             <bin name="aod_preview_14" src_path="fonts/WristFlowSans-Regular.ttf" size="14" bpp="4" as_file="false" range="0x20-0x7e" symbols="月日周一二三四五六" />
             <bin name="notification_22" src_path="fonts/WristFlowMessages-Regular.ttf" size="22" bpp="2" as_file="false" range="0x20-0xffff" />
 		<bin name="body_20" src_path="fonts/WristFlowSans-Regular.ttf" size="20" bpp="4" as_file="false" range="0x20-0x7e" symbols="仅本地清空全部查看详情接收预览不影响闹钟倒计·布局列表三多组件编辑保存中失败稍后重试是否删除当前小完成退出将不再确认新增选择页面？月日周二步心率次分最近测量今日活动距离目标千米系统状态电池蓝牙已连接未充电运行时间控制中心勿扰手筒常亮设置小时钟关闭开启分钟数完成度秒表应用简洁扩散返回暂停继续开始重置已选显示盘度即将推出血氧压力活力指标计步站立天气睡眠闹钟供未接入传感器功能等待手机同步暂无数据，管理与声音振动模式消息通知按键关于屏幕自定义熄屏抬腕暂开放允许更换进入过长会减少续航确定使用本仅生效到恢复尚硬件提醒可短打开或首次唤助手以下操作机出厂固版本设备黄山派校实际容量核实识别变持暗。/支台云重复每一三四五六末工作至已达上限个（）：、只呼吸训练结果前后结束卡路里千卡中高强度活动数据说明目标静音全天定时次日起止相同长续航待实现切在段默认息屏样式智能指南针请把手表按图示方向移动进行校准保持水平等待数据东南西北" />
-		<bin name="title_24" src_path="fonts/WristFlowSans-Regular.ttf" size="24" bpp="4" as_file="false" range="0x20-0x7e" symbols="仅本地清空全部查看详情接收预览不影响闹钟倒计·月日周二次分最近测量距离目标千米蓝牙已连接未充运行时间小时关闭开启分钟数完成度布局列表三多组件编辑保存中失败稍后重试是否删除当前小完成退出将不再确认新增选择页面？量心率今日活动系统状态控制中心勿扰手电筒常亮设置选择组件新增页面步数池秒表应用简洁扩散返回暂停继续开始重置已选显示盘度即将推出血氧压力活力指标计步站立天气睡眠闹钟供未接入传感器功能等待手机同步暂无数据，管理与声音振动模式消息通知按键关于屏幕自定义熄屏抬腕暂开放允许更换进入过长会减少续航确定使用本仅生效到恢复尚硬件提醒可短打开或首次唤助手以下操作机出厂固版本设备黄山派校实际容量核实识别变持暗。/支台云°重复每一三四五六末工作至已达上限个（）：、呼吸训练结果前后结束卡路里千卡中高强度活动数据说明目标静音全天定时次日起止相同长续航待实现切在段默认息屏样式智能指南针请把手表按图示方向移动进行校准保持水平等待数据东南西北" />
+		<bin name="title_24" src_path="fonts/WristFlowSans-Regular.ttf" size="24" bpp="4" as_file="false" range="0x20-0x7e" symbols="续航优化仅本地清空全部查看详情接收预览不影响闹钟倒计·月日周二次分最近测量距离目标千米蓝牙已连接未充运行时间小时关闭开启分钟数完成度布局列表三多组件编辑保存中失败稍后重试是否删除当前小完成退出将不再确认新增选择页面？量心率今日活动系统状态控制中心勿扰手电筒常亮设置选择组件新增页面步数池秒表应用简洁扩散返回暂停继续开始重置已选显示盘度即将推出血氧压力活力指标计步站立天气睡眠闹钟供未接入传感器功能等待手机同步暂无数据，管理与声音振动模式消息通知按键关于屏幕自定义熄屏抬腕暂开放允许更换进入过长会减少续航确定使用本仅生效到恢复尚硬件提醒可短打开或首次唤助手以下操作机出厂固版本设备黄山派校实际容量核实识别变持暗。/支台云°重复每一三四五六末工作至已达上限个（）：、呼吸训练结果前后结束卡路里千卡中高强度活动数据说明目标静音全天定时次日起止相同长续航待实现切在段默认息屏样式智能指南针请把手表按图示方向移动进行校准保持水平等待数据东南西北" />
 		<bin name="metric_56" src_path="fonts/WristFlowSans-Regular.ttf" size="56" bpp="4" as_file="false" range="0x20-0x7e" symbols="°" />
         <bin name="battery_80" src_path="fonts/WristFlowSans-Regular.ttf" size="80" bpp="4" as_file="false" range="0x25-0x39" symbols="~" />
 		<bin name="guide_40" src_path="fonts/WristFlowSans-Regular.ttf" size="40" bpp="4" as_file="false" range="0x20-0x7e" symbols="吸呼气" />
         <bin name="clock_80" src_path="fonts/WristFlowSans-Regular.ttf" size="80" bpp="4" as_file="false" range="0x30-0x3a" />
-		<bin name="value_36" src_path="fonts/WristFlowSans-Regular.ttf" size="36" bpp="4" as_file="false" range="0x20-0x7e" symbols="已连接计时结束呼吸气分钟重新开始完成" />
+		<bin name="value_36" src_path="fonts/WristFlowSans-Regular.ttf" size="36" bpp="4" as_file="false" range="0x20-0x7e" symbols="°已连接计时结束呼吸气分钟重新开始完成" />
         <bin name="icons_44" src_path="fonts/WristFlowIcons.ttf" size="44" bpp="4" as_file="false" range="0xf004-0xf70c" symbols="&#xf1d8; &#xf185; &#xf186;" />
         <bin name="icons_20" src_path="fonts/WristFlowIcons.ttf" size="20" bpp="4" as_file="false" range="0xf004-0xf70c" symbols="&#xf1d8; &#xf185; &#xf186;" />
 	</fonts>

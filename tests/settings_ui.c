@@ -403,12 +403,14 @@ int main(int argc,char **argv)
     jump(5050); jump(120000); check_wake_home=true; key(); check_wake_home=false; surface(WRISTFLOW_SURFACE_HOME);
     key(); open(WRISTFLOW_SURFACE_FLASHLIGHT); jump(600000); assert(brightness==100 && wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_ACTIVE);
     key(); assert(brightness==27); jump(3000); assert(wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_ACTIVE);
-    key(); open(WRISTFLOW_SURFACE_STOPWATCH); press("stopwatch_toggle"); jump(5050); jump(120000); key(); surface(WRISTFLOW_SURFACE_STOPWATCH);
+    key(); open(WRISTFLOW_SURFACE_STOPWATCH); press("stopwatch_toggle"); advance(1200); press("stopwatch_reset"); jump(5050); jump(120000); key(); surface(WRISTFLOW_SURFACE_STOPWATCH);
+    assert(lv_obj_get_child_count(named(lv_screen_active(), "stopwatch_laps")) == 1);
     assert(strcmp(lv_label_get_text(named(lv_screen_active(),"stopwatch_time")),"00:00")); snapshot("stopwatch_wake");
     press("stopwatch_toggle");
     char paused[32]; snprintf(paused,sizeof paused,"%s",lv_label_get_text(named(lv_screen_active(),"stopwatch_time")));
     jump(5050); jump(120000); key(); surface(WRISTFLOW_SURFACE_STOPWATCH);
     assert(!strcmp(paused,lv_label_get_text(named(lv_screen_active(),"stopwatch_time"))));
+    assert(lv_obj_get_child_count(named(lv_screen_active(), "stopwatch_laps")) == 1);
     /* Paused data, running data, and all exits obey the same confirmation. */
     press("app_back"); snapshot("stopwatch_exit"); surface(WRISTFLOW_SURFACE_STOPWATCH);
     jump(5050); assert(wristflow_ui_shell_wrist_wake(shell));
@@ -419,6 +421,7 @@ int main(int argc,char **argv)
     key(); press("confirm_accept"); surface(WRISTFLOW_SURFACE_HOME);
     key(); open(WRISTFLOW_SURFACE_STOPWATCH);
     assert(!strcmp(lv_label_get_text(named(lv_screen_active(),"stopwatch_time")),"00:00"));
+    assert(!lv_obj_get_child_count(named(lv_screen_active(), "stopwatch_laps")));
     press("stopwatch_toggle"); advance(1200);
     press("app_back"); press("confirm_cancel"); advance(1200);
     assert(strcmp(lv_label_get_text(named(lv_screen_active(),"stopwatch_time")),"00:00"));

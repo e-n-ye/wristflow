@@ -25,3 +25,11 @@ The nine `control_*.png` files are original WristFlow artwork, rendered by
 an antialiased transparent background, registered as ARGB8888. The Redmi Watch 4
 photos guide the agreed function mapping and appearance; no pixels are copied
 from those photos. Generated image data is exported by the official LVGL editor.
+
+## Breathing icon and compass gesture
+
+`breathing_icon.png` is original 100×100 concentric-circle artwork from
+`scripts/Generate-Breathing-Icon.py`, guided by the user's app-icon reference.
+No photo pixels are copied. It is shared by list and grid launcher entries.
+The compass figure-eight path from `Generate-Compass-Assets.py` uses neutral
+gray as requested on 2026-10-25; this artwork does not implement calibration.

@@ -9,17 +9,17 @@
         <lv_label name="battery_percent" x="94" y="14" width="272" height="112" text="~91%" style_text_font="battery_80" />
         <lv_label name="battery_status" x="24" y="132" width="342" height="30" text="充电中" style_text_align="center" style_text_color="0x00dfc0" />
         <lv_label name="battery_reason" x="24" y="166" width="342" height="30" text="" style_text_align="center" style_text_color="#fg_secondary" />
-        <lv_obj name="battery_details" x="24" y="203" width="342" height="98" scrollable="false" clickable="false" style_bg_color="#bg_surface" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="20" style_text_color="#fg_primary" style_text_font="notification_22">
-            <lv_label x="18" y="18" text="电压" />
-            <lv_label name="battery_voltage" x="140" y="6" width="184" height="48" text="4.04V" style_text_font="value_36" style_text_align="right" />
-            <lv_label name="battery_input" x="18" y="61" width="306" height="30" text="USB 输入有效" style_text_color="#fg_secondary" />
+        <lv_obj name="battery_details" x="24" y="203" width="342" height="98" scrollable="false" clickable="false" style_bg_color="0x252525" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="22" style_text_color="#fg_primary" style_text_font="title_24">
+            <lv_label x="18" y="14" text="电压" />
+            <lv_label name="battery_voltage" x="140" y="14" width="184" height="36" text="4.04V" style_text_font="title_24" style_text_align="right" />
+            <lv_label name="battery_input" x="18" y="58" width="306" height="30" text="USB 输入有效" style_text_font="notification_22" style_text_color="#fg_secondary" />
         </lv_obj>
         <lv_label name="battery_source" x="24" y="320" width="342" height="30" text="电压估算，仅供参考" style_text_align="center" style_text_color="#fg_secondary" />
         <lv_button name="battery_endurance" x="24" y="368" width="342" height="90" style_bg_color="0x252525" style_border_width="0" style_radius="22" style_shadow_width="0">
-            <lv_label align="center" text="长续航模式" style_text_font="notification_22" style_text_color="#fg_primary" />
+            <lv_label align="center" text="长续航模式" style_text_font="title_24" style_text_color="#fg_primary" />
         </lv_button>
         <lv_button name="battery_optimize" x="24" y="470" width="342" height="90" style_bg_color="0x252525" style_border_width="0" style_radius="22" style_shadow_width="0">
-            <lv_label align="center" text="续航优化" style_text_font="notification_22" style_text_color="#fg_primary" />
+            <lv_label align="center" text="续航优化" style_text_font="title_24" style_text_color="#fg_primary" />
         </lv_button>
         <lv_button name="battery_info" x="161" y="582" width="68" height="54" style_bg_color="0x252525" style_border_width="0" style_radius="27" style_shadow_width="0">
             <lv_label align="center" text="&#xf05a;" style_text_font="icons_20" style_text_color="#fg_primary" />

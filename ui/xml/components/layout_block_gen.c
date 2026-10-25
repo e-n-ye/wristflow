@@ -42,7 +42,7 @@ lv_obj_t * layout_block_create(lv_obj_t * parent)
         lv_obj_t * lv_obj_0 = lv_obj_create(parent);
         lv_obj_set_name_static(lv_obj_0, "layout_block_#");
         lv_obj_set_flag(lv_obj_0, LV_OBJ_FLAG_SCROLLABLE, false);
-        lv_obj_set_style_bg_color(lv_obj_0, lv_color_hex(0x67e1f7), 0);
+        lv_obj_set_style_bg_color(lv_obj_0, lv_color_hex(0x333333), 0);
         lv_obj_set_style_bg_opa(lv_obj_0, (255 * 100 / 100), 0);
         lv_obj_set_style_radius(lv_obj_0, 12, 0);
         lv_obj_set_style_border_width(lv_obj_0, 0, 0);

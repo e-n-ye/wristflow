@@ -48,10 +48,10 @@ for i in range(721):
     t = 2 * math.pi * i / 720
     points.append(((140 + 126 * math.cos(t)) * SCALE,
                    (75 + 54 * math.sin(2 * t)) * SCALE))
-draw.line(points, fill="#71b9ff", width=7 * SCALE, joint="curve")
+draw.line(points, fill="#a8a8a8", width=7 * SCALE, joint="curve")
 for x, y in points:
     r = 3.5 * SCALE
-    draw.ellipse((x - r, y - r, x + r, y + r), fill="#71b9ff")
+    draw.ellipse((x - r, y - r, x + r, y + r), fill="#a8a8a8")
 for t in (math.pi * 0.70, math.pi * 1.70):
     x, y = 140 + 126 * math.cos(t), 75 + 54 * math.sin(2 * t)
     dx, dy = -126 * math.sin(t), 108 * math.cos(2 * t)
@@ -59,5 +59,5 @@ for t in (math.pi * 0.70, math.pi * 1.70):
     dx, dy = dx / norm, dy / norm
     tip = (x + 8 * dx, y + 8 * dy)
     polygon(draw, [tip, (x - 10 * dx + 8 * dy, y - 10 * dy - 8 * dx),
-                   (x - 10 * dx - 8 * dy, y - 10 * dy + 8 * dx)], "#c0e3ff")
+                   (x - 10 * dx - 8 * dy, y - 10 * dy + 8 * dx)], "#d0d0d0")
 save(image, "compass_calibration.png")

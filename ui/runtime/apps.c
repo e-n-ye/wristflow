@@ -178,23 +178,66 @@ static void menu_touch(lv_event_t *event)
 static void render_stopwatch(wristflow_apps_t *apps)
 {
     lv_obj_t *root = apps->screens[WRISTFLOW_SURFACE_STOPWATCH];
+    if (!root) return;
+    bool initial = !apps->stopwatch.running && !apps->stopwatch.elapsed_ms && !apps->stopwatch.lap_count;
+    bool full = apps->stopwatch.lap_count == WRISTFLOW_STOPWATCH_MAX_LAPS;
+    lv_obj_t *toggle = named(root, "stopwatch_toggle");
+    lv_obj_t *icon = named(root, "stopwatch_toggle_icon");
+    lv_obj_set_flag(named(root, "stopwatch_reset"), LV_OBJ_FLAG_HIDDEN, initial);
+    lv_obj_set_pos(toggle, initial ? 24 : 202, 342);
+    lv_obj_set_width(toggle, initial ? 342 : 164);
+    lv_obj_set_style_bg_color(toggle, lv_color_hex(initial ? 0x252525 : 0x008cff), 0);
+    lv_obj_set_style_text_font(icon, initial ? title_24 : icons_44, 0);
+    lv_label_set_text(icon, initial ? "开始" : apps->stopwatch.running ? "\xef\x81\x8c" : "\xef\x81\x8b");
+    lv_label_set_text(named(root, "stopwatch_reset_icon"), apps->stopwatch.running ? "\xef\x80\xa4" : "\xef\x8b\xb1");
+    lv_obj_set_state(named(root, "stopwatch_reset"), LV_STATE_DISABLED, apps->stopwatch.running && full);
+    lv_obj_set_flag(named(root, "stopwatch_limit"), LV_OBJ_FLAG_HIDDEN, !full);
+    if (apps->snapshot.time_unavailable) lv_label_set_text(named(root, "stopwatch_clock"), "--:--");
+    else lv_label_set_text_fmt(named(root, "stopwatch_clock"), "%02u:%02u", apps->snapshot.hour_24, apps->snapshot.minute);
+
+    lv_obj_t *list = named(root, "stopwatch_laps");
+    lv_obj_set_flag(list, LV_OBJ_FLAG_HIDDEN, !apps->stopwatch.lap_count);
+    lv_obj_set_height(list, full ? 128 : 159);
+    lv_obj_set_y(named(root, "stopwatch_readout"), apps->stopwatch.lap_count ? 80 : 139);
+    if (lv_obj_get_child_count(list) != apps->stopwatch.lap_count) {
+        lv_obj_clean(list);
+        for (unsigned row = 0; row < apps->stopwatch.lap_count; ++row) {
+            unsigned index = apps->stopwatch.lap_count - row - 1;
+            lv_obj_t *lap = stopwatch_lap_create(list);
+            lv_obj_set_y(lap, (int32_t)row * 64);
+            char name[32]; snprintf(name, sizeof name, "stopwatch_lap_%u", index + 1);
+            lv_obj_set_name(lap, name);
+            lv_label_set_text_fmt(named(lap, "lap_number"), "%02u", index + 1);
+            uint64_t ms = apps->stopwatch.laps[index];
+            unsigned long long seconds = ms / 1000;
+            if (seconds < 3600)
+                lv_label_set_text_fmt(named(lap, "lap_elapsed"), "%02llu:%02llu.%02u",
+                    seconds / 60, seconds % 60, (unsigned)(ms / 10 % 100));
+            else
+                lv_label_set_text_fmt(named(lap, "lap_elapsed"), "%02llu:%02llu:%02llu.%02u",
+                    seconds / 3600, seconds / 60 % 60, seconds % 60, (unsigned)(ms / 10 % 100));
+        }
+        lv_obj_scroll_to_y(list, 0, LV_ANIM_OFF);
+    }
     unsigned long seconds = (unsigned long)(apps->stopwatch.elapsed_ms / 1000);
+    lv_obj_set_style_text_font(named(root, "stopwatch_time"), seconds < 3600 ? metric_56 : value_36, 0);
+    lv_obj_set_style_text_font(named(root, "stopwatch_fraction"), seconds < 3600 ? metric_56 : value_36, 0);
     if (seconds < 3600)
         lv_label_set_text_fmt(named(root, "stopwatch_time"), "%02lu:%02lu", seconds / 60, seconds % 60);
     else
         lv_label_set_text_fmt(named(root, "stopwatch_time"), "%02lu:%02lu:%02lu",
-                             seconds / 3600 % 100, seconds / 60 % 60, seconds % 60);
+                             seconds / 3600, seconds / 60 % 60, seconds % 60);
     lv_label_set_text_fmt(named(root, "stopwatch_fraction"), ".%02u",
                          (unsigned)(apps->stopwatch.elapsed_ms / 10 % 100));
-    lv_label_set_text(named(root, "stopwatch_toggle_icon"), apps->stopwatch.running ? "\xef\x81\x8c" : "\xef\x81\x8b");
 }
 
 static void stopwatch_action(lv_event_t *event)
 {
     wristflow_apps_t *apps = lv_event_get_user_data(event);
-    if (lv_event_get_current_target_obj(event) == named(apps->screens[WRISTFLOW_SURFACE_STOPWATCH], "stopwatch_reset"))
-        wristflow_stopwatch_reset(&apps->stopwatch, lv_tick_get());
-    else
+    if (lv_event_get_current_target_obj(event) == named(apps->screens[WRISTFLOW_SURFACE_STOPWATCH], "stopwatch_reset")) {
+        if (apps->stopwatch.running) wristflow_stopwatch_lap(&apps->stopwatch, lv_tick_get());
+        else wristflow_stopwatch_reset(&apps->stopwatch, lv_tick_get());
+    } else
         wristflow_stopwatch_toggle(&apps->stopwatch, lv_tick_get());
     if (apps->stopwatch.running) lv_timer_resume(apps->timer);
     else lv_timer_pause(apps->timer);
@@ -406,7 +449,7 @@ bool wristflow_apps_timer_running(const wristflow_apps_t *apps)
 
 bool wristflow_apps_timer_has_data(const wristflow_apps_t *apps)
 { return apps && apps->active == WRISTFLOW_SURFACE_STOPWATCH &&
-    (apps->stopwatch.running || apps->stopwatch.elapsed_ms != 0); }
+    (apps->stopwatch.running || apps->stopwatch.elapsed_ms != 0 || apps->stopwatch.lap_count != 0); }
 
 void wristflow_apps_timer_clear(wristflow_apps_t *apps)
 {
@@ -703,6 +746,8 @@ lv_obj_t *wristflow_apps_screen(wristflow_apps_t *apps, wristflow_surface_t surf
     } else if (surface == WRISTFLOW_SURFACE_STOPWATCH) {
         bind_click(root, "stopwatch_toggle", stopwatch_action, apps);
         bind_click(root, "stopwatch_reset", stopwatch_action, apps);
+        lv_obj_set_scroll_dir(named(root, "stopwatch_laps"), LV_DIR_VER);
+        lv_obj_remove_flag(named(root, "stopwatch_laps"), LV_OBJ_FLAG_SCROLL_CHAIN);
     } else if (picker_surface(surface)) {
         bool aod = surface == WRISTFLOW_SURFACE_AOD_STYLES;
         lv_obj_t *carousel = named(root, aod ? "aod_carousel" : "face_carousel");
@@ -857,7 +902,7 @@ void wristflow_apps_update(wristflow_apps_t *apps, const wristflow_watch_snapsho
     wristflow_breathing_view_clock(apps->breathing, snapshot);
     wristflow_alarm_view_update(apps->alarm, snapshot);
     wristflow_countdown_view_clock(apps->countdown, snapshot);
-    if (apps->active == WRISTFLOW_SURFACE_STOPWATCH && apps->stopwatch.running) {
+    if (apps->active == WRISTFLOW_SURFACE_STOPWATCH) {
         wristflow_stopwatch_update(&apps->stopwatch, lv_tick_get());
         render_stopwatch(apps);
     }

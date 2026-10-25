@@ -2,7 +2,7 @@
   "schema": 1,
   "selected_on": "2026-10-25",
   "selection_base": "3a607ce0c4b719102b9feb905844b20329e2ec1b",
-  "policy": "Existing PNG copies are byte-identical. Five user-provided device JPEG originals are retained locally; publication copies remove metadata only and preserve encoded image scan bytes. No AI edits, crop, resampling or new relicense. Context evidence is not a per-image firmware attestation.",
+  "policy": "Existing media retains recorded provenance. Countdown PNGs updated from current generated LVGL snapshots; historical hashes retained per file. Device JPEG metadata-only processing remains unchanged.",
   "files": [
     {
       "path": "docs/media/control-center.png",
@@ -42,27 +42,61 @@
     },
     {
       "path": "docs/media/countdown-picker.png",
-      "bytes": 15562,
-      "sha256": "4c4afb7059be202e041cf62fee9fbc204d4f60648df11a63fc35744ad68e7658",
-      "original_local": "artifacts/countdown/picker.png",
-      "original_sha256": "4c4afb7059be202e041cf62fee9fbc204d4f60648df11a63fc35744ad68e7658",
+      "bytes": 15211,
+      "sha256": "2b7a0b7c8b1933200cfd9d3891f8aec3b08a0d8f5a0f0a0c9fceb1d9b4e1798e",
+      "original_local": "artifacts/host-ui-build/renders/countdown_picker.ppm",
+      "original_sha256": "eefc233a950ee309dfb1f6f3c22c3246f36b2432dcb7e5ca0f244ae180865843",
       "kind": "主机LVGL渲染，演示输入",
       "width": 390,
       "height": 450,
-      "context_evidence": "docs/COUNTDOWN.md",
-      "capture_source_commit": null
+      "context_evidence": "docs/evidence/2026-10-25/ui-alignment.json",
+      "capture_source_commit": null,
+      "history": [
+        {
+          "sha256": "4c4afb7059be202e041cf62fee9fbc204d4f60648df11a63fc35744ad68e7658",
+          "bytes": 15562,
+          "original_local": "artifacts/countdown/picker.png",
+          "capture_source_commit": null
+        }
+      ],
+      "source_fingerprint": {
+        "ui/xml/screens/screen_countdown.xml": "ce9f0ff19bdffcd68c3a60505a0c5778cf6da81d8fc38cf3d8e65d0331ab20b5",
+        "ui/xml/screens/screen_countdown_gen.c": "fac68e56d1347992afca83a19a4da48ef9f35024860b7fe54ae8ce7fbadba462",
+        "ui/xml/components/countdown_preset.xml": "5efc6f6dce0c21b5d024b17ad5ada4d6f79d2daf35c62989d0d8014d8220e248",
+        "tests/countdown_ui.c": "d691dd3ded7f0b0b31d369801c76f210882463574997d73b2caee4a850d622cd"
+      },
+      "processing": "Current generated LVGL RGB888 snapshot converted losslessly from PPM to PNG; no pixel recoloring.",
+      "capture_base_commit": "ba2dba224f127a3da5611687ea1114d6399dd00f",
+      "capture_version_note": "Worktree changes bound by source_fingerprint; no final commit existed at capture."
     },
     {
       "path": "docs/media/countdown-running.png",
-      "bytes": 6983,
-      "sha256": "3a3973883a4b80e3ab95235973b142fb24dd1a2529cbd6e1419af7f37e845529",
-      "original_local": "artifacts/countdown/running.png",
-      "original_sha256": "3a3973883a4b80e3ab95235973b142fb24dd1a2529cbd6e1419af7f37e845529",
+      "bytes": 6809,
+      "sha256": "3cf6d4f6d86bf400b77f37d75656bef175cae80607cdb46d19a073192ed1944c",
+      "original_local": "artifacts/host-ui-build/renders/countdown_running.ppm",
+      "original_sha256": "343b63ff6cdb3a000ce4d18a97b87157c7299af69c1cade9ec6c6b0e2463ad4a",
       "kind": "主机LVGL渲染，演示输入",
       "width": 390,
       "height": 450,
-      "context_evidence": "docs/COUNTDOWN.md",
-      "capture_source_commit": null
+      "context_evidence": "docs/evidence/2026-10-25/ui-alignment.json",
+      "capture_source_commit": null,
+      "history": [
+        {
+          "sha256": "3a3973883a4b80e3ab95235973b142fb24dd1a2529cbd6e1419af7f37e845529",
+          "bytes": 6983,
+          "original_local": "artifacts/countdown/running.png",
+          "capture_source_commit": null
+        }
+      ],
+      "source_fingerprint": {
+        "ui/xml/screens/screen_countdown.xml": "ce9f0ff19bdffcd68c3a60505a0c5778cf6da81d8fc38cf3d8e65d0331ab20b5",
+        "ui/xml/screens/screen_countdown_gen.c": "fac68e56d1347992afca83a19a4da48ef9f35024860b7fe54ae8ce7fbadba462",
+        "ui/xml/components/countdown_preset.xml": "5efc6f6dce0c21b5d024b17ad5ada4d6f79d2daf35c62989d0d8014d8220e248",
+        "tests/countdown_ui.c": "d691dd3ded7f0b0b31d369801c76f210882463574997d73b2caee4a850d622cd"
+      },
+      "processing": "Current generated LVGL RGB888 snapshot converted losslessly from PPM to PNG; no pixel recoloring.",
+      "capture_base_commit": "ba2dba224f127a3da5611687ea1114d6399dd00f",
+      "capture_version_note": "Worktree changes bound by source_fingerprint; no final commit existed at capture."
     },
     {
       "path": "docs/media/brightness.png",

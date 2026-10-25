@@ -166,8 +166,21 @@ int main(int argc, char **argv)
     lifetime_t stopwatch_lifetime = {0};
     track_view(&stopwatch_lifetime);
     assert(strcmp(lv_label_get_text(named("stopwatch_time")), "00:00") == 0);
+    assert(lv_obj_has_flag(named("stopwatch_reset"), LV_OBJ_FLAG_HIDDEN));
+    assert(lv_color_eq(lv_obj_get_style_bg_color(named("stopwatch_toggle"), 0), lv_color_hex(0x252525)));
+    snapshot("stopwatch_initial");
     click("stopwatch_toggle");
     advance(1200);
+    assert(!lv_obj_has_flag(named("stopwatch_reset"), LV_OBJ_FLAG_HIDDEN));
+    assert(lv_color_eq(lv_obj_get_style_bg_color(named("stopwatch_toggle"), 0), lv_color_hex(0x008cff)));
+    click("stopwatch_reset");
+    assert(lv_obj_get_child_count(named("stopwatch_laps")) == 1);
+    lv_obj_t *first_lap = named("stopwatch_lap_1");
+    char first_lap_time[32];
+    snprintf(first_lap_time, sizeof first_lap_time, "%s", lv_label_get_text(lv_obj_find_by_name(first_lap, "lap_elapsed")));
+    advance(1200); click("stopwatch_reset");
+    assert(lv_obj_get_child_count(named("stopwatch_laps")) == 2);
+    assert(!strcmp(first_lap_time, lv_label_get_text(lv_obj_find_by_name(named("stopwatch_lap_1"), "lap_elapsed"))));
     snapshot("apps_stopwatch");
     click("app_back");
     assert(stopwatch_lifetime.deleted == 1);
@@ -178,7 +191,8 @@ int main(int argc, char **argv)
     track_view(&stopwatch_lifetime);
     unsigned minutes, seconds;
     assert(sscanf(lv_label_get_text(named("stopwatch_time")), "%u:%u", &minutes, &seconds) == 2);
-    assert(minutes * 60 + seconds >= 3 && minutes * 60 + seconds <= 5);
+    assert(minutes * 60 + seconds >= 3 && minutes * 60 + seconds <= 8);
+    assert(lv_obj_get_child_count(named("stopwatch_laps")) == 2);
     click("stopwatch_toggle");
     char paused[32];
     char paused_fraction[8];
@@ -188,6 +202,7 @@ int main(int argc, char **argv)
     advance(2200);
     assert(strcmp(paused, lv_label_get_text(named("stopwatch_time"))) == 0);
     assert(strcmp(paused_fraction, lv_label_get_text(named("stopwatch_fraction"))) == 0);
+    snapshot("stopwatch_paused_laps");
     click("app_back");
     assert(stopwatch_lifetime.deleted == 2);
     advance(1200);
@@ -197,6 +212,24 @@ int main(int argc, char **argv)
     assert(strcmp(paused_fraction, lv_label_get_text(named("stopwatch_fraction"))) == 0);
     click("stopwatch_reset");
     assert(strcmp(lv_label_get_text(named("stopwatch_time")), "00:00") == 0);
+    assert(!lv_obj_get_child_count(named("stopwatch_laps")));
+    assert(lv_obj_has_flag(named("stopwatch_reset"), LV_OBJ_FLAG_HIDDEN));
+    click("stopwatch_toggle");
+    for (unsigned i = 0; i < 50; ++i) {
+        advance(16);
+        lv_obj_send_event(named("stopwatch_reset"), LV_EVENT_SHORT_CLICKED, NULL);
+    }
+    assert(lv_obj_get_child_count(named("stopwatch_laps")) == 50);
+    assert(lv_obj_has_state(named("stopwatch_reset"), LV_STATE_DISABLED));
+    assert(!lv_obj_has_flag(named("stopwatch_limit"), LV_OBJ_FLAG_HIDDEN));
+    snapshot("stopwatch_lap_limit");
+    lv_obj_scroll_to_y(named("stopwatch_laps"), lv_obj_get_scroll_bottom(named("stopwatch_laps")), LV_ANIM_OFF);
+    assert(lv_obj_get_scroll_y(named("stopwatch_laps")) > 0);
+    snapshot("stopwatch_lap_limit_scrolled");
+    click("stopwatch_toggle");
+    assert(!lv_obj_has_state(named("stopwatch_reset"), LV_STATE_DISABLED));
+    click("stopwatch_reset");
+    assert(lv_obj_has_flag(named("stopwatch_laps"), LV_OBJ_FLAG_HIDDEN));
     swipe(10, 220, 290, 220);
     surface(shell, WRISTFLOW_SURFACE_LAUNCHER);
     assert(stopwatch_lifetime.deleted == 3);

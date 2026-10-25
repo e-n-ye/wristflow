@@ -1,13 +1,18 @@
 <screen>
     <view width="390" height="450" scrollable="false" style_bg_color="#bg_black" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_font="body_20" style_text_color="#fg_primary">
         <app_header title="秒表" />
-        <lv_label name="stopwatch_time" x="24" y="131" width="342" text="00:00" style_text_font="metric_56" style_text_align="center" />
-        <lv_label name="stopwatch_fraction" x="24" y="211" width="342" text=".00" style_text_font="value_36" style_text_align="center" style_text_color="#fg_secondary" />
-        <lv_button name="stopwatch_reset" x="69" y="313" width="112" height="96" style_radius="48" style_bg_color="#bg_surface" style_shadow_width="0" style_pad_all="0">
-            <lv_label align="center" text="&#xf2f1;" style_text_font="icons_44" />
+        <lv_label name="stopwatch_clock" x="260" y="30" width="106" text="13:40" style_text_align="right" />
+        <lv_obj name="stopwatch_readout" x="24" y="139" width="342" height="88" scrollable="false" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_pad_column="0" style_layout="flex" style_flex_flow="row" style_flex_main_place="center" style_flex_cross_place="center" style_text_color="#fg_primary">
+            <lv_label name="stopwatch_time" text="00:00" style_text_font="metric_56" />
+            <lv_label name="stopwatch_fraction" text=".00" style_text_font="metric_56" />
+        </lv_obj>
+        <lv_obj name="stopwatch_laps" x="24" y="171" width="342" height="159" hidden="true" scrollbar_mode="off" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_radius="0" />
+        <lv_label name="stopwatch_limit" x="24" y="309" width="342" text="已达上限" hidden="true" style_text_color="#fg_secondary" style_text_align="center" />
+        <lv_button name="stopwatch_reset" x="24" y="342" width="164" height="72" hidden="true" style_radius="36" style_bg_color="0x252525" style_shadow_width="0" style_pad_all="0" style_text_color="#fg_primary">
+            <lv_label name="stopwatch_reset_icon" align="center" text="&#xf2f1;" style_text_font="icons_44" />
         </lv_button>
-        <lv_button name="stopwatch_toggle" x="209" y="313" width="112" height="96" style_radius="48" style_bg_color="0x31d49a" style_shadow_width="0" style_pad_all="0" style_text_color="0x05271c">
-            <lv_label name="stopwatch_toggle_icon" align="center" text="&#xf04b;" style_text_font="icons_44" />
+        <lv_button name="stopwatch_toggle" x="24" y="342" width="342" height="72" style_radius="36" style_bg_color="0x252525" style_shadow_width="0" style_pad_all="0" style_text_color="#fg_primary">
+            <lv_label name="stopwatch_toggle_icon" align="center" text="开始" style_text_font="title_24" />
         </lv_button>
     </view>
 </screen>

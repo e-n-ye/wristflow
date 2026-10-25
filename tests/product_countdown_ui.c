@@ -190,12 +190,18 @@ int main(int argc, char **argv)
 
     /* Stopwatch and its pending exit request continue unchanged under reminders. */
     open(WRISTFLOW_SURFACE_STOPWATCH); press("stopwatch_toggle"); advance(1100);
+    press("stopwatch_reset");
+    assert(lv_obj_get_child_count(named(lv_screen_active(), "stopwatch_laps")) == 1);
     assert(wristflow_ui_shell_home(shell)); advance(240);
     dialog=named(lv_screen_active(),"stopwatch_exit_confirm"); original=lv_screen_active();
     start(2); advance(2200); advance(140000); wake(); alert_press("countdown_close");
     assert(lv_screen_active()==original && lv_obj_is_visible(dialog));
     assert(strcmp(lv_label_get_text(named(original,"stopwatch_time")),"00:00"));
+    assert(lv_obj_get_child_count(named(original, "stopwatch_laps")) == 1);
     press("confirm_accept"); assert(wristflow_ui_shell_navigation(shell)->surface==WRISTFLOW_SURFACE_HOME);
+    open(WRISTFLOW_SURFACE_STOPWATCH);
+    assert(!lv_obj_get_child_count(named(lv_screen_active(), "stopwatch_laps")));
+    assert(wristflow_ui_shell_home(shell)); advance(240);
 
     /* Repeat preserves original duration after pause, while retaining prior page. */
     start(3); advance(700); assert(port->command(NULL,WF_COUNTDOWN_PAUSE,0));

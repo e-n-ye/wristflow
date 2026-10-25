@@ -423,6 +423,11 @@ int main(int argc, char **argv)
     lv_text_get_size(&battery_size,"~100%",battery_80,0,0,LV_COORD_MAX,LV_TEXT_FLAG_NONE);
     assert(battery_size.x<=272&&battery_size.y<=112);
     glyphs(battery_80,"~0123456789%--");
+    glyphs(title_24,"电压长续航模式续航优化");
+    lv_obj_t *details = named(lv_screen_active(), "battery_details");
+    lv_obj_t *endurance = named(lv_screen_active(), "battery_endurance");
+    assert(lv_color_eq(lv_obj_get_style_bg_color(details, 0), lv_obj_get_style_bg_color(endurance, 0)));
+    assert(lv_obj_get_style_radius(details, 0) == lv_obj_get_style_radius(endurance, 0));
     glyphs(notification_22,"电压估算，仅供参考暂无法估算电量演示数据USB 输入有效无效未知");
     lv_font_glyph_dsc_t battery_glyph;
     assert(lv_font_get_glyph_dsc(icons_20,&battery_glyph,0xf0e7,0)&&!battery_glyph.is_placeholder);

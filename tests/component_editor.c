@@ -1,6 +1,7 @@
 #include "product_ui.h"
 #include "components.h"
 #include "wristflow_ui.h"
+#include "weather.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -226,6 +227,57 @@ static void unsupported_layout(const wristflow_watch_snapshot_t *state, const wr
     wristflow_ui_shell_destroy(shell);
 }
 
+static void temperature_label(lv_obj_t *card, const char *expected)
+{
+    lv_obj_t *label = named(card, "value_label");
+    assert(!strcmp(lv_label_get_text(label), expected));
+    const lv_font_t *font = lv_obj_get_style_text_font(label, 0);
+    lv_font_glyph_dsc_t glyph;
+    assert(lv_font_get_glyph_dsc(font, &glyph, 0xb0, 0) && !glyph.is_placeholder);
+}
+
+static void weather_editor(const wristflow_watch_snapshot_t *state, const wristflow_settings_t *settings)
+{
+    const wristflow_template_t types[] = {WRISTFLOW_LAYOUT_TOP_HALF, WRISTFLOW_LAYOUT_BOTTOM_HALF, WRISTFLOW_LAYOUT_FULL};
+    const int values[] = {20, -10, 0, 0};
+    const char *const expected[] = {"20°", "-10°", "0°", "--"};
+    for (unsigned type = 0; type < 3; ++type) for (unsigned variant = 0; variant < 2; ++variant)
+        for (unsigned value = 0; value < 4; ++value) {
+            wristflow_weather_reset();
+            if (value < 3) {
+                wristflow_phone_weather_t update = {.temp = (int8_t)values[value], .code = 800};
+                strcpy(update.city, "测试"); strcpy(update.condition, "晴");
+                wristflow_weather_update(&update, 0);
+            }
+            wristflow_layout_t layout = {.count = 1};
+            layout.pages[0].template_id = types[type];
+            unsigned weather_slot = types[type] == WRISTFLOW_LAYOUT_BOTTOM_HALF ? 2 : 0;
+            for (unsigned s = 0; s < wristflow_template_slots(types[type]); ++s) {
+                wristflow_component_t *slot = &layout.pages[0].slots[s];
+                slot->size = wristflow_template_size(types[type], s);
+                slot->instance_id = (uint16_t)(s + 1); slot->variant = (uint8_t)variant;
+                strcpy(slot->app_id, s == weather_slot ? "weather" : "heart_rate");
+            }
+            shell = wristflow_product_ui_create_with_layout(state, settings, NULL, NULL, &layout, request, status, NULL);
+            assert(shell); advance(480); swipe(320,125,60,125);
+            char name[16]; snprintf(name, sizeof name, "slot_%u", weather_slot);
+            temperature_label(current_slot(name), expected[value]);
+            int y = weather_slot == 2 ? 300 : 110;
+            sample(100,y,true); advance(736); sample(100,y,false); advance(480);
+            surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
+            temperature_label(named(lv_screen_active(), name), expected[value]);
+            if (value == 0 || value == 3) {
+                char image[80]; snprintf(image, sizeof image, "weather_editor_%u_%u_%s", type, variant, value ? "unknown" : "valid");
+                snapshot(image);
+            }
+            press(name); surface(WRISTFLOW_SURFACE_COMPONENT_PICKER);
+            temperature_label(named(lv_screen_active(), "choose_weather_0"), expected[value]);
+            temperature_label(named(lv_screen_active(), "choose_weather_1"), expected[value]);
+            wristflow_ui_shell_destroy(shell);
+        }
+    wristflow_weather_reset();
+}
+
 int main(int argc,char **argv)
 {
     assert(argc==2); renders=argv[1]; lv_init(); lv_tick_set_cb(tick);
@@ -325,5 +377,6 @@ int main(int argc,char **argv)
     swipe(320,125,60,125); snapshot("component_restored");
     wristflow_ui_shell_destroy(shell);
     unsupported_layout(&state, &settings);
+    weather_editor(&state, &settings);
     lv_deinit(); return 0;
 }
