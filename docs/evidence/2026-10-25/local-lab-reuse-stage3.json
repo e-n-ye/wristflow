@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "source_base": "c16d42f3bf2d88a53b73082a7dd969fec1a91cc4",
+  "scope": "Host-only shared build/flash record, explicit file list and changed-document validation. No new firmware compilation or device operation.",
+  "sources": [
+    {
+      "path": "scripts/lab_check.py",
+      "bytes": 13919,
+      "sha256": "81529c1befeda65c6a21ee423be93fd6b6b7441247e32e339d6e8f87e10152b3"
+    },
+    {
+      "path": "tests/test_lab_checks.py",
+      "bytes": 8883,
+      "sha256": "dfa1ab91b85f645016daf8f890e711fc7358b29df29d264e64791dcc33345845"
+    }
+  ],
+  "validation": {
+    "python": "3.14.3",
+    "lab_tests": 44,
+    "optimized_check_tests": 11,
+    "commands": [
+      "python -m unittest discover -s tests -p 'test_lab_*.py' -v",
+      "python -O -m unittest discover -s tests -p 'test_lab_checks.py' -v",
+      "python scripts/lab_check.py build --result artifacts/product/20261024-235713-265/result.json --source-archive artifacts/compass-live-data-20261024/verified-sources.zip --flash artifacts/flash/product/20261025-132034-593/result.json",
+      "python scripts/lab_check.py files --manifest artifacts/lab-stage3-inputs.json",
+      "python scripts/lab_check.py docs --base HEAD"
+    ],
+    "existing_build": {
+      "recorded_sources": 566,
+      "line_endings_only": 4,
+      "byte_identical_artifacts": 29,
+      "flash_record_matched": true
+    },
+    "independent_review": "Read-only gpt-6.1-sol/medium review identified anchor handling bugs; corrected and regression covered. Final review found no definite blocker."
+  },
+  "files": [
+    {
+      "path": "artifacts/lab-stage3-tests-001.log",
+      "bytes": 6625,
+      "sha256": "9ad5c3ff9c464d7cb6446b21822b9c2f08d26b5c741dd2fd383ea072a5aa24ef"
+    },
+    {
+      "path": "artifacts/lab-stage3-check-tests-optimized-002.log",
+      "bytes": 1727,
+      "sha256": "0dd4687f5ab734fff240ba14018f6176c31cd0ad5fd435bf4a514272230d9be8"
+    },
+    {
+      "path": "artifacts/lab-stage3-build-strict-001.json",
+      "bytes": 155,
+      "sha256": "d4c5189ecf42f44a7fd619f160b9b1ef84f2664ad9be3f5beea4c5b6844ce8a4"
+    },
+    {
+      "path": "artifacts/lab-stage3-build-archive-002.json",
+      "bytes": 131117,
+      "sha256": "21a0294e45df6bcff65c0198ec2aa047fc7337452ff207c10d50fe156fae3fec"
+    },
+    {
+      "path": "artifacts/lab-stage3-files-001.json",
+      "bytes": 135,
+      "sha256": "492314567768ee25fb1e9b307ed57943170b3dbb8ebd8975361bec502cef499a"
+    },
+    {
+      "path": "artifacts/lab-stage3-files-002.json",
+      "bytes": 1398,
+      "sha256": "6e07f3bdeadf0a14e1df4d070c32b6269529314ed2d663458e593dfb42c40d1a"
+    },
+    {
+      "path": "artifacts/lab-stage3-docs-002.json",
+      "bytes": 1811,
+      "sha256": "a2ae3b74f50d1b2f9c83935dd38be9320c7271b971227e4c879af01194804e56"
+    }
+  ],
+  "failures_preserved": [
+    "Strict build check correctly rejected four CRLF-only sources; original ZIP matched original hashes before line-ending exception.",
+    "Historical stage2.sources rejected current compass_protocol.py bytes; historical record was not changed.",
+    "Initial test fixture used CRLF with autocrlf disabled and failed diff --check; fixture now writes LF.",
+    "First docs check matched its own corruption-marker literal; marker is now escaped.",
+    "Initial input-list preparation used a nonexistent guessed fixture filename and wrote no output; corrected after directory inventory."
+  ],
+  "limits": [
+    "Checks recorded build inputs, not dependency completeness; new inputs need a new build.",
+    "Build and flash records do not attest current board identity or session continuity.",
+    "Markdown checker covers added inline/reference links, ATX headings and explicit anchors, not a full Markdown renderer or semantic review.",
+    "No cross-session passed-result cache, SDK lock change, build, flash, port enumeration, reset or clock write."
+  ],
+  "next": "Fourth closure: isolated dependency replay, discoverability walkthrough and bound read-only real entry without new device operations."
+}
