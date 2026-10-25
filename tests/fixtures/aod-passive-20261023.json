@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "mode": "passive",
+  "uart": {
+    "path": "aod-passive-20261023.uart",
+    "bytes": 5901,
+    "sha256": "34338d154df98ced29017ff7354d8c0dc50fdb38f818fcaa79806c8a1fb579b7"
+  },
+  "expected_observations": 0,
+  "source": {
+    "files": [
+      {
+        "path": "artifacts/aod-a1-hardware-20261023/natural-001/uart.bin",
+        "bytes": 5901,
+        "sha256": "34338d154df98ced29017ff7354d8c0dc50fdb38f818fcaa79806c8a1fb579b7"
+      },
+      {
+        "path": "artifacts/aod-a1-hardware-20261023/natural-001/session.json",
+        "bytes": 492,
+        "sha256": "0feb7941a646ec06f6ec5de54e5a6397e721e940e11000c034540a2fce2d022e"
+      }
+    ],
+    "session": {
+      "endpoint": {
+        "device": "COM5",
+        "vid": 6790,
+        "pid": 29987,
+        "location": "1-1.1",
+        "serial_number": "",
+        "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+        "disable_modem": 1
+      },
+      "started": "2026-10-23T08:58:06.418244+00:00",
+      "closed": "2026-10-23T09:08:06.481259+00:00",
+      "seconds_limit": 600,
+      "commands": [],
+      "reset": false,
+      "pm_control": false,
+      "clock_write": false,
+      "bytes": 5901,
+      "error": null,
+      "stop_seen": false
+    },
+    "limits": "Historical cached status/passive raw stream, no new device measurement; physical brightness/AOD behavior is not inferred."
+  }
+}

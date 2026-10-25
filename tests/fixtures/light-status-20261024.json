@@ -1,0 +1,102 @@
+{
+  "schema": 1,
+  "mode": "light",
+  "uart": {
+    "path": "light-status-20261024.uart",
+    "bytes": 2284,
+    "sha256": "7639f43ac053d0371aa4386d04d1a664374bb3cf1638a70d1b61768d9bfbc1ad"
+  },
+  "expected_observations": 3,
+  "source": {
+    "files": [
+      {
+        "path": "artifacts/automatic-brightness-hardware-20261024/ambient-002/uart.bin",
+        "bytes": 2284,
+        "sha256": "7639f43ac053d0371aa4386d04d1a664374bb3cf1638a70d1b61768d9bfbc1ad"
+      },
+      {
+        "path": "artifacts/automatic-brightness-hardware-20261024/ambient-002/session.json",
+        "bytes": 1671,
+        "sha256": "3096c575ead63d16164e4e73add69c19110256bf1ef6ce341bb8fb50c23fa089"
+      }
+    ],
+    "session": {
+      "endpoint": {
+        "device": "COM5",
+        "vid": 6790,
+        "pid": 29987,
+        "location": "1-1.1",
+        "serial_number": "",
+        "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+        "disable_modem": 1
+      },
+      "started": "2026-10-24T06:25:42.216440+00:00",
+      "closed": "2026-10-24T06:25:52.508079+00:00",
+      "seconds": 10,
+      "commands": [
+        {
+          "at": "2026-10-24T06:25:42.324481+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:25:47.367151+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        },
+        {
+          "at": "2026-10-24T06:25:52.362293+00:00",
+          "command": "wf_light status",
+          "attempt": 0
+        }
+      ],
+      "observations": [
+        {
+          "at": "2026-10-24T06:25:42.444929+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 23,
+          "mlux": 17950,
+          "ms": 86845,
+          "session": 1,
+          "seq": 11
+        },
+        {
+          "at": "2026-10-24T06:25:47.440612+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 23,
+          "mlux": 17950,
+          "ms": 91960,
+          "session": 1,
+          "seq": 16
+        },
+        {
+          "at": "2026-10-24T06:25:52.440882+00:00",
+          "enabled": 1,
+          "active": 1,
+          "valid": 1,
+          "fault": 0,
+          "cleanup": 0,
+          "brightness": 23,
+          "mlux": 17950,
+          "ms": 97075,
+          "session": 1,
+          "seq": 21
+        }
+      ],
+      "error": null,
+      "reset": false,
+      "pm_control": false,
+      "clock_write": false,
+      "closed_normally": true
+    },
+    "limits": "Historical cached status/passive raw stream, no new device measurement; physical brightness/AOD behavior is not inferred."
+  }
+}

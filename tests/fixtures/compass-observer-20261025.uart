@@ -1,0 +1,653 @@
+Sun Oct 25 05:32:43 2026
+msh />msh />[imu-steps] phase=2 end=0 counter_valid=1 steps=0 stop_verified=0
+[imu-steps] who=0x6a ths=0x10 deb=0x6e start=1576 duration=0 sample=507491
+[imu-steps] io_errors=0 incoherent=0; native counter, not daily steps
+[steps] valid=1 total=0 day=20751 utc=1792906315 version=42 native=0 partial=1 restored=1
+[steps-store] available=1 verified=1 dirty=0 failed=0 attempts=0 day=20751 total=0 generation=130
+[steps-hours] valid=0x003fff sum=0 saved_valid=0x003fff
+[steps-hour] hour=0 total=0
+[steps-hour] hour=1 total=0
+[steps-hour] hour=2 total=0
+[steps-hour] hour=3 total=0
+[steps-hour] hour=4 total=0
+[steps-hour] hour=5 total=0
+[steps-hour] hour=6 total=0
+[steps-hour] hour=7 total=0
+[steps-hour] hour=8 total=0
+[steps-hour] hour=9 total=0
+[steps-hour] hour=10 total=0
+[steps-hour] hour=11 total=0
+[steps-hour] hour=12 total=0
+[steps-hour] hour=13 total=0
+msh />msh />[imu-wrist] phase=2 end=0 configured=1 source_valid=1 stop_verified=0
+[imu-wrist] mask=0x40 latency=15 ths=32 source=0x84 axes=0x00 observations=1 errors=0
+[imu-wrist] start=1597 duration=0 sample=507510; latched source observations, not gestures
+[imu-wrist-route] int1=1; event is last accepted source bit0 frame
+[wrist-wake] requested=1 continuous=1 armed=1 owned=1 irqs=1 wakes=1; software counts, not physical DEEP proof
+[imu-wrist-frame] stage=before attempted=1 valid=0xffff begin=1590 end=1597
+[imu-wrist-regs] stage=before bank=00 who=6a xl=20 ctrl3=44 ctrl10=14 pulse=00 tap=00
+[imu-wrist-source] stage=before status=04 axes=00 source=84 ready=0 xyz_valid=1
+[imu-wrist-xyz] stage=before raw=00,00,00,00,00,00 x=0 y=0 z=0; counts, not mg
+[imu-wrist-pin] stage=before ctrl4=00 valid=3 pre=0 post=0 pre_ms=1596 post_ms=1597; PA31 raw levels
+[imu-wrist-other-routes] stage=before int1=00 int2=00 md1=00 md2=00
+[imu-wrist-frame] stage=running attempted=1 valid=0xffff begin=507503 end=507510
+[imu-wrist-regs] stage=running bank=00 who=6a xl=20 ctrl3=44 ctrl10=94 pulse=01 tap=01
+[imu-wrist-source] stage=running status=05 axes=00 source=84 ready=1 xyz_valid=1
+[imu-wrist-xyz] stage=running raw=11,00,f0,fe,01,c0 x=17 y=-272 z=-16383; counts, not mg
+[imu-wrist-pin] stage=running ctrl4=20 valid=3 pre=0 post=0 pre_ms=507509 post_ms=507510; PA31 raw levels
+[imu-wrist-other-routes] stage=running int1=00 int2=00 md1=00 md2=00
+[imu-wrist-frame] stage=after attempted=0 valid=0x000 begin=0 end=0
+[imu-wrist-regs] stage=after bank=00 who=00 xl=00 ctrl3=00 ctrl10=00 pulse=00 tap=00
+[imu-wrist-source] stage=after status=00 axes=00 source=00 ready=0 xyz_valid=0
+[imu-wrist-xyz] stage=after raw=00,00,00,00,00,00 x=0 y=0 z=0; counts, not mg
+[imu-wrist-pin] stage=after ctrl4=00 valid=0 pre=0 post=0 pre_ms=0 post_ms=0; PA31 raw levels
+[imu-wrist-other-routes] stage=after int1=00 int2=00 md1=00 md2=00
+[imu-wrist-frame] stage=event attempted=1 valid=0xffff begin=435814 end=435821
+[imu-wrist-regs] stage=event bank=00 who=6a xl=20 ctrl3=44 ctrl10=94 pulse=01 tap=01
+[imu-wrist-source] stage=event status=05 axes=40 source=85 ready=1 xyz_valid=1
+[imu-wrist-xyz] stage=event raw=f2,de,a3,fa,ec,c8 x=-8462 y=-1373 z=-14100; counts, not mg
+[imu-wrist-pin] stage=event ctrl4=20 valid=3 pre=1 post=0 pre_ms=435820 post_ms=435821; PA31 raw levels
+[imu-wrist-other-routes] stage=event int1=00 int2=00 md1=00 md2=00
+msh />msh />[light] session=2 phase=2 end=2 queued=0 owned=0 restored=1 errors=0
+[light-config] id_valid=1 part=a0 manufacturer=05 before_valid=1 ctrl=00 rate=03
+[light-config] entered_valid=1 ctrl=01 rate=03 after_valid=1 ctrl=00 rate=03
+[light-sample] session=2 seq=13 ms=447127 age=108006 status=04 ch0=8 ch1=6 valid=1 saturated=0; raw counts, not lux
+[light-time] start=434263 duration=0 not_ready=0; 1x/100ms integration/500ms repeat, raw channels
+[auto-light] enabled=1 active=0 valid=0 fault=0 cleanup=0 brightness=26 mlux=20830 ms=447127 session=2 seq=13; uncalibrated
+msh />msh />ch[7]voltage=41509;20774.72
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41503;20771.59
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41504;20772.11
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41515;20777.85
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41504;20772.11
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41509;20774.72
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41509;20774.72
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41506;20773.15
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41494;20767.41
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41504;20772.11
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41515;20777.85
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41505;20772.63
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41516;20778.38
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41515;20777.85
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41510;20775.24
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41512;20776.29
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41512;20776.29
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />[I/DBG] set brightness 0
+[I/DBG] display on
+[I/DBG] [IDLEMODE] -> [ON]
+[I/DBG] idle mode on=0
+[I/DBG] set brightness 8
+[I/DBG] display on
+[I/DBG] idle mode on=1
+[I/DBG] [ON] -> [IDLEMODE]
+[aod-display] minute=29881773 style=0 brightness=8 battery_valid=0 percent=0; IDLE retained
+ch[7]voltage=41509;20774.72
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41514;20777.33
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41513;20776.81
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41514;20777.33
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41511;20775.77
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41507;20773.67
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41513;20776.81
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41510;20775.24
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41506;20773.15
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41516;20778.38
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41517;20778.90
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41507;20773.67
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41514;20777.33
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41519;20779.94
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41512;20776.29
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41516;20778.38
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41517;20778.90
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41518;20779.42
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41519;20779.94
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />[I/DBG] idle mode on=0
+[I/DBG] [IDLEMODE] -> [ON]
+[I/DBG] set brightness 0
+[I/DBG] display on
+[product] wake event=KEY1
+[pm-p1] tick=592018 allow=1 off=0 own_idle=1 sdk_idle=2
+[pm-p1] enter=0 exit=0 deep_elapsed=0
+[pm-p1] deep_ticks=0 max_ticks=0 wake=0x0
+[pm-p1] screen_off=1 screen_on=1 tick_hz=1000
+[pm-p1] phone=0 phone_off=0 background=0
+[32m[I/TOUCH] Power up[0m
+ch[7]voltage=41523;20781.51
+[I/DBG] set brightness 55
+[I/DBG] display on
+[product] screen on
+[E/drv.ft6146] ft6146 id_H=64
+[E/drv.ft6146] ft6146 id_L=56
+[32m[I/TOUCH] Power up done.[0m
+ch[7]voltage=41515;20777.85
+[power] USB OK voltage_valid=1 VBAT=4152mV; estimate_valid=1 SOC~97%
+[I/DBG] set brightness 16
+[I/DBG] display on
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41517;20778.90
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />[imu-wrist] phase=2 end=0 configured=1 source_valid=1 stop_verified=0
+[imu-wrist] mask=0x40 latency=15 ths=32 source=0x85 axes=0x40 observations=2 errors=0
+[imu-wrist] start=1597 duration=0 sample=593789; latched source observations, not gestures
+ch[7]voltage=41528;20784.12
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41510;20775.24
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41524;20782.03
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41528;20784.12
+ch[7]voltage=41522;20780.99
+[power] USB OK voltage_valid=1 VBAT=4153mV; estimate_valid=1 SOC~97%
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41522;20780.99
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=0 session=0 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />[compass] start generation=1 session=1; uncalibrated XY, no tilt compensation
+ch[7]voltage=41518;20779.42
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=1 session=1 seq=3 ms=599942 heading=359 reason=0
+[compass-raw] xyz=-210/10151/4965 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41518;20779.42
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=1 session=1 seq=6 ms=600812 heading=23 reason=0
+[compass-raw] xyz=3005/6972/5909 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />[I/DBG] set brightness 23
+[I/DBG] display on
+ch[7]voltage=41529;20784.64
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=1 session=1 seq=10 ms=601986 heading=18 reason=0
+[compass-raw] xyz=2579/8074/6149 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41518;20779.42
+ch[7]voltage=41527;20783.60
+[power] USB OK voltage_valid=1 VBAT=4152mV; estimate_valid=1 SOC~97%
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=1 session=1 seq=13 ms=602860 heading=18 reason=0
+[compass-raw] xyz=2688/8147/6206 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41518;20779.42
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=1 session=1 seq=17 ms=604024 heading=19 reason=0
+[compass-raw] xyz=2763/8110/6105 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41515;20777.85
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=1 session=1 seq=20 ms=604896 heading=18 reason=0
+[compass-raw] xyz=2587/7965/6046 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41521;20780.47
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=1 session=1 seq=24 ms=606057 heading=18 reason=0
+[compass-raw] xyz=2603/7991/6155 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41517;20778.90
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=1 session=1 seq=27 ms=606912 heading=18 reason=0
+[compass-raw] xyz=2603/8039/6102 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41519;20779.94
+ch[7]voltage=41516;20778.38
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=1 session=1 seq=31 ms=608074 heading=18 reason=0
+[compass-raw] xyz=2623/8030/6142 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41511;20775.77
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=1 session=1 seq=35 ms=609241 heading=18 reason=0
+[compass-raw] xyz=2630/8054/6103 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41519;20779.94
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=1 session=1 seq=38 ms=610112 heading=18 reason=0
+[compass-raw] xyz=2589/8033/6107 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41521;20780.47
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=1 session=1 seq=42 ms=611273 heading=18 reason=0
+[compass-raw] xyz=2635/8007/6111 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41516;20778.38
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=1 session=1 seq=44 ms=611837 heading=18 reason=0
+[compass-raw] xyz=2564/8044/6108 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />[mag] session=1 phase=1 end=0 id=10 identity_valid=1 owned=1 stopped=0 errors=0
+[mag] start=599111 duration=0 ms=611837 seq=44 status=51 after=00 xyz=2564/8044/6108 valid=1 saturated=0
+[mag] selftest_valid=1 passed=1 status=55 factory=63/7a/72 threshold=5c/13/2c; uncalibrated counts, no heading
+[mag-mode] session=1 selftest_only=0 threshold=encoded experimental=1
+[mag-selftest-time] session=1 trace=7f reset=10@599214 command=599216 ack=599216 polls=1
+[mag-selftest-state] session=1 observed=55@599265 post=10@599267 data_ms=599266; software observation
+[mag-selftest-raw] session=1 trace=7f bytes=84/62/7e/9b/7f/46/00/00/20; response only
+msh />msh />[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=1 session=1 seq=45 ms=612127 heading=18 reason=0
+[compass-raw] xyz=2593/8023/6102 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41523;20781.51
+ch[7]voltage=41516;20778.38
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=1 session=1 seq=49 ms=613289 heading=18 reason=0
+[compass-raw] xyz=2610/8042/6088 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41518;20779.42
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=1 session=1 seq=52 ms=614163 heading=18 reason=0
+[compass-raw] xyz=2610/7998/6093 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41516;20778.38
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=1 session=1 seq=56 ms=615326 heading=18 reason=0
+[compass-raw] xyz=2614/8003/6058 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41512;20776.29
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=1 session=1 seq=59 ms=616196 heading=18 reason=0
+[compass-raw] xyz=2606/8005/6119 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41526;20783.08
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=1 session=1 seq=63 ms=617340 heading=17 reason=0
+[compass-raw] xyz=2438/7985/6070 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41523;20781.51
+ch[7]voltage=41526;20783.08
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=1 session=1 seq=67 ms=618503 heading=17 reason=0
+[compass-raw] xyz=2642/8425/6483 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />[compass] stop generation=2 session=1 stopped=1 owned=0 errors=0
+ch[7]voltage=41528;20784.12
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=2 session=1 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />[compass] start generation=3 session=2; uncalibrated XY, no tilt compensation
+ch[7]voltage=41514;20777.33
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=3 session=2 seq=2 ms=620441 heading=15 reason=0
+[compass-raw] xyz=2256/8306/6237 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41515;20777.85
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=3 session=2 seq=6 ms=621576 heading=15 reason=0
+[compass-raw] xyz=2245/8251/6211 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41513;20776.81
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=3 session=2 seq=9 ms=622446 heading=15 reason=0
+[compass-raw] xyz=2258/8259/6196 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41516;20778.38
+ch[7]voltage=41519;20779.94
+[compass] stop generation=4 session=2 stopped=1 owned=0 errors=0
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=4 session=2 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41516;20778.38
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=4 session=2 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41511;20775.77
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=4 session=2 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41509;20774.72
+[compass] start generation=5 session=3; uncalibrated XY, no tilt compensation
+[compass] requested=1 active=1 valid=0 fault=0 cleanup=0 generation=5 session=3 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41515;20777.85
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=5 session=3 seq=4 ms=627686 heading=16 reason=0
+[compass-raw] xyz=2294/8265/6216 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41508;20774.20
+ch[7]voltage=41512;20776.29
+[power] USB OK voltage_valid=1 VBAT=4151mV; estimate_valid=1 SOC~97%
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=5 session=3 seq=7 ms=628571 heading=15 reason=0
+[compass-raw] xyz=2276/8266/6181 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41517;20778.90
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=5 session=3 seq=11 ms=629733 heading=16 reason=0
+[compass-raw] xyz=2288/8226/6161 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=5 session=3 seq=12 ms=630024 heading=15 reason=0
+[compass-raw] xyz=2247/8229/6170 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41528;20784.12
+[mag] session=3 phase=1 end=0 id=10 identity_valid=1 owned=1 stopped=0 errors=0
+[mag] start=626562 duration=0 ms=630318 seq=13 status=51 after=00 xyz=2216/8240/6198 valid=1 saturated=0
+[mag] selftest_valid=1 passed=1 status=55 factory=63/7a/72 threshold=5c/13/2c; uncalibrated counts, no heading
+[mag-mode] session=3 selftest_only=0 threshold=encoded experimental=1
+[mag-selftest-time] session=3 trace=7f reset=10@626665 command=626667 ack=626667 polls=1
+[mag-selftest-state] session=3 observed=55@626716 post=10@626718 data_ms=626717; software observation
+[mag-selftest-raw] session=3 trace=7f bytes=83/7f/7e/f3/7f/10/00/00/a0; response only
+msh />msh />[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=5 session=3 seq=14 ms=630608 heading=15 reason=0
+[compass-raw] xyz=2260/8269/6187 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41517;20778.90
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=5 session=3 seq=18 ms=631769 heading=15 reason=0
+[compass-raw] xyz=2177/8245/6182 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41514;20777.33
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=5 session=3 seq=21 ms=632639 heading=15 reason=0
+[compass-raw] xyz=2219/8274/6120 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41516;20778.38
+ch[7]voltage=41511;20775.77
+[power] USB OK voltage_valid=1 VBAT=4152mV; estimate_valid=1 SOC~97%
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=5 session=3 seq=25 ms=633830 heading=15 reason=0
+[compass-raw] xyz=2167/8232/6122 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41517;20778.90
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=5 session=3 seq=28 ms=634700 heading=15 reason=0
+[compass-raw] xyz=2142/8250/6100 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />[compass] ended generation=5 session=3 end=2 owned=0 stopped=1 errors=0
+ch[7]voltage=41522;20780.99
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=6 session=3 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41518;20779.42
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=6 session=3 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41525;20782.56
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=6 session=3 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41511;20775.77
+ch[7]voltage=41519;20779.94
+[power] USB OK voltage_valid=1 VBAT=4151mV; estimate_valid=1 SOC~97%
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=6 session=3 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41518;20779.42
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=6 session=3 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41531;20785.69
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=6 session=3 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41528;20784.12
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=6 session=3 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41535;20787.78
+[compass] start generation=7 session=4; uncalibrated XY, no tilt compensation
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=7 session=4 seq=2 ms=643168 heading=19 reason=0
+[compass-raw] xyz=2798/7947/6328 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41522;20780.99
+ch[7]voltage=41530;20785.17
+[power] USB OK voltage_valid=1 VBAT=4152mV; estimate_valid=1 SOC~97%
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=7 session=4 seq=5 ms=644039 heading=21 reason=0
+[compass-raw] xyz=2964/7893/6306 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41525;20782.56
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=7 session=4 seq=9 ms=645201 heading=21 reason=0
+[compass-raw] xyz=3009/7913/6386 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41519;20779.94
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=7 session=4 seq=12 ms=646055 heading=21 reason=0
+[compass-raw] xyz=3008/7923/6345 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41514;20777.33
+[I/DBG] set brightness 5
+[I/DBG] display on
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=7 session=4 seq=16 ms=647217 heading=21 reason=0
+[compass-raw] xyz=3064/7930/6363 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41516;20778.38
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=7 session=4 seq=20 ms=648381 heading=20 reason=0
+[compass-raw] xyz=2934/7911/6320 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41529;20784.64
+ch[7]voltage=41517;20778.90
+[power] USB OK voltage_valid=1 VBAT=4153mV; estimate_valid=1 SOC~97%
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=7 session=4 seq=23 ms=649252 heading=21 reason=0
+[compass-raw] xyz=3132/8175/6549 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41516;20778.38
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=7 session=4 seq=27 ms=650416 heading=21 reason=0
+[compass-raw] xyz=3032/8067/6473 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41513;20776.81
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=7 session=4 seq=30 ms=651270 heading=20 reason=0
+[compass-raw] xyz=2988/8069/6442 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41516;20778.38
+[I/DBG] set brightness 0
+[I/DBG] display on
+[32m[I/TOUCH] Power off[0m
+[32m[I/TOUCH] Power off done.[0m
+[product] display sleeping; notification events active
+[power] USB ? voltage_valid=0 VBAT=0mV; estimate_valid=0 SOC~0%
+[I/DBG] set brightness 0
+[I/DBG] display on
+[I/DBG] idle mode on=0
+[I/DBG] set brightness 8
+[I/DBG] display on
+[I/DBG] idle mode on=1
+[I/DBG] [ON] -> [IDLEMODE]
+[aod-display] minute=29881774 style=0 brightness=8 battery_valid=0 percent=0; IDLE retained
+[compass] stop generation=8 session=4 stopped=1 owned=0 errors=0
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=8 session=4 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41517;20778.90
+[I/DBG] idle mode on=0
+[I/DBG] [IDLEMODE] -> [ON]
+[I/DBG] set brightness 0
+[I/DBG] display on
+[product] wake event=KEY1
+[pm-p1] tick=653262 allow=1 off=0 own_idle=1 sdk_idle=2
+[pm-p1] enter=0 exit=0 deep_elapsed=0
+[pm-p1] deep_ticks=0 max_ticks=0 wake=0x0
+[pm-p1] screen_off=1 screen_on=1 tick_hz=1000
+[pm-p1] phone=0 phone_off=0 background=0
+[32m[I/TOUCH] Power up[0m
+[I/DBG] set brightness 55
+[I/DBG] display on
+[product] screen on
+[E/drv.ft6146] ft6146 id_H=64
+[E/drv.ft6146] ft6146 id_L=56
+[32m[I/TOUCH] Power up done.[0m
+[compass] start generation=9 session=5; uncalibrated XY, no tilt compensation
+ch[7]voltage=41527;20783.60
+[compass] requested=1 active=1 valid=0 fault=0 cleanup=0 generation=9 session=5 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />[power] USB OK voltage_valid=1 VBAT=4153mV; estimate_valid=1 SOC~97%
+ch[7]voltage=41517;20778.90
+ch[7]voltage=41530;20785.17
+[I/DBG] set brightness 23
+[I/DBG] display on
+[power] USB OK voltage_valid=1 VBAT=4152mV; estimate_valid=1 SOC~97%
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=9 session=5 seq=4 ms=654571 heading=20 reason=0
+[compass-raw] xyz=2834/7974/6249 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41519;20779.94
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=9 session=5 seq=7 ms=655448 heading=19 reason=0
+[compass-raw] xyz=2794/7922/6210 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41512;20776.29
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=9 session=5 seq=11 ms=656609 heading=20 reason=0
+[compass-raw] xyz=2813/7917/6223 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41516;20778.38
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=9 session=5 seq=14 ms=657481 heading=19 reason=0
+[compass-raw] xyz=2718/7934/6271 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41514;20777.33
+[I/DBG] set brightness 5
+[I/DBG] display on
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=9 session=5 seq=18 ms=658627 heading=19 reason=0
+[compass-raw] xyz=2746/7894/6258 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41516;20778.38
+ch[7]voltage=41511;20775.77
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=9 session=5 seq=21 ms=659497 heading=19 reason=0
+[compass-raw] xyz=2760/7908/6164 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />[mag] session=5 phase=1 end=0 id=10 identity_valid=1 owned=1 stopped=0 errors=0
+[mag] start=653428 duration=0 ms=659497 seq=21 status=51 after=00 xyz=2760/7908/6164 valid=1 saturated=0
+[mag] selftest_valid=1 passed=1 status=55 factory=63/7a/72 threshold=5c/13/2c; uncalibrated counts, no heading
+[mag-mode] session=5 selftest_only=0 threshold=encoded experimental=1
+[mag-selftest-time] session=5 trace=7f reset=10@653546 command=653548 ack=653548 polls=1
+[mag-selftest-state] session=5 observed=55@653597 post=10@653599 data_ms=653598; software observation
+[mag-selftest-raw] session=5 trace=7f bytes=83/5c/7e/ff/7f/30/00/00/40; response only
+msh />msh />[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=9 session=5 seq=22 ms=659795 heading=19 reason=0
+[compass-raw] xyz=2702/7871/6179 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41516;20778.38
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=9 session=5 seq=25 ms=660688 heading=19 reason=0
+[compass-raw] xyz=2671/7919/6233 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41525;20782.56
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=9 session=5 seq=29 ms=661855 heading=19 reason=0
+[compass-raw] xyz=2856/8123/5946 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41523;20781.51
+ch[7]voltage=41521;20780.47
+[compass] requested=1 active=1 valid=1 fault=0 cleanup=0 generation=9 session=5 seq=33 ms=663030 heading=353 reason=0
+[compass-raw] xyz=-1278/10957/3482 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />[I/DBG] set brightness 0
+[I/DBG] display on
+[32m[I/TOUCH] Power off[0m
+[32m[I/TOUCH] Power off done.[0m
+[product] display sleeping; notification events active
+[power] USB ? voltage_valid=0 VBAT=0mV; estimate_valid=0 SOC~0%
+[I/DBG] set brightness 0
+[I/DBG] display on
+[I/DBG] idle mode on=0
+[I/DBG] set brightness 8
+[I/DBG] display on
+[I/DBG] idle mode on=1
+[I/DBG] [ON] -> [IDLEMODE]
+[aod-display] minute=29881774 style=0 brightness=8 battery_valid=0 percent=0; IDLE retained
+[compass] stop generation=10 session=5 stopped=1 owned=0 errors=0
+[I/DBG] idle mode on=0
+[I/DBG] [IDLEMODE] -> [ON]
+[I/DBG] set brightness 0
+[I/DBG] display on
+[product] wake event=wrist
+[pm-p1] tick=663642 allow=1 off=0 own_idle=1 sdk_idle=3
+[pm-p1] enter=0 exit=0 deep_elapsed=0
+[pm-p1] deep_ticks=0 max_ticks=0 wake=0x0
+[pm-p1] screen_off=1 screen_on=1 tick_hz=1000
+[pm-p1] phone=0 phone_off=0 background=0
+[32m[I/TOUCH] Power up[0m
+[imu-wrist] phase=2 end=0 configured=1 source_valid=1 stop_verified=0
+[imu-wrist] mask=0x40 latency=15 ths=32 source=0x85 axes=0x40 observations=3 errors=0
+[imu-wrist] start=1597 duration=0 sample=663631; latched source observations, not gestures
+[I/DBG] set brightness 55
+[I/DBG] display on
+[product] screen on
+[E/drv.ft6146] ft6146 id_H=64
+[E/drv.ft6146] ft6146 id_L=56
+[32m[I/TOUCH] Power up done.[0m
+[compass] start generation=11 session=6; uncalibrated XY, no tilt compensation
+ch[7]voltage=41522;20780.99
+[power] USB OK voltage_valid=1 VBAT=4152mV; estimate_valid=1 SOC~97%
+ch[7]voltage=41521;20780.47
+ch[7]voltage=41519;20779.94
+[compass] stop generation=12 sess[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=11 session=6 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=1 stopped=0 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />1 stopped=0 errors=0; uncalibrate[I/DBG] set brightness 15
+[I/DBG] display on
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=12 session=6 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41530;20785.17
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=12 session=6 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41518;20779.42
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=12 session=6 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41523;20781.51
+[I/DBG] set brightness 20
+[I/DBG] display on
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=12 session=6 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41521;20780.47
+ch[7]voltage=41519;20779.94
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=12 session=6 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41525;20782.56
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=12 session=6 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41514;20777.33
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=12 session=6 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41517;20778.90
+[I/DBG] set brightness 23
+[I/DBG] display on
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=12 session=6 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41535;20787.78
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=12 session=6 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41519;20779.94
+[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=12 session=6 seq=0 ms=0 heading=0 reason=0
+[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified
+msh />msh />ch[7]voltage=41522;20780.99
+[mag] session=6 phase=2 end=2 id=10 identity_valid=1 owned=0 stopped=1 errors=0
+[mag] start=663799 duration=0 ms=0 seq=0 status=10 after=10 xyz=0/0/0 valid=0 saturated=0
+[mag] selftest_valid=1 passed=1 status=55 factory=63/7a/72 threshold=5c/13/2c; uncalibrated counts, no heading
+[mag-mode] session=6 selftest_only=0 threshold=encoded experimental=1
+[mag-selftest-time] session=6 trace=7f reset=10@663898 command=663900 ack=663900 polls=1
+[mag-selftest-state] session=6 observed=55@663954 post=10@663956 data_ms=663955; software observation
+[mag-selftest-raw] session=6 trace=7f bytes=84/6d/7e/45/7f/d5/00/00/70; response only
+msh />msh />ch[7]voltage=41517;20778.90
+[imu-steps] phase=2 end=0 counter_valid=1 steps=0 stop_verified=0
+[imu-steps] who=0x6a ths=0x10 deb=0x6e start=1576 duration=0 sample=673608
+[imu-steps] io_errors=0 incoherent=0; native counter, not daily steps
+[steps] valid=1 total=0 day=20751 utc=1792906481 version=487 native=0 partial=1 restored=1
+[steps-store] available=1 verified=1 dirty=0 failed=0 attempts=0 day=20751 total=0 generation=130
+[steps-hours] valid=0x003fff sum=0 saved_valid=0x003fff
+[steps-hour] hour=0 total=0
+[steps-hour] hour=1 total=0
+[steps-hour] hour=2 total=0
+[steps-hour] hour=3 total=0
+[steps-hour] hour=4 total=0
+[steps-hour] hour=5 total=0
+[steps-hour] hour=6 total=0
+[steps-hour] hour=7 total=0
+[steps-hour] hour=8 total=0
+[steps-hour] hour=9 total=0
+[steps-hour] hour=10 total=0
+[steps-hour] hour=11 total=0
+[steps-hour] hour=12 total=0
+[steps-hour] hour=13 total=0
+msh />msh />[imu-wrist] phase=2 end=0 configured=1 source_valid=1 stop_verified=0
+[imu-wrist] mask=0x40 latency=15 ths=32 source=0x84 axes=0x00 observations=3 errors=0
+[imu-wrist] start=1597 duration=0 sample=674667; latched source observations, not gestures
+[imu-wrist-route] int1=1; event is last accepted source bit0 frame
+[wrist-wake] requested=1 continuous=1 armed=1 owned=1 irqs=3 wakes=3; software counts, not physical DEEP proof
+[imu-wrist-frame] stage=before attempted=1 valid=0xffff begin=1590 end=1597
+[imu-wrist-regs] stage=before bank=00 who=6a xl=20 ctrl3=44 ctrl10=14 pulse=00 tap=00
+[imu-wrist-source] stage=before status=04 axes=00 source=84 ready=0 xyz_valid=1
+[imu-wrist-xyz] stage=before raw=00,00,00,00,00,00 x=0 y=0 z=0; counts, not mg
+[imu-wrist-pin] stage=before ctrl4=00 valid=3 pre=0 post=0 pre_ms=1596 post_ms=1597; PA31 raw levels
+[imu-wrist-other-routes] stage=before int1=00 int2=00 md1=00 md2=00
+[imu-wrist-frame] stage=running attempted=1 valid=0xffff begin=674660 end=674667
+[imu-wrist-regs] stage=running bank=00 who=6a xl=20 ctrl3=44 ctrl10=94 pulse=01 tap=01
+[imu-wrist-source] stage=running status=05 axes=00 source=84 ready=1 xyz_valid=1
+[imu-wrist-xyz] stage=running raw=f9,ff,02,ff,ee,bf x=-7 y=-254 z=-16402; counts, not mg
+[imu-wrist-pin] stage=running ctrl4=20 valid=3 pre=0 post=0 pre_ms=674666 post_ms=674667; PA31 raw levels
+[imu-wrist-other-routes] stage=running int1=00 int2=00 md1=00 md2=00
+[imu-wrist-frame] stage=after attempted=0 valid=0x000 begin=0 end=0
+[imu-wrist-regs] stage=after bank=00 who=00 xl=00 ctrl3=00 ctrl10=00 pulse=00 tap=00
+[imu-wrist-source] stage=after status=00 axes=00 source=00 ready=0 xyz_valid=0
+[imu-wrist-xyz] stage=after raw=00,00,00,00,00,00 x=0 y=0 z=0; counts, not mg
+[imu-wrist-pin] stage=after ctrl4=00 valid=0 pre=0 post=0 pre_ms=0 post_ms=0; PA31 raw levels
+[imu-wrist-other-routes] stage=after int1=00 int2=00 md1=00 md2=00
+[imu-wrist-frame] stage=event attempted=1 valid=0xffff begin=663624 end=663631
+[imu-wrist-regs] stage=event bank=00 who=6a xl=20 ctrl3=44 ctrl10=94 pulse=01 tap=01
+[imu-wrist-source] stage=event status=05 axes=40 source=85 ready=1 xyz_valid=1
+[imu-wrist-xyz] stage=event raw=ce,dc,4d,15,cc,cd x=-9010 y=5453 z=-12852; counts, not mg
+[imu-wrist-pin] stage=event ctrl4=20 valid=3 pre=1 post=0 pre_ms=663630 post_ms=663631; PA31 raw levels
+[imu-wrist-other-routes] stage=event int1=00 int2=00 md1=00 md2=00
+msh />msh />[light] session=5 phase=1 end=0 queued=0 owned=1 restored=0 errors=0
+[light-config] id_valid=1 part=a0 manufacturer=05 before_valid=1 ctrl=00 rate=03
+[light-config] entered_valid=1 ctrl=01 rate=03 after_valid=0 ctrl=00 rate=00
+[light-sample] session=5 seq=11 ms=674679 age=224 status=04 ch0=8 ch1=6 valid=1 saturated=0; raw counts, not lux
+[light-time] start=663789 duration=0 not_ready=0; 1x/100ms integration/500ms repeat, raw channels
+[auto-light] enabled=1 active=1 valid=1 fault=0 cleanup=0 brightness=23 mlux=20830 ms=674679 session=5 seq=11; uncalibrated
+msh />msh />[pm-p1] tick=675088 allow=1 off=0 own_idle=1 sdk_idle=3
+[pm-p1] enter=0 exit=0 deep_elapsed=0
+[pm-p1] deep_ticks=0 max_ticks=0 wake=0x0
+[pm-p1] screen_off=1 screen_on=1 tick_hz=1000
+[pm-p1] phone=0 phone_off=0 background=0
+msh />msh />
