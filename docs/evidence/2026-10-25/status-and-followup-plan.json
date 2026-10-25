@@ -1,0 +1,183 @@
+{
+  "schema": 1,
+  "validation_environment": {
+    "python": "3.14.3",
+    "github_cli": "2.101.0",
+    "existing_environment_reused": true
+  },
+  "source_base": "bef2ca8df0a9b4b85abbb8d8ef229aa5d5ab1961",
+  "scope": "User-authorized compact current handoff and record/prioritize observed issues only. No firmware/XML/generated source/image changes, build, device operation, branch deletion or purchase.",
+  "status_preservation": {
+    "passed": true,
+    "old_current_lines": 283,
+    "new_current_lines": 21,
+    "new_current_chars": 1041,
+    "original_current_body_preserved": true,
+    "existing_history_preserved": true,
+    "history_payload_sha256_lf": "9e44f56e7b2326f30d60feff187a61682c08fe59c13e1182ed88d369b769a07b"
+  },
+  "branch_readback": {
+    "pr154": {
+      "state": "CLOSED",
+      "merged": false,
+      "head": "b081d5ff8cbcccdf36068de4e9ef0e7116814cb5"
+    },
+    "pr155": {
+      "state": "MERGED",
+      "merge": "c16d42f3bf2d88a53b73082a7dd969fec1a91cc4",
+      "head": "2cbeb3d601c5a56068e74b806883b509134fe585"
+    },
+    "identical_root_tree": "3d60542ff254fbbd39f6593ef8e54bd1832a7cd4",
+    "main_contains_c16d42f": true,
+    "old_branch_preserved": true,
+    "commands": [
+      ".tools/github-cli-2.101.0/bin/gh.exe pr view 154 --json url,state,title,body,closedAt,mergedAt,mergeCommit,headRefOid,headRefName",
+      ".tools/github-cli-2.101.0/bin/gh.exe pr view 155 --json url,state,title,mergedAt,mergeCommit,headRefOid,headRefName",
+      "git rev-parse codex/lab-second-callers^{tree} codex/lab-readonly-delivery^{tree} c16d42f^{tree}",
+      "git merge-base --is-ancestor c16d42f origin/main"
+    ]
+  },
+  "findings": {
+    "editor_temperature": "User photo is the edit-components half-weather preview. components.c:263-276 -> editor_card.xml:4 value_36 -> paint/data.value; app_registry.c:41 formats %d-degree. globals.xml:119 and value_36_data.c:4083-4092 omit U+00B0. Normal metric_56 having the degree glyph is a different path. Matching board BIN/runtime reproduction still pending.",
+    "countdown": "Preset XML/generated background already neutral gray0x202124; numeric and some action styles remain blue. User reports gray device keys/dials; legacy blue media preserved with historical caption only, no asset or UI edit.",
+    "weather_xml": "Existing D11: four pages keep handwritten geometry; sun page uses generated XML. Dynamic value/event binding remains runtime responsibility.",
+    "health": "No confirmed onboard PPG; existing external MAX30100/30102-labelled board unverified/unwired. Dedicated VC/GH binary algorithms do not establish MAX compatibility or license. Activity, HR, SpO2, stress and sleep input/validity prerequisites recorded without choosing algorithms.",
+    "power": "Normal SDK reboot has bounded prior device evidence. Product graceful exit and true shutdown/wake path remain separate prerequisites; no current device operation.",
+    "proposals": "Complete observation matrix with static dependency batches. Future actions, flashing-page behavior, algorithm definitions, sound first use and procurement are not authorized by this planning record."
+  },
+  "read_only_review": {
+    "requested_agents": [
+      "default gpt-6.1-sol/medium UI and startup-route review",
+      "default gpt-6.1-sol/medium health and power prerequisite review"
+    ],
+    "effective_models": "not exposed by tool result",
+    "result": "No definite blocker; no agent edits, Git, tests, UI or device operations."
+  },
+  "sources": [
+    {
+      "path": "docs/STATUS.md",
+      "bytes": 204413,
+      "sha256": "7514d6d5eea90d8a91e82a7d454db9b5321d39bb1dea5ad49217c4f56b1cf6d3"
+    },
+    {
+      "path": "docs/ARCHITECTURE-REVIEW.md",
+      "bytes": 34552,
+      "sha256": "a905ea89adec2a91860222b1192329e9b4f255321278dd7a2776ab28fa0b5148"
+    },
+    {
+      "path": "docs/HARDWARE-CAPABILITIES.md",
+      "bytes": 52823,
+      "sha256": "22438eea9b5439881d6a411e4a1bc63e1b06da2703784a97c85831851a470fb3"
+    },
+    {
+      "path": "docs/BASELINE.md",
+      "bytes": 63949,
+      "sha256": "c591f8aa89a7cf97801f838ad3fa960cbb5ffe433d7bb7e0adcc15221160861d"
+    },
+    {
+      "path": "docs/DOCUMENTATION-WORKFLOW.md",
+      "bytes": 11757,
+      "sha256": "c6f1ed3166c4be1d5a83d2fff38775c2b76d3e9e89aa487ec9a9bb390c84e820"
+    },
+    {
+      "path": "PROJECT_INDEX.md",
+      "bytes": 6153,
+      "sha256": "d584588db04047da4924a4db24ec0ff3c51d6539326cadebd0b3e0040c309a03"
+    },
+    {
+      "path": "README.md",
+      "bytes": 11208,
+      "sha256": "5e188c4c8c64236d99f7e6039b5bacbb29cc360fbcb0aa628c4d908e84e653a2"
+    },
+    {
+      "path": "docs/media/README.md",
+      "bytes": 4019,
+      "sha256": "ec2dcb2244c4552a01331c30b680f2469ad8019712493dacaea32fbd295551f4"
+    }
+  ],
+  "source_inspection": [
+    {
+      "path": "ui/xml/components/editor_card.xml",
+      "bytes": 678,
+      "sha256": "87f4fc4db8dab31043e00097ccc2849401384366d0b6b5b9cb9f0255e28ec8b6"
+    },
+    {
+      "path": "ui/runtime/components.c",
+      "bytes": 24030,
+      "sha256": "0203a752392a404689ee04f9fd94ce6e28637d977032c7bd1c37b254aee238eb"
+    },
+    {
+      "path": "ui/runtime/app_registry.c",
+      "bytes": 8559,
+      "sha256": "0b9228348f5fcbc92d713eb2eac8ac7b8a3578dcba2c1a9e9566892fbd550ef6"
+    },
+    {
+      "path": "ui/xml/globals.xml",
+      "bytes": 10650,
+      "sha256": "e363a57c8bd934516bd996fdf536c9c56cc210028d7249e3241bddd1e875d74a"
+    },
+    {
+      "path": "ui/xml/fonts/value_36_data.c",
+      "bytes": 214813,
+      "sha256": "9eca183f64e32b4b008cedeea02d9cf18ea55d274cbc25ab4bb4e54d66ccc9e2"
+    },
+    {
+      "path": "ui/xml/components/countdown_preset.xml",
+      "bytes": 1202,
+      "sha256": "5efc6f6dce0c21b5d024b17ad5ada4d6f79d2daf35c62989d0d8014d8220e248"
+    },
+    {
+      "path": "vendor/SiFli-SDK/customer/peripherals/sensor/vc32s/SConscript",
+      "bytes": 324,
+      "sha256": "5d8e82e53f96a98ea2a7126ab5f32ff592cf1c8e3f53d773d2c7ce83dd9c4f48"
+    },
+    {
+      "path": "vendor/SiFli-SDK/customer/peripherals/sensor/gh3011/SConscript",
+      "bytes": 234,
+      "sha256": "6d23b08ac99d8c2e06818daf4caebf5abd291c5999c5eb6805f47b4ae3768738"
+    }
+  ],
+  "files": [
+    {
+      "path": "artifacts/status-planning-20261025/STATUS-before.md",
+      "bytes": 201993,
+      "sha256": "dfd4adeef32f92d18dd59b09efa5300a52964a327e3f3eef7343683f8ce8331b"
+    },
+    {
+      "path": "artifacts/status-planning-20261025/preservation-verification-002.json",
+      "bytes": 294,
+      "sha256": "082fed2388702116aef81b806f2b92b8ea249da984dbc6ea8aade03e5a0e6208"
+    },
+    {
+      "path": "artifacts/status-planning-20261025/branch-observation.png",
+      "bytes": 95063,
+      "sha256": "9a167ac302246068a563c0ab4fd8deba825f7b0b30b0f4e86d8ef14bbb2fc48a"
+    },
+    {
+      "path": "artifacts/status-planning-20261025/countdown-observation.png",
+      "bytes": 140815,
+      "sha256": "d1f52dafbb3c68f88e67aa798c6c9460c8b4bff05cc4e857c5dec9a57008d651"
+    },
+    {
+      "path": "artifacts/status-planning-20261025/editor-temperature-observation.jpg",
+      "bytes": 189077,
+      "sha256": "198f74077875028431283fc3068166ad09fa6ccb4136d8ac02a2ab4392db4965"
+    }
+  ],
+  "validation_commands": [
+    "python scripts/lab_check.py docs --base HEAD",
+    "git diff --check",
+    "Bounded current/history preservation comparison after LF normalization; unique current/history anchors."
+  ],
+  "failures_and_corrections": [
+    "First fetch named the already-removed remote replacement branch; reused retained local commit refs and verified PR155/merged tree instead.",
+    "An initial multi-file patch had an invalid context and was rejected atomically; STATUS inspected unchanged before corrected patch.",
+    "Initial temperature-glyph hypothesis inspected normal metric_56; user clarified edit screen, independent follow-up traced editor_card/value_36 and found the actual missing-glyph source condition."
+  ],
+  "limits": [
+    "No font fix, new screenshot rendering, behavior test, firmware compilation or hardware verification.",
+    "Photo-to-BIN identity and runtime root cause are not independently reproduced in this documentation round.",
+    "Health chip identity/electrical/skin-contact, algorithm compatibility/license, purchase specifications/price and shutdown topology require future bounded work.",
+    "Priorities are proposals and do not replace STATUS current authorization."
+  ]
+}

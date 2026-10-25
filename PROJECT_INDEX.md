@@ -7,6 +7,7 @@
 | 接续、找活动任务或下一步 | [STATUS 当前区](docs/STATUS.md#current)，历史区按需 |
 | 核对目标、范围、预算和既有决定 | [BASELINE](docs/BASELINE.md) 对应主题；长期方向见 [架构 §1–2](docs/ARCHITECTURE.md#1-目的输入与适用范围) |
 | 安排阶段、判断依赖和停止条件 | [架构任务卡 §4](docs/ARCHITECTURE-REVIEW.md#4-后续任务卡与顺序)；同版矩阵见 [Product 验收](docs/PRODUCT-ACCEPTANCE.md)，活动项回 STATUS |
+| 10月25日用户优化观察、后续顺序及健康硬件前置 | [本轮静态契约](docs/ARCHITECTURE-REVIEW.md#followup-20261025) → [健康前置](docs/HARDWARE-CAPABILITIES.md#health-prereqs-20261025)；只记录与依赖，实施授权和当前选择回STATUS |
 | 找工程、配置、手写与生成边界 | [工程地图](docs/ENGINEERING-MAP.md)；术语按需查 [CONTEXT](CONTEXT.md) |
 | 选择硬件内置能力、驱动或自研算法 | [硬件能力选择与验证](docs/HARDWARE-CAPABILITIES.md)；型号／接线回 HARDWARE，活动项回 STATUS |
 | 板载光感／地磁／音频及TF、KEY2、RGB的开发顺序与采购准备 | [板载资源规划](docs/BOARD-RESOURCES.md)；逐器件硬件跑通→页面→功能，实际条件见 HARDWARE，活动项仍回 STATUS |
