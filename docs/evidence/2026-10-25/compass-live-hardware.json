@@ -1,0 +1,270 @@
+{
+  "date": "2026-10-25",
+  "base": "840a7d517084f0cbc42157eb1cd34408bb0be1ec",
+  "software_pr": "https://github.com/e-n-ye/wristflow/pull/152",
+  "branch": "codex/compass-live-hardware",
+  "worktree": "D:\\MY_Desk\\project\\wristflow",
+  "firmware_rebuilt": false,
+  "firmware_source_changed": false,
+  "authorization": "User reconfirmed same board/display, original battery plus PC USB, fixed wiring and present on 2026-10-25 before flashing",
+  "preflight": {
+    "sources": 566,
+    "byte_equal": 562,
+    "git_line_endings_only": 4,
+    "artifacts_byte_equal": 29,
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "sdk_worktree_clean": true,
+    "port": "COM5",
+    "vid_pid": "1A86:7523",
+    "location": "1-1.1",
+    "disable_modem": 1,
+    "dry_run": "passed",
+    "retained_hook": "BSP_PowerUpCustom verified in original map; no source change"
+  },
+  "flash": {
+    "manifest": {
+      "path": "artifacts/flash/product/20261025-132034-593/result.json",
+      "sha256": "2cc88598c451654b0eea43b967243fa5a0d65eb55d7d3042226da89cb1bcb51d",
+      "bytes": 1767
+    },
+    "command": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+    "finished_at": "2026-10-25T13:23:26.7744073+08:00",
+    "exit_code": 0,
+    "images": [
+      {
+        "name": "bootloader.bin",
+        "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+        "address": "0x12010000",
+        "bytes": 58496,
+        "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+      },
+      {
+        "name": "main.bin",
+        "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+        "address": "0x12020000",
+        "bytes": 8276644,
+        "sha256": "3b78180c47e2de71352f95af2710020cb4742d9bec239357270fafb3048014ec"
+      },
+      {
+        "name": "ftab.bin",
+        "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+        "address": "0x12000000",
+        "bytes": 11288,
+        "sha256": "9b74ed33fd84710f24298d12b9c813bbe3cbd78ada9ed890fcdcad0243be3550"
+      }
+    ],
+    "verify": true,
+    "after": "soft_reset"
+  },
+  "startup": {
+    "extra_rts": false,
+    "sdk_reboot": false,
+    "pm_control": false,
+    "rtc_before": "2000-01-01 00:00:00",
+    "set_to_actual_utc": 1792905843,
+    "readback": "2026-10-25 05:24:05 UTC",
+    "steps_before_after": {
+      "total": 0,
+      "native": 0,
+      "hours_mask": "0x003fff",
+      "hours_sum": 0,
+      "checkpoint_generation": 130,
+      "restored": true
+    },
+    "wrist_requested_armed_owned": true,
+    "auto_brightness_enabled": true,
+    "compass_default": "requested0 active0 valid0 fault0 cleanup0 seq0"
+  },
+  "operator_workflow": {
+    "passed": true,
+    "simulation": false,
+    "device_control_sent": false,
+    "port_closed": true,
+    "outcome": "passed",
+    "operator_only": true,
+    "hardware_verified": false,
+    "verification": "Operator confirmations and UART must be evaluated separately after this workflow"
+  },
+  "operator_confirmation": "User confirmed display/touch/KEY1/time normal in chat, then personally confirmed rotate, leave, sleep and final in device-002 Console",
+  "observed_window": {
+    "opened_local": "2026-10-25 13:32:42.475909+08:00",
+    "closed_local": "2026-10-25 13:34:43.251615+08:00",
+    "cache_reports": 120,
+    "valid_reports": 51,
+    "valid_sessions": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "heading_values": [
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      23,
+      353,
+      359
+    ],
+    "native_selftest": "session1/3/5 explicit reports passed1 status55, factory63/7a/72 threshold5c/13/2c; raw valid1 saturated0 errors0",
+    "relative_changes": "359 -> 23 -> 18 and 19 -> 353; supports relative response only, no 90-degree or magnetic-north accuracy claim",
+    "leave_and_reopen": "Complete stopped1 owned0 errors0 for session1/gen2 and session2/gen4; sessions2 and3 restart. Leave button confirmation was followed by an already-reopened session3, so not described as a stopped snapshot at that button timestamp",
+    "cancelled_session3": "end2 is WF_MAG_CANCELLED; owned0 stopped1 errors0, next gen6 cache requested0 fault0 cleanup0. No sustained I/O-fault cache recorded",
+    "sleep_and_key": "display sleeping/AOD -> session4 stop(gen8, stopped1 owned0 errors0) -> wake KEY1 -> session5 -> seq4 valid1 selftest1",
+    "later_wake": "Additional sleep stopped session5 and wrist wake began session6; not counted as another controlled KEY test",
+    "final_cache_byte_span": [
+      42976,
+      43203
+    ],
+    "final_mag_byte_span": [
+      43232,
+      43879
+    ],
+    "final_mag": "session6 phase2 end2 owned0 stopped1 errors0 after10; cache requested0 active0 valid0 fault0 cleanup0",
+    "coexistence": "steps total0 native0 checkpoint130/mask3fff verified/clean; wrist requested/continuous/armed/owned1 errors0; auto-light enabled1 active1 valid1 fault0 cleanup0 session5 seq11",
+    "pm": "allow1 own_idle1 sdk_idle3, enter/exit/deep_ticks0; other services retain system ownership",
+    "commands": "Only wf_compass/mag/light/wrist/steps/pm status and show_date; no reset, time, PM, charger or sensor control in acceptance window"
+  },
+  "acceptance": {
+    "new_firmware_transfer_verified": true,
+    "rtc_and_saved_counter_state_verified": true,
+    "foreground_updates_relative_rotation_leave_sleep_resume": "bounded verified using human observations plus independently checked UART; phase-button alignment limitation retained",
+    "final_magnetometer_stop_verified": true,
+    "serial_port_closed": true
+  },
+  "read_only_review": "default gpt-6-luna/low reviewed flash/RTC/counter/settings; default gpt-6.1-sol/medium independently reviewed action-window UART/events, raw offsets and phase alignment; primary verified source provenance and raw evidence",
+  "failures_and_limits": [
+    "device-001 timed out waiting for prepare before opening any device; user reconfirmed four normal items and authorized a fresh device-002 window",
+    "Preflash strict byte comparison failed for four Git line-ending-only files; compared original build-source ZIP and verified normalized content; all29 artifacts stayed byte-identical",
+    "Final stop12 UART line interleaved with cache print; no byte reconstruction, final complete cache/mag response used instead",
+    "Leave confirmation timestamp occurred after a reopened session; evidence follows actual complete stop/start logs, not a fabricated stopped response at button confirmation"
+  ],
+  "not_verified": [
+    "absolute magnetic north and mounting zero",
+    "figure-eight/hard-soft-iron calibration",
+    "tilt compensation",
+    "nonzero step retention",
+    "physical deep sleep, current or battery life"
+  ],
+  "files": [
+    {
+      "path": "artifacts/flash/product/20261025-132034-593/result.json",
+      "sha256": "2cc88598c451654b0eea43b967243fa5a0d65eb55d7d3042226da89cb1bcb51d",
+      "bytes": 1767
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/preflash-normalized-verification.json",
+      "sha256": "e944ee6dbf5f02738a109a41c451d46ae13e28d89c1e18a8f54f87c15472d99e",
+      "bytes": 246
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/preflash-submodules.txt",
+      "sha256": "61bd755dc35b9c70bba24c4b757febc4c27606f6c0f46a7295cb8a2965d014a3",
+      "bytes": 145
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/preflash-retained-hook.log",
+      "sha256": "f15baae76d8614282a03847a21ff7aa96756bde4af5061f34d64fb896af4c22b",
+      "bytes": 1811
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/flash-dry-run-002.log",
+      "sha256": "fe7149997c2c1172d85ea62900a60aa8abf8f7ca48e14ffc6c964844e0b6b5fa",
+      "bytes": 452
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/endpoint-check.log",
+      "sha256": "320aad29c352de744c60c99b36cbe9d64d2d04750c0ab28a866fe9b0dc7bc79e",
+      "bytes": 162
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/preflash-001/uart.bin",
+      "sha256": "0e610b8d385c9c2cf8f52172ae11558cc71ebb7a87e0cba890b224cb5a292927",
+      "bytes": 4232
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/preflash-001/events.json",
+      "sha256": "8bac993f167a2f0e7ccb5d58e3b34b71d2561c842cf3c8d49e95241247621736",
+      "bytes": 1174
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/postflash-001/uart.bin",
+      "sha256": "b09276931ae65218ff3d0460d7e56af3eabe4ea10635dffaef419220ee0633f7",
+      "bytes": 5544
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/postflash-001/events.json",
+      "sha256": "a6070e7fd2fd349a34ea727434095f63d2a95800514b55a0840384785c766543",
+      "bytes": 1703
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/startup.py",
+      "sha256": "3f676ce812b60fd79cba6b8fef7ffa77112be59650897ec48fc1a71d744f3f76",
+      "bytes": 2645
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/device_workflow.py",
+      "sha256": "2022241eef9fa5ef0dc7f8c218a21c01b61f01d45839d760e0b5aa834c9f0a57",
+      "bytes": 6727
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/operator-sim-001/workflow.json",
+      "sha256": "27dc9317e8cf2a2af8748576ee7cab6acdc4d6657c6f2c481201f0e67e4562bc",
+      "bytes": 264
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/operator-cancel-001/workflow.json",
+      "sha256": "e0e3e8ddb6d94783b1e49e3fd1ade3b2d723c81c83cd152a230cbab327d8c646",
+      "bytes": 315
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/device-002/workflow.json",
+      "sha256": "2d9144994a3abc7b94edec10b6480cca4fbd2cdceee401317292050b24813464",
+      "bytes": 289
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/device-002/events.jsonl",
+      "sha256": "2738d31887f31cb2203a5e6edf657b793ad3dca74f1ba3c2f15e5b3fca03e3b4",
+      "bytes": 53321
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/device-002/binding.json",
+      "sha256": "fa6906643b950b9322a1240fee2606d3cd5ca762948ff09ed61b07d393a4283e",
+      "bytes": 268
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/device-002/uart.bin",
+      "sha256": "88820d372f3a6f0afd25bbdb4a6b1a82debdb50f842e74f3429f375e18d37523",
+      "bytes": 48056
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/device-001/workflow.json",
+      "sha256": "86e50ac748b68d9ab8d0887a76a29c9e75e03a9878457d282561abafe5873162",
+      "bytes": 328
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/device-001/events.jsonl",
+      "sha256": "70b4b787b27efe068d5e4452ac430fd47a7170c61c58d865efcf1d7a83e1f1ca",
+      "bytes": 1125
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/device-analysis-001.log",
+      "sha256": "4c5982eed4eba951117ad46d536b5a061a505293db4931a14ac0c71d25023f76",
+      "bytes": 1331
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/device-002/device_workflow-source.py",
+      "sha256": "2022241eef9fa5ef0dc7f8c218a21c01b61f01d45839d760e0b5aa834c9f0a57",
+      "bytes": 6727
+    },
+    {
+      "path": "artifacts/compass-live-data-20261024/executed-source-verification.log",
+      "sha256": "f6e56f2769994501ec96717ae446f95d4c8453602fdf7cedba0ee8610c55a5c1",
+      "bytes": 109
+    }
+  ]
+}

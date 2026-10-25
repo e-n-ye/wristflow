@@ -41,3 +41,16 @@ XML 拥有布局、样式、具名控件与资源，`compass_view` 只绑定显�
 软件与同BIN设备验证分别记录于[STATUS当前区](STATUS.md#current)。本轮原始记录在主目录忽略的`artifacts/compass-live-data-20261024/`；未取得新设备结果前，不沿用旧测量BIN证明本页面的真实数据、生命周期或功耗。
 
 [软件证据](evidence/2026-10-24/compass-live-data.json)绑定最终源码／产物：Debug全量66/66，新增UI／worker最终2/2；Release相关8/8，最后仅停止日志改动的worker两配置各1/1。覆盖XY投影、代次／过期、准备中取消、自检／清理失败及显式恢复、光感／腕共存，以及实际LVGL新字形／提示边界、旧数据隐藏、提醒暂停、OFF／KEY恢复和返回。官方Editor2.0.1／LVGL9.4.0导出成功，新增`compass_notice`已在生成C，100%预览及实际渲染核查通过。Product`20261024-235713-265`／BIN`3b78180c…`（8,276,644B）、Demo`20261024-235138-151`／`98cded93…`（8,005,648B）编译退出0，566／506源码与29／22产物字节核验一致；未新增线程，worker6KiB／main16KiB不变，新栈峰值和电流未测。旧产物先ZIP保全。不存在的主机target、重复状态命令和未启用显示策略的测试夹具失败均保留并修正重跑。
+
+<a id="hardware-20261025"></a>
+## 2026-10-25 同BIN有界验收
+
+软件PR #152合入`840a7d5`后，用户重新确认设备条件并授权继续；复用精确Product`3b78180c…`，无源码修改或重编。566源码（4仅Git换行）／29产物、SDK锁／端点／DryRun／retained钩子核对后，三镜像write＋verify成功，RTC从2000校回真实UTC并读回；计步总0／小时mask3fff／检查点130、腕和自动亮度已保存开启恢复。用户确认显示、触摸、KEY1和时间正常。原始资料和精确操作见[设备证据](evidence/2026-10-25/compass-live-hardware.json)。
+
+本次复用既有Console／Journal，专用只读观察适配仅允许缓存status及show_date，不启动地磁、控制PM／charger、复位或校时；模拟5/5和取消路径先验。首个准备确认5分钟超时、尚未开端口；用户要求重开后，13:32:42–13:34:43新窗口中人工确认四项动作／末态，程序保存原始UART并正常关口。流程passed只代表交互完成，以下结论另经原始字节／同步缓存核验。
+
+120条完整缓存中51有效，session1–5序号／时间推进，原生encoded自检PASS／有效未饱和XYZ／errors0。359→23→18及19→353等显示角变化支持相对响应；不证明转动准确90°或绝对磁北。完整stop1／2均stopped1／owned0／errors0，随后session2／3重开；离页按钮确认时已经重开session3，不能将其后快照写作停止。session3的end2是取消，owned0／stopped1／errors0及后续generation6／fault0／cleanup0不支持持续硬件故障判断。
+
+明确display sleeping并进入原AOD后stop4／gen8确认停止，KEY1恢复产生session5及新valid1／selftest1；后续另一次息屏／腕唤醒单列，不算第二次受控KEY检查。末尾stop12输出与状态行交错，保留原始字节、不补行；后续完整cache与mag响应确认请求／活动／有效／故障／cleanup均0，session6 phase2／end2／owned0／stopped1／after10／errors0。自动亮度最终enabled1／active1／valid1／fault0／cleanup0、腕服务开启、计步检查点保留。PM allow1、own_idle1来自其余运行责任，不能声称整机零占用或物理DEEP。
+
+本轮支持新BIN数据更新、相对转向、离页停止／重开和一次短息屏KEY恢复及末态正常。未验磁北／安装零点、软硬铁／八字校准、倾斜补偿、非零计步保留、电流、续航或物理深睡；保留既定待完成项，不为此自动扩展实验。
