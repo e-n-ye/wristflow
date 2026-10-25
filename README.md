@@ -58,7 +58,9 @@ WristFlow 从表盘与组件开始，逐步接入手机通知、天气、计时�
   <a href="docs/media/countdown-running.png"><img src="docs/media/countdown-running.png" width="45%" alt="倒计时运行界面，停止和暂停按钮"></a>
 </p>
 
-<p align="center"><b>倒计时预设 · 运行与暂停</b></p>
+<p align="center"><b>倒计时预设 · 运行与暂停（早期主机渲染）</b></p>
+
+图中预设蓝底属于历史快照；当前XML预设已采用中性灰底，数字仍保留蓝色。素材按原样保留，后续以同版渲染更新。
 
 <p align="center">
   <a href="docs/media/brightness.png"><img src="docs/media/brightness.png" width="45%" alt="自动亮度设置界面"></a>
