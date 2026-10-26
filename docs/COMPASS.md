@@ -121,4 +121,33 @@ PR #164计步验收交付后，用户继续校准预检，并质疑厂商库是�
 | 锁定SDK的`MMC56x3/SConscript`及`mmc36x0kj/SConscript` | 前者只编译驱动C，后者在`MAG_USING_MMC36X0KJ`下链接`MemsicAlgo`；现有头／示例没有MMC5603兼容清单，SDK根Apache文本未说明这份MEMSIC库的单独条件 |
 | `MemsicAlgo.h:109–116` | `GetCalMag`公开声明校准磁场输出，但返回注释标`debug use`；本轮仅在离线实验中使用，产品接口支持及允许用途仍须澄清，不能单凭注释断言禁止使用 |
 
-有界搜索没有找到库SHA-256`548ae98a…`对应的MMC5603适用声明、产品接口支持及具体使用／再分发条件；不等同这些资料不存在。未审查其他SDK历史／私有交付，未联系厂商或迁移Solution架构。当前仍不整体接入候选；先取得与具体算法版本绑定的上述材料，再决定接入路径。真实acc／mag轴向、配对、质量守卫、保存／失效、引导动作与实机校准均未由本轮验证；八字图继续不启用。活动与唯一下一步回STATUS。
+该轮有界搜索没有找到库SHA-256`548ae98a…`对应的MMC5603适用声明、产品接口支持及单独使用说明；不等同这些资料不存在。其来源／许可未知项由下节复核细分，不能把未找到单独条款升级为禁止使用或必须另获书面授权。原候选最终航向失败及技术支持未验证仍保留；真实acc／mag轴向、配对、质量守卫、保存／失效、引导动作与实机校准均未由本轮验证，八字图继续不启用。活动与唯一下一步回STATUS。
+
+<a id="algorithm-source-20261026"></a>
+## 2026-10-26 算法来源与公开交付入口复核
+
+用户继续后，从PR #166的`340f348`建立`codex/compass-algorithm-source`。本轮仅核材料，用户表示没有印象持有Solution完整包；未因此认定本机绝无该包，也未遍历无关下载目录。未改算法／SDK锁、重跑数值预检、编译固件、操作设备或对外发消息。[精简证据](evidence/2026-10-26/compass-algorithm-source.json)保留版本、定点API、访问结果与材料范围。
+
+**库的固定来源**：官方[文件历史API](https://api.github.com/repos/OpenSiFli/SiFli-SDK/commits?path=customer/peripherals/sensor/mmc36x0kj/MemsicAlgo.lib&sha=421126d9f476ed8e2a6f0b0ca28a9f241c182e65&per_page=10)只返回初始提交[`27e6b873`](https://github.com/OpenSiFli/SiFli-SDK/commit/27e6b8736dcdde729e54a5d90a696f203c58c1cc)，日期2025-01-07。该提交与锁定版的库blob均为`afc7856620b984f58215cd063331edffc0384e95`；根LICENSE的blob也相同，均为Apache-2.0正文。候选目录11项中没有另附LICENSE／NOTICE／README。本地SDK是浅克隆，因此文件沿革以官方定点API核验，不把本地浅历史当完整证据。
+
+**许可与技术问题分开**：根Apache许可与官方持续分发是已取得的来源证据；没有发现该库明确的商用／产品禁用条款，`GetCalMag`的`debug use`也不是这样的条款。现有材料不支持要求用户先取得额外书面授权；同时不据此作所有第三方权利／再分发条件均已核清的法律结论。该注释留下的是产品接口用途／支持程度未知，型号技术支持及原航向失败则是独立问题。[MEMSIC官网声明](https://www.memsic.com/legal)要求官网软件遵循随产品协议，其范围不能直接套用为SiFli随SDK分发库的许可。
+
+**公开交付入口**：官方Wiki[固定版本的横幅配置](https://github.com/OpenSiFli/SiFli-Wiki/blob/fddc9f1151cb2dd0d3a0e7a3c3f84888afebe4ab/source/zh_CN/conf.py#L47)宣称Solution全面开放，但唯一链接是[Solution介绍](https://docs.sifli.com/projects/solution/0.introduction/index.html)，没有源码包／Git仓库／校验值。不能用[旧论坛获取说明](https://bbs.sifli.com/t/topic/695)宣布当前必须申请：其历史`solution0912_old.zip`链接本次HEAD返回404；该帖另有bin体验链接，不能替代算法源／接口材料。官方文档的[版本页](https://docs.sifli.com/projects/solution/rel_note/index.html)列V2.5.0／2026-05-26及V2.6.0／TBD，这不是SDK v2.5.1或算法库的版本／哈希。
+
+本次OpenSiFli公开仓库目录及目标文件名的GitHub代码搜索没有定位Solution交付物；不能据此断言仓库私有或源码不存在。仍缺可读取、可固定版本的软件包中`mag_algo.c`、`mmc56x3_mag_service.c`及其直接算法依赖；仅凭[地磁指南](https://docs.sifli.com/projects/solution/2.application-notes/peripheral/sensor_mag.html)中的QMC6310示例不能补齐MMC5603库身份。当前公开定点调查在此收束；新包、官方源入口或供应方回复到达后才扩大核验，不重复已完成的几何预检。
+
+<a id="algorithm-inquiry-20261026"></a>
+### 待确认问题包（未发送）
+
+可面向`OpenSiFli/SiFli-SDK`公开issue使用以下内容；只含公开型号／版本／代码入口，不附本机路径、原始二进制或设备记录。发布属于对外消息，需用户明确授权；此处仅准备可审阅稿。
+
+**标题**：MMC5603 support and calibrated-field interface for bundled MemsicAlgo.lib (SDK v2.5.1)
+
+**正文**：We use SF32LB52 with MMC5603NJ and the fixed SDK v2.5.1 commit `421126d9f476ed8e2a6f0b0ca28a9f241c182e65`. The bundled `customer/peripherals/sensor/mmc36x0kj/MemsicAlgo.lib` has SHA-256 `548ae98a703b0d6dafc09020a78deb271fbe9866bf1a2bd2918787f6a8fe5139`. We have not integrated this candidate into firmware.
+
+1. Does this exact library support MMC5603NJ? If a different algorithm package is intended, could you provide its official source/package location, version/checksum and required units/axis convention? The Solution FAQ refers to `mag/qmc63x0`, which is absent from this SDK.
+2. Is `GetCalMag` a supported application interface despite the header's `Return: debug use` comment? If not, what supported interface returns calibrated magnetic data for an explicitly defined watch-forward heading?
+3. Our isolated Cortex-M33 execution under GCC 14.2.1 with an experimental math bridge restores synthetic hard-iron parameters, but final `GetCalOri` returns 0 degrees for horizontal 90/180/270-degree inputs. This is not a hardware result or full ABI certification. Is there a known mapping issue, a required adaptation, or a newer supported library? Reproduction source and boundaries are in [WristFlow PR #166](https://github.com/e-n-ye/wristflow/pull/166).
+4. Is this bundled binary covered by the SDK's Apache-2.0 distribution, and are any additional notices or package-specific terms supplied with it? We found no explicit product-use prohibition and do not interpret the debug comment as one.
+
+收到答复／交付物后只核这几个问题并绑定版本；是否接入或安排新的设备窗口另按STATUS与实际授权推进，不借询问稿启动设备。

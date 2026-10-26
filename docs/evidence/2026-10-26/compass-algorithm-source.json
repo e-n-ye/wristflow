@@ -1,0 +1,209 @@
+{
+  "date": "2026-10-26",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "source_base": "340f348caa5dded4383d551f8b6a92d980744810",
+  "scope": "Source/provenance and public-delivery evidence only; inquiry draft prepared, not sent.",
+  "files": [
+    {
+      "path": "sdk.lock.json",
+      "bytes": 473,
+      "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+    },
+    {
+      "path": "vendor/SiFli-SDK/LICENSE",
+      "bytes": 11558,
+      "sha256": "1eb85fc97224598dad1852b5d6483bbcf0aa8608790dcc657a5a2a761ae9c8c6"
+    },
+    {
+      "path": "vendor/SiFli-SDK/README.md",
+      "bytes": 4177,
+      "sha256": "7bad3191eb186fbc2549ece602a4fe2042112a5d9994cbca545522bea08e15ac"
+    },
+    {
+      "path": "vendor/SiFli-SDK/customer/peripherals/sensor/mmc36x0kj/MemsicAlgo.lib",
+      "bytes": 46832,
+      "sha256": "548ae98a703b0d6dafc09020a78deb271fbe9866bf1a2bd2918787f6a8fe5139"
+    },
+    {
+      "path": "vendor/SiFli-SDK/customer/peripherals/sensor/mmc36x0kj/MemsicAlgo.h",
+      "bytes": 5879,
+      "sha256": "6b8d55707d70111dec3b446531bcea651642866ec96975f9349da311c187e2a3"
+    },
+    {
+      "path": "vendor/SiFli-SDK/customer/peripherals/sensor/mmc36x0kj/MemsicCompass.h",
+      "bytes": 2889,
+      "sha256": "49df138ca2f865477c0cee3fec59e3b81fe077df35ff712aca4dd0d774051094"
+    },
+    {
+      "path": "vendor/SiFli-SDK/customer/peripherals/sensor/mmc36x0kj/SConscript",
+      "bytes": 238,
+      "sha256": "451a386d9f74c95b7582fedc9ef408e49df6ce63c3ec591d6e4661c803279a09"
+    }
+  ],
+  "sdk": {
+    "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "submodules": {
+      "middleware/bluetooth": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c",
+      "tools/SiliconSchema": "304658c6edd5497211b7d152932327ce6e4450ff"
+    },
+    "clean": true
+  },
+  "library_provenance": {
+    "initial_commit": "27e6b8736dcdde729e54a5d90a696f203c58c1cc",
+    "initial_date": "2025-01-07T02:21:29Z",
+    "library_blob": "afc7856620b984f58215cd063331edffc0384e95",
+    "license_blob": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+    "same_library_and_root_license_as_locked": true,
+    "candidate_files": 11,
+    "library_sha256": "548ae98a703b0d6dafc09020a78deb271fbe9866bf1a2bd2918787f6a8fe5139"
+  },
+  "history_scope": {
+    "local_sdk_is_shallow": true,
+    "official_file_history_api": "https://api.github.com/repos/OpenSiFli/SiFli-SDK/commits?path=customer/peripherals/sensor/mmc36x0kj/MemsicAlgo.lib&sha=421126d9f476ed8e2a6f0b0ca28a9f241c182e65&per_page=10",
+    "returned_commits": 1,
+    "initial_commit_has_no_parents": true,
+    "initial_directory_api": "https://api.github.com/repos/OpenSiFli/SiFli-SDK/contents/customer/peripherals/sensor/mmc36x0kj?ref=27e6b8736dcdde729e54a5d90a696f203c58c1cc",
+    "finding": "Initial and locked library blobs are identical, as are root LICENSE blobs. Candidate directory has 11 entries with no separately named LICENSE/COPYING/NOTICE/README."
+  },
+  "license_and_interface_findings": {
+    "root_license": "Apache-2.0 text; Work definition and copyright grant are present. This is source/distribution evidence, not a legal conclusion about all third-party rights.",
+    "candidate_headers": "MEMSIC copyright and interface comments; no explicit product/commercial-use prohibition found in examined scope.",
+    "get_cal_mag": "Return: debug use is an interface-purpose/support comment, not an explicit license prohibition.",
+    "correction": "Do not turn the absence of a separate binary-specific explanation into a mandatory written-permission requirement. Model compatibility and supported application interfaces remain technical unknowns.",
+    "memsic_site_scope": "https://www.memsic.com/legal governs software/drivers supplied by that website through accompanying product terms; it does not establish the terms of this SiFli-distributed binary."
+  },
+  "solution_delivery_findings": {
+    "banner_source": {
+      "repository": "OpenSiFli/SiFli-Wiki",
+      "commit": "fddc9f1151cb2dd0d3a0e7a3c3f84888afebe4ab",
+      "blob": "9d23592d43ba3807637f1f0e80f15bec1b4bd238",
+      "path": "source/zh_CN/conf.py",
+      "lines": [
+        47,
+        50
+      ],
+      "url": "https://github.com/OpenSiFli/SiFli-Wiki/blob/fddc9f1151cb2dd0d3a0e7a3c3f84888afebe4ab/source/zh_CN/conf.py"
+    },
+    "banner_claim": "Solution全面开放; sole destination is https://docs.sifli.com/projects/solution/0.introduction/index.html.",
+    "banner_limits": "No source/package/repository/checksum link in that announcement chain; no first-publication date inferred from configuration history. Does not establish private-source or application-only access.",
+    "document_versions": {
+      "url": "https://docs.sifli.com/projects/solution/rel_note/index.html",
+      "Solution_V2.5.0": "2026-05-26",
+      "Solution_V2.6.0": "TBD",
+      "identity_limit": "Not SDK v2.5.1, not a code commit or algorithm checksum."
+    },
+    "historical_forum": {
+      "url": "https://bbs.sifli.com/t/topic/695",
+      "finding": "Historical maintainer post describes individual bin trial and full-version contact channels; cannot override current fully-open wording.",
+      "old_source_url": "https://downloads.sifli.com/dl/solution0912_old.zip",
+      "checked_method": "HEAD only",
+      "http_status": 404,
+      "bin_url": "https://downloads.sifli.com/dl/bin/watch_sf32lb52-ulp_GCC.zip",
+      "downloaded": false
+    },
+    "repository_search": {
+      "api": "https://api.github.com/orgs/OpenSiFli/repos?per_page=100",
+      "returned": 73,
+      "finding": "No Solution source repository identified in returned public directory; no privacy/nonexistence conclusion."
+    },
+    "exact_filename_search": {
+      "api": "https://api.github.com/search/code?q=filename%3Ammc56x3_mag_service.c&per_page=10",
+      "total_count": 0,
+      "incomplete_results": false,
+      "finding": "No indexed match; not proof of nonexistence."
+    },
+    "missing_source": [
+      "solution/components/sensor/sensor_algo/mag/mag_algo.c",
+      "solution/components/sensor/sensor_algo/mag/mmc56x3/mmc56x3_mag_service.c",
+      "their direct algorithm dependency and version/checksum"
+    ],
+    "guide_url": "https://docs.sifli.com/projects/solution/2.application-notes/peripheral/sensor_mag.html",
+    "guide_limit": "Listed MMC56X3 paths and QMC6310 examples do not identify the MMC5603 algorithm binary."
+  },
+  "other_primary_sources_checked": [
+    "https://www.memsic.com/magnetometer-2",
+    "https://www.memsic.com/others",
+    "https://www.memsic.com/datasheets",
+    "https://www.memsic.com/legal"
+  ],
+  "inquiry": {
+    "status": "draft_only_not_sent",
+    "proposed_target": "Public issue in OpenSiFli/SiFli-SDK",
+    "draft": "docs/COMPASS.md#algorithm-inquiry-20261026",
+    "questions": [
+      "Exact-version MMC5603 support and official package location",
+      "Supported calibrated-field application interface",
+      "Expected direction/mapping behavior and supported GCC adaptation",
+      "SDK distribution coverage/additional notices or package terms"
+    ],
+    "external_publication_authorized": false,
+    "user_available_package": "User does not recall having a complete package; not treated as an exhaustive disk inventory."
+  },
+  "validation": {
+    "source_inspection": true,
+    "source_provenance_assertions_passed": true,
+    "sdk_lock_and_tree_clean": true,
+    "firmware_build": false,
+    "numerical_preflight_rerun": false,
+    "hardware_access": false,
+    "external_messages_sent": false,
+    "packages_downloaded": false,
+    "changed_document_utf8_links_passed": true,
+    "explicit_files_check_passed": true,
+    "git_diff_check_passed": true,
+    "independent_read_only_reviews": "Provenance/license wording and Solution-access wording reviewed; no blocking findings."
+  },
+  "commands": {
+    "docs": "python scripts/lab_check.py docs --path docs/COMPASS.md --path docs/STATUS.md --path docs/evidence/2026-10-26/compass-algorithm-source.json",
+    "files": "python scripts/lab_check.py files --manifest docs/evidence/2026-10-26/compass-algorithm-source.json",
+    "old_package_head": "curl --head --location --max-time 15 --silent --show-error https://downloads.sifli.com/dl/solution0912_old.zip"
+  },
+  "artifacts": [
+    {
+      "path": "artifacts/compass-algorithm-source-20261026/library-history.json",
+      "bytes": 2957,
+      "sha256": "397582c7db03d85366ca3d3b9a6b2c93c2fd4a602e8f0d346feddb7d63507673"
+    },
+    {
+      "path": "artifacts/compass-algorithm-source-20261026/initial-directory.json",
+      "bytes": 2815,
+      "sha256": "b9077679753d97df2655be4bf9c96779e6c780b8c914e3cb62c2cf39b923d7fb"
+    },
+    {
+      "path": "artifacts/compass-algorithm-source-20261026/initial-license.json",
+      "bytes": 187,
+      "sha256": "a8db88ffff6dd266dec5900d93235f933c4c2a4a9ebd436413d238aca41d2bdf"
+    },
+    {
+      "path": "artifacts/compass-algorithm-source-20261026/provenance-check.json",
+      "bytes": 406,
+      "sha256": "cba02487ba12cd5770812d60376713ad081326c1b3b16cc470f3d8d460d282e2"
+    },
+    {
+      "path": "artifacts/compass-algorithm-source-20261026/wiki-banner-source.json",
+      "bytes": 213,
+      "sha256": "37b8512e5f3e8623ea0458142ca9c915a2a788ead40873701b414cf154e4f9eb"
+    },
+    {
+      "path": "artifacts/compass-algorithm-source-20261026/code-path-search.json",
+      "bytes": 56,
+      "sha256": "75b26d9964a9f0647dd14b198757744eceaaea3d838b50a5123907d625167c71"
+    },
+    {
+      "path": "artifacts/compass-algorithm-source-20261026/official-repositories.json",
+      "bytes": 2100,
+      "sha256": "7a48283ab41844cb7f0a2488c3fbff0ffc51ae39f84e8221a29f6e6900636bf2"
+    },
+    {
+      "path": "artifacts/compass-algorithm-source-20261026/old-package-head.txt",
+      "bytes": 325,
+      "sha256": "354cdef8aa0ad305aa1f11e2a12a202bb61d7f3bd4d9644ac61e3dda7eb79d36"
+    }
+  ],
+  "remaining": [
+    "Readable version-bound Solution algorithm delivery or vendor response",
+    "MMC5603 support and application interface semantics",
+    "Original candidate heading gate remains failed; no Product integration decision"
+  ],
+  "next_bounded_step": "With a readable official delivery or supplier reply, inspect the two named files and direct algorithm dependency only. Draft is reviewable; posting it externally requires explicit user authorization."
+}
