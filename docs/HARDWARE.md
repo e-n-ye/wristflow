@@ -1,5 +1,15 @@
 # 黄山派选型复评
 
+## 2026-10-25 集中UI验收与传感器故障现场
+
+用户要求先验已交付①②③，再做磁校准与闪屏；新确认同板屏／原电池＋电脑USB／接线固定且人在旁并允许下载。复用精确Product`80bd40fe…`，无固件源码修改或重编。586源码（37仅Git换行）／29产物、SDK锁、COM5 CH340位置1-1.1／禁Modem流控1、三镜像DryRun及retained钩子核对后，21:18:55–21:21:49三镜像write＋verify退出0。无额外RTS，启动RTC2000后校真实UTC并读回；总0／检查点138、已保存腕／自动亮度偏好恢复，用户确认新版显示／触摸／KEY1／时间正常。
+
+复用Console／Journal／RecordedSession并先验七步模拟及取消。21:26:51–21:33:39实机窗口仅首末12条缓存查询，中间被动UART；温度组件、倒计时、呼吸、50条秒表／短睡、电池、天气分页及收尾均获人工确认。端口／租约正常释放，原始UART26,515B保留。页面流程passed只证明上述人工确认及流程完成，不自动证明整机健康。用户后补充曾在续航优化页点按、记得调整过抬腕；源码该页只关抬腕／临时常亮，腕requested0→1存在人工设置混杂，具体开关次数／时点未复原，不单独作为腕故障。
+
+独立核验发现I2C日志`errcode=20`为十六进制0x20／TIMEOUT；驱动已执行reset＋9时钟。末态IMU phase4／end3／io_errors1、stop_verified1、counter_valid1，日常valid0；LTR本身errors0／CANCELLED／owned0／restored1，auto fault1／cleanup0，符合IMU失败后光感连带fail-closed的源码路径，不证明光感原发失败。0步／小时和0、保存generation138 verified／clean保留；UI缓存mismatch0、RTC当前，PM无物理DEEP新增证据。具体失败寄存器及原始超时原因未知，未认定接线、芯片损坏或新XML是根因。当前活动及经批准的有界恢复见STATUS；原始证据在主目录忽略的`artifacts/ui-alignment-hardware-20261025/`，不得把本段页面确认概括为整轮通过。
+
+**另准有界恢复已结束**：用户了解`wf_steps retry`会重建基线后，选择一次普通SDK reboot；RTC21:48:40→21:48:53，无RTS／补时／PM控制，storage／检查点138／总0／小时mask3fffff恢复，IMU RUNNING／io_errors0／valid1及腕armed1。启动备用0x6b探测失败单列，不冒充运行期故障。用户重新开启自动亮度后21:52:17–21:52:47采约30秒，6份缓存均有效／无fault／cleanup，session1 seq20→45，样本首末跨26.005秒。21:52:50最终缓存IMU有效0／io_errors0、腕请求／armed1、auto seq54／valid1／fault0，21:52:57关闭COM5，内核租约可重获／释放。用户确认常亮关闭、显示／触摸／时间正常，腕和自动亮度均开启；关闭常亮后未追加设备操作。[精简证据](evidence/2026-10-25/ui-alignment-hardware.json)保留原故障与恢复分别判定，本次恢复不代表原始超时已修复。
+
 ## 2026-10-25 未校准指南针同BIN验收
 
 用户隔夜接续后重新确认同板屏／原电池＋电脑USB／接线固定且人在旁，允许烧录及相对转向、离页、短息屏检查。复用Product`3b78180c…`，无固件源码修改或重编；566源码（4仅Git换行）／29产物、SDK锁／COM5 CH340位置1-1.1／禁Modem流控1、DryRun和retained钩子核对后，13:20:34–13:23:26三镜像write＋verify成功。无额外RTS／reboot／PM控制；启动RTC2000，以真实UTC校正读回。总0／小时mask3fff／检查点130及腕／自动亮度已保存开启恢复，用户确认显示、触摸、KEY1及时间正常。

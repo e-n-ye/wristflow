@@ -54,3 +54,9 @@ XML 拥有布局、样式、具名控件与资源，`compass_view` 只绑定显�
 明确display sleeping并进入原AOD后stop4／gen8确认停止，KEY1恢复产生session5及新valid1／selftest1；后续另一次息屏／腕唤醒单列，不算第二次受控KEY检查。末尾stop12输出与状态行交错，保留原始字节、不补行；后续完整cache与mag响应确认请求／活动／有效／故障／cleanup均0，session6 phase2／end2／owned0／stopped1／after10／errors0。自动亮度最终enabled1／active1／valid1／fault0／cleanup0、腕服务开启、计步检查点保留。PM allow1、own_idle1来自其余运行责任，不能声称整机零占用或物理DEEP。
 
 本轮支持新BIN数据更新、相对转向、离页停止／重开和一次短息屏KEY恢复及末态正常。未验磁北／安装零点、软硬铁／八字校准、倾斜补偿、非零计步保留、电流、续航或物理深睡；保留既定待完成项，不为此自动扩展实验。
+
+## 2026-10-25 校准前置调查（按用户决定后置）
+
+在`1c64ff6`核到锁定SDK的`mmc36x0kj/MemsicAlgo.lib`原厂署名候选：输入为g／Gauss，提供自动校准、可靠度、偏置／场强保存及已校准磁场，另有依赖加速度的姿态接口。九项软铁矩阵是初始化输入，当前没有证据证明库会自动估计该矩阵；目录名、通用接口及Cortex-M33属性都不能直接证明适配本板MMC5603。继续保留片上Auto_SR和原生自检；[原厂手册](https://www.memsic.com/Public/Uploads/uploadfile/files/20220119/MMC5603NJDatasheetRev.B.pdf)将高级校准／倾斜补偿另列为软件算法，不能将芯片自检PASS等同用户校准。
+
+独立链接探针使用现有Arm GCC14.2.1、M33硬浮点及短enum／wchar。原库直接链接缺`__hardfp_*`数学符号；本地实验适配后仅链接成功，探针text25,318B／data432B／bss1,308B。它不是Product体积增量、算法执行或设备证据，未改SDK／固件，未证明库适用范围、数值行为或单独许可。原始源／命令产物在本地主目录忽略的`artifacts/compass-calibration-preflight-20261025/`；合成输入仿真探针已准备但未执行。用户此时要求先验已完成的①②③，本调查在此停止；恢复时先核候选运行与真实acc／mag轴向及配对，不借此启动设备校准。活动项回STATUS。
