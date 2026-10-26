@@ -7,7 +7,7 @@ enum { BANK = 0x01, INT1 = 0x0d, INT2 = 0x0e, WHO = 0x0f,
 static bool read_byte(wf_imu_pedometer_t *d, uint8_t reg, uint8_t *value)
 {
     bool ok = d->io.read && d->io.read(d->io.context, reg, value, 1);
-    if (!ok) ++d->snapshot.io_errors;
+    if (!ok) { ++d->snapshot.io_errors; d->failed_reg = reg; }
     return ok;
 }
 
@@ -144,6 +144,37 @@ bool wf_imu_pedometer_begin(wf_imu_pedometer_t *d, uint32_t now, uint32_t durati
 bool wf_imu_pedometer_begin_continuous(wf_imu_pedometer_t *d)
 { return d->io.now_ms && begin(d, d->io.now_ms(d->io.context), 0, true); }
 
+static wf_imu_poll_failure_t observe(wf_imu_pedometer_t *d, uint32_t now)
+{
+    /* These registers do not clear latched wrist events. Never retry the
+     * generic bus callback: other readers include destructive source reads. */
+    if (d->continuous) {
+        const uint8_t regs[] = {BANK, XL, CTRL10};
+        const uint8_t values[] = {0, 0x20, d->wrist_enabled ? 0x94 : 0x14};
+        for (size_t i = 0; i < sizeof regs; ++i) {
+            uint8_t value;
+            if (!read_byte(d, regs[i], &value)) return WF_IMU_POLL_TRANSFER;
+            if (value != values[i]) { d->failed_reg = regs[i]; return WF_IMU_POLL_CONFIG; }
+        }
+    }
+    uint32_t errors = d->snapshot.io_errors;
+    if (counter(d, now)) {
+        if (d->continuous) d->snapshot.sampled_ms = d->io.now_ms(d->io.context);
+        return WF_IMU_POLL_OK;
+    }
+    if (d->snapshot.io_errors != errors) return WF_IMU_POLL_TRANSFER;
+    d->failed_reg = STEP_H;
+    return WF_IMU_POLL_INCOHERENT;
+}
+
+static void poll_failure(wf_imu_pedometer_t *d, wf_imu_poll_failure_t reason)
+{
+    d->snapshot.poll_failure = reason;
+    d->snapshot.failure_reg = d->failed_reg;
+    d->snapshot.failure_ms = d->io.now_ms(d->io.context);
+    d->snapshot.counter_valid = false;
+}
+
 void wf_imu_pedometer_poll(wf_imu_pedometer_t *d, uint32_t now)
 {
     if (d->snapshot.phase != WF_IMU_RUNNING) return;
@@ -152,13 +183,22 @@ void wf_imu_pedometer_poll(wf_imu_pedometer_t *d, uint32_t now)
     else if (!d->continuous && now - d->snapshot.started_ms >= d->snapshot.duration_ms)
         (void)wf_imu_pedometer_stop(d, now, WF_IMU_DEADLINE);
     else {
-        /* Detect lost configuration/power before interpreting a counter reset
-         * as wraparound. This never resets the count during observation. */
-        uint8_t bank, xl, control;
-        bool configured = !d->continuous || (read_byte(d, BANK, &bank) && bank == 0 &&
-            read_byte(d, XL, &xl) && xl == 0x20 && read_byte(d, CTRL10, &control) &&
-            control == (d->wrist_enabled ? 0x94 : 0x14));
-        if (!configured || !counter(d, now))
-            (void)wf_imu_pedometer_stop(d, now, WF_IMU_IO_FAILURE);
+        wf_imu_poll_failure_t failure = observe(d, now);
+        if (failure == WF_IMU_POLL_OK) return;
+        poll_failure(d, failure);
+        if (d->continuous && failure == WF_IMU_POLL_TRANSFER && d->retry_delay_ms) {
+            ++d->snapshot.poll_retries;
+            d->retry_delay_ms(d->io.context, 20);
+            if (!continuing(d)) {
+                (void)wf_imu_pedometer_stop(d, d->io.now_ms(d->io.context), d->snapshot.ended);
+                return;
+            }
+            /* One complete recheck, without begin/reset/configuration writes.
+             * Lost configuration is never interpreted as counter wraparound. */
+            failure = observe(d, d->io.now_ms(d->io.context));
+            if (failure == WF_IMU_POLL_OK) { ++d->snapshot.poll_recoveries; return; }
+            poll_failure(d, failure);
+        }
+        (void)wf_imu_pedometer_stop(d, d->io.now_ms(d->io.context), WF_IMU_IO_FAILURE);
     }
 }

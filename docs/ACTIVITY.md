@@ -45,6 +45,8 @@ Product `20261019-192724-164`／BIN `18db1984…`及UI Demo `20261019-192948-540
 - 观察元数据包含native来源、版本、UTC／单调完成时间、日号、RTC revision、原生计数和覆盖起点；worker与UI在同一短临界区复制。出口再核当前RTC／revision／日期和缓存年龄，过期或校时尚未发布时立即未知，不把旧日缓存装成今日。
 - Product日常模式拒绝`wf_imu probe|steps|stop`，仅status读缓存；`wf_steps status`报告日总量／来源，`stop`显式停止并使显示未知，故障／停止后`retry`先清理再从新的0基线开始。重复retry在准备中合并，stop优先；不会粗暴切PA30共享电源或自动循环重试。历史有界诊断仍可由独立诊断启动API使用，不与日常模式并行。
 
+2026-10-26补充[瞬态读取恢复](HARDWARE-CAPABILITIES.md#imu-transient-recovery-20261026)：continuous安全观察首次传输失败退避20ms后最多重读一次，成功保留原生／daily基线、小时桶及检查点，不进入上述故障／显式retry路径；配置失配或再次失败仍保护停机。非零保存恢复、多小时、跨小时及腕／光感保留经主机注入验证，Product`b48b4426…`编译通过；[软件证据](evidence/2026-10-26/imu-transient-recovery.json)不代表真实超时恢复通过。下段保留首版软件结果。
+
 源码及两项独立只读审查通过；主机Debug51/51、Release相关5/5通过，含真实worker取消／诊断隔离／IDLE责任、日期／时间／回绕／年龄边界和真实LVGL步数及组件更新。Product`20261019-202037-031`／BIN`4cd7c09b…`与UI Demo`20261019-202351-168`／BIN`cedcc981…`均编译退出0；Product457源码中443字节一致、14仅LF／CRLF变化，Demo416源码一致；29／22产物重哈希一致，SDK锁定干净。命令、哈希、失败和未验项见[接口证据](evidence/2026-10-19/native-daily-steps.json)。本轮未开串口／烧录／采样，不能继承旧BIN的触摸／睡醒或70步观察作为本版精度／计数连续性通过。
 
 ### 同版上板与总量显示（2026-10-19硬件轮）

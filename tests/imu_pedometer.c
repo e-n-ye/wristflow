@@ -10,6 +10,10 @@ typedef struct {
     uint16_t count;
     unsigned reads, writes, resets, stop_writes;
     int fail_write;
+    int fail_read, read_failures;
+    unsigned fail_read_skip, retry_delays;
+    uint16_t retry_steps;
+    bool cancel_retry, lose_config_retry;
     uint32_t now, active_delay;
     unsigned enabled;
     bool rollover, unstable, cancelled, cancel_during_setup, mismatch_restore_once;
@@ -19,6 +23,13 @@ static bool read_reg(void *context, uint8_t reg, uint8_t *data, size_t length)
     bus_t *b = context;
     assert(length == 1);
     ++b->reads;
+    if (reg == b->fail_read) {
+        if (b->fail_read_skip) --b->fail_read_skip;
+        else if (b->read_failures) {
+            if (b->read_failures > 0) --b->read_failures;
+            return false;
+        }
+    }
     if (b->user[0x10]) b->now += b->active_delay;
     if (reg == 1) *data = b->bank;
     else if (!b->bank && reg == 0x4c) {
@@ -53,11 +64,20 @@ static bool write_reg(void *context, uint8_t reg, uint8_t value)
 }
 static uint32_t clock_ms(void *context) { return ((bus_t *)context)->now; }
 static bool cancelled(void *context) { return ((bus_t *)context)->cancelled; }
+static void retry_delay(void *context, uint32_t ms)
+{
+    bus_t *b = context;
+    assert(ms == 20);
+    ++b->retry_delays; b->now += ms; b->count += b->retry_steps;
+    if (b->cancel_retry) b->cancelled = true;
+    if (b->lose_config_retry) b->user[0x10] = 0;
+}
 static void init(bus_t *b, wf_imu_pedometer_t *d)
 {
     memset(b, 0, sizeof *b);
     b->user[0x0f] = 0x6a;
     b->fail_write = -1;
+    b->fail_read = -1;
     wf_imu_pedometer_init(d, (wf_imu_io_t){b, read_reg, write_reg, clock_ms, cancelled});
 }
 static bool begin(bus_t *b, wf_imu_pedometer_t *d, uint32_t now, uint32_t span)
@@ -67,6 +87,68 @@ static void stopped(const bus_t *b)
     assert(b->bank == 0);
     const uint8_t regs[] = {0x0d, 0x0e, 0x5e, 0x5f, 0x19, 0x10, 0x11};
     for (size_t i = 0; i < sizeof regs; ++i) assert(b->user[regs[i]] == 0);
+}
+static void transient_reads(void)
+{
+    /* Every transfer in the safe daily observation, including the second H. */
+    const uint8_t regs[] = {1, 0x10, 0x19, 0x4c, 0x4b, 0x4c};
+    for (unsigned i = 0; i < sizeof regs; ++i) {
+        bus_t b; wf_imu_pedometer_t d;
+        init(&b, &d); d.retry_delay_ms = retry_delay;
+        assert(wf_imu_pedometer_probe(&d) && wf_imu_pedometer_begin_continuous(&d));
+        b.now = 1000; b.count = 120; wf_imu_pedometer_poll(&d, b.now);
+        unsigned writes = b.writes, resets = b.resets;
+        b.now = 2000; b.fail_read = regs[i]; b.read_failures = 1;
+        b.fail_read_skip = i == 5 ? 1 : 0; b.retry_steps = 3;
+        wf_imu_pedometer_poll(&d, b.now);
+        assert(d.snapshot.phase == WF_IMU_RUNNING && d.snapshot.counter_valid && d.snapshot.steps == 123);
+        assert(b.writes == writes && b.resets == resets && b.retry_delays == 1);
+        assert(d.snapshot.poll_retries == 1 && d.snapshot.poll_recoveries == 1 && d.snapshot.io_errors == 1);
+        assert(d.snapshot.poll_failure == WF_IMU_POLL_TRANSFER && d.snapshot.failure_reg == regs[i]);
+        assert(d.snapshot.failure_ms == 2000 && d.snapshot.sampled_ms == 2020);
+        b.now = 3000; b.count = 124; wf_imu_pedometer_poll(&d, b.now);
+        assert(d.snapshot.steps == 124 && d.snapshot.poll_retries == 1);
+    }
+    bus_t b; wf_imu_pedometer_t d;
+    init(&b, &d); d.retry_delay_ms = retry_delay;
+    assert(wf_imu_pedometer_probe(&d) && wf_imu_pedometer_begin_continuous(&d));
+    b.now = 1000; b.count = 65535; wf_imu_pedometer_poll(&d, b.now);
+    b.now = 2000; b.fail_read = 0x4b; b.read_failures = 1; b.retry_steps = 2;
+    wf_imu_pedometer_poll(&d, b.now);
+    assert(d.snapshot.phase == WF_IMU_RUNNING && d.snapshot.steps == 1 && b.resets == 1);
+    b.now = UINT32_MAX - 10U; b.read_failures = 1; b.retry_steps = 0;
+    wf_imu_pedometer_poll(&d, b.now);
+    assert(d.snapshot.phase == WF_IMU_RUNNING && d.snapshot.sampled_ms == 9);
+    /* Two transfer failures exhaust this observation's sole retry. */
+    b.now = 100; b.fail_read = 0x10; b.read_failures = 2;
+    wf_imu_pedometer_poll(&d, b.now);
+    assert(d.snapshot.phase == WF_IMU_FAULT && d.snapshot.stop_verified && b.resets == 1);
+    assert(d.snapshot.poll_retries == 3 && d.snapshot.poll_recoveries == 2);
+    unsigned reads = b.reads; wf_imu_pedometer_poll(&d, 1000); assert(b.reads == reads);
+    /* Configuration loss and incoherent counters never qualify for I/O retry. */
+    init(&b, &d); d.retry_delay_ms = retry_delay;
+    assert(wf_imu_pedometer_probe(&d) && wf_imu_pedometer_begin_continuous(&d));
+    b.user[0x10] = 0; wf_imu_pedometer_poll(&d, 1);
+    assert(d.snapshot.phase == WF_IMU_FAULT && !b.retry_delays && d.snapshot.poll_failure == WF_IMU_POLL_CONFIG);
+    init(&b, &d); d.retry_delay_ms = retry_delay;
+    assert(wf_imu_pedometer_probe(&d) && wf_imu_pedometer_begin_continuous(&d));
+    b.unstable = true; wf_imu_pedometer_poll(&d, 1);
+    assert(d.snapshot.phase == WF_IMU_FAULT && !b.retry_delays && d.snapshot.poll_failure == WF_IMU_POLL_INCOHERENT);
+    for (unsigned cancel = 0; cancel < 2; ++cancel) {
+        init(&b, &d); d.retry_delay_ms = retry_delay;
+        assert(wf_imu_pedometer_probe(&d) && wf_imu_pedometer_begin_continuous(&d));
+        b.fail_read = 0x4b; b.read_failures = 1;
+        b.cancel_retry = cancel; b.lose_config_retry = !cancel;
+        wf_imu_pedometer_poll(&d, 1);
+        assert(d.snapshot.poll_retries == 1 && !d.snapshot.poll_recoveries && b.resets == 1);
+        assert(d.snapshot.phase == (cancel ? WF_IMU_READY : WF_IMU_FAULT));
+        assert(d.snapshot.ended == (cancel ? WF_IMU_USER_STOP : WF_IMU_IO_FAILURE));
+    }
+    /* Explicit short diagnostics retain their original failure/cleanup rule. */
+    init(&b, &d); d.retry_delay_ms = retry_delay;
+    assert(wf_imu_pedometer_probe(&d) && begin(&b, &d, 0, 1000));
+    b.fail_read = 0x4b; b.read_failures = 1; wf_imu_pedometer_poll(&d, 1);
+    assert(d.snapshot.phase == WF_IMU_FAULT && !b.retry_delays);
 }
 int main(void)
 {
@@ -160,5 +242,6 @@ int main(void)
     b.user[0x19]=0;
     wf_imu_pedometer_poll(&d,600001);
     assert(d.snapshot.phase==WF_IMU_FAULT && d.snapshot.stop_verified && !d.continuous);
+    transient_reads();
     return 0;
 }

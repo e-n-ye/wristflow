@@ -1,0 +1,73 @@
+{
+  "date": "2026-10-26",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/imu-transient-recovery",
+  "base_commit": "84f25c847c37c5744fb00426cf74c1bbdf33773f",
+  "scope": "用户质疑超时必须重启；先交付集中验收记录，再完成一次瞬态日常计步读取失败的免重启、保数软件闭环。无新设备授权。",
+  "previous_hardware": "docs/evidence/2026-10-25/ui-alignment-hardware.json；原窗口运行期0x20根因仍未知，普通SDK reboot仅是已验证过的一种恢复方式。",
+  "capability_choice": "继续使用LSM6DS3TR-C原生step counter／AWT、LTR及原唯一worker／I2C3；不替换硬件算法，不重置器件、重新probe或改变共享PA30电源，不改SDK及锁。",
+  "implementation": {
+    "trigger": "仅continuous计步观察的BANK/XL/CTRL10及H-L-H读取发生传输失败时",
+    "budget": "同worker退避20ms，重查取消后完整重读一次；没有跨轮自动重连或新线程/timer",
+    "success": "保持RUNNING，不调用stop/begin/daily init或invalidate，不写配置或reset计数，沿用daily/native基线及保存检查点",
+    "failure": "配置不符、H-L-H三次不一致、第二次传输失败沿用保护停机；清理未确认仍保留责任。短时诊断、腕SOURCE清源、其他器件和清理不重试。",
+    "diagnostics": "缓存poll重试/恢复次数及最近失败类型/寄存器/时刻；缓存最近有失败worker轮的首个IMU传输操作/地址/寄存器/请求及实际返回长度/起止时刻，另累计所有传输失败。status不做I2C或Flash。",
+    "diagnostic_limits": "最近失败观察与轮内首个传输可以不同；actual return不是HAL错误码，失败时bank未经确认；成功恢复不清失败历史。不能据此宣称原始超时原因已定位。"
+  },
+  "host_tests": {
+    "targets": ["imu_pedometer", "product_imu_diag", "imu_wrist_tilt", "product_wrist_irq", "daily_steps", "steps_store", "auto_brightness", "ltr303_diag", "mmc5603_diag", "compass"],
+    "debug": {"directory": "artifacts/host-ui-build", "passed": "10/10", "seconds": 0.49, "log": "artifacts/imu-transient-recovery-20261026/debug-test-final.log"},
+    "release": {"directory": "artifacts/host/automatic-brightness-release", "flags": "-O2 -UNDEBUG", "passed": "10/10", "seconds": 0.68, "log": "artifacts/imu-transient-recovery-20261026/release-test-final.log"},
+    "after_review": "仅补两项断言后，product_imu_diag在两配置各1/1再次通过；生产源码未变。debug/release-test-reviewed.log保留最终测试。",
+    "register_cases": "BANK/XL/CTRL10/第一H/L/第二H单次失败，期间新增计数，成功后无写入/无reset；65535及tick回绕；两次传输失败耗尽，配置丢失/不一致不重试，退避中取消，显式短诊断维持原语义。",
+    "integration_cases": "从saved313/两个非零小时桶/generation23启动，native17后total330。六位置依次失败并在退避中各增3，累计348、19时50/20时115、generation不重建，腕/IRQ与自动亮度偏好及generation保持。显式保存成generation24；跨整点再恢复3步仅增日累计为351、不伪造小时归属。第二次失败FAULT，保存351及generation保留、停止资源释放且下一轮不轮询；退避中用户stop不隐含begin/reset。"
+  },
+  "build": {
+    "command": "pwsh -NoProfile -File scripts/Build.ps1 -Example product -Jobs 4",
+    "result": "artifacts/product/20261026-125321-730/result.json",
+    "log": "artifacts/imu-transient-recovery-20261026/product-build-001.log",
+    "exit_code": 0,
+    "artifact_validation_passed": true,
+    "source_count": 586,
+    "artifact_count": 29,
+    "byte_check": "artifacts/imu-transient-recovery-20261026/product-build-check.json，全部源码及产物严格字节一致；源码ZIP原始字节另保全。",
+    "source_archive": "artifacts/imu-transient-recovery-20261026/final-product-20261026-125321-730.zip",
+    "source_archive_bytes": 33238522,
+    "source_archive_sha256": "883226da823a81ce13923cacfc8867d094b56546d0a18a26f98c3c24aab426ad",
+    "main_bin_bytes": 8327916,
+    "main_bin_sha256": "b48b442644ae13da49555669141890b76fb3fbe18567051cea7a0ef0fcde4287",
+    "delta_from_80bd40fe_bytes": 728,
+    "flash_region": "0x12020000 + 0x800000",
+    "last_load_end": "0x128112ec，readelf确认末个Flash加载段.data LMA0x12810474 + 0xe78",
+    "flash_remaining_bytes": 60692,
+    "sdk_static_ram_used_bytes": 252348,
+    "sdk_static_ram_delta_bytes": 88,
+    "memory_limits": "SDK ROM汇总仍有前版同样的重叠计数，不作物理越界依据；静态RAM数字不是设备堆/栈/PSRAM峰值。",
+    "versions": "Python3.13.15 / SCons4.10.1 / Arm GNU14.2.Rel1 GCC14.2.1；SDK421126d9f476ed8e2a6f0b0ca28a9f241c182e65及两个子模块锁定干净。",
+    "warnings": "保留既有FinSH函数类型转换、RWX LOAD、DFU缺省与ftab/newlib/entry链接提示；编译退出0。无SDK/工具链升级。"
+  },
+  "commands": [
+    "PATH=/d/msys64/ucrt64/bin:$PATH cmake --build <Debug|Release目录> --target <上述10目标> -j 4；ctest --test-dir <目录> -R ^(imu_pedometer|product_imu_diag|imu_wrist_tilt|product_wrist_irq|daily_steps|steps_store|auto_brightness|ltr303_diag|mmc5603_diag|compass)$ --output-on-failure",
+    "仅两项审查断言补强后：cmake --build <目录> --target product_imu_diag -j 4；ctest --test-dir <目录> -R ^product_imu_diag$ --output-on-failure",
+    "python scripts/lab_check.py --out artifacts/imu-transient-recovery-20261026/product-build-check.json build --result artifacts/product/20261026-125321-730/result.json",
+    "arm-none-eabi-readelf.exe -lW apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.elf",
+    "python scripts/lab_check.py --out artifacts/imu-transient-recovery-20261026/docs-check.json docs --base origin/main"
+  ],
+  "failures_preserved": [
+    "最初只新增底层时两项主机通过，原日志在artifacts/ui-alignment-hardware-20261025/recovery-initial-build.log；该路径只是本地输出归档，非工具代码依赖。",
+    "新增集成首轮在!idle断言失败（host-test-001.log），拆分条件复核仍失败；自动亮度处于活动采样时本来持有IDLE，去除错误假设后通过。生产重试路径未因该失败放宽；故障及停止收尾仍断言IDLE释放。",
+    "不把主机注入及编译通过写成真实I2C故障恢复通过。"
+  ],
+  "source_inspection": "主代理检查最终变更，独立只读审查未发现重试/保数/取消/所有权阻断；最终集成断言亦复核。",
+  "local_manifest": {
+    "path": "artifacts/imu-transient-recovery-20261026/final-files.json",
+    "sha256": "9525eb4975bc2667571a13042ced1380c162ec9af965039b6258b65e7368d1b7",
+    "files": 15,
+    "verified": "lab_check files通过；三份生产源/两份测试、4份最终测试日志、首轮失败、固件构建日志/result/字节核验、来源ZIP及元数据。本地忽略证据，不是仓库下载附件。"
+  },
+  "firmware_compilation": "Product编译成功且源码/产物字节核验通过；Demo没有本轮Product专属改动，不重编。",
+  "hardware_verified": false,
+  "hardware_operations": "本轮未打开串口、下载、重启、补时或要求新的设备动作；板上仍是先前80bd40fe。",
+  "next_bounded_experiment": "软件审阅交付后，以精确新BIN和新现场确认准备短设备窗口：先保留旧板步数/小时检查点，再核新版本启动、原生非零增量/保存、腕/自动亮度及故障诊断。真实瞬态故障未再出现时仅记录未复现，不伪造已恢复。",
+  "remaining": ["25日运行期0x20的原始原因及真实恢复时延/重复性未知", "跨轮持续总线故障重连未实现；现有手动wf_steps retry仍会重建基线", "磁校准及手电筒闪屏后置，新增half/full仍延期", "设备内存峰值、功耗/续航、完整J1-J7及Flash掉电原子性未关闭"]
+}

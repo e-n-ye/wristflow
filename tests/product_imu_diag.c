@@ -21,6 +21,11 @@ static bool stop_mag_in_prepare, duplicate_mag_in_prepare;
 static bool stop_compass_in_prepare;
 static char mag_log[16384];
 static uint16_t native_count;
+static unsigned native_resets;
+static int imu_failing_read = -1, imu_read_failures;
+static unsigned imu_read_skip;
+static uint16_t retry_native_increment;
+static bool stop_during_retry;
 static rt_tick_t ticks;
 static unsigned irq, idle, reads, writes, rounds, deleted, detached;
 static int failing_reg = -1;
@@ -62,6 +67,7 @@ static size_t step_lengths[2];
 static unsigned store_reads, store_writes;
 static unsigned store_delay_ms;
 static bool storage_available = true, fail_storage;
+static char imu_log[2048];
 static jmp_buf yield;
 rt_base_t rt_hw_interrupt_disable(void) { return irq++; }
 void rt_hw_interrupt_enable(rt_base_t previous) { irq = (unsigned)previous; }
@@ -70,6 +76,13 @@ rt_tick_t rt_tick_from_millisecond(unsigned ms) { return ms; }
 int rt_thread_mdelay(rt_int32_t ms)
 {
     ticks += ms;
+    if (ms == 20) {
+        native_count += retry_native_increment;
+        if (stop_during_retry) {
+            stop_during_retry = false;
+            char *args[] = {"wf_steps", "stop"}; wf_steps(2, args);
+        }
+    }
     if (ms == 50 && stop_wrist_in_delay) {
         stop_wrist_in_delay = false;
         char *args[] = {"wf_wrist", "stop"}; wf_wrist(2, args);
@@ -114,10 +127,12 @@ int rt_thread_mdelay(rt_int32_t ms)
 }
 void rt_kprintf(const char *format, ...)
 {
-    if (strncmp(format,"[mag",4)) return;
-    size_t used=strlen(mag_log);
+    char *log = !strncmp(format,"[mag",4) ? mag_log : !strncmp(format,"[imu",4) ? imu_log : NULL;
+    if (!log) return;
+    size_t capacity = log == mag_log ? sizeof mag_log : sizeof imu_log;
+    size_t used=strlen(log);
     va_list args; va_start(args,format);
-    (void)vsnprintf(mag_log+used,sizeof mag_log-used,format,args);
+    (void)vsnprintf(log+used,capacity-used,format,args);
     va_end(args);
 }
 void rt_pm_request(unsigned mode) { assert(mode == PM_SLEEP_MODE_IDLE && !irq && !idle); ++idle; }
@@ -191,6 +206,14 @@ size_t rt_i2c_mem_read(struct rt_i2c_bus_device *b, unsigned addr, unsigned reg,
         return 1;
     }
     if (addr != 0x6a) return 0;
+    if ((int)reg == imu_failing_read) {
+        if (imu_read_skip) --imu_read_skip;
+        else if (imu_read_failures) {
+            if (imu_read_failures > 0) --imu_read_failures;
+            ticks += 50; /* Transfer timeout, before the SDK returns failure. */
+            return 0;
+        }
+    }
     if (length==6) { assert(!bank); memcpy(out,user_regs+reg,length); return length; }
     uint8_t value = bank == 0xa0 ? bank_b_regs[reg] : bank ? bank_regs[reg] : user_regs[reg];
     if (reg == 1) value = bank;
@@ -221,7 +244,7 @@ size_t rt_i2c_mem_write(struct rt_i2c_bus_device *b, unsigned addr, unsigned reg
     if (reg == 1) bank = value;
     else if (bank == 0xa0) bank_b_regs[reg] = value;
     else if (bank) bank_regs[reg] = value;
-    else { user_regs[reg] = value; if (reg == 0x19 && (value & 2)) native_count = 0; }
+    else { user_regs[reg] = value; if (reg == 0x19 && (value & 2)) { native_count = 0; ++native_resets; } }
     return 1;
 }
 static void cycle(void)
@@ -264,6 +287,83 @@ bool wristflow_product_services_steps_write(unsigned key, const uint8_t *record,
     memcpy(step_records[key],record,WRISTFLOW_STEPS_RECORD_BYTES);
     ticks += store_delay_ms;
     step_lengths[key]=WRISTFLOW_STEPS_RECORD_BYTES; return !fail_storage;
+}
+static void recovery_integration(void)
+{
+    assert(wristflow_product_light_enable(false)); wristflow_product_wrist_enable(false); cycle();
+    assert(!idle && !light.snapshot.owned && !mag.snapshot.owned && !wrist.changed);
+    wristflow_steps_checkpoint_t seed = {.local_day=20745, .total=313,
+        .coverage_start_utc=1792407600, .saved_utc=1792411260,
+        .hourly={[19]=50,[20]=80}, .hours_valid=(1U<<19)|(1U<<20)};
+    assert(wristflow_steps_encode(&seed,23,step_records[0]));
+    step_lengths[0]=WRISTFLOW_STEPS_RECORD_BYTES; step_lengths[1]=0;
+    ready=false; cancel_requested=false; ticks=0; daily_lit=true; storage_available=true; native_resets=0;
+    max_wait=60000; service_clock=(wristflow_alarm_clock_t){.utc=1792411300,.valid=true};
+    assert(wristflow_product_steps_start()); cycle(); native_count=17; cycle();
+    assert(daily_cached.metric.total==330 && daily_cached.metric.hourly[20]==97);
+    wristflow_product_wrist_enable(true); cycle();
+    assert(wrist_runtime && irq_adapter.armed);
+    light_regs[0x8c]=4; assert(wristflow_product_light_enable(true));
+    wristflow_product_light_active(true); cycle();
+    for (unsigned i=0;i<10 && !auto_cached.valid;++i) { light_regs[0x8c]=4; cycle(); }
+    assert(auto_cached.valid && auto_requested && auto_runtime);
+    const uint8_t regs[] = {1,0x10,0x19,0x4c,0x4b,0x4c};
+    for (unsigned i=0;i<sizeof regs;++i) {
+        wristflow_steps_snapshot_t before=daily_cached;
+        wristflow_steps_store_t saved=checkpoint_cached;
+        unsigned before_writes=writes, resets=native_resets;
+        uint32_t light_generation=auto_generation;
+        imu_failing_read=regs[i]; imu_read_failures=1; imu_read_skip=i==5 ? 1 : 0;
+        retry_native_increment=3; light_regs[0x8c]=4; cycle(); retry_native_increment=0;
+        assert(cached.phase==WF_IMU_RUNNING && daily_cached.metric.total_valid && daily.baseline);
+        assert(daily_cached.metric.total==before.metric.total+3);
+        assert(daily_cached.metric.hourly[20]==before.metric.hourly[20]+3 && daily_cached.metric.hourly[19]==50);
+        assert(daily_cached.metric.hours_valid==seed.hours_valid && daily.previous_native==native_count);
+        assert(checkpoint_cached.generation==saved.generation && checkpoint_cached.attempts==saved.attempts);
+        assert(checkpoint_cached.dirty);
+        assert(writes==before_writes);
+        assert(native_resets==resets);
+        assert(cached.poll_retries==i+1 && cached.poll_recoveries==i+1);
+        assert(wrist_requested && wrist_runtime && irq_adapter.armed && !wrist_cached.observations);
+        assert(auto_requested && auto_runtime && !auto_fault && auto_generation==light_generation);
+        assert(io_failure_cached.failures==i+1 && !io_failure_cached.write && io_failure_cached.address==0x6a);
+        assert(io_failure_cached.reg==regs[i] && io_failure_cached.requested==1 && !io_failure_cached.returned);
+        assert(io_failure_cached.completed_ms-io_failure_cached.started_ms==50);
+    }
+    imu_log[0]=0; unsigned before=reads+writes+store_reads+store_writes;
+    daily_cmd("status"); assert(before==reads+writes+store_reads+store_writes);
+    assert(strstr(imu_log,"retries=6 recovered=6") && strstr(imu_log,"write=0 addr=0x6a reg=0x4c requested=1 returned=0"));
+    daily_cmd("save"); cycle();
+    assert(checkpoint_cached.saved_valid && checkpoint_cached.saved.total==348 && checkpoint_cached.generation==24);
+    assert(checkpoint_cached.saved.hourly[19]==50 && checkpoint_cached.saved.hourly[20]==115);
+    /* Recovered daily delta across an hour has no invented per-hour split. */
+    ticks += 1000U-ticks%1000U; service_clock.utc=1792414799U-ticks/1000U; ++service_clock.revision;
+    wristflow_product_steps_clock_changed(); cycle();
+    assert(daily_cached.observation.utc==1792414799U);
+    ticks+=950; imu_failing_read=0x4b; imu_read_failures=1; retry_native_increment=3;
+    wristflow_product_steps_clock_changed(); cycle(); retry_native_increment=0;
+    assert(daily_cached.observation.utc>=1792414800U && daily_cached.metric.total==351);
+    assert(daily_cached.metric.hourly[20]==115 && !(daily_cached.metric.hours_valid&(1U<<21)));
+    daily_cmd("save"); cycle();
+    uint32_t generation=checkpoint_cached.generation;
+    /* Exhaustion preserves the last verified checkpoint and does not loop. */
+    imu_failing_read=0x10; imu_read_failures=2; cycle();
+    assert(cached.phase==WF_IMU_FAULT && cached.stop_verified && !daily_cached.metric.total_valid);
+    assert(checkpoint_cached.saved_valid && checkpoint_cached.saved.total==351);
+    assert(checkpoint_cached.generation==generation && native_resets==1);
+    assert(!wrist_runtime && !irq_adapter.owned && auto_fault && !auto_requested && !idle);
+    assert(io_failure_cached.reg==0x10 && !io_failure_cached.write && io_failure_cached.failures==9);
+    before=reads+writes; cycle(); assert(reads+writes==before && !idle);
+    imu_failing_read=-1;
+    /* A user stop racing with backoff cannot recover/restart the service. */
+    daily_cmd("retry"); cycle();
+    unsigned resets_before_stop=native_resets;
+    imu_failing_read=0x4b; imu_read_failures=1; stop_during_retry=true;
+    cycle(); cycle();
+    assert(cached.phase==WF_IMU_READY && cached.stop_verified && !cancel_requested && !idle);
+    assert(!daily_cached.metric.total_valid && !wrist_runtime && !irq_adapter.owned);
+    assert(native_resets==resets_before_stop);
+    imu_failing_read=-1;
 }
 int main(void)
 {
@@ -901,5 +1001,6 @@ int main(void)
     assert(compass_cached.valid && auto_generation==light_generation && auto_requested && wrist_runtime);
     assert(wristflow_product_compass_active(false)); cycle();
     assert(!compass_owner && mag_cached.stopped && auto_requested && wrist_runtime);
+    recovery_integration();
     return 0;
 }
