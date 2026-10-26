@@ -1,0 +1,310 @@
+{
+  "date": "2026-10-26",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/imu-recovery-acceptance",
+  "base_commit": "152b579ed95c12dd1bc114bbdb5637e76c2749c9",
+  "scope": "精确b48版获准下载及有界计步验收；新增只读Console适配与电池走动模式，不改固件或SDK，不追加普通重启。",
+  "authorization": "用户确认同板屏、原电池＋电脑USB、接线固定且人在旁，允许新版下载并验收；随后确认基本输入/时间正常，因连线不便和错过窗口改电池走动。",
+  "capability_choice": "仍用芯片原生step counter/AWT、LTR及唯一IMU worker/I2C3；没有软件计步替代或新的设备算法。",
+  "source_inspection": {
+    "adapter": "Console/Journal/RecordedSession与serial_lab绑定复用；仅steps/wrist/light缓存白名单。离线前关口/释放租约，人工确认接回后才锁内重新核绑定/SDK/端点并开口。",
+    "review": "Sol/medium只读审查未见阻断；Luna/low分别核启动与已结束device-003证据。请求档位来自本轮运行记录，不推测后台模型。"
+  },
+  "compilation": {
+    "new_firmware_build": false,
+    "product_result": "artifacts/product/20261026-125321-730/result.json",
+    "sources": 586,
+    "artifacts": 29,
+    "final_byte_check": "artifacts/imu-recovery-hardware-20261026/delivery-build-check.json",
+    "software_evidence": "docs/evidence/2026-10-26/imu-transient-recovery.json"
+  },
+  "firmware": {
+    "bin_sha256": "b48b442644ae13da49555669141890b76fb3fbe18567051cea7a0ef0fcde4287",
+    "bytes": 8327916,
+    "flash_remaining_bytes": 60692,
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "sdk_unchanged": true
+  },
+  "download": {
+    "result": "artifacts/flash/product/20261026-152437-628/result.json",
+    "result_time": "2026-10-26T15:27:29.8051640+08:00",
+    "exit_code": 0,
+    "images": 3,
+    "verify": true,
+    "endpoint": "COM5 CH340 1A86:7523 location1-1.1 DisableModemOutHandShake=1",
+    "pre_checkpoint": {
+      "day": 20752,
+      "total": 0,
+      "generation": 157,
+      "verified": 1,
+      "dirty": 0
+    },
+    "startup": "RTC2000后一次真实UTC校时读回；恢复0/小时maskffff/代次157，未额外RTS、普通reboot或PM控制。"
+  },
+  "host_validation": {
+    "tests": "11/11",
+    "log": "artifacts/imu-recovery-hardware-20261026/host-tests-delivery.log",
+    "browser_simulation": "offline-sim-001六阶段/五次人工模拟确认通过，before/after均关口及释放。",
+    "browser_cancel": "offline-cancel-001在已关口的unplug等待阶段人工取消，exit1/outcome cancelled，未重开，资源释放。",
+    "revision_note": "模拟后仅明确binding.policy中人工重开措辞；运行逻辑未改，交付源码11项检查再次通过。"
+  },
+  "failed_windows": [
+    {
+      "run": "device-001",
+      "outcome": "timeout",
+      "confirmed": [],
+      "snapshots": 0,
+      "actual_port_opened": false,
+      "resources_closed": true
+    },
+    {
+      "run": "device-002",
+      "outcome": "timeout",
+      "confirmed": [
+        "prepare"
+      ],
+      "snapshots": 1,
+      "total": 0,
+      "port_closed": true,
+      "resources_closed": true
+    }
+  ],
+  "hardware_validation": {
+    "bounded_native_count_and_save_verified": true,
+    "workflow_tool_hardware_verified": false,
+    "tool_flag_meaning": "工具不自动判硬件通过；本条由人工确认及原始UART审阅分别判定。",
+    "simulation": false,
+    "workflow": "device-003",
+    "outcome": "passed",
+    "manual_confirmations": [
+      "prepare",
+      "unplug",
+      "walk",
+      "reconnect",
+      "final"
+    ],
+    "raw_snapshot_count": 10,
+    "native_daily_and_hour16": [
+      0,
+      48
+    ],
+    "checkpoint_sequence": "pre/post157/0 → baseline158/0 → walk159/7 dirty1 → saved160/48 verified1 clean",
+    "final": {
+      "total": 48,
+      "native": 48,
+      "hour16": 48,
+      "day": 20752,
+      "generation": 160,
+      "verified": 1,
+      "dirty": 0,
+      "failed": 0,
+      "mask": "0x01ffff"
+    },
+    "continuity": "start1573不变；sample3538802→3599185→3652304，UTC1793003188→1793003248→1793003302；与主机间隔相符，不是唯一启动身份证明。",
+    "observations": "十份快照IMU运行有效；腕requested/continuous/armed/owned1、自动亮度enabled/valid1、fault/cleanup0；非受控腕累计3→5不当受控腕验收。",
+    "retries": 0,
+    "recovered": 0,
+    "imu_transport_failures": 0,
+    "raw_counter_and_report_match": true,
+    "command_count": 30,
+    "commands": "仅wf_steps status / wf_wrist status / wf_light status，各10条。",
+    "host_closed_span_seconds": 60.1236097,
+    "host_closed_span_not_physical_battery_duration": true,
+    "final_port_close": "2026-10-26T16:28:23.944228+08:00",
+    "resources_closed": true,
+    "device_control_sent": false,
+    "manual_final": "操作者确认常亮关闭、显示/触摸/KEY1/时间正常、腕和自动亮度开启；本轮设备操作结束。"
+  },
+  "limits": [
+    "没有出现自然I2C故障，不能宣布真实免重启恢复通过或原0x20根因已定位。",
+    "约40步只是动作提示，48是计数增量，不是精度误差率。",
+    "本窗无非零重启恢复或保存逐小时字节回读；mask仅是保存有效位。",
+    "本窗无受控OFF抬腕、自动亮度准确性、物理DEEP、电流或续航新结论；旧版七组UI未在b48完整重跑。"
+  ],
+  "commands": [
+    "startup_once.py pre --confirmed；startup_once.py flash --confirmed；startup_once.py post --confirmed（执行快照，仅本轮使用）",
+    "python -m unittest discover -s tests -p 'test_imu_acceptance.py' -v",
+    "python scripts/imu_acceptance.py --offline-walk --out <offline-sim-001|offline-cancel-001>（无--port，不开设备）",
+    "<SDK Python3.13.15> scripts/imu_acceptance.py --offline-walk --out artifacts/imu-recovery-hardware-20261026/device-003 --port COM5 --result artifacts/product/20261026-125321-730/result.json --flash artifacts/flash/product/20261026-152437-628/result.json --source-archive artifacts/imu-transient-recovery-20261026/final-product-20261026-125321-730.zip --expected-bin b48b442644ae13da49555669141890b76fb3fbe18567051cea7a0ef0fcde4287 --confirmed",
+    "python artifacts/imu-recovery-hardware-20261026/audit_once.py（只读已结束日志，生成派生文本与审计报告）",
+    "python scripts/lab_check.py --out <new.json> build --result <上述result> --flash <上述flash> --source-archive <上述ZIP>"
+  ],
+  "next_bounded_work": "本轮证据和适配交付后，继续真实指南针校准的软件预检；本轮不再追加设备操作。",
+  "files": [
+    {
+      "path": "scripts/imu_acceptance.py",
+      "bytes": 17710,
+      "sha256": "1451178ebb878b71f50c8530c80975bffb58a9694eff97771275d5bf43922abb"
+    },
+    {
+      "path": "tests/test_imu_acceptance.py",
+      "bytes": 4783,
+      "sha256": "c6f28eb4a823f44330ac150ef10961af3db98130c1c2d2037c4010cd8c45175d"
+    },
+    {
+      "path": "sdk.lock.json",
+      "bytes": 473,
+      "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/startup_once.py",
+      "bytes": 6531,
+      "sha256": "9cb6e2af07827dd79ba8cde749588e818a9c696882a7d76c00df4a04d730a9bf"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/pre-001/result.json",
+      "bytes": 5949,
+      "sha256": "f0772fdbd5a12532cd83396a7e4ca91cda024e847782aa70b7b1dbb9a881aa2a"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/pre-001/uart.bin",
+      "bytes": 4736,
+      "sha256": "2703449f47866ae1d0635313b0a87f5b3a616166bafdc64c5ac29023e2d4c41e"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/post-001/result.json",
+      "bytes": 5927,
+      "sha256": "71f2f8c9b4767e09c18bd17d5b4f6171da7502e080a5a51cb11344b37fa4f43e"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/post-001/uart.bin",
+      "bytes": 4913,
+      "sha256": "95f382fecd961f3d57f67362b81d05251fca25be2b6984ef39c75547eb6afe1e"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/flash-session.json",
+      "bytes": 621,
+      "sha256": "5d69fbfff76c8cbb8cdaed59206d9dd7cffa95e6ae45ee6ff8c93ba292181f1c"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/flash-dryrun.log",
+      "bytes": 452,
+      "sha256": "dd9547439cbbbb96e8341365a56b5f1f9fca859dd98db350c8a1614e6d814f03"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/flash.log",
+      "bytes": 911,
+      "sha256": "b84767e3cc4f9e308576da9d1b27577105a9047b78c1fb324a5b932fbd88b239"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/device-001/workflow.json",
+      "bytes": 509,
+      "sha256": "a7c10ef446f35ca3df2615df6c8ce09ba85135a7e073b6e5ac1e92fb26f51f7a"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/device-002/workflow.json",
+      "bytes": 2000,
+      "sha256": "955325988d15b408f6cf415fac491f7e6c79556bdce126c4788c9063204f9d83"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/device-002/uart.bin",
+      "bytes": 12062,
+      "sha256": "67b476120c305faa253269fc5125a905b4a63d734b3a27cd03d79763d0aca7af"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/offline-host-tests-001.log",
+      "bytes": 1343,
+      "sha256": "b683347bf7846f4d7aa2fe24ca2f69ae5bf29bff9bce93a83cd4b64fec7ec389"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/host-tests-delivery.log",
+      "bytes": 1343,
+      "sha256": "620a944365c207bfcb58fb2dcc176e66f9ddd8b2169d9c10be833376e5d3e9f8"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/offline-sim-001/binding.json",
+      "bytes": 316,
+      "sha256": "9c3c948e01af3eca8fe0ebdcae90b2612c729c2717149702b86f9899dc994ec0"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/offline-sim-001/workflow.json",
+      "bytes": 22582,
+      "sha256": "9f1bebc22103fd7c07b02c358989fbba3c1e0b977b35aa82d45d802edc4b9672"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/offline-sim-001/events.jsonl",
+      "bytes": 18249,
+      "sha256": "1a1371393e08c4f7c5553f7747d0bd53a4edd2f80402467f7864c61d41c92c18"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/offline-cancel-001/binding.json",
+      "bytes": 316,
+      "sha256": "9c3c948e01af3eca8fe0ebdcae90b2612c729c2717149702b86f9899dc994ec0"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/offline-cancel-001/workflow.json",
+      "bytes": 2058,
+      "sha256": "9504d39c51e9e9424d69bec21a7edfdd614b60884ce862c6e34e4803bef408ea"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/offline-cancel-001/events.jsonl",
+      "bytes": 2773,
+      "sha256": "d20c32d81f9fce0748fcb007b949bf2463efac5474f46fcf0217fd020730799a"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/device-003-source.py",
+      "bytes": 17710,
+      "sha256": "1451178ebb878b71f50c8530c80975bffb58a9694eff97771275d5bf43922abb"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/device-003/binding.json",
+      "bytes": 139440,
+      "sha256": "cbb4a132ce544964ea373351c45ae415f72993cdf261837333906b2c1c0e74d1"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/device-003/workflow.json",
+      "bytes": 16848,
+      "sha256": "7c7eabb4de7eeb00df4640241e6d1407ec980e87a1c4216a5f2cd5a942c20ff9"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/device-003/events.jsonl",
+      "bytes": 14003,
+      "sha256": "a578b089b9e173635bb24f259801b4817cb56d4a02694d233ca8580b17c53795"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/device-003/before/events.jsonl",
+      "bytes": 1947,
+      "sha256": "efe83e0707f0f9d82090ab207d5109d137491ec8275e70458415df8e9a4b8baf"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/device-003/before/uart.bin",
+      "bytes": 4169,
+      "sha256": "a8f12f1bf78ac6556b43a92e9776e42f08942f14915bb1edfad6c91b31ba0dbc"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/device-003/after/events.jsonl",
+      "bytes": 12250,
+      "sha256": "7f4b0ca514056af5ed339f261734b66194bc5a7908becdbfa26e6126b0296105"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/device-003/after/uart.bin",
+      "bytes": 39647,
+      "sha256": "fd5c76957183f02388c0d0a3a063d876829bca3dd69ce20c72c9ca92494f4e45"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/audit_once.py",
+      "bytes": 4696,
+      "sha256": "69f348e03562399df1c17553325cf86827833312e3e5d3cff85247606171133c"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/device-003-audit.json",
+      "bytes": 5210,
+      "sha256": "3dcf692476b724a0b354b094991afbece7671eaa73a141a2bf121c9b6d26fbb4"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/device-003-audit.log",
+      "bytes": 136,
+      "sha256": "6716fa7f171c51b12b694955042e866d8d3f96af31e2d2d27388daf9d7e8524e"
+    },
+    {
+      "path": "artifacts/imu-recovery-hardware-20261026/delivery-build-check.json",
+      "bytes": 134602,
+      "sha256": "440631d8eecd2613fe6b1064191f466083c6c098672e5487825bf6f7a2f9ed10"
+    },
+    {
+      "path": "artifacts/flash/product/20261026-152437-628/result.json",
+      "bytes": 1767,
+      "sha256": "0fa84472f5f8617db7d122b8ed49e9f912b2ed187ebcf710293dee5a8f638f7f"
+    }
+  ]
+}
