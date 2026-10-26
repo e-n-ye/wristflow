@@ -1,0 +1,476 @@
+{
+  "date": "2026-10-26",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "source_base": "7f7f1d12d699196f48d7b8e38377b60907bb36e9",
+  "source_identity": "Exact source hashes below; no Product source changed.",
+  "files": [
+    {
+      "path": "scripts/memsic_preflight.py",
+      "bytes": 15210,
+      "sha256": "9b8500fbc6bd39c0cb014d743fa2765938f63bbbd3a9afc8535893f612097794"
+    },
+    {
+      "path": "scripts/memsic_preflight/probe.c",
+      "bytes": 1652,
+      "sha256": "790bdf92ebefd34beece9a765d60b317f104750d232f3d42fc0af8fbbcf02b03"
+    },
+    {
+      "path": "scripts/memsic_preflight/math_bridge.c",
+      "bytes": 402,
+      "sha256": "025180461d97f2a6bdc2837e85f1ad7788e8de2627d581001c38758720c79c69"
+    },
+    {
+      "path": "scripts/requirements-memsic-preflight.txt",
+      "bytes": 32,
+      "sha256": "ce5d9382edbf8ec68df5b5c0e65f49a19a5f5e888123d6be3df2a44d572108d8"
+    },
+    {
+      "path": "scripts/lab_check.py",
+      "bytes": 14187,
+      "sha256": "5dfc3edc31080a0b56aaa7edb88dc8939caa7dbd669b8023fcbc7a2e7e000b1c"
+    },
+    {
+      "path": "scripts/lab_evidence.py",
+      "bytes": 1498,
+      "sha256": "618487f3802b663b347c1bbd97b081147df2ef31ae6f471a9fcf2ac692e64864"
+    },
+    {
+      "path": "sdk.lock.json",
+      "bytes": 473,
+      "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+    }
+  ],
+  "sdk": {
+    "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "submodules": {
+      "middleware/bluetooth": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c",
+      "tools/SiliconSchema": "304658c6edd5497211b7d152932327ce6e4450ff"
+    },
+    "clean": true
+  },
+  "candidate": [
+    {
+      "path": "vendor/SiFli-SDK/customer/peripherals/sensor/mmc36x0kj/MemsicAlgo.lib",
+      "bytes": 46832,
+      "sha256": "548ae98a703b0d6dafc09020a78deb271fbe9866bf1a2bd2918787f6a8fe5139"
+    },
+    {
+      "path": "vendor/SiFli-SDK/customer/peripherals/sensor/mmc36x0kj/MemsicAlgo.h",
+      "bytes": 5879,
+      "sha256": "6b8d55707d70111dec3b446531bcea651642866ec96975f9349da311c187e2a3"
+    },
+    {
+      "path": "vendor/SiFli-SDK/customer/peripherals/sensor/mmc36x0kj/MemsicCompass.h",
+      "bytes": 2889,
+      "sha256": "49df138ca2f865477c0cee3fec59e3b81fe077df35ff712aca4dd0d774051094"
+    }
+  ],
+  "tools": {
+    "python": "3.13.14",
+    "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+    "unicorn": "2.1.4",
+    "pyelftools": "0.33",
+    "uv": "uv 0.11.21 (5aa65dd7a 2026-06-11 x86_64-pc-windows-msvc)"
+  },
+  "validation": {
+    "source_review": "Read-only review identified outside-output failure; fixed and rerun.",
+    "changed_document_utf8_links_passed": true,
+    "git_diff_check_passed": true,
+    "source_and_artifact_hash_checks_passed": true,
+    "standalone_compile_succeeded": true,
+    "execution_completed": true,
+    "heading_gate_passed": false,
+    "calibration_gate_passed": true,
+    "candidate_passed": false,
+    "expected_candidate_exit_code": 1,
+    "trace_event_counts": {
+      "direction_input": 96,
+      "direction_output": 96,
+      "calibration_input": 2560,
+      "calibration_output": 2560,
+      "restore_input": 36,
+      "restore_output": 36,
+      "soft_matrix_input": 3,
+      "soft_matrix_output": 3
+    },
+    "repeated_numerical_results_identical": true,
+    "external_output_result_persisted": true,
+    "non_first_nan_rejected": true,
+    "missing_compiler_report_persisted": true
+  },
+  "command": "uv run --offline --no-project --with-requirements scripts/requirements-memsic-preflight.txt python scripts/memsic_preflight.py --cc .tools/sifli/tools/arm-none-eabi-gcc/14.2.1/bin/arm-none-eabi-gcc.exe --out artifacts/compass-calibration-preflight-20261026/run-004",
+  "validation_command": "uv run --offline --no-project --with-requirements scripts/requirements-memsic-preflight.txt python artifacts/compass-calibration-preflight-20261026/validate_preflight.py",
+  "compiler_command": [
+    "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\arm-none-eabi-gcc\\14.2.1\\bin\\arm-none-eabi-gcc.exe",
+    "-mcpu=cortex-m33",
+    "-mthumb",
+    "-mfpu=fpv5-sp-d16",
+    "-mfloat-abi=hard",
+    "-fshort-enums",
+    "-fshort-wchar",
+    "-Os",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-nostartfiles",
+    "--specs=nosys.specs",
+    "-Wl,-e,probe_init,--gc-sections",
+    "-Wl,-u,probe_step,-u,probe_math",
+    "-Wl,-Map=artifacts\\compass-calibration-preflight-20261026\\run-004\\probe.map",
+    "-ID:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\customer\\peripherals\\sensor\\mmc36x0kj",
+    "D:\\MY_Desk\\project\\wristflow\\scripts\\memsic_preflight\\probe.c",
+    "D:\\MY_Desk\\project\\wristflow\\scripts\\memsic_preflight\\math_bridge.c",
+    "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\customer\\peripherals\\sensor\\mmc36x0kj\\MemsicAlgo.lib",
+    "-lm",
+    "-o",
+    "artifacts\\compass-calibration-preflight-20261026\\run-004\\probe.elf"
+  ],
+  "math_bridge": {
+    "actual": [
+      1.5,
+      1.2661036727794992,
+      -0.41151684606748806,
+      0.9320390859672263,
+      0.7648421872844885,
+      -0.6435011087932843
+    ],
+    "expected": [
+      1.5,
+      1.2661036727794992,
+      -0.41151684606748806,
+      0.9320390859672263,
+      0.7648421872844885,
+      -0.6435011087932844
+    ],
+    "max_error": 1.1102230246251565e-16
+  },
+  "heading": {
+    "samples": 96,
+    "reference": "Clockwise magnetic north of the watch forward axis projected onto the horizontal plane; right/forward/up body frame.",
+    "threshold_degrees": 1,
+    "max_error": 180.0,
+    "before_mapping_max_error": 5.410064697265653,
+    "horizontal_examples": [
+      {
+        "yaw": 0,
+        "expected": 0.0,
+        "orientation": [
+          0.0,
+          -0.0,
+          0.0
+        ],
+        "mapping_inputs": [
+          0.0
+        ],
+        "heading_error": 0.0
+      },
+      {
+        "yaw": 89,
+        "expected": 89.0,
+        "orientation": [
+          89.4195327758789,
+          -0.0,
+          0.0
+        ],
+        "mapping_inputs": [
+          89.0
+        ],
+        "heading_error": 0.41953277587890625
+      },
+      {
+        "yaw": 90,
+        "expected": 90.0,
+        "orientation": [
+          0.0,
+          -0.0,
+          0.0
+        ],
+        "mapping_inputs": [
+          90.0
+        ],
+        "heading_error": 90.0
+      },
+      {
+        "yaw": 91,
+        "expected": 91.0,
+        "orientation": [
+          90.58047485351562,
+          -0.0,
+          0.0
+        ],
+        "mapping_inputs": [
+          90.99999237060547
+        ],
+        "heading_error": 0.419525146484375
+      },
+      {
+        "yaw": 180,
+        "expected": 180.0,
+        "orientation": [
+          0.0,
+          -0.0,
+          0.0
+        ],
+        "mapping_inputs": [
+          180.0
+        ],
+        "heading_error": 180.0
+      },
+      {
+        "yaw": 270,
+        "expected": 270.0,
+        "orientation": [
+          0.0,
+          -0.0,
+          0.0
+        ],
+        "mapping_inputs": [
+          270.0
+        ],
+        "heading_error": 90.0
+      }
+    ],
+    "interpretation": "Internal mapping receives 90/180/270 degrees but final output is zero. Compound-tilt reference difference remains unexplained; not proof of a broken tilt algorithm."
+  },
+  "calibration_thresholds": {
+    "bias_axis_gauss": 0.01,
+    "radius_relative": 0.02,
+    "restored_field_gauss": 0.01
+  },
+  "calibration": [
+    {
+      "kind": "stationary",
+      "noise_gauss": 0,
+      "samples": 512,
+      "accuracy_levels": [
+        0
+      ],
+      "last_accuracy": 0,
+      "last_reliable_parameters": null,
+      "reliable_update_count": 0
+    },
+    {
+      "kind": "horizontal",
+      "noise_gauss": 0,
+      "samples": 512,
+      "accuracy_levels": [
+        0,
+        1
+      ],
+      "last_accuracy": 1,
+      "last_reliable_parameters": null,
+      "reliable_update_count": 0
+    },
+    {
+      "kind": "three_dimensional",
+      "noise_gauss": 0,
+      "samples": 512,
+      "accuracy_levels": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "last_accuracy": 3,
+      "last_reliable_parameters": [
+        0.30000001192092896,
+        -0.25,
+        0.14999999105930328,
+        0.4609772264957428
+      ],
+      "bias_error": [
+        1.1920928966180355e-08,
+        0.0,
+        -8.940696710757479e-09
+      ],
+      "radius_relative_error": 7.876958550983648e-09,
+      "parameters_within_threshold": true,
+      "fresh_restore_max_field_error_gauss": 3.7326078450306e-08,
+      "restored_field_within_threshold": true,
+      "reliable_update_count": 12
+    },
+    {
+      "kind": "three_dimensional",
+      "noise_gauss": 0.001,
+      "samples": 512,
+      "accuracy_levels": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "last_accuracy": 3,
+      "last_reliable_parameters": [
+        0.2996461093425751,
+        -0.24971891939640045,
+        0.1498919278383255,
+        0.4610620141029358
+      ],
+      "bias_error": [
+        -0.00035389065742491566,
+        0.00028108060359954834,
+        -0.00010807216167449396
+      ],
+      "radius_relative_error": 0.00018393802141579492,
+      "parameters_within_threshold": true,
+      "fresh_restore_max_field_error_gauss": 0.0003539047066831724,
+      "restored_field_within_threshold": true,
+      "reliable_update_count": 12
+    },
+    {
+      "kind": "smooth_three_dimensional",
+      "noise_gauss": 0,
+      "samples": 512,
+      "accuracy_levels": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "last_accuracy": 3,
+      "last_reliable_parameters": [
+        0.30000001192092896,
+        -0.25,
+        0.14999999105930328,
+        0.4609771966934204
+      ],
+      "bias_error": [
+        1.1920928966180355e-08,
+        0.0,
+        -8.940696710757479e-09
+      ],
+      "radius_relative_error": 5.677335584523566e-08,
+      "parameters_within_threshold": true,
+      "fresh_restore_max_field_error_gauss": 3.7326078450306e-08,
+      "restored_field_within_threshold": true,
+      "reliable_update_count": 3
+    }
+  ],
+  "soft_matrix": {
+    "interpretation": "Observed M-transpose times raw magnetic vector minus bias for these three vectors only; no matrix-learning proof.",
+    "max_observed_error": 5.888938908737984e-08,
+    "input_matrix_preserved": true
+  },
+  "standalone_size": "text\t   data\t    bss\t    dec\t    hex\tfilename\n  25422\t    488\t   1448\t  27358\t   6ade\tartifacts/compass-calibration-preflight-20261026/run-004/probe.elf",
+  "local_artifacts": [
+    {
+      "path": "artifacts/compass-calibration-preflight-20261026/run-004/result.json",
+      "bytes": 76193,
+      "sha256": "cd38c0e5f5da967bd0481263578e0cd2726b674440632c62f898a96e0d78a9cf"
+    },
+    {
+      "path": "artifacts/compass-calibration-preflight-20261026/run-004/trace.jsonl",
+      "bytes": 1434939,
+      "sha256": "b4805140eff2df3b7372f01a809c9caa77e3f9a6e4e8ff4b0b5ebc5ac47b67bd"
+    },
+    {
+      "path": "artifacts/compass-calibration-preflight-20261026/run-004/probe.elf",
+      "bytes": 60536,
+      "sha256": "22bed7ce5acdf0890e45afe607233c4378d3680fd0922ca1d7e674cd66bea82f"
+    },
+    {
+      "path": "artifacts/compass-calibration-preflight-20261026/run-004/probe.map",
+      "bytes": 126840,
+      "sha256": "c182f5052c808a793dece3a5508276bdd921c4635c2a4a506b3eebde24872412"
+    },
+    {
+      "path": "artifacts/compass-calibration-preflight-20261026/run-004/build.log",
+      "bytes": 22169,
+      "sha256": "340f22c3676fbc1732145be72f53ec296289caf7c36b13158b0f9bd775cb84dc"
+    },
+    {
+      "path": "artifacts/compass-calibration-preflight-20261026/run-004/size.txt",
+      "bytes": 158,
+      "sha256": "3cb25ade7113e7c5c9541eb8331d43e3badd76e370db533147ceb0b9059d7879"
+    },
+    {
+      "path": "artifacts/compass-calibration-preflight-20261026/run-004/octagon-disassembly.txt",
+      "bytes": 14191,
+      "sha256": "4f6d14d8e0446e33962f68c804b2a7acd365aed70f4b0a57310e4ab37622135a"
+    },
+    {
+      "path": "artifacts/compass-calibration-preflight-20261026/run-004.log",
+      "bytes": 420,
+      "sha256": "63bf9728935a38526f039479f0c7d6ed519d709725c3a02c433ce78adb86154a"
+    },
+    {
+      "path": "artifacts/compass-calibration-preflight-20261026/external-output-002.log",
+      "bytes": 420,
+      "sha256": "63bf9728935a38526f039479f0c7d6ed519d709725c3a02c433ce78adb86154a"
+    },
+    {
+      "path": "artifacts/compass-calibration-preflight-20261026/failure-001/result.json",
+      "bytes": 716,
+      "sha256": "fe7ca0bbd4f9ad314c4d76b7ebbf964237cfafd876f3200ec80b54c2d866f728"
+    },
+    {
+      "path": "artifacts/compass-calibration-preflight-20261026/run-003.log",
+      "bytes": 405,
+      "sha256": "dadcc24074d94a4c7ca946c48c8f5e5d4b4bcf38279b5364ddb71ec0a59259da"
+    },
+    {
+      "path": "artifacts/compass-calibration-preflight-20261026/external-output.log",
+      "bytes": 411,
+      "sha256": "fa655eab322a930003ceb629c625c5a8abdae41a4a6445dcb8674ee603beb57c"
+    },
+    {
+      "path": "artifacts/compass-calibration-preflight-20261026/validate_preflight.py",
+      "bytes": 8468,
+      "sha256": "5f227fca337eec55af804d7c5d9d437a0d653a094f60e4e80af98f35a6cf1e7d"
+    }
+  ],
+  "external_output_check": {
+    "path": "D:\\MY_Desk\\project\\wristflow-memsic-preflight-20261026\\run-002",
+    "artifacts": [
+      {
+        "path": "D:\\MY_Desk\\project\\wristflow-memsic-preflight-20261026\\run-002\\probe.elf",
+        "bytes": 60536,
+        "sha256": "22bed7ce5acdf0890e45afe607233c4378d3680fd0922ca1d7e674cd66bea82f"
+      },
+      {
+        "path": "D:\\MY_Desk\\project\\wristflow-memsic-preflight-20261026\\run-002\\probe.map",
+        "bytes": 126846,
+        "sha256": "daa7361cc8454f3e14c1545f5ccf331451eafe176715905a2c1963c5f4d75a8d"
+      },
+      {
+        "path": "D:\\MY_Desk\\project\\wristflow-memsic-preflight-20261026\\run-002\\build.log",
+        "bytes": 22169,
+        "sha256": "340f22c3676fbc1732145be72f53ec296289caf7c36b13158b0f9bd775cb84dc"
+      }
+    ],
+    "trace": {
+      "path": "D:\\MY_Desk\\project\\wristflow-memsic-preflight-20261026\\run-002\\trace.jsonl",
+      "bytes": 1434939,
+      "sha256": "b4805140eff2df3b7372f01a809c9caa77e3f9a6e4e8ff4b0b5ebc5ac47b67bd"
+    },
+    "result": {
+      "path": "D:\\MY_Desk\\project\\wristflow-memsic-preflight-20261026\\run-002\\result.json",
+      "bytes": 76253,
+      "sha256": "3a2fa759e9632c225e928fca4e464d1536e11b39d216c08f7515e62f05dc166a"
+    },
+    "exit_code": 1
+  },
+  "preserved_failures": [
+    "initial-001: four horizontal cardinal outputs were zero; retained local exploratory inputs/results.",
+    "run-001/run-002: candidate heading gate failed; retained local original reports.",
+    "run-003 and first external-output attempt: uv dependency fetch exited 2 before script startup because the configured local proxy was unavailable; cached --offline reruns completed.",
+    "Linker warnings about nosys stubs and wchar/enum ABI remain in build.log. Six math cases and M33 execution validate only this probe, not a complete ABI certification.",
+    "Changed-doc check first failed because this evidence file was not yet written; the explicit changed-document UTF-8/link check passed after writing."
+  ],
+  "boundaries": {
+    "product_build": false,
+    "hardware_verified": false,
+    "sdk_changed": false,
+    "device_io": false,
+    "candidate_binary_copied": false,
+    "calibration_motion": "Vendor interface/sample do not prescribe a figure eight. Synthetic 512 samples are not a physical duration or an operator success claim.",
+    "unknowns": [
+      "MMC5603 applicability",
+      "specific usage/license conditions",
+      "compound-tilt heading definition",
+      "real acceleration/magnetic axes and pairing",
+      "Product incremental memory/runtime resources",
+      "real device calibration quality"
+    ]
+  },
+  "next_bounded_experiment": "Define a verifiable calibrated-field to watch-forward magnetic-heading adapter boundary and resolve candidate applicability/usage before Product integration; no device action in this round."
+}

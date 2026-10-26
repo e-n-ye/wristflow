@@ -46,6 +46,7 @@
 | 本地实验公共检查 | `scripts/lab_check.py`持有build／files／docs命令，复用lab_evidence；读现有Build／Flash结果、显式证据列表和Git限定差异，输出带输入指纹的JSON。serial_lab的capture复用该检查与battery_device的CH340端点核验，按期望BIN／传输记录／当前人工连续性确认绑定，再在共享锁下重核后打开 | [检查与重验条件](HARDWARE-TEST-WORKFLOW.md#公共检查与重验条件)；检查器只读本地输入，不构建／开设备；capture仍限制缓存查询或被动记录，不替代器件会话守卫、完整构建依赖分析或人工语义审阅；原始源码ZIP仅用于证明换行例外，产物严格按字节 |
 | 已交付UI集中验收适配 | `scripts/ui_acceptance.py`复用Console／Journal、RecordedSession及serial_lab的构建／传输／端点绑定；固定本轮七组人工步骤，动作期间仅被动UART，前后只读缓存 | [协作入口](HARDWARE-TEST-WORKFLOW.md#shared-operator-workflow)；无控制、复位、校时或自动重连。模拟默认不开设备；人工确认、串口证据与物理验收分别判定，缓存超时warning不能冒充状态通过 |
 | 原生日常计步验收适配 | `scripts/imu_acceptance.py`复用同一Console／Journal、RecordedSession及serial_lab绑定；只解析steps／wrist／light缓存，持有非零增量／小时连续性、自然保存和末态判定；`--offline-walk`先关口再拔线，人工接回后重新核绑定与端点，前后原始日志分存 | [协作入口](HARDWARE-TEST-WORKFLOW.md#shared-operator-workflow)；默认模拟，不下载／重启／校时／发送save或控制传感器。连续性检查不作唯一启动身份证明，保存mask不冒充逐小时存储内容；无真实故障时只记未复现，原始UART与人工确认分别保留 |
+| 厂商指南针算法离线预检 | `scripts/memsic_preflight.py`与`memsic_preflight/probe.c`／`math_bridge.c`只构建独立M33探针并仿真锁定SDK候选；`requirements-memsic-preflight.txt`固定主机依赖，复用lab_check的SDK检查及lab_evidence | [预检记录](COMPASS.md#algorithm-preflight-20261026)；不纳入Product/SCons、不访问端点、不改SDK或复制候选二进制。四向／姿态、偏置校准与参数恢复分项判定；负结果退出1，保留trace与上下文，不把执行完成算候选通过 |
 
 板型、SDK 提交、子模块及工具锁来源以 [sdk.lock.json](../sdk.lock.json) 为准；应用配置源为各 `apps/<目标>/project/` 下实际文件，包括存在时的板型覆盖目录。构建产生的 `.config` / `rtconfig.h` 是结果，不是手工维护配置源。厂商 `vendor/SiFli-SDK` 为固定 gitlink，功能任务不改厂商与子模块；确需进入时先读该目录适用规则。
 
