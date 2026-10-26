@@ -13,6 +13,8 @@ typedef struct {
 } wf_imu_io_t;
 typedef enum { WF_IMU_UNPROBED, WF_IMU_READY, WF_IMU_RUNNING, WF_IMU_DONE, WF_IMU_FAULT } wf_imu_phase_t;
 typedef enum { WF_IMU_NO_END, WF_IMU_USER_STOP, WF_IMU_DEADLINE, WF_IMU_IO_FAILURE } wf_imu_end_t;
+typedef enum { WF_IMU_POLL_OK, WF_IMU_POLL_TRANSFER, WF_IMU_POLL_CONFIG,
+    WF_IMU_POLL_INCOHERENT } wf_imu_poll_failure_t;
 typedef struct {
     wf_imu_phase_t phase;
     wf_imu_end_t ended;
@@ -20,6 +22,9 @@ typedef struct {
     uint16_t steps;
     uint8_t who, threshold, debounce;
     bool counter_valid, stop_verified;
+    uint32_t poll_retries, poll_recoveries, failure_ms;
+    wf_imu_poll_failure_t poll_failure; /* Last failed observation, retained after recovery. */
+    uint8_t failure_reg;
 } wf_imu_steps_snapshot_t;
 typedef struct {
     wf_imu_io_t io;
@@ -28,6 +33,9 @@ typedef struct {
     bool budget_active;
     bool continuous;
     bool wrist_enabled; /* Same owner has confirmed the extra CTRL10 bit. */
+    /* Optional bounded backoff; only continuous read-only observations retry. */
+    void (*retry_delay_ms)(void *, uint32_t);
+    uint8_t failed_reg;
 } wf_imu_pedometer_t;
 
 /* One caller owns the device and register bank. No recognition algorithm here:

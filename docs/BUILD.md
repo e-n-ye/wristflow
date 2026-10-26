@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-10-26 日常IMU瞬态读取恢复
+
+从`84f25c8`增加continuous安全读流程的一次保数重试及缓存故障定位，不改硬件计步算法／SDK／UI。相关Debug及保留断言Release各10/10通过，审查只补两项断言后worker两配置各1/1再次通过；首次集成误判自动亮度活动IDLE的失败与修正保留在[软件证据](evidence/2026-10-26/imu-transient-recovery.json)。
+
+沿用官方`pwsh -NoProfile -File scripts/Build.ps1 -Example product -Jobs 4`，Product`20261026-125321-730`退出0、586源码／29产物严格字节核验通过，BIN`b48b4426…`为8,327,916B，较`80bd40fe…`增728B。`readelf`确认Flash加载末端`0x128112ec`，8MiB应用区余60,692B；SDK静态RAM252,348B较前增88B，运行期峰值未测，ROM重复汇总仍沿用下节边界。来源／产物ZIP与命令指纹在本地主目录忽略的`artifacts/imu-transient-recovery-20261026/`保全。只改Product专属传感器代码，不重编无关Demo；没有串口、下载或真实恢复新增证据。
+
 ## 2026-10-25 天气XML与选择器容量
 
 基线`bdf4e67`，沿用官方`pwsh -NoProfile -File scripts/Build.ps1 -Example <product|ui_demo> -Jobs 4`。Product`20261025-202842-792`／BIN`80bd40fe…`（8,327,188B）、Demo`20261025-202959-459`／BIN`b62af42a…`（8,056,184B）退出0及产物校验通过；`lab_check.py build`复核586／526源码、29／22产物字节一致，SDK／子模块锁保持干净。最终来源及产物分别校验保存在本地`artifacts/weather-xml-20261025/final-<target>-<stamp>.zip`，便于后续Git换行归一化或构建覆盖后的追溯。

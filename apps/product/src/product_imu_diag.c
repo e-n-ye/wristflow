@@ -33,6 +33,13 @@ static struct rt_event work;
 static struct rt_i2c_bus_device *bus;
 static wf_imu_pedometer_t device;
 static wf_imu_steps_snapshot_t cached;
+typedef struct {
+    uint32_t failures, started_ms, completed_ms, requested, returned;
+    uint8_t address, reg;
+    bool write;
+} imu_io_failure_t;
+static imu_io_failure_t io_failure, io_failure_cached;
+static bool io_failure_in_cycle;
 static enum command pending;
 static unsigned seconds;
 static uint8_t address;
@@ -207,15 +214,35 @@ static bool wrist_int1_prepare(void)
     rt_pin_mode(GET_PIN(1, 31), PIN_MODE_INPUT);
     return true;
 }
+static void record_io_failure(bool write, uint8_t reg, size_t requested,
+    size_t returned, uint32_t started)
+{
+    uint32_t failures = io_failure.failures + 1U;
+    /* Keep the first failure in this worker turn, before cleanup can obscure
+     * the original operation. Status only reads the published copy. */
+    if (!io_failure_in_cycle) {
+        io_failure = (imu_io_failure_t){.started_ms = started, .completed_ms = now_ms(),
+            .requested = (uint32_t)requested, .returned = (uint32_t)returned,
+            .address = address, .reg = reg, .write = write};
+        io_failure_in_cycle = true;
+    }
+    io_failure.failures = failures;
+}
 static bool read_reg(void *context, uint8_t reg, uint8_t *data, size_t size)
 {
     (void)context;
-    return rt_i2c_mem_read(bus, address, reg, 8, data, size) == size;
+    uint32_t started = now_ms();
+    size_t returned = rt_i2c_mem_read(bus, address, reg, 8, data, size);
+    if (returned != size) record_io_failure(false, reg, size, returned, started);
+    return returned == size;
 }
 static bool write_reg(void *context, uint8_t reg, uint8_t value)
 {
     (void)context;
-    return rt_i2c_mem_write(bus, address, reg, 8, &value, 1) == 1;
+    uint32_t started = now_ms();
+    size_t returned = rt_i2c_mem_write(bus, address, reg, 8, &value, 1);
+    if (returned != 1) record_io_failure(true, reg, 1, returned, started);
+    return returned == 1;
 }
 static bool light_read(void *context, uint8_t reg, uint8_t *value)
 { (void)context; return rt_i2c_mem_read(bus, 0x29, reg, 8, value, 1) == 1; }
@@ -252,6 +279,7 @@ static void publish(void)
         mag.snapshot.phase == WF_MAG_RUNNING || mag.snapshot.owned);
     rt_base_t level = rt_hw_interrupt_disable();
     cached = device.snapshot;
+    io_failure_cached = io_failure;
     wrist_cached = wrist.snapshot;
     light_cached = light.snapshot;
     mag_cached = mag.snapshot;
@@ -953,6 +981,7 @@ static void report(void)
 {
     rt_base_t level = rt_hw_interrupt_disable();
     wf_imu_steps_snapshot_t s = cached;
+    imu_io_failure_t f = io_failure_cached;
     rt_hw_interrupt_enable(level);
     rt_kprintf("[imu-steps] phase=%u end=%u counter_valid=%u steps=%u stop_verified=%u\n",
         s.phase, s.ended, s.counter_valid, s.steps, s.stop_verified);
@@ -961,6 +990,12 @@ static void report(void)
         (unsigned long)s.duration_ms, (unsigned long)s.sampled_ms);
     rt_kprintf("[imu-steps] io_errors=%lu incoherent=%lu; native counter, not daily steps\n",
         (unsigned long)s.io_errors, (unsigned long)s.incoherent_reads);
+    rt_kprintf("[imu-recovery] retries=%lu recovered=%lu last_failure=%u reg=0x%02x ms=%lu\n",
+        (unsigned long)s.poll_retries, (unsigned long)s.poll_recoveries,
+        s.poll_failure, s.failure_reg, (unsigned long)s.failure_ms);
+    rt_kprintf("[imu-io] failures=%lu write=%u addr=0x%02x reg=0x%02x requested=%lu returned=%lu begin=%lu end=%lu\n",
+        (unsigned long)f.failures, f.write, f.address, f.reg, (unsigned long)f.requested,
+        (unsigned long)f.returned, (unsigned long)f.started_ms, (unsigned long)f.completed_ms);
 }
 static void worker(void *context)
 {
@@ -1016,6 +1051,7 @@ static void worker(void *context)
         rt_event_recv(&work, EV_COMMAND | EV_STOP | EV_DAILY_START | EV_SCREEN | EV_SAVE | EV_WRIST | EV_WRIST_STOP |
             EV_WRIST_POLICY | EV_WRIST_IRQ | EV_LIGHT | EV_LIGHT_STOP | EV_AUTO_LIGHT | EV_MAG | EV_MAG_STOP | EV_COMPASS,
             RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, wait, &events);
+        io_failure_in_cycle = false;
         if (daily_mode) {
             daily_work(events);
             continue;
@@ -1303,6 +1339,9 @@ static bool start(bool daily_service)
     if (ready) return daily_mode == daily_service;
     if (rt_event_init(&work, "wf_imu", RT_IPC_FLAG_PRIO) != RT_EOK) return false;
     wf_imu_pedometer_init(&device, (wf_imu_io_t){NULL, read_reg, write_reg, io_clock, io_cancelled});
+    device.retry_delay_ms = wrist_delay;
+    io_failure = io_failure_cached = (imu_io_failure_t){0};
+    io_failure_in_cycle = false;
     wf_imu_wrist_init(&wrist, (wf_imu_io_t){NULL, read_reg, write_reg, io_clock, wrist_cancelled}, wrist_delay);
     wf_ltr303_init(&light, (wf_ltr303_io_t){NULL, light_read, light_write, io_clock, light_cancelled});
     wf_mmc5603_init(&mag, (wf_mmc5603_io_t){NULL, mag_read, mag_write, io_clock, mag_cancelled, wrist_delay});
