@@ -1,0 +1,124 @@
+{
+  "date": "2026-10-25",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/ui-alignment-hardware",
+  "base_commit": "1c64ff661848815dd8bd7abfffe27d5b820e3f51",
+  "scope": "用户要求先验已交付①②③，再继续磁校准和闪屏；本轮未改固件源码或重编",
+  "authorization": {
+    "hardware": "用户新确认同板屏、原电池＋电脑USB、接线固定且人在旁，允许下载已核验80bd40fe",
+    "startup": "下载后用户确认显示、触摸、KEY1、时间正常并准备常亮与真实手机天气",
+    "recovery": "发现故障、保全证据并说明wf_steps retry会重建计步基线后，用户另准一次普通SDK reboot及重开自动亮度观察",
+    "final": "已关闭，末态正常，两项保持开启（临时常亮关闭，抬腕及自动亮度开启）"
+  },
+  "preflight": {
+    "build_result": "artifacts/product/20261025-202842-792/result.json",
+    "source_archive": "artifacts/weather-xml-20261025/final-product-20261025-202842-792.zip",
+    "main_bin_sha256": "80bd40fe8b64ad11ade0bdb4c9d3c64039b5b5a5f8bc016b1a6557ba4d104845",
+    "sources": 586,
+    "source_crlf_only": 37,
+    "artifacts": 29,
+    "sdk_lock_clean": true,
+    "retained_hook": "main.map:30217-30219, BSP_PowerUpCustom来自product_charger.o的l1_ret段；未改源码",
+    "endpoint": "COM5 / CH340 1A86:7523 / location1-1.1 / DisableModemOutHandShake=1；每次开口在共享内核租约下重核",
+    "prior_state": "RTC当前；计步0、native0、检查点138 verified/clean、小时saved mask3fffff；腕请求开启，自动亮度偏好开启"
+  },
+  "flash_and_startup": {
+    "flash_result": "artifacts/flash/product/20261025-211856-439/result.json",
+    "started_utc": "2026-10-25T13:18:55.607723Z",
+    "ended_utc": "2026-10-25T13:21:49.684133Z",
+    "exit_code": 0,
+    "images": "三镜像write_flash --verify，未整片擦除或直接写settings",
+    "extra_rts": false,
+    "startup_clock": "show_date先读到2000；仅一次wf_time 1792934550，随后读回2026-10-25 13:22:32 UTC",
+    "post_state": "0步／native0／checkpoint138和小时mask3fffff保留；腕requested/armed/owned1，自动亮度偏好开启、AOD时按资格暂停",
+    "pm_hold_acquired": false
+  },
+  "host_adapter": {
+    "path": "scripts/ui_acceptance.py",
+    "execution_sha256": "b3d0100f8f2be72fef68a209393dc0a3699c0efd91715fa4f657932eb3ea620f",
+    "execution_snapshot": "artifacts/ui-alignment-hardware-20261025/device-001/ui_acceptance-source.py",
+    "reuse": "Console / Journal / RecordedSession / serial_lab.prepare_capture；不导入历史artifacts代码",
+    "limits": "20分钟总窗口、每步600秒；动作中仅被动UART，首末缓存查询；无复位、校时、PM、charger、传感器控制或自动重连",
+    "validation": [
+      "浏览器模拟逐步确认7/7，exit0；独立取消模拟outcome=cancelled、exit1，未打开端点",
+      "假transport验证5个禁止命令在I/O前被拒绝：PM hold、wf_time、reboot、mag start、charger start",
+      "独立只读审查未见开口／资源释放／人工确认仲裁阻断；snapshot warning不能当作状态核验通过"
+    ]
+  },
+  "original_device_window": {
+    "directory": "artifacts/ui-alignment-hardware-20261025/device-001",
+    "open_utc": "2026-10-25T13:26:51.667519Z",
+    "closed_utc": "2026-10-25T13:33:39.201549Z",
+    "uart_bytes": 26515,
+    "uart_sha256": "bbf40e55e2e6b98648b2254e361e4969b577e681a8026775711e22bfc8e1ade3",
+    "events_sha256": "2f11a4c98e9a707368f32037d55a5c3827c6975200c192e94f0899f901d38fe5",
+    "workflow_sha256": "f4a3973da551fcfbeee9cf57f2b5fcea08cc5a61a74653c0c3265805cc6479c7",
+    "transport": "仅首末各6条缓存查询，共12条；中间动作无TX；无查询超时，串口与主机资源已释放，内核租约重新取得／释放",
+    "operator_checks": [
+      {"id": "temperature", "confirmed_utc": "2026-10-25T13:27:58.347526Z", "scope": "天气组件编辑及两色选择预览度符号无方框，滚动／返回正常"},
+      {"id": "countdown", "confirmed_utc": "2026-10-25T13:29:09.062759Z", "scope": "约30秒、左灰右蓝，暂停／继续、到期关闭及退出"},
+      {"id": "breathing", "confirmed_utc": "2026-10-25T13:30:41.205144Z", "scope": "同心圆入口图标与灰键，重新开始、1分钟自然完成／完成退出"},
+      {"id": "stopwatch", "confirmed_utc": "2026-10-25T13:32:12.460402Z", "scope": "50条累计计次、最新在上／滚动／满后禁计次，暂停／继续、短睡KEY恢复保留、重置清空"},
+      {"id": "battery", "confirmed_utc": "2026-10-25T13:32:27.154580Z", "scope": "信息／功能卡灰底圆角与文字、说明及返回"},
+      {"id": "weather", "confirmed_utc": "2026-10-25T13:33:13.223593Z", "scope": "真实手机天气五页、小时第6组／每日第2组与分页点、上下滑、文字图标单位、返回重入"},
+      {"id": "final", "confirmed_utc": "2026-10-25T13:33:38.037779Z", "scope": "用户页面／输入／时间及关闭临时常亮的主观确认；不能覆盖下述客观传感器故障"}
+    ],
+    "human_boundary": "这些是明确逐项人工确认；程序不验证物理动作，UART没有独立证明50条计次或每个页面像素。40候选只属主机fixture，不要求设备出现40项。",
+    "independent_uart": "可见display sleeping和KEY唤醒、AOD切换；未见冷启动／断言标记。UI缓存mismatch0，末surface0/settled1，RTC当前；PM allow1且DEEP计数0。"
+  },
+  "failure": {
+    "source": "device-001/uart-decoded.txt:265-267,589-599,624-639；文本是原始UART派生，原字节保留",
+    "wire_log": "bus err:1, xfer:0/1, i2c_stat:24, i2c_errcode=20；reset and send 9 clks",
+    "interpretation": "日志用%x，0x20为HAL_I2C_ERROR_TIMEOUT；依据锁定SDK drv_i2c.c:1004/1207与bf0_hal_i2c.h:149，不是凭名称猜NACK",
+    "imu": "由phase2/io_errors0/daily valid1变phase4/end3/io_errors1；stop_verified1/counter_valid1、daily valid0。total/native/hour sum0，保存generation138 verified1/dirty0/failed0保持。",
+    "light": "LTR errors0、DONE/CANCELLED、owned0/restored1；auto enabled0/active0/valid0/fault1/cleanup0，支持IMU失败后的连带保护停用，不能认定光感原发I/O错误。",
+    "wrist": "请求0→1，末armed0/owned0；用户记得调整过抬腕并在续航优化点按，该页只能关腕／常亮。具体开关次数／时点未复原，存在人工混杂，不单独判腕故障；IMU故障也会阻止腕重新运行。",
+    "source_cause_chain": "imu_pedometer.c:147-162轮询失败即stop(IO_FAILURE)，成功清理仍保留FAULT；product_imu_diag.c:502-524先IMU后光感，666-667在IMU非RUNNING时auto_stop/auto_fail。",
+    "unknown": "失败地址／寄存器／调用点和原始超时原因未记录；未认定接线、芯片、SDK或XML是根因。",
+    "retry_not_used": "wf_steps retry会daily_steps_init、重建硬件计数，常规运行期不重新seed检查点；不当作保数重连发送。"
+  },
+  "bounded_recovery": {
+    "directory": "artifacts/ui-alignment-hardware-20261025/reboot-001",
+    "ordinary_reboots_sent": 1,
+    "rts_reset": false,
+    "clock_write": false,
+    "pm_control": false,
+    "rtc_before_utc": "2026-10-25T13:48:40Z",
+    "rtc_after_utc": "2026-10-25T13:48:53Z",
+    "restored": "storage restore=yes；checkpoint138、total0、小时mask3fffff/sum0恢复；IMU RUNNING/io_errors0/valid1，腕requested/armed/owned1。自动亮度按回退后保存偏好关闭，fault已清。",
+    "startup_probe": "0x6a who6a匹配、备用0x6b探测失败伴errcode24，随后运行IMU错误0；与本轮运行期超时分开，不伪称日志全无错误。",
+    "light_watch": "用户重新开启自动亮度和临时5分钟常亮后，13:52:17.896503–13:52:47.983161 UTC有界采集约30秒；6份缓存均enabled/active/valid1、fault/cleanup0，session1 seq20→45，首末样本时刻跨26.005秒。不是逐毫秒连续有效或全部场景复验。",
+    "final_uart": "13:52:50 UTC；IMU RUNNING/io_errors0、计步valid1/total0/checkpoint138/mask3fffff，腕requested/armed/owned1；auto session1 seq54/valid1/fault0/cleanup0，UI mismatch0/settled1，allow1。13:52:57关闭COM5。",
+    "operator_cleanup": "用户确认关闭临时常亮、显示／触摸／时间正常、腕及自动亮度均开启；关闭常亮后未追加串口或按键。主机内核租约再次可取得并释放。",
+    "adjudication": "本次恢复有界通过；原始超时根因未解决，不用恢复结果覆盖原故障或宣称固件已修复。"
+  },
+  "commands": [
+    "python scripts/lab_check.py --out artifacts/ui-alignment-hardware-20261025/build-check-002.json build --result artifacts/product/20261025-202842-792/result.json --source-archive artifacts/weather-xml-20261025/final-product-20261025-202842-792.zip",
+    "pwsh -NoProfile -File scripts/Flash.ps1 -Example product -Port COM5 -DryRun；后在PortLease内同命令去掉-DryRun",
+    "SDK Python3.13.15运行本地startup.py pre/post；只导入维护中的lab_serial和port_identity",
+    "SDK Python scripts/ui_acceptance.py --out <模拟目录>；浏览器分别完成7步和取消",
+    "SDK Python scripts/ui_acceptance.py --out artifacts/ui-alignment-hardware-20261025/device-001 --port COM5 --location 1-1.1 --result artifacts/product/20261025-202842-792/result.json --flash artifacts/flash/product/20261025-211856-439/result.json --source-archive artifacts/weather-xml-20261025/final-product-20261025-202842-792.zip --expected-bin 80bd40fe8b64ad11ade0bdb4c9d3c64039b5b5a5f8bc016b1a6557ba4d104845 --confirmed",
+    "用户另准后：SDK Python artifacts/ui-alignment-hardware-20261025/reboot.py；只发送一次普通reboot，前后缓存取证，不触发RTS／补时",
+    "SDK Python scripts/serial_lab.py capture --mode light --seconds 30 --interval 5 --port COM5 --location 1-1.1 --result artifacts/product/20261025-202842-792/result.json --flash artifacts/flash/product/20261025-211856-439/result.json --source-archive artifacts/weather-xml-20261025/final-product-20261025-202842-792.zip --expected-bin 80bd40fe8b64ad11ade0bdb4c9d3c64039b5b5a5f8bc016b1a6557ba4d104845 --confirm-same-board-and-firmware --out artifacts/ui-alignment-hardware-20261025/light-recovery-001"
+  ],
+  "local_manifest": {
+    "path": "artifacts/ui-alignment-hardware-20261025/final-files.json",
+    "sha256": "b7075826750c32e7e40c02faa0ce14150a6ff9246d557402afb2c117a0667f5c",
+    "files": 22,
+    "content": "执行适配源快照、构建检查／DryRun／端点／Flash结果、原始UART／阶段事件／模拟／取消／恢复报告及释放记录；本地忽略证据，不是仓库内可下载附件"
+  },
+  "failures_preserved": [
+    "首次本地build-check命令在10秒观察上限被工具终止，未完成报告不冒充成功；新输出build-check-002独立完成exit0。未因此重编固件。",
+    "模拟取消按预期exit1，原记录保留。",
+    "实机workflow passed仅代表七组人工确认／流程及资源释放；独立UART发现传感器故障，另记原窗口sensor_health=failed。",
+    "普通重启及30秒恢复结果不覆盖原失败，也不证明原始I2C根因已定。"
+  ],
+  "source_inspection": "UI适配及原故障／恢复两组独立只读复核完成，主代理抽查承重UART及源码；无自动恢复／算法替换",
+  "firmware_compilation": "复用已交付构建；本轮未重编、未改SDK或锁",
+  "hardware_result": "分项UI人工观察有界通过；原窗口传感器末态失败，另准后的恢复有界通过；根因未定位",
+  "remaining": [
+    "先定位运行期IMU通信超时，必要时增加失败地址／寄存器／时间诊断再做一个有界设备窗口",
+    "磁场校准与闪屏尚未实现；新增half/full继续延期",
+    "完整J1-J7、设备压力／内存峰值、物理DEEP／电流／续航、Flash掉电原子性未因此关闭"
+  ]
+}
