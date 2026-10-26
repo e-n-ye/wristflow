@@ -19,6 +19,7 @@ from unicorn.arm_const import (UC_CPU_ARM_CORTEX_M33, UC_ARM_REG_C1_C0_2,
 
 from lab_check import check_sdk, load
 from lab_evidence import file_record, write_json
+from compass_geometry import MIN_HORIZONTAL_FRACTION, watch_forward_heading, shortest_arc_heading
 
 ROOT = Path(__file__).resolve().parents[1]
 PACKAGE = ROOT / "vendor/SiFli-SDK/customer/peripherals/sensor/mmc36x0kj"
@@ -126,21 +127,33 @@ class Emulator:
 
 def directions(blob, record):
     rows = []
-    for yaw in [0,1,44,45,46,89,90,91,134,135,136,179,180,181,224,225,226,269,270,271,314,315,316,359]:
-        for pitch,roll in [(0,0),(30,0),(0,-30),(30,-20)]:
-            matrix = rotation(yaw,pitch,roll)
-            record("direction_input",dict(yaw=yaw,pitch=pitch,roll=roll))
-            peer = Emulator(blob)
-            result = peer.step(rotate(matrix,[0,0,1]),rotate(matrix,EARTH))
-            expected = math.degrees(math.atan2(matrix[1][0],matrix[1][1])) % 360
-            result.update(yaw=yaw,pitch=pitch,roll=roll,expected=expected,
-                          heading_error=error_angle(result["orientation"][0],expected))
-            require(len(result["mapping_inputs"]) == 1,"Expected one internal yaw mapping")
-            result["before_mapping_error"] = error_angle(result["mapping_inputs"][0],expected)
-            rows.append(result)
-            record("direction_output",result)
+    yaws = [0,.001,1,44,45,46,89,89.999,90,90.001,91,134,135,136,179,179.999,
+            180,180.001,181,224,225,226,269,269.999,270,270.001,271,314,315,316,359,359.999]
+    tilts = [(0,0),(30,0),(0,-30),(30,-20),(30,20),(-30,-20),(-30,20),(60,45),(-60,-45)]
+    for yaw in yaws:
+        for pitch,roll in tilts:
+            for dip in (-.3,0,.3):
+                matrix = rotation(yaw,pitch,roll)
+                acc,mag = rotate(matrix,[0,0,1]),rotate(matrix,[0,.35,dip])
+                record("direction_input",dict(yaw=yaw,pitch=pitch,roll=roll,dip=dip,acceleration=acc,magnetic=mag))
+                peer = Emulator(blob)
+                result = peer.step(acc,mag)
+                expected = math.degrees(math.atan2(matrix[1][0],matrix[1][1])) % 360
+                projected = watch_forward_heading(acc,result["calibrated"])
+                shortest = shortest_arc_heading(acc,result["calibrated"])
+                result.update(yaw=yaw,pitch=pitch,roll=roll,dip=dip,expected=expected,
+                              projected_heading=projected,projected_heading_error=error_angle(projected,expected),
+                              shortest_arc_heading=shortest,heading_error=error_angle(result["orientation"][0],expected))
+                require(len(result["mapping_inputs"]) == 1,"Expected one internal yaw mapping")
+                result["before_mapping_error"] = error_angle(result["mapping_inputs"][0],expected)
+                result["before_mapping_shortest_arc_error"] = error_angle(result["mapping_inputs"][0],shortest)
+                rows.append(result)
+                record("direction_output",result)
     return dict(rows=rows,max_error=max(row["heading_error"] for row in rows),
                 before_mapping_max_error=max(row["before_mapping_error"] for row in rows),
+                before_mapping_shortest_arc_max_error=max(row["before_mapping_shortest_arc_error"] for row in rows),
+                projected_heading_max_error=max(row["projected_heading_error"] for row in rows),
+                projected_heading_within_threshold=all(row["projected_heading_error"] <= .001 for row in rows),
                 within_one_degree=all(row["heading_error"] <= 1 for row in rows))
 
 
@@ -174,7 +187,7 @@ def calibration(blob,kind,record,noise=0):
                       radius_relative_error=abs(parameters[3]-RADIUS)/RADIUS)
         output["parameters_within_threshold"] = max(abs(v) for v in output["bias_error"]) <= .01 and output["radius_relative_error"] <= .02
         restored = Emulator(blob,parameters)
-        residuals = []
+        residuals,heading_errors = [],[]
         for yaw in (13,103,193,283):
             for pitch,roll in ((0,0),(25,-20),(-30,15)):
                 matrix = rotation(yaw,pitch,roll)
@@ -183,10 +196,16 @@ def calibration(blob,kind,record,noise=0):
                                             parameters=parameters,acceleration=acc,
                                             magnetic=[field[h]+BIAS[h] for h in range(3)]))
                 result = restored.step(acc,[field[h]+BIAS[h] for h in range(3)],0)
+                expected = math.degrees(math.atan2(matrix[1][0],matrix[1][1])) % 360
+                result["projected_heading"] = watch_forward_heading(acc,result["calibrated"])
+                result["projected_heading_error"] = error_angle(result["projected_heading"],expected)
+                heading_errors.append(result["projected_heading_error"])
                 record("restore_output",result)
                 residuals.append(max(abs(result["calibrated"][h]-field[h]) for h in range(3)))
         output["fresh_restore_max_field_error_gauss"] = max(residuals)
         output["restored_field_within_threshold"] = max(residuals) <= .01
+        output["restored_heading_max_error_degrees"] = max(heading_errors)
+        output["restored_heading_within_threshold"] = max(heading_errors) <= 1
     return output
 
 
@@ -216,6 +235,9 @@ def run(args):
     args.out.mkdir(parents=True,exist_ok=False)
     started = time.monotonic()
     report = dict(hardware_verified=False,product_build=False,sdk_changed=False,
+                  heading_reference="Watch +Y forward horizontal projection, right/forward/up; clockwise from magnetic north. Static, aligned and calibrated synthetic inputs only.",
+                  geometry_thresholds=dict(clean_degrees=.001,restored_degrees=1,min_horizontal_fraction=MIN_HORIZONTAL_FRACTION),
+                  calibrated_field_interface_note="GetCalMag header says 'debug use'; this offline reference does not establish permission or support for Product use.",
                   limits="Synthetic M33 execution only; no physical timing, MMC5603 compatibility, license or Product memory proof. Numerical thresholds are project preflight gates, not vendor specifications.")
     def record(kind,value):
         report["last_context"] = dict(kind=kind,value=value)
@@ -232,7 +254,7 @@ def run(args):
                    "-Wl,-u,probe_step,-u,probe_math",f"-Wl,-Map={args.out/'probe.map'}",f"-I{PACKAGE}",
                    str(source/"probe.c"),str(source/"math_bridge.c"),str(PACKAGE/"MemsicAlgo.lib"),"-lm","-o",str(elf)]
         report.update(command=command,unicorn_version=unicorn.__version__,compiler_version=subprocess.check_output([str(cc),"--version"],text=True).splitlines()[0],
-                      inputs=[file_record(path,ROOT) for path in (Path(__file__),source/"probe.c",source/"math_bridge.c",ROOT/"scripts/requirements-memsic-preflight.txt",PACKAGE/"MemsicAlgo.lib",PACKAGE/"MemsicAlgo.h",PACKAGE/"MemsicCompass.h")])
+                      inputs=[file_record(path,ROOT) for path in (Path(__file__),ROOT/"scripts/compass_geometry.py",source/"probe.c",source/"math_bridge.c",ROOT/"scripts/requirements-memsic-preflight.txt",PACKAGE/"MemsicAlgo.lib",PACKAGE/"MemsicAlgo.h",PACKAGE/"MemsicCompass.h")])
         with (args.out/"build.log").open("w",encoding="utf-8") as log:
             built = subprocess.run(command,stdout=log,stderr=subprocess.STDOUT,timeout=60)
         require(built.returncode == 0,"Standalone probe compilation failed")
@@ -255,6 +277,7 @@ def run(args):
         report["execution_completed"] = True
         report["heading_gate_passed"] = report["directions"]["within_one_degree"]
         report["calibration_gate_passed"] = all(row.get("parameters_within_threshold") and row.get("restored_field_within_threshold") for row in report["calibration"] if row["kind"] in ("three_dimensional","smooth_three_dimensional"))
+        report["projected_heading_gate_passed"] = report["directions"]["projected_heading_within_threshold"] and all(row.get("restored_heading_within_threshold") for row in report["calibration"] if row["kind"] in ("three_dimensional","smooth_three_dimensional"))
         report["passed"] = report["heading_gate_passed"] and report["calibration_gate_passed"]
         report["artifacts"] = [output_record(path) for path in (elf,args.out/"probe.map",args.out/"build.log")]
     except Exception as exc:
@@ -264,7 +287,7 @@ def run(args):
         if (args.out/"trace.jsonl").exists():
             report["trace"] = output_record(args.out/"trace.jsonl")
         write_json(args.out/"result.json",report)
-    print(json.dumps({key:report.get(key) for key in ("passed","execution_completed","heading_gate_passed","calibration_gate_passed","error")}),flush=True)
+    print(json.dumps({key:report.get(key) for key in ("passed","execution_completed","heading_gate_passed","calibration_gate_passed","projected_heading_gate_passed","error")}),flush=True)
     return 0 if report.get("passed") else 1
 
 

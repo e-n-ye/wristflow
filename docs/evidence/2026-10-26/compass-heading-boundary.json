@@ -1,0 +1,326 @@
+{
+  "date": "2026-10-26",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "source_base": "89b1a51e9a79a0e40ae5215f09938b87ca4626a7",
+  "scope": "Offline heading-definition and candidate-applicability closure; no Product source/build or device operations.",
+  "files": [
+    {
+      "path": "scripts/memsic_preflight.py",
+      "bytes": 17993,
+      "sha256": "55767935ce57dd81d5a2a1aee81a6168de0ba0106e0c74c2c5abce4c05b834fd"
+    },
+    {
+      "path": "scripts/compass_geometry.py",
+      "bytes": 3101,
+      "sha256": "d2b80a4701abfd4e0cbb0f65b98e49fe11ff6c5124ba2a85a73b2103b15755aa"
+    },
+    {
+      "path": "tests/test_compass_geometry.py",
+      "bytes": 4998,
+      "sha256": "a3323b5873ca5e419b02142f48d9b9da8515f92563cc7326cc68c08f6382c916"
+    },
+    {
+      "path": "scripts/memsic_preflight/probe.c",
+      "bytes": 1696,
+      "sha256": "782a5e661cb31fee5c5f03e92b0f91ec9f67fd33bd6c873c7e843b40f7bda642"
+    },
+    {
+      "path": "scripts/memsic_preflight/math_bridge.c",
+      "bytes": 411,
+      "sha256": "2e8d5e0c36e5d376834454736c6448feb30b1fcc430b9d34c71ca9125d57bcf2"
+    },
+    {
+      "path": "scripts/requirements-memsic-preflight.txt",
+      "bytes": 34,
+      "sha256": "94de0a14f5befb17f11b27cc371ae95f20a53688aa1449656fb54ead9a61699c"
+    },
+    {
+      "path": "scripts/lab_check.py",
+      "bytes": 14187,
+      "sha256": "5dfc3edc31080a0b56aaa7edb88dc8939caa7dbd669b8023fcbc7a2e7e000b1c"
+    },
+    {
+      "path": "scripts/lab_evidence.py",
+      "bytes": 1498,
+      "sha256": "618487f3802b663b347c1bbd97b081147df2ef31ae6f471a9fcf2ac692e64864"
+    },
+    {
+      "path": "sdk.lock.json",
+      "bytes": 473,
+      "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+    }
+  ],
+  "sdk": {
+    "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "submodules": {
+      "middleware/bluetooth": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c",
+      "tools/SiliconSchema": "304658c6edd5497211b7d152932327ce6e4450ff"
+    },
+    "clean": true
+  },
+  "tools": {
+    "unit_tests_python": "3.14.3",
+    "emulator_python": "3.13.14",
+    "unicorn": "2.1.4",
+    "pyelftools": "0.33",
+    "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+    "uv": "0.11.21"
+  },
+  "commands": {
+    "tests": "python -m unittest discover -s tests -p 'test_compass_geometry.py' -v",
+    "final_run": "uv run --offline --no-project --with-requirements scripts/requirements-memsic-preflight.txt python scripts/memsic_preflight.py --cc .tools/sifli/tools/arm-none-eabi-gcc/14.2.1/bin/arm-none-eabi-gcc.exe --out artifacts/compass-heading-boundary-20261026/run-002",
+    "standalone_compile": [
+      "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\arm-none-eabi-gcc\\14.2.1\\bin\\arm-none-eabi-gcc.exe",
+      "-mcpu=cortex-m33",
+      "-mthumb",
+      "-mfpu=fpv5-sp-d16",
+      "-mfloat-abi=hard",
+      "-fshort-enums",
+      "-fshort-wchar",
+      "-Os",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-nostartfiles",
+      "--specs=nosys.specs",
+      "-Wl,-e,probe_init,--gc-sections",
+      "-Wl,-u,probe_step,-u,probe_math",
+      "-Wl,-Map=artifacts\\compass-heading-boundary-20261026\\run-002\\probe.map",
+      "-ID:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\customer\\peripherals\\sensor\\mmc36x0kj",
+      "D:\\MY_Desk\\project\\wristflow\\scripts\\memsic_preflight\\probe.c",
+      "D:\\MY_Desk\\project\\wristflow\\scripts\\memsic_preflight\\math_bridge.c",
+      "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\customer\\peripherals\\sensor\\mmc36x0kj\\MemsicAlgo.lib",
+      "-lm",
+      "-o",
+      "artifacts\\compass-heading-boundary-20261026\\run-002\\probe.elf"
+    ],
+    "sdk_tree": "git -C vendor/SiFli-SDK ls-tree -r --name-only HEAD customer/peripherals/sensor/MMC56x3 customer/peripherals/sensor/mmc36x0kj customer/peripherals/sensor/mag/qmc63x0",
+    "docs": "python scripts/lab_check.py docs --path docs/COMPASS.md --path docs/ENGINEERING-MAP.md --path docs/HARDWARE-CAPABILITIES.md --path docs/HARDWARE-TEST-WORKFLOW.md --path docs/STATUS.md --path docs/evidence/2026-10-26/compass-heading-boundary.json",
+    "files": "python scripts/lab_check.py files --manifest docs/evidence/2026-10-26/compass-heading-boundary.json"
+  },
+  "validation": {
+    "unit_tests_passed": 9,
+    "unit_tests_exit_code": 0,
+    "source_review": "Independent read-only code/mathematics and applicability/document reviews found no blocking defect; final evidence review completed before merge.",
+    "standalone_compile_succeeded": true,
+    "standalone_elf_bytes": {
+      "text": 25422,
+      "data": 488,
+      "bss": 1448
+    },
+    "execution_completed": true,
+    "run_exit_code": 1,
+    "candidate_passed": false,
+    "vendor_heading_gate_passed": false,
+    "calibration_gate_passed": true,
+    "projected_heading_gate_passed": true,
+    "complete_runs_numerical_sections_equal": true,
+    "source_and_artifact_hash_checks_passed": true,
+    "input_output_trace_events": 6926,
+    "product_build": false,
+    "hardware_verified": false,
+    "changed_document_utf8_links_passed": true,
+    "git_diff_check_passed": true
+  },
+  "geometry": {
+    "definition": "Watch +Y forward horizontal projection, right/forward/up; clockwise from magnetic north. Static, aligned and calibrated synthetic inputs only.",
+    "formula": "u=normalize(acc), n=normalize(m-u*dot(m,u)), e=cross(n,u), heading=wrap360(atan2(e_y,n_y)); +Y is watch forward.",
+    "inputs": "Aligned RFU, stationary proper acceleration pointing up in g, already calibrated magnetic field in gauss.",
+    "guards": "Reject nonfinite/malformed/zero inputs, near-vertical forward and degenerate horizontal magnetic field; relative fraction 1e-6 is numerical conditioning only.",
+    "not_checked": [
+      "acceleration magnitude or linear motion",
+      "sample age/pairing",
+      "saturation",
+      "sensor mounting/signs",
+      "calibration quality",
+      "physical field environment"
+    ],
+    "thresholds": {
+      "clean_degrees": 0.001,
+      "restored_degrees": 1,
+      "min_horizontal_fraction": 1e-06
+    },
+    "direction_cases": 864,
+    "direction_max_error_degrees": 2.4329799828137766e-06,
+    "restored_heading": [
+      {
+        "kind": "three_dimensional",
+        "noise_gauss": 0,
+        "restored_heading_max_error_degrees": 3.898575045013786e-06,
+        "restored_heading_within_threshold": true
+      },
+      {
+        "kind": "three_dimensional",
+        "noise_gauss": 0.001,
+        "restored_heading_max_error_degrees": 0.06656402982264353,
+        "restored_heading_within_threshold": true
+      },
+      {
+        "kind": "smooth_three_dimensional",
+        "noise_gauss": 0,
+        "restored_heading_max_error_degrees": 3.898575045013786e-06,
+        "restored_heading_within_threshold": true
+      }
+    ],
+    "shortest_arc_diagnostic": {
+      "hypothesis": "Vendor pre-mapping observations match shortest-rotation leveling to a virtual forward, rather than watch-forward horizontal projection; this is a fit on tested data, not proof of closed-source implementation.",
+      "tested_max_residual_degrees": 2.6002421236626105e-05,
+      "vendor_before_mapping_vs_forward_max_degrees": 26.898963378906274,
+      "compound_example_degrees": 5.410046684431929,
+      "compound_offset_formula": "-2*atan(tan(pitch/2)*tan(roll/2)) for the preflight Euler construction in the tested range.",
+      "internal_observation_use": "Existing mapping hook is diagnostic only; projected heading neither calls nor extracts an internal vendor function."
+    },
+    "vendor_final_heading_max_error_degrees": 180.0,
+    "product_use": "Not selected or integrated; GetCalMag product support and usage terms remain unresolved."
+  },
+  "applicability": {
+    "candidate_sha256": "548ae98a703b0d6dafc09020a78deb271fbe9866bf1a2bd2918787f6a8fe5139",
+    "local_inputs": [
+      {
+        "path": "vendor/SiFli-SDK/customer/peripherals/sensor/mmc36x0kj/MemsicAlgo.lib",
+        "bytes": 46832,
+        "sha256": "548ae98a703b0d6dafc09020a78deb271fbe9866bf1a2bd2918787f6a8fe5139"
+      },
+      {
+        "path": "vendor/SiFli-SDK/customer/peripherals/sensor/mmc36x0kj/MemsicAlgo.h",
+        "bytes": 5879,
+        "sha256": "6b8d55707d70111dec3b446531bcea651642866ec96975f9349da311c187e2a3"
+      },
+      {
+        "path": "vendor/SiFli-SDK/customer/peripherals/sensor/mmc36x0kj/MemsicCompass.h",
+        "bytes": 2889,
+        "sha256": "49df138ca2f865477c0cee3fec59e3b81fe077df35ff712aca4dd0d774051094"
+      },
+      {
+        "path": "vendor/SiFli-SDK/customer/peripherals/sensor/mmc36x0kj/compass_sample.c",
+        "bytes": 12364,
+        "sha256": "acccc62a346184efab2f07ba2e4b48c022b852426b0b63adc11dd852140a8224"
+      },
+      {
+        "path": "vendor/SiFli-SDK/customer/peripherals/sensor/mmc36x0kj/SConscript",
+        "bytes": 238,
+        "sha256": "451a386d9f74c95b7582fedc9ef408e49df6ce63c3ec591d6e4661c803279a09"
+      },
+      {
+        "path": "vendor/SiFli-SDK/customer/peripherals/sensor/MMC56x3/SConscript",
+        "bytes": 202,
+        "sha256": "56bad62b7083cf31ee955c3bb304f060db09450dba51522bfc590fae6709caa8"
+      },
+      {
+        "path": "vendor/SiFli-SDK/LICENSE",
+        "bytes": 11558,
+        "sha256": "1eb85fc97224598dad1852b5d6483bbcf0aa8608790dcc657a5a2a761ae9c8c6"
+      }
+    ],
+    "official_sources": [
+      {
+        "url": "https://www.memsic.com/Public/Uploads/uploadfile/files/20220119/MMC5603NJDatasheetRev.B.pdf",
+        "section": "Rev.B 2022-01-17 pages 1-2",
+        "finding": "MMC5603NJ advanced calibration/tilt software is available from vendor; typical heading specification uses proprietary algorithms; no identity/usage mapping to this binary."
+      },
+      {
+        "url": "https://docs.sifli.com/projects/solution/7.FAQ/peripheral/sensor.html",
+        "section": "FAQ2",
+        "finding": "Lists qmc6310/mmc5603 original-vendor compass algorithms and mag/qmc63x0; this path is absent from locked SDK scoped tree."
+      },
+      {
+        "url": "https://docs.sifli.com/projects/solution/2.application-notes/peripheral/sensor_mag.html",
+        "section": "Reference code and algorithm-device association",
+        "finding": "Lists Solution mag_algo and MMC56X3 service paths, uses qmclib in QMC example; does not identify current MEMSIC binary or terms."
+      },
+      {
+        "url": "https://www.mathworks.com/help/nav/ref/ecompass.html",
+        "section": "Algorithms",
+        "finding": "Cross-product/normalized vector orientation construction; used as mathematical background, no library/code imported."
+      },
+      {
+        "url": "https://www.nxp.com/docs/en/application-note/AN4248.pdf",
+        "section": "Sections 2-4",
+        "finding": "Aligned sensor axes and static-gravity assumptions; no NXP code/library adopted."
+      }
+    ],
+    "local_findings": [
+      "MMC36X0KJ build condition links MemsicAlgo; MMC56x3 build group contains driver C, not this library.",
+      "GetCalMag return comment says debug use; this does not establish a ban or product permission.",
+      "Headers name MEMSIC 2018/2019/V3.1 without MMC5603 compatibility list; root SDK Apache license does not explain binary-specific terms."
+    ],
+    "missing": [
+      "Specific algorithm-version/hash to MMC5603NJ applicability statement",
+      "Supported calibrated-field Product interface (including GetCalMag debug scope)",
+      "Concrete product-use and redistribution conditions",
+      "Identity/version relationship between FAQ's algorithm and locked candidate"
+    ],
+    "search_bounds": "Candidate headers/example/SConscript, MMC56x3 SConscript, root SDK LICENSE, scoped locked SDK tree, official MEMSIC/SiFli pages and official-repository availability; no historical SDK audit, private deliveries, contacts, lock changes, or large downloads.",
+    "source_access_limits": "Initial SiFli page fetch timed out then succeeded; publicly readable official Solution source for the listed paths was not obtained. Search absence is not proof of nonexistence."
+  },
+  "artifacts": [
+    {
+      "path": "artifacts/compass-heading-boundary-20261026/run-002/result.json",
+      "bytes": 791376,
+      "sha256": "0874c9b17567e645823a9c5738e407557440c248544f282bff287776ee237c57"
+    },
+    {
+      "path": "artifacts/compass-heading-boundary-20261026/run-002/trace.jsonl",
+      "bytes": 2147350,
+      "sha256": "2c8ff8ea520da59bf24c1daa7b9f2e90fe78cb33552bcb61994400dc1077dc20"
+    },
+    {
+      "path": "artifacts/compass-heading-boundary-20261026/run-002/probe.elf",
+      "bytes": 60536,
+      "sha256": "22bed7ce5acdf0890e45afe607233c4378d3680fd0922ca1d7e674cd66bea82f"
+    },
+    {
+      "path": "artifacts/compass-heading-boundary-20261026/run-002/probe.map",
+      "bytes": 126835,
+      "sha256": "56c41332db7ae4e2e356e0b901702fb089cbaf4e5baa337ed7b904f14b094fe3"
+    },
+    {
+      "path": "artifacts/compass-heading-boundary-20261026/run-002/build.log",
+      "bytes": 22169,
+      "sha256": "340f22c3676fbc1732145be72f53ec296289caf7c36b13158b0f9bd775cb84dc"
+    },
+    {
+      "path": "artifacts/compass-heading-boundary-20261026/run-002.log",
+      "bytes": 459,
+      "sha256": "39a2248ec110103a7d802475fcbdea56059e010c6d5e01533601f87b323652a4"
+    },
+    {
+      "path": "artifacts/compass-heading-boundary-20261026/run-001/result.json",
+      "bytes": 791218,
+      "sha256": "92bcf4c643bc950cd84ba5185c90966481bf5388e1ae1b6e826699622a9a0135"
+    },
+    {
+      "path": "artifacts/compass-heading-boundary-20261026/run-001.log",
+      "bytes": 459,
+      "sha256": "39a2248ec110103a7d802475fcbdea56059e010c6d5e01533601f87b323652a4"
+    },
+    {
+      "path": "artifacts/compass-heading-boundary-20261026/geometry-tests.log",
+      "bytes": 1328,
+      "sha256": "9d5bd77064d83da75e6d82477f821b73d1a53041c9e1385451d6fc9db127c942"
+    },
+    {
+      "path": "artifacts/compass-heading-boundary-20261026/sdk-scoped-tree.txt",
+      "bytes": 861,
+      "sha256": "09092d4ca2c26ff41cbe2265e96bab61f2a8eda673f8c8769046822d2fea01c8"
+    },
+    {
+      "path": "artifacts/compass-heading-boundary-20261026/executed-project-sources.zip",
+      "bytes": 16161,
+      "sha256": "fa078bf0b068671ca37a48f250e1e36c0910c1c34a1b7b2519cecb2513f03862"
+    }
+  ],
+  "failures_preserved": [
+    "Both complete emulator runs exit 1 because original vendor final-heading gate fails; adapter pass is separate.",
+    "Initial git fetch origin main exited 128 with SSL connection timeout; GitHub API independently confirmed starting main SHA 89b1a51. Remote delivery must still be verified at closure.",
+    "Read attempt tests/test_lab_check.py was missing; tool identified existing tests/test_lab_checks.py; no replacement created.",
+    "Run-001 predates near-zero modulo guard; run-002 is final and all numerical sections match run-001.",
+    "Standalone linker nosys syscall, wchar and enum ABI warnings are retained in build.log; successful synthetic calls do not certify the full Product ABI."
+  ],
+  "not_verified": [
+    "Physical calibration/heading accuracy or action guidance",
+    "Product resource increase or runtime ABI",
+    "Motion/pairing/mounting and production quality thresholds",
+    "Candidate model/interface/usage conditions"
+  ],
+  "next_bounded_step": "Obtain version-bound MMC5603 applicability, supported calibrated-field Product interface and use/redistribution conditions before choosing integration; real acceleration/magnetic axes and pairing remain a later separately authorized device prerequisite."
+}

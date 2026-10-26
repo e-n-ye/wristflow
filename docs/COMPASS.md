@@ -87,3 +87,38 @@ PR #164计步验收交付后，用户继续校准预检，并质疑厂商库是�
 **软铁与来源边界**：三组非对称矩阵输入的输出与`Mᵀ×原始磁场−偏置`一致至6e-8G，区别于先减偏置再乘矩阵；这仅是已测向量的顺序观察，不是官方通用公式或矩阵自学习证明。九项矩阵仍为外部输入，可靠保存接口仅输出偏置／场强四项。包目录／示例为MMC36X0KJ，头文件署名MEMSIC 2019／V3.1，不足以证明该二进制适配MMC5603；本次未取得明确的单独许可／适用声明，未复制分发候选二进制。
 
 [精简证据](evidence/2026-10-26/compass-calibration-preflight.json)绑定最终代码、独立ELF、trace、失败和命令。未改或重编Product、未开串口、未下载／复位／校时；设备最近记录为b48／48步验收末态，本轮未重新核实。实机、Product体积增量／运行资源及厂商候选使用条件均未由本轮证明。后续先限定航向定义和项目适配方案，校准参数与真实acc／mag轴向／配对独立验证，活动及唯一下一步回STATUS。
+
+<a id="heading-boundary-20261026"></a>
+## 2026-10-26 航向定义与候选适用边界
+
+用户继续上一离线小闭环。本轮从PR #165的`89b1a51`建立`codex/compass-heading-boundary`，只扩展既有预检；不改`core/compass`、Product、SDK或设备。新增`scripts/compass_geometry.py`是主机数学参考，不是已选定的产品算法或新的校准器。
+
+### 前轴磁北定义与输入契约
+
+参考输入均在同一右／前／上坐标系：`+Y`是手表前轴，静止加速度指向上，磁场已校准；输出是前轴水平投影相对磁北的顺时针角`[0,360)`。它不作磁偏角修正；表内北箭头相对前轴的角度与该航向符号相反。真实传感器的安装矩阵、符号和同步不能由此假设成立。
+
+由归一加速度`u`及磁场`m`计算水平磁北`n=normalize(m−u·dot(m,u))`、磁东`e=n×u`，再取`atan2(e_y,n_y)`并归一角度。这是项目按上述定义推导的向量投影，交叉乘积构造姿态的依据可核[MathWorks ecompass算法说明](https://www.mathworks.com/help/nav/ref/ecompass.html)。[NXP AN4248 §2–4](https://www.nxp.com/docs/en/application-note/AN4248.pdf)强调轴向一致及静止重力假设；本轮没有复制其参考代码或采用NXP传感器软件库。
+
+非有限值／错误长度／零向量、前轴近乎竖直或水平磁场退化均返回错误，不回填0°。归一后的水平比例`1e-6`仅为数值条件守卫；正比例缩放不改变几何结果，不能用这种不变性证明自由落体、运动、饱和、采样年龄／时差或校准质量合格。这些检查仍由未来设备边界承担。
+
+### 数值结果与倾斜差异解释
+
+最终`artifacts/compass-heading-boundary-20261026/run-002/`覆盖32个yaw（含整象限及其前后0.001°）、九组单／复合倾斜和三种磁倾向，共864组方向；原五组各512样本的校准及新实例恢复保留。独立ELF编译成功，text25,422B／data488B／bss1,448B，不是Product增量。
+
+- 前轴投影读取候选`GetCalMag`的离线输出，864组最大角误差`0.000002433°`；三维clean／smooth保存参数恢复后的留出姿态最大误差`0.000003899°`，noise组最大`0.066565°`。项目数值门槛分别为clean≤0.001°／恢复≤1°，不是传感器精度规格。
+- 原库最终航向仍不通过，`heading_gate_passed=false`、`passed=false`、退出1。新增`projected_heading_gate_passed=true`独立记录，不改变原候选失败结论；trace保留6,926条输入／输出事件。
+- 独立诊断把`u`以Rodrigues最短旋转扶正后计算另一虚拟前轴航向；864组与原厂映射前输出最大差`0.000026003°`。原`pitch=30°／roll=−20°`时，参考轴差`−2atan(tan(p/2)tan(r/2))=5.410046684°`，解释了前轮约5.41°差异；扩展倾斜下相对真实前轴投影的差可达26.89897°。这是已测数据支持的几何解释，不认证闭源内部实现，也不再直接称其为倾斜算法错误。内部mapping观测仅作诊断；前轴参考不调用／提取内部函数。
+
+九项主机测试通过，含独立四元数姿态oracle的200姿态×三种磁倾向、四向／跨零、倒置、正比例缩放、各位置NaN／Inf、零向量、退化边界及极小负角取模舍入。两次完整仿真的数值分项一致；最终运行绑定近零舍入防护后的代码，首次运行仍保留。[本轮精简证据](evidence/2026-10-26/compass-heading-boundary.json)绑定源、ELF、trace、日志和原始源码快照。
+
+### 适用性与使用条件核验
+
+| 已核来源 | 能支持的结论与仍缺证据 |
+|---|---|
+| [MEMSIC MMC5603NJ Rev.B第1–2页](https://www.memsic.com/Public/Uploads/uploadfile/files/20220119/MMC5603NJDatasheetRev.B.pdf) | 该型号有厂商提供的高级校准／倾斜补偿算法，规格中的典型航向精度附带厂商专有软件条件；未把算法绑定到本SDK二进制或提供该库使用条款 |
+| [SiFli Sensor FAQ2](https://docs.sifli.com/projects/solution/7.FAQ/peripheral/sensor.html) | 列出qmc6310／mmc5603、地磁＋加速度计和原厂指南针算法，指向`mag/qmc63x0`；锁定SDK树没有该路径，不能据此认定当前库适配MMC5603 |
+| [SiFli地磁移植指南](https://docs.sifli.com/projects/solution/2.application-notes/peripheral/sensor_mag.html) | 列出Solution的`mag_algo.c`及MMC56X3适配文件，以`qmclib`说明算法设备绑定；未给出对应二进制身份／版本／许可，本次未取得这些文件的可读官方源码，未用新版文档替换SDK锁 |
+| 锁定SDK的`MMC56x3/SConscript`及`mmc36x0kj/SConscript` | 前者只编译驱动C，后者在`MAG_USING_MMC36X0KJ`下链接`MemsicAlgo`；现有头／示例没有MMC5603兼容清单，SDK根Apache文本未说明这份MEMSIC库的单独条件 |
+| `MemsicAlgo.h:109–116` | `GetCalMag`公开声明校准磁场输出，但返回注释标`debug use`；本轮仅在离线实验中使用，产品接口支持及允许用途仍须澄清，不能单凭注释断言禁止使用 |
+
+有界搜索没有找到库SHA-256`548ae98a…`对应的MMC5603适用声明、产品接口支持及具体使用／再分发条件；不等同这些资料不存在。未审查其他SDK历史／私有交付，未联系厂商或迁移Solution架构。当前仍不整体接入候选；先取得与具体算法版本绑定的上述材料，再决定接入路径。真实acc／mag轴向、配对、质量守卫、保存／失效、引导动作与实机校准均未由本轮验证；八字图继续不启用。活动与唯一下一步回STATUS。
