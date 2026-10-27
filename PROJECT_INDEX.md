@@ -14,7 +14,7 @@
 | LTR-303双通道识别、限时读数、停止恢复 | [LTR专题](docs/LTR303.md)；原值／lux分开，复用传感器worker／I2C3，设备条件回 HARDWARE，活动项回 STATUS |
 | MMC5603NJ身份、原生自检、限时XYZ与停止基线 | [地磁专题](docs/MMC5603.md)；原始counts／航向分开，只写控制不冒充配置读回，复用唯一worker／I2C3，活动项回STATUS |
 | 环境与 SCons 固件构建 | [BUILD 当前机器入口](docs/BUILD.md#当前机器直接使用)、[SDK 锁](sdk.lock.json)；已有环境不重装 |
-| Flash账单与官方EZIP图片压缩 | [容量专题](docs/FLASH-CAPACITY.md)；ELF加载跨度／已链接资源核算，官方工具往返与设备显示分验，活动项回STATUS |
+| Flash账单、官方EZIP图片压缩与常用字库 | [容量专题](docs/FLASH-CAPACITY.md)；ELF加载跨度／已链接资源核算，字体范围与生成回[字体说明](ui/xml/fonts/README.md)，离线／编译与设备显示分验，活动项回STATUS |
 | 主机测试与模拟器 | [SIMULATOR](docs/SIMULATOR.md)、[测试工程](tests/CMakeLists.txt) |
 | 复杂人机协作验收、多步动作／等待／采集／清理，以及电量回放与记录 | [统一协作测试流程](docs/HARDWARE-TEST-WORKFLOW.md#shared-operator-workflow)；优先评估复用协作页／阶段日志并增加专用适配，先模拟验交互；实机核HARDWARE与授权，活动项回STATUS |
 | 电脑端实验脚本复用、前后快照／启动检查、简单状态查询／被动采集、模拟／历史UART回放及接续进度 | [本地工具选择与职责](docs/HARDWARE-TEST-WORKFLOW.md#local-experiment-tools) → [工程地图](docs/ENGINEERING-MAP.md)；先选已有入口／参数，协议与清理差异才新增适配；历史artifacts只作证据／快照，不作新工具代码依赖 |

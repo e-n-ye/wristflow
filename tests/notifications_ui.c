@@ -100,9 +100,54 @@ static bool receive(int32_t id,const char *title,const char *body)
 }
 static void sleep_screen(void)
 { jump(10050); assert(wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_OFF); assert(brightness==0); }
+static uint32_t next_codepoint(const unsigned char **cursor)
+{
+    const unsigned char *p=*cursor; uint32_t cp=*p++;
+    if(cp>=0x80) {
+        unsigned extra=cp>=0xf0?3:cp>=0xe0?2:1;
+        cp&=(1u<<(6-extra))-1;
+        for(unsigned i=0;i<extra;++i) { assert((*p&0xc0)==0x80); cp=(cp<<6)|(*p++&63); }
+    }
+    *cursor=p; return cp;
+}
+static void common_font_coverage(const char *path)
+{
+    const lv_font_fmt_txt_dsc_t *format=notification_22->dsc;
+    assert(format->bpp==2&&format->bitmap_format==0);
+    FILE *file=fopen(path,"rb"); assert(file); char line[512]; unsigned count=0;
+    while(fgets(line,sizeof line,file)) {
+        if(line[0]=='#') continue;
+        const unsigned char *p=(const unsigned char *)line;
+        while(*p) {
+            uint32_t cp=next_codepoint(&p); if(cp<=0x20) continue;
+            lv_font_glyph_dsc_t glyph={0};
+            bool found=lv_font_get_glyph_dsc(notification_22,&glyph,cp,0);
+            if(!found||glyph.is_placeholder) fprintf(stderr,"missing common glyph U+%X\n",(unsigned)cp);
+            assert(found&&!glyph.is_placeholder); ++count;
+        }
+    }
+    assert(!ferror(file)); fclose(file); assert(count==6500);
+    const uint32_t excluded[]={0x9f98,0x9ad4,0x3400,0x20bb7,0x1f642};
+    for(unsigned i=0;i<sizeof excluded/sizeof excluded[0];++i) {
+        lv_font_glyph_dsc_t glyph={0};
+        bool found=lv_font_get_glyph_dsc(notification_22,&glyph,excluded[i],0);
+        assert(!found||glyph.is_placeholder);
+    }
+}
+static void font_scope_preview(void)
+{
+    lv_obj_t *previous=lv_screen_active(),*screen=lv_obj_create(NULL);
+    lv_obj_set_style_bg_color(screen,lv_color_black(),0);
+    lv_obj_t *text=lv_label_create(screen); lv_obj_set_pos(text,24,40); lv_obj_set_width(text,342);
+    lv_obj_set_style_text_font(text,notification_22,0);
+    lv_obj_set_style_text_color(text,lv_color_white(),0);
+    lv_label_set_text(text,"常用字：中文通知 ABC 123\n二级字：𬉼𠳐𥻗\n缺字占位：龘 體 㐀 🙂");
+    lv_screen_load(screen); advance(32); capture("font_scope");
+    lv_screen_load(previous); lv_obj_delete(screen); advance(32);
+}
 int main(int argc,char **argv)
 {
-    assert(argc==2); renders=argv[1]; lv_init(); lv_tick_set_cb(tick);
+    assert(argc==3); renders=argv[1]; lv_init(); lv_tick_set_cb(tick);
     lv_display_t *d=lv_display_create(390,450); lv_display_set_color_format(d,LV_COLOR_FORMAT_RGB888);
     lv_display_set_buffers(d,draw,NULL,sizeof draw,LV_DISPLAY_RENDER_MODE_PARTIAL); lv_display_set_flush_cb(d,flush);
     lv_indev_t *input=lv_indev_create(); lv_indev_set_type(input,LV_INDEV_TYPE_POINTER);
@@ -112,12 +157,14 @@ int main(int argc,char **argv)
     wristflow_watch_snapshot_t state=wristflow_product_snapshot(false,0);
     shell=wristflow_product_ui_create(&state,&settings,set_brightness,NULL);
     assert(notification_22->line_height<=34);
-    const uint32_t glyphs[]={0x4e2d,0x9ad4,0x9f98,0x3400,0x3002,0xff1a,0x25a1};
+    common_font_coverage(argv[2]);
+    const uint32_t glyphs[]={0x4e2d,0x3002,0xff1a,0x25a1,0x2c27c,0x20cd0,0x25ed7};
     for(unsigned i=0;i<sizeof glyphs/sizeof glyphs[0];++i) {
         lv_font_glyph_dsc_t glyph; bool found=lv_font_get_glyph_dsc(notification_22,&glyph,glyphs[i],0);
         if(!found) fprintf(stderr,"missing exported glyph U+%04x\n",(unsigned)glyphs[i]);
-        assert(found);
+        assert(found&&!glyph.is_placeholder);
     }
+    font_scope_preview();
     wristflow_ui_shell_bind_notification_delete(shell,remove_local,NULL);
     wristflow_ui_shell_enable_display_policy(shell); advance(240);
     phone.connected=true; phone.subscribed=true; wristflow_ui_shell_notifications(shell,&phone);

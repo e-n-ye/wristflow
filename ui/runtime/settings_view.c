@@ -215,7 +215,7 @@ static void refresh_save_note(lv_obj_t *root, wristflow_ui_shell_t *shell)
     lv_obj_t *note = lv_obj_find_by_name(list, "settings_save_note");
     if (!note) {
         note = settings_note_create(list, "");
-        lv_obj_set_style_text_font(note, notification_22, 0); /* Existing full Chinese font. */
+        lv_obj_set_style_text_font(note, notification_22, 0); /* Shared common-Chinese font. */
         lv_obj_set_name(note, "settings_save_note");
         lv_obj_move_to_index(note, 0);
         lv_obj_add_flag(note, LV_OBJ_FLAG_CLICKABLE);

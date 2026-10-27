@@ -105,7 +105,7 @@ B1 启动后允许自动休眠：初始化、亮屏和首帧恢复期间持有�
 
 消息快照在 BLE 互斥锁下复制，LVGL 仅在 UI 主线程访问。快照放静态区，避免约 20KB 结构压入 8KB main 栈。通知列表与详情在 shell 生命周期内各保留一个实例。
 
-通知字体与静态 UI 字库独立，来自锁定 SDK 的 Noto Sans SC，遵守 OFL 并改名 WristFlow Messages。官方 Editor 转成 22px、2bpp 内嵌字体，包含 29,598 个码点，其中基本汉字 20,976、扩展 A 6,582；不保证 emoji 或 BMP 外汉字扩展。排除两个双行竖排重复符号后实际行高 31px，单行标签至少 34px。Product、UI Demo、主机均启用官方 `LV_FONT_FMT_TXT_LARGE`，不手改生成字体。许可与详细范围见 [字体说明](../ui/xml/fonts/README.md)。
+通知字体与静态UI字库独立，来自锁定SDK的Noto Sans SC，遵守OFL并改名WristFlow Messages。2026-10-27按用户决定改为《通用规范汉字表》一、二级6500汉字＋674个英文／数字／标点／符号，共7174码点，含3个BMP外二级字；不保证全部繁体、生僻人名或emoji。官方Editor仍生成22px、2bpp、plain内嵌字体，未开启RLE，行高31px／单行至少34px及`LV_FONT_FMT_TXT_LARGE`保留，不手改生成字体。范围外字符使用既有placeholder，协议／保存正文不改。原29,598码点广覆盖字体作为历史容量对照；许可、来源、生成方法与验证边界见[字体说明](../ui/xml/fonts/README.md)和[容量记录](FLASH-CAPACITY.md)。
 
 ## 构建与验证进度
 

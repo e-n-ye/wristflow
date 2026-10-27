@@ -20,7 +20,8 @@ This is an existing icon library, not a collection of custom drawn symbols.
 
 The original subsets were generated using fontTools 4.66.0. The 2026-10-11
 static UI addition for the alarm capacity text used fontTools 4.60.1;
-message and icon subsets were preserved. The official Editor v2.0.1
+message and icon subsets were preserved in that change. The 2026-10-27 common
+notification subset uses fontTools 4.60.1. The official Editor v2.0.1
 converts them to `*_data.c`. That editor requires one explicit contiguous
 `range` for icon fonts; space-separated ranges fail in its converter.
 
@@ -33,18 +34,43 @@ editor. Expanding XML `range` or `symbols` cannot restore a glyph already
 removed from the source subset.
 
 `WristFlowMessages-Regular.ttf` is a separate subset of the same locked Noto
-Sans SC source, renamed `WristFlow Messages` under the same OFL. It covers the
-source font's Basic CJK and Extension A glyphs, Latin/Latin Extended A/B,
-common punctuation, arrows, symbols, kana, bopomofo, compatibility ideographs,
-and fullwidth characters. The exact ranges are in `Generate-Ui-Assets.py`.
-U+3031 and U+3032 (two-line vertical repeat marks) are excluded to avoid
-inflating horizontal text line height. Coverage is limited by the source
-font; this is not a promise to render arbitrary Unicode, emoji, or CJK
-extensions outside the BMP. The exported input contains 29,598 supported
-codepoints: 20,976 Basic CJK and 6,582 Extension A, plus the other ranges.
+Sans SC source, renamed `WristFlow Messages` under the same OFL. On 2026-10-27
+the user selected the 6,500 Hanzi in levels 1/2 of the 2013 General Standard
+Chinese Characters table, plus Latin, digits, punctuation and useful symbols.
+The actual TTF and official export contain **7,174 codepoints: 6,500 Hanzi and
+674 supplemental characters**. Supplemental candidate ranges are intersected
+with the source font; they are not a promise of every codepoint in each range.
 
-The official editor generates `notification_22_data.c` at 22 px, 2 bpp.
-Its bitmap exceeds the small-format index limit, so Product, UI Demo and
-host tests enable `LV_FONT_FMT_TXT_LARGE`. Do not edit generated font data
-to bypass that requirement. The resulting font line height is 31 px, and
-notification layouts reserve at least 34 px for each single-line label.
+The ordered Hanzi list is committed at
+[`scripts/data/tgh2013-levels-1-2.txt`](../../../scripts/data/tgh2013-levels-1-2.txt).
+It is derived from Unicode 17.0.0 Unihan `kTGH` entries for 2013, indices 1..6500;
+the pinned archive/mapping hashes and Unicode License V3 accompany the list.
+[`font_charset.py`](../../../scripts/font_charset.py) validates/imports the list
+offline and defines the supplemental candidates. Source-font coverage of all
+6,500 Hanzi is required before generation.
+
+Three selected level-2 Hanzi are outside the BMP: U+20CD0, U+25ED7, U+2C27C.
+The XML export range extends through `0x2ffff` so those three are included;
+the already-subset TTF controls actual coverage. Kana, bopomofo, broad CJK
+Extension A and compatibility-ideograph ranges are no longer retained wholesale.
+Missing characters use LVGL's existing placeholder; notification text itself
+is not replaced or rewritten. Full traditional Chinese, rare personal names
+and emoji are not guaranteed.
+
+Regenerate only this TTF with
+`uv run --with fonttools==4.60.1 --no-project python scripts/Generate-Ui-Assets.py --message-font-only`,
+then export and compile with the official Editor. Fixed UI/icon subsets and
+images are preserved by this mode. No network is used by routine generation.
+
+The official editor generates `notification_22_data.c` at 22 px, 2 bpp,
+with `--no-compress` and bitmap format 0 (plain). Font decompression remains
+disabled. Product, UI Demo and host tests retain `LV_FONT_FMT_TXT_LARGE`;
+this change does not alter the font ABI. Do not edit generated font data.
+Line height remains 31 px, and notification layouts reserve at least 34 px.
+
+Historical comparison: the prior notification subset contained 29,598 BMP
+codepoints (20,976 Basic CJK and 6,582 Extension A plus other ranges) and cost
+3,832,051 linked bytes. The common subset costs 914,067 linked bytes. It is
+not a lossless whole-font compression: unsupported characters are deliberately
+removed, and official rerasterization produces minor pixel differences in some
+retained glyphs. See [Flash evidence](../../../docs/FLASH-CAPACITY.md).
