@@ -20,13 +20,15 @@ TOOL_SOURCES = ("serial_lab.py", "lab_serial.py", "lab_evidence.py", "light_prot
                 "battery_device.py", "battery_collect.py")
 
 
-def prepare_capture(result, flash, expected_bin, port, location, confirmed, *, source_archive=None):
+def prepare_capture(result, flash, expected_bin, port, location, confirmed, *, source_archive=None,
+                    build_archive=None, recorded_root=None):
     """Bind local bytes and host identity; operator continuity is not attestation."""
     if not confirmed:
         raise ValueError("Current same-board/firmware and safe supply confirmation required")
     from lab_check import check_build, check_sdk, load
     from battery_device import port_identity
-    checked = check_build(result, source_archive=source_archive, flash=flash)
+    checked = check_build(result, source_archive=source_archive, flash=flash,
+                          build_archive=build_archive, recorded_root=recorded_root)
     firmware = next(item for item in checked["images"] if item["name"] == "main.bin")
     if firmware["sha256"] != expected_bin or checked["flash_port"] != port:
         raise ValueError("Expected firmware hash or flash endpoint differs")
@@ -35,6 +37,8 @@ def prepare_capture(result, flash, expected_bin, port, location, confirmed, *, s
               [checked["build_result"], checked["sdk_lock"], checked["flash_result"]])
     if checked["source_archive"]:
         inputs.append(checked["source_archive"])
+    if checked["build_archive"]:
+        inputs.append(checked["build_archive"])
     inputs += [file_record(ROOT / "scripts" / name) for name in TOOL_SOURCES]
     lock = load(ROOT / "sdk.lock.json")
 

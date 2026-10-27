@@ -1,0 +1,99 @@
+{
+  "date": "2026-10-27",
+  "source_base": "bafa7d0264bf2ed560a08a3d419505e0db74c9de",
+  "scope": "Reusable parameterized experiment snapshots/startup plus explicit historical build archive validation.",
+  "files": [
+    {
+      "path": "scripts/device_snapshot.py",
+      "bytes": 10058,
+      "sha256": "0d827f955b4ccb90d46aa68f475dcd011167b5021b043c8f544176afb9eeff29"
+    },
+    {
+      "path": "scripts/lab_check.py",
+      "bytes": 17510,
+      "sha256": "ce9a332f6b81c552da46bbbe91a6a941271f0acbb3ab2936ee0d09bb9142678b"
+    },
+    {
+      "path": "scripts/serial_lab.py",
+      "bytes": 13798,
+      "sha256": "7fe4ad1d5a6a2007f59c97c586cf954791c15310a881075a50db12a946d78aa6"
+    },
+    {
+      "path": "tests/test_device_snapshot.py",
+      "bytes": 6411,
+      "sha256": "d8067132c377becd4ee8d2af3d69a92c7556d408e3c34afc4b4ddf8a4ace57f0"
+    },
+    {
+      "path": "tests/test_lab_checks.py",
+      "bytes": 17864,
+      "sha256": "c72785203aa5cc9eac702a9f1196876742292aa4552b997cd31bc9c301217a31"
+    }
+  ],
+  "tools": {
+    "python": "3.14.3"
+  },
+  "commands": {
+    "lab_tests": "python -m unittest discover -s tests -p 'test_lab_*.py' -v",
+    "snapshot_tests": "python -m unittest discover -s tests -p test_device_snapshot.py -v",
+    "snapshot_simulation": "python scripts/device_snapshot.py simulate --query steps --query wrist --out artifacts/lab-snapshots/sim-snapshot",
+    "startup_simulation": "python scripts/device_snapshot.py simulate --startup --out artifacts/lab-snapshots/sim-startup",
+    "progress": "python scripts/device_snapshot.py status --run artifacts/lab-snapshots/sim-startup",
+    "historical": "python scripts/lab_check.py --root D:/MY_Desk/project/wristflow build --result D:/MY_Desk/project/wristflow/artifacts/product/20261026-125321-730/result.json --flash D:/MY_Desk/project/wristflow/artifacts/flash/product/20261026-152437-628/result.json --build-archive D:/MY_Desk/project/wristflow/artifacts/imu-transient-recovery-20261026/final-product-20261026-125321-730.zip --recorded-root D:/MY_Desk/project/wristflow",
+    "docs": "python scripts/lab_check.py docs --base origin/main"
+  },
+  "validation": {
+    "lab_tests": 52,
+    "snapshot_tests": 8,
+    "cli_simulation_passed": true,
+    "historical_sources": 586,
+    "historical_artifacts": 29,
+    "historical_build_archive_passed": true,
+    "independent_readonly_reviews": "Archive policy and snapshot adapter reviewed; optional source sizes and RTC threshold mismatch fixed before final validation."
+  },
+  "artifacts": [
+    {
+      "path": "artifacts/lab-snapshots/lab-regression-final.log",
+      "bytes": 7935,
+      "sha256": "a83e170496bbcd0f93b8baf4473a933c32cfa37bfa4223bf896d7362e96faf95"
+    },
+    {
+      "path": "artifacts/lab-snapshots/snapshot-final.log",
+      "bytes": 2228,
+      "sha256": "5ecc44adb205f04925e40e2ca9da5ec9cc02f05dd5f6a1f7f205b7547f22d65c"
+    },
+    {
+      "path": "artifacts/lab-snapshots/historical-build-check.json",
+      "bytes": 134821,
+      "sha256": "a46b9114dc150c2d406ec69a079226b082525e46e951328770221cabe87a93f0"
+    },
+    {
+      "path": "artifacts/lab-snapshots/sim-snapshot/snapshot.json",
+      "bytes": 773,
+      "sha256": "e254ce199b03608817cb24ce6ef47337a628f3335f376aaf7c08d05f147c0c40"
+    },
+    {
+      "path": "artifacts/lab-snapshots/sim-startup/snapshot.json",
+      "bytes": 1141,
+      "sha256": "622d059cf5b3cb44dd2e34d84814c2d5e41af180ef5e6d370d965b96ff1fb0b1"
+    },
+    {
+      "path": "artifacts/lab-snapshots/sim-status.json",
+      "bytes": 367,
+      "sha256": "97c76586226b52b7dadec7d5a5a9318a8bb1ff1d6028f057d69350704646fe35"
+    }
+  ],
+  "failures_preserved": [
+    "Initial direct remote fetch failed; standard configured Git fetch later succeeded.",
+    "Initial unit fixture included source byte sizes absent from Build.ps1; corrected and validated against real historical build.",
+    "RTC initial/writeback tolerances were inconsistent for an unchanged 8..60-second offset; corrected and tested."
+  ],
+  "hardware_verified": false,
+  "firmware_built": false,
+  "device_operations": false,
+  "limits": [
+    "Simulation proves host flow only; real snapshot and RTC behavior not tested.",
+    "Historical archive verification does not verify current source/artifacts or board identity.",
+    "Original dirty compass-device-probe checkout preserved; local main synchronization remains blocked by that work.",
+    "Historical scripts and evidence retained; new workflow uses the parameterized entry."
+  ]
+}
