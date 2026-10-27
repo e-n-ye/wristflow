@@ -6,14 +6,18 @@ import sys
 
 from fontTools import subset
 from fontTools.ttLib import TTFont
+from font_charset import common_hanzi, message_codepoints
 
 ROOT = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--fonts-only", action="store_true", help="Preserve existing watchface bitmaps")
 parser.add_argument("--static-fonts-only", action="store_true", help="Update only fixed UI and icon subsets; preserve message font and bitmaps")
+parser.add_argument("--message-font-only", action="store_true", help="Update only the common notification font subset")
 parser.add_argument("--lvgl-root", type=Path, default=ROOT / "vendor/SiFli-SDK/external/lvgl_v9",
                     help="Locked SDK LVGL directory (for isolated worktrees)")
 args = parser.parse_args()
+if args.message_font_only and (args.fonts_only or args.static_fonts_only):
+    parser.error("--message-font-only must be used on its own")
 LVGL = args.lvgl_root
 OUTPUT = ROOT / "ui/xml"
 TEXT = (
@@ -46,32 +50,28 @@ def subset_font(source, target, family, codepoints):
     print(f"{target.relative_to(ROOT)}: {target.stat().st_size} bytes")
 
 
-subset_font(LVGL / "tests/src/test_files/fonts/noto/NotoSansSC-Regular.ttf",
-            OUTPUT / "fonts/WristFlowSans-Regular.ttf", "WristFlow Sans",
-            set(range(32, 127)) | {ord(c) for c in TEXT})
-# Keep real incoming-message coverage separate from the fixed UI strings.
-# Avoid unrelated scripts with exceptionally tall glyphs inflating every line.
-MESSAGE_RANGES = ((0x20, 0x024f), (0x2000, 0x206f), (0x20a0, 0x20cf),
-                  (0x2190, 0x22ff), (0x25a0, 0x26ff), (0x2e80, 0x30ff),
-                  (0x3100, 0x312f), (0x31a0, 0x31bf), (0x31f0, 0x33ff),
-                  (0x3400, 0x4dbf), (0x4e00, 0x9fff), (0xf900, 0xfaff),
-                  (0xfe10, 0xfe1f), (0xfe50, 0xfe6f), (0xff00, 0xffef))
-message_codepoints = {0xfffd}
-for first, last in MESSAGE_RANGES:
-    message_codepoints.update(range(first, last + 1))
-# These Japanese vertical repeat marks deliberately span two text lines.
-message_codepoints.difference_update((0x3031, 0x3032))
+if not args.message_font_only:
+    subset_font(LVGL / "tests/src/test_files/fonts/noto/NotoSansSC-Regular.ttf",
+                OUTPUT / "fonts/WristFlowSans-Regular.ttf", "WristFlow Sans",
+                set(range(32, 127)) | {ord(c) for c in TEXT})
+# Incoming messages use the user-selected common Hanzi profile independently
+# of the fixed UI strings. Fail rather than silently omit a required Hanzi.
 if not args.static_fonts_only:
+    source = LVGL / "tests/src/test_files/fonts/noto/NotoSansSC-Regular.ttf"
+    missing = common_hanzi() - set(TTFont(source).getBestCmap())
+    if missing:
+        raise ValueError(f"Source font lacks {len(missing)} required common Hanzi")
     subset_font(LVGL / "tests/src/test_files/fonts/noto/NotoSansSC-Regular.ttf",
                 OUTPUT / "fonts/WristFlowMessages-Regular.ttf", "WristFlow Messages",
-                message_codepoints)
-subset_font(LVGL / "scripts/built_in_font/FontAwesome5-Solid+Brands+Regular.woff",
+                message_codepoints())
+if not args.message_font_only:
+    subset_font(LVGL / "scripts/built_in_font/FontAwesome5-Solid+Brands+Regular.woff",
             OUTPUT / "fonts/WristFlowIcons.ttf", "WristFlow Icons",
             [0xf004, 0xf012, 0xf013, 0xf017, 0xf024, 0xf053, 0xf054, 0xf0eb, 0xf185, 0xf186,
              0xf240, 0xf293, 0xf54b, 0xf04b, 0xf04c, 0xf2f1, 0xf00c, 0xf390, 0xf2f2,
              0xf043, 0xf062, 0xf118, 0xf70c, 0xf183, 0xf0c2, 0xf236, 0xf0f3, 0xf201, 0xf1d8, 0xf1f8, 0xf00d,
              0xf028, 0xf00a, 0xf0ad, 0xf05a, 0xf192, 0xf252, 0xf04d, 0xf2f9, 0xf067, 0xf0e7, 0xf06d])
 
-if not args.fonts_only and not args.static_fonts_only:
+if not args.fonts_only and not args.static_fonts_only and not args.message_font_only:
     sys.argv = [str(ROOT / "scripts/Generate-Diffusion.py")]
     runpy.run_path(str(ROOT / "scripts/Generate-Diffusion.py"), run_name="__main__")
