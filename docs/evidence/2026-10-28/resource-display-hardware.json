@@ -1,0 +1,339 @@
+{
+  "date": "2026-10-28",
+  "started_date": "2026-10-27",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/resource-hardware-check",
+  "base_commit": "f71150e18496a7104c5ac5eb4c6900e07ce35f7c",
+  "authorization": "Same Huangshan board/screen, original battery plus PC USB, secured wiring, operator present; flash and necessary real UTC sync authorized. User requested independent diagnostic module and ordinary Product restore.",
+  "scope": "Three official EZIP images and 6500-character notification font samples. No extra image compression, SDK/generated UI change or custom replacement algorithm.",
+  "source_inspection": "Sol/medium independent read-only review. main has five hooks; product_resource_probe owns IRQ-protected mailbox/cache/eligibility/cleanup; resource_probe owns UI-thread objects and 60s lease. Normal ELF has no probe or wf_resource symbols.",
+  "capability_choice": "Retain official EZIP/EPIC and plain22px/2bpp font; SDK/submodule lock unchanged.",
+  "software_validation": {
+    "related_c_tests": "4/4",
+    "full_debug_ctest": "69/69",
+    "adapter_tests": "6/6",
+    "browser_simulation": "Six steps passed in sim-002; sim-001 timeout preserved. Adapter covers cancel, lost ACK, foreign owner and close failure.",
+    "records": [
+      {
+        "path": "artifacts/resource-probe-host-test.log",
+        "bytes": 549,
+        "sha256": "6a5b3d76b6551427c03801f18b418fc1d221fb71a66c2765ffade3983f271f1b"
+      },
+      {
+        "path": "artifacts/resource-acceptance-tests-004.log",
+        "bytes": 886,
+        "sha256": "7a558dd41afab3f1473a0e75a3675edc79bac50a3a1ef5678a50eeb110d7629f"
+      },
+      {
+        "path": "artifacts/resource-hardware-20261027/host-full-test.log",
+        "bytes": 7234,
+        "sha256": "34e1b87bf0c1c574b7bee8f810fd52d6b68290c9e8ef413d06c411b7ee04b937"
+      },
+      {
+        "path": "artifacts/resource-hardware-20261027/sim-002/workflow.json",
+        "bytes": 2458,
+        "sha256": "ce89ca1c3e31725c749de94d7114152feac8386c19ddc3d6de2b0d62692b86f7"
+      }
+    ]
+  },
+  "diagnostic_build": {
+    "result": {
+      "path": "artifacts/product/20261027-234648-464/result.json",
+      "bytes": 119988,
+      "sha256": "10f2eb7bca20c2e0f89055b6a392245ca26e33302da1d20824357f4b164ae2e6"
+    },
+    "bin": {
+      "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+      "bytes": 4872076,
+      "sha256": "16a6c8cd406041aa8e2198d667768d895e741f635a539fa7c783936c0c35a11d"
+    },
+    "sources": 593,
+    "artifacts": 29,
+    "resource_probe": true,
+    "exit_code": 0
+  },
+  "normal_build": {
+    "result": {
+      "path": "artifacts/product/20261028-001310-343/result.json",
+      "bytes": 119972,
+      "sha256": "ec1fe8dc560f23b5d2c944bd943f4b37fef21bda2419e48ae07eb0bb90fc1130"
+    },
+    "bin": {
+      "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+      "bytes": 4870136,
+      "sha256": "4c4ac661523544461cbb40d66b04baec97e54565b1fd58b3867a63528c1c789b"
+    },
+    "sources": 593,
+    "artifacts": 29,
+    "resource_probe": false,
+    "exit_code": 0
+  },
+  "baseline_builds": [
+    {
+      "result": {
+        "path": "artifacts/hello/20261028-001135-036/result.json",
+        "bytes": 10159,
+        "sha256": "74a8a2ec7763c128e60a424081bea19fcb122f38dec4c739224e0b6c2296cf61"
+      },
+      "bin": {
+        "path": "vendor/SiFli-SDK/example/get-started/hello_world/rtt/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+        "bytes": 300336,
+        "sha256": "5d1e396f2e9cd6edd35f0586d2c30dbd7f3dd4cf0f42a5bcf17c9a976e4173c0"
+      },
+      "sources": 9,
+      "artifacts": 22,
+      "resource_probe": false,
+      "exit_code": 0
+    },
+    {
+      "result": {
+        "path": "artifacts/ble/20261028-001144-630/result.json",
+        "bytes": 11389,
+        "sha256": "eb2a7d335cbfb10c6c9ff4d5360015d52aeffeab3c58619ad21c94b614452b5a"
+      },
+      "bin": {
+        "path": "vendor/SiFli-SDK/example/ble/peripheral/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+        "bytes": 490064,
+        "sha256": "09d17264a1822a45731664091785dea1b0a0324f5be2af46f32c154500d396d2"
+      },
+      "sources": 8,
+      "artifacts": 29,
+      "resource_probe": false,
+      "exit_code": 0
+    },
+    {
+      "result": {
+        "path": "artifacts/bringup/20261028-001156-850/result.json",
+        "bytes": 8474,
+        "sha256": "2673d557101ad4885a6c24fa6cfab6eea862987400bdd4371756166aaf3a7670"
+      },
+      "bin": {
+        "path": "apps/bringup/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+        "bytes": 614176,
+        "sha256": "deadadab94b802be43bbd3eeab9580de1828c28fafa679c9254b9334984895fb"
+      },
+      "sources": 8,
+      "artifacts": 22,
+      "resource_probe": false,
+      "exit_code": 0
+    },
+    {
+      "result": {
+        "path": "artifacts/ui_demo/20261028-001212-729/result.json",
+        "bytes": 105582,
+        "sha256": "f6527cf581319cf4890a5965afeebe68905ecc64b2200cbb0ae4a26586f07910"
+      },
+      "bin": {
+        "path": "apps/ui_demo/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+        "bytes": 4570344,
+        "sha256": "5e134367b507925ab9077b66b4292984ba84de8c02df05d07c061b28de153dab"
+      },
+      "sources": 526,
+      "artifacts": 22,
+      "resource_probe": false,
+      "exit_code": 0
+    }
+  ],
+  "archives": [
+    {
+      "path": "artifacts/resource-hardware-20261027/diagnostic-product-20261027-234648-464.zip",
+      "bytes": 16998233,
+      "sha256": "5afbec088c6fd75012791f55f349347d82d2a76939c6599b5d9aa9b00973c8a8"
+    },
+    {
+      "path": "artifacts/resource-hardware-20261027/normal-product-20261028-001310-343.zip",
+      "bytes": 16985737,
+      "sha256": "4ce1cdfd3bcfc8de6fee3fd5030a09ae143e041bca8b36756d44a2c5f7334969"
+    }
+  ],
+  "downloads": {
+    "diagnostic": {
+      "path": "artifacts/flash/product/20261027-235703-793/result.json",
+      "bytes": 1767,
+      "sha256": "21bc66d9249910075636779b142e9c32fcc6c12ed892bc0f8ec879c51d5b3a11"
+    },
+    "normal": {
+      "path": "artifacts/flash/product/20261028-001336-962/result.json",
+      "bytes": 1767,
+      "sha256": "825c82ce1bc53fd8eda2e24bced498bcd031c1dfa6b5fd2f8118315d104242cd"
+    },
+    "result": "Both three-image write+verify exit0, DryRun passed. Strong BSP_PowerUpCustom retained in SRAM; false path returns. No extra RTS or ordinary reboot."
+  },
+  "preflash": {
+    "snapshot": {
+      "path": "artifacts/resource-hardware-20261027/preflash-006/snapshot.json",
+      "bytes": 6802,
+      "sha256": "a0d23188e5b2cb423c7dd8b07634e5a8c114af60db3afcacf54ace5359eb8432"
+    },
+    "uart": {
+      "path": "artifacts/resource-hardware-20261027/preflash-006/uart.bin",
+      "bytes": 5348,
+      "sha256": "a2a9a983f4d87dbffefb93e08c5e70225d4eb0996c15c809dca4a76ffb263997"
+    },
+    "state": "10steps/day20753/checkpoint194 verified clean failed0; wrist and auto brightness enabled; compass/probe stopped."
+  },
+  "diagnostic_startup": {
+    "snapshot": {
+      "path": "artifacts/resource-hardware-20261027/diagnostic-startup-001/snapshot.json",
+      "bytes": 5092,
+      "sha256": "330ac231f15ae4447549c630f0f9dc30e45851bc651c0926aa7314ef8b712742"
+    },
+    "result": "RTC2000 -> actual UTC1793117017 once and readback. Local midnight crossed day20753 total10 -> day20754 total0; prior-day10 stored, not same-day persistence acceptance."
+  },
+  "display_acceptance": {
+    "report": {
+      "path": "artifacts/resource-hardware-20261027/device-001/workflow.json",
+      "bytes": 2513,
+      "sha256": "989cb9ccddb56626138206d8520d18178974db770ed53410902f023532bf3d1a"
+    },
+    "uart": {
+      "path": "artifacts/resource-hardware-20261027/device-001/uart.bin",
+      "bytes": 3610,
+      "sha256": "047ad445fefb396f5b3def76ebd8adb6aa06ca7e5a73b38cd8d264311bcebf16"
+    },
+    "views": [
+      {
+        "title": "1点压缩图",
+        "before": {
+          "tag": 248545241,
+          "mode": 0,
+          "active": 1,
+          "pending": 0,
+          "available": 0,
+          "start": 745802,
+          "elapsed": 155,
+          "reason": 0
+        },
+        "after": {
+          "tag": 248545241,
+          "mode": 0,
+          "active": 1,
+          "pending": 0,
+          "available": 0,
+          "start": 745802,
+          "elapsed": 13743,
+          "reason": 0
+        }
+      },
+      {
+        "title": "7点压缩图",
+        "before": {
+          "tag": 210826385,
+          "mode": 1,
+          "active": 1,
+          "pending": 0,
+          "available": 0,
+          "start": 760311,
+          "elapsed": 171,
+          "reason": 0
+        },
+        "after": {
+          "tag": 210826385,
+          "mode": 1,
+          "active": 1,
+          "pending": 0,
+          "available": 0,
+          "start": 760311,
+          "elapsed": 8964,
+          "reason": 0
+        }
+      },
+      {
+        "title": "未知时间压缩图",
+        "before": {
+          "tag": 657055865,
+          "mode": 2,
+          "active": 1,
+          "pending": 0,
+          "available": 0,
+          "start": 769972,
+          "elapsed": 155,
+          "reason": 0
+        },
+        "after": {
+          "tag": 657055865,
+          "mode": 2,
+          "active": 1,
+          "pending": 0,
+          "available": 0,
+          "start": 769972,
+          "elapsed": 6229,
+          "reason": 0
+        }
+      },
+      {
+        "title": "6500常用汉字字库",
+        "before": {
+          "tag": 857708527,
+          "mode": 3,
+          "active": 1,
+          "pending": 0,
+          "available": 0,
+          "start": 776921,
+          "elapsed": 161,
+          "reason": 0
+        },
+        "after": {
+          "tag": 857708527,
+          "mode": 3,
+          "active": 1,
+          "pending": 0,
+          "available": 0,
+          "start": 776921,
+          "elapsed": 19786,
+          "reason": 0
+        }
+      }
+    ],
+    "workflow_passed": true,
+    "physical_observations_confirmed": true,
+    "final_status": {
+      "tag": 857708527,
+      "mode": 3,
+      "active": 0,
+      "pending": 0,
+      "available": 1,
+      "start": 776921,
+      "elapsed": 20154,
+      "reason": 2
+    },
+    "resources_closed": true,
+    "recovery_required": false,
+    "interpretation": "Operator confirmed image integrity and switching, common text/ASCII/punctuation/three supplementary level2 glyphs and expected placeholders. Four matching stop ACKs and inactive cache readbacks within60s. One touch buffer overwrite warning; no assert/fault/cold-boot marker. Physical automatic timeout not exercised."
+  },
+  "normal_restore": {
+    "bin_sha256": "4c4ac661523544461cbb40d66b04baec97e54565b1fd58b3867a63528c1c789b",
+    "bin_bytes": 4870136,
+    "flash_spare_bytes": 3518472,
+    "normal_probe_symbols_absent": true,
+    "operator": "Confirmed keep-awake closed, natural screen-off about5s, KEY1 wake, display/touch/time normal, wrist/auto-brightness preferences retained. Device actions ended.",
+    "startup_readback": "Both normal-startup-001/002 timed out with zero UART, no clock write attempted, resources closed. RTC/cache not independently read back.",
+    "failed_snapshots": [
+      {
+        "path": "artifacts/resource-hardware-20261027/normal-startup-001/snapshot.json",
+        "bytes": 712,
+        "sha256": "88be9bbb5317e9736dd261c5aabf5f846e6754048703c8d808d165d71e06cca5"
+      },
+      {
+        "path": "artifacts/resource-hardware-20261027/normal-startup-002/snapshot.json",
+        "bytes": 712,
+        "sha256": "b50a61699f31fe67a2f55799d055ae70b3c04ef171640df2450053ae259783a7"
+      }
+    ]
+  },
+  "failures": [
+    "Inherited draft had wrong image pointer indirection, LVGL find_by_name arity and no main integration; repaired before flash. Independent module first build omitted product_pm.h; final builds passed.",
+    "Initial preflash omitted recorded-root, host Python lacked serial, offline uv cache lacked dependencies; existing SDK Python had pyserial3.5, no dependency change.",
+    "First actual preflash got no bytes; fresh operator wake allowed preflash-006. First browser simulation timed out.",
+    "Fast artificial adapter tests intermittently hit Windows temporary-file replace PermissionError; final prompt delay and D: temp directory gave6/6, production JSON helper unchanged.",
+    "Normal startup readback failed twice; manual final observation remains separate."
+  ],
+  "unverified": [
+    "Measured FPS/frame time, CPU, peak memory, power/current/battery life",
+    "Every6500glyph on device",
+    "Physical60s automatic expiry and priority collision",
+    "Same-day step restore and physical DEEP",
+    "Normal-restored RTC/cache UART confirmation"
+  ],
+  "next_bounded_experiment": "New operator window: wake and query normal Product date/steps/wrist/light once; RTC correction only with explicit authorization if required. More images need a separate bounded choice."
+}

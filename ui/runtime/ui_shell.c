@@ -1133,6 +1133,9 @@ void wristflow_ui_shell_auto_brightness_sample(wristflow_ui_shell_t *shell, bool
     }
     if (mode_changed) wristflow_apps_refresh_settings_save(shell->apps);
 }
+bool wristflow_ui_shell_notification_active(const wristflow_ui_shell_t *shell)
+{ return shell && wristflow_notification_view_alert(shell->notifications) != WF_ALERT_NONE; }
+
 bool wristflow_ui_shell_auto_brightness_sampling(const wristflow_ui_shell_t *shell)
 {
     return shell && !shell->endurance.enabled &&
