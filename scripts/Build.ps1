@@ -3,8 +3,10 @@ param(
     [ValidateSet('hello', 'ble', 'bringup', 'ui_demo', 'product')]
     [string]$Example = 'hello',
     [ValidateRange(1, 32)]
-    [int]$Jobs = 4
+    [int]$Jobs = 4,
+    [switch]$ResourceProbe
 )
+if ($ResourceProbe -and $Example -ne 'product') { throw '-ResourceProbe requires -Example product.' }
 . "$PSScriptRoot/Set-LocalEnvironment.ps1"
 # Piped Rich output otherwise defaults to 80 columns and clips the size table.
 $env:COLUMNS = '120'
@@ -22,9 +24,11 @@ $runDir = Join-Path $ProjectRoot ("artifacts/{0}/{1}" -f $Example, (Get-Date -Fo
 New-Item -ItemType Directory -Path $runDir -Force | Out-Null
 $buildExit = 1
 $startedAt = (Get-Date).ToString('o')
+$sconsArgs = @("--board=$board", "-j$Jobs")
+if ($ResourceProbe) { $sconsArgs += 'resource_probe=1' }
 Push-Location $projectPath
 try {
-    & scons "--board=$board" "-j$Jobs" *>&1 | Tee-Object -FilePath (Join-Path $runDir 'build.log')
+    & scons @sconsArgs *>&1 | Tee-Object -FilePath (Join-Path $runDir 'build.log')
     $buildExit = $LASTEXITCODE
 }
 finally { Pop-Location }
@@ -95,7 +99,8 @@ $record = [ordered]@{
     started_at = $startedAt
     date = (Get-Date).ToString('o')
     example = $Example
-    command = "scons --board=$board -j$Jobs"
+    command = "scons $($sconsArgs -join ' ')"
+    resource_probe = [bool]$ResourceProbe
     working_directory = $projectPath
     sdk_commit = (Get-CheckedOutput git @('-C', $SdkRoot, 'rev-parse', 'HEAD'))
     submodules = @(Get-CheckedOutput git @('-C', $SdkRoot, 'submodule', 'status', '--recursive'))

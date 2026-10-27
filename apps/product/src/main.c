@@ -25,6 +25,7 @@
 #include "aod_display.h"
 #include "aod_policy.h"
 #include "aod_view.h"
+#include "product_resource_probe.h"
 #include "drv_lcd.h"
 #include <string.h>
 #ifdef RT_USING_FINSH
@@ -179,6 +180,7 @@ static int wf_aod(int argc, char **argv)
         unsigned seconds = (unsigned)(argv[2][0] - '0') * 10U + (unsigned)(argv[2][1] - '0');
         rt_base_t level = rt_hw_interrupt_disable();
         bool accepted = seconds <= 60 && probe_available && !probe_reserved;
+        accepted = accepted && !wf_product_resource_busy_locked();
         if (accepted) { probe_reserved = true; probe_seconds = seconds; probe_stop = false; }
         rt_hw_interrupt_enable(level);
         rt_kprintf("[aod-probe] start accepted=%u; diagnostic only, 5 percent request, UI holds IDLE\n", accepted);
@@ -733,6 +735,7 @@ int main(void)
     RT_ASSERT(original_pointer_read);
     lv_indev_set_read_cb(pointer, read_pointer);
     wristflow_ui_shell_enable_display_policy(shell);
+    wf_product_resource_init(shell, pointer, &probe_reserved);
     lv_obj_delete(initial);
     button_cfg_t key = {0};
     key.pin = BSP_KEY1_PIN;
@@ -777,6 +780,7 @@ int main(void)
         sync_automatic_brightness();
         sync_compass();
         uint32_t wait_ms = lv_timer_handler();
+        wf_product_resource_poll();
         sync_compass();
         uint32_t now = lv_tick_get();
         capture_battery();
@@ -815,6 +819,7 @@ int main(void)
             capture_carousel();
         }
         rt_uint32_t events = wristflow_product_event_wait(rt_tick_from_millisecond(LV_CLAMP(1, wait_ms, 20)));
+        events = wf_product_resource_events(events);
         if (events & WF_EVENT_PM_SAMPLE) wristflow_product_pm_report();
         if ((events & WF_EVENT_WRIST) && wristflow_product_wrist_take_wake() &&
             !(events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE | WF_EVENT_KEY_STATE)))
@@ -834,9 +839,7 @@ int main(void)
                 wristflow_weather_screen_refresh(active);
             }
         }
-        if (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE))
-
-            wristflow_ui_shell_key(shell);
+        if (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE)) wristflow_ui_shell_key(shell);
         if (events & WF_EVENT_KEY_STATE) sync_endurance_key();
     }
 }
