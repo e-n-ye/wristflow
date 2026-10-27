@@ -5,8 +5,8 @@
   "files": [
     {
       "path": "scripts/device_snapshot.py",
-      "bytes": 10058,
-      "sha256": "0d827f955b4ccb90d46aa68f475dcd011167b5021b043c8f544176afb9eeff29"
+      "bytes": 10258,
+      "sha256": "fb5d963acdfed606e158bfd31f29cea189af69f8043ba1fa574f35f3f8c03076"
     },
     {
       "path": "scripts/lab_check.py",
@@ -20,8 +20,8 @@
     },
     {
       "path": "tests/test_device_snapshot.py",
-      "bytes": 6411,
-      "sha256": "d8067132c377becd4ee8d2af3d69a92c7556d408e3c34afc4b4ddf8a4ace57f0"
+      "bytes": 6540,
+      "sha256": "8b63049148753aa2137bef8067501fa45ece42b59e5df6ace64913dcf2e1fca2"
     },
     {
       "path": "tests/test_lab_checks.py",
@@ -50,7 +50,8 @@
     "historical_artifacts": 29,
     "historical_build_archive_passed": true,
     "independent_readonly_reviews": "Archive policy and snapshot adapter reviewed; optional source sizes and RTC threshold mismatch fixed before final validation.",
-    "integration_compass_adapter_tests": 9
+    "integration_compass_adapter_tests": 9,
+    "new_python_source_checkout_line_endings": "CRLF, matching current Git checkout policy; snapshot tests and CLI simulation rechecked after byte normalization."
   },
   "artifacts": [
     {
@@ -87,6 +88,21 @@
       "path": "artifacts/lab-snapshots/integration-compass.log",
       "bytes": 1532,
       "sha256": "2a1a9caee803e7011a4f7e14b92297ee6375dfa03de822b61290c71c3685c166"
+    },
+    {
+      "path": "artifacts/lab-snapshots/snapshot-checkout-bytes.log",
+      "bytes": 2228,
+      "sha256": "885c69bca394fa2f6b939f900e8c14cd8984b3d9056dbf0637ee0a5cf73ee1b7"
+    },
+    {
+      "path": "artifacts/lab-snapshots/sim-snapshot-final/snapshot.json",
+      "bytes": 779,
+      "sha256": "aa2ec5dbc9c78f08e64af3d88676516aaf83b45b27d9976296ed511c1b3324ac"
+    },
+    {
+      "path": "artifacts/lab-snapshots/sim-startup-final/snapshot.json",
+      "bytes": 1147,
+      "sha256": "b07b0ba18f15624907563b2d93c7401e668f0b98d85fc6722847f074eb0974d4"
     }
   ],
   "failures_preserved": [
