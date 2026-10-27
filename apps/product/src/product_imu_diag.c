@@ -12,6 +12,7 @@
 #include "auto_brightness.h"
 #include "mmc5603_diag.h"
 #include "product_compass.h"
+#include "compass_probe.h"
 #include <rtthread.h>
 #include <rthw.h>
 #include <rtdevice.h>
@@ -19,6 +20,8 @@
 #include "drv_gpio.h"
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
+#include <limits.h>
 
 #ifndef BSP_USING_I2C3
 #error "Product native IMU diagnostic requires BSP_USING_I2C3"
@@ -27,7 +30,7 @@
 enum { EV_COMMAND = 1, EV_STOP = 2, EV_DAILY_START = 4, EV_SCREEN = 8, EV_SAVE = 16,
     EV_WRIST = 32, EV_WRIST_STOP = 64, EV_WRIST_POLICY = 128, EV_WRIST_IRQ = 256,
     EV_LIGHT = 512, EV_LIGHT_STOP = 1024, EV_AUTO_LIGHT = 2048,
-    EV_MAG = 4096, EV_MAG_STOP = 8192, EV_COMPASS = 16384 };
+    EV_MAG = 4096, EV_MAG_STOP = 8192, EV_COMPASS = 16384, EV_CPROBE = 32768 };
 enum command { CMD_NONE, CMD_PROBE, CMD_STEPS };
 static struct rt_event work;
 static struct rt_i2c_bus_device *bus;
@@ -82,12 +85,21 @@ static bool compass_requested, compass_owner, compass_retry, compass_fault;
 static volatile bool compass_cancel;
 static uint32_t compass_generation, compass_applied_generation, compass_cached_generation;
 static wf_compass_snapshot_t compass_value, compass_cached;
+static wf_compass_probe_t cprobe;
+static wf_compass_probe_snapshot_t cprobe_cached;
+static bool cprobe_pending, cprobe_algorithm, cprobe_stop_requested, cprobe_freeze_requested;
+static unsigned cprobe_seconds;
+static uint32_t cprobe_generation;
+static int8_t cprobe_acc_axes[3], cprobe_mag_axes[3];
 static bool prepare_bus(void);
 static bool probe(void);
 static wristflow_steps_clock_t daily_clock(void);
 static void light_work(rt_uint32_t events);
 static void mag_work(rt_uint32_t events);
 static uint32_t now_ms(void);
+static void cprobe_report(const wf_compass_probe_snapshot_t *);
+static void cprobe_control(rt_uint32_t);
+static void cprobe_capture(const wf_mmc5603_snapshot_t *);
 
 bool wristflow_product_compass_active(bool active)
 {
@@ -284,6 +296,7 @@ static void publish(void)
     light_cached = light.snapshot;
     mag_cached = mag.snapshot;
     compass_cached = compass_value;
+    cprobe_cached = cprobe.snapshot;
     compass_cached_generation = compass_applied_generation;
     mag_busy = mag_pending || mag.snapshot.phase == WF_MAG_RUNNING || mag.snapshot.owned;
     auto_cached = auto_value;
@@ -808,6 +821,133 @@ static void mag_trace_report(const wf_mmc5603_snapshot_t *s)
         s->selftest_raw[0], s->selftest_raw[1], s->selftest_raw[2], s->selftest_raw[3], s->selftest_raw[4],
         s->selftest_raw[5], s->selftest_raw[6], s->selftest_raw[7], s->selftest_raw[8]);
 }
+static long cprobe_scaled(float value, float scale)
+{
+    double v=(double)value*scale;
+    if (!isfinite(v) || v>INT32_MAX || v<INT32_MIN) return 0;
+    return (long)(v<0 ? v-.5 : v+.5);
+}
+static void cprobe_report(const wf_compass_probe_snapshot_t *s)
+{
+    rt_kprintf("[cp-state] id=%lu gen=%lu active=%u algo=%u frozen=%u end=%u frames=%lu drop=%lu\n",
+        (unsigned long)s->session,(unsigned long)s->generation,s->active,s->algorithm,s->frozen,s->ended,
+        (unsigned long)s->frames,(unsigned long)s->rejected);
+    rt_kprintf("[cp-window] id=%lu start=%lu duration=%lu\n", (unsigned long)s->session,
+        (unsigned long)s->started_ms,(unsigned long)s->duration_ms);
+    rt_kprintf("[cp-map] id=%lu a=%d/%d/%d m=%d/%d/%d verified=0; experimental axis hypothesis\n",
+        (unsigned long)s->session,s->acc_axes[0],s->acc_axes[1],s->acc_axes[2],
+        s->mag_axes[0],s->mag_axes[1],s->mag_axes[2]);
+    const wf_compass_probe_frame_t *f=&s->frame;
+    rt_kprintf("[cp-time] id=%lu seq=%lu mag=%lu begin=%lu end=%lu src=%u mask=%u\n",
+        (unsigned long)s->session,(unsigned long)s->frames,(unsigned long)f->mag_ms,
+        (unsigned long)f->acc_begin_ms,(unsigned long)f->acc_end_ms,f->source,f->transfers);
+    rt_kprintf("[cp-raw] id=%lu seq=%lu a=%d/%d/%d m=%ld/%ld/%ld\n",
+        (unsigned long)s->session,(unsigned long)s->frames,f->acceleration[0],f->acceleration[1],f->acceleration[2],
+        (long)f->magnetic[0],(long)f->magnetic[1],(long)f->magnetic[2]);
+    rt_kprintf("[cp-quality] id=%lu seq=%lu bank=%02x xl=%02x ctrl3=%02x status=%02x accuracy=%d saturation=%d\n",
+        (unsigned long)s->session,(unsigned long)s->frames,f->bank,f->xl,f->ctrl3,f->status,s->accuracy,s->saturation);
+    rt_kprintf("[cp-field] id=%lu seq=%lu corrected_uG=%ld/%ld/%ld valid=%u\n",
+        (unsigned long)s->session,(unsigned long)s->frames,cprobe_scaled(s->corrected_gauss[0],1e6f),
+        cprobe_scaled(s->corrected_gauss[1],1e6f),cprobe_scaled(s->corrected_gauss[2],1e6f),s->output_valid);
+    rt_kprintf("[cp-angle] id=%lu seq=%lu vendor_mdeg=%ld front_mdeg=%ld output=%u projected=%u\n",
+        (unsigned long)s->session,(unsigned long)s->frames,cprobe_scaled(s->orientation[0],1000),
+        cprobe_scaled(s->projected_degrees,1000),s->output_valid,s->projected_valid);
+    rt_kprintf("[cp-param] id=%lu updates=%lu valid=%u uG=%ld/%ld/%ld/%ld; RAM only\n",
+        (unsigned long)s->session,(unsigned long)s->updates,s->parameters_valid,
+        cprobe_scaled(s->parameters[0],1e6f),cprobe_scaled(s->parameters[1],1e6f),
+        cprobe_scaled(s->parameters[2],1e6f),cprobe_scaled(s->parameters[3],1e6f));
+}
+static bool cprobe_current(void)
+{
+    rt_base_t level=rt_hw_interrupt_disable();
+    bool current=cprobe.snapshot.active && compass_requested && !compass_cancel &&
+        !cancel_requested && !mag_cancel_requested && !cprobe_stop_requested &&
+        cprobe.snapshot.generation==compass_generation &&
+        now_ms()-cprobe.snapshot.started_ms<cprobe.snapshot.duration_ms;
+    rt_hw_interrupt_enable(level);
+    return current;
+}
+static void cprobe_control(rt_uint32_t events)
+{
+    rt_base_t level=rt_hw_interrupt_disable();
+    bool begin=cprobe_pending, algorithm=cprobe_algorithm;
+    bool stop=cprobe_stop_requested, freeze=cprobe_freeze_requested;
+    bool eligible=compass_requested && !compass_cancel && !cancel_requested && !mag_cancel_requested;
+    uint32_t generation=compass_generation, requested_generation=cprobe_generation;
+    unsigned span=cprobe_seconds;
+    int8_t a[3],m[3]; memcpy(a,cprobe_acc_axes,3); memcpy(m,cprobe_mag_axes,3);
+    cprobe_pending=cprobe_stop_requested=cprobe_freeze_requested=false;
+    rt_hw_interrupt_enable(level);
+    bool was_active=cprobe.snapshot.active;
+    if (stop || !eligible || cprobe.snapshot.generation!=generation ||
+        (events&(EV_STOP|EV_DAILY_START|EV_MAG_STOP)))
+        wf_compass_probe_stop(&cprobe,WF_PROBE_CANCELLED);
+    if (device.snapshot.phase!=WF_IMU_RUNNING || mag.snapshot.phase!=WF_MAG_RUNNING || compass_fault)
+        wf_compass_probe_stop(&cprobe,WF_PROBE_IO);
+    wf_compass_probe_tick(&cprobe,now_ms());
+    if (begin) {
+        bool accepted=!stop && eligible && requested_generation==generation && compass_owner &&
+            !compass_fault && device.snapshot.phase==WF_IMU_RUNNING && mag.snapshot.phase==WF_MAG_RUNNING &&
+            !(events&(EV_STOP|EV_DAILY_START|EV_MAG_STOP)) &&
+            wf_compass_probe_begin(&cprobe,generation,now_ms(),span,algorithm,a,m);
+        wf_compass_probe_tick(&cprobe,now_ms());
+        if (!cprobe_current()) wf_compass_probe_stop(&cprobe,WF_PROBE_CANCELLED);
+        rt_kprintf("[cp-command] start=%u id=%lu\n",accepted && cprobe.snapshot.active,(unsigned long)cprobe.snapshot.session);
+    }
+    if (freeze) {
+        bool accepted=cprobe_current() && wf_compass_probe_freeze(&cprobe);
+        wf_compass_probe_tick(&cprobe,now_ms());
+        rt_kprintf("[cp-command] freeze=%u\n",accepted && cprobe.snapshot.active);
+    }
+    if (begin || freeze || stop || (was_active && !cprobe.snapshot.active)) cprobe_report(&cprobe.snapshot);
+}
+static void cprobe_capture(const wf_mmc5603_snapshot_t *mag_sample)
+{
+    if (!cprobe_current()) return;
+    wf_compass_probe_tick(&cprobe,now_ms());
+    if (!cprobe.snapshot.active) { cprobe_report(&cprobe.snapshot); return; }
+    wf_compass_probe_frame_t frame={.mag_ms=mag_sample->sampled_ms,
+        .magnetic={mag_sample->x,mag_sample->y,mag_sample->z}};
+    /* Reuse a genuinely fresh frame already read by the wrist owner. Reading
+     * another XYZ would otherwise see XLDA cleared by that legitimate read.
+     * The probe never requests wrist capture or reads its source registers. */
+    const wf_imu_wrist_frame_t *w=&wrist.snapshot.running;
+    unsigned needed=WF_WRIST_BANK|WF_WRIST_XL|WF_WRIST_CTRL3|WF_WRIST_STATUS|WF_WRIST_RAW;
+    if (w->xyz_valid && w->data_ready && (w->valid&needed)==needed &&
+        now_ms()-w->completed_ms<=50U && w->completed_ms-w->started_ms<=50U) {
+        frame.acc_begin_ms=w->started_ms; frame.acc_end_ms=w->completed_ms;
+        frame.bank=w->bank; frame.xl=w->xl; frame.ctrl3=w->ctrl3; frame.status=w->status;
+        frame.transfers=31U; frame.source=2;
+        memcpy(frame.acceleration,w->xyz,sizeof(frame.acceleration));
+    } else {
+        frame.acc_begin_ms=now_ms(); frame.source=1;
+        uint8_t raw[6]={0};
+        if (prepare_bus() && cprobe_current() && read_reg(NULL,0x01,&frame.bank,1)) {
+            frame.transfers|=1U;
+            if (frame.bank==0 && cprobe_current() && read_reg(NULL,0x10,&frame.xl,1)) {
+                frame.transfers|=2U;
+                if (cprobe_current() && read_reg(NULL,0x12,&frame.ctrl3,1)) {
+                    frame.transfers|=4U;
+                    if (cprobe_current() && read_reg(NULL,0x1e,&frame.status,1)) {
+                        frame.transfers|=8U;
+                        if (cprobe_current() && read_reg(NULL,0x28,raw,6)) frame.transfers|=16U;
+                    }
+                }
+            }
+        }
+        for (unsigned i=0;i<3;++i) frame.acceleration[i]=(int16_t)((uint16_t)raw[2*i]|(uint16_t)raw[2*i+1]<<8);
+        frame.acc_end_ms=now_ms();
+    }
+    wf_compass_probe_tick(&cprobe,now_ms());
+    if (!cprobe_current()) wf_compass_probe_stop(&cprobe,WF_PROBE_CANCELLED);
+    else {
+        (void)wf_compass_probe_feed(&cprobe,&frame,now_ms());
+        /* Library calls can span a deadline or a foreground cancellation. */
+        wf_compass_probe_tick(&cprobe,now_ms());
+        if (!cprobe_current()) wf_compass_probe_stop(&cprobe,WF_PROBE_CANCELLED);
+    }
+    cprobe_report(&cprobe.snapshot);
+}
 static void compass_work(rt_uint32_t events)
 {
     rt_base_t level = rt_hw_interrupt_disable();
@@ -899,8 +1039,13 @@ static void compass_work(rt_uint32_t events)
         compass_value.valid = s->sample_valid && compass_value.selftest_passed &&
             wf_compass_raw_heading(s->x, s->y, &compass_value.heading_degrees);
         compass_value.reason = compass_value.valid ? WF_COMPASS_WAITING : WF_COMPASS_INVALID_FIELD;
+        if (s->sample_valid && compass_value.selftest_passed) cprobe_capture(s);
     }
     if (s->phase != WF_MAG_RUNNING) {
+        if (cprobe.snapshot.active) {
+            wf_compass_probe_stop(&cprobe,WF_PROBE_IO);
+            cprobe_report(&cprobe.snapshot);
+        }
         compass_value.valid = false;
         compass_fault = compass_value.fault = true;
         compass_value.reason = s->ended == WF_MAG_SELFTEST_FAILED ? WF_COMPASS_SELFTEST_FAILURE : WF_COMPASS_IO_FAILURE;
@@ -913,6 +1058,7 @@ static void compass_work(rt_uint32_t events)
 
 static void mag_work(rt_uint32_t events)
 {
+    cprobe_control(events);
     if (compass_requested || compass_owner || compass_retry) { compass_work(events); return; }
     rt_base_t level = rt_hw_interrupt_disable();
     bool begin = mag_pending;
@@ -1035,6 +1181,13 @@ static void worker(void *context)
             if (!wrist_wait) wrist_wait = 1;
             if (wait == (rt_tick_t)RT_WAITING_FOREVER || wrist_wait < wait) wait = wrist_wait;
         }
+        if (cprobe.snapshot.active) {
+            uint32_t elapsed=now_ms()-cprobe.snapshot.started_ms;
+            uint32_t left=elapsed>=cprobe.snapshot.duration_ms ? 1U : cprobe.snapshot.duration_ms-elapsed;
+            rt_tick_t probe_wait=rt_tick_from_millisecond(left);
+            if (!probe_wait) probe_wait=1;
+            if (wait==(rt_tick_t)RT_WAITING_FOREVER || probe_wait<wait) wait=probe_wait;
+        }
         int32_t light_left = wf_ltr303_wait_ms(&light, now_ms());
         if (light_left >= 0) {
             rt_tick_t light_wait = rt_tick_from_millisecond((unsigned)light_left);
@@ -1049,7 +1202,7 @@ static void worker(void *context)
         }
         rt_uint32_t events = 0;
         rt_event_recv(&work, EV_COMMAND | EV_STOP | EV_DAILY_START | EV_SCREEN | EV_SAVE | EV_WRIST | EV_WRIST_STOP |
-            EV_WRIST_POLICY | EV_WRIST_IRQ | EV_LIGHT | EV_LIGHT_STOP | EV_AUTO_LIGHT | EV_MAG | EV_MAG_STOP | EV_COMPASS,
+            EV_WRIST_POLICY | EV_WRIST_IRQ | EV_LIGHT | EV_LIGHT_STOP | EV_AUTO_LIGHT | EV_MAG | EV_MAG_STOP | EV_COMPASS | EV_CPROBE,
             RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, wait, &events);
         io_failure_in_cycle = false;
         if (daily_mode) {
@@ -1204,6 +1357,66 @@ static void wf_compass(int argc, char **argv)
         (long)s.x, (long)s.y, (long)s.z, s.selftest_passed, s.stopped, (unsigned long)s.io_errors);
 }
 MSH_CMD_EXPORT(wf_compass, foreground compass cache only);
+
+static bool cprobe_parse_axes(const char *text, int8_t axes[3])
+{
+    for (unsigned i=0;i<3;++i) {
+        int sign=1;
+        if (*text=='-') { sign=-1; ++text; }
+        if (*text<'1' || *text>'3') return false;
+        axes[i]=(int8_t)(sign*(*text++-'0'));
+        if (i<2 && *text++!=',') return false;
+    }
+    return !*text && wf_compass_probe_axes_valid(axes);
+}
+static void wf_cprobe(int argc, char **argv)
+{
+    if (argc==2 && !strcmp(argv[1],"status")) {
+        rt_base_t level=rt_hw_interrupt_disable();
+        wf_compass_probe_snapshot_t s=cprobe_cached;
+        rt_hw_interrupt_enable(level); cprobe_report(&s); return;
+    }
+    if (!ready || !daily_mode) { rt_kprintf("[cp-command] worker unavailable\n"); return; }
+    if (argc==2 && !strcmp(argv[1],"stop")) {
+        rt_base_t level=rt_hw_interrupt_disable();
+        cprobe_pending=cprobe_freeze_requested=false; cprobe_stop_requested=true;
+        rt_event_send(&work,EV_CPROBE); rt_hw_interrupt_enable(level);
+        rt_kprintf("[cp-command] stop=1\n"); return;
+    }
+    if (argc==2 && !strcmp(argv[1],"freeze")) {
+        rt_base_t level=rt_hw_interrupt_disable();
+        bool accepted=cprobe_cached.active && cprobe_cached.algorithm && cprobe_cached.parameters_valid &&
+            !cprobe_cached.frozen && !cprobe_stop_requested && !cprobe_pending && !cprobe_freeze_requested;
+        if (accepted) { cprobe_freeze_requested=true; rt_event_send(&work,EV_CPROBE); }
+        rt_hw_interrupt_enable(level); rt_kprintf("[cp-command] queued=%u\n",accepted); return;
+    }
+    unsigned span=0;
+    bool algorithm=argc==5 && !strcmp(argv[1],"start");
+    int8_t a[3]={1,2,3},m[3]={1,2,3};
+    if ((argc==3 && !strcmp(argv[1],"inputs")) || algorithm) {
+        char *end;
+        unsigned long value=strtoul(argv[2],&end,10);
+        if (argv[2][0]>='0' && argv[2][0]<='9' && !*end && value>=1 && value<=120 &&
+            (!algorithm || (cprobe_parse_axes(argv[3],a) && cprobe_parse_axes(argv[4],m)))) span=(unsigned)value;
+    }
+    if (!span) {
+        rt_kprintf("wf_cprobe inputs <1..120> | start <1..120> <a-map> <m-map> | freeze | stop | status\n");
+        rt_kprintf("map example: 1,2,3; explicit proper rotations, experimental axes, no Flash\n"); return;
+    }
+    rt_base_t level=rt_hw_interrupt_disable();
+    bool accepted=compass_requested && !compass_cancel && !cancel_requested && !mag_cancel_requested &&
+        compass_cached.active && compass_cached.valid && !compass_cached.fault &&
+        !compass_cached.cleanup_pending && now_ms()-compass_cached.sampled_ms<1000U &&
+        !cprobe_cached.active && !cprobe_pending && !cprobe_stop_requested;
+    if (accepted) {
+        cprobe_pending=true; cprobe_algorithm=algorithm; cprobe_seconds=span; cprobe_generation=compass_generation;
+        memcpy(cprobe_acc_axes,a,3); memcpy(cprobe_mag_axes,m,3);
+        rt_event_send(&work,EV_CPROBE);
+    }
+    rt_hw_interrupt_enable(level);
+    rt_kprintf("[cp-command] queued=%u; visible compass required, experimental only\n",accepted);
+}
+MSH_CMD_EXPORT(wf_cprobe, bounded paired-input and MEMSIC experiment while compass visible);
 
 static void wf_light(int argc, char **argv)
 {

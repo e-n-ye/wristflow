@@ -1,0 +1,719 @@
+{
+  "date": "2026-10-27",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/compass-device-probe",
+  "base_commit": "bafa7d0264bf2ed560a08a3d419505e0db74c9de",
+  "scope": "User deferred issue and authorized a bounded on-board candidate test; no issue sent. Daily compass UI stays uncalibrated and parameters are RAM-only.",
+  "authorization": "Same Huangshan board/screen, original battery plus PC USB, secured wiring and operator present; confirmed wake/temporary always-on before flash.",
+  "capability_choice": "Retain MMC5603 native selftest/Auto_SR and IMU native pedometer/AWT. Single existing sensor worker/I2C owner; fresh wrist XYZ reuse or guarded read-only XL acquisition. No hardware algorithm replaced.",
+  "source_inspection": {
+    "review": "Sol/medium read-only review; lifecycle/deadline checks passed. Adapter invalid-frame and axis-map guard issues fixed, then reviewed. Luna/low checked resource/protocol facts; Sol independently computed comparison norms.",
+    "axis_hypothesis": "Six stable tails support acc=(-2,-1,-3); paired vertical magnetic differences support candidate mag=(2,1,-3), not absolute north or production mounting certification.",
+    "six_face_medians": {
+      "up": {
+        "a": [
+          -82.0,
+          -265.5,
+          -16352.5
+        ],
+        "m": [
+          3214.0,
+          8402.0,
+          7412.5
+        ]
+      },
+      "right": {
+        "a": [
+          -48.0,
+          -16638.5,
+          917.5
+        ],
+        "m": [
+          -3725.5,
+          -2208.5,
+          3224.0
+        ]
+      },
+      "front": {
+        "a": [
+          -16450.5,
+          -117.0,
+          -222.0
+        ],
+        "m": [
+          -6202.5,
+          8143.0,
+          3767.5
+        ]
+      },
+      "down": {
+        "a": [
+          -25.5,
+          137.0,
+          16668.0
+        ],
+        "m": [
+          -3183.0,
+          8906.5,
+          -5486.5
+        ]
+      },
+      "left": {
+        "a": [
+          -842.0,
+          16081.5,
+          -2045.5
+        ],
+        "m": [
+          3483.5,
+          10601.0,
+          5255.0
+        ]
+      },
+      "rear": {
+        "a": [
+          16409.0,
+          -839.5,
+          606.0
+        ],
+        "m": [
+          7133.5,
+          -1726.0,
+          1822.5
+        ]
+      }
+    }
+  },
+  "software_validation": {
+    "debug": "11/11 related tests; separate 324-case geometry addition 1/1",
+    "asserting_release": "11/11 related; geometry addition 1/1",
+    "adapter": "8/8 including delayed cache, lost start ack, cancellation, foreign ownership and invalid inputs",
+    "browser": "calibration simulation completed all four verification items; active cancellation separately covered by adapter tests",
+    "logs": [
+      {
+        "path": "artifacts/compass-device-probe-20261027/host-test-004.log",
+        "bytes": 1280,
+        "sha256": "90beb252726783e898ea341c180d630c80069bfb84ecbfa4a19664a49b22d7ce"
+      },
+      {
+        "path": "artifacts/compass-device-probe-20261027/release-test-001.log",
+        "bytes": 1287,
+        "sha256": "045ec6580bd99347b8e686a50910abee13563a69a4d8ab7b35c8865c6f3c6536"
+      },
+      {
+        "path": "artifacts/compass-device-probe-20261027/geometry-test-001.log",
+        "bytes": 256,
+        "sha256": "804b6ed61fcf9fd3e01a74db2b692855d977e4ca9f6a7f7c08a0b92d67ca3c9b"
+      },
+      {
+        "path": "artifacts/compass-device-probe-20261027/geometry-release-test-001.log",
+        "bytes": 263,
+        "sha256": "aaccf3f01a639efdd841f1c650273c4ba63963109a3d506d7b2bdd395c0ac1d5"
+      },
+      {
+        "path": "artifacts/compass-device-probe-20261027/adapter-tests-003.log",
+        "bytes": 1338,
+        "sha256": "26adf21b328deeb94cf0692b1543050a68a6ff7bd7622862625c8e931521a3a3"
+      },
+      {
+        "path": "artifacts/compass-device-probe-20261027/ui-sim-passed.png",
+        "bytes": 30304,
+        "sha256": "3a1b88cae3782f07191dcbfe3b8d4565b09a8f280978ac74265dbf43036a0e6e"
+      }
+    ]
+  },
+  "compilation": {
+    "new_firmware_build": true,
+    "build": {
+      "path": "artifacts/product/20261027-135143-401/result.json",
+      "bytes": 119180,
+      "sha256": "53d7fe6e17aaa91cfa7615ff6b4af1d5de91d1a13215ad85397885633afaa33c"
+    },
+    "source_count": 589,
+    "artifact_count": 29,
+    "archive": {
+      "path": "artifacts/compass-device-probe-20261027/final-product-20261027-135143-401.zip",
+      "bytes": 33351208,
+      "sha256": "7f234b976ab123a1e919ab4ded63a8c5a1c0e596035ea34f5ad8def564dd0398"
+    },
+    "bin_sha256": "810c96ebaa7fb44577d5d36a7a8cb3febf936f29a6db5df189536c54d13966e8",
+    "bin_bytes": 8355944,
+    "flash_spare_bytes": 32664,
+    "static_ram_bytes": 253980,
+    "sdk_unchanged": true,
+    "command": "pwsh -NoProfile -File scripts/Build.ps1 -Example product -Jobs 4",
+    "failures": "First File node lost Windows path separators; second -lMemsicAlgo failed to locate .lib; final exact -l:MemsicAlgo.lib linked. Initial broader host run lacked an unbuilt compass executable; rebuilt target and all 11 passed."
+  },
+  "download": {
+    "flash": {
+      "path": "artifacts/flash/product/20261027-140019-322/result.json",
+      "bytes": 1767,
+      "sha256": "039facc6ffd93e7e02d3d6a8b67404f24e9d18c7870b43e1c9f12b5df43b4a04"
+    },
+    "images": 3,
+    "write_verify_exit": 0,
+    "preflash": "Today 0/native48/checkpoint182 verified clean; old 586-source/29-artifact ZIP reverified.",
+    "startup": "RTC2000 -> actual UTC/readback; today0/native0/checkpoint183 clean, saved wrist restored; no extra RTS or ordinary reboot."
+  },
+  "hardware_validation": {
+    "bounded_candidate_execution": true,
+    "ram_parameters_generated_and_freeze_observed": true,
+    "calibrated_magnitude_variability_reduced": true,
+    "north_accuracy_verified": false,
+    "tilt_accuracy_verified": false,
+    "persistent_parameters": false,
+    "operator_end_confirmed": true,
+    "runs": {
+      "device-smoke-001": {
+        "outcome": "passed",
+        "passed": true,
+        "stop_confirmed": true,
+        "resources_closed": true,
+        "recovery_required": false,
+        "detail": "",
+        "state": {
+          "id": 1,
+          "gen": 1,
+          "active": 0,
+          "algo": 1,
+          "frozen": 0,
+          "end": 1,
+          "frames": 9,
+          "drop": 0
+        },
+        "parameters": {
+          "id": 1,
+          "updates": 0,
+          "valid": 0,
+          "uG": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "windows": [
+          {
+            "label": "observe",
+            "frames": 7
+          }
+        ],
+        "records": [
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-smoke-001/binding.json",
+            "bytes": 141126,
+            "sha256": "db04b43a04413e86a215fe08f2510887f6313c100a04a2a2333737f43f0ff50b"
+          },
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-smoke-001/workflow.json",
+            "bytes": 26045,
+            "sha256": "e25b3e013ab76b8a6020e5d1fabe1d3b04713ff9effb0918638ac780e7f2a9df"
+          },
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-smoke-001/events.jsonl",
+            "bytes": 10791,
+            "sha256": "9ef9f89c5ebb571b9fd178d6a6f64aad1f25cedb8cd749b35c4f9b3fcbebefb4"
+          },
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-smoke-001/uart.bin",
+            "bytes": 18697,
+            "sha256": "7a2208755971ec86babce245d67dffae51e1226e4978a31c1a7adedcd4c8fc07"
+          },
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-smoke-001/executed-compass_probe_lab.py",
+            "bytes": 22888,
+            "sha256": "9aa7ffd234b67636507718a089654c3967b84ace62ae83df72876bd4917a9f71"
+          }
+        ]
+      },
+      "device-axes-001": {
+        "outcome": "cancelled",
+        "passed": false,
+        "stop_confirmed": true,
+        "resources_closed": true,
+        "recovery_required": false,
+        "detail": "Cancelled('Operator cancelled')",
+        "state": {
+          "id": 2,
+          "gen": 3,
+          "active": 0,
+          "algo": 0,
+          "frozen": 0,
+          "end": 1,
+          "frames": 98,
+          "drop": 0
+        },
+        "parameters": {
+          "id": 2,
+          "updates": 0,
+          "valid": 0,
+          "uG": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "windows": [
+          {
+            "label": "up",
+            "frames": 24
+          },
+          {
+            "label": "right",
+            "frames": 25
+          },
+          {
+            "label": "front",
+            "frames": 24
+          }
+        ],
+        "records": [
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-axes-001/binding.json",
+            "bytes": 141122,
+            "sha256": "3f23a7841c7c024639bf9d0806c1fb31c23c64842bb6024f38f28adba3c0456e"
+          },
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-axes-001/workflow.json",
+            "bytes": 153199,
+            "sha256": "5504ccc3deee4b5617328a0382e090c08ce7f313e3f7220df96e055ef36982b8"
+          },
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-axes-001/events.jsonl",
+            "bytes": 9776,
+            "sha256": "5f2882b01e42f66415e4a2cc8c6f4e29e82417e5f5e59bfac400e804f2ea547e"
+          },
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-axes-001/uart.bin",
+            "bytes": 65931,
+            "sha256": "425b598e9aadae361623919cee65a81775046347a58eada55e501d0bdfeae613"
+          },
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-axes-001/executed-compass_probe_lab.py",
+            "bytes": 22888,
+            "sha256": "9aa7ffd234b67636507718a089654c3967b84ace62ae83df72876bd4917a9f71"
+          }
+        ]
+      },
+      "device-axes-002": {
+        "outcome": "passed",
+        "passed": true,
+        "stop_confirmed": true,
+        "resources_closed": true,
+        "recovery_required": false,
+        "detail": "",
+        "state": {
+          "id": 3,
+          "gen": 5,
+          "active": 0,
+          "algo": 0,
+          "frozen": 0,
+          "end": 1,
+          "frames": 210,
+          "drop": 0
+        },
+        "parameters": {
+          "id": 3,
+          "updates": 0,
+          "valid": 0,
+          "uG": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "windows": [
+          {
+            "label": "up",
+            "frames": 35
+          },
+          {
+            "label": "right",
+            "frames": 34
+          },
+          {
+            "label": "front",
+            "frames": 35
+          },
+          {
+            "label": "down",
+            "frames": 35
+          },
+          {
+            "label": "left",
+            "frames": 34
+          },
+          {
+            "label": "rear",
+            "frames": 34
+          }
+        ],
+        "records": [
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-axes-002/binding.json",
+            "bytes": 141122,
+            "sha256": "6b4ac0900f1d4cb11941782c69ae91d6a1bbe30420519a80b4bdd8dc3bc41b26"
+          },
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-axes-002/workflow.json",
+            "bytes": 425045,
+            "sha256": "5fac5c8128b98d40fd934451c3aa347024eed7a756298d6be585c9d7b1cc62d0"
+          },
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-axes-002/events.jsonl",
+            "bytes": 13995,
+            "sha256": "6ad719bbef2e460ace3655925e5b82512b3cb00dd432d2917fbded2b36cc107f"
+          },
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-axes-002/uart.bin",
+            "bytes": 137494,
+            "sha256": "34182ad64a275bfec448a9c47863bf6c2756d3d66ab8f61fd9aa363f601db9a8"
+          },
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-axes-002/executed-compass_probe_lab.py",
+            "bytes": 22975,
+            "sha256": "e5a7c4f57d2007cbc985a24d8e4851b23d1a460aa11e464717aa83fa54681ef5"
+          }
+        ]
+      },
+      "device-calibrate-001": {
+        "outcome": "error",
+        "passed": false,
+        "stop_confirmed": true,
+        "resources_closed": true,
+        "recovery_required": false,
+        "detail": "ProtocolError('Probe ended during observation: 1')",
+        "state": {
+          "id": 4,
+          "gen": 7,
+          "active": 0,
+          "algo": 1,
+          "frozen": 0,
+          "end": 1,
+          "frames": 27,
+          "drop": 0
+        },
+        "parameters": {
+          "id": 4,
+          "updates": 0,
+          "valid": 0,
+          "uG": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "windows": [],
+        "records": [
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-calibrate-001/binding.json",
+            "bytes": 141130,
+            "sha256": "bba36843dcb467db9a69bd463de442517629edbaf57a3561cca8e31df98c64d3"
+          },
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-calibrate-001/workflow.json",
+            "bytes": 8147,
+            "sha256": "2f02574ab9623922c72a0dc175044e3c6877df10dbdbd81ae24371c92949498e"
+          },
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-calibrate-001/events.jsonl",
+            "bytes": 7543,
+            "sha256": "4648760e3d303efd02bf32aadc76937729e1b99f83ab87ff8ce376434daaa510"
+          },
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-calibrate-001/uart.bin",
+            "bytes": 24808,
+            "sha256": "c52aeb8c8701e56ee5ddf5aeaeb0266de66b355c2b69a89c058f21f835fe4443"
+          },
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-calibrate-001/executed-compass_probe_lab.py",
+            "bytes": 22975,
+            "sha256": "e5a7c4f57d2007cbc985a24d8e4851b23d1a460aa11e464717aa83fa54681ef5"
+          }
+        ]
+      },
+      "device-calibrate-002": {
+        "outcome": "passed",
+        "passed": true,
+        "stop_confirmed": true,
+        "resources_closed": true,
+        "recovery_required": false,
+        "detail": "",
+        "state": {
+          "id": 5,
+          "gen": 11,
+          "active": 0,
+          "algo": 1,
+          "frozen": 1,
+          "end": 1,
+          "frames": 226,
+          "drop": 0
+        },
+        "parameters": {
+          "id": 5,
+          "updates": 1,
+          "valid": 1,
+          "uG": [
+            264158,
+            -14829,
+            -19901,
+            491385
+          ]
+        },
+        "windows": [
+          {
+            "label": "rotate",
+            "frames": 120
+          },
+          {
+            "label": "flat",
+            "frames": 14
+          },
+          {
+            "label": "compare",
+            "frames": 86
+          }
+        ],
+        "records": [
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-calibrate-002/binding.json",
+            "bytes": 141131,
+            "sha256": "f1784a50f888fb38bd22f356ee04fe6ea442088ab30b7b97eaf17ddc274a4591"
+          },
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-calibrate-002/workflow.json",
+            "bytes": 461374,
+            "sha256": "b3e70f7fcc45d763a64c93adc334e793d8b8c6e0ebf2d256e035c41ea9635425"
+          },
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-calibrate-002/events.jsonl",
+            "bytes": 14134,
+            "sha256": "b2e6ff350e47a723b3f0b60b0225578e3cbcaccffb53be8edc23040965e31999"
+          },
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-calibrate-002/uart.bin",
+            "bytes": 160936,
+            "sha256": "b43772871d0b4ea39e9fd59d5733ab5899fda21cfc40b77162253e24ef32750e"
+          },
+          {
+            "path": "artifacts/compass-device-probe-20261027/device-calibrate-002/executed-compass_probe_lab.py",
+            "bytes": 22975,
+            "sha256": "e5a7c4f57d2007cbc985a24d8e4851b23d1a460aa11e464717aa83fa54681ef5"
+          }
+        ]
+      }
+    },
+    "comparison": {
+      "raw": {
+        "min_G": 0.4123648398579532,
+        "max_G": 0.7391933402969878,
+        "mean_G": 0.638630619968682,
+        "population_std_G": 0.09365888844904068
+      },
+      "corrected": {
+        "min_G": 0.49985558126022755,
+        "max_G": 0.5410616600665769,
+        "mean_G": 0.5230096132142282,
+        "population_std_G": 0.010553823551201368
+      },
+      "frames": 86,
+      "seq": [
+        139,
+        224
+      ],
+      "acc_axes": [
+        -2,
+        -1,
+        -3
+      ],
+      "mag_axes": [
+        2,
+        1,
+        -3
+      ],
+      "mag_axes_verified": false,
+      "meaning": "Same frozen comparison frames; reduced field-magnitude variability supports a bias-correction effect, not heading accuracy or persistence"
+    },
+    "analysis": {
+      "path": "artifacts/compass-device-probe-20261027/calibration-analysis.json",
+      "bytes": 680,
+      "sha256": "d2fdea43acc790af92eae4ce9862c3fb41ad35c502f1057f4f1b8d8a0ef46e81"
+    },
+    "csv": {
+      "path": "artifacts/compass-device-probe-20261027/calibration-compare.csv",
+      "bytes": 6105,
+      "sha256": "11345a7273e833a91bb6ddb338e78c56cd25824ab4ffdf03685b81a24855017b"
+    }
+  },
+  "failures_and_limits": [
+    "Initial preflash readonly query timed out; operator wake/always-on then succeeded.",
+    "axes-001 cancelled after operator reported initial edge misunderstanding; preserved and excluded from mounting evidence. axes-002 fully redone with clock-edge labels and 10-second positions.",
+    "calibrate-001 ended after 27 frames due compass page lifecycle cancellation; operator confirmed accidental touch/exit. No serial disconnect error or library failure; stop and close confirmed.",
+    "calibrate-002 completed 226 frames/drop0; frozen compare86 at quality3. The library quality grade is not an angular error guarantee.",
+    "Post-status-001: native/daily10, saved8/checkpoint184 dirty1; newly counted movements were not a walking accuracy test. No later save proof.",
+    "Post-status-002 readonly query timed out without a complete reply; no reset/time/control commands; resources closed. Do not classify the timeout cause from this alone.",
+    "The UI remains uncalibrated XY. GetCalMag support/model applicability and original offline GetCalOri cardinal failure remain unresolved; no deep-sleep/current/battery/long-term conclusions."
+  ],
+  "post_status": {
+    "path": "artifacts/compass-device-probe-20261027/post-status-001/snapshot.json",
+    "bytes": 7746,
+    "sha256": "3522eea5ac425d1f2e52dc773700c3551a3aae70c6ee510b965ec124f270f61f"
+  },
+  "final_resources": "All probe sessions stopped and serial resources closed; final readonly timeout also closed resources. Last complete cache had an active legitimate foreground compass, stopped probe, healthy wrist/automatic light. User confirmed workflow end; no forced sensor or PM stop.",
+  "next_bounded_experiment": "With the recorded mounting candidates, compare held heading before/after tilt and return at fixed physical orientations using frozen RAM parameters, before product calibration UI/storage integration.",
+  "delivery_validation": {
+    "scope": "Final review closure; no device accessed in the continuation. Earlier hardware evidence remains bound to 810c96eb; final firmware below has compilation and host evidence only.",
+    "source_review": "Independent read-only firmware/test and adapter reviews; cancellation/deadline after library calls fixed and firmware increment re-reviewed without blocking findings. Cleanup stop confirmation records inactive resources and preserves timeout/error outcome and end reason.",
+    "change_from_hardware_build": [
+      "apps/product/src/product_imu_diag.c"
+    ],
+    "change_behavior": "Recheck deadline and foreground ownership immediately after library feed, before reporting/caching output. Stop invalidates output/projected flags. Source-archive CLI argument forwards the existing strict content/line-ending check; no guard bypass.",
+    "tests": {
+      "debug": "Affected compass_probe/product_imu_diag 2/2",
+      "asserting_release": "Affected compass_probe/product_imu_diag 2/2",
+      "adapter": "9/9; lost stop acknowledgment with cancelled/deadline outcomes never retries stop and never passes",
+      "additional_assertions": "Cancellation/deadline during library execution and actual frozen offset application; original 11/11 related tests and 324-case geometry evidence retained separately."
+    },
+    "build": {
+      "path": "artifacts/product/20261027-145839-266/result.json",
+      "bytes": 119180,
+      "sha256": "d7c5f0dea5cc04b790c41f566a7869962e042925fc91efd0badda7f22da10f28"
+    },
+    "bin_sha256": "d0a461cb992cb5aa3a4517818ee21f11a9ce4f5ba0f5ec09938e67c040d3001b",
+    "bin_bytes": 8355968,
+    "flash_load_end": "0x12818080",
+    "flash_spare_bytes": 32640,
+    "static_ram_bytes": 253980,
+    "source_count": 589,
+    "artifact_count": 29,
+    "archive": {
+      "path": "artifacts/compass-device-probe-20261027/closure-product-20261027-145839-266.zip",
+      "bytes": 33376750,
+      "sha256": "b23f1292a95bf65d633060ba8bd3eee793f45266370653e465c26c05221ffc56"
+    },
+    "files": [
+      {
+        "path": "apps/product/src/SConscript",
+        "bytes": 1099,
+        "sha256": "52e2f3094fabab1cb4dc45a9dffde74b31784025f45cbc1a723ac9807f9c3251"
+      },
+      {
+        "path": "apps/product/src/compass_probe.c",
+        "bytes": 6328,
+        "sha256": "8c91868d1cf3c085a30532fbc5e9b828a617500e6e382275a71e235e4e1943d4"
+      },
+      {
+        "path": "apps/product/src/compass_probe.h",
+        "bytes": 2119,
+        "sha256": "1579f5df450c48ba1dabcbbd8e5443f9605fbe8a4768cef87cd36f06f6535e41"
+      },
+      {
+        "path": "apps/product/src/memsic_math_bridge.c",
+        "bytes": 496,
+        "sha256": "96005bab5665d43542e4cd04e55cd234aa3ca8d0a480ab4983bf1e1007418c7a"
+      },
+      {
+        "path": "apps/product/src/product_imu_diag.c",
+        "bytes": 84856,
+        "sha256": "932dd84aa675f44684f51aad3570213cf8d279eecc4b7d9759b3c7a82f42d484"
+      },
+      {
+        "path": "scripts/compass_probe_lab.py",
+        "bytes": 23182,
+        "sha256": "014c712026839fe2e9871461e8247d96219c12232fec860e23ce1f82c50990a5"
+      },
+      {
+        "path": "tests/CMakeLists.txt",
+        "bytes": 21804,
+        "sha256": "a928e4ad793d366a82efd1fcdf9c8e25c542a541d83445a1b229166643e0a83b"
+      },
+      {
+        "path": "tests/compass_probe.c",
+        "bytes": 6373,
+        "sha256": "c329f066f4e3939e1a85f605dc5f8b567ab4bc6a7290824d2f0aff8c7fee3c90"
+      },
+      {
+        "path": "tests/product_imu_diag.c",
+        "bytes": 71894,
+        "sha256": "66a95b74d2f1f8b8a62d633d4d2e3f8e712bc3d03923bb9bc8cf493785a2471f"
+      },
+      {
+        "path": "tests/support/memsic_fake.c",
+        "bytes": 1589,
+        "sha256": "54a1e18acafcce4c36ca8b5eac9d7edcd6b726d4b69dad05f1255cbbebc6506b"
+      },
+      {
+        "path": "tests/support/memsic_fake.h",
+        "bytes": 280,
+        "sha256": "eeb57c0659daa2075efb074541dbdcf96c0b745c50e0496796d4b3aa6d8e044f"
+      },
+      {
+        "path": "tests/test_compass_probe_lab.py",
+        "bytes": 6476,
+        "sha256": "39520ba8d1ae0fe39659d75bf14156a42d7069a406d8541fc0ac67ea90ee1673"
+      }
+    ],
+    "logs": [
+      {
+        "path": "artifacts/compass-device-probe-20261027/closure-host-build-002.log",
+        "bytes": 171,
+        "sha256": "989dac8848d77bc0d8b1c9cca820fe00fb661832f241250895945f2c17043b7d"
+      },
+      {
+        "path": "artifacts/compass-device-probe-20261027/closure-host-test-002.log",
+        "bytes": 355,
+        "sha256": "d84421b76cc5aa16f81f8ae5efa0654ec9210deacef09a0ea9de659e3f00aa14"
+      },
+      {
+        "path": "artifacts/compass-device-probe-20261027/closure-release-build.log",
+        "bytes": 454,
+        "sha256": "fbdfdd58a76d70382203cc49ec1b71167922e8bdb2f81eaf53266a701a639dee"
+      },
+      {
+        "path": "artifacts/compass-device-probe-20261027/closure-release-test.log",
+        "bytes": 362,
+        "sha256": "124932a5af7a2ca38fa631ff46ae57a900f499a4d2b4cbe05a5a7a1191d067b6"
+      },
+      {
+        "path": "artifacts/compass-device-probe-20261027/closure-adapter-tests.log",
+        "bytes": 1532,
+        "sha256": "67d5805723a5f88a0cb4a10aebddc3617638ed9ca5f6ba4f42f6986777caae79"
+      },
+      {
+        "path": "artifacts/compass-device-probe-20261027/closure-product-build.log",
+        "bytes": 18750,
+        "sha256": "aea5774d905212a2c9e8ec20ab11038a260e403432522350e40b4ae0a891ce27"
+      },
+      {
+        "path": "artifacts/compass-device-probe-20261027/closure-build-check.json",
+        "bytes": 134732,
+        "sha256": "e21482b44ee6fd9105ec662695a5a6148e2375bc7e8138b7cc40bbc83ae341d9"
+      },
+      {
+        "path": "artifacts/compass-device-probe-20261027/closure-sections.log",
+        "bytes": 3133,
+        "sha256": "9fdbfb4552e0c1457ce8250d41390dd714676ddb51973f0b8bcfc0f0bd2e968b"
+      },
+      {
+        "path": "artifacts/compass-device-probe-20261027/closure-symbols.log",
+        "bytes": 342440,
+        "sha256": "fd499fb6438f7baa0773bf7287d8d35038a2b9e1e9dca6935eb8992833180134"
+      },
+      {
+        "path": "artifacts/compass-device-probe-20261027/closure-device-help.log",
+        "bytes": 1099,
+        "sha256": "3642c28b06e2983074541d7c531ff3e84e8a2a54796a17092082764d258219e0"
+      }
+    ],
+    "prior_evidence_files_verified": 37,
+    "prior_hardware_archive_records_verified": 618,
+    "hardware_verified": false,
+    "failures_preserved": [
+      "closure-host-test.log initially failed because the new deadline injection left a stale foreground sample for the next test; explicitly end the injected foreground before reinitializing it, then Debug/Release passed. This was test sequencing, not a relaxed assertion.",
+      "Initial archive-size verification assumed source records had a bytes field; corrected to verify each recorded SHA-256, 618/618 matched. Original log and archive preserved."
+    ]
+  }
+}

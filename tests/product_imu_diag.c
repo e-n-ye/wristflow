@@ -8,6 +8,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include "support/mmc5603_fake.h"
+#include "support/memsic_fake.h"
 
 static uint8_t user_regs[256], bank_regs[256], bank_b_regs[256], bank;
 static uint8_t light_regs[256];
@@ -19,6 +20,9 @@ static unsigned light_restore_attempts;
 static fake_mmc5603_t mag_fake;
 static bool stop_mag_in_prepare, duplicate_mag_in_prepare;
 static bool stop_compass_in_prepare;
+static bool simulate_xlda, stop_probe_in_xl;
+static unsigned probe_raw_reads;
+static char cprobe_log[16384];
 static char mag_log[16384];
 static uint16_t native_count;
 static unsigned native_resets;
@@ -127,12 +131,14 @@ int rt_thread_mdelay(rt_int32_t ms)
 }
 void rt_kprintf(const char *format, ...)
 {
-    char *log = !strncmp(format,"[mag",4) ? mag_log : !strncmp(format,"[imu",4) ? imu_log : NULL;
+    char *log = !strncmp(format,"[mag",4) ? mag_log : !strncmp(format,"[imu",4) ? imu_log :
+        !strncmp(format,"[cp-",4) ? cprobe_log : NULL;
     if (!log) return;
-    size_t capacity = log == mag_log ? sizeof mag_log : sizeof imu_log;
+    size_t capacity = log == mag_log ? sizeof mag_log : log == imu_log ? sizeof imu_log : sizeof cprobe_log;
     size_t used=strlen(log);
     va_list args; va_start(args,format);
-    (void)vsnprintf(log+used,capacity-used,format,args);
+    int length=vsnprintf(log+used,capacity-used,format,args);
+    if (log==cprobe_log) assert(length>=0 && length<128);
     va_end(args);
 }
 void rt_pm_request(unsigned mode) { assert(mode == PM_SLEEP_MODE_IDLE && !irq && !idle); ++idle; }
@@ -214,7 +220,14 @@ size_t rt_i2c_mem_read(struct rt_i2c_bus_device *b, unsigned addr, unsigned reg,
             return 0;
         }
     }
-    if (length==6) { assert(!bank); memcpy(out,user_regs+reg,length); return length; }
+    if (length==6) {
+        assert(!bank); memcpy(out,user_regs+reg,length);
+        if (simulate_xlda) { ++probe_raw_reads; user_regs[0x1e]&=(uint8_t)~1U; }
+        if (stop_probe_in_xl) {
+            stop_probe_in_xl=false; char *args[]={"wf_cprobe","stop"}; wf_cprobe(2,args);
+        }
+        return length;
+    }
     uint8_t value = bank == 0xa0 ? bank_b_regs[reg] : bank ? bank_regs[reg] : user_regs[reg];
     if (reg == 1) value = bank;
     if (!bank && reg == 0x4c) value = (uint8_t)(native_count >> 8);
@@ -287,6 +300,113 @@ bool wristflow_product_services_steps_write(unsigned key, const uint8_t *record,
     memcpy(step_records[key],record,WRISTFLOW_STEPS_RECORD_BYTES);
     ticks += store_delay_ms;
     step_lengths[key]=WRISTFLOW_STEPS_RECORD_BYTES; return !fail_storage;
+}
+static void cprobe_cancel_in_library(void)
+{
+    memsic_process_hook=NULL;
+    assert(wristflow_product_compass_active(false));
+}
+static void cprobe_expire_in_library(void)
+{
+    memsic_process_hook=NULL;
+    ticks=cprobe.snapshot.started_ms+cprobe.snapshot.duration_ms;
+}
+static void cprobe_integration(void)
+{
+    assert(wristflow_product_light_enable(false)); wristflow_product_wrist_enable(false); cycle();
+    char *inputs[]={"wf_cprobe","inputs","2"};
+    char *start[]={"wf_cprobe","start","2","1,2,3","1,2,3"};
+    char *stop[]={"wf_cprobe","stop"}, *status[]={"wf_cprobe","status"}, *freeze[]={"wf_cprobe","freeze"};
+    wf_cprobe(3,inputs); assert(!cprobe_pending);
+    fake_mag_init(&mag_fake); assert(wristflow_product_compass_active(true)); cycle();
+    for (unsigned i=0;i<30 && !compass_cached.valid;++i) cycle();
+    assert(compass_cached.valid);
+    const char *bad_spans[]={"0","121","-1","+1","2x",""};
+    for (unsigned i=0;i<sizeof bad_spans/sizeof bad_spans[0];++i) {
+        inputs[2]=(char *)bad_spans[i]; wf_cprobe(3,inputs); assert(!cprobe_pending);
+    }
+    inputs[2]="2";
+    const char *bad_axes[]={"1,2,-3","1,1,3","0,2,3","+1,2,3","1,2","1,2,3x",""};
+    for (unsigned i=0;i<sizeof bad_axes/sizeof bad_axes[0];++i) {
+        start[3]=(char *)bad_axes[i]; wf_cprobe(5,start); assert(!cprobe_pending);
+    }
+    start[3]="1,2,3";
+    /* A queued old page generation cannot start after leave/re-enter. */
+    wf_cprobe(3,inputs); assert(cprobe_pending);
+    uint32_t old_generation=cprobe_generation;
+    assert(wristflow_product_compass_active(false));
+    assert(wristflow_product_compass_active(true)); cycle();
+    assert(compass_generation!=old_generation && !cprobe_cached.active && !cprobe_pending);
+    for (unsigned i=0;i<30 && !compass_cached.valid;++i) cycle();
+    uint16_t saved_native=native_count; unsigned saved_resets=native_resets;
+    simulate_xlda=true; memset(user_regs+0x28,0,6); user_regs[0x2d]=0x40;
+    memsic_reset(); wf_cprobe(3,inputs); wf_cprobe(5,start);
+    assert(cprobe_pending && !cprobe_algorithm);
+    for (unsigned i=0;i<10 && !cprobe_cached.frames;++i) { user_regs[0x1e]=1; cycle(); }
+    assert(cprobe_cached.active && cprobe_cached.frames && !cprobe_cached.algorithm && !memsic_calls);
+    assert(cprobe_cached.frame.transfers==31 && cprobe_cached.frame.source==1);
+    unsigned before=reads+writes;
+    wf_cprobe(2,status); assert(reads+writes==before);
+    wf_cprobe(2,stop); cycle(); assert(!cprobe_cached.active && compass_cached.active && mag.snapshot.owned);
+    wf_cprobe(5,start);
+    for (unsigned i=0;i<10 && !cprobe_cached.parameters_valid;++i) { user_regs[0x1e]=1; cycle(); }
+    assert(cprobe_cached.active && cprobe_cached.output_valid && cprobe_cached.parameters_valid && memsic_calls);
+    wf_cprobe(2,freeze); cycle(); assert(cprobe_cached.frozen);
+    unsigned count=memsic_calls;
+    for (unsigned i=0;i<10 && memsic_calls==count;++i) { user_regs[0x1e]=1; cycle(); }
+    assert(memsic_calls>count && !memsic_enabled);
+    ticks=cprobe_cached.started_ms+cprobe_cached.duration_ms; cycle();
+    assert(!cprobe_cached.active && cprobe_cached.ended==WF_PROBE_DEADLINE && compass_cached.active);
+    unsigned raw_reads=probe_raw_reads; cycle(); assert(probe_raw_reads==raw_reads);
+    wf_cprobe(5,start); user_regs[0x1e]=1; cycle();
+    assert(wristflow_product_compass_active(false)); cycle();
+    assert(!cprobe_cached.active && cprobe_cached.ended==WF_PROBE_CANCELLED && !compass_owner);
+    count=memsic_calls; cycle(); assert(memsic_calls==count);
+    /* A library call that spans cancellation/deadline cannot publish valid output. */
+    fake_mag_init(&mag_fake); assert(wristflow_product_compass_active(true)); cycle();
+    for (unsigned i=0;i<30 && !compass_cached.valid;++i) cycle();
+    wf_cprobe(5,start); memsic_process_hook=cprobe_cancel_in_library;
+    for (unsigned i=0;i<10 && memsic_process_hook;++i) { user_regs[0x1e]=1; cycle(); }
+    assert(!memsic_process_hook && !cprobe_cached.active && !cprobe_cached.output_valid &&
+        !cprobe_cached.projected_valid && cprobe_cached.ended==WF_PROBE_CANCELLED);
+    cycle();
+    fake_mag_init(&mag_fake); assert(wristflow_product_compass_active(true)); cycle();
+    for (unsigned i=0;i<30 && !compass_cached.valid;++i) cycle();
+    wf_cprobe(5,start); memsic_process_hook=cprobe_expire_in_library;
+    for (unsigned i=0;i<10 && memsic_process_hook;++i) { user_regs[0x1e]=1; cycle(); }
+    assert(!memsic_process_hook && !cprobe_cached.active && !cprobe_cached.output_valid &&
+        !cprobe_cached.projected_valid && cprobe_cached.ended==WF_PROBE_DEADLINE);
+    assert(wristflow_product_compass_active(false)); cycle();
+    /* A cancellation during the new raw read cannot publish/feed that frame. */
+    fake_mag_init(&mag_fake); assert(wristflow_product_compass_active(true)); cycle();
+    for (unsigned i=0;i<30 && !compass_cached.valid;++i) cycle();
+    wf_cprobe(5,start); user_regs[0x1e]=1; cycle();
+    count=memsic_calls; stop_probe_in_xl=true;
+    for (unsigned i=0;i<10 && stop_probe_in_xl;++i) { user_regs[0x1e]=1; cycle(); }
+    assert(!cprobe_cached.active && cprobe_cached.ended==WF_PROBE_CANCELLED && memsic_calls==count);
+    /* Wrist data can be reused only when its status/format/time are fresh. */
+    wristflow_product_wrist_enable(true);
+    assert(wristflow_product_light_enable(true)); wristflow_product_light_active(true);
+    light_regs[0x8c]=4; cycle(); wf_cprobe(3,inputs);
+    for (unsigned i=0;i<10 && (!cprobe_cached.frames || cprobe_cached.frame.source!=2);++i) { user_regs[0x1e]=1; cycle(); }
+    assert(cprobe_cached.active && cprobe_cached.frame.source==2 && wrist_runtime && auto_requested);
+    uint32_t light_generation=auto_generation;
+    for (unsigned i=0;i<5;++i) { light_regs[0x8c]=4; user_regs[0x1e]=1; cycle(); }
+    assert(cprobe_cached.active && auto_requested && auto_generation==light_generation && wrist_runtime && !auto_fault);
+    wf_cprobe(2,stop); cycle(); wristflow_product_wrist_enable(false);
+    assert(wristflow_product_light_enable(false)); cycle();
+    /* Lifecycle cancellation in prepare must not create a hidden probe run. */
+    wf_cprobe(3,inputs); assert(cprobe_pending); stop_compass_in_prepare=true; cycle(); cycle();
+    assert(!compass_requested && !cprobe_cached.active && !cprobe_pending);
+    fake_mag_init(&mag_fake); assert(wristflow_product_compass_active(true)); cycle();
+    for (unsigned i=0;i<30 && !compass_cached.valid;++i) cycle();
+    wf_cprobe(5,start); user_regs[0x1e]=1; cycle();
+    imu_failing_read=0x28; imu_read_failures=1;
+    for (unsigned i=0;i<10 && cprobe_cached.active;++i) { user_regs[0x1e]=1; cycle(); }
+    assert(!cprobe_cached.active && cprobe_cached.ended==WF_PROBE_IO && cached.phase==WF_IMU_RUNNING);
+    imu_failing_read=-1;
+    assert(native_count==saved_native && native_resets==saved_resets);
+    assert(wristflow_product_compass_active(false)); cycle(); simulate_xlda=false;
 }
 static void recovery_integration(void)
 {
@@ -1001,6 +1121,7 @@ int main(void)
     assert(compass_cached.valid && auto_generation==light_generation && auto_requested && wrist_runtime);
     assert(wristflow_product_compass_active(false)); cycle();
     assert(!compass_owner && mag_cached.stopped && auto_requested && wrist_runtime);
+    cprobe_integration();
     recovery_integration();
     return 0;
 }

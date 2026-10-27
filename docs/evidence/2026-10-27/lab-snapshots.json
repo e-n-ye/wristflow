@@ -39,7 +39,8 @@
     "startup_simulation": "python scripts/device_snapshot.py simulate --startup --out artifacts/lab-snapshots/sim-startup",
     "progress": "python scripts/device_snapshot.py status --run artifacts/lab-snapshots/sim-startup",
     "historical": "python scripts/lab_check.py --root D:/MY_Desk/project/wristflow build --result D:/MY_Desk/project/wristflow/artifacts/product/20261026-125321-730/result.json --flash D:/MY_Desk/project/wristflow/artifacts/flash/product/20261026-152437-628/result.json --build-archive D:/MY_Desk/project/wristflow/artifacts/imu-transient-recovery-20261026/final-product-20261026-125321-730.zip --recorded-root D:/MY_Desk/project/wristflow",
-    "docs": "python scripts/lab_check.py docs --base origin/main"
+    "docs": "python scripts/lab_check.py docs --base origin/main",
+    "integration_compass": "python -m unittest discover -s tests -p test_compass_probe_lab.py -v"
   },
   "validation": {
     "lab_tests": 52,
@@ -48,7 +49,8 @@
     "historical_sources": 586,
     "historical_artifacts": 29,
     "historical_build_archive_passed": true,
-    "independent_readonly_reviews": "Archive policy and snapshot adapter reviewed; optional source sizes and RTC threshold mismatch fixed before final validation."
+    "independent_readonly_reviews": "Archive policy and snapshot adapter reviewed; optional source sizes and RTC threshold mismatch fixed before final validation.",
+    "integration_compass_adapter_tests": 9
   },
   "artifacts": [
     {
@@ -80,6 +82,11 @@
       "path": "artifacts/lab-snapshots/sim-status.json",
       "bytes": 367,
       "sha256": "97c76586226b52b7dadec7d5a5a9318a8bb1ff1d6028f057d69350704646fe35"
+    },
+    {
+      "path": "artifacts/lab-snapshots/integration-compass.log",
+      "bytes": 1532,
+      "sha256": "2a1a9caee803e7011a4f7e14b92297ee6375dfa03de822b61290c71c3685c166"
     }
   ],
   "failures_preserved": [
@@ -93,7 +100,8 @@
   "limits": [
     "Simulation proves host flow only; real snapshot and RTC behavior not tested.",
     "Historical archive verification does not verify current source/artifacts or board identity.",
-    "Original dirty compass-device-probe checkout preserved; local main synchronization remains blocked by that work.",
-    "Historical scripts and evidence retained; new workflow uses the parameterized entry."
-  ]
+    "Historical scripts and evidence retained; new workflow uses the parameterized entry.",
+    "Original compass task completed independently during this work; merge preserved its device results and next-step contract."
+  ],
+  "integration_base": "3d4e990d466baae239f46569a3aa54479ef6bad0"
 }
