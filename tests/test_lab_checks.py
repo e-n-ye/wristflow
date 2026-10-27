@@ -103,6 +103,88 @@ class CheckTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "snapshot does not match"):
             self.run_build(source_archive=archive)
 
+    def archived_fixture(self):
+        # Build.ps1 records source hashes without a size; artifacts include size.
+        self.value["project_sources"][0].pop("bytes", None)
+        archive = self.root / "build.zip"
+        with zipfile.ZipFile(archive, "w") as output:
+            for item in self.value["project_sources"] + self.value["artifacts"]:
+                path = Path(item["path"])
+                output.write(path, path.relative_to(self.root).as_posix())
+        images = [dict(item, name=Path(item["path"]).name,
+                       address=check.ADDRESSES[Path(item["path"]).name])
+                  for item in self.value["artifacts"] if Path(item["path"]).name in check.ADDRESSES]
+        flash = self.root / "flash.json"
+        write_json(flash, dict(exit_code=0, example="product", board=self.lock["board"], port="COM5", images=images))
+        return archive, flash
+
+    def test_archive_verifies_old_bytes_with_explicit_original_root(self):
+        archive, flash = self.archived_fixture()
+        self.source.write_bytes(b"new source")
+        (self.build / "main.bin").write_bytes(b"new firmware")
+        report = self.run_build(build_archive=archive, recorded_root=self.root, flash=flash)
+        self.assertEqual(report["source_policy"], "archived_build")
+        self.assertFalse(report["current_source_verified"] or report["device_identity_verified"])
+        self.assertEqual(report["recorded_sources"] + report["artifacts"], [])
+        self.assertEqual(len(report["archived_artifacts"]), len(self.value["artifacts"]))
+        with self.assertRaises(ValueError):
+            self.run_build()
+        other_root = self.root / "new-checkout"
+        other_root.mkdir()
+        write_json(other_root / "sdk.lock.json", self.lock)
+        with patch.object(check, "check_sdk", return_value={}):
+            mapped = check.check_build(self.result, root=other_root, build_archive=archive,
+                                       recorded_root=self.root, flash=flash)
+        self.assertEqual(mapped["images"], report["images"])
+
+    def test_archive_requires_complete_unique_entries_and_hashes(self):
+        archive, flash = self.archived_fixture()
+        with zipfile.ZipFile(archive) as original:
+            entries = {name: original.read(name) for name in original.namelist()}
+        for kind in ("missing", "duplicate", "changed", "wrong-size", "outside"):
+            value = copy.deepcopy(self.value)
+            with zipfile.ZipFile(archive, "w") as output:
+                for name, raw in entries.items():
+                    if kind == "missing" and name == "source.c":
+                        continue
+                    output.writestr(name, b"tampered" if kind == "changed" and name == "source.c" else raw)
+                if kind == "duplicate":
+                    import warnings
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore", UserWarning)
+                        output.writestr("source.c", entries["source.c"])
+            if kind == "wrong-size":
+                value["artifacts"][0]["bytes"] += 1
+            if kind == "outside":
+                value["project_sources"][0]["path"] = str(self.root.parent / "source.c")
+            with self.subTest(kind=kind), self.assertRaises(ValueError):
+                self.run_build(value, build_archive=archive, recorded_root=self.root, flash=flash)
+
+    def test_archive_policy_and_flash_mismatch_are_rejected(self):
+        archive, flash = self.archived_fixture()
+        for kwargs in ({"build_archive": archive}, {"recorded_root": self.root},
+                       {"build_archive": archive, "recorded_root": self.root, "source_archive": archive}):
+            with self.assertRaises(ValueError):
+                self.run_build(**kwargs)
+        value = check.load(flash)
+        value["images"][0]["address"] = "0x0"
+        write_json(flash, value)
+        with self.assertRaisesRegex(ValueError, "images differ"):
+            self.run_build(build_archive=archive, recorded_root=self.root, flash=flash)
+
+    def test_archived_binding_rechecks_zip_instead_of_overwritten_files(self):
+        archive, flash = self.archived_fixture()
+        report = self.run_build(build_archive=archive, recorded_root=self.root, flash=flash)
+        self.source.write_bytes(b"new version")
+        (self.build / "main.bin").write_bytes(b"new image")
+        with patch("battery_device.port_identity", return_value={"device": "COM5"}), patch.object(check, "check_sdk"):
+            binding, guard = self.binding(report)
+            self.assertFalse(binding["build"]["current_source_verified"])
+            guard()
+            archive.write_bytes(archive.read_bytes() + b"changed")
+            with self.assertRaisesRegex(ValueError, "Evidence changed"):
+                guard()
+
     def test_duplicate_images_or_path_escape_fail(self):
         for entry in (self.manifest["write_flash"]["files"][0], {"path": "../main.bin", "address": "0x12020000"}):
             value = copy.deepcopy(self.manifest)
