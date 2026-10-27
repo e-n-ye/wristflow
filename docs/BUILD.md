@@ -1,5 +1,13 @@
 # 可复现构建基线
 
+## 2026-10-27 指南针限时板端诊断
+
+从`bafa7d0`增加Product专属有限探针及锁定MEMSIC库实验边界。沿用官方`pwsh -NoProfile -File scripts/Build.ps1 -Example product -Jobs 4`，上板版本`20261027-135143-401`退出0，589源码／29产物严格字节复核；BIN`810c96eb…`为8,355,944B，增28,028B。Flash加载末端`0x12818068`、8MiB应用区余32,664B；SDK静态RAM253,980B，worker6KiB／main16KiB不变。SDK锁／厂商树不改，无UI／Demo改动，不重编Demo；公共构建／下载脚本仍独立。
+
+首两次链接因Windows File路径及`.lib`名字查找失败，最终Product SConscript用`-l:MemsicAlgo.lib`精确链接。相关Debug／保留断言Release各11/11、独立324组投影补充各1/1及PC适配8项通过；首次更广主机运行缺未编译的compass可执行文件，补建后通过，失败保留。retained强钩子仍在SRAM且false分支返回，DryRun／旧版与最终完整ZIP已保全。实际设备分项及边界见[指南针专题](COMPASS.md#device-probe-20261027)和[精简证据](evidence/2026-10-27/compass-device-probe.json)，编译本身不证明校准／航向或功耗。
+
+接续交付复审补上库调用返回后的截止／离页复核，报告前使已结束探针输出失效；生产源码相对上板版仅`product_imu_diag.c`变化。新增调用中取消／到期及冻结偏置实际应用断言后，Debug／保留断言Release受影响各2/2、适配9/9通过。首次补测因注入截止后未结束前台而影响下一用例，显式收尾后通过，失败日志保留。最终官方构建`20261027-145839-266`退出0，589源码／29产物字节核验通过；BIN`d0a461cb…`为8,355,968B，较上板版增24B，Flash末端`0x12818080`／余32,640B，静态RAM不变。最终版未下载／未上板；原版618项源码／产物从完整ZIP逐哈希复核，设备结论仍只绑定`810c96eb…`。新增适配参数`--source-archive`只转发已有严格内容／换行核验，不允许真实源码差异冒充已写入版；最终记录见同一证据的`delivery_validation`。
+
 ## 2026-10-26 日常IMU瞬态读取恢复
 
 从`84f25c8`增加continuous安全读流程的一次保数重试及缓存故障定位，不改硬件计步算法／SDK／UI。相关Debug及保留断言Release各10/10通过，审查只补两项断言后worker两配置各1/1再次通过；首次集成误判自动亮度活动IDLE的失败与修正保留在[软件证据](evidence/2026-10-26/imu-transient-recovery.json)。
