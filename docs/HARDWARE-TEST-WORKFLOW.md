@@ -35,6 +35,7 @@
 | 地磁已完成实验的模拟／回放 | `scripts/mmc5603_lab.py`，纯解析见mag_protocol／light_protocol；本阶段CLI只提供simulate／replay／status，不开放真实端点。五方向策略属于地磁适配，不变成通用步骤引擎 |
 | 简单亮度／指南针查询及AOD被动记录 | `scripts/serial_lab.py`复用同一RecordedClient／RecordedSession；light仅允许`wf_light status`，compass仅允许`wf_compass status`，passive不允许发送命令，不要求完整网页。参数表达时长／间隔，纯解析只认缓存字段，不控制页面／传感器／亮度或AOD |
 | 构建／下载 | 继续使用Build.ps1／Flash.ps1；实验工具读取其结果，不复制下载包装器，不因电脑端整理重编固件 |
+| 板端指南针候选实验 | `scripts/compass_probe_lab.py`提供simulate／device／status及smoke／axes／calibrate有限窗；device需要精确build／flash／BIN／端点和本轮现场确认。沿用Console／Journal／RecordedSession及原始UART，`inputs/start/freeze/stop/status`独立白名单、会话／代次／起点／时长归属检查，只停本次窗口，控制单发；轴向假设、有效配对、校准参数和磁北精度分别判断，见[指南针实验](COMPASS.md#device-probe-20261027) |
 | 输入与证据 | `tests/fixtures/`保存可分发的最小回放输入；`artifacts/`保存运行配置、UART原始字节、事件、报告和必要的执行源码快照；精简交付证据在docs/evidence |
 | 厂商算法的纯离线执行 | `scripts/memsic_preflight.py`复用SDK／文件证据检查，用原Arm GCC构建独立ELF，在固定版本Unicorn执行SDK候选；`compass_geometry.py`仅作静态前轴磁北投影参考及另一参考轴诊断。候选门槛与projected门槛分开，前者失败仍退出1并保留trace；无串口或Product构建，型号／接口允许用途／使用条件另核，见[航向边界](COMPASS.md#heading-boundary-20261026) |
 
@@ -50,6 +51,8 @@ python scripts/serial_lab.py replay --fixture tests/fixtures/aod-passive-2026102
 python scripts/serial_lab.py replay --fixture tests/fixtures/compass-observer-20261025.json --out artifacts/serial-lab/compass-replay-001
 python -m unittest discover -s tests -p 'test_lab_*.py' -v
 python -m unittest discover -s tests -p 'test_compass_geometry.py' -v
+python scripts/compass_probe_lab.py simulate --profile calibrate --out artifacts/compass-probe/sim-001
+python -m unittest discover -s tests -p 'test_compass_probe_lab.py' -v
 uv run --no-project --with-requirements scripts/requirements-memsic-preflight.txt python scripts/memsic_preflight.py --cc <已有Arm-GCC可执行文件> --out artifacts/memsic-preflight/run-001
 ```
 
