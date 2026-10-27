@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-10-27 Flash核算与三图EZIP试点
+
+从`25521af`经官方SCons图片builder替换三张静态小时图，保留原XML导出；[容量专题](FLASH-CAPACITY.md)说明RGB565像素输入、非旋转边界与核账方法。官方工具往返289,332像素一致、主机4项通过，Product`20261027-195252-025`／`e6b85838…`和UI Demo`20261027-195340-669`／`865c52bb…`编译退出0，589／526源码及29／22产物严格字节核验通过。
+
+Product BIN7,788,120B，较`d0a461cb…`净减567,848B，8MiB应用区余600,488B；SDK静态RAM253,980B不变。Demo BIN7,488,328B。首次variant辅助路径失败、转换路径假成功和量化差异均保留在[精简证据](evidence/2026-10-27/flash-ezip-pilot.json)。SDK锁／分区／公共构建入口不改，无GUI重导出或设备操作；源码、编译和硬件效果分别判断。
+
 ## 2026-10-27 指南针限时板端诊断
 
 从`bafa7d0`增加Product专属有限探针及锁定MEMSIC库实验边界。沿用官方`pwsh -NoProfile -File scripts/Build.ps1 -Example product -Jobs 4`，上板版本`20261027-135143-401`退出0，589源码／29产物严格字节复核；BIN`810c96eb…`为8,355,944B，增28,028B。Flash加载末端`0x12818068`、8MiB应用区余32,664B；SDK静态RAM253,980B，worker6KiB／main16KiB不变。SDK锁／厂商树不改，无UI／Demo改动，不重编Demo；公共构建／下载脚本仍独立。

@@ -58,6 +58,7 @@
 - 设计源：[ui/xml/project.xml](../ui/xml/project.xml)、`screens/*.xml`、`components/*.xml` 和资源文件。官方 LVGL Pro 编辑器预览、导出及成功信号见 [UI-DEMO 本机免费版操作](UI-DEMO.md#本机免费版操作)。文档中本机路径是原环境记录，换工作树时选择实际 `ui/xml`，不自动打开旧目录导出。
 - 官方输出：`*_gen.c/h`、`fonts/*_data.c`、`images/*_data.c` 及导出 CMake 清单，不手改，也不自制 XML 导出器。`wristflow_ui.c/h` 是官方创建的自定义入口，不与生成文件混同；业务放手写适配层。
 - [ui/xml/SConscript](../ui/xml/SConscript) 是项目维护的 SCons 集成清单；不能因为位于 XML 目录就当成官方生成物。资源生成辅助脚本与 XML 导出是不同操作，运行前核对其写入范围。
+- 三张小时图EZIP试点由同一SConscript在设备构建时调用`scripts/ezip_rgb565.py`生成临时PNG，再交锁定SDK的`Env.ImgResource`生成压缩C。官方原始导出保留供编辑器／主机使用；`flash_audit.py`只读核账，`ezip_image_probe.py`只在新artifacts目录做官方工具往返。方法与边界见[Flash专题](FLASH-CAPACITY.md)，不是XML导出器或字库压缩路线。
 - XML 改动的闭环包括官方实际预览 / 导出、名称与字形 / 资源核对及受影响目标编译；编译旧生成 C 不能证明新 XML 已导出。倒计时第一轮的官方导出、实际渲染与验证范围见 [专题](COUNTDOWN.md#round1)。
 
 ## 操作边界与产物

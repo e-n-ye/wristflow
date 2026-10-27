@@ -1,9 +1,39 @@
 from building import *
+import os
+import subprocess
+import sys
+
+
+def prepare_ezip_rgb565(target, source, env):
+    subprocess.run([sys.executable, source[1].abspath,
+                    source[0].abspath, target[0].abspath], check=True)
+    return 0
+
+
+# Keep official XML exports for the editor/simulator. The device build replaces
+# only these three opaque, unrotated images through the SDK's official builder.
+ezip_pilot = ('hour_1', 'hour_7', 'hour_unknown')
+if not GetDepend('LV_USE_EZIP'):
+    raise RuntimeError('WristFlow image pilot requires the SDK EZIP decoder')
 
 sources = Glob('*.c') + Glob('screens/*.c') + Glob('components/*.c')
 image_sources = [source for source in Glob('images/*_data.c')
-                 if not str(source).replace('\\', '/').endswith('/hour_seven_data.c')]
+                 if source.name not in {name + '_data.c' for name in ezip_pilot}
+                 and source.name != 'hour_seven_data.c']
 sources += Glob('fonts/*_data.c') + image_sources
+prepared = []
+pixel_preprocessor = File(os.path.join(GetCurrentDir(), '../../scripts/ezip_rgb565.py'))
+for name in ezip_pilot:
+    prepared += Env.Command('ezip/' + name + '_data.png',
+                            [File(os.path.join(GetCurrentDir(), 'images', name + '_data.c')),
+                             pixel_preprocessor],
+                            prepare_ezip_rgb565)
+# The rodata prefix is matched by the existing linker script. Do not create
+# orphan ROM3 sections or change the application partition for this pilot.
+ezip_flags = '-rgb565 -lvgl_version 9 -chip sf52x -cfile 2 -dpt 1 -section rodata'
+ezip_sources = Env.ImgResource(prepared, ezip_flags)
+Env.Depends(ezip_sources, Env.Value(ezip_flags))
+sources += ezip_sources
 objs = DefineGroup('WristFlowGeneratedUi', sources, depend=[''],
                    CPPPATH=[GetCurrentDir()],
                    CPPDEFINES=['LV_LVGL_H_INCLUDE_SIMPLE'])

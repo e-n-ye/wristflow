@@ -1,0 +1,122 @@
+{
+  "date": "2026-10-27",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/flash-ezip-pilot",
+  "base_commit": "25521af6366e9d6e86ac162b41f447277f23d016",
+  "scope": "User selected Flash accounting and an official compression pilot, continuing the project retrospective. Three opaque, unrotated hour images only. No device window or firmware transfer.",
+  "capability_choice": "Pinned SDK official ezip.exe plus Env.ImgResource; existing SF32LB52 EPIC/EZIP decoder. No hardware algorithm replaced. Fonts, rotating compass pointer and partition layout unchanged.",
+  "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+  "baseline": {
+    "result": "artifacts/product/20261027-145839-266/result.json",
+    "result_sha256": "d7c5f0dea5cc04b790c41f566a7869962e042925fc91efd0badda7f22da10f28",
+    "bin_sha256": "d0a461cb992cb5aa3a4517818ee21f11a9ce4f5ba0f5ec09938e67c040d3001b",
+    "source_archive": "artifacts/compass-device-probe-20261027/closure-product-20261027-145839-266.zip",
+    "verified_sources": 589,
+    "verified_artifacts": 29,
+    "line_endings_only": [
+      "apps/product/src/compass_probe.c",
+      "apps/product/src/compass_probe.h",
+      "apps/product/src/memsic_math_bridge.c"
+    ],
+    "partition_start": "0x12020000",
+    "partition_bytes": 8388608,
+    "load_end": "0x12818080",
+    "bin_bytes": 8355968,
+    "free_bytes": 32640,
+    "ui_fonts_bytes": 4233292,
+    "ui_images_bytes": 3078092,
+    "other_code_data_padding_bytes": 1044584,
+    "notification_font_object_bytes": 3832051,
+    "notification_font_bitmap_bytes": 3319993
+  },
+  "source_inspection": {
+    "official_refs": [
+      "vendor/SiFli-SDK/example/multimedia/lvgl/ezip_v9/README.md:24-27,57-80",
+      "vendor/SiFli-SDK/example/multimedia/lvgl/watch_v9/src/resource/images/SConscript:30-35,52-54",
+      "vendor/SiFli-SDK/docs/source/zh_CN/hal/ezip.md:5-7",
+      "vendor/SiFli-SDK/tools/png2ezip/Help.txt:36-38",
+      "vendor/SiFli-SDK/tools/build/building.py:160-180,306-321"
+    ],
+    "review": "Read-only Sol/medium reviewed the official route, accounting and final integration. Luna/low checked three-image usage/rotation. Primary owns all writes, builds, Git and acceptance.",
+    "incremental_fix": "Explicit Env.Value(ezip_flags) dependency added because the official Python Action does not declare FLAGS as a varlist. Preprocessor script and exported C are explicit File inputs. Incremental parameter mutation was not separately executed.",
+    "generated_identity": "Official XML, original PNG and generated C remain intact. Temporary PNG only repacks exported RGB565 pixels; official SDK generates compressed C with the same descriptor symbol. Device SCons replaces three raw objects; host/editor keep originals.",
+    "payload_match": "Independent read-only comparison confirmed three built compressed payloads equal offline roundtrip payloads byte-for-byte."
+  },
+  "tool": {
+    "path": "vendor/SiFli-SDK/tools/png2ezip/ezip.exe",
+    "version": "2.6.4_20260414_dyn_app_support_separate_dir",
+    "sha256": "be5e8a60dce6d8f9470087df42d68ba8a3165d230c950f42880fd3c0719842e7",
+    "encode_flags": "-rgb565 -lvgl_version 9 -chip sf52x -cfile 2 -dpt 1 -section rodata",
+    "decode_flags": "-spt 1 -dpt 0 -dec_off_no_header 0",
+    "v9_header_bytes": 12
+  },
+  "offline_roundtrip": {
+    "command": "uv run --with pillow==11.3.0 --no-project python scripts/ezip_image_probe.py --output artifacts/flash-ezip-pilot-20261027/roundtrip-v4",
+    "exit_code": 0,
+    "report": "artifacts/flash-ezip-pilot-20261027/roundtrip-v4/report.json",
+    "report_sha256": "c703644fdd33c2daa693ede6f08308e30f8e03e7a559469c9eae23347638ddc9",
+    "samples": [
+      {"name": "hour_1", "dimensions": [342, 282], "raw_bytes": 192888, "ezip_bytes": 3735, "roundtrip_equal": true, "payload_sha256": "26560ca1518e81e90ba8265e5e774bd0b0af4ee16d061dfcdb78a4d40d4bf93d"},
+      {"name": "hour_7", "dimensions": [342, 282], "raw_bytes": 192888, "ezip_bytes": 4431, "roundtrip_equal": true, "payload_sha256": "d1e545971061c59e1c39ce5fb85176b1824437ab2b9c2409fe4742612d2195af"},
+      {"name": "hour_unknown", "dimensions": [342, 282], "raw_bytes": 192888, "ezip_bytes": 2642, "roundtrip_equal": true, "payload_sha256": "0462bd69e57f0316d676984eb4ad347b2a35ce81f6cfe7891169dab532c59557"}
+    ],
+    "pixels_compared": 289332,
+    "payload_saving_bytes": 567856
+  },
+  "host_checks": {
+    "command": "python -m unittest discover -s tests -p test_flash_audit.py -v",
+    "exit_code": 0,
+    "passed": 4,
+    "coverage": "LMA vs runtime address; discarded/merged sections excluded; overlapping UI sections rejected; RGB565/stride/length guard rejects invalid preprocessing. Actual PNG/EZIP roundtrip separately validates pixel correctness."
+  },
+  "product_build": {
+    "command": "pwsh -NoProfile -File scripts/Build.ps1 -Example product -Jobs 4",
+    "result": "artifacts/product/20261027-195252-025/result.json",
+    "result_sha256": "7ee30db597951f701cc578d57da298910b7483ac3dda2cffc318ac2d3d730468",
+    "exit_code": 0,
+    "verified_sources": 589,
+    "verified_artifacts": 29,
+    "bin_sha256": "e6b858388a3227c1c29a5967c160d2817a16af3c5916615c8d9a9d79ef7cb5fb",
+    "bin_bytes": 7788120,
+    "free_bytes": 600488,
+    "net_saving_bytes": 567848,
+    "ui_fonts_bytes": 4233292,
+    "ui_images_bytes": 2510236,
+    "other_code_data_padding_bytes": 1044592,
+    "sdk_static_ram_bytes": 253980,
+    "archive": "artifacts/flash-ezip-pilot-20261027/product-20261027-195252-025.zip",
+    "archive_sha256": "e55cff81356defcc97763b9207f31edbff1f010c4073541036916f568fc76ea2",
+    "archive_entries": 623
+  },
+  "ui_demo_build": {
+    "command": "pwsh -NoProfile -File scripts/Build.ps1 -Example ui_demo -Jobs 4",
+    "result": "artifacts/ui_demo/20261027-195340-669/result.json",
+    "result_sha256": "bb60f54dd29c4f563c062ccb5b1eee4dc93905742d857262d9adc4929cb73b2f",
+    "exit_code": 0,
+    "verified_sources": 526,
+    "verified_artifacts": 22,
+    "bin_sha256": "865c52bb1f9c38df83dcba98f0f9cb20acf398d66888089d79e3a58fce802229",
+    "bin_bytes": 7488328,
+    "free_bytes": 900280,
+    "archive": "artifacts/flash-ezip-pilot-20261027/ui_demo-20261027-195340-669.zip",
+    "archive_sha256": "6c2ac9da4dee0ea97b9e8ed6185249c34edb1ccb5ba75df96a39d9050fac0d9f",
+    "archive_entries": 553
+  },
+  "supplemental_build_input": {
+    "path": "scripts/ezip_rgb565.py",
+    "sha256": "ba97e9073b6e508eb955ec6c4901c02b930427f267c4c29263e40768d262b4fa",
+    "note": "Build.ps1 project-source list does not include scripts. Both ZIPs also preserve this preprocessor, probe/audit utilities, host test and result.json."
+  },
+  "failures_and_limits": [
+    "Strict baseline check initially rejected Git CRLF changes; original complete source ZIP proved only three listed line-ending differences.",
+    "Initial ezip calls with slash-separated paths returned 0 without output. Preserve logs under artifacts/flash-ezip-pilot-20261027; use native paths, per-file success marker, output and decoded-pixel checks.",
+    "Direct source-PNG conversion changed RGB565 quantization boundary pixels relative to the official XML export. Preserve existing exported pixels through a temporary RGB PNG; no XML or generated C was edited.",
+    "roundtrip-v1/v2 failures preserved; final roundtrip-v4 passed all three images. Tool success summary can report convert_num 0, so it is not the sole success oracle.",
+    "Product 20261027-194955-729 failed because the preprocessor relative path resolved through the variant. Absolute source File dependencies fixed it before successful dual builds.",
+    "Existing FinSH function-cast, linker RWX/syscall/ftab-entry warnings retained. No new image-compile warning observed.",
+    "No XML content changes or GUI re-export, no SDK/toolchain/partition/public Build entry change, no cloud baseline, no serial/flash/reset/RTC/PM operation.",
+    "No hardware display, source switching, wake restoration, frame time, runtime memory peaks, power or battery-life claim. Do not extrapolate the three-image ratio to fonts or the full firmware."
+  ],
+  "hardware_verified": false,
+  "next_bounded_experiment": "Prepare a three-image bounded display acceptance entry that does not change RTC or persisted settings; then separately bind an operator-confirmed device window and exact firmware, checking actual EPIC rendering, source switches/wake restoration and refresh cost before expanding compression."
+}
