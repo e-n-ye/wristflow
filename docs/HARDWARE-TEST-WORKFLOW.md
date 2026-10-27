@@ -35,6 +35,7 @@
 | 地磁已完成实验的模拟／回放 | `scripts/mmc5603_lab.py`，纯解析见mag_protocol／light_protocol；本阶段CLI只提供simulate／replay／status，不开放真实端点。五方向策略属于地磁适配，不变成通用步骤引擎 |
 | 简单亮度／指南针查询及AOD被动记录 | `scripts/serial_lab.py`复用同一RecordedClient／RecordedSession；light仅允许`wf_light status`，compass仅允许`wf_compass status`，passive不允许发送命令，不要求完整网页。参数表达时长／间隔，纯解析只认缓存字段，不控制页面／传感器／亮度或AOD |
 | 构建／下载 | 继续使用Build.ps1／Flash.ps1；实验工具读取其结果，不复制下载包装器，不因电脑端整理重编固件 |
+| 实验前后快照／下载后启动检查 | `scripts/device_snapshot.py`的capture／startup，具体用法见[快照入口](#device-snapshot)；版本、端口、输出与查询集合用参数表达，不再逐轮复制preflash／post-status包装。startup校时权限独立于capture |
 | 板端指南针候选实验 | `scripts/compass_probe_lab.py`提供simulate／device／status及smoke／axes／calibrate有限窗；device需要精确build／flash／BIN／端点和本轮现场确认。沿用Console／Journal／RecordedSession及原始UART，`inputs/start/freeze/stop/status`独立白名单、会话／代次／起点／时长归属检查，只停本次窗口，控制单发；轴向假设、有效配对、校准参数和磁北精度分别判断，见[指南针实验](COMPASS.md#device-probe-20261027) |
 | 输入与证据 | `tests/fixtures/`保存可分发的最小回放输入；`artifacts/`保存运行配置、UART原始字节、事件、报告和必要的执行源码快照；精简交付证据在docs/evidence |
 | 厂商算法的纯离线执行 | `scripts/memsic_preflight.py`复用SDK／文件证据检查，用原Arm GCC构建独立ELF，在固定版本Unicorn执行SDK候选；`compass_geometry.py`仅作静态前轴磁北投影参考及另一参考轴诊断。候选门槛与projected门槛分开，前者失败仍退出1并保留trace；无串口或Product构建，型号／接口允许用途／使用条件另核，见[航向边界](COMPASS.md#heading-boundary-20261026) |
@@ -70,6 +71,21 @@ light／compass最多30秒，passive最多600秒；Ctrl+C按取消保留数据�
 
 整理分四个独立交付闭环：公共基础与地磁模拟／回放；亮度查询和AOD被动记录作为第二调用方；构建／证据／文档检查及失效规则收敛；入口发现、依赖隔离和新会话接续走查。完整范围覆盖这些闭环，实施状态只回STATUS。AOD复位／校时／PM控制、电量离线恢复、旧腕诊断与第三方参考不机械迁移；明确的新设备授权仍另核现场条件。
 
+<a id="device-snapshot"></a>
+### 前后快照与启动检查
+
+先查`python scripts/device_snapshot.py --help`及对应子命令。capture不经过网页，只查显式`--query`命名项；默认date／steps／wrist／light／pm，可选compass／probe／threads／memory。不接受任意命令。输入沿用serial_lab的result／flash／完整expected-bin／port／location及本轮同板固件与安全供电的确认；输出必须新目录。最多60秒，保存binding、原始UART、事件及snapshot；超时、冷启动、短写或取消失败关口，不自动重连／重发或操作器件。`passed`仅证明所选完整回执取得并关闭主机资源，健康、停止与保存仍由协议或人工解释。
+
+startup使用相同绑定，另须`--allow-time-sync`，只在RTC与真实UTC偏差超过60秒时单发一次`wf_time`并读回（已校时容差8秒，未校时容差60秒）；丢回执失败不重发。它没有复位／RTS／PM／传感器控制入口，现场校时授权独立核对。准备好后直接运行，不再创建等待另一个实验progress的脚本；器件窗口停止及资源释放仍由原适配负责。
+
+```bash
+python scripts/device_snapshot.py simulate --query steps --query wrist --out artifacts/snapshot/sim-001
+python scripts/device_snapshot.py simulate --startup --out artifacts/snapshot/startup-sim-001
+python scripts/device_snapshot.py capture --result <Build结果> --flash <Flash结果> --expected-bin <完整BIN-SHA256> --port <COM端口> --location <USB位置> --confirm-same-board-and-firmware --query steps --query wrist --out <新输出目录>
+```
+
+历史preflash／startup／post-status脚本继续保留为执行证据；新实验通过同一入口选参数。单次分析／证据汇总仍可留在artifacts，通用文件检查使用lab_check。代码与输入未变时，同一最终版本集中执行受影响测试和文档检查；开口前身份重验与封存后读回保留，单纯改电脑端工具不重编固件。
+
 ### 公共检查与重验条件
 
 在仓库根目录运行；下例的result、ZIP与flash路径由本次实验明确选择，不自动把日期最新的文件当作正确版本。`--out`放在子命令前且必须为新路径，可省略后仅输出JSON。失败退出1并保留错误；不要通过改写旧报告消除失败。
@@ -82,6 +98,8 @@ python scripts/lab_check.py --out artifacts/lab-check/docs-001.json docs --base 
 ```
 
 build核现有Build.ps1的成功记录、SDK／子模块锁及当前干净SDK、非空显式源码清单、全部产物哈希、必须产物及三镜像地址；可用`--flash <Flash结果路径>`核已有成功传输记录与同一三镜像。它不运行Flash／DryRun，不证明板上身份。默认严格比较源码字节；遇Git换行差异时，只有显式`--source-archive <原始源码ZIP>`才允许例外：ZIP条目使用仓库相对路径，先匹配原构建SHA，再严格证明仅CRLF／LF变化，并在报告单列。产物永远按字节。构建记录不能证明依赖收集完整；新纳入源码／配置需重新构建，不能凭旧清单通过代替。
+
+旧源码／产物已被新开发覆盖时，另用`--build-archive <完整ZIP> --recorded-root <原工作树绝对根>`：ZIP按原根相对路径包含构建清单全部源码和产物，逐项核原SHA及存在的大小字段，从归档manifest核三镜像并与原Flash记录绑定；不解压、不按文件名猜映射。此策略与source-archive互斥，报告`source_policy=archived_build`、`current_source_verified=false`，只证明历史构建归档；SDK仍要求符合现有锁。device_snapshot也接受这两个参数，开口前重核ZIP、记录、当前工具／SDK及端点，不要求已覆盖的原文件仍匹配。它不提供新固件构建或下载准入证明。
 
 files只核明确选定的记录列表（`--key sources`或点分字段亦可），拒绝空列表、重复路径、缺文件或哈希／大小变化；不递归猜测历史JSON中的每个SHA。历史工具指纹与当前工具不一致可能是合理历史，选对适用的列表后再核。输入接纳时核验一次，输出完成后再封存读回；后续引用同一记录，变更或跨会话读取时复核。
 

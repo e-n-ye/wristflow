@@ -61,8 +61,31 @@ def check_sdk(root, lock):
     return {"commit": lock["sdk"]["commit"], "submodules": lock["submodules"], "clean": True}
 
 
-def check_build(result_path, *, root=ROOT, source_archive=None, flash=None):
+def archive_records(value, archive, recorded_root):
+    """Verify explicit original-root-relative ZIP entries without extracting."""
+    require(isinstance(value, list) and bool(value), "Explicit archive file list must not be empty")
+    names, seen, result = archive.namelist(), set(), []
+    for item in value:
+        path = resolve(item["path"], recorded_root)
+        require(path.is_relative_to(recorded_root), "Archive path outside recorded root: " + str(path))
+        name = path.relative_to(recorded_root).as_posix()
+        require(name not in seen and names.count(name) == 1, "Missing/duplicate archive entry: " + name)
+        seen.add(name)
+        raw = archive.read(name)
+        require(hashlib.sha256(raw).hexdigest() == item["sha256"] and ("bytes" not in item or len(raw) == item["bytes"]),
+                "Archive evidence changed: " + name)
+        result.append(dict(item, path=str(path), bytes=len(raw)))
+    return result
+
+
+def check_build(result_path, *, root=ROOT, source_archive=None, flash=None,
+                build_archive=None, recorded_root=None):
     root = Path(root).resolve()
+    require(bool(build_archive) == bool(recorded_root), "Build archive and recorded root must be supplied together")
+    require(not (build_archive and source_archive), "Build archive and CRLF source archive are separate policies")
+    if build_archive:
+        require(Path(recorded_root).is_absolute(), "Recorded root must be absolute")
+    origin = Path(recorded_root).resolve() if build_archive else root
     value, lock = load(result_path), load(root / "sdk.lock.json")
     require(value["exit_code"] == 0 and value["artifact_validation_passed"] is True,
             "Build record did not accept compilation/artifacts")
@@ -72,12 +95,22 @@ def check_build(result_path, *, root=ROOT, source_archive=None, flash=None):
         require(any(line.startswith(" " + revision + " " + name + " ") for line in built_submodules.splitlines()),
                 "Build submodule identity differs: " + name)
     sdk = check_sdk(root, lock)
-    artifacts = records(value["artifacts"], root)
-    build_dir = resolve(value["build_directory"], root)
+    if build_archive:
+        with zipfile.ZipFile(build_archive) as archived:
+            artifacts = archive_records(value["artifacts"], archived, origin)
+            archived_sources = archive_records(value["project_sources"], archived, origin)
+            build_dir = resolve(value["build_directory"], origin)
+            require(build_dir.is_relative_to(origin), "Build directory outside recorded root")
+            manifest_path = build_dir / "sftool_param.json"
+            require(str(manifest_path) in {item["path"] for item in artifacts}, "Missing required artifact: sftool_param.json")
+            manifest = json.loads(archived.read(manifest_path.relative_to(origin).as_posix()).decode("utf-8-sig"))
+    else:
+        artifacts = records(value["artifacts"], root)
+        build_dir = resolve(value["build_directory"], root)
+        manifest = load(build_dir / "sftool_param.json")
     by_path = {Path(item["path"]): item for item in artifacts}
     for name in ("main.elf", ".config", "rtconfig.h", "sftool_param.json"):
         require(build_dir / name in by_path and by_path[build_dir / name]["bytes"] > 0, "Missing required artifact: " + name)
-    manifest = load(build_dir / "sftool_param.json")
     require(manifest["chip"] == "SF32LB52" and manifest["memory"] == "NOR" and manifest["write_flash"]["verify"] is True,
             "Flash manifest differs from supported board")
     require(lock["board"] == "sf32lb52-lchspi-ulp", "Unsupported locked board")
@@ -89,13 +122,13 @@ def check_build(result_path, *, root=ROOT, source_archive=None, flash=None):
         require(path in by_path and by_path[path]["bytes"] > 0, "Image missing from artifact manifest")
         images.append(dict(by_path[path], name=path.name, address=entry["address"]))
     require(len(images) == 3 and {item["name"] for item in images} == set(ADDRESSES), "Exactly three unique flash images required")
-    firmware = resolve(value["firmware_path"], root)
+    firmware = resolve(value["firmware_path"], origin)
     require(firmware == next(Path(item["path"]) for item in images if item["name"] == "main.bin"), "Firmware path mismatch")
     sources, endings, seen = [], [], set()
     archive = zipfile.ZipFile(source_archive) if source_archive else None
     try:
         require(bool(value["project_sources"]), "Build source list is empty")
-        for item in value["project_sources"]:
+        for item in ([] if build_archive else value["project_sources"]):
             path = resolve(item["path"], root)
             require(path not in seen and path.is_relative_to(root), "Duplicate/outside project source: " + str(path))
             seen.add(path)
@@ -112,17 +145,27 @@ def check_build(result_path, *, root=ROOT, source_archive=None, flash=None):
         if archive:
             archive.close()
     report = {"build_result": file_record(result_path), "sdk_lock": file_record(root / "sdk.lock.json"), "sdk": sdk,
-              "recorded_sources": sources, "line_endings_only": endings, "artifacts": artifacts, "images": images,
+              "recorded_sources": sources, "line_endings_only": endings, "artifacts": [] if build_archive else artifacts, "images": images,
               "source_archive": file_record(source_archive) if source_archive else None,
+              "source_policy": "archived_build" if build_archive else "current",
+              "current_source_verified": not bool(build_archive),
+              "build_archive": file_record(build_archive) if build_archive else None,
               "hardware_verified": False, "device_identity_verified": False,
               "limits": "Checks recorded build inputs and local bytes, not dependency completeness or board identity. New build inputs require a fresh build."}
+    if build_archive:
+        report.update(recorded_root=str(origin), archived_sources=archived_sources, archived_artifacts=artifacts,
+                      limits="Verifies the archived historical build only; current source/artifacts and board identity are not verified.")
     if flash:
         transferred = load(flash)
         require(transferred["exit_code"] == 0 and transferred["board"] == lock["board"] and transferred["example"] == value["example"],
                 "Flash result did not accept the same target")
-        actual = records(transferred["images"], root)
+        if build_archive:
+            with zipfile.ZipFile(build_archive) as archived:
+                actual = archive_records(transferred["images"], archived, origin)
+        else:
+            actual = records(transferred["images"], root)
         require(len(actual) == 3, "Flash result needs three images")
-        require({(str(resolve(item["path"], root)), item["sha256"], item["address"], item["name"]) for item in transferred["images"]} ==
+        require({(str(resolve(item["path"], origin)), item["sha256"], item["address"], item["name"]) for item in transferred["images"]} ==
                 {(item["path"], item["sha256"], item["address"], item["name"]) for item in images}, "Flash/build images differ")
         report.update(flash_result=file_record(flash), flash_port=transferred["port"])
     return report
@@ -237,6 +280,8 @@ def main():
     build = commands.add_parser("build", help="Recheck existing Build.ps1 result and optional Flash.ps1 result")
     build.add_argument("--result", type=Path, required=True)
     build.add_argument("--source-archive", type=Path, help="Original root-relative ZIP; permits proven CRLF-only source differences")
+    build.add_argument("--build-archive", type=Path, help="Historical ZIP containing all recorded sources and artifacts; does not verify current source")
+    build.add_argument("--recorded-root", type=Path, help="Explicit original absolute checkout root for --build-archive")
     build.add_argument("--flash", type=Path)
     files = commands.add_parser("files", help="Check one explicit file-record list, without recursive hash guessing")
     files.add_argument("--manifest", type=Path, required=True)
@@ -250,7 +295,8 @@ def main():
         args.out.parent.mkdir(parents=True, exist_ok=True)
     try:
         if args.command == "build":
-            details = check_build(args.result, root=args.root, source_archive=args.source_archive, flash=args.flash)
+            details = check_build(args.result, root=args.root, source_archive=args.source_archive, flash=args.flash,
+                                  build_archive=args.build_archive, recorded_root=args.recorded_root)
         elif args.command == "files":
             details = check_files(args.manifest, args.key, root=args.root)
         else:
