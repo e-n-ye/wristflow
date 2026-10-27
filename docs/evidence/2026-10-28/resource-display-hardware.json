@@ -335,5 +335,12 @@
     "Same-day step restore and physical DEEP",
     "Normal-restored RTC/cache UART confirmation"
   ],
-  "next_bounded_experiment": "New operator window: wake and query normal Product date/steps/wrist/light once; RTC correction only with explicit authorization if required. More images need a separate bounded choice."
+  "next_bounded_experiment": "New operator window: wake and query normal Product date/steps/wrist/light once; RTC correction only with explicit authorization if required. More images need a separate bounded choice.",
+  "delivery": {
+    "implementation_commit": "3123192",
+    "remote_integrated": false,
+    "pull_request": null,
+    "blocker": "Configured localhost proxy refused connection. Direct git push reset; HTTP1.1 retry could not connect github.com:443. No PR created or merged, local main not synchronized.",
+    "next": "Restore network, push focused branch, review PR, rebase merge, read back MERGED, fetch and fast-forward primary local main."
+  }
 }

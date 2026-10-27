@@ -17,7 +17,9 @@
 
 **恢复与限制**：普通Product`4c4ac661…`已三镜像write＋verify恢复，4,870,136B／余3,518,472B，ELF不含资源探针。用户确认常亮关闭、自然息屏约5秒／KEY1唤醒、显示／触摸／时间和偏好正常。恢复后两次UART启动快照无字节超时，未校时且资源关闭；RTC／缓存未独立读回。跨午夜前日10步与新日0步不是同日恢复测试。帧率／CPU／功耗／续航、完整6500字仍未测；[精简证据](evidence/2026-10-28/resource-display-hardware.json)。
 
-**唯一下一步**：下次新的现场窗口先唤醒普通Product，做一次date／steps／wrist／light快照，核正常版RTC与缓存；本轮不再追加动作。更多图片压缩候选与指南针余项保留，需另选有界任务。
+**交付阻断**：本地实现／证据提交`3123192`已完成；本机代理127.0.0.1:7897拒绝连接，直连推送两次分别reset／443不可达，未创建PR、未合并，main未同步；保留`codex/resource-hardware-check`。设备动作已结束，远端状态不能写成已集成。
+
+**唯一下一步**：网络恢复后推送本分支，创建并审阅PR、Rebase合并及同步本地main。硬件余项留待新的现场窗口：先唤醒普通Product做date／steps／wrist／light快照；更多压图与指南针余项不在本轮继续。
 
 按[任务索引](../PROJECT_INDEX.md)接续；三图原始软件证据见[试点记录](evidence/2026-10-27/flash-ezip-pilot.json)，指南针末态与余项见下方历史及[证据](evidence/2026-10-27/compass-device-probe.json)。
 
