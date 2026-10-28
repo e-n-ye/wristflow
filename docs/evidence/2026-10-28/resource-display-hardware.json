@@ -336,11 +336,48 @@
     "Normal-restored RTC/cache UART confirmation"
   ],
   "next_bounded_experiment": "New operator window: wake and query normal Product date/steps/wrist/light once; RTC correction only with explicit authorization if required. More images need a separate bounded choice.",
-  "delivery": {
+  "delivery_before_network_recovery": {
     "implementation_commit": "3123192",
     "remote_integrated": false,
     "pull_request": null,
     "blocker": "Configured localhost proxy refused connection. Direct git push reset; HTTP1.1 retry could not connect github.com:443. No PR created or merged, local main not synchronized.",
     "next": "Restore network, push focused branch, review PR, rebase merge, read back MERGED, fetch and fast-forward primary local main."
+  },
+  "delivery_continuation": {
+    "date": "2026-10-28",
+    "reviewed_head_before_document_update": "57f9f3a49fa7a8506b10e924d7ff6bff349b06fc",
+    "pull_request": "https://github.com/e-n-ye/wristflow/pull/173",
+    "network": "Normal git push and fetch succeeded; previous network blocker resolved.",
+    "source_review": "Independent read-only Sol/medium review found no blocking defect in UI ownership, IRQ mailbox, event/lease cleanup, tag ownership or normal-build macro isolation. FinSH/AOD mailbox interleavings were inspected but not directly simulated by the resource view unit test.",
+    "validation": "Existing normal Product sources/artifacts and flash record checked against the current workspace; diagnostic sources/artifacts and flash record checked against the preserved full ZIP. Test logs, six-step simulation record and both ZIP fingerprints matched. No implementation change, rebuild, repeated test run or device operation in this continuation.",
+    "commands": [
+      "python scripts/lab_check.py --out artifacts/resource-hardware-20261027/continuation-normal-check.json build --result artifacts/product/20261028-001310-343/result.json --flash artifacts/flash/product/20261028-001336-962/result.json",
+      "python scripts/lab_check.py --out artifacts/resource-hardware-20261027/continuation-diagnostic-archive-check.json build --result artifacts/product/20261027-234648-464/result.json --build-archive artifacts/resource-hardware-20261027/diagnostic-product-20261027-234648-464.zip --recorded-root D:/MY_Desk/project/wristflow --flash artifacts/flash/product/20261027-235703-793/result.json",
+      "python scripts/lab_check.py files --manifest docs/evidence/2026-10-28/resource-display-hardware.json --key software_validation.records",
+      "python scripts/lab_check.py files --manifest docs/evidence/2026-10-28/resource-display-hardware.json --key archives"
+    ],
+    "records": [
+      {
+        "path": "artifacts/resource-hardware-20261027/continuation-normal-check.json",
+        "bytes": 135958,
+        "sha256": "bb1f92d5e1370678c0949fc805a7a6013db34a57492e152bfe0ab1635f53606a"
+      },
+      {
+        "path": "artifacts/resource-hardware-20261027/continuation-diagnostic-archive-check.json",
+        "bytes": 136295,
+        "sha256": "ce2bba19d48dbdd33fb7c00f8262f6ac828aedf5b20a227384a02d740f99f24e"
+      },
+      {
+        "path": "artifacts/resource-hardware-20261027/continuation-test-records-check.json",
+        "bytes": 1467,
+        "sha256": "49f0d62fc5807f7390fac29181ea525cb466bab20139993f7cbc2c35ffcebc7a"
+      },
+      {
+        "path": "artifacts/resource-hardware-20261027/continuation-archive-files-check.json",
+        "bytes": 1060,
+        "sha256": "8cb8ad354f4e83132b750fc0cac5905b9c32ef45fa4fabcd973d749851864bb7"
+      }
+    ],
+    "final_delivery_record": "PR #173 Closure and final handoff record the reviewed final head, MERGED readback, merge commit and primary local-main synchronization. This pre-merge evidence does not assert those later results."
   }
 }
