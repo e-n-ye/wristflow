@@ -1,0 +1,263 @@
+{
+  "date": "2026-10-29",
+  "base_commit": "b48c0f5c792b2eb56819d527a4aa5e6f5bbac8fa",
+  "scope": "Newly confirmed one read-only capacity scan and normal restore; no firmware/source modification in this hardware window. Recorder not yet implemented.",
+  "authorization": "Same board/display, original battery plus host USB, fixed wiring, operator present; diagnostic flash, one scan, normal restore, necessary single UTC sync/readback. Separate user decision: boot automatically records, stop command provided.",
+  "capability_choice": "Official locked FAL read and cached SDK boot fields; existing DB mutex; no repair/traversal/GC calls from scan.",
+  "diagnostic": {
+    "result": "artifacts/product/20261029-210322-710/result.json",
+    "flash": "artifacts/flash/product/20261029-211904-849/result.json",
+    "sha256": "0cfa794223af4a6d611b3db6e1b116321cd9bdf023c526024763c22b1af8d4cd",
+    "startup_sync_attempted": false,
+    "metadata": {
+      "boot": {
+        "mode": 4,
+        "raw": 0
+      },
+      "layout": {
+        "schema": 2,
+        "bytes": 16384,
+        "sector": 8192,
+        "sectors": 2,
+        "guard": 0
+      },
+      "copy": {
+        "bytes": 16384,
+        "calls": 128,
+        "ms": 1
+      },
+      "sector": [
+        {
+          "i": 0,
+          "store": 127,
+          "dirty": 127,
+          "valid": 1,
+          "live": 0,
+          "stale": 0,
+          "tail": 8176,
+          "unknown": 0,
+          "pending": 0
+        },
+        {
+          "i": 1,
+          "store": 63,
+          "dirty": 63,
+          "valid": 1,
+          "live": 2015,
+          "stale": 5585,
+          "tail": 576,
+          "unknown": 0,
+          "pending": 0
+        }
+      ],
+      "total": {
+        "header": 32,
+        "live": 2015,
+        "stale": 5585,
+        "pending": 0,
+        "tail": 8752,
+        "unknown": 0
+      },
+      "keys": {
+        "known": 511,
+        "dup": 0,
+        "extra": 0,
+        "bad": 0,
+        "crc": 0,
+        "reads": 0
+      },
+      "done": {
+        "result": 0,
+        "complete": 1,
+        "coherent": 1
+      }
+    },
+    "resources_closed": true
+  },
+  "admission": {
+    "metadata_space_prerequisite_passed": true,
+    "current_live": 2015,
+    "stale": 5585,
+    "physical_erased_tail": 8752,
+    "empty_sectors": 1,
+    "candidate_two_slot_live": 3105,
+    "single_update_peak": 3650,
+    "first545B_node_requires_gc": true,
+    "reason": "USING tail576 does not satisfy strict remain>545+88; empty8KiB sector is reserved by normal allocator. SDK GC/update/error-recovery tests required before recorder persistence.",
+    "limits": "Physical erased bytes/coherent are not directly allocatable capacity or atomicity guarantees."
+  },
+  "restoration": {
+    "result": "artifacts/product/20261029-210603-926/result.json",
+    "flash": "artifacts/flash/product/20261029-212442-688/result.json",
+    "sha256": "0bc211f96a5b4b931d6bdcde1eefd7d8d4dd93decc4227c2fc807b5875ba5cf3",
+    "startup_sync_attempted": false,
+    "steps": 0,
+    "generation": 241,
+    "verified": true,
+    "dirty": false,
+    "wrist_light_healthy": true,
+    "operator": "Confirmed temporary keep-awake disabled, natural screen-off about5s and KEY1 wake, display/touch/time/preferences normal.",
+    "resources_closed": true,
+    "device_actions_ended": true
+  },
+  "validation": {
+    "new_firmware_build": false,
+    "artifact_restore": "Only29 explicit build outputs restored from each previously verified complete ZIP, all bytes hashed before writes and build/source binding checked after restore. No checkout/source reset/deletion.",
+    "capture_adapter": "Existing named snapshot/startup/storage query, finite session and endpoint guards; no multi-action experiment or new Console adapter needed.",
+    "source_policy": "Preserved ZIP proves any Git line-ending differences; no true source change accepted."
+  },
+  "limits": [
+    "Copy reported1ms; not a general latency/CPU/power benchmark.",
+    "Cached mode4/raw0 preserved without reset-cause classification.",
+    "Read-only applies to scan; existing startup/persistence may write.",
+    "No runtime recorder, long-run stability, sleep-current or battery-life verification."
+  ],
+  "records": [
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/preflash-001/snapshot.json",
+      "bytes": 5788,
+      "sha256": "2a3e2725584ea285ae25e742df5cd94663245e7ddc3547cda994a723698e34a0"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/preflash-001/uart.bin",
+      "bytes": 4443,
+      "sha256": "dbb60f7a9df2abab4d05b1c87fe00babed1fd0ca51971f5ddcee778715e6b302"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/diagnostic-startup-001/snapshot.json",
+      "bytes": 5808,
+      "sha256": "22c0f4a5a74b3d75ab7f5dec5b9d8b08c3914468dee353c99b943a7939752c62"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/diagnostic-startup-001/uart.bin",
+      "bytes": 4391,
+      "sha256": "4cea215a7afb591056d490d529e93c7ee701043f538772592189780072eb8d36"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/scan-001/snapshot.json",
+      "bytes": 1277,
+      "sha256": "cbcc5669de6227623d9be8e4ceef22710697e0b6cbbef182599fcb6e9d312d47"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/scan-001/uart.bin",
+      "bytes": 536,
+      "sha256": "820ded23b04aee158aa0a5abea0fd25d9ae0bb3a68afd8cf005f34c9fceae864"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/admission.json",
+      "bytes": 1387,
+      "sha256": "d8005792b2ba9e3a846ce946c2d8e5837c725609bafa8d483680d0b88e65f11b"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/normal-startup-001/snapshot.json",
+      "bytes": 5784,
+      "sha256": "d148f91457459bd17524e3b4e6f30c7987012d1ea7d7bc2d487784cb1569adf1"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/normal-startup-001/uart.bin",
+      "bytes": 4470,
+      "sha256": "67b19e58585e5c0cee7619bd1902b6d87ffdf4842eac135200a40a10dee56dc9"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/endpoint-diagnostic.json",
+      "bytes": 66,
+      "sha256": "7ae828fa3ac5eb993c91a4553399aaf1062c7ef69bcf70a949d822f1a45b2dfd"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/endpoint-normal.json",
+      "bytes": 66,
+      "sha256": "7ae828fa3ac5eb993c91a4553399aaf1062c7ef69bcf70a949d822f1a45b2dfd"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/restore-diagnostic.log",
+      "bytes": 184,
+      "sha256": "b83a9f6a7dcc64ec6d8778985b9e74f49bac72bfcd0a067c3d9f86f07358311c"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/restore-normal.log",
+      "bytes": 184,
+      "sha256": "876e6835490f62869863c9d2eb0f389430a7a06a8c7a806276add61424938e4c"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/restore_artifacts.py",
+      "bytes": 1544,
+      "sha256": "3cc27a3b50f39ce673eed80e5ac4f52ee0c420b372edcc3e9d4f555a5cc5cd23"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/diagnostic-dryrun.log",
+      "bytes": 452,
+      "sha256": "36c47c3323a073fa9b4e520e158c857ecd705e3f3093d63bb50a3e0239e81f13"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/normal-dryrun.log",
+      "bytes": 452,
+      "sha256": "1f02c614f356f9c3724850b76d376420d345519e66b9129a9c2b283ce227ded5"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/diagnostic-flash.log",
+      "bytes": 715,
+      "sha256": "4b6332a04276073cd7b4221ed2f52e71e40d7d8a31eb90d843063a1a1c42faaf"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/normal-flash.log",
+      "bytes": 715,
+      "sha256": "5673d57f592a98d9d434fe5ef40f53212aedd65f33c0e6ed28a808700c37a4ed"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/flash/product/20261029-211904-849/result.json",
+      "bytes": 1767,
+      "sha256": "9515a08e7ef6c908979d5cdce3da2e84ac3a937aa50b53ae5c085d7dea327cd8"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/flash/product/20261029-212442-688/result.json",
+      "bytes": 1767,
+      "sha256": "4700495466204d1e57d3e19e796f3848bb61d136a20bc420ec3aa0e195219854"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/product/20261029-210322-710/result.json",
+      "bytes": 120963,
+      "sha256": "7a6707ba737e4714d34914f3f7b4f8677689ea240b14d7abbd56bebaf6b8baff"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/product/20261029-210603-926/result.json",
+      "bytes": 120948,
+      "sha256": "5cdb7ddcc3669685edf42df8e27ee0988dbdf82a119369ee2f3df35e6e910f97"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-8k-20261029/diagnostic-20261029-210322-710.zip",
+      "bytes": 16406387,
+      "sha256": "27bf892913e3e053296c4e85f89951c824124cc5c805416aba702aebe99bce43"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-8k-20261029/normal-20261029-210603-926.zip",
+      "bytes": 16387657,
+      "sha256": "b7112f571d70818bab593c6a3fb0b59a552518bcbc8e72ed8c655461112f2d58"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/preflash-001/binding.json",
+      "bytes": 142562,
+      "sha256": "845df72e5ee725c411fa7ba69b10e05c63b4785ce41c6f0b9a24903438b98971"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/diagnostic-startup-001/binding.json",
+      "bytes": 142462,
+      "sha256": "9f8a0f69d11aee134c7329b6cc3c00708c3ed8af72015edd534c1e07adc55d53"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/scan-001/binding.json",
+      "bytes": 142440,
+      "sha256": "9826b93717d4708d7a689118339370efc2528e575bb35662507d7b0fa8ea52be"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-8k-hardware-20261029/normal-startup-001/binding.json",
+      "bytes": 142458,
+      "sha256": "02dacafbbbd09ba08949492ab7c6a13c43da2cee3700c1317da87d69582bff8d"
+    }
+  ],
+  "commands": [
+    "uv run --offline --no-project --with pyserial==3.5 python scripts/device_snapshot.py capture --query storage (all explicit build/flash/BIN/source archive/endpoint fields preserved in scan binding.json)",
+    "device_snapshot.py capture date/steps/wrist/light before flash with explicit historical build_archive; startup after each flash with authorized --allow-time-sync (exact bindings preserved)",
+    "restore_artifacts.py --result <explicit verified result> --archive <matching full ZIP> (both versions; no source extraction)",
+    "pwsh -NoProfile -File scripts/Flash.ps1 -Example product -Port COM5 -DryRun then actual (each version; exact write/verify arguments in flash results)"
+  ]
+}
