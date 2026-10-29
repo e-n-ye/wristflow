@@ -10,6 +10,13 @@ probe = ARGUMENTS.get('resource_probe', '0')
 if probe not in ('0', '1'):
     raise ValueError('resource_probe must be 0 or 1')
 local_defines = ['WF_RESOURCE_PROBE'] if probe == '1' else []
+storage = ARGUMENTS.get('storage_probe', '0')
+if storage not in ('0', '1'):
+    raise ValueError('storage_probe must be 0 or 1')
+if storage == '1':
+    if probe == '1':
+        raise ValueError('Use only one diagnostic build at a time')
+    local_defines += ['WF_STORAGE_PROBE']
 objs = DefineGroup('WristFlowProduct', Glob('*.c'), depend=[''],
                    CPPPATH=[cwd, os.path.join(base64, 'include'), os.path.join(cwd, '../../../ui/xml'),
                             os.path.join(cwd, '../../../ui/runtime'), os.path.join(cwd, '../../../core'), memsic],

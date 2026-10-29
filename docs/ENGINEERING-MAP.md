@@ -25,6 +25,7 @@
 | 亮度设置页面 | `settings_view`复用原`screen_settings_list`／`settings_choice`与共用`settings_switch`；后者也供原`settings_row`复用，官方输出保持生成身份，原`screen_brightness_adjust.xml`保留竖直滑杆；shell提供可选缓存／命令接口 | [页面契约](PRODUCT-SETTINGS.md#brightness-page-20261023)；自动时隐藏自定义入口，手动值独立保留；Product无提供者时禁用自动，不新增采样／策略／保存。lux资料见LTR，功能与设备另轮 |
 | 固定数据演示 | [apps/ui_demo](../apps/ui_demo/)；与 Product 共用 core、运行时和生成 UI | Build 的 `ui_demo`；不能用演示值证明产品数据真实性 |
 | 资源显示诊断构建 | Product `resource_probe.c/h`在UI线程挂载官方视图和持有限期租约，`product_resource_probe.c/h`持有FinSH同步邮箱／资格／状态／清理，main仅接入；普通构建编译排除实现 | `Build.ps1 -Example product -ResourceProbe`；三图／字库各60秒，KEY1或高优先级事件退出，不注入业务数据；适配及证据见[容量专题](FLASH-CAPACITY.md) |
+| 设置分区元数据诊断 | Product `storage_metadata.c/h`只解析锁定FlashDB格式，`storage_snapshot.c/h`持有有界复制契约，`product_services.c`持有同库锁／FAL适配，`product_storage_probe.c`持有FinSH命令和16KiB缓冲；普通构建排除 | `Build.ps1 -Example product -StorageProbe`及`device_snapshot.py capture --query storage`；不输出值、不修复或GC，启动初始化与扫描只读分开，容量准入另核；见[长期记录诊断](BATTERY-ESTIMATE.md#storage-metadata-probe-20261029) |
 | 板级诊断 | [apps/bringup](../apps/bringup/)；自有工程 / 板级集成 | [BRINGUP](BRINGUP.md)；Build 的 `bringup`，不能代替 Product 联合验收 |
 | 官方 Hello / BLE | 实际路径由 [Build.ps1](../scripts/Build.ps1) 的 `$projects` 定义，位于锁定 SDK 内 | Build 的 `hello` / `ble`；按官方 SCons，不迁移固件到 CMake |
 | 平台无关逻辑 | [core](../core/) 的手写模型、协议、配置与状态；具体消费者由 SConscript / CMakeLists 决定 | 对应 [tests/CMakeLists.txt](../tests/CMakeLists.txt) 的主机用例及集成目标 |

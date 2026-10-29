@@ -5,17 +5,24 @@
 
 本区是活动任务和下一步的唯一权威来源；历史命令和计划不构成执行授权。
 
-**本轮范围**：用户在小时图交付后要求按长期记录规划继续；当前先完成接入设计核算。主目录从干净main `76b1d2a`建立`codex/runtime-record-preflight`，SDK／子模块按锁。未实现记录器／容量命令、未重编或操作设备。
+**本轮范围**：用户要求接续“评估 Flash 压缩选项”继续长期记录；接回中断的`codex/storage-metadata-probe`／HEAD`4bef5e0`及其未提交实现，本轮完成只读容量诊断的软件小闭环。未实现长期记录器，SDK／子模块与分区保持锁定。
 
-**核算结果**：现9个KV最大单有效版本2015B，拟runtime_a/b各512B的节点合计1090B；新live3105B、一次最大更新3650B满足单sector严格余量条件。只证明已列键的静态预算，设备真实sector／历史额外键仍未知。SDK iterator/check遇坏长度会写状态，不能直接充当严格只读容量查询。[证据](evidence/2026-10-29/runtime-record-preflight.json)。
+**已完成**：显式StorageProbe构建增加`wf_storage scan`，同库锁内复制16KiB，解锁后解析锁定格式，仅输出元数据和SDK启动缓存；异常保守标unknown，不输出值、不修复或GC。普通构建排除命令／解析器／快照缓冲。扫描只读不扩展为整个Product启动无写入。[契约与证据](BATTERY-ESTIMATE.md#storage-metadata-probe-20261029)。
 
-**接入设计**：wf_store已按事件／期限等待，旧100ms描述已更正；复用数据库拥有者／短任务槽，30分钟检查点只在已有机会提交，不新增周期唤醒。使用既有64位单调时钟；启动原因读SDK缓存、保存raw与unknown，不再调用清状态HAL，不借用RTC槽。512B双槽字节预算及失败／恢复边界见[核算设计](BATTERY-ESTIMATE.md#runtime-record-preflight-20261029)，尚非实现ABI。
+**验证**：71/71主机测试、12个快照Python测试、独立容量采集模拟通过；含2000个损坏镜像及只读／守恒／越界／复制超时覆盖。Hello／BLE／Bringup／UI Demo／普通Product及StorageProbe编译成功；普通BIN3,019,260B，诊断增加2516B／静态RAM16392B。首次缺头构建失败已保留；详见[版本证据](evidence/2026-10-29/storage-metadata-probe.json)。
 
-**设备末态**：仍为普通Product`a74592d3…`，上一轮RTC／缓存、自然息屏／KEY1及偏好确认有效；本轮不开设备，不扩展为长期稳定性或功耗证据。
+**设备末态与限制**：本轮未烧录或开串口；仍沿用上一轮普通Product`a74592d3…`的设备末态记录，未重新确认现场。真实sector、历史额外键、FAL延迟和启动原因分类未知；`tail`／`coherent`不等于可分配容量，容量未知不启持久化记录，也不声称长期稳定性或续航。
 
-**交付**：[PR #175](https://github.com/e-n-ye/wristflow/pull/175)保存接入设计、指纹核算及相关旧描述更正；独立审查无阻断，文档／指纹检查通过，未运行固件构建。最终审阅head、合并回读及本地同步见该PR Closure和最终交接。
+**交付**：诊断软件、构建开关、共用采集入口及相关权威文档同轮交付；最终PR、已审阅head、合并回读和本地主线同步见本轮PR Closure及最终交接。上一轮设计核算已由[PR #175](https://github.com/e-n-ye/wristflow/pull/175)交付。
 
-**唯一下一步**：独立小闭环准备严格无写的元数据容量诊断，通过主机损坏镜像验证后再绑定新现场窗口读取真实sector状态和SDK启动缓存；满足准入后进入最小记录模型／编码／存储接入。不上板前不宣称真实余量，容量未知不启持久化记录。
+**唯一下一步**：绑定新的同板／供电现场窗口，保护既有设置／计步，使用已归档诊断BIN读一次真实sector及启动缓存，随后恢复普通固件并核对缓存／偏好和自然息屏／KEY1。取得可信容量结果后才决定最小长期记录模型／编码／存储接入及默认启用策略。
+
+<a id="history-runtime-record-preflight-20261029"></a>
+## 2026-10-29 长期记录接入设计核算（原current，历史）
+
+源码基线`76b1d2a`，分支`codex/runtime-record-preflight`；[PR #175](https://github.com/e-n-ye/wristflow/pull/175)交付纯设计核算，未实现诊断／记录器、未重编或操作设备。9个KV最大单有效版本2015B，拟runtime_a/b各512B的节点合计1090B；新live3105B、一次最大更新3650B满足单sector账面余量，不证明设备真实余量。[核算证据](evidence/2026-10-29/runtime-record-preflight.json)。
+
+`wf_store`按事件／期限等待，记录检查点建议30分钟且只在已有机会提交；使用64位单调时钟、SDK启动缓存raw／unknown，不借RTC槽。512B双槽仍为预算草案。[设计](BATTERY-ESTIMATE.md#runtime-record-preflight-20261029)。当时下一步为严格无写的容量诊断；已由上方current的软件实现接续，设备窗口和记录器仍未完成。
 
 <a id="history-hour-ezip-20261029"></a>
 ## 2026-10-29 全部小时图及长期记录规划（原current，历史）
