@@ -22,6 +22,9 @@ VIEWS = [
     ("unknown", "未知时间压缩图", "检查未知时间图（不是修改RTC）：图形完整、位置正确，无花屏、色块或残影。"),
     ("font", "6500常用汉字字库", "上下滚动消息样本，检查常用汉字、英文数字、标点和三个二级字𠳐／𥻗／𬉼可见。范围外的龘／𠮷／😀允许显示缺字占位。检查文字没有重叠或滚动异常。"),
 ]
+HOUR_VIEWS = [(f"hour{hour}", f"{hour}点压缩图", f"检查{hour}点图完整、位置正确，无花屏、色块、残影，切图后仍响应。")
+              for hour in (2, 3, 4, 5, 6, 8, 9, 10, 11, 12)]
+HOUR_VIEWS.append(("thumbnail", "10点缩略图", "检查表盘选择器的10点缩略图：缩放完整、比例正确、边缘无异常。"))
 
 
 def parse_status(lines):
@@ -30,7 +33,7 @@ def parse_status(lines):
     if len(values) != 1:
         raise ProtocolError("Expected one complete resource status")
     value = values[0]
-    if value["mode"] > 3 or value["reason"] > 4:
+    if value["mode"] > 14 or value["reason"] > 4:
         raise ProtocolError("Invalid resource status")
     return value
 
@@ -41,7 +44,7 @@ def require_owner(value, tag, mode, start=None):
 
 
 class Client(RecordedClient):
-    COMMAND_PATTERN = r"wf_resource (?:status|start [0-3] [1-9][0-9]{0,8}|stop [1-9][0-9]{0,8})"
+    COMMAND_PATTERN = r"wf_resource (?:status|start (?:[0-9]|1[0-4]) [1-9][0-9]{0,8}|stop [1-9][0-9]{0,8})"
     BOOT_MARKERS = (b"[product] storage=", b"SFBL")
 
     def status(self, cleanup=False):
@@ -100,6 +103,11 @@ class Simulation:
 
 def run(args):
     simulated = args.port is None
+    all_hours = getattr(args, "hours", False)
+    first_mode = getattr(args, "start_mode", 4)
+    if first_mode not in range(4, 15) or (not all_hours and first_mode != 4):
+        raise ValueError("Resume mode requires --hours and a mode from 4 through 14")
+    views = HOUR_VIEWS[first_mode - 4:] if all_hours else VIEWS
     if simulated:
         binding, identity = {"simulation": True}, lambda: {"simulation": True}
     else:
@@ -114,20 +122,20 @@ def run(args):
         if not json.loads(args.result.read_text(encoding="utf-8-sig")).get("resource_probe"):
             raise ValueError("Requires an explicit resource diagnostic build")
     own_source = file_record(Path(__file__))
-    binding.update(adapter=own_source, policy="Four 60s UI-only views; matched tag/mode/start cleanup. No reset, clock, PM, sensor or business-data injection.")
+    binding.update(adapter=own_source, policy="Bounded 60s UI-only views; matched tag/mode/start cleanup. No reset, clock, PM, sensor or business-data injection.")
     journal = Journal(args.out, binding=binding, mode="resource-acceptance")
-    phases = [("ready", "准备"), *[(k, title) for k, title, _ in VIEWS], ("final", "退出与末态")]
+    phases = [("ready", "准备"), *[(k, title) for k, title, _ in views], ("final", "退出与末态")]
     report = {"simulation": simulated, "hardware_verified": False, "operator_confirmed": [], "views": []}
     started, owned = time.monotonic(), None
-    with Console(journal, phases, mode="资源诊断模拟（不操作手表）" if simulated else "三图EZIP与6500字库实机验收") as console:
+    with Console(journal, phases, mode="资源诊断模拟（不操作手表）" if simulated else "小时图与缩略图验收" if all_hours else "三图EZIP与6500字库实机验收") as console:
         print(console.url, flush=True)
         session = client = None
 
         def pump():
             if console.cancelled.is_set():
                 raise Cancelled("Operator cancelled")
-            if time.monotonic() - started > 600:
-                raise TimeoutError("Resource workflow reached ten minutes")
+            if time.monotonic() - started > 1200:
+                raise TimeoutError("Resource workflow reached twenty minutes")
             if client:
                 client.read_chunk(); client.take_lines(); client.last_bytes.clear()
             else:
@@ -164,12 +172,12 @@ def run(args):
                 return identity()
             peer = Simulation() if simulated else SerialTransport(args.port)
             session = RecordedSession(journal, peer, console.cancelled, Client, identity=guard,
-                                      locks=args.out.parent / "simulation-locks" if simulated else None, timeout=1)
+                                      locks=args.out.parent / "simulation-locks" if simulated else None, timeout=3)
             client = session.__enter__()
             before = client.status()
             if before["active"] or before["pending"] or not before["available"]:
                 raise ProtocolError("Resource diagnostic not available on settled awake HOME")
-            for mode, (key, title, message) in enumerate(VIEWS):
+            for mode, (key, title, message) in enumerate(views, start=first_mode if all_hours else 0):
                 tag = secrets.randbelow(999999999) + 1
                 # Mark uncertainty before transmission; no blind retry or foreign stop.
                 owned = (tag, mode, None)
@@ -228,4 +236,7 @@ if __name__ == "__main__":
     p.add_argument("--source-archive", type=Path)
     p.add_argument("--expected-bin")
     p.add_argument("--confirmed", action="store_true")
+    p.add_argument("--hours", action="store_true", help="Validate ten additional hours and the scaled thumbnail")
+    p.add_argument("--start-mode", type=int, choices=range(4, 15), default=4,
+                   help="Start a new guarded hours session at this mode; earlier evidence is kept separately")
     raise SystemExit(run(p.parse_args()))

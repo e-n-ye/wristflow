@@ -1,0 +1,194 @@
+{
+  "date": "2026-10-29",
+  "base_commit": "87ba135b12a4f648c7d4ce2d5e3181b5b9795d8a",
+  "scope": "Only ten remaining RGB565 hour images; other compression choices recorded, not implemented. Long-running recorder planning follows acceptance; no recorder implementation.",
+  "capability_choice": "Locked SDK official EZIP/EPIC builder; original RGB565 oracle and XML/generated outputs retained; SDK/toolchain/partitions unchanged.",
+  "offline": {
+    "images": 13,
+    "pixels": 1253772,
+    "all_roundtrip_equal": true,
+    "ten_raw_bytes": 1928880,
+    "ten_ezip_payload_bytes": 77983,
+    "both_target_builder_payloads_equal_offline": true
+  },
+  "software": {
+    "flash_tests": "4/4",
+    "host_tests": "4/4",
+    "adapter_tests": "8/8",
+    "real_http_simulation": "13 phases passed; simulated transport only",
+    "review": "Independent read-only Sol/medium review found no blocker; resume mapping reviewed separately."
+  },
+  "product": {
+    "used_bytes": 3019260,
+    "free_bytes": 5369348,
+    "categories": {
+      "ui_fonts": 1315308,
+      "ui_images": 659339,
+      "other_code_data_padding": 1044613
+    }
+  },
+  "net_bin_saving_bytes": 1850876,
+  "device": {
+    "diagnostic_sha256": "a97a864be2a89ac69e79dd9a75efac3b4c41ad4fced4174dd35dd5911e9b8df6",
+    "flash_result": "artifacts/flash/product/20261029-142007-444/result.json",
+    "preflash_snapshot": "date/steps/wrist/light received; 0 steps, generation234 verified clean, wrist/light enabled",
+    "startup": "RTC2000; authorized one real UTC sync/readback; same-day0 steps/generation234 restored",
+    "display": "first eight views confirmed in device-001; hour11/hour12/thumbnail confirmed in device-003; all matching stop ACKs, final active0/pending0, resources closed",
+    "failures": [
+      "device-001: mode12 status contained art= instead of start=; rejected without repair; matching stop and resources closed. No assert or cold-boot marker in raw log.",
+      "device-002: first status received zero UART bytes; no image start, resources closed. User said screen was on.",
+      "Independent communication-001 received full RTC/cache replies; cause of intermittent loss unresolved. Increased bounded host response timeout1s to3s, no blind control retry."
+    ],
+    "restoration": {
+      "result": "artifacts/product/20261029-142936-899/result.json",
+      "flash": "artifacts/flash/product/20261029-143008-323/result.json",
+      "bin_sha256": "a74592d3b980279cc972a8bf58fa7bb3d13305dce60e3737943c16137c2bf576",
+      "sources": 593,
+      "artifacts": 29,
+      "normal_probe_symbols_absent": true,
+      "startup": "RTC2000 after write; authorized one real UTC sync/readback, all date/steps/wrist/light complete; total0 generation234 verified clean, wrist/light healthy",
+      "operator": "Confirmed keep-awake disabled, natural screen-off about5s and KEY1 wake, display/touch/time and wrist/auto-light preferences normal",
+      "resources_closed": true,
+      "device_actions_ended": true
+    }
+  },
+  "records": [
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/report.json",
+      "bytes": 44131,
+      "sha256": "a24db9d9d17099ee8557df80fc577411933345c6ff33a9daa353e8688f8b0cc6"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/product-audit.json",
+      "bytes": 3098,
+      "sha256": "8fc31f1dd08abecdf0a863d6c8b052540a6f4bcee70dbf9ff30e9c134cebad65"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/ui-demo-audit.json",
+      "bytes": 3097,
+      "sha256": "5f4eb3f53a41cbc577a560f7d59d16fe2a40120c03b585787890062da18af901"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/diagnostic-audit.json",
+      "bytes": 3098,
+      "sha256": "c1441ca246b85c91701e999086e44f76aebb3fcce7cb70c8f1f649a35fcea7be"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/adapter-tests-final.log",
+      "bytes": 1156,
+      "sha256": "e1590c8373f14f0659cdede53a375c60d2bfc92cf9683c509094fc12f909d3f0"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/host-tests.log",
+      "bytes": 626,
+      "sha256": "90e4e9d01fe57d9b73c7c18430b7d28de2c6cd860585c8a9778900a351f1e30f"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/http-sim/workflow.json",
+      "bytes": 5866,
+      "sha256": "7c93e9ec337ac4f124447c57271a9fe76d0134b1877f2ed36a75fca60d795412"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/preflash-001/snapshot.json",
+      "bytes": 5491,
+      "sha256": "9ee4e064b0898d2d953b641a680f22ee6a9337518b31a83c6d9658c24715913e"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/diagnostic-startup-001/snapshot.json",
+      "bytes": 5686,
+      "sha256": "0a1290b92d2e5790c481413ca5036b07512e114cfa67e32148833b4110dcb136"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/device-001/workflow.json",
+      "bytes": 4358,
+      "sha256": "7f50c5d5cbcf8da83671c379fb7733d9e21aa86362b735ae9e697d8b9cd0f478"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/device-001/uart.bin",
+      "bytes": 6903,
+      "sha256": "cb44d87e9234700bebe26493e2f3a2c24cbff55d4e2061697c968ab1598718e7"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/device-002/workflow.json",
+      "bytes": 373,
+      "sha256": "7cba6454e4a0f581e173da36298cd142fe85e6dd8fdf825c5cc86db14083f7ec"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/device-002/uart.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/communication-001/snapshot.json",
+      "bytes": 5463,
+      "sha256": "fb4479295fde000690c6bd13b09e19cb708ab8a9dad6e2ac13e8f6c60d33cd62"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/device-003/workflow.json",
+      "bytes": 2011,
+      "sha256": "77be28e55b77497c750df9549609ba797846f90db46f1de9f1c5ae2b9618f1a2"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/device-003/uart.bin",
+      "bytes": 2829,
+      "sha256": "7a9968e0ba6bc4c6f56526d77389e9deebf2eea32c0154b256e564e417e39aff"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/diagnostic-20261029-141901-539.zip",
+      "bytes": 16395145,
+      "sha256": "5065ab51d1302a2c15762519e8c9b87e4589249df0561a9d05e3ef243c4d6922"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/product-20261029-141628-442.zip",
+      "bytes": 16380884,
+      "sha256": "af4e743d2d7de6b1d7087ca32fdb5307aa605018208cbf47cb3b42a138c1349d"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/ui_demo-20261029-141750-707.zip",
+      "bytes": 13600748,
+      "sha256": "e305533e5f6da87c4949f17f1683913bb8d9b94c1d7322d8aa1efd800868a606"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/normal-final-audit.json",
+      "bytes": 3098,
+      "sha256": "db150e166f63ab910acf79966b3321c8c15f4554982862ed3feb09b2ffcfca47"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/normal-final-build-check.json",
+      "bytes": 135957,
+      "sha256": "b6c32b5dcaddee5884845a1ff168c2b2a3a2eab6c2b6d9be291cd7bdff709ce2"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/normal-product-20261029-142936-899.zip",
+      "bytes": 16380886,
+      "sha256": "469956f31ed89acdd03421f119639baaa1941310cfe9ae8c5c16c850e78fed08"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/normal-startup-001/snapshot.json",
+      "bytes": 5679,
+      "sha256": "3d1c05ca30184d355f12b16d5b827f35c0be92460e9e9af3e8f3bb18c1377d9b"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hour-ezip-20261029/normal-startup-001/uart.bin",
+      "bytes": 4307,
+      "sha256": "ec954b3623472a6c55c874b56e7468b4ce9b98e4b11f78a478382bc3aef88f24"
+    }
+  ],
+  "limits": [
+    "No frame-time/CPU/runtime-peak/power/battery-life measurements.",
+    "Physical60s expiry not exercised. Prior intermittent UART loss remains unresolved."
+  ],
+  "commands": [
+    "python -m unittest discover -s tests -p test_flash_audit.py -v",
+    "uv run --with pillow==11.3.0 --no-project python scripts/ezip_image_probe.py --all-hours --output artifacts/hour-ezip-20261029",
+    "pwsh -NoProfile -File scripts/Build.ps1 -Example product -Jobs 4",
+    "pwsh -NoProfile -File scripts/Build.ps1 -Example ui_demo -Jobs 4",
+    "pwsh -NoProfile -File scripts/Build.ps1 -Example product -ResourceProbe -Jobs 4",
+    "cmake --build artifacts/host-ui-build --target resource_probe product_ui component_editor aod_ui -j 4",
+    "ctest --test-dir artifacts/host-ui-build -R '^(resource_probe|product_ui|component_editor|aod_ui)$' --output-on-failure",
+    "python -m unittest discover -s tests -p test_resource_acceptance.py -v",
+    "resource_acceptance.py --hours; device-003 additionally --start-mode 12 (complete endpoint/build/hash bindings in each binding.json)",
+    "Flash.ps1 -Example product -Port COM5 (-DryRun then actual for diagnostic and final normal); exact write/verify commands in referenced Flash results"
+  ],
+  "planning": "BATTERY-ESTIMATE.md#long-run-plan-20261029; proposal only, no recorder implementation. Settings partition16KiB is shared; application free bytes are not log capacity."
+}

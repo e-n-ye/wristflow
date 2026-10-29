@@ -23,8 +23,10 @@ int main(void)
     assert(shell);
     wristflow_ui_shell_enable_display_policy(shell);
     wf_resource_probe_t probe = {0};
-    const void *images[] = {hour_1, hour_7, hour_unknown};
-    for (unsigned i = 0; i < 3; ++i) {
+    const void *images[] = {hour_1, hour_7, hour_unknown, NULL,
+        hour_2, hour_3, hour_4, hour_5, hour_6, hour_8, hour_9, hour_10, hour_11, hour_12};
+    for (unsigned i = 0; i < 14; ++i) {
+        if (i == 3) continue;
         assert(wf_resource_probe_start(&probe, shell, i, i+1));
         assert(lv_image_get_src(lv_obj_find_by_name(probe.root, "hour_artwork")) == images[i]);
         assert(!wf_resource_probe_start(&probe, shell, i, i+1));
@@ -36,7 +38,12 @@ int main(void)
     assert(wristflow_ui_shell_acquire_awake(shell, &owner, "other", 1000, expired));
     assert(!wf_resource_probe_start(&probe, shell, 3, 100));
     wristflow_ui_shell_release_awake(shell, &owner);
-    assert(!wf_resource_probe_start(&probe, shell, 4, 100));
+    assert(!wf_resource_probe_start(&probe, shell, 15, 100));
+    assert(wf_resource_probe_start(&probe, shell, 14, 100));
+    lv_obj_t *thumb = lv_obj_find_by_name(probe.root, "thumb_hour");
+    assert(thumb && lv_image_get_src(thumb) == hour_10);
+    assert(lv_image_get_inner_align(thumb) == LV_IMAGE_ALIGN_STRETCH);
+    wf_resource_probe_stop(&probe, 2);
     assert(!wf_resource_probe_start(&probe, shell, 3, 0));
     assert(wf_resource_probe_start(&probe, shell, 3, 100));
     assert(lv_obj_get_style_text_font(lv_obj_find_by_name(probe.root, "message_body"), 0) == notification_22);

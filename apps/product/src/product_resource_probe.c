@@ -94,13 +94,16 @@ static int wf_resource(int argc, char **argv)
             (unsigned long)p.started, (unsigned long)p.elapsed, p.reason);
         return 0;
     }
-    if (argc == 4 && !strcmp(argv[1], "start") && strlen(argv[2]) == 1 &&
-        argv[2][0] >= '0' && argv[2][0] <= '3') {
+    if (argc == 4 && !strcmp(argv[1], "start") &&
+        ((strlen(argv[2]) == 1 && argv[2][0] >= '0' && argv[2][0] <= '9') ||
+         (strlen(argv[2]) == 2 && argv[2][0] == '1' && argv[2][1] >= '0' && argv[2][1] <= '4'))) {
         uint32_t requested_tag = parse_tag(argv[3]);
         rt_base_t level = rt_hw_interrupt_disable();
         bool accepted = requested_tag && available && !pending && !cache.active && !*panel_reserved;
         if (accepted) {
-            mode = (unsigned)(argv[2][0] - '0'); tag = requested_tag;
+            mode = (unsigned)(argv[2][0] - '0');
+            if (argv[2][1]) mode = 10 + (unsigned)(argv[2][1] - '0');
+            tag = requested_tag;
             pending = true; available = false; stop = false;
         }
         rt_hw_interrupt_enable(level);
@@ -117,7 +120,7 @@ static int wf_resource(int argc, char **argv)
         rt_kprintf("[resource] stop_owned=%u tag=%lu\n", owned, (unsigned long)requested_tag);
         return owned ? 0 : -1;
     }
-    rt_kprintf("wf_resource status | start <0..3> <1..999999999> | stop <tag>; 60s diagnostic only\n");
+    rt_kprintf("wf_resource status | start <0..14> <1..999999999> | stop <tag>; 60s diagnostic only\n");
     return -1;
 }
 MSH_CMD_EXPORT(wf_resource, Bounded resource display validation);
