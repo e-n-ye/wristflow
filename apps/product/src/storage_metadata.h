@@ -4,7 +4,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-enum { WF_STORAGE_BYTES = 16384, WF_STORAGE_SECTOR = 4096, WF_STORAGE_SECTORS = 4 };
+/* The locked flash2 NOR FAL device advertises an 8KiB erase block. FlashDB
+ * uses it as the default sector size; the application does not override it. */
+enum { WF_STORAGE_BYTES = 16384, WF_STORAGE_SECTOR = 8192,
+       WF_STORAGE_SECTORS = WF_STORAGE_BYTES / WF_STORAGE_SECTOR };
 typedef bool (*wf_storage_read_t)(void *, uint32_t, uint8_t *, size_t);
 typedef struct {
     uint32_t live, stale, pending, tail, unknown;

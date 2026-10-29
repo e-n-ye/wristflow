@@ -1,0 +1,183 @@
+{
+  "date": "2026-10-29",
+  "base_commit": "461fe33f4b87f7ff86bab6f9aaab5dd57629e4a3",
+  "scope": "Software fix only for actual8KiB/2sector geometry; no SDK/partition/FlashDB initialization change, no runtime recorder. Hardware window recorded separately.",
+  "capability_choice": "Locked SDK official FAL flash2 NOR advertises8192B erase block; existing FlashDB initializes sector size from it. Keep read-only direct FAL copy under the existing DB mutex, not repair-capable SDK traversal.",
+  "protocol": {
+    "schema": 2,
+    "partition_bytes": 16384,
+    "expected_sector_bytes": 8192,
+    "expected_sectors": 2,
+    "header_bytes": 32,
+    "body_per_sector_bytes": 8176,
+    "runtime_geometry_measured": false,
+    "preflight": "Actual service/db/partition fields passed to source_copy. ready/init/file/part/size/sector guard bits1/2/4/8/16/32; rejected before lock/read. Source not accessed before service initialization.",
+    "output": "Layout printed even on rejection; host rejects old/missing layout, reports explicit result/sector/guard for preflight failures."
+  },
+  "validation": {
+    "related_c": "3/3",
+    "snapshot_python": "13/13",
+    "capture_simulation": "passed, no endpoint",
+    "source_review": "Independent read-only Sol/medium found no blocking issue; primary owns edits/builds/Git.",
+    "coverage": "Object crosses former4KiB boundary; real second-sector end; all preflight guard bits and no-lock/no-read rejection; CRC/unknown/conservation/corrupt image suite retained; schema2 old-layout and missing-field rejection.",
+    "normal_probe_symbols_absent": true
+  },
+  "builds": {
+    "diagnostic": {
+      "used_bytes": 3022040,
+      "free_bytes": 5366568,
+      "source_count": 598,
+      "artifact_count": 29,
+      "firmware": {
+        "path": "D:/MY_Desk/project/wristflow/apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+        "bytes": 3022040,
+        "sha256": "0cfa794223af4a6d611b3db6e1b116321cd9bdf023c526024763c22b1af8d4cd"
+      },
+      "result": {
+        "path": "D:/MY_Desk/project/wristflow/artifacts/product/20261029-210322-710/result.json",
+        "bytes": 120963,
+        "sha256": "7a6707ba737e4714d34914f3f7b4f8677689ea240b14d7abbd56bebaf6b8baff"
+      }
+    },
+    "normal": {
+      "used_bytes": 3019260,
+      "free_bytes": 5369348,
+      "source_count": 598,
+      "artifact_count": 29,
+      "firmware": {
+        "path": "D:/MY_Desk/project/wristflow/apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.bin",
+        "bytes": 3019260,
+        "sha256": "0bc211f96a5b4b931d6bdcde1eefd7d8d4dd93decc4227c2fc807b5875ba5cf3"
+      },
+      "result": {
+        "path": "D:/MY_Desk/project/wristflow/artifacts/product/20261029-210603-926/result.json",
+        "bytes": 120948,
+        "sha256": "5cdb7ddcc3669685edf42df8e27ee0988dbdf82a119369ee2f3df35e6e910f97"
+      }
+    }
+  },
+  "limits": [
+    "No hardware in this software phase; actual occupancy and admission still unknown.",
+    "Tail/coherent are not available-capacity guarantees.",
+    "Individual low-level FAL read cannot be interrupted by the between-read2s budget.",
+    "Normal boot and other persistence may write; only the scan is read-only."
+  ],
+  "records": [
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-8k-20261029/host-tests.log",
+      "bytes": 554,
+      "sha256": "53b114badff75c1d8c72c18fff82c6ab022c9fa6a0f46839a253e7b93cd66932"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-8k-20261029/python-tests-final.log",
+      "bytes": 3042,
+      "sha256": "267823c409b986f11f21e2a4d57f077142776cf0adf70a7e7fe727b0a29b50e7"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-8k-20261029/sim-final/snapshot.json",
+      "bytes": 1258,
+      "sha256": "b2042b257a892a6eeed390773041a00a190774759312025aab1751d0df85e8ff"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-8k-20261029/diagnostic-audit.json",
+      "bytes": 3098,
+      "sha256": "6f22aebb9db83bdf7c78442876bed4d7c3ddb59e8218c845e7cf1ccd74a92eea"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-8k-20261029/normal-audit.json",
+      "bytes": 3098,
+      "sha256": "1b601122bef27595f07cfcdef802eb69ecb1d87274f0cac52b80a7f4b403d833"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-8k-20261029/diagnostic-20261029-210322-710.zip",
+      "bytes": 16406387,
+      "sha256": "27bf892913e3e053296c4e85f89951c824124cc5c805416aba702aebe99bce43"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-8k-20261029/normal-20261029-210603-926.zip",
+      "bytes": 16387657,
+      "sha256": "b7112f571d70818bab593c6a3fb0b59a552518bcbc8e72ed8c655461112f2d58"
+    }
+  ],
+  "sources": [
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/storage_metadata.h",
+      "bytes": 1273,
+      "sha256": "618473dcd42eed47f44bb37b770a17b95df8de6b474e291d8172624f58bb5dde"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/storage_snapshot.h",
+      "bytes": 1574,
+      "sha256": "3b2d1f9104852351c5bef1074a0495f2b8c69880d31df99ea5a6648c4978a7e8"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/storage_snapshot.c",
+      "bytes": 2101,
+      "sha256": "42ffdea7641cfc4f92b809a2607053dc190ec838b4f2670e9f9ca398b806ef66"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/product_services.h",
+      "bytes": 2003,
+      "sha256": "dc15d687489713e07a28fe1d5236112d489b75c3e40221c72cb0193962115db4"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/product_services.c",
+      "bytes": 13814,
+      "sha256": "a2835734a1ca0df78f54daada34da119ed3f8cbd840d28def19e81e2401ad7e4"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/product_storage_probe.c",
+      "bytes": 3241,
+      "sha256": "ecf13ac4a124be67ddb0fee277c55f4ef9d5e2f9089a1910f0029288d7639d0d"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/scripts/storage_protocol.py",
+      "bytes": 4724,
+      "sha256": "e379b6cc494352b6cc59c481d51a558fdf1ebf144af167e46b5e9fbbcaf6b279"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/tests/storage_metadata.c",
+      "bytes": 8218,
+      "sha256": "51f7259f4c60ea3c18d9c52e6b7c68a4b8d39e0012668fef0a4bfae39ff796b0"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/tests/product_storage_probe.c",
+      "bytes": 1645,
+      "sha256": "4ff881dabfc8be80b040777604b786011187b5baa1d2bb5d04d6bb25419c0ccc"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/tests/test_device_snapshot.py",
+      "bytes": 10374,
+      "sha256": "139e4cf9b5506f3831653b6fbe9da9f4a2a55b7f5b687cc60ea63b12a4767389"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/vendor/SiFli-SDK/external/FlashDB/port/fal/src/fal_flash_sifli_port.c",
+      "bytes": 10792,
+      "sha256": "baef56fd7653af355830558f2b3ecabc2d44ebafd129657b8785c09f53acd3f3"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/vendor/SiFli-SDK/external/FlashDB/src/fdb.c",
+      "bytes": 4891,
+      "sha256": "6aa4e90721b910de3998e925a952b2adc5e6ed6b4ac06abd117f67b3c206995c"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/project/sf32lb52-lchspi-ulp_hcpu/custom_mem_map.h",
+      "bytes": 579,
+      "sha256": "ca4d4058a5af84a05bf5234132b77aeb79af502d04bc1e6cced0aa7f02cd4658"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/project/sf32lb52-lchspi-ulp_hcpu/ptab.json",
+      "bytes": 2112,
+      "sha256": "41d89872c94d54a8e85c679d640eea27981ca4760b928fe0a335d9d79ef35445"
+    }
+  ],
+  "commands": [
+    "cmake --build artifacts/host-ui-build --target storage_metadata product_storage_probe product_settings_store -j 4",
+    "ctest --test-dir artifacts/host-ui-build -R '^(storage_metadata|product_storage_probe|product_settings_store)$' --output-on-failure",
+    "python -m unittest discover -s tests -p test_device_snapshot.py -v",
+    "python scripts/device_snapshot.py simulate --query storage --out artifacts/storage-probe-8k-20261029/sim-final",
+    "pwsh -NoProfile -File scripts/Build.ps1 -Example product -StorageProbe -Jobs 4",
+    "pwsh -NoProfile -File scripts/Build.ps1 -Example product -Jobs 4",
+    "flash_audit.py with explicit result and installed readelf for each version; complete archives preserved before switching builds"
+  ]
+}

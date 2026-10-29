@@ -7,15 +7,16 @@ rt_base_t rt_hw_interrupt_disable(void) { return 0; }
 void rt_hw_interrupt_enable(rt_base_t value) { assert(!value); }
 uint32_t SystemPowerOnModeGet(void) { return 4; }
 uint32_t pm_get_pwron_wakeup_src(void) { return 0x20; }
-unsigned wristflow_product_services_storage_snapshot(uint8_t *out,size_t n,wf_storage_copy_stats_t *s)
+unsigned wristflow_product_services_storage_snapshot(uint8_t *out,size_t n,wf_storage_probe_info_t *s)
 {
     assert(busy && n==16384);
     memset(out,255,n);
-    for(unsigned i=0;i<4;++i) {
-        uint8_t *p=out+i*4096;p[0]=0x3f;p[1]=0x7f;
+    for(unsigned i=0;i<2;++i) {
+        uint8_t *p=out+i*8192;p[0]=0x3f;p[1]=0x7f;
         p[4]=0x46;p[5]=0x44;p[6]=0x42;p[7]=0x30;
     }
-    *s=(wf_storage_copy_stats_t){16384,128,25};return copy_result;
+    *s=(wf_storage_probe_info_t){.source={true,true,false,true,16384,8192},.copy={16384,128,25}};
+    return copy_result;
 }
 void rt_kprintf(const char *format,...)
 {
@@ -28,7 +29,7 @@ void rt_kprintf(const char *format,...)
 int main(void)
 {
     char *args[]={"wf_storage","scan"};
-    assert(wf_storage(2,args)==0 && printed==9 && done==1 && !busy);
+    assert(wf_storage(2,args)==0 && printed==8 && done==1 && !busy);
     for(unsigned i=0;i<sizeof image;++i) assert(!image[i]);
     copy_result=WF_STORAGE_COPY_UNAVAILABLE;assert(wf_storage(2,args)==-1 && !busy && done==2);
     busy=true;assert(wf_storage(2,args)==-1 && busy && done==3);busy=false;

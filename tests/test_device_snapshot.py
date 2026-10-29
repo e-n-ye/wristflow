@@ -48,19 +48,19 @@ class SnapshotTests(unittest.TestCase):
         peer, report = self.collect(queries=("storage",))
         self.assertTrue(report["passed"], report)
         self.assertEqual(peer.commands, ["wf_storage scan"])
-        self.assertEqual(lab.parse_storage(report["replies"]["storage"])["total"]["tail"], 16320)
+        self.assertEqual(lab.parse_storage(report["replies"]["storage"])["total"]["tail"], 16352)
 
     def test_storage_bad_accounting_or_duplicate_rows_fail_closed(self):
         from storage_protocol import simulated_storage, parse_storage
         lines = simulated_storage()
-        for bad in (lines + [lines[-1]], lines[:-1], [line.replace("tail=16320", "tail=16321") for line in lines],
+        for bad in (lines + [lines[-1]], lines[:-1], [line.replace("tail=16352", "tail=16353") for line in lines],
                     [line.replace("coherent=1", "coherent=2") for line in lines]):
             with self.assertRaises(ValueError): parse_storage(bad)
         peer = lab.Simulation()
         original = peer.write
         def write(wire):
             count = original(wire)
-            peer.queue[:] = bytes(peer.queue).replace(b"tail=16320", b"tail=16321")
+            peer.queue[:] = bytes(peer.queue).replace(b"tail=16352", b"tail=16353")
             return count
         peer.write = write
         _, report = self.collect(peer, queries=("storage",))
@@ -88,6 +88,23 @@ class SnapshotTests(unittest.TestCase):
             with patch.object(sys, "argv", args), patch.object(lab, "prepare_capture") as prepare:
                 with self.assertRaises(ValueError): lab.main()
                 prepare.assert_not_called()
+
+    def test_storage_requires_measured_8k_layout_and_two_sector_records(self):
+        from storage_protocol import simulated_storage, parse_storage
+        lines=simulated_storage()
+        self.assertEqual(parse_storage(lines)["layout"]["sector"],8192)
+        for old,new in (("sector=8192", "sector=4096"), ("sectors=2", "sectors=4"),
+                        ("schema=2", "schema=1"), ("guard=0", "guard=32"),
+                        ("header=32", "header=64"), ("i=1", "i=2")):
+            with self.subTest(old=old), self.assertRaises(ValueError):
+                parse_storage([line.replace(old,new) for line in lines])
+        with self.assertRaises(ValueError):
+            parse_storage([line for line in lines if not line.startswith("[storage-layout]")])
+        rejected=["[storage-boot] mode=4 raw=00000000",
+                  "[storage-layout] schema=2 bytes=16384 sector=4096 sectors=4 guard=32",
+                  "[storage-copy] bytes=0 calls=0 ms=0", "[storage-done] result=2 complete=0 coherent=0"]
+        with self.assertRaisesRegex(ValueError,"result=2 sector=4096 guard=32"):
+            parse_storage(rejected)
 
     def test_current_rtc_is_not_rewritten(self):
         peer, report = self.collect(startup=True, allow_time_sync=True, queries=("steps",))

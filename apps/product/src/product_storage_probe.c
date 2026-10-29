@@ -22,13 +22,17 @@ static int wf_storage(int argc, char **argv)
     if (accepted) busy=true;
     rt_hw_interrupt_enable(level);
     if (!accepted) { rt_kprintf("[storage-done] result=7 complete=0\n"); return -1; }
-    wf_storage_copy_stats_t stats={0};
-    unsigned result=wristflow_product_services_storage_snapshot(image,sizeof image,&stats);
+    wf_storage_probe_info_t info={0};
+    unsigned result=wristflow_product_services_storage_snapshot(image,sizeof image,&info);
     wf_storage_metadata_t report={0};
     if (!result && !wf_storage_metadata_scan(image_read,image,sizeof image,&report)) result=8;
     memset(image,0,sizeof image); /* No values survive in the diagnostic buffer. */
     rt_kprintf("[storage-boot] mode=%u raw=%08lx\n",(unsigned)SystemPowerOnModeGet(),(unsigned long)pm_get_pwron_wakeup_src());
-    rt_kprintf("[storage-copy] bytes=%lu calls=%lu ms=%lu\n",(unsigned long)stats.bytes,(unsigned long)stats.calls,(unsigned long)stats.elapsed_ms);
+    rt_kprintf("[storage-layout] schema=2 bytes=%lu sector=%lu sectors=%lu guard=%lu\n",
+        (unsigned long)info.source.partition_bytes,(unsigned long)info.source.sector_bytes,
+        (unsigned long)(info.source.sector_bytes ? info.source.partition_bytes/info.source.sector_bytes : 0),
+        (unsigned long)info.guard);
+    rt_kprintf("[storage-copy] bytes=%lu calls=%lu ms=%lu\n",(unsigned long)info.copy.bytes,(unsigned long)info.copy.calls,(unsigned long)info.copy.elapsed_ms);
     if (!result) {
         for (unsigned i=0;i<WF_STORAGE_SECTORS;++i) {
             const wf_storage_sector_t *s=&report.sectors[i];
