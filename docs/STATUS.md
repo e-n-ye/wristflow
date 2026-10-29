@@ -13,9 +13,9 @@
 
 **设备末态与限制**：普通Product`a11b5b74…`已write＋verify恢复，必要单次校时及只读回执完整；0步／检查点236 verified clean、腕和自动亮度正常。用户确认临时常亮关闭、自然息屏／KEY1及显示／触摸／时间／偏好正常，端口／租约已关，设备动作结束。真实余量和启动原因分类仍未知；不启持久化，不声称长期稳定性或续航。
 
-**交付**：本轮设备失败／恢复和几何更正由独立文档PR交付，最终PR、已审阅head、合并回读和本地主线同步见本轮PR Closure及最终交接；既有软件[PR #176](https://github.com/e-n-ye/wristflow/pull/176)及设计[PR #175](https://github.com/e-n-ye/wristflow/pull/175)的结论按上述设备结果限定。
+**交付阻塞**：设备失败／恢复和几何更正已保存本地提交`d35f3c1`，文档／证据检查通过；GitHub Git传输连续连接重置／超时，本地代理127.0.0.1:7897也不可用，临时直连／IPv4仍失败，未推送、未创建本轮PR、未合入主线。保留当前分支及后续交接提交；本地main／最后核实origin/main仍为`380a93c`，不称已同步本轮成果。既有[PR #176](https://github.com/e-n-ye/wristflow/pull/176)及[PR #175](https://github.com/e-n-ye/wristflow/pull/175)的结论按设备结果限定。
 
-**唯一下一步**：先按真实flash2的8KiB／2sector修正诊断几何、协议和fixture，并增加前置拒绝条件的可观测性／适配测试；软件通过后另约新设备窗口。本窗不再烧录，不修改SDK／分区／原FlashDB初始化几何；真实容量准入后才决定长期记录模型／编码／存储及默认启用策略。
+**唯一下一步**：网络恢复后先推送`codex/storage-metadata-hardware`，审阅／Rebase合并文档证据PR并同步本地主线，关闭本轮交付；之后独立小闭环按8KiB／2sector修正诊断／协议／fixture和前置适配测试，再另约设备窗口。本窗不再烧录，不修改SDK／分区／原FlashDB初始化几何；真实容量准入后才决定记录接入。
 
 <a id="history-runtime-record-preflight-20261029"></a>
 ## 2026-10-29 长期记录接入设计核算（原current，历史）
