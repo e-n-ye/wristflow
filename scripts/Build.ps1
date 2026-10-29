@@ -4,9 +4,12 @@ param(
     [string]$Example = 'hello',
     [ValidateRange(1, 32)]
     [int]$Jobs = 4,
-    [switch]$ResourceProbe
+    [switch]$ResourceProbe,
+    [switch]$StorageProbe
 )
 if ($ResourceProbe -and $Example -ne 'product') { throw '-ResourceProbe requires -Example product.' }
+if ($StorageProbe -and $Example -ne 'product') { throw '-StorageProbe requires -Example product.' }
+if ($StorageProbe -and $ResourceProbe) { throw 'Select one diagnostic build.' }
 . "$PSScriptRoot/Set-LocalEnvironment.ps1"
 # Piped Rich output otherwise defaults to 80 columns and clips the size table.
 $env:COLUMNS = '120'
@@ -26,6 +29,7 @@ $buildExit = 1
 $startedAt = (Get-Date).ToString('o')
 $sconsArgs = @("--board=$board", "-j$Jobs")
 if ($ResourceProbe) { $sconsArgs += 'resource_probe=1' }
+if ($StorageProbe) { $sconsArgs += 'storage_probe=1' }
 Push-Location $projectPath
 try {
     & scons @sconsArgs *>&1 | Tee-Object -FilePath (Join-Path $runDir 'build.log')
@@ -101,6 +105,7 @@ $record = [ordered]@{
     example = $Example
     command = "scons $($sconsArgs -join ' ')"
     resource_probe = [bool]$ResourceProbe
+    storage_probe = [bool]$StorageProbe
     working_directory = $projectPath
     sdk_commit = (Get-CheckedOutput git @('-C', $SdkRoot, 'rev-parse', 'HEAD'))
     submodules = @(Get-CheckedOutput git @('-C', $SdkRoot, 'submodule', 'status', '--recursive'))

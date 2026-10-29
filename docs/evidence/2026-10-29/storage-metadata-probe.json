@@ -1,0 +1,291 @@
+{
+  "date": "2026-10-29",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "base_commit": "4bef5e0e205183dc7efaab2a51ff7fd5482e792b",
+  "scope": "Metadata diagnostic software only; no recorder, flash operation or device serial opened",
+  "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+  "hardware_verified": false,
+  "commands": [
+    "cmake --build artifacts/host-ui-build -j 4",
+    "ctest --test-dir artifacts/host-ui-build --output-on-failure",
+    "python -m unittest discover -s tests -p test_device_snapshot.py -v",
+    "python scripts/device_snapshot.py simulate --query storage --out artifacts/storage-probe-simulation-20261029-002",
+    "pwsh -NoProfile -File scripts/Build.ps1 -Example product -StorageProbe -Jobs 4",
+    "pwsh -NoProfile -File scripts/Build.ps1 -Example <hello|ble|bringup|ui_demo|product> -Jobs 4",
+    "lab_check.check_build for all five current builds; archived-build validation for diagnostic",
+    "python scripts/lab_check.py docs --base 4bef5e0"
+  ],
+  "tests": {
+    "host": {
+      "passed": 71,
+      "failed": 0
+    },
+    "snapshot_python": {
+      "passed": 12,
+      "failed": 0
+    },
+    "damaged_images": 2000,
+    "simulation": {
+      "passed": true,
+      "resources_closed": true
+    }
+  },
+  "builds": {
+    "hello": {
+      "result": "artifacts/hello/20261029-152654-195/result.json",
+      "sources": 9,
+      "artifacts": 22
+    },
+    "ble": {
+      "result": "artifacts/ble/20261029-152705-225/result.json",
+      "sources": 8,
+      "artifacts": 29
+    },
+    "bringup": {
+      "result": "artifacts/bringup/20261029-152719-570/result.json",
+      "sources": 8,
+      "artifacts": 22
+    },
+    "ui_demo": {
+      "result": "artifacts/ui_demo/20261029-152738-344/result.json",
+      "sources": 526,
+      "artifacts": 22
+    },
+    "product": {
+      "result": "artifacts/product/20261029-152807-403/result.json",
+      "sources": 598,
+      "artifacts": 29
+    }
+  },
+  "diagnostic": {
+    "result": "artifacts/product/20261029-152426-838/result.json",
+    "bin_sha256": "552779f534980e112a70c941be3e6939fd5f623f0a6e8e5bba53fc416e5e6930",
+    "bin_bytes": 3021776,
+    "static_ram_bytes": 270372,
+    "source_count": 598,
+    "artifact_count": 29,
+    "snapshot_buffer_bytes": 16384
+  },
+  "normal_product": {
+    "result": "artifacts/product/20261029-152807-403/result.json",
+    "bin_sha256": "a11b5b7452903076321bdbde6f02cab9a0e5f1cc61722d4e2b0f1f90229e467d",
+    "bin_bytes": 3019260,
+    "static_ram_bytes": 253980,
+    "diagnostic_symbols_absent": true
+  },
+  "failures": [
+    "First StorageProbe build 20261029-152155-115 failed due to missing HAL/rthw includes; fixed at project boundary and rebuilt successfully",
+    "First map audit expected __fsym_wf_storage; SDK symbol is __fsym___cmd_wf_storage. Corrected audit passed without firmware changes"
+  ],
+  "review": {
+    "scope": "Independent read-only review of parser/snapshot/SDK format/locks and host protocol/capture changes; no blocking finding",
+    "subsequent_changes": "Explicit true diagnostic gate and reject malformed storage fragments, regression tests passed; project includes/format guards compiled"
+  },
+  "limits": [
+    "Read-only applies to scan, not existing Product boot initialization or normal business persistence",
+    "Physical tail/coherent is not SDK allocatable capacity or persistence admission",
+    "FAL single read may exceed 2s cooperative copy budget; no device latency tested",
+    "SDK cached mode/raw is not a verified reset-cause classification",
+    "No actual sector occupancy, stability, sleep current or battery life result"
+  ],
+  "next_bounded_experiment": "New same-board, firmware and safe-power window: preserve existing state, flash archived diagnostic, capture storage metadata once, restore normal Product and verify preferences/steps/screen wake; then assess persistence admission",
+  "sources": [
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/SConscript",
+      "bytes": 1666,
+      "sha256": "6cbc350b896a7a24aa98c5e86582309a47733f7a64f267dc2432191268fc1c8c"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/product_services.c",
+      "bytes": 13665,
+      "sha256": "e7516e4ca6a203c68a39d6cf13358ee3b1a9aa4bc5fed0f8d81dd399f1430a2a"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/product_services.h",
+      "bytes": 2003,
+      "sha256": "761cf55531db5df892074d00008ec2936ce0f061f3ce78fa56dfaed96a709cd4"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/product_storage_probe.c",
+      "bytes": 2850,
+      "sha256": "30b42badd7bd04a733c6144296ea7fd43a7a162ba4a21381dba96c6f7e662d79"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/storage_metadata.c",
+      "bytes": 5386,
+      "sha256": "0f8c25a018e3d3c3d2f344e323bacf69ebcb3cdb943fe4d5c0efaa59e13d451d"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/storage_metadata.h",
+      "bytes": 1046,
+      "sha256": "68d85cbb642d0891901314ab770050ced9ad3b8de4d807d16c9f70f5d3b2041d"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/storage_snapshot.c",
+      "bytes": 1196,
+      "sha256": "e2832017bb63d1e7f662640b8e7bcddf7e680583a9fb50b608c5f6bf3c784d2a"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/storage_snapshot.h",
+      "bytes": 803,
+      "sha256": "3a16b7cdae5c4a6b20d4ff81a8bb4fbfebe31041ae0c3482dc805376354c2d8c"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/scripts/Build.ps1",
+      "bytes": 6643,
+      "sha256": "82dd8d5b7fe3f5f28c3c7e680aa6b766760ed783d9a8dd1fcd0157d28c3836e9"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/scripts/device_snapshot.py",
+      "bytes": 11077,
+      "sha256": "98105c102b5732587af84e2d3c69274b75161db6e523f8fabbf4c4e8985e52eb"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/scripts/storage_protocol.py",
+      "bytes": 3960,
+      "sha256": "fa13b5c3d0993e0f7b898586c1efe8fbee099bfeb01903770823b353d6f3206f"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/tests/CMakeLists.txt",
+      "bytes": 22921,
+      "sha256": "897e7db5e4387f39c0114d9e63e700a09cf1ca76ff78d9a22089ca8e572f2997"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/tests/storage_metadata.c",
+      "bytes": 6319,
+      "sha256": "9a7db2d79ae86c6e47ebf1fe427b07bbc9fcf2c9f3534ec71e822d0485e4d3f0"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/tests/product_storage_probe.c",
+      "bytes": 1551,
+      "sha256": "261d3efd63bafb12734e1398999c57029ac193d685d18453ac7988b3347f4205"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/tests/test_device_snapshot.py",
+      "bytes": 9221,
+      "sha256": "e8a4233c59b1303087252f041317f69413c32116740b43e27ee3ff17de985619"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/tests/support/storage/bf0_hal.h",
+      "bytes": 124,
+      "sha256": "4f497345c167632423038ec000c5f2672377ea07f7f8efce15f1346d43a344c6"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/tests/support/storage/bf0_pm.h",
+      "bytes": 60,
+      "sha256": "ff9015ff61da7552ed769be56af32d27bf4ad4189da594dbe31a99a9971304ce"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/tests/support/storage/system_bf0_ap.h",
+      "bytes": 57,
+      "sha256": "9a7d326caf8fa7fea78206c45e6a9a0b7f04bb3a712c79d29d95efe1bfbbab6c"
+    }
+  ],
+  "records": [
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-host-tests-resume-20261029.log",
+      "bytes": 554,
+      "sha256": "a3d8c8b4f38513cd4ca636ea5a9d96b57da8d969ed87a00ea948f7c3fba534d6"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-full-host-tests-20261029.log",
+      "bytes": 7542,
+      "sha256": "570533e400a88147628a4181e5fad84b8f80e8ae2632500d5db9084253af2de6"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-python-final-20261029.log",
+      "bytes": 6490,
+      "sha256": "fe15388b4b2f314929239cc834691f9a83c7787556528f61f523b244772eb41a"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-simulation-20261029-002/snapshot.json",
+      "bytes": 1386,
+      "sha256": "5e39c7adb12aeac89fdc23d7f8f38bce786cee7a2fb5318e2d970cbdb5718c24"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-simulation-20261029-002/uart.bin",
+      "bytes": 632,
+      "sha256": "11429d7beab3708e466af5e711a7d29fe776b0e8cc20e2dc1de959ba6406e574"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-all-build-checks-20261029.json",
+      "bytes": 424968,
+      "sha256": "44bbcccb83518cdf6c2efc447f9fcb890db8a4901ffe406888198cf7a9ec7304"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-map-audit-20261029.json",
+      "bytes": 652,
+      "sha256": "b095bbe86ed73643e3d8da797b95bfbaa7611592544d6b9ea6550c8aa90eff20"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-product-20261029-152426-838.zip",
+      "bytes": 16374789,
+      "sha256": "b41709368f2efaf6dd2562c69fa18894d446f088f3b24208ca68b3f233ee37b5"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-normal-product-20261029-152807-403.zip",
+      "bytes": 16355731,
+      "sha256": "1452ac18cdb753365608f26f02c4928100a295a3c44a79d135425ced17b83a9a"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/product/20261029-152155-115/result.json",
+      "bytes": 120869,
+      "sha256": "139acc7a71579380f7facf8c317a1b9c3253710af8255fc030cec44aadf3e963"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/product/20261029-152426-838/result.json",
+      "bytes": 120963,
+      "sha256": "017d65af2a17781ee01fed4b05f3066ad87f8160bc14f0c65f50d6b7a003aea0"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-baseline-hello-20261029.log",
+      "bytes": 5564,
+      "sha256": "3779779e9a20122112ae1871580cbc03ec34664e8bdf4f20b7a2ac9bd0c29926"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/hello/20261029-152654-195/result.json",
+      "bytes": 10186,
+      "sha256": "8ce71db4a9a21bfa21ff3ccdd83539d9a2642b7fd99bfd3953621bcc297e9780"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-baseline-ble-20261029.log",
+      "bytes": 7792,
+      "sha256": "615980f14b0da032eb0b58ed7664b8cbc8830389e27644c5eb2a40b5c6af57e0"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/ble/20261029-152705-225/result.json",
+      "bytes": 11416,
+      "sha256": "606d932265cf5ffe5b3c5efa786a8261ec76bdf42c9931b05ff4b8af7fa1477b"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-baseline-bringup-20261029.log",
+      "bytes": 5491,
+      "sha256": "d69fe408e69e85fcb96a0bba97125e2f76c6bfcf1d96c650cf8083c5470ea9ef"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/bringup/20261029-152719-570/result.json",
+      "bytes": 8501,
+      "sha256": "1e88ccca87864d04f5a55b14597c154a24111755f6b3784456d896b889cc954c"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-baseline-ui_demo-20261029.log",
+      "bytes": 5493,
+      "sha256": "0b6b2a8397508c00db91a68157b9c9bab431649bd6c2382350fc72af958101a3"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/ui_demo/20261029-152738-344/result.json",
+      "bytes": 105608,
+      "sha256": "7adda3308e0e2adf3e8bb5cccfea8df9bd494281a912ce074ef420a1cccf5668"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-baseline-product-20261029.log",
+      "bytes": 30941,
+      "sha256": "697f3c0e3f8a7377dbf6cc84a5c128cda678373ffde88123b217ab89da179614"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/product/20261029-152807-403/result.json",
+      "bytes": 120948,
+      "sha256": "d826927663fb85429d4b4855f27c435988cb916266bcfb11fcf3de01071cf143"
+    }
+  ]
+}

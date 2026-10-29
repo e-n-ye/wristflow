@@ -12,6 +12,10 @@ int wristflow_product_services_set_time(uint32_t utc_seconds);
 wristflow_alarm_clock_t wristflow_product_services_time(void);
 uint64_t wristflow_product_services_monotonic(void);
 bool wristflow_product_services_storage_ready(void);
+#ifdef WF_STORAGE_PROBE
+#include "storage_snapshot.h"
+unsigned wristflow_product_services_storage_snapshot(uint8_t *, size_t, wf_storage_copy_stats_t *);
+#endif
 /* Independent bounded step checkpoint keys; called by the IMU worker only. */
 size_t wristflow_product_services_steps_read(unsigned key, uint8_t *record, size_t capacity, void *context);
 bool wristflow_product_services_steps_write(unsigned key, const uint8_t *record, void *context);

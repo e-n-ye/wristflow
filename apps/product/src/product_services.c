@@ -14,6 +14,32 @@
 static struct fdb_kvdb settings_db;
 static struct rt_mutex database_lock, rtc_lock, weather_lock;
 static bool storage_ready, service_ready;
+#ifdef WF_STORAGE_PROBE
+#if FDB_WRITE_GRAN != 1 || RT_TICK_PER_SECOND != 1000
+#error Storage probe requires the audited FlashDB format and 1ms ticks
+#endif
+static bool probe_lock(void *context)
+{ (void)context; return rt_mutex_take(&database_lock,rt_tick_from_millisecond(100))==RT_EOK; }
+static bool probe_unlock(void *context)
+{ (void)context; return rt_mutex_release(&database_lock)==RT_EOK; }
+static uint32_t probe_now(void *context)
+{ (void)context; return (uint32_t)((uint64_t)rt_tick_get()*1000U/RT_TICK_PER_SECOND); }
+static int probe_read(void *context, uint32_t off, uint8_t *buf, size_t n)
+{
+    const struct fal_partition *part=context;
+    if (!part || off>part->len || n>part->len-off || n>128) return -1;
+    return fal_partition_read(part,off,buf,n);
+}
+unsigned wristflow_product_services_storage_snapshot(uint8_t *out, size_t size, wf_storage_copy_stats_t *stats)
+{
+    /* Read the existing partition pointer; never init/check/iterate FlashDB. */
+    if (!service_ready || !settings_db.parent.init_ok || settings_db.parent.file_mode ||
+        !settings_db.parent.storage.part || settings_db.parent.storage.part->len!=WF_STORAGE_BYTES ||
+        settings_db.parent.sec_size!=WF_STORAGE_SECTOR) return WF_STORAGE_COPY_UNAVAILABLE;
+    const wf_storage_copy_io_t io={(void *)settings_db.parent.storage.part,probe_lock,probe_unlock,probe_read,probe_now};
+    return wf_storage_copy(&io,out,size,stats);
+}
+#endif
 static rt_device_t rtc;
 static uint32_t rtc_revision, previous_ticks;
 static uint64_t extended_ticks;

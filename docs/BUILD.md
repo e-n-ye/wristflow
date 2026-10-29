@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-10-29 设置分区只读诊断
+
+`Build.ps1 -Example product -StorageProbe -Jobs 4`显式转发`storage_probe=1`并在result记录布尔标记；只限Product且与ResourceProbe互斥，普通构建默认关闭，构建不下载。首次`20261029-152155-115`因HAL／rthw头缺失失败；补齐后诊断`20261029-152426-838`成功，BIN3,021,776B／`552779f5…`，静态RAM270,372B。普通Product`20261029-152807-403`成功，BIN3,019,260B／`a11b5b74…`，静态RAM253,980B；诊断增加2516B／16392B，map核普通版无诊断实现，诊断版快照为16KiB。上述是链接账单，不是运行时峰值或功耗证据。
+
+构建入口变更完成Hello／BLE／Bringup／UI Demo／Product五目标本地基线；71/71主机测试、12个快照Python测试及纯主机容量采集模拟通过。SDK／子模块按锁，未调用Flash或设备串口。每目标result、源码／产物哈希复核、诊断完整ZIP及失败记录见[精简证据](evidence/2026-10-29/storage-metadata-probe.json)；[诊断契约](BATTERY-ESTIMATE.md#storage-metadata-probe-20261029)。
+
 ## 2026-10-29 全部小时图EZIP
 
 仅扩展设备小时图官方builder，SDK／工具链／分区／公共Build入口不改。普通Product `20261029-141628-442`与UI Demo `20261029-141750-707`均由`pwsh -NoProfile -File scripts/Build.ps1 -Example <product|ui_demo> -Jobs 4`编译成功、源码／产物字节核验通过，BIN分别3,019,260B／2,719,468B。Product较上一普通版净减1,850,876B、8MiB区余5,369,348B。`-ResourceProbe`诊断 `20261029-141901-539`也编译通过，BIN3,021,360B。13图往返、相关测试、完整ZIP及分项硬件边界见[容量专题](FLASH-CAPACITY.md#2026-10-29-剩余小时图扩展与压缩备选)；编译不抵扣显示／缩放验收。

@@ -44,6 +44,51 @@ class SnapshotTests(unittest.TestCase):
         self.assertEqual(sum(c.startswith("wf_time ") for c in peer.commands), 1)
         self.assertEqual(peer.commands.count("show_date"), 2)
 
+    def test_storage_metadata_snapshot_is_bounded_and_validated(self):
+        peer, report = self.collect(queries=("storage",))
+        self.assertTrue(report["passed"], report)
+        self.assertEqual(peer.commands, ["wf_storage scan"])
+        self.assertEqual(lab.parse_storage(report["replies"]["storage"])["total"]["tail"], 16320)
+
+    def test_storage_bad_accounting_or_duplicate_rows_fail_closed(self):
+        from storage_protocol import simulated_storage, parse_storage
+        lines = simulated_storage()
+        for bad in (lines + [lines[-1]], lines[:-1], [line.replace("tail=16320", "tail=16321") for line in lines],
+                    [line.replace("coherent=1", "coherent=2") for line in lines]):
+            with self.assertRaises(ValueError): parse_storage(bad)
+        peer = lab.Simulation()
+        original = peer.write
+        def write(wire):
+            count = original(wire)
+            peer.queue[:] = bytes(peer.queue).replace(b"tail=16320", b"tail=16321")
+            return count
+        peer.write = write
+        _, report = self.collect(peer, queries=("storage",))
+        self.assertFalse(report["passed"])
+        self.assertTrue(report["resources_closed"])
+
+    def test_storage_rejects_fragments_failed_results_and_startup(self):
+        from storage_protocol import simulated_storage, parse_storage
+        lines = simulated_storage()
+        for bad in (lines + ["[storage-sector]"],
+                    [line.replace("result=0", "result=4") for line in lines],
+                    [line.replace("live=0", "live=4294967296") for line in lines]):
+            with self.assertRaises(ValueError): parse_storage(bad)
+        self.assertEqual(parse_storage([line.replace("coherent=1", "coherent=0") for line in lines])["done"]["coherent"], 0)
+        with self.assertRaises(ValueError): lab.validate(("storage",), True, True, 60)
+
+    def test_storage_requires_diagnostic_build_before_binding(self):
+        import json
+        result = self.root / "result.json"
+        args = ["device_snapshot.py", "capture", "--query", "storage", "--out", str(self.root / "cli"),
+                "--port", "COM5", "--location", "1-1.1", "--expected-bin", "a"*64,
+                "--result", str(result), "--flash", "flash.json", "--confirm-same-board-and-firmware"]
+        for invalid in (False, "false", 1, None):
+            result.write_text(json.dumps({"storage_probe": invalid}), encoding="utf-8")
+            with patch.object(sys, "argv", args), patch.object(lab, "prepare_capture") as prepare:
+                with self.assertRaises(ValueError): lab.main()
+                prepare.assert_not_called()
+
     def test_current_rtc_is_not_rewritten(self):
         peer, report = self.collect(startup=True, allow_time_sync=True, queries=("steps",))
         self.assertTrue(report["passed"])

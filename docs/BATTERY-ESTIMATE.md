@@ -79,7 +79,20 @@ SDK先分配新对象再完成旧对象删除，一次最大更新需另留545B�
 
 RAM仍以新增不超过8KiB为目标，事件／电压环必须固定容量，导出采用短锁复制后打印。512B只保存摘要及末8事件，不代表保存完整电压曲线。是否日常默认开启、实验时长与自动恢复策略在实现前明确；目前不新增默认后台行为。启用Flash记录前须先取得上述真实元数据检查结果；FlashDB不可用或容量不确定时只保留明确标记的RAM诊断，既有业务保存不降级为“成功”。
 
-本轮授权为[共识](BASELINE.md#battery-estimate-20261018)中的首版估算百分比及现有页面／充电环接入。活动状态和唯一下一步只维护于[STATUS](STATUS.md#current)。本页保存算法、来源与验收契约，不创建第二份队列。
+<a id="storage-metadata-probe-20261029"></a>
+## 2026-10-29 只读容量诊断软件闭环
+
+接续中断分支`codex/storage-metadata-probe`／基线`4bef5e0`，完成上一节提出的元数据诊断；尚未实现长期记录模型或持久化。源码／构建／主机验证与设备证据分别判断，精简结果见[诊断证据](evidence/2026-10-29/storage-metadata-probe.json)。
+
+- 显式`Build.ps1 -Example product -StorageProbe -Jobs 4`启用`wf_storage scan`；与ResourceProbe互斥，普通构建排除诊断命令、解析器及16KiB快照缓冲。锁定FlashDB写粒度1bit、ARM小端格式及1000Hz tick，配置不符时拒绝编译。
+- 数据库拥有者复用`database_lock`，最多等锁100ms；在锁内用128B分块复制16KiB，解锁后校验sector／KV头、长度和CRC。复制预算2秒，在调用间检查；单次FAL驱动读取不能强制中断，实机延迟仍待验证。命令串行，成功或失败均清除诊断缓冲，不导出KV值或键名。
+- 每个sector的4080B载荷空间划分为live／stale／pending／tail／unknown，总账另计64B头。坏头、坏CRC、残缺／未知区域及读失败保守标记；GC状态、pending、重复或额外有效键使`coherent=0`。`tail`只是物理擦除尾部，`coherent=1`只表示元数据可解释，均不等于SDK可分配空间或长期记录准入。
+- 扫描路径不调用FlashDB初始化、iterator、check、修复、写入或GC，也不重新调用清启动状态的HAL；只读SDK启动缓存mode／raw，原因分类仍unknown。**只读保证针对扫描命令**：普通Product启动仍有既有FlashDB初始化／业务保存，报告反映启动后的快照，不是上电前原始分区取证，也不承诺整个固件无写入。
+- 主机采集复用`device_snapshot.py capture --query storage`及既有绑定／串口租约／原始UART／关闭流程；要求显式StorageProbe构建，禁止与startup校时合并。严格核单条字段、四sector次序、总量守恒及coherent一致性，损坏UART不修复、不自动重发。模拟值只在主机Simulation中提供。
+
+损坏镜像覆盖越界长度、坏CRC／头、部分记录、尾部脏数据、重复／额外键、读失败和2000个确定性损坏样本；复制覆盖短读、等锁失败、解锁失败、超时及tick回绕。首次诊断构建因缺少HAL／rthw头失败，补齐依赖后成功；完整命令、产物和普通构建排除检查见证据。没有烧录、开串口或测得设备真实余量，容量未知时不启持久化。设备窗口需重新绑定板卡、供电和实际BIN，完成扫描及普通固件恢复后再决定最小记录接入。
+
+以下电量估算部分授权为[共识](BASELINE.md#battery-estimate-20261018)中的首版估算百分比及现有页面／充电环接入。活动状态和唯一下一步只维护于[STATUS](STATUS.md#current)。本页保存算法、来源与验收契约，不创建第二份队列。
 
 ## 数据来源与精度边界
 
