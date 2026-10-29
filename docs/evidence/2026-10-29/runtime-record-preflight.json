@@ -1,0 +1,145 @@
+{
+  "date": "2026-10-29",
+  "base_commit": "76b1d2a34bf478cb360c112dedc6a5d0cc93938e",
+  "scope": "Design preflight only; no recorder/diagnostic implementation, firmware compilation or device action",
+  "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+  "storage": {
+    "partition_bytes": 16384,
+    "sector_bytes": 4096,
+    "sector_header_bytes": 16,
+    "kv_header_bytes": 24,
+    "write_gran_bits": 1,
+    "remain_threshold_bytes": 88,
+    "rows": [
+      {
+        "key": "preferences",
+        "payload_bytes": 24,
+        "node_bytes": 59
+      },
+      {
+        "key": "layout_a",
+        "payload_bytes": 512,
+        "node_bytes": 544
+      },
+      {
+        "key": "layout_b",
+        "payload_bytes": 512,
+        "node_bytes": 544
+      },
+      {
+        "key": "steps_a",
+        "payload_bytes": 132,
+        "node_bytes": 163
+      },
+      {
+        "key": "steps_b",
+        "payload_bytes": 132,
+        "node_bytes": 163
+      },
+      {
+        "key": "alarm_a",
+        "payload_bytes": 104,
+        "node_bytes": 135
+      },
+      {
+        "key": "alarm_b",
+        "payload_bytes": 104,
+        "node_bytes": 135
+      },
+      {
+        "key": "alarm_ca",
+        "payload_bytes": 104,
+        "node_bytes": 136
+      },
+      {
+        "key": "alarm_cb",
+        "payload_bytes": 104,
+        "node_bytes": 136
+      },
+      {
+        "key": "runtime_a",
+        "payload_bytes": 512,
+        "node_bytes": 545
+      },
+      {
+        "key": "runtime_b",
+        "payload_bytes": 512,
+        "node_bytes": 545
+      }
+    ],
+    "existing_live_bytes": 2015,
+    "proposed_live_bytes": 3105,
+    "single_update_peak_bytes": 3650,
+    "single_sector_bound_satisfied": true,
+    "condition": "Only enumerated keys, maximum stated payloads, no additional historical/corrupt records; this is not actual device free capacity",
+    "actual_device_free_bytes": null,
+    "iterator_strictly_read_only": false
+  },
+  "worker": "wf_store already uses rt_event_recv with next settings/layout deadline; no100ms polling. Reuse job lane without new30min timer; FlashDB mutex also serializes alarm/steps writers.",
+  "clock": "Use existing64bit product_services monotonic extension; alarm checks within300000ms. PM implementation compensates RT ticks, physical long-sleep error not verified.",
+  "boot": "Use SDK-cached SystemPowerOnModeGet/pm_get_pwron_wakeup_src; do not recall state-clearing HAL_PMU_CheckBootMode; preserve raw mode/source and unknown. No RTC backup slot borrowed.",
+  "next_bounded_experiment": "Prepare/test a no-write metadata-only capacity reader through existing database ownership and FAL read path; do not use repair-capable iterator/print as read-only. Validate actual capacity and cached boot fields in a separately bound device window before enabling persistent runtime records.",
+  "source_review": "Primary owns decisions; read-only Luna/low inventory, Sol/medium GC and Sol/medium startup analysis; no blockers concealed by static estimates.",
+  "sources": [
+    {
+      "path": "apps/product/project/sf32lb52-lchspi-ulp_hcpu/ptab.json",
+      "bytes": 2112,
+      "sha256": "41d89872c94d54a8e85c679d640eea27981ca4760b928fe0a335d9d79ef35445"
+    },
+    {
+      "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/.config",
+      "bytes": 36943,
+      "sha256": "4f5c5422135a2302c2861d9cd874aeec497853b713027af30409943be8b3abbb"
+    },
+    {
+      "path": "apps/product/src/product_services.c",
+      "bytes": 12213,
+      "sha256": "5d926825b2badda07c152db2712d841ccda8931d7d0ce6194dfcfa3d043249fd"
+    },
+    {
+      "path": "apps/product/src/product_settings_store.c",
+      "bytes": 7508,
+      "sha256": "bb3b65b4239ed4a5da8e4f75a699ea582b3ed0b53515d7ff1ed387b7c4ba3772"
+    },
+    {
+      "path": "apps/product/src/product_alarm.c",
+      "bytes": 9216,
+      "sha256": "27edda4dd28d391de268703ca7763aa9a82f77092478d5e8f5be24e87db9208e"
+    },
+    {
+      "path": "core/alarm_schedule.c",
+      "bytes": 8457,
+      "sha256": "82d0492c3a547a7b50a6c62d6f1911945e8733d810b25a60e430551c5a4c79cc"
+    },
+    {
+      "path": "vendor/SiFli-SDK/external/FlashDB/inc/fdb_cfg.h",
+      "bytes": 2114,
+      "sha256": "036fcba4626344907c91986e53176024f84d7738277b4cee249f65bb1eb5a373"
+    },
+    {
+      "path": "vendor/SiFli-SDK/external/FlashDB/inc/fdb_low_lvl.h",
+      "bytes": 2811,
+      "sha256": "46aea74cbae7a2164cc99c2ac49e4b8b63b41e3d5c445909c2f71ff4ab76f48e"
+    },
+    {
+      "path": "vendor/SiFli-SDK/external/FlashDB/src/fdb_kvdb.c",
+      "bytes": 81627,
+      "sha256": "aa6edee1c725b3671a487e81293320ea4a164200477b6d89347254c8c1535545"
+    },
+    {
+      "path": "vendor/SiFli-SDK/middleware/system/bf0_pm.c",
+      "bytes": 100028,
+      "sha256": "3c15e5e928673dc7655c625262b5b540dfc06e14c8213dca9c3c930d75d01511"
+    },
+    {
+      "path": "vendor/SiFli-SDK/drivers/hal/bf0_hal_pmu.c",
+      "bytes": 50811,
+      "sha256": "22f2b514ca393b6b10e495d659d0f1efbdfc5c5398d9eb2db2df5878230d78e8"
+    },
+    {
+      "path": "vendor/SiFli-SDK/rtos/rtthread/components/drivers/pm/pm.c",
+      "bytes": 26803,
+      "sha256": "1c43a90024191e267953329aa68271abcd7bd0d8498ad42439860ba5a55cb541"
+    }
+  ]
+}

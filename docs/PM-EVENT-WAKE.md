@@ -55,7 +55,7 @@ KEY1 有效输入还受板级供电条件影响：官方设计按钮 SW1 接 PA3
 
 ### 仍然会唤醒或耗电的部分
 
-- **保存线程每 100ms 检查一次**：[product_services.c](../apps/product/src/product_services.c) 的 `storage_thread()` 仍有 `rt_thread_mdelay(100)`；检查不等于每次写 Flash，但会周期唤醒。改成有变更才通知、按保存／重试截止等待是明确的优化候选；正确性可独立验证，降低多少电流须后续同条件测量，不以缺仪表为由声称它已合理。
+- **当前保存线程已按事件／期限等待**：2026-10-29接入核算按`76b1d2a`复核，[product_settings_store.c](../apps/product/src/product_settings_store.c)的`wf_store`无任务时无限等待，有任务按保存／重试期限等待；不再是旧`product_services.c`的100ms轮询。闹钟和计步另有保存拥有者，统一FlashDB互斥；Flash写入／GC仍是实际负载。旧版本100ms观察保留在下方历史，不作为当前源码事实；尚无测流结果证明降低了多少功耗。
 - **BLE 保持连接仍要收发无线包**：Product worker 等消息队列，等候上限由天气请求剩余时间或三小时检查期限决定（[product_ble.c](../apps/product/src/product_ble.c)）；这不等于无线电每三小时才活动。断连时也可能继续广播，应把状态记为“未连接／广播”，不能写“蓝牙关闭”。
 - **后台日程仍有定时检查**：运行中的倒计时按最长五分钟分段；闹钟调度即使没有有效到期项也有最长五分钟等待（[alarm_schedule.c](../core/alarm_schedule.c)）。这些是软件等待上限，不是整板连续睡眠时长。
 - **板级电源有额外负载与联动**：USB 转串口、供电转换及板载器件可能耗电；锁定 SDK 的 LCD 上／下电还操作 3.3V、传感器相关供电和音频 PA。没有测量前不能断言这些器件已全部进入最低电流状态。
