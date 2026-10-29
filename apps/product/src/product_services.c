@@ -30,14 +30,18 @@ static int probe_read(void *context, uint32_t off, uint8_t *buf, size_t n)
     if (!part || off>part->len || n>part->len-off || n>128) return -1;
     return fal_partition_read(part,off,buf,n);
 }
-unsigned wristflow_product_services_storage_snapshot(uint8_t *out, size_t size, wf_storage_copy_stats_t *stats)
+unsigned wristflow_product_services_storage_snapshot(uint8_t *out, size_t size, wf_storage_probe_info_t *info)
 {
     /* Read the existing partition pointer; never init/check/iterate FlashDB. */
-    if (!service_ready || !settings_db.parent.init_ok || settings_db.parent.file_mode ||
-        !settings_db.parent.storage.part || settings_db.parent.storage.part->len!=WF_STORAGE_BYTES ||
-        settings_db.parent.sec_size!=WF_STORAGE_SECTOR) return WF_STORAGE_COPY_UNAVAILABLE;
-    const wf_storage_copy_io_t io={(void *)settings_db.parent.storage.part,probe_lock,probe_unlock,probe_read,probe_now};
-    return wf_storage_copy(&io,out,size,stats);
+    if (!service_ready) {
+        const wf_storage_source_t unavailable={0};
+        return wf_storage_source_copy(&unavailable,NULL,out,size,info);
+    }
+    const struct fal_partition *part=settings_db.parent.file_mode ? NULL : settings_db.parent.storage.part;
+    const wf_storage_source_t source={service_ready,settings_db.parent.init_ok,settings_db.parent.file_mode,
+        part!=NULL,part ? part->len : 0,settings_db.parent.sec_size};
+    const wf_storage_copy_io_t io={(void *)part,probe_lock,probe_unlock,probe_read,probe_now};
+    return wf_storage_source_copy(&source,&io,out,size,info);
 }
 #endif
 static rt_device_t rtc;

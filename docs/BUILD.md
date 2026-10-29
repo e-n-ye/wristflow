@@ -1,5 +1,9 @@
 # 可复现构建基线
 
+## 2026-10-29 8KiB诊断修正构建
+
+仅Product诊断与协议按实际flash2 NOR的8KiB×2修正，公共Build入口／SDK／分区未变。`Build.ps1 -Example product -StorageProbe -Jobs 4`诊断`20261029-210322-710`／BIN`0cfa7942…`为3,022,040B；`-Example product -Jobs 4`普通`20261029-210603-926`／`0bc211f9…`为3,019,260B，余5,369,348B。两者编译及598源码／29产物严格核验、完整ZIP保全通过；普通ELF排除诊断命令／解析／复制／source预检。相关C3/3、Python13/13及采集模拟通过；[精简证据](evidence/2026-10-29/storage-probe-8k.json)。旧4KiB构建与设备失败留作历史；本节不提供新设备容量结论。
+
 ## 2026-10-29 设置分区只读诊断
 
 `Build.ps1 -Example product -StorageProbe -Jobs 4`显式转发`storage_probe=1`并在result记录布尔标记；只限Product且与ResourceProbe互斥，普通构建默认关闭，构建不下载。首次`20261029-152155-115`因HAL／rthw头缺失失败；补齐后诊断`20261029-152426-838`成功，BIN3,021,776B／`552779f5…`，静态RAM270,372B。普通Product`20261029-152807-403`成功，BIN3,019,260B／`a11b5b74…`，静态RAM253,980B；诊断增加2516B／16392B，map核普通版无诊断实现，诊断版快照为16KiB。上述是链接账单，不是运行时峰值或功耗证据。

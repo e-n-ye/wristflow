@@ -105,6 +105,19 @@ RAM仍以新增不超过8KiB为目标，事件／电压环必须固定容量，�
 
 本窗按约恢复普通Product`a11b5b74…`并完成必要单次校时，0步／检查点236 verified clean、腕及自动亮度正常，用户确认自然息屏／KEY1、显示／触摸／时间／偏好正常，设备动作结束。没有容量或长期运行结论。后续有界修正应先按真实8KiB／2sector调整解析器、协议／fixture及前置诊断可观测性，用实际SDK布局依据和失败适配测试验证，再另约新设备窗口；不修改SDK、分区或FlashDB原有初始化几何，不在本窗追加烧录。
 
+<a id="storage-probe-8k-20261029"></a>
+## 2026-10-29 8KiB几何诊断修正
+
+用户要求按目标模式推进；先完成旧失败证据PR #177／`461fe33`交付后，从该主线修正软件。采用SDK实际flash2 NOR默认8192B sector，16KiB分区为2sector；不更改SDK、分区表或FlashDB的sector设置。
+
+解析桶守恒改为每sector8176B body／总header32B，保留CRC、残缺／异常标unknown、不修复或GC、不同步输出值等边界。`product_services`读取既有DB的运行时part长度／sec_size传给可测的source预检；service未完成初始化时先短路。拒绝位guard为ready1／init2／file4／part8／size16／sector32，非零不等锁不读Flash；运行时几何不匹配不会通过固定常量伪造成功。
+
+新增`[storage-layout] schema=2 bytes=... sector=... sectors=... guard=...`，成功和前置拒绝均打印实际来源字段。主机必须取得schema2、16384／8192／2／guard0、两个sector及一致总量；不再接纳旧4KiB／4sector或缺失layout的回执。`tail`仍仅是擦除尾部，`coherent`仍不等于可分配容量或长期记录准入。
+
+相关C主机3/3、Python13/13及采集模拟通过，新增对象跨旧4KiB边界、第二真实sector末端、错误几何在锁前拒绝、所有guard位与旧协议拒收；独立只读审查未发现阻断。复制仍同库锁内128次分块、有限等锁，解锁后解析；单次底层FAL读无法强制中断的原限制不变。诊断与普通固件编译／产物绑定另记，当前尚未操作设备；原失败保留在上节。
+
+诊断Product `20261029-210322-710`／`0cfa7942…` BIN3,022,040B，普通Product `20261029-210603-926`／`0bc211f9…` BIN3,019,260B、应用区余5,369,348B；两者均598源码／29产物字节核验通过并完整ZIP保全。普通ELF不含扫描命令／解析／复制／source预检实现。软件精简证据见[8KiB版本](evidence/2026-10-29/storage-probe-8k.json)，不把这些软件通过写成实机容量结果。
+
 以下电量估算部分授权为[共识](BASELINE.md#battery-estimate-20261018)中的首版估算百分比及现有页面／充电环接入。活动状态和唯一下一步只维护于[STATUS](STATUS.md#current)。本页保存算法、来源与验收契约，不创建第二份队列。
 
 ## 数据来源与精度边界

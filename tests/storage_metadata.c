@@ -21,8 +21,8 @@ static uint32_t fixture_crc(uint32_t crc,const uint8_t *p,size_t n)
 static void blank(void)
 {
     memset(image,255,sizeof image);
-    for(unsigned i=0;i<4;++i) {
-        uint8_t *p=image+i*4096; p[0]=0x3f;p[1]=0x7f;put32(p+4,0x30424446);
+    for(unsigned i=0;i<2;++i) {
+        uint8_t *p=image+i*8192; p[0]=0x3f;p[1]=0x7f;put32(p+4,0x30424446);
     }
 }
 static unsigned node(unsigned off,const char *key,unsigned n,uint8_t state)
@@ -67,8 +67,9 @@ static int copy_read(void *ctx,uint32_t off,uint8_t *out,size_t n)
 }
 int main(void)
 {
+    assert(WF_STORAGE_SECTOR==8192 && WF_STORAGE_SECTORS==2);
     assert(fixture_crc(0,(const uint8_t *)"123456789",9)==0xcbf43926U);
-    blank();wf_storage_metadata_t r=scan();assert(r.coherent && r.tail==16320 && r.header==64);
+    blank();wf_storage_metadata_t r=scan();assert(r.coherent && r.tail==16352 && r.header==32);
     unsigned end=node(16,"preferences",24,0x3f);end=node(end,"layout_a",512,0x3f);
     end=node(end,"steps_a",132,0x0f);
     r=scan();assert(r.coherent && r.live==603 && r.stale==163 && r.known_mask==3);
@@ -76,20 +77,24 @@ int main(void)
     blank();node(16,"legacy_secret",16,0x3f);r=scan();assert(!r.coherent && r.extra_nodes==1);
     blank();node(16,"runtime_a",512,0x1f);r=scan();assert(r.pending==545 && !r.coherent && !r.stale);
     image[16]=0x7f;r=scan();assert(r.pending==545 && !r.coherent);
-    image[16]=7;r=scan();assert(r.unknown==4080 && !r.coherent);
-    blank();node(16,"preferences",24,0x3f);image[16+24+11]^=1;r=scan();assert(r.bad_crc==1 && r.unknown==4080);
-    blank();node(16,"preferences",24,0x3f);image[16+17]=0;r=scan();assert(r.bad_headers && r.unknown==4080);
-    blank();node(16,"preferences",24,0x3f);put32(image+24,UINT32_MAX);r=scan();assert(r.unknown==4080);
-    blank();node(16,"preferences",24,0x3f);put32(image+36,UINT32_MAX);r=scan();assert(r.unknown==4080);
-    blank();node(4080,"x",0,0x3f);r=scan();assert(!r.coherent && r.unknown>=4080);
-    blank();image[4000]=0;r=scan();assert(r.unknown==4080 && r.tail==12240); /* Verify the whole erased tail. */
-    blank();image[0]=0x7f;image[100]=0;r=scan();assert(!r.coherent && r.unknown==4080);
-    blank();put32(image+8,0);r=scan();assert(!r.coherent && !r.sectors[0].valid && r.unknown==4080);
+    image[16]=7;r=scan();assert(r.unknown==8176 && !r.coherent);
+    blank();node(16,"preferences",24,0x3f);image[16+24+11]^=1;r=scan();assert(r.bad_crc==1 && r.unknown==8176);
+    blank();node(16,"preferences",24,0x3f);image[16+17]=0;r=scan();assert(r.bad_headers && r.unknown==8176);
+    blank();node(16,"preferences",24,0x3f);put32(image+24,UINT32_MAX);r=scan();assert(r.unknown==8176);
+    blank();node(16,"preferences",24,0x3f);put32(image+36,UINT32_MAX);r=scan();assert(r.unknown==8176);
+    blank();node(8176,"x",0,0x3f);r=scan();assert(!r.coherent && r.unknown>=8176);
+    blank();image[8000]=0;r=scan();assert(r.unknown==8176 && r.tail==8176); /* Verify the whole erased tail. */
+    blank();image[0]=0x7f;image[100]=0;r=scan();assert(!r.coherent && r.unknown==8176);
+    blank();put32(image+8,0);r=scan();assert(!r.coherent && !r.sectors[0].valid && r.unknown==8176);
     blank();image[0]=0x5f;r=scan();assert(!r.coherent && r.bad_headers);
     blank();image[1]=0x1f;r=scan();assert(!r.coherent && !r.unknown);
-    memset(image,255,sizeof image);r=scan();assert(!r.coherent && r.unknown==16320);
-    blank();fail_call=1;r=scan();assert(r.read_errors==1 && r.unknown==4080);fail_call=0;
+    memset(image,255,sizeof image);r=scan();assert(!r.coherent && r.unknown==16352);
+    blank();fail_call=1;r=scan();assert(r.read_errors==1 && r.unknown==8176);fail_call=0;
     memset(&r,0xcc,sizeof r);assert(!wf_storage_metadata_scan(read_image,image,sizeof image-1,&r));assert(!r.coherent);
+    /* A valid object crosses the old 4KiB boundary but stays in one 8KiB sector. */
+    blank();node(16,"runtime_a",4052,0x3f);r=scan();assert(r.coherent && r.live==4085 && r.known_mask==(1U<<9));
+    /* Boundary of the second real sector and its final <24-byte tail. */
+    blank();node(8208,"runtime_b",8123,0x3f);r=scan();assert(r.coherent && r.live==8156 && r.tail==8196);
     /* Deterministic corrupt-image stress: no OOB reads, mutation or lost bytes. */
     uint32_t seed=1;
     for(unsigned i=0;i<2000;++i) {
@@ -106,6 +111,25 @@ int main(void)
     read_delay=2000;assert(wf_storage_copy(&io,copied,sizeof copied,&stats)==WF_STORAGE_COPY_TIMEOUT);assert(!held && stats.calls==1);
     read_delay=1;unlock_fail=true;assert(wf_storage_copy(&io,copied,sizeof copied,&stats)==WF_STORAGE_COPY_UNLOCK);assert(!held);
     assert(wf_storage_copy(&io,copied,1,&stats)==WF_STORAGE_COPY_ARGUMENT);
+    unlock_fail=false;read_delay=1;
+    wf_storage_source_t source={true,true,false,true,16384,8192};
+    wf_storage_probe_info_t info;
+    unsigned old_calls=io_calls,old_unlocks=unlocks;
+    assert(wf_storage_source_copy(&source,&io,copied,sizeof copied,&info)==0);
+    assert(!info.guard && info.source.sector_bytes==8192 && info.copy.bytes==16384);
+    assert(io_calls==old_calls+128 && unlocks==old_unlocks+1 && !held);
+    /* Actual adapter preflight: reject the former geometry before lock/read. */
+    old_calls=io_calls;old_unlocks=unlocks;source.sector_bytes=4096;
+    assert(wf_storage_source_copy(&source,&io,copied,sizeof copied,&info)==WF_STORAGE_COPY_UNAVAILABLE);
+    assert(info.guard==WF_STORAGE_GUARD_SECTOR && !info.copy.bytes && io_calls==old_calls && unlocks==old_unlocks);
+    source.sector_bytes=8192;
+    for(unsigned bit=0;bit<6;++bit) {
+        wf_storage_source_t bad=source;
+        if(bit==0)bad.ready=false;else if(bit==1)bad.initialized=false;else if(bit==2)bad.file_mode=true;
+        else if(bit==3)bad.has_partition=false;else if(bit==4)bad.partition_bytes=8192;else bad.sector_bytes=0;
+        assert(wf_storage_source_copy(&bad,&io,copied,sizeof copied,&info)==WF_STORAGE_COPY_UNAVAILABLE);
+        assert(info.guard==(1U<<bit) && !info.copy.calls && io_calls==old_calls && !held);
+    }
     puts("storage metadata: valid/corrupt images, conservation, readonly reads and bounded copy passed");
     return 0;
 }

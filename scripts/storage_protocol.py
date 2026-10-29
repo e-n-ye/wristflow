@@ -3,6 +3,7 @@ import re
 
 FIELDS = {
     "boot": ("mode raw", {"raw"}),
+    "layout": ("schema bytes sector sectors guard", set()),
     "copy": ("bytes calls ms", set()),
     "sector": ("i store dirty valid live stale tail unknown pending", {"store", "dirty"}),
     "total": ("header live stale pending tail unknown", set()),
@@ -37,24 +38,30 @@ def parse_storage(lines):
             if row[name] > 0xffffffff:
                 raise ValueError("Storage field exceeds uint32")
         rows[kind].append(row)
+    if len(rows["done"]) == 1 and (rows["done"][0]["result"] or rows["done"][0]["complete"] != 1):
+        layout = rows["layout"][0] if len(rows["layout"]) == 1 else {}
+        raise ValueError(f"Storage operation failed: result={rows['done'][0]['result']} "
+                         f"sector={layout.get('sector', 'unknown')} guard={layout.get('guard', 'unknown')}")
     for kind, values in rows.items():
-        if len(values) != (4 if kind == "sector" else 1):
+        if len(values) != (2 if kind == "sector" else 1):
             raise ValueError("Missing or duplicate storage record: " + kind)
     result = {kind: values if kind == "sector" else values[0] for kind, values in rows.items()}
     done, total = result["done"], result["total"]
+    if result["layout"] != {"schema": 2, "bytes": 16384, "sector": 8192, "sectors": 2, "guard": 0}:
+        raise ValueError("Storage runtime geometry or preflight differs")
     if done["result"] or done["complete"] != 1 or done["coherent"] not in (0, 1):
         raise ValueError("Storage operation did not complete successfully")
     if result["copy"]["bytes"] != 16384 or result["copy"]["calls"] != 128:
         raise ValueError("Storage snapshot incomplete")
     sectors = result["sector"]
-    if [s["i"] for s in sectors] != [0, 1, 2, 3]:
+    if [s["i"] for s in sectors] != [0, 1]:
         raise ValueError("Storage sector ordering changed")
     for sector in sectors:
         if sector["valid"] not in (0, 1) or max(sector["store"], sector["dirty"]) > 255:
             raise ValueError("Invalid storage sector fields")
-        if sum(sector[key] for key in BUCKETS) != 4080:
+        if sum(sector[key] for key in BUCKETS) != 8176:
             raise ValueError("Storage sector accounting differs")
-    if total["header"] != 64 or total["header"] + sum(total[key] for key in BUCKETS) != 16384:
+    if total["header"] != 32 or total["header"] + sum(total[key] for key in BUCKETS) != 16384:
         raise ValueError("Storage total accounting differs")
     if any(total[key] != sum(sector[key] for sector in sectors) for key in BUCKETS):
         raise ValueError("Storage sector totals differ")
@@ -69,8 +76,9 @@ def parse_storage(lines):
 
 
 def simulated_storage():
-    return ["[storage-boot] mode=0 raw=00000000", "[storage-copy] bytes=16384 calls=128 ms=10",
-            *[f"[storage-sector] i={i} store=3f dirty=7f valid=1 live=0 stale=0 tail=4080 unknown=0 pending=0" for i in range(4)],
-            "[storage-total] header=64 live=0 stale=0 pending=0 tail=16320 unknown=0",
+    return ["[storage-boot] mode=0 raw=00000000", "[storage-layout] schema=2 bytes=16384 sector=8192 sectors=2 guard=0",
+            "[storage-copy] bytes=16384 calls=128 ms=10",
+            *[f"[storage-sector] i={i} store=3f dirty=7f valid=1 live=0 stale=0 tail=8176 unknown=0 pending=0" for i in range(2)],
+            "[storage-total] header=32 live=0 stale=0 pending=0 tail=16352 unknown=0",
             "[storage-keys] known=000 dup=0 extra=0 bad=0 crc=0 reads=0",
             "[storage-done] result=0 complete=1 coherent=1"]
