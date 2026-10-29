@@ -6,6 +6,8 @@
 
 构建入口变更完成Hello／BLE／Bringup／UI Demo／Product五目标本地基线；71/71主机测试、12个快照Python测试及纯主机容量采集模拟通过。SDK／子模块按锁，未调用Flash或设备串口。每目标result、源码／产物哈希复核、诊断完整ZIP及失败记录见[精简证据](evidence/2026-10-29/storage-metadata-probe.json)；[诊断契约](BATTERY-ESTIMATE.md#storage-metadata-probe-20261029)。
 
+同日后续设备窗口：上述诊断版下载成功，但唯一容量扫描被4KiB尺寸守卫拒绝、复制0字节；实际flash2适配由源码／配置核为8KiB。此结果不推翻编译成功，却覆盖诊断的设备可用性。已恢复本节普通版并完成缓存／人工末态核对；[失败及恢复证据](BATTERY-ESTIMATE.md#storage-metadata-hardware-20261029)。本轮只记录设备结果和核对原因，未重编或修正固件。
+
 ## 2026-10-29 全部小时图EZIP
 
 仅扩展设备小时图官方builder，SDK／工具链／分区／公共Build入口不改。普通Product `20261029-141628-442`与UI Demo `20261029-141750-707`均由`pwsh -NoProfile -File scripts/Build.ps1 -Example <product|ui_demo> -Jobs 4`编译成功、源码／产物字节核验通过，BIN分别3,019,260B／2,719,468B。Product较上一普通版净减1,850,876B、8MiB区余5,369,348B。`-ResourceProbe`诊断 `20261029-141901-539`也编译通过，BIN3,021,360B。13图往返、相关测试、完整ZIP及分项硬件边界见[容量专题](FLASH-CAPACITY.md#2026-10-29-剩余小时图扩展与压缩备选)；编译不抵扣显示／缩放验收。

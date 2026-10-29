@@ -5,17 +5,17 @@
 
 本区是活动任务和下一步的唯一权威来源；历史命令和计划不构成执行授权。
 
-**本轮范围**：用户要求接续“评估 Flash 压缩选项”继续长期记录；接回中断的`codex/storage-metadata-probe`／HEAD`4bef5e0`及其未提交实现，本轮完成只读容量诊断的软件小闭环。未实现长期记录器，SDK／子模块与分区保持锁定。
+**本轮范围**：诊断软件已由[PR #176](https://github.com/e-n-ye/wristflow/pull/176)合入`380a93c`；随后用户新确认同板屏／原电池＋电脑USB／固定接线且人在旁，授权一次诊断烧录→容量扫描→普通版恢复及必要校时。`codex/storage-metadata-hardware`已完成该设备窗口，现只交付失败原因与恢复证据；未实现长期记录器，SDK／子模块与分区保持锁定。
 
-**已完成**：显式StorageProbe构建增加`wf_storage scan`，同库锁内复制16KiB，解锁后解析锁定格式，仅输出元数据和SDK启动缓存；异常保守标unknown，不输出值、不修复或GC。普通构建排除命令／解析器／快照缓冲。扫描只读不扩展为整个Product启动无写入。[契约与证据](BATTERY-ESTIMATE.md#storage-metadata-probe-20261029)。
+**设备结果**：诊断`552779f5…`下载成功，唯一一次扫描返回`result=2 complete=0`、复制0字节，未获得真实容量。源码／生成配置核对settings实际映射flash2，SDK QSPI2 NOR的blk_size为8192，FlashDB默认沿用；诊断误用4096尺寸守卫，足以导致拒绝。原4sector假设已更正，汇总回执未直接打印实机sec_size。[失败闭环](BATTERY-ESTIMATE.md#storage-metadata-hardware-20261029)／[证据](evidence/2026-10-29/storage-metadata-hardware.json)。
 
-**验证**：71/71主机测试、12个快照Python测试、独立容量采集模拟通过；含2000个损坏镜像及只读／守恒／越界／复制超时覆盖。Hello／BLE／Bringup／UI Demo／普通Product及StorageProbe编译成功；普通BIN3,019,260B，诊断增加2516B／静态RAM16392B。首次缺头构建失败已保留；详见[版本证据](evidence/2026-10-29/storage-metadata-probe.json)。
+**软件证据边界**：原71/71主机／12个Python测试、采集模拟及五目标＋诊断构建通过仍是原版本事实；4KiB fixture不能验证实际8KiB几何或设备可用性。当前只记录并更正证据，未追加固件修复／重编。普通构建排除诊断实现及16KiB缓冲。[软件记录](evidence/2026-10-29/storage-metadata-probe.json)。
 
-**设备末态与限制**：本轮未烧录或开串口；仍沿用上一轮普通Product`a74592d3…`的设备末态记录，未重新确认现场。真实sector、历史额外键、FAL延迟和启动原因分类未知；`tail`／`coherent`不等于可分配容量，容量未知不启持久化记录，也不声称长期稳定性或续航。
+**设备末态与限制**：普通Product`a11b5b74…`已write＋verify恢复，必要单次校时及只读回执完整；0步／检查点236 verified clean、腕和自动亮度正常。用户确认临时常亮关闭、自然息屏／KEY1及显示／触摸／时间／偏好正常，端口／租约已关，设备动作结束。真实余量和启动原因分类仍未知；不启持久化，不声称长期稳定性或续航。
 
-**交付**：[PR #176](https://github.com/e-n-ye/wristflow/pull/176)包含诊断软件、构建开关、共用采集入口及相关权威文档；已审阅head、合并回读和本地主线同步见该PR Closure及最终交接。上一轮设计核算已由[PR #175](https://github.com/e-n-ye/wristflow/pull/175)交付。
+**交付**：本轮设备失败／恢复和几何更正由独立文档PR交付，最终PR、已审阅head、合并回读和本地主线同步见本轮PR Closure及最终交接；既有软件[PR #176](https://github.com/e-n-ye/wristflow/pull/176)及设计[PR #175](https://github.com/e-n-ye/wristflow/pull/175)的结论按上述设备结果限定。
 
-**唯一下一步**：绑定新的同板／供电现场窗口，保护既有设置／计步，使用已归档诊断BIN读一次真实sector及启动缓存，随后恢复普通固件并核对缓存／偏好和自然息屏／KEY1。取得可信容量结果后才决定最小长期记录模型／编码／存储接入及默认启用策略。
+**唯一下一步**：先按真实flash2的8KiB／2sector修正诊断几何、协议和fixture，并增加前置拒绝条件的可观测性／适配测试；软件通过后另约新设备窗口。本窗不再烧录，不修改SDK／分区／原FlashDB初始化几何；真实容量准入后才决定长期记录模型／编码／存储及默认启用策略。
 
 <a id="history-runtime-record-preflight-20261029"></a>
 ## 2026-10-29 长期记录接入设计核算（原current，历史）
