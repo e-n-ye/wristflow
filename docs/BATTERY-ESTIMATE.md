@@ -118,6 +118,24 @@ RAM仍以新增不超过8KiB为目标，事件／电压环必须固定容量，�
 
 诊断Product `20261029-210322-710`／`0cfa7942…` BIN3,022,040B，普通Product `20261029-210603-926`／`0bc211f9…` BIN3,019,260B、应用区余5,369,348B；两者均598源码／29产物字节核验通过并完整ZIP保全。普通ELF不含扫描命令／解析／复制／source预检实现。软件精简证据见[8KiB版本](evidence/2026-10-29/storage-probe-8k.json)，不把这些软件通过写成实机容量结果。
 
+<a id="storage-8k-capacity-20261029"></a>
+## 2026-10-29 真实8KiB容量读取与普通版恢复
+
+用户重新确认同板／原电池＋电脑USB／固定接线且人在旁，授权一次修正版扫描及恢复。诊断`0cfa7942…`三镜像write＋verify后，startup的RTC／步数／腕／光感完整且未需校时；唯一一次扫描完整返回schema2、16384B分区、8192B sector、2sector、guard0，128次FAL读取16KiB、报告复制1ms，result0 complete1 coherent1。原始UART与绑定见[设备证据](evidence/2026-10-29/storage-8k-hardware.json)。
+
+| 现场元数据 | 字节／状态 |
+|---|---|
+| sector0 | EMPTY／dirty FALSE，body8176B全部擦除 |
+| sector1 | USING／dirty TRUE，live2015B、stale5585B、tail576B |
+| 总量 | header32B＋live2015B＋stale5585B＋tail8752B＝16384B |
+| 完整性／键 | known1ff，9个既有键；dup／extra／bad／CRC／read error／pending／unknown均0 |
+
+这通过了几何、可解释性和已列键的**空间前置条件**，不是8752B可直接分配。新双512B槽的live预算3105B、单次最大更新3650B；当前USING尾576B不足545B对象所需的严格`remain > 545+88`，首次加入预计触发SDK GC。后续实现须验证真实SDK的2sector搬迁、错误处理、旧业务键保持及记录双槽恢复，再启记录持久化；不把容量诊断代替这些验证。
+
+按约恢复普通`0bc211f9…`，三镜像write＋verify、startup RTC／缓存完整且未需校时；0步／检查点241 verified clean、腕与自动亮度健康。用户确认关闭临时常亮、自然息屏约5秒／KEY1、显示／触摸／时间与偏好正常，端口／租约已关，本次设备动作结束。诊断与普通构建均由原完整ZIP逐项哈希恢复29份显式产物，不重新编译、不覆盖项目源码或用户工作。
+
+用户随后选择开机自动记录并提供停止命令，目标模式继续进入模型／编码／存储接入；本设备窗口没有实现记录器。真实复位分类、长睡误差、GC实际故障恢复、稳定性与功耗仍未验证；采集的mode4／raw0只保留原值。
+
 以下电量估算部分授权为[共识](BASELINE.md#battery-estimate-20261018)中的首版估算百分比及现有页面／充电环接入。活动状态和唯一下一步只维护于[STATUS](STATUS.md#current)。本页保存算法、来源与验收契约，不创建第二份队列。
 
 ## 数据来源与精度边界
