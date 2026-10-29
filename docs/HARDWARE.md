@@ -1,5 +1,13 @@
 # 黄山派选型复评
 
+## 2026-10-29 设置分区诊断失败与普通版恢复
+
+用户新确认同板屏、原电池＋电脑USB、固定接线且人在旁，授权一次诊断下载／容量扫描／普通版恢复及必要单次校时。COM5／CH340位置1-1.1、禁Modem流控1、两版完整源码／产物ZIP和三镜像DryRun已核。首次板前查询0字节超时且关口，用户唤醒并临时常亮后新窗口取得当天0步／代次236 verified clean、腕／自动亮度开启。
+
+诊断BIN`552779f5…`三镜像write＋verify退出0；RTC2000后单次校真实UTC并读回，同日0步及代次236恢复。唯一一次`wf_storage scan`完整返回`mode=4 raw=00000000`、`bytes=0 calls=0`、`result=2 complete=0 coherent=0`，即适配前置条件不满足，未复制分区；主机严格报失败并关闭资源，未重发、未修复／GC，也未获得真实sector余量。mode/raw只作SDK缓存原值，不据此分类复位原因。
+
+随后按约恢复普通BIN`a11b5b74…`，三镜像write＋verify退出0；RTC2000后单次校时读回，0步／代次236 verified clean，腕requested／armed／owned均1、自动亮度enabled／active／valid均1且fault0。用户确认关闭临时常亮、自然息屏约5秒／KEY1唤醒、显示／触摸／时间／偏好正常，设备动作结束。两版归档与Flash绑定复核通过；[精简证据](evidence/2026-10-29/storage-metadata-hardware.json)保留失败回执及恢复，不把正常恢复写成容量诊断通过。
+
 ## 2026-10-29 全部小时图显示验收与普通版恢复
 
 用户重新确认同板屏、原电池＋电脑USB、固定接线且人在旁，授权烧录及必要校时。板前普通`4c4ac661…`的date／steps／wrist／light回执取得，0步／代次234 verified clean、腕与自动亮度启用。诊断`a97a864b…`三镜像write＋verify成功，RTC2000后单次真实UTC校正并读回，恢复同日0步及代次234。

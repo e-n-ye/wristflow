@@ -39,7 +39,9 @@
 
 ### 共享KV库的账面容量与真实余量
 
-Product的settings分区为16,384B，当前4096B／sector共4sector，FlashDB写粒度1bit、对象按字节对齐。锁定SDK的ARM结构布局为sector头16B、KV头24B；对象长度为`24 + ASCII键名字节数 + 载荷长度`。
+Product的settings分区为16,384B，FlashDB写粒度1bit、对象按字节对齐。**同日设备诊断后更正**：原核算误取4096B／sector共4sector；实际settings映射到flash2，锁定SDK的QSPI2 NOR适配`blk_size=8192`，未显式设置时FlashDB据此取sector大小，因此源码／生成配置指向8192B／sector共2sector。下方节点字节预算不变，原[核算证据](evidence/2026-10-29/runtime-record-preflight.json)保留当时输入，不能再作为几何正确的证明；设备实际元数据仍未读得。
+
+锁定SDK的ARM结构布局为sector头16B、KV头24B；对象长度为`24 + ASCII键名字节数 + 载荷长度`。
 
 | 键 | 每键最大载荷B | 含KV头／键名的合计B |
 |---|---:|---:|
@@ -51,7 +53,7 @@ Product的settings分区为16,384B，当前4096B／sector共4sector，FlashDB写
 | 拟新增runtime_a／runtime_b | 各512 | 1090 |
 | 新11键单有效版本合计 | — | 3105 |
 
-SDK先分配新对象再完成旧对象删除，一次最大更新需另留545B，账面瞬时占用3650B。sector尾阈值为`24+64=88B`，空sector有4080B节点空间，严格分配条件`4080 > 3650+88`满足；普通分配保留最后一个空sector供GC，GC搬迁后才格式化旧sector。以上说明**已列键集合的静态容量与搬迁预算足够**，不能用`16384−3105`报告设备真实剩余。旧版本、脏／失败记录、历史额外键和当前各sector状态尚未读取。AUTO_UPDATE当前关闭；若历史残留4B的`__ver_num__`，另占39B，仍满足同一账面界限。
+SDK先分配新对象再完成旧对象删除，一次最大更新需另留545B，账面瞬时占用3650B。sector尾阈值为`24+64=88B`，按更正后的8192B几何，空sector有8176B节点空间，单sector比较`8176 > 3650+88`满足；普通分配保留最后一个空sector供GC，GC搬迁后才格式化旧sector。这里只保留**已列键集合的字节预算和单sector比较**，原4sector诊断及相应主机fixture不能验证实际2sector的分配／回收行为，不能据此宣称持久化准入或用`16384−3105`报告真实剩余。旧版本、脏／失败记录、历史额外键和当前sector状态仍未知。AUTO_UPDATE当前关闭；若历史残留4B的`__ver_num__`，另占39B，仍满足上述单sector账面比较。
 
 容量诊断不能直接包装`fdb_kv_iterate()`、`fdb_kvdb_check()`或`fdb_kv_print()`为“只读”：前两者会进入`read_kv()`，遇非法长度可能写`FDB_KV_ERR_HDR`；print还会输出值且其size不是全部物理占用。下一小闭环应通过数据库拥有者保护的FAL只读路径，解析锁定格式的元数据，只输出sector状态、有效／废弃／异常长度、额外键数量和不确定性；不输出值、不修复、不GC、不清空。解析器先用主机合成损坏镜像验证无写入、边界和总量守恒，再评估设备窗口。无法安全解释的区域标unknown并禁用新增持久化；不为记录器改分区或侵占其他数据。
 
@@ -84,6 +86,8 @@ RAM仍以新增不超过8KiB为目标，事件／电压环必须固定容量，�
 
 接续中断分支`codex/storage-metadata-probe`／基线`4bef5e0`，完成上一节提出的元数据诊断；尚未实现长期记录模型或持久化。源码／构建／主机验证与设备证据分别判断，精简结果见[诊断证据](evidence/2026-10-29/storage-metadata-probe.json)。
 
+**同日设备结果覆盖本节的可用性**：`552779f5…`唯一一次扫描返回UNAVAILABLE／零读取，原因核对为4KiB守卫与实际flash2适配8KiB几何不符。本节保留已交付软件及其主机／编译事实；不能将其4sector fixture、守恒和模拟通过当成真实2sector实现验证。普通版已恢复，详见[设备失败闭环](#storage-metadata-hardware-20261029)。
+
 - 显式`Build.ps1 -Example product -StorageProbe -Jobs 4`启用`wf_storage scan`；与ResourceProbe互斥，普通构建排除诊断命令、解析器及16KiB快照缓冲。锁定FlashDB写粒度1bit、ARM小端格式及1000Hz tick，配置不符时拒绝编译。
 - 数据库拥有者复用`database_lock`，最多等锁100ms；在锁内用128B分块复制16KiB，解锁后校验sector／KV头、长度和CRC。复制预算2秒，在调用间检查；单次FAL驱动读取不能强制中断，实机延迟仍待验证。命令串行，成功或失败均清除诊断缓冲，不导出KV值或键名。
 - 每个sector的4080B载荷空间划分为live／stale／pending／tail／unknown，总账另计64B头。坏头、坏CRC、残缺／未知区域及读失败保守标记；GC状态、pending、重复或额外有效键使`coherent=0`。`tail`只是物理擦除尾部，`coherent=1`只表示元数据可解释，均不等于SDK可分配空间或长期记录准入。
@@ -91,6 +95,15 @@ RAM仍以新增不超过8KiB为目标，事件／电压环必须固定容量，�
 - 主机采集复用`device_snapshot.py capture --query storage`及既有绑定／串口租约／原始UART／关闭流程；要求显式StorageProbe构建，禁止与startup校时合并。严格核单条字段、四sector次序、总量守恒及coherent一致性，损坏UART不修复、不自动重发。模拟值只在主机Simulation中提供。
 
 损坏镜像覆盖越界长度、坏CRC／头、部分记录、尾部脏数据、重复／额外键、读失败和2000个确定性损坏样本；复制覆盖短读、等锁失败、解锁失败、超时及tick回绕。首次诊断构建因缺少HAL／rthw头失败，补齐依赖后成功；完整命令、产物和普通构建排除检查见证据。没有烧录、开串口或测得设备真实余量，容量未知时不启持久化。设备窗口需重新绑定板卡、供电和实际BIN，完成扫描及普通固件恢复后再决定最小记录接入。
+
+<a id="storage-metadata-hardware-20261029"></a>
+## 2026-10-29 容量扫描被尺寸守卫拒绝（设备闭环）
+
+用户新授权同板／安全供电窗口，诊断版`552779f5…`下载成功后唯一一次扫描完整返回`mode=4 raw=00000000`、复制`bytes=0 calls=0 ms=0`、`result=2 complete=0 coherent=0`；没有sector／KV数据，不解读为CRC失败、空间不足或FlashDB损坏。主机拒收不完整容量报告并关口，未重发命令。[证据](evidence/2026-10-29/storage-metadata-hardware.json)保留原UART和恢复记录。
+
+源码核对：Product `custom_mem_map.h`的settings使用`NOR_FLASH2_DEV_NAME`（默认`flash2`）；生成配置启用QSPI2 NOR；锁定SDK `fal_flash_sifli_port.c:162–164,193`将该设备`blk_size`设为8192，`fdb.c:65–67`在应用未显式设置sector时使用该值。Product初始化没有SET_SEC_SIZE，因此成功初始化下应为8192；与`product_services.c`要求`WF_STORAGE_SECTOR=4096`矛盾，足以触发UNAVAILABLE。这是源码／配置的因果依据，**不是实机打印了sec_size**；汇总result=2未逐项输出其他前置条件，仍保留该观测限制。
+
+本窗按约恢复普通Product`a11b5b74…`并完成必要单次校时，0步／检查点236 verified clean、腕及自动亮度正常，用户确认自然息屏／KEY1、显示／触摸／时间／偏好正常，设备动作结束。没有容量或长期运行结论。后续有界修正应先按真实8KiB／2sector调整解析器、协议／fixture及前置诊断可观测性，用实际SDK布局依据和失败适配测试验证，再另约新设备窗口；不修改SDK、分区或FlashDB原有初始化几何，不在本窗追加烧录。
 
 以下电量估算部分授权为[共识](BASELINE.md#battery-estimate-20261018)中的首版估算百分比及现有页面／充电环接入。活动状态和唯一下一步只维护于[STATUS](STATUS.md#current)。本页保存算法、来源与验收契约，不创建第二份队列。
 

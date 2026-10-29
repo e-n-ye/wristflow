@@ -1,0 +1,337 @@
+{
+  "date": "2026-10-29",
+  "base_commit": "380a93cf429e3f1bbf2a7a70c205f7a762d1b8fb",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "scope": "One authorized device diagnostic scan and restoration; no new firmware source/build changes",
+  "authorization": "Current same Huangshan board/display, original battery + host USB, fixed wiring, operator present; diagnostic flash, one scan, normal restore, necessary single UTC sync/readback after each flash; final operator confirmed normal and device actions ended",
+  "endpoint": {
+    "port": "COM5",
+    "location": "1-1.1",
+    "vid": 6790,
+    "pid": 29987,
+    "disable_modem": 1
+  },
+  "diagnostic": {
+    "result": "artifacts/product/20261029-152426-838/result.json",
+    "flash": "artifacts/flash/product/20261029-161722-772/result.json",
+    "bin_sha256": "552779f534980e112a70c941be3e6939fd5f623f0a6e8e5bba53fc416e5e6930",
+    "write_verify_exit": 0,
+    "scan_passed": false,
+    "reply": [
+      "[storage-boot] mode=4 raw=00000000",
+      "[storage-copy] bytes=0 calls=0 ms=0",
+      "[storage-done] result=2 complete=0 coherent=0"
+    ],
+    "copied_bytes": 0,
+    "boot_cached_mode": 4,
+    "boot_cached_raw": 0,
+    "reset_cause_classified": false
+  },
+  "observed_preflash": {
+    "total_steps": 0,
+    "generation": 236,
+    "verified": true,
+    "dirty": false,
+    "wrist_enabled": true,
+    "automatic_brightness_enabled": true
+  },
+  "restoration": {
+    "result": "artifacts/product/20261029-152807-403/result.json",
+    "flash": "artifacts/flash/product/20261029-162218-400/result.json",
+    "bin_sha256": "a11b5b7452903076321bdbde6f02cab9a0e5f1cc61722d4e2b0f1f90229e467d",
+    "write_verify_exit": 0,
+    "normal_probe_symbols_absent": true,
+    "utc_sync_once_and_readback": true,
+    "total_steps": 0,
+    "generation": 236,
+    "verified": true,
+    "dirty": false,
+    "wrist_requested_armed_owned": [
+      1,
+      1,
+      1
+    ],
+    "automatic_brightness_enabled_active_valid": [
+      1,
+      1,
+      1
+    ],
+    "automatic_brightness_fault": 0,
+    "operator_final": "Keep-awake disabled; natural screen-off about5s, KEY1 wake, display/touch/time/preferences normal",
+    "resources_closed": true,
+    "device_actions_ended": true
+  },
+  "cause": {
+    "observed": "UNAVAILABLE before any copy; aggregated guard does not identify each condition",
+    "source_configuration_facts": [
+      "settings maps to NOR_FLASH2_DEV_NAME, default flash2",
+      "Diagnostic archived rtconfig enables QSPI2 mode0, SPI_MODE_NOR=0",
+      "Actual SiFli flash2 NOR port sets blk_size=8192",
+      "Product static settings_db starts zero; startup sets locks/init but not sector size",
+      "FlashDB init uses FAL block size when sec_size==0",
+      "Diagnostic requires sec_size==4096 before copy"
+    ],
+    "inference": "Under successful normal initialization sec_size should be8192; mismatch is sufficient to reject. This is source/configuration inference, not a runtime sec_size readout. Other simultaneous guard failures are not excluded.",
+    "corrected_geometry": {
+      "partition_bytes": 16384,
+      "expected_sector_bytes": 8192,
+      "expected_sectors": 2,
+      "runtime_geometry_measured": false
+    },
+    "prior_claim_superseded": "4096B x4 and corresponding fixture validity do not establish the actual flash2 geometry"
+  },
+  "failures": [
+    "Initial host Python lacked pyserial; uv online resolution hit unavailable localhost proxy before any device action; reused cached pyserial3.5 offline",
+    "First preflash capture got0 UART bytes, timed out and closed; operator woke board/held screen, new capture passed",
+    "Only scan returned result2; host failed closed; no retry or additional device test"
+  ],
+  "validation": {
+    "new_firmware_build": false,
+    "new_firmware_tests": false,
+    "archived_build_flash_checks": "Both complete archives and three-image flash bindings passed",
+    "review": "Read-only independent cause review; primary sampled actual custom map, diagnostic archived rtconfig, SDK FAL port and init path"
+  },
+  "commands": [
+    "uv run --offline --no-project --with pyserial==3.5 python scripts/device_snapshot.py capture/startup (exact args in binding.json and recorded tool history)",
+    "pwsh -NoProfile -File scripts/Flash.ps1 -Example product -Port COM5 -DryRun (both versions)",
+    "pwsh -NoProfile -File scripts/Flash.ps1 -Example product -Port COM5 (exact write/verify in each flash result)",
+    "lab_check.check_build with explicit build_archive/recorded_root/flash for diagnostic and normal",
+    "python scripts/lab_check.py docs --base 380a93c"
+  ],
+  "limits": [
+    "No actual sector occupancy, tail bytes or historical extra keys read",
+    "Read-only applies to scan, not existing boot init or normal persistence",
+    "No long-term recorder, stability, sleep-current or battery-life result",
+    "Cached boot fields do not classify a reset cause"
+  ],
+  "next_bounded_experiment": "Software-only: correct to8KiB/2sectors, update protocol/fixtures and expose preflight guard reasons, validate actual FAL adaptation; only then arrange a new device window",
+  "sources": [
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/product_services.c",
+      "bytes": 13665,
+      "sha256": "e7516e4ca6a203c68a39d6cf13358ee3b1a9aa4bc5fed0f8d81dd399f1430a2a"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/storage_metadata.h",
+      "bytes": 1072,
+      "sha256": "8c712f63947e082c3addda942f6e5bc02d4b14fa71d404f97fffa47e3d9fd3b5"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/project/sf32lb52-lchspi-ulp_hcpu/custom_mem_map.h",
+      "bytes": 579,
+      "sha256": "ca4d4058a5af84a05bf5234132b77aeb79af502d04bc1e6cced0aa7f02cd4658"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/project/sf32lb52-lchspi-ulp_hcpu/ptab.json",
+      "bytes": 2112,
+      "sha256": "41d89872c94d54a8e85c679d640eea27981ca4760b928fe0a335d9d79ef35445"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/vendor/SiFli-SDK/external/FlashDB/SConscript",
+      "bytes": 657,
+      "sha256": "794fc74e430fdca2eb1be9e55b77f31ba39095b986c81be261c4a1a4697f74cd"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/vendor/SiFli-SDK/external/FlashDB/src/fdb.c",
+      "bytes": 4891,
+      "sha256": "6aa4e90721b910de3998e925a952b2adc5e6ed6b4ac06abd117f67b3c206995c"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/vendor/SiFli-SDK/external/FlashDB/port/fal/inc/fal_cfg.h",
+      "bytes": 4966,
+      "sha256": "7d303aa01a6cc961fe1e9fa072a936db17a826bf8422387eecaa2f5deafd8043"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/vendor/SiFli-SDK/external/FlashDB/port/fal/src/fal_flash_sifli_port.c",
+      "bytes": 10792,
+      "sha256": "baef56fd7653af355830558f2b3ecabc2d44ebafd129657b8785c09f53acd3f3"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/vendor/SiFli-SDK/drivers/Include/bf0_hal_mpi_ex.h",
+      "bytes": 31754,
+      "sha256": "e9328e634b0c93cf75c373dc73d1126cd42d6a86e9edf0b798de259b391b275c"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/scripts/device_snapshot.py",
+      "bytes": 11077,
+      "sha256": "98105c102b5732587af84e2d3c69274b75161db6e523f8fabbf4c4e8985e52eb"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/scripts/storage_protocol.py",
+      "bytes": 4036,
+      "sha256": "58fd1ad2ccd7a6a0d8f4531f63e05dbe0f3a3d3e52289768a6e5b13b22721c1a"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/scripts/Flash.ps1",
+      "bytes": 4611,
+      "sha256": "efda24097a5dd5686d0b7529d5ab2f661c14a02b6fe0a315e055bf75fe045d08"
+    }
+  ],
+  "records": [
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/preflash-001/binding.json",
+      "bytes": 141465,
+      "sha256": "e2b92bed1fd629b42e71c6153a0cd497e53fb40740fc39276fdc5abee29e197c"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/preflash-001/snapshot.json",
+      "bytes": 715,
+      "sha256": "507aa5457e09d071e313a6b204c260bcc09c1cab6b6984332917f22395116a09"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/preflash-001/uart.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/preflash-002/binding.json",
+      "bytes": 141465,
+      "sha256": "e2b92bed1fd629b42e71c6153a0cd497e53fb40740fc39276fdc5abee29e197c"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/preflash-002/snapshot.json",
+      "bytes": 5462,
+      "sha256": "602d3ad48c021d9f41b4e18cbf137321949801ed1a1f382b9caef5716997981c"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/preflash-002/uart.bin",
+      "bytes": 4203,
+      "sha256": "a0bacbf7a1f2a85a597b1c8fa9f8fdb27a0aedf4c8184aa713b016eb1e3a5e35"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/diagnostic-startup-001/binding.json",
+      "bytes": 142544,
+      "sha256": "febc1a0f4ea04ce2b621970f64c5839fb56cfa8a90fa0e3cd71821c21f2391f1"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/diagnostic-startup-001/snapshot.json",
+      "bytes": 5736,
+      "sha256": "df3df12b7162936efef2870760680583e0389c21d51d6f6b83b107a788201960"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/diagnostic-startup-001/uart.bin",
+      "bytes": 4326,
+      "sha256": "aee531ca742d1edb0ec8b9ea2352407c0cfbeffa951d1c30deb9462785626c3b"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/scan-001/binding.json",
+      "bytes": 142522,
+      "sha256": "4736456f6b406535739a2a13a59b27b0a5cd02d575a6ea5713c0c1d407e6b53d"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/scan-001/snapshot.json",
+      "bytes": 891,
+      "sha256": "e3bd7f25b52ecc5df180066e753abed40499479b036f9c9fe143aa12c6ecda4e"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/scan-001/uart.bin",
+      "bytes": 132,
+      "sha256": "655c0276136d68cbe1ba42d7b71de34828266cbcb1660cda98f913387a973f88"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/normal-startup-001/binding.json",
+      "bytes": 142545,
+      "sha256": "b65635de4eb89d88312c7d813bde3b6e57c2b7135157d0ff9ef039694fd8debb"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/normal-startup-001/snapshot.json",
+      "bytes": 5729,
+      "sha256": "e66bdf89f15bf9a04b0689b36d370a0ffefb8132d71742e024571887db55e55e"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/normal-startup-001/uart.bin",
+      "bytes": 4332,
+      "sha256": "66149edbe5b2e08e5acbcf19a4e8aff68571fb197498af5aa64de3b5eb6c92ce"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/diagnostic-archive-check.json",
+      "bytes": 130436,
+      "sha256": "31edb55de8726c20d718d114d5edc03786675cafcf858bf0cb15c9d21effaf0f"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/normal-archive-check.json",
+      "bytes": 130437,
+      "sha256": "ae56b1ee3a66c8a2ef188306a4c011ea4b45acca71bbd64aafe5b0a8a49acd86"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/diagnostic-flash-archive-check.json",
+      "bytes": 130691,
+      "sha256": "61d464998af7df401e1a7fd1fe17dec66a8dc0754f1398a8df6b071c3a670d5c"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/normal-flash-archive-check.json",
+      "bytes": 130692,
+      "sha256": "391f4718a31d44cdba92d323616c18240888c8c1c7dfc0ebb74f2d43db4908a2"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/diagnostic-endpoint.json",
+      "bytes": 186,
+      "sha256": "ba0381a1cb5b1709c48e43f124da77a7a022149921493ceca5691df385f9e9e1"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/normal-endpoint.json",
+      "bytes": 186,
+      "sha256": "ba0381a1cb5b1709c48e43f124da77a7a022149921493ceca5691df385f9e9e1"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/diagnostic-dryrun.log",
+      "bytes": 452,
+      "sha256": "2d3b4d05ebcda0f485859380915260c0fea7dbef498dc305a4077c090f531afb"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/normal-dryrun.log",
+      "bytes": 452,
+      "sha256": "6e8ef01173d53081e3e8a9cfcdffb50b4ebe0581111c61c9c47d944f5592ca54"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/diagnostic-flash.log",
+      "bytes": 715,
+      "sha256": "31985f3e7d7e9e24f962bf4d24ddab768597adc422c13646eda8025870a6304c"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-metadata-hardware-20261029/normal-flash.log",
+      "bytes": 715,
+      "sha256": "256c3087cba50c599e7fc540dfa25448ef3658721c3c89a21e564859e8208b7e"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/flash/product/20261029-161722-772/result.json",
+      "bytes": 1767,
+      "sha256": "fbada34b0f44da413f3ca2429b3602b4c1c980657eeba45533646495866e316e"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/flash/product/20261029-162218-400/result.json",
+      "bytes": 1767,
+      "sha256": "05a5d21e529d92aa570cb6e9d7e01febd9942f8d3f5957e48fc50de8dd26c2a0"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/product/20261029-152426-838/result.json",
+      "bytes": 120963,
+      "sha256": "017d65af2a17781ee01fed4b05f3066ad87f8160bc14f0c65f50d6b7a003aea0"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/product/20261029-152807-403/result.json",
+      "bytes": 120948,
+      "sha256": "d826927663fb85429d4b4855f27c435988cb916266bcfb11fcf3de01071cf143"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/product/20261029-152426-838/rtconfig.h",
+      "bytes": 10566,
+      "sha256": "6a9fbd1e43e780d661cb9a5381aaea7cd1af8173472dd07e8a68f65834bb25dc"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-preflash-20261029.log",
+      "bytes": 407,
+      "sha256": "eaf9773f17c1398a16ca1015389b466ea955a834d8afa8df0ee92ad216655bae"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-probe-product-20261029-152426-838.zip",
+      "bytes": 16374789,
+      "sha256": "b41709368f2efaf6dd2562c69fa18894d446f088f3b24208ca68b3f233ee37b5"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-normal-product-20261029-152807-403.zip",
+      "bytes": 16355731,
+      "sha256": "1452ac18cdb753365608f26f02c4928100a295a3c44a79d135425ced17b83a9a"
+    }
+  ]
+}
