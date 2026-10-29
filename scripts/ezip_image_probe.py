@@ -50,13 +50,13 @@ def convert(tool, source, destination, flags, log):
     return command
 
 
-def probe(output):
+def probe(output, samples=SAMPLES):
     require(not output.exists(), "Choose a new output directory; prior evidence is preserved")
     sdk = check_sdk(ROOT, load(ROOT / "sdk.lock.json"))
     tool = ROOT / "vendor/SiFli-SDK/tools/png2ezip/ezip.exe"
     output.mkdir(parents=True)
-    samples = []
-    for name in SAMPLES:
+    results = []
+    for name in samples:
         directory = output / name
         directory.mkdir()
         original = ROOT / "ui/xml/images" / (name + ".png")
@@ -89,13 +89,13 @@ def probe(output):
         with Image.open(pngs[0]) as image:
             require(image.size == dimensions, "Roundtrip dimensions differ")
             require(pixels565(image) == expected, "EZIP roundtrip differs from existing RGB565 export")
-        samples.append(dict(name=name, dimensions=dimensions, original=file_record(original),
+        results.append(dict(name=name, dimensions=dimensions, original=file_record(original),
                             exported=file_record(exported), prepared=file_record(source), generated=file_record(generated),
                             binary=file_record(binary), decoded=file_record(pngs[0]), commands=commands,
                             raw_pixel_bytes=len(expected), ezip_payload_bytes=len(compressed),
                             payload_saving_bytes=len(expected) - len(compressed), roundtrip_equal=True))
-    report = dict(sdk=sdk, tool=file_record(tool), samples=samples,
-                  total_payload_saving_bytes=sum(s["payload_saving_bytes"] for s in samples),
+    report = dict(sdk=sdk, tool=file_record(tool), samples=results,
+                  total_payload_saving_bytes=sum(s["payload_saving_bytes"] for s in results),
                   hardware_verified=False,
                   limits="RGB565 pixel roundtrip only; Product link delta, EPIC display, latency, memory peaks and power require separate validation.")
     (output / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -105,8 +105,10 @@ def probe(output):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--all-hours", action="store_true", help="Check all 12 hours and the unknown artwork")
     args = parser.parse_args()
-    report = probe(args.output.resolve())
+    samples = tuple("hour_" + str(hour) for hour in range(1, 13)) + ("hour_unknown",) if args.all_hours else SAMPLES
+    report = probe(args.output.resolve(), samples)
     print(json.dumps({"samples": [{key: sample[key] for key in ("name", "raw_pixel_bytes", "ezip_payload_bytes", "roundtrip_equal")} for sample in report["samples"]],
                       "total_payload_saving_bytes": report["total_payload_saving_bytes"]}, indent=2))
 

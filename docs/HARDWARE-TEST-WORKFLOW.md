@@ -37,7 +37,7 @@
 | 构建／下载 | 继续使用Build.ps1／Flash.ps1；实验工具读取其结果，不复制下载包装器，不因电脑端整理重编固件 |
 | 实验前后快照／下载后启动检查 | `scripts/device_snapshot.py`的capture／startup，具体用法见[快照入口](#device-snapshot)；版本、端口、输出与查询集合用参数表达，不再逐轮复制preflash／post-status包装。startup校时权限独立于capture |
 | 板端指南针候选实验 | `scripts/compass_probe_lab.py`提供simulate／device／status及smoke／axes／calibrate有限窗；device需要精确build／flash／BIN／端点和本轮现场确认。沿用Console／Journal／RecordedSession及原始UART，`inputs/start/freeze/stop/status`独立白名单、会话／代次／起点／时长归属检查，只停本次窗口，控制单发；轴向假设、有效配对、校准参数和磁北精度分别判断，见[指南针实验](COMPASS.md#device-probe-20261027) |
-| 三图／字库诊断显示验收 | `scripts/resource_acceptance.py`复用Console／Journal／RecordedSession，默认无端点模拟；设备模式只接受显式ResourceProbe构建，绑定result／flash／源码ZIP／完整BIN／端点／本轮确认。四视图各60秒，人工确认45秒；仅status／start／匹配tag的stop，清理另核mode／start，丢ACK记录不确定归属，不盲停／重发；异常保留recovery_required并关闭主机资源。无RTC／PM／传感器／通知存储控制，验后恢复普通Product；[版本证据](FLASH-CAPACITY.md) |
+| 三图／字库诊断显示验收 | `scripts/resource_acceptance.py`复用Console／Journal／RecordedSession，默认无端点模拟；设备模式只接受显式ResourceProbe构建，绑定result／flash／源码ZIP／完整BIN／端点／本轮确认。默认四视图，`--hours`为十张新增小时图＋缩略图；`--start-mode 4..14`可新建会话只补余项，旧失败独立保留，不复用旧tag。每视图60秒、人工确认45秒，串口回执限3秒、总流程限20分钟；仅status／start／匹配tag的stop，清理另核mode／start，丢ACK记录不确定归属，不盲停／重发；异常保留recovery_required并关闭主机资源。无RTC／PM／传感器／通知存储控制，验后恢复普通Product；[版本证据](FLASH-CAPACITY.md) |
 | 输入与证据 | `tests/fixtures/`保存可分发的最小回放输入；`artifacts/`保存运行配置、UART原始字节、事件、报告和必要的执行源码快照；精简交付证据在docs/evidence |
 | 厂商算法的纯离线执行 | `scripts/memsic_preflight.py`复用SDK／文件证据检查，用原Arm GCC构建独立ELF，在固定版本Unicorn执行SDK候选；`compass_geometry.py`仅作静态前轴磁北投影参考及另一参考轴诊断。候选门槛与projected门槛分开，前者失败仍退出1并保留trace；无串口或Product构建，型号／接口允许用途／使用条件另核，见[航向边界](COMPASS.md#heading-boundary-20261026) |
 

@@ -11,8 +11,9 @@ def prepare_ezip_rgb565(target, source, env):
 
 
 # Keep official XML exports for the editor/simulator. The device build replaces
-# only these three opaque, unrotated images through the SDK's official builder.
-ezip_pilot = ('hour_1', 'hour_7', 'hour_unknown')
+# all opaque hour artwork through the SDK's official builder. hour_10 also
+# serves the scaled face thumbnail; rotating/alpha assets remain separate.
+ezip_pilot = tuple('hour_' + str(hour) for hour in range(1, 13)) + ('hour_unknown',)
 if not GetDepend('LV_USE_EZIP'):
     raise RuntimeError('WristFlow image pilot requires the SDK EZIP decoder')
 
