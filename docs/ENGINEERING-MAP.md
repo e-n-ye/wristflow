@@ -6,6 +6,7 @@
 
 | 对象 | 事实来源与所有权 | 操作 / 验证入口 |
 |---|---|---|
+| 共享存储写保护 | Product `storage_write_guard.c/h`绑定settings partition、包装FAL write／erase并锁存错误；`product_services`在DB mutex内传播失败；`storage_notice`复用官方顶层提示，main仅在现有UI循环调用 | [故障边界](BATTERY-ESTIMATE.md#storage-write-guard-20261030)；原SDK真实源＋内存FAL和读回／越界测试，锁存仅重启解除，无周期任务、SDK或分区改动 |
 | 产品集成 | [apps/product](../apps/product/)；`project/SConstruct`、`SConscript`、`proj.conf`、`rtconfig.py` 与 `src/` 由项目维护 | [PRODUCT-RUNTIME](PRODUCT-RUNTIME.md)；Build 的 `product` 目标；联合验收另按版本绑定 |
 | 偏好设置／布局保存 | `product_settings_store.c/h`独占事件worker、请求代次／截止／有限重试和回读；`product_services.c`持有FlashDB适配／启动恢复，`ui_shell`按变更提交，设置说明与组件失败浮层反馈状态 | [保存契约](PRODUCT-SETTINGS.md#save-reliability-20261015)；[长续航](ENDURANCE.md)升级v10仍24B，增加模式位并兼容v9静音／定时勿扰、v8腕、v7振动及更旧已支持格式；UI不做I/O，软件迁移与实际Flash恢复分别验 |
 | 黄山派充电 | Product `aw32001_inhibit.c/h` 持有禁充／固定参数准备，`product_charger.c/h`持有早期钩子；`aw32001_manual.c/h`持有会话／入口VIN资格确认，`product_charger_service.c`持有插接周期、命令／监测／显示缓存和PM，`product_charger_detect.c`仅PA44双沿IRQ／AON通知；`product_charger_bus.c/h`以同一I2C2 mutex保护共享供电及LCD上下电wrap，Product SConscript持有链接适配；排除SDK charger | [USB自动契约](CHARGER-PREFLIGHT.md#usb-auto-charge-20261017)及[关屏资源借用](CHARGER-PREFLIGHT.md#charger-lcd-bus-20261017)；早期禁充、运行期自动一次／满停锁止；旧短接口保留。物理限压／电流／电芯温度与终止另验 |

@@ -12,6 +12,8 @@ int wristflow_product_services_set_time(uint32_t utc_seconds);
 wristflow_alarm_clock_t wristflow_product_services_time(void);
 uint64_t wristflow_product_services_monotonic(void);
 bool wristflow_product_services_storage_ready(void);
+/* Thread context only; copies a latched fault under the shared DB mutex. */
+bool wristflow_product_services_storage_failed(void);
 #ifdef WF_STORAGE_PROBE
 #include "storage_snapshot.h"
 unsigned wristflow_product_services_storage_snapshot(uint8_t *, size_t, wf_storage_probe_info_t *);
