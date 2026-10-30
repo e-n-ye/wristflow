@@ -63,7 +63,7 @@ uv run --no-project --with-requirements scripts/requirements-memsic-preflight.tx
 
 `serial_lab capture --help`提供受绑定的真实端点入口，必须显式给mode／seconds、port／USB location、既有Build和Flash记录、完整预期BIN SHA及当前同板／同固件／安全供电接线且人在旁的`--confirm-same-board-and-firmware`。它先复用公共build核验，再在共享PortLease下、每次打开前复核所有绑定文件／工具、SDK及CH340端点／禁Modem握手设置；准备后有任何变化就拒绝开口。参数只是执行者当前确认的记录，不替代聊天中的设备授权，历史命令也不能复用为当前现场确认。没有固件证明协议，板上身份仍明确为未验证。
 
-light／compass最多30秒，passive最多600秒；Ctrl+C按取消保留数据并关闭主机资源，没有自动重连，不发送stop／PM／复位／校时／传感器控制。被动窗口仅收原始流，冷启动字节留作证据；缓存查询遇冷启动即失败。CLI的capture不恢复旧进程或设备窗口；多步动作仍用Console／Journal与专用适配。本轮仅用替身测试此入口，未运行真实capture。
+light／compass最多30秒，passive最多600秒；Ctrl+C按取消保留数据并关闭主机资源，没有自动重连，不发送stop／PM／复位／校时／传感器控制。被动窗口仅收原始流，冷启动字节留作证据；缓存查询遇冷启动即失败。CLI的capture不恢复旧进程或设备窗口；多步动作仍用Console／Journal与专用适配。入口初次交付仅替身测试；2026-10-30[记录器同版补验](BATTERY-ESTIMATE.md#runtime-uart-wake-20261030)已完成30秒passive实机采集、commands为空及资源关闭，具体设备结论限于该窗。
 
 历史fixture包含26,117字节原UART及五方向索引，记录原session／events／workflow文件路径和SHA；旧workflow的error／passed=false原样保留。纯解析保留seq0／invalid行，地磁策略仅识别自检前唯一的全零初始化通知，不能将任意坏帧过滤成通过。离线得到86帧／五窗／停止证据不等于新实机通过，也不证明磁北、倾斜精度或功耗。旧实验仍从MMC5603等专题及docs/evidence中定位；不删除、移动或改写被引用的artifacts。
 

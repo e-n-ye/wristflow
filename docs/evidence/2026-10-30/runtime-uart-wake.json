@@ -1,0 +1,279 @@
+{
+  "date": "2026-10-30",
+  "base_commit": "47a3e7adb957259fb3eed87e8eca628ca2794779",
+  "scope": "Same-firmware bounded passive KEY1 wake and conditional read-only recorder/business-cache completion; no new firmware",
+  "firmware": {
+    "build": "20261030-191750-966",
+    "bin_sha256": "0fc781bf6317a3508dff865cc0fc70351451a300bf73b0244fe1504f4cbb9865",
+    "unchanged": true,
+    "sdk_lock_and_partition_unchanged": true,
+    "live_firmware_attestation": false,
+    "binding_basis": "Current operator confirmation, supplied build/flash hashes, source-archive CRLF proof and endpoint metadata"
+  },
+  "conditions": "Operator reconfirmed same Huangshan board/screen, original battery plus computer USB, fixed wiring, present and no reflash; initially naturally OFF with temporary always-on disabled",
+  "preflight": "artifacts/runtime-uart-wake-preflight-001.json",
+  "passive": {
+    "window_seconds": 30,
+    "port_open_seconds": 30.089775,
+    "uart_bytes": 1358,
+    "uart_sha256": "15819ceac60dfe790dba2116c8e278727d199291a6befbaaedcc44adc7d8ce5b",
+    "commands": [],
+    "key1_marker": true,
+    "screen_on_marker": true,
+    "boot_marker_seen": false,
+    "operator_confirmed_key1_display_touch_time_normal": true,
+    "conclusion": "Device TX observable in this window; alone does not prove host-to-device RX, FinSH, physical Deep residence or earlier failure cause"
+  },
+  "readback": {
+    "operator_reenabled_temporary_always_on": true,
+    "single_show_date": "Fri Oct 30 13:46:29 2026",
+    "date_passed": true,
+    "export_passed": true,
+    "manifest_summary_sample_crc_complete_pages": true,
+    "nonce": 9361781858958678056,
+    "samples": 64,
+    "failed_recording": false,
+    "current": {
+      "boot": 2,
+      "generation": 5,
+      "flags": 7,
+      "recorded_ms": 8195694,
+      "total_recorded_ms": 8196786,
+      "scene_ms": {
+        "unknown": 2642,
+        "on": 1594706,
+        "flashlight": 0,
+        "dim": 29991,
+        "off": 6569447,
+        "aod": 0
+      },
+      "attempts": 4,
+      "successes": 4,
+      "failures": 0,
+      "periodic_saves": 3,
+      "explicit_saves": 1,
+      "fault_mask": 0,
+      "io_retries": 0,
+      "io_recoveries": 0,
+      "sample_drops": 325,
+      "event_drops": 35
+    },
+    "saved": {
+      "boot": 2,
+      "generation": 5,
+      "flags": 7,
+      "recorded_ms": 6475467,
+      "total_recorded_ms": 6476559,
+      "scene_ms": {
+        "unknown": 2630,
+        "on": 1543884,
+        "flashlight": 0,
+        "dim": 19999,
+        "off": 4910046,
+        "aod": 0
+      },
+      "attempts": 3,
+      "successes": 3,
+      "failures": 0,
+      "periodic_saves": 2,
+      "explicit_saves": 1,
+      "fault_mask": 0,
+      "io_retries": 0,
+      "io_recoveries": 0,
+      "sample_drops": 293,
+      "event_drops": 21
+    },
+    "unsaved_recorded_ms": 1720227,
+    "saved_counter_limit": "Durable counters precede their own write/readback; RAM successes4 vs durable3 is expected, not failure",
+    "business_cache": {
+      "utc": "Fri Oct 30 13:46:36 2026",
+      "steps": 0,
+      "steps_generation": 266,
+      "steps_verified_clean": true,
+      "steps_failed": false,
+      "wrist_requested_armed_owned": [
+        1,
+        1,
+        1
+      ],
+      "auto_enabled_active_valid": [
+        1,
+        1,
+        1
+      ],
+      "auto_fault_cleanup": [
+        0,
+        0
+      ],
+      "imu_retries_recovered": [
+        0,
+        0
+      ],
+      "alarm_values_checked": false
+    }
+  },
+  "comparison": {
+    "prior_report": "artifacts/runtime-record-hardware-20261030/export-before-002/records.json",
+    "prior_boot": 2,
+    "current_boot": 2,
+    "prior_generation": 3,
+    "current_generation": 5,
+    "recorded_ms_increase": 6301497,
+    "successes_increase": 2,
+    "limit": "Bounded snapshots support observed progress, not an independent globally unique boot identity or precise long-sleep timing test"
+  },
+  "commands": {
+    "passive-001": [],
+    "date-001": [
+      "show_date"
+    ],
+    "export-001": [
+      "wf_record snapshot 9361781858958678056",
+      "wf_record summary 9361781858958678056 current",
+      "wf_record summary 9361781858958678056 saved",
+      "wf_record samples 9361781858958678056 0",
+      "wf_record samples 9361781858958678056 1",
+      "wf_record samples 9361781858958678056 2",
+      "wf_record samples 9361781858958678056 3",
+      "wf_record samples 9361781858958678056 4",
+      "wf_record samples 9361781858958678056 5",
+      "wf_record samples 9361781858958678056 6",
+      "wf_record samples 9361781858958678056 7"
+    ],
+    "post-001": [
+      "show_date",
+      "wf_steps status",
+      "wf_wrist status",
+      "wf_light status",
+      "wf_pm status"
+    ]
+  },
+  "cleanup": {
+    "all_ports_and_leases_closed": true,
+    "flashed": false,
+    "reset": false,
+    "clock_write": false,
+    "pm_control": false,
+    "recording_control": false,
+    "operator_confirmed_temporary_always_on_off": true,
+    "operator_confirmed_display_touch_time_normal_no_save_warning": true,
+    "ordinary_firmware_and_records_retained": true,
+    "device_window_closed": true
+  },
+  "acceptance": "Bounded same-firmware KEY1 passive stream, recorder export and final business-cache checks passed; previous zero-byte failures remain valid history",
+  "unverified": [
+    "Earlier zero-byte root cause and its permanent fix",
+    "Controlled three-scene comparisons or 24h/72h/one-week stability",
+    "Physical power-cut recovery, actual GC latency and device stack peak",
+    "Precise long-sleep compensation, current and battery life",
+    "Independent hardware UID or live firmware hash attestation"
+  ],
+  "local_evidence_root": "Primary checkout; artifacts remain local and are not distributed with Git",
+  "records": [
+    {
+      "path": "artifacts/runtime-uart-wake-preflight-001.json",
+      "bytes": 140095,
+      "sha256": "4ef9b3f480d89ae634bf27779154b6e3d487ae27061869b429af9bc1f2412217"
+    },
+    {
+      "path": "artifacts/product/20261030-191750-966/result.json",
+      "bytes": 123009,
+      "sha256": "f585cc9bdb4a896227bd9472b430380ace9d0d4dd420a299af438d9176960a1e"
+    },
+    {
+      "path": "artifacts/flash/product/20261030-192851-268/result.json",
+      "bytes": 1767,
+      "sha256": "3c13fcb7d4df8a2c12befbb2e07afaeb0849859738aa99a8b009a88cfad2ea7f"
+    },
+    {
+      "path": "artifacts/runtime-record-20261030-printf-build.zip",
+      "bytes": 16482921,
+      "sha256": "11a4a7e475d352b9cbf063fc127a187e28ca390f52632d135456927e5af71029"
+    },
+    {
+      "path": "artifacts/runtime-uart-wake-20261030/passive-001/binding.json",
+      "bytes": 146625,
+      "sha256": "add7b6cab960d6c1685ac75656f49d3d3507ec116d8874f161ed62196e79d5d1"
+    },
+    {
+      "path": "artifacts/runtime-uart-wake-20261030/passive-001/events.jsonl",
+      "bytes": 962,
+      "sha256": "7c622c44203a74ca869d2dad51c8f231949541e6412d1522dddc707253a306cd"
+    },
+    {
+      "path": "artifacts/runtime-uart-wake-20261030/passive-001/capture.json",
+      "bytes": 564,
+      "sha256": "1d1c1ec63c6edee8e1bbf3dab7372f9c86550fae6c02709f229402c6ba155bee"
+    },
+    {
+      "path": "artifacts/runtime-uart-wake-20261030/passive-001/uart.bin",
+      "bytes": 1358,
+      "sha256": "15819ceac60dfe790dba2116c8e278727d199291a6befbaaedcc44adc7d8ce5b"
+    },
+    {
+      "path": "artifacts/runtime-uart-wake-20261030/date-001/binding.json",
+      "bytes": 145387,
+      "sha256": "a1645dacb75b01da2d571021ab1bcdd31972e1860d12e8a1f5dbef5f68ce790d"
+    },
+    {
+      "path": "artifacts/runtime-uart-wake-20261030/date-001/events.jsonl",
+      "bytes": 1268,
+      "sha256": "fab6bf286e30f0e874a84ab6895610f9ea6ff73224a6f0dc7c81bbfd7eef72d8"
+    },
+    {
+      "path": "artifacts/runtime-uart-wake-20261030/date-001/snapshot.json",
+      "bytes": 710,
+      "sha256": "8d84e32341ad5e7d68f80ed70c3af8476728979508c2c36b44f91fe3e8cb1d30"
+    },
+    {
+      "path": "artifacts/runtime-uart-wake-20261030/date-001/uart.bin",
+      "bytes": 38,
+      "sha256": "47336f3d2e1ebed852af5db5cd54dc7159c39c7b9802c33891d6d887fbc071b2"
+    },
+    {
+      "path": "artifacts/runtime-uart-wake-20261030/export-001/binding.json",
+      "bytes": 145315,
+      "sha256": "61e09d6ecacf3c38776a229d463e82ff8f35f172e13e63959332d058c74ded3a"
+    },
+    {
+      "path": "artifacts/runtime-uart-wake-20261030/export-001/events.jsonl",
+      "bytes": 6339,
+      "sha256": "2716fc3764fed721eeaa38190d89ee07498dc7e559dabbd85dba2142bbad3e33"
+    },
+    {
+      "path": "artifacts/runtime-uart-wake-20261030/export-001/export.json",
+      "bytes": 555,
+      "sha256": "07ba113da71b64646bc897895b58555dab2484b7fe434a21de29ce4de066c2e4"
+    },
+    {
+      "path": "artifacts/runtime-uart-wake-20261030/export-001/uart.bin",
+      "bytes": 17115,
+      "sha256": "e7aa0f5a40827936c4de84d670ebd329cbc78802efefb79ac58653ba5ee29447"
+    },
+    {
+      "path": "artifacts/runtime-uart-wake-20261030/post-001/binding.json",
+      "bytes": 145440,
+      "sha256": "c11c2b49ae48002287c583fee7e2a8ac6abc0747e95c57cc784d1b108744229d"
+    },
+    {
+      "path": "artifacts/runtime-uart-wake-20261030/post-001/events.jsonl",
+      "bytes": 2927,
+      "sha256": "971b633c3dde0f638fc2ccbfd96bedb3dcb6804496639ff4132a47cee616fa26"
+    },
+    {
+      "path": "artifacts/runtime-uart-wake-20261030/post-001/snapshot.json",
+      "bytes": 6100,
+      "sha256": "5eaf71dc2342498275f84c56e481d4737835eba5e6964b50374a6597a27f6c69"
+    },
+    {
+      "path": "artifacts/runtime-uart-wake-20261030/post-001/uart.bin",
+      "bytes": 4713,
+      "sha256": "ee46ca114dc90bf2c1e7b953caba1948acdef464a585e5f97a9a2f8cb479f5c9"
+    },
+    {
+      "path": "artifacts/runtime-uart-wake-20261030/export-001/records.json",
+      "bytes": 24254,
+      "sha256": "365a708f9defafa7871a17b521164da3c9bdfc5def3673af38e7c7361e523c31"
+    }
+  ]
+}

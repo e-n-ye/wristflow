@@ -195,7 +195,20 @@ FAL read新增精确返回守卫，防止启动把读失败当空槽覆盖；读
 
 本窗没有三场景长测、故障注入或额外重启；末态检查点／RAM尾段未能回读，短窗仅部分通过。跨版本下载后恢复检查点已有本窗证据，但不替代突然掉电恢复；首次GC延迟、精确长睡误差、栈峰值、功耗和续航仍未实测。后续有界动作及授权只回STATUS，不以重刷清除证据。
 
-只读定位：Product亮屏前已持IDLE锁，并已有`wake event`、PM报告及`screen on`日志；FinSH使用UART1 RX DMA，读不到字节时等待RX信号量。SDK `serial.c`的显式重开分支只处理Standby，本次检查未见Product Deep链显式重启RX DMA；这只是候选机制，不证明实际IRQ／DMA／FinSH哪层停滞，也不能排除TX或主机链路。最小辨别方案复用`serial_lab.py capture --mode passive --seconds 30`，先被动捕获用户一次KEY1唤醒的已有日志；有TX后再另定一次短查询。既有passive入口模拟通过、commands为空、资源关闭；未进行该实机对照，不新增诊断固件或关闭PM。
+只读定位：Product亮屏前已持IDLE锁，并已有`wake event`、PM报告及`screen on`日志；FinSH使用UART1 RX DMA，读不到字节时等待RX信号量。SDK `serial.c`的显式重开分支只处理Standby，本次检查未见Product Deep链显式重启RX DMA；这只是候选机制，不证明实际IRQ／DMA／FinSH哪层停滞，也不能排除TX或主机链路。当时最小辨别方案为`serial_lab.py capture --mode passive --seconds 30`，先被动捕获一次KEY1唤醒的已有日志；仅模拟准入。随后另获现场确认的实机结果见下节，没有新增诊断固件或关闭PM。
+
+<a id="runtime-uart-wake-20261030"></a>
+## 2026-10-30 同版被动KEY1与末态补验
+
+在PR #181／`47a3e7a`交付后，用户要求继续，重新确认同板屏、原电池＋电脑USB、接线固定且人在旁、未重刷普通`0fc781bf…`。源码／三镜像／SDK和端点绑定复核通过；Git检出造成的7项CRLF差异按既有source-archive策略逐项核原始哈希与仅换行变化，没有重编或改动BIN。复用已模拟验证的正式入口，简单被动窗口无需另建协作适配；[精简证据](evidence/2026-10-30/runtime-uart-wake.json)保留命令、原始流及清理。
+
+先关闭临时常亮并自然息屏，COM5打开确认后才提示用户按一次KEY1。30.09秒打开区间收到1,358B，明确包含`wake event=KEY1`、PM报告和`screen on`；commands为空、没有启动标记，用户确认亮屏／触摸／时间正常。证明本窗设备TX可见，不单独证明RX DMA、FinSH或物理DEEP状态。
+
+用户再次开启临时常亮后，仅一次`show_date`完整回应；然后一次新nonce快照导出及末态RTC／步数／腕／光感／PM查询均通过，分别关闭串口／租约，无重发、校时或记录控制。导出CRC／manifest／完整分页校验通过：boot2、generation5，当前记录8,195,694ms、总累计8,196,786ms；已保存6,475,467ms、RAM尾段1,720,227ms（约28分40秒）。RAM attempts／successes4、failures0，周期保存3／启动保存1；saved载荷成功计数3是写入前统计，不是第四次保存失败。与前次boot2／generation3相比，记录累计增长6,301,497ms、检查点增加2，仅支持这两份有限快照的进展，不作为唯一启动证明或精确长睡计时验收。
+
+末态当天0步／代次266 verified clean、failed0；腕requested／armed／owned1，自动亮度enabled／active／valid1且fault／cleanup0，IMU重试／恢复均0。最近样本64份、覆盖计数325，事件覆盖35，符合有界环而不是完整历史。没有另读闹钟内容，不扩为所有业务键逐值保持；电池仍USB供电，电压／估算SOC不是放电或续航结论。
+
+用户最终确认临时常亮已关、显示／触摸／时间正常且无保存失败提示，板上保留同版固件与记录，端口／租约已关，本轮设备动作结束。首版记录器短窗和末态回读缺口已补齐；旧零字节原因仍未知，本窗成功不等于已修复。三场景／24小时及更长观察、掉电恢复、实际GC延迟、长睡误差、栈峰值、电流和续航仍未实测；是否进入下一观察窗口只回STATUS与用户新确认。
 
 ## 数据来源与精度边界
 
