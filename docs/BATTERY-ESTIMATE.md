@@ -154,7 +154,7 @@ RAM仍以新增不超过8KiB为目标，事件／电压环必须固定容量，�
 <a id="runtime-recorder-20261030"></a>
 ## 2026-10-30 最小长期记录器软件闭环
 
-延续用户已确认的开机自动记录、串口停止及离线保存故障流程，在`a27a9fb`写保护基线上接入。本节分别记录软件闭环和随后另获授权的设备短窗；实现与精简指纹见[软件证据](evidence/2026-10-30/runtime-recorder.json)，设备结果见[短窗证据](evidence/2026-10-30/runtime-recorder-hardware.json)，交付状态与唯一下一步仍回[STATUS](STATUS.md#current)。原规划、核算和容量扫描分别保留其版本边界。
+延续用户已确认的开机自动记录、串口停止及离线保存故障流程，在`a27a9fb`写保护基线上接入。本节分别记录软件闭环和随后另获授权的设备短窗；实现与精简指纹见[软件证据](evidence/2026-10-30/runtime-recorder.json)，设备结果见[短窗证据](evidence/2026-10-30/runtime-recorder-hardware.json)。交付入口[PR #181](https://github.com/e-n-ye/wristflow/pull/181)，合并／同步以其Closure及最终交接为准，唯一下一步仍回[STATUS](STATUS.md#current)。原规划、核算和容量扫描分别保留其版本边界。
 
 ### 行为与数据
 
