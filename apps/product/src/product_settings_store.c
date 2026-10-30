@@ -110,16 +110,26 @@ static rt_int32_t wait_ticks(void)
     rt_mutex_release(&lock);
     return a < 0 ? b : b < 0 ? a : a < b ? a : b;
 }
+static void process_record(void)
+{
+    rt_mutex_take(&lock,RT_WAITING_FOREVER);
+    bool busy=preferences.state==WRISTFLOW_SAVE_PENDING || layout.state==WRISTFLOW_SAVE_PENDING;
+    rt_mutex_release(&lock);
+    if(!busy && io.process_record)io.process_record(io.context);
+}
 static void worker(void *context)
 {
     (void)context;
     for (;;) {
         process_layout();
         process_settings(); /* Recheck time after the potentially slow layout write. */
+        process_record();
         rt_uint32_t bits;
         rt_event_recv(&changed, 1, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, wait_ticks(), &bits);
     }
 }
+bool wristflow_product_settings_store_notify(void)
+{ return ready && rt_event_send(&changed,1)==RT_EOK; }
 
 uint32_t wristflow_product_settings_request(const wristflow_settings_t *value, void *context)
 {

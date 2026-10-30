@@ -71,6 +71,8 @@ static wristflow_save_state_t state(uint32_t id) { return wristflow_product_sett
 static wristflow_save_state_t lstate(uint32_t id) { return wristflow_product_layout_status(id,NULL); }
 static uint32_t submit(unsigned brightness)
 { wristflow_settings_t value=wristflow_settings_default(); value.brightness=(uint8_t)brightness; return wristflow_product_settings_request(&value,NULL); }
+static unsigned record_calls;
+static void record_process(void *context) { assert(context==NULL && !lock.held && !pm);++record_calls; }
 int main(void)
 {
     wristflow_settings_t boot=wristflow_settings_default();
@@ -154,6 +156,10 @@ int main(void)
     fail_send=true; id=submit(40); assert(state(id)==WRISTFLOW_SAVE_FAILED && wait_ticks()==-1); fail_send=false;
     before=pref_writes; newer=submit(40); background(); assert(state(newer)==WRISTFLOW_SAVE_DONE && pref_writes==before+1);
     assert(!pm && !lock.held && wait_ticks()==-1);
+    io.process_record=record_process;process_record();assert(record_calls==1 && wait_ticks()==-1);
+    id=submit(41);process_record();assert(record_calls==1 && wait_ticks()==1500);
+    assert(wristflow_product_settings_store_notify() && changed.bits==1 && wait_ticks()==1500);
+    ticks+=1500;background();process_record();assert(record_calls==2 && wait_ticks()==-1);
     puts("settings store: idle event wait, debounce, bounded retry, readback, stale completion, partial failure, wrap and cleanup passed");
     return 0;
 }

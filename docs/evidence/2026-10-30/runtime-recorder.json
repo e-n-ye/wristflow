@@ -1,0 +1,219 @@
+{
+  "date": "2026-10-30",
+  "base_commit": "a27a9fbd49c4ee7220bacf98ff0ac52cbf57eebe",
+  "scope": "Minimal runtime recorder software and bounded export; no device operation",
+  "decisions": [
+    "Automatically record after every boot; explicit start/stop, with stopped intervals excluded",
+    "Existing observations only; no new polling, timer, thread or checkpoint wake deadline",
+    "Actual checkpoint failure freezes shared writes until reset, continues RAM recording and foreground warning; export before deciding recovery",
+    "Startup incompatible or untrusted recorder payload disables its lane without claiming a physical media fault"
+  ],
+  "build": {
+    "id": "20261030-191750-966",
+    "bin_bytes": 3028744,
+    "bin_sha256": "0fc781bf6317a3508dff865cc0fc70351451a300bf73b0244fe1504f4cbb9865",
+    "elf_sha256": "87bb01f37f532ae13ee021867663158d94a40db12f1c7b03f400b8cbca15df6d",
+    "source_count": 609,
+    "artifact_count": 29,
+    "strict_current_bytes_verified": true,
+    "archive_entries": 642,
+    "archive_all_entries_read_back": true,
+    "ui_demo_existing_build_rechecked": "20261030-183030-190",
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "sdk_lock_unchanged": true,
+    "partition_unchanged": true,
+    "firmware_python": "3.13.15",
+    "compiler": "Arm GNU Toolchain 14.2.Rel1 / GCC 14.2.1 20241119",
+    "scons": "4.10.1",
+    "host_python": "MSYS2 UCRT Python 3.14",
+    "elf_flashdb_calls": {
+      "read": "_fdb_flash_read -> __wrap_fal_partition_read",
+      "write": "_fdb_flash_write -> __wrap_fal_partition_write",
+      "erase": "_fdb_flash_erase -> __wrap_fal_partition_erase"
+    },
+    "host_reset_symbol_absent": true
+  },
+  "resources": {
+    "comparison_build": "20261030-160129-842 / e1b0a6212abbbd59137c212aacecdedb33a8edc8e8a98b3466fac84aab18e421",
+    "flash_load_span_before": 3019796,
+    "flash_load_span_after": 3028744,
+    "flash_delta": 8948,
+    "application_partition_bytes": 8388608,
+    "application_free_bytes": 5359864,
+    "font_bytes": 1315308,
+    "image_bytes": 659339,
+    "main_bss_delta": 6224,
+    "main_data_delta": 8,
+    "static_ram_delta": 6232,
+    "record_durable_export_data_bytes": 6128,
+    "new_threads_or_stack_allocations": 0,
+    "compiler_stack_frames_bytes": {
+      "wf_product_runtime_start": 1576,
+      "wf_product_runtime_process": 1576,
+      "wf_record": 1200,
+      "wf_product_runtime_capture": 224,
+      "wf_runtime_select": 1024,
+      "wf_runtime_decode": 1128,
+      "wf_runtime_encode": 128
+    },
+    "existing_stacks_bytes": {
+      "main": 16384,
+      "wf_store": 6144,
+      "finsh": 4096
+    },
+    "limits": "Compiler local frames only; approximately 3.9KiB startup model path. Full SDK call chains, runtime stack high-water marks and GC latency remain unmeasured. No additional reserved stacks or heap allocation."
+  },
+  "validation": {
+    "debug_ctest": "78/78",
+    "release_assertions_ctest": "9/9 relevant",
+    "python": "14/14 on retest",
+    "real_sdk_gc": "Production guard, five fault modes at each of 111 first-GC mutations; existing business values retained",
+    "export": "Real C producer -> strict Python decoder, fragmented RecordedSession simulation; manifest/summary/sample CRC, mixed/reset/duplicate/truncated rejection and closure",
+    "longest_wire_line_characters": 125,
+    "console_buffer_bytes": 128,
+    "review": "Two independent read-only reviews plus focused re-review of freeze/CRC, control UTC and target formatter fixes; no remaining source blocker reported",
+    "review_fixes": [
+      "Freeze shared writes on final logical readback mismatch",
+      "Protect saved/failed/count/nonce manifest and reject extra wire fields",
+      "Control without fresh RTC clears UTC validity",
+      "Avoid unsupported SDK long-long printf with bounded decimal strings"
+    ],
+    "hardware_verified": false,
+    "native_capabilities": "Reuse SDK RTC/extended monotonic and boot caches, existing ADC and sensor-owner health publication. Product recording/persistence policy only; no hardware algorithm replaced. Device evidence is not implied.",
+    "final_incremental": "Control-clock change: Debug/Release2/2 and Python14/14; target formatter fix: Debug/Release1/1, Python14/14, Product and simulation passed"
+  },
+  "commands": [
+    "cmake -S tests -B artifacts/host-ui-build",
+    "cmake --build artifacts/host-ui-build -j4",
+    "ctest --test-dir artifacts/host-ui-build --output-on-failure",
+    "cmake --build artifacts/flashdb-gc-release --target runtime_record product_runtime_record runtime_input storage_write_guard flashdb_gc product_imu_diag product_settings_store storage_notice -j4",
+    "ctest --test-dir artifacts/flashdb-gc-release -R '^(runtime_record|product_runtime_record|runtime_input|storage_write_guard|flashdb_gc_.*|product_imu_diag|product_settings_store|storage_notice)$' --output-on-failure",
+    "TMPDIR=$PWD/artifacts/runtime-record-test-temp python -m unittest discover -s tests -p 'test_runtime*.py'",
+    "pwsh -NoProfile -ExecutionPolicy Bypass -File ./scripts/Build.ps1 -Example product -Jobs 4",
+    "python scripts/runtime_export.py simulate --fixture artifacts/runtime-record-resume-export.uart --out artifacts/runtime-record-resume-export-simulation",
+    "python scripts/lab_check.py --out artifacts/runtime-record-printf-product-check.json build --result artifacts/product/20261030-191750-966/result.json",
+    "python scripts/flash_audit.py --result artifacts/product/20261030-191750-966/result.json --readelf .tools/sifli/tools/arm-none-eabi-gcc/14.2.1/bin/arm-none-eabi-readelf.exe --output artifacts/runtime-record-printf-flash-audit.json"
+  ],
+  "failures_preserved": [
+    "Initial Python run: Windows denied replacement of progress.json in C-drive temporary directory. D-drive project temporary-directory retest passed all 14; shared file writer unchanged.",
+    "GitHub delivery initially blocked by unavailable configured local proxy and connection reset when bypassed. Current delivery state belongs only to STATUS/PR closure.",
+    "First hardware export on feea9383 failed: SDK rt_kprintf without RT_PRINTF_LONGLONG produced token=%lu and shifted variadic fields. Host standard printf did not cover target behavior. Raw225B preserved; serial/lease closed, no recording control or reset. Corrected candidate0fc781bf validated separately."
+  ],
+  "next_bounded_device_experiment": "Operator authorized hardware window, then separately authorized one corrected-BIN download after formatter failure. Complete automatic recorder/save export and short OFF/wake, preserve all failures; no deliberate fault injection or additional reset.",
+  "unverified": [
+    "Actual first-GC latency and preservation on this BIN",
+    "Physical power-cut recovery",
+    "Reset cause classification",
+    "Long-sleep error and runtime stack peaks",
+    "Sensor co-existence on target",
+    "Current and battery life"
+  ],
+  "local_evidence_root": "Primary checkout; artifacts are retained locally and are not distributed with Git",
+  "records": [
+    {
+      "path": "artifacts/product/20261030-191750-966/result.json",
+      "bytes": 123009,
+      "sha256": "f585cc9bdb4a896227bd9472b430380ace9d0d4dd420a299af438d9176960a1e"
+    },
+    {
+      "path": "artifacts/runtime-record-20261030-printf-build.zip",
+      "bytes": 16482921,
+      "sha256": "11a4a7e475d352b9cbf063fc127a187e28ca390f52632d135456927e5af71029"
+    },
+    {
+      "path": "artifacts/runtime-record-printf-product-check.json",
+      "bytes": 139102,
+      "sha256": "0ae980b738bff07daa66907a9d10d566884cae05c8d88b382287ac9feff5afac"
+    },
+    {
+      "path": "artifacts/runtime-record-final-ui-demo-check.json",
+      "bytes": 120030,
+      "sha256": "f6dc6a1d99e5d41dcd6b1bfc56a4a6d113b6f3a5aa1ad2d3c1291686ea9fff8f"
+    },
+    {
+      "path": "artifacts/runtime-record-resume-host-test.log",
+      "bytes": 8296,
+      "sha256": "4854d0033a6e178ef40d28d3b31438246539c4e2a78c926f8ba275a563a2718d"
+    },
+    {
+      "path": "artifacts/runtime-record-resume-release-test.log",
+      "bytes": 1184,
+      "sha256": "49b55bd135ac36fd898c4f9f16b83741c15fd6b098f3d5e961c0d9181e109766"
+    },
+    {
+      "path": "artifacts/runtime-record-resume-python-test.log",
+      "bytes": 2956,
+      "sha256": "1edf99e4263ea804ffd494595bfebe329cf8c6aaeb67483ec19405f4059c1b5d"
+    },
+    {
+      "path": "artifacts/runtime-record-control-clock-test.log",
+      "bytes": 442,
+      "sha256": "444543987eacb199ab8fdf6a9f892a3f6656dd83f9df65e7c4604ec50ca4855b"
+    },
+    {
+      "path": "artifacts/runtime-record-control-clock-release-test.log",
+      "bytes": 452,
+      "sha256": "e85878c6ae5647efb25ed8b3519b7632fe0e70b086d1b4d6cdcf49532cab838f"
+    },
+    {
+      "path": "artifacts/runtime-record-control-clock-python-test.log",
+      "bytes": 118,
+      "sha256": "a8feff4996dc2e0b9bec04ce7855fa8479d102ac42bc5a7a5d950d8367eaf72b"
+    },
+    {
+      "path": "artifacts/runtime-record-printf-test.log",
+      "bytes": 345,
+      "sha256": "1f9cf23193255c93aa08272903560b66a6299135d49755ee11b39c47cebec5c1"
+    },
+    {
+      "path": "artifacts/runtime-record-printf-release-test.log",
+      "bytes": 355,
+      "sha256": "7d012e4eb4cc69dc2ba860a72ac3d98da28f6db6734fbe0a57775fcf1f57641d"
+    },
+    {
+      "path": "artifacts/runtime-record-printf-python-test.log",
+      "bytes": 118,
+      "sha256": "eb30acf11e61548f48b0dc84359593760ce8eaf1e2cfee0a402e9cdf94d0b56a"
+    },
+    {
+      "path": "artifacts/runtime-record-printf-export-simulation/export.json",
+      "bytes": 548,
+      "sha256": "59e2b56fddfc83a3db7cc9978b7f6c6f82b8261bf6b3febb9d93b6945a6b2829"
+    },
+    {
+      "path": "artifacts/runtime-record-printf-export-simulation/records.json",
+      "bytes": 4672,
+      "sha256": "b2dc5163418cb1ee6456254aac33c85b83d511f5057aeb27ab5f7ccb43ad5e93"
+    },
+    {
+      "path": "artifacts/runtime-record-printf-flash-audit.json",
+      "bytes": 3098,
+      "sha256": "d819309089a8415da107deba4d26aa4aeaf7c585acaef06a321a7ed3effb78b8"
+    },
+    {
+      "path": "artifacts/runtime-record-printf-stack/product_runtime_record.c.su",
+      "bytes": 1084,
+      "sha256": "5d2c23d27b3f3a62a534fb6d08b68d7a2c07b7e8bd5434243f70043d5323bae0"
+    },
+    {
+      "path": "artifacts/runtime-record-printf-stack/runtime_record.c.su",
+      "bytes": 1476,
+      "sha256": "86165ae6a446228fbc5bc120d58912dd8f56f7e577d861bef7790aa8b63a695a"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/export-before-001/export.json",
+      "bytes": 619,
+      "sha256": "7ca205a0b618d3bf6e1a808ba953ccd07d545ccd7cb7c3923fdfe8b182c1f54d"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/export-before-001/uart.bin",
+      "bytes": 225,
+      "sha256": "d4b002cef271ffb12ad98620a72c10b0cb1ec5fb2466ba3b03fa06ff24fd2c0c"
+    },
+    {
+      "path": "artifacts/runtime-record-printf-wrapper-calls.log",
+      "bytes": 2040,
+      "sha256": "451519175f640f9b5ac62c731fd7db38e4658a3c5429eba8fc42c77c42f52ffd"
+    }
+  ]
+}

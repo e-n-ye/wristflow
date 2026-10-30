@@ -35,6 +35,7 @@
 | 地磁已完成实验的模拟／回放 | `scripts/mmc5603_lab.py`，纯解析见mag_protocol／light_protocol；本阶段CLI只提供simulate／replay／status，不开放真实端点。五方向策略属于地磁适配，不变成通用步骤引擎 |
 | 简单亮度／指南针查询及AOD被动记录 | `scripts/serial_lab.py`复用同一RecordedClient／RecordedSession；light仅允许`wf_light status`，compass仅允许`wf_compass status`，passive不允许发送命令，不要求完整网页。参数表达时长／间隔，纯解析只认缓存字段，不控制页面／传感器／亮度或AOD |
 | 构建／下载 | 继续使用Build.ps1／Flash.ps1；实验工具读取其结果，不复制下载包装器，不因电脑端整理重编固件 |
+| 长期记录只读导出 | `scripts/runtime_export.py simulate|capture`复用RecordedSession／Journal及serial_lab绑定，最多60秒；主机nonce固定快照，摘要／样本／manifest各自CRC，失败关口保留原UART，不发送start／stop、复位、PM、校时或Flash命令。`runtime_record_decode.py`只处理保存字节；[行为／首窗边界](BATTERY-ESTIMATE.md#runtime-recorder-20261030)，三场景离线长窗另需Console专用适配 |
 | 实验前后快照／下载后启动检查 | `scripts/device_snapshot.py`的capture／startup，具体用法见[快照入口](#device-snapshot)；版本、端口、输出与查询集合用参数表达，不再逐轮复制preflash／post-status包装。startup校时权限独立于capture |
 | 板端指南针候选实验 | `scripts/compass_probe_lab.py`提供simulate／device／status及smoke／axes／calibrate有限窗；device需要精确build／flash／BIN／端点和本轮现场确认。沿用Console／Journal／RecordedSession及原始UART，`inputs/start/freeze/stop/status`独立白名单、会话／代次／起点／时长归属检查，只停本次窗口，控制单发；轴向假设、有效配对、校准参数和磁北精度分别判断，见[指南针实验](COMPASS.md#device-probe-20261027) |
 | 三图／字库诊断显示验收 | `scripts/resource_acceptance.py`复用Console／Journal／RecordedSession，默认无端点模拟；设备模式只接受显式ResourceProbe构建，绑定result／flash／源码ZIP／完整BIN／端点／本轮确认。默认四视图，`--hours`为十张新增小时图＋缩略图；`--start-mode 4..14`可新建会话只补余项，旧失败独立保留，不复用旧tag。每视图60秒、人工确认45秒，串口回执限3秒、总流程限20分钟；仅status／start／匹配tag的stop，清理另核mode／start，丢ACK记录不确定归属，不盲停／重发；异常保留recovery_required并关闭主机资源。无RTC／PM／传感器／通知存储控制，验后恢复普通Product；[版本证据](FLASH-CAPACITY.md) |

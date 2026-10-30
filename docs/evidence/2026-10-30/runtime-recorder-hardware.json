@@ -1,0 +1,383 @@
+{
+  "date": "2026-10-30",
+  "base_commit": "a27a9fbd49c4ee7220bacf98ff0ac52cbf57eebe",
+  "scope": "Authorized ordinary recorder hardware short window and bounded read-only continuation; partial acceptance, no long-run result",
+  "source_thread": "01a18c2d-9d95-7052-a3e5-50aedd8302da",
+  "firmware": {
+    "build": "20261030-191750-966",
+    "bin_sha256": "0fc781bf6317a3508dff865cc0fc70351451a300bf73b0244fe1504f4cbb9865",
+    "bin_bytes": 3028744,
+    "flash_result": "artifacts/flash/product/20261030-192851-268/result.json",
+    "three_images_write_verify_exit_code": 0,
+    "sdk_lock_and_partition_unchanged": true
+  },
+  "conditions": {
+    "operator_confirmed": "Same Huangshan board and screen, original battery plus computer USB, fixed wiring and operator present",
+    "endpoint": "COM5 CH340 VID:PID 1A86:7523, location 1-1.1, disable_modem=1",
+    "identity_limit": "Endpoint and supplied build/flash binding verified; no hardware UID or live firmware hash attestation"
+  },
+  "before": {
+    "steps": 0,
+    "steps_generation": 263,
+    "verified_clean": true
+  },
+  "successful_startup": {
+    "report": "artifacts/runtime-record-hardware-20261030/printf-startup-002/snapshot.json",
+    "single_time_sync_attempted": true,
+    "utc_readback": 1793361687,
+    "steps": 0,
+    "steps_generation": 264,
+    "verified_clean": true,
+    "wrist_requested_armed_owned": [
+      1,
+      1,
+      1
+    ],
+    "auto_enabled_active_valid": [
+      1,
+      1,
+      1
+    ],
+    "auto_fault": 0,
+    "alarm_values_independently_checked": false
+  },
+  "successful_export": {
+    "report": "artifacts/runtime-record-hardware-20261030/export-before-002/export.json",
+    "manifest_summary_sample_crc_and_complete_pages": true,
+    "nonce": 12551958125967012231,
+    "failed_recording": false,
+    "samples": 64,
+    "current": {
+      "boot": 2,
+      "generation": 3,
+      "flags": 7,
+      "recorded_ms": 1894197,
+      "total_recorded_ms": 1895289,
+      "scene_ms": {
+        "unknown": 2618,
+        "on": 686595,
+        "flashlight": 0,
+        "dim": 9995,
+        "off": 1196081,
+        "aod": 0
+      },
+      "attempts": 2,
+      "successes": 2,
+      "failures": 0,
+      "periodic_saves": 1,
+      "explicit_saves": 1,
+      "fault_mask": 0,
+      "io_retries": 0,
+      "io_recoveries": 0
+    },
+    "saved": {
+      "boot": 2,
+      "generation": 3,
+      "flags": 6,
+      "recorded_ms": 1801102,
+      "total_recorded_ms": 1802194,
+      "scene_ms": {
+        "unknown": 2618,
+        "on": 593500,
+        "flashlight": 0,
+        "dim": 9995,
+        "off": 1196081,
+        "aod": 0
+      },
+      "attempts": 1,
+      "successes": 1,
+      "failures": 0,
+      "periodic_saves": 0,
+      "explicit_saves": 1,
+      "fault_mask": 0,
+      "io_retries": 0,
+      "io_recoveries": 0
+    },
+    "unsaved_recorded_ms": 93095,
+    "counter_limit": "Saved counters precede that write/readback; current RAM reflects both successful commits. RAM samples and eight events are bounded, not full history."
+  },
+  "operator_checks": [
+    {
+      "stage": "previous short window",
+      "confirmed": "Temporary always-on disabled, natural OFF about30s, KEY1 wake, display/touch/time normal; temporary always-on re-enabled for attempted export"
+    },
+    {
+      "stage": "current read-only continuation",
+      "confirmed": "Same physical conditions, awake and temporary always-on enabled before collection"
+    },
+    {
+      "stage": "final cleanup",
+      "confirmed": "Digital time advances, touch works, no save-failure label; temporary always-on disabled"
+    }
+  ],
+  "failed_attempts": [
+    {
+      "report": "artifacts/runtime-record-hardware-20261030/export-before-001/export.json",
+      "outcome": "timeout",
+      "uart_bytes": 225,
+      "resources_closed": true,
+      "reset": false,
+      "detail": "TimeoutError('No complete response before deadline')"
+    },
+    {
+      "report": "artifacts/runtime-record-hardware-20261030/printf-startup-001/snapshot.json",
+      "outcome": "timeout",
+      "uart_bytes": 0,
+      "resources_closed": true,
+      "reset": false,
+      "detail": "TimeoutError('No complete response before deadline')"
+    },
+    {
+      "report": "artifacts/runtime-record-hardware-20261030/export-after-001/export.json",
+      "outcome": "timeout",
+      "uart_bytes": 0,
+      "resources_closed": true,
+      "reset": false,
+      "detail": "TimeoutError('No complete response before deadline')"
+    },
+    {
+      "report": "artifacts/runtime-record-hardware-20261030/export-after-002/export.json",
+      "outcome": "timeout",
+      "uart_bytes": 0,
+      "resources_closed": true,
+      "reset": false,
+      "detail": "TimeoutError('No complete response before deadline')"
+    },
+    {
+      "report": "artifacts/runtime-record-hardware-20261030/post-001/snapshot.json",
+      "outcome": "timeout",
+      "uart_bytes": 0,
+      "resources_closed": true,
+      "reset": false,
+      "detail": "TimeoutError('No complete response before deadline')"
+    }
+  ],
+  "cleanup": {
+    "all_recorded_ports_and_leases_closed": true,
+    "current_continuation_reset": false,
+    "current_continuation_time_write": false,
+    "current_continuation_recording_control": false,
+    "current_continuation_flash": false,
+    "ordinary_firmware_and_records_retained": true,
+    "additional_device_actions": false
+  },
+  "acceptance": "PARTIAL: startup, restored checkpoint and one complete export observed; short OFF/wake user-confirmed, post-wake current/saved summary and final business cache unavailable",
+  "unverified": [
+    "Post-wake recorder and persistence state",
+    "UART no-response root cause; UI operation does not prove FinSH or recorder worker health",
+    "Actual GC latency, arbitrary physical power-cut preservation",
+    "Long-sleep timing error and stack high-water marks",
+    "Controlled three-scene battery observations, 24h/72h/one-week stability, current and battery life"
+  ],
+  "next_bounded_experiment": "After fresh operator confirmation, reuse serial_lab capture passive for30s while the operator presses KEY1 once. No transmitted command, reset, PM change or flash. Observe existing wake/TX logs before deciding a separate single short query; simulation only has passed so far.",
+  "records": [
+    {
+      "path": "artifacts/product/20261030-191750-966/result.json",
+      "bytes": 123009,
+      "sha256": "f585cc9bdb4a896227bd9472b430380ace9d0d4dd420a299af438d9176960a1e"
+    },
+    {
+      "path": "artifacts/flash/product/20261030-192851-268/result.json",
+      "bytes": 1767,
+      "sha256": "3c13fcb7d4df8a2c12befbb2e07afaeb0849859738aa99a8b009a88cfad2ea7f"
+    },
+    {
+      "path": "artifacts/runtime-record-resume2-product-check.json",
+      "bytes": 139102,
+      "sha256": "0ae980b738bff07daa66907a9d10d566884cae05c8d88b382287ac9feff5afac"
+    },
+    {
+      "path": "artifacts/runtime-record-resume2-ui-check.json",
+      "bytes": 120030,
+      "sha256": "f6dc6a1d99e5d41dcd6b1bfc56a4a6d113b6f3a5aa1ad2d3c1291686ea9fff8f"
+    },
+    {
+      "path": "artifacts/runtime-record-resume2-evidence-check.json",
+      "bytes": 5402,
+      "sha256": "d973a746f88759c3715d9f05f7728602bf208481737e688fe9bf038deb8a1cfd"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/preflash-001/snapshot.json",
+      "bytes": 5918,
+      "sha256": "53dad9d8db2713d870e8d90c764a60cf187cac0ff842873abcf87a2445095189"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/preflash-001/uart.bin",
+      "bytes": 4602,
+      "sha256": "45acdd3c84a1bca63d3dbef73fadbe8216000c37ed7568be561704faac129f51"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/preflash-001/events.jsonl",
+      "bytes": 3055,
+      "sha256": "489c184c1fe59234500cccae9feb69f20d5c6ae8dcf131ebe78cd2d871312612"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/startup-001/snapshot.json",
+      "bytes": 6240,
+      "sha256": "2abbbafef63b3b527821d8d62baed572884d78943d496b5fbf05976175c58184"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/startup-001/uart.bin",
+      "bytes": 4768,
+      "sha256": "f63c6533781b6032c3ddc63ac68a8aae9d4d98aafe68c7e3fec5ef3d4c020dd5"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/startup-001/events.jsonl",
+      "bytes": 4081,
+      "sha256": "104aecf20b05608956a706f1dab1b1989b561f23427ed895cd2e0e7620697e5d"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/export-before-001/export.json",
+      "bytes": 619,
+      "sha256": "7ca205a0b618d3bf6e1a808ba953ccd07d545ccd7cb7c3923fdfe8b182c1f54d"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/export-before-001/uart.bin",
+      "bytes": 225,
+      "sha256": "d4b002cef271ffb12ad98620a72c10b0cb1ec5fb2466ba3b03fa06ff24fd2c0c"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/export-before-001/events.jsonl",
+      "bytes": 1337,
+      "sha256": "d7ca2ce057422e6798042a66925f1cb4cde7702ab6ca937db6601c215e028927"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/printf-startup-001/snapshot.json",
+      "bytes": 718,
+      "sha256": "142654fef390de48793a32f7b318637c321bd94ffa097e8568e3aff22c5270e6"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/printf-startup-001/uart.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/printf-startup-001/events.jsonl",
+      "bytes": 1303,
+      "sha256": "e7c03869abfe51e36062af1dbba5867077ae18dc5e25b2714618c02404e682e3"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/printf-startup-002/snapshot.json",
+      "bytes": 6330,
+      "sha256": "38cf0fe5d5d1e2d5705b96470849a972023388da4391457690353771b63b9518"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/printf-startup-002/uart.bin",
+      "bytes": 4763,
+      "sha256": "0f8d886c1bcfd0accfb13b7423a6879162dc47064a5ec107ad8337a2350abceb"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/printf-startup-002/events.jsonl",
+      "bytes": 3828,
+      "sha256": "318fe4606ad1ffaafcc99485f17b2561b1cccfbff27eb2367327312005b88dfd"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/export-before-002/export.json",
+      "bytes": 569,
+      "sha256": "a5ec6ec742aade3cbec4b410a27d2ed85727cd35eb6cd15e9f550a3bd236a7e2"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/export-before-002/uart.bin",
+      "bytes": 17288,
+      "sha256": "88032d22c5c3bdbac03acb478406b5c4ffe4565a70372aac8e8062f82f55c546"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/export-before-002/events.jsonl",
+      "bytes": 6603,
+      "sha256": "78b06fbbea99a95f35db819691da4c4fd185206fcb68cbd6b55431e3135a43e5"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/export-after-001/export.json",
+      "bytes": 616,
+      "sha256": "e38c9d8036ead8a45981e3e7016af0b1f06d19f98f2329d94a265982588086ee"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/export-after-001/uart.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/export-after-001/events.jsonl",
+      "bytes": 1337,
+      "sha256": "32f5d07cad276267fdc08b951e5a957f7d3e9fac1eaceb484cf4676961d96697"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/export-after-002/export.json",
+      "bytes": 617,
+      "sha256": "6da8287ba604a5cd286954736ff52488e4d2c9b52470ac67ffa1a34a3c2210e5"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/export-after-002/uart.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/export-after-002/events.jsonl",
+      "bytes": 1338,
+      "sha256": "9ba51df73d775fa019b639b559824ad907b643151e99de221e9eee49dcc6dd2c"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/post-001/snapshot.json",
+      "bytes": 709,
+      "sha256": "96d6869367d0110127c21393e27fc08fef3edc5b519abc76d034593c9ed4ab40"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/post-001/uart.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/post-001/events.jsonl",
+      "bytes": 1311,
+      "sha256": "d7f51c8cdc49ebc027c9ea0301f1e3d703ee7cd50b40fb6ad39972499064cb4c"
+    },
+    {
+      "path": "artifacts/runtime-record-hardware-20261030/export-before-002/records.json",
+      "bytes": 23765,
+      "sha256": "7dfb40d708001733cd28403f39fcdb5aeafb50ee3330cc1f7fe8fec06b092cec"
+    },
+    {
+      "path": "artifacts/runtime-record-uart-passive-simulation-001.log",
+      "bytes": 560,
+      "sha256": "2287d775551b7623b6aa50dbecf6aa068545a236ec618534d6e851209d715f49"
+    },
+    {
+      "path": "artifacts/runtime-record-uart-passive-simulation-001/uart.bin",
+      "bytes": 3626,
+      "sha256": "6064f42976a5c5220fde6f3e366d128ce6a0987a8ad0d0afe5ce77de7e5c2d3b"
+    }
+  ],
+  "source_inspection": {
+    "conclusion": "Candidate UART/DMA/FinSH receive-chain issue only; actual failing layer unknown",
+    "facts": [
+      {
+        "path": "apps/product/src/main.c",
+        "line": 661,
+        "fact": "Hold application IDLE before display restore; wake-event, PM report and screen-on logs already exist"
+      },
+      {
+        "path": "apps/product/src/product_pm.c",
+        "line": 49,
+        "fact": "Display on holds application IDLE request"
+      },
+      {
+        "path": "vendor/SiFli-SDK/rtos/rtthread/components/drivers/serial/serial.c",
+        "line": 1002,
+        "fact": "Explicit configure/open resume branch applies to Standby, not Deep"
+      },
+      {
+        "path": "vendor/SiFli-SDK/rtos/rtthread/components/finsh/shell.c",
+        "line": 171,
+        "fact": "No byte causes indefinite wait on rx_sem; rx indication releases semaphore; DMA selected if supported"
+      }
+    ],
+    "limits": "Source paths checked, no UART/DMA register, thread-state or wire-level observations; missing explicit Deep reopen does not itself prove a defect."
+  },
+  "passive_simulation": {
+    "passed": true,
+    "commands": [],
+    "resources_closed": true,
+    "hardware_verified": false,
+    "report": "artifacts/runtime-record-uart-passive-simulation-001.log"
+  }
+}

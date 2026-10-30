@@ -45,8 +45,10 @@ static void boundary(const struct fal_partition *p,uint32_t addr,size_t n)
     assert(p==&part && addr<=sizeof media && n<=sizeof media-addr);
     if (++budget>1000000) { assert(armed); cut(2); }
 }
-int fal_partition_read(const struct fal_partition *p,uint32_t addr,uint8_t *out,size_t n)
+int __real_fal_partition_read(const struct fal_partition *p,uint32_t addr,uint8_t *out,size_t n)
 { boundary(p,addr,n); ++reads; memcpy(out,media+addr,n); return (int)n; }
+int fal_partition_read(const struct fal_partition *p,uint32_t addr,uint8_t *out,size_t n)
+{ return __wrap_fal_partition_read(p,addr,out,n); }
 static bool fault(void)
 { ++mutations; if (armed && mutations==fail_at) { ++fault_hit;fault_visible=true;return true; } return false; }
 int __real_fal_partition_write(const struct fal_partition *p,uint32_t addr,const uint8_t *in,size_t n)

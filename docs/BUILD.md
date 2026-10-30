@@ -1,5 +1,9 @@
 # 可复现构建基线
 
+## 2026-10-30 最小长期记录器
+
+`Build.ps1 -Example product -Jobs 4`最终`20261030-191750-966`退出0，BIN3,028,744B／`0fc781bf…`，609源码／29产物严格核验和完整ZIP读回通过；SDK锁不变，ELF的FlashDB read／write／erase进入三项FAL wrapper，主机复位入口未编入。UI Demo `20261030-183030-190`最终增量构建与字节核验通过。Debug78/78、保留断言Release相关9/9，后续UTC修正相关各2/2、设备格式化修正各1/1与Python14/14及C→串口分片模拟→解码通过；首轮临时文件替换拒绝、实机不支持long-long输出和修正均保留。资源、静态栈帧及设备分版结果见[记录器专题](BATTERY-ESTIMATE.md#runtime-recorder-20261030)及[证据](evidence/2026-10-30/runtime-recorder.json)；已有SDK／链接警告保留，未测功耗。
+
 ## 2026-10-30 共享存储写保护
 
 `Build.ps1 -Example product -Jobs 4`最终`20261030-160129-842`退出0，BIN3,019,796B／`e1b0a621…`，较恢复普通版增加536B；源码／29产物严格检查通过。最终ELF的`_fdb_flash_write`与`_fdb_flash_erase`明确调用两个FAL wrapper，无主机复位入口。Debug及保留断言Release相关各4/4通过，涵盖真实SDK回收矩阵、保护边界和顶层提示跨页面保持。首次`155815-594`在开发中新增提示模块后、构建入口已收集源文件的情况下出现未链接该模块的失败，最终完整重跑通过；未忽略失败或操作设备。[保护契约](BATTERY-ESTIMATE.md#storage-write-guard-20261030)；记录器本体及实机／功耗仍待后续。
