@@ -10,6 +10,7 @@ void wf_storage_write_guard_test_reset(void) { target=NULL;state=(wf_storage_wri
 #endif
 int __real_fal_partition_write(const struct fal_partition *, uint32_t, const uint8_t *, size_t);
 int __real_fal_partition_erase(const struct fal_partition *, uint32_t, size_t);
+int __real_fal_partition_read(const struct fal_partition *, uint32_t, uint8_t *, size_t);
 bool wf_storage_write_guard_bind(const struct fal_partition *part)
 {
     /* Binding is immutable until processor reset, including a failed bind. */
@@ -23,6 +24,7 @@ static int fail(unsigned reason,uint32_t off,size_t n)
     if(!state.fault)state=(wf_storage_write_fault_t){reason,off,n,0};
     return -1;
 }
+void wf_storage_write_guard_checkpoint_failed(void) { (void)fail(6,0,0); }
 static bool allowed(uint32_t off,size_t n)
 {
     if(state.fault) { if(state.blocked!=UINT32_MAX)++state.blocked;return false; }
@@ -59,4 +61,13 @@ int __wrap_fal_partition_erase(const struct fal_partition *part,uint32_t off,siz
     if(result!=(int)n)return fail(4,off,n);
     if(!verify(part,off,NULL,n))return fail(3,off,n);
     return result;
+}
+int __wrap_fal_partition_read(const struct fal_partition *part,uint32_t off,uint8_t *bytes,size_t n)
+{
+    if(!target || part!=target)return __real_fal_partition_read(part,off,bytes,n);
+    /* Reads remain available after a fault, but their error must prevent
+     * startup from interpreting an unread slot as absent and overwriting it. */
+    if(off>target->len || n>target->len-off || n>INT_MAX || (n && !bytes))return fail(1,off,n);
+    int result=__real_fal_partition_read(part,off,bytes,n);
+    return result==(int)n ? result:fail(5,off,n);
 }

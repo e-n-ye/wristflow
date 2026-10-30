@@ -3,6 +3,7 @@
 #include "imu_wrist_tilt.h"
 #include "product_steps.h"
 #include "product_wrist.h"
+#include "product_runtime_health.h"
 #include "product_wrist_irq.h"
 #include "product_pm.h"
 #include "product_services.h"
@@ -205,6 +206,17 @@ bool wristflow_product_wrist_failed(void)
     rt_base_t level = rt_hw_interrupt_disable();
     bool value = wrist_failed_cached;
     rt_hw_interrupt_enable(level); return value;
+}
+wf_product_runtime_health_t wf_product_runtime_health(void)
+{
+    rt_base_t level=rt_hw_interrupt_disable();
+    wf_product_runtime_health_t value={
+        .imu_fault=cached.phase==WF_IMU_FAULT,
+        .imu_known=cached.phase==WF_IMU_FAULT || (cached.phase==WF_IMU_RUNNING && cached.counter_valid),
+        .wrist_fault=wrist_cached.phase==WF_IMU_FAULT,
+        .wrist_known=wrist_cached.phase==WF_IMU_FAULT || wrist_cached.phase==WF_IMU_RUNNING,
+        .retries=cached.poll_retries,.recoveries=cached.poll_recoveries};
+    rt_hw_interrupt_enable(level);return value;
 }
 
 static uint32_t now_ms(void)

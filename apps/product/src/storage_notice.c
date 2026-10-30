@@ -1,10 +1,11 @@
 #include "storage_notice.h"
 #include "product_services.h"
+#include "product_runtime_record.h"
 #include "wristflow_ui.h"
 void wf_product_storage_notice_poll(void)
 {
     static lv_obj_t *notice;
-    if(!wristflow_product_services_storage_failed())return;
+    if(!wristflow_product_services_storage_failed() && !wf_product_runtime_failed())return;
     if(!notice) {
         notice=layout_save_status_create(lv_layer_top());
         if(!notice)return;

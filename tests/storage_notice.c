@@ -4,6 +4,7 @@
 #include <string.h>
 static bool failed;
 bool wristflow_product_services_storage_failed(void) { return failed; }
+bool wf_product_runtime_failed(void) { return false; }
 int main(void)
 {
     lv_init();lv_display_t *display=lv_display_create(390,450);assert(display);

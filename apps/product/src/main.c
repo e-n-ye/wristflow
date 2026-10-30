@@ -8,6 +8,7 @@
 #include "product_ui.h"
 #include "product_services.h"
 #include "storage_notice.h"
+#include "runtime_input.h"
 #include "product_ble.h"
 #include "product_pm.h"
 #include "product_steps.h"
@@ -98,6 +99,13 @@ static void capture_battery(void)
     if (lcd_on) record.context.flags |= WF_BATTERY_LCD_ON;
     if (defer_brightness) record.context.flags |= WF_BATTERY_BRIGHTNESS_DEFERRED;
     wristflow_product_battery_trace_observe(&record);
+    bool flashlight=navigation && navigation->surface==WRISTFLOW_SURFACE_FLASHLIGHT &&
+        !(record.context.flags&(WF_BATTERY_CHARGING_OVERLAY|WF_BATTERY_REMINDER_OVERLAY)) &&
+        !wristflow_ui_shell_notification_active(product_shell) && brightness_valid && acknowledged_brightness==100;
+    rt_base_t runtime_level=rt_hw_interrupt_disable();
+    bool diagnostic=probe_reserved;
+    rt_hw_interrupt_enable(runtime_level);
+    wf_product_runtime_capture(&record,resident_cache.phase==WF_AOD_PANEL_RESIDENT,flashlight,diagnostic);
 }
 
 static void capture_carousel(void)
@@ -425,6 +433,7 @@ static void resident_publish(const wf_aod_display_t *state)
     rt_base_t level = rt_hw_interrupt_disable();
     resident_cache = *state;
     rt_hw_interrupt_enable(level);
+    capture_battery(); /* Actual resident/restore result, after releasing the IRQ guard. */
 }
 static uint32_t resident_restore(wf_aod_display_t *state, resident_context_t *context)
 {
@@ -468,6 +477,7 @@ static void run_panel_probe(rt_device_t lcd, lv_indev_t *pointer)
         level = rt_hw_interrupt_disable();
         probe_input.active = true; probe_input.cancel = false;
         rt_hw_interrupt_enable(level);
+        capture_battery(); /* Diagnostic residency is explicitly unclassified. */
         lv_timer_enable(false);
         if (panel_drain(lcd)) {
             wf_aod_probe_run(&panel_probe, &io, lcd, seconds);

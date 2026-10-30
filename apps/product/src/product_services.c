@@ -5,6 +5,10 @@
 #include "product_pm.h"
 #include "steps_store.h"
 #include "storage_write_guard.h"
+#include "product_runtime_record.h"
+#include <bf0_hal.h>
+#include <bf0_pm.h>
+#include <system_bf0_ap.h>
 #include <rtthread.h>
 #include <rtdevice.h>
 #include <flashdb.h>
@@ -48,6 +52,13 @@ unsigned wristflow_product_services_storage_snapshot(uint8_t *out, size_t size, 
 static rt_device_t rtc;
 static uint32_t rtc_revision, previous_ticks;
 static uint64_t extended_ticks;
+static wristflow_alarm_clock_t runtime_clock;
+wristflow_alarm_clock_t wristflow_product_services_clock_cache(void)
+{
+    rt_mutex_take(&rtc_lock,RT_WAITING_FOREVER);
+    wristflow_alarm_clock_t value=runtime_clock;
+    rt_mutex_release(&rtc_lock);return value;
+}
 
 /* Under rtc_lock. Alarm's five-minute timer also observes ticks when every
  * view is asleep, so the extended clock cannot miss a whole 32-bit cycle. */
@@ -73,6 +84,7 @@ wristflow_alarm_clock_t wristflow_product_services_time(void)
     clock.utc = (uint32_t)value.tv_sec; clock.subsecond_ms = (uint16_t)(value.tv_usec / 1000);
     clock.valid = clock.valid && clock.utc >= WRISTFLOW_TIME_MIN && clock.utc <= WRISTFLOW_TIME_MAX;
     clock.revision = rtc_revision; clock.monotonic_ms = monotonic_locked();
+    runtime_clock=clock;
     rt_mutex_release(&rtc_lock); return clock;
 }
 bool wristflow_product_services_storage_ready(void) { return storage_ready; }
@@ -82,6 +94,12 @@ bool wristflow_product_services_storage_failed(void)
     rt_mutex_take(&database_lock,RT_WAITING_FOREVER);
     bool failed=wf_storage_write_guard_status().fault!=0;
     rt_mutex_release(&database_lock);return failed;
+}
+void wristflow_product_services_checkpoint_failed(void)
+{
+    rt_mutex_take(&database_lock,RT_WAITING_FOREVER);
+    wf_storage_write_guard_checkpoint_failed();
+    rt_mutex_release(&database_lock);
 }
 static bool set_record(const char *key,const uint8_t *record,size_t size)
 {
@@ -93,6 +111,24 @@ static bool set_record(const char *key,const uint8_t *record,size_t size)
     rt_mutex_release(&database_lock);
     return ok; /* SDK success alone is insufficient after a latched FAL error. */
 }
+#if !defined(WF_STORAGE_PROBE) && !defined(WF_RESOURCE_PROBE)
+static const char *const runtime_keys[]={"runtime_a","runtime_b"};
+static size_t runtime_read(unsigned key,uint8_t *bytes,size_t capacity,void *context)
+{
+    (void)context;if(!storage_ready || key>=2 || capacity!=WF_RUNTIME_BYTES)return 0;
+    struct fdb_blob blob;
+    rt_mutex_take(&database_lock,RT_WAITING_FOREVER);
+    struct fdb_kv kv;
+    bool exists=fdb_kv_get_obj(&settings_db,runtime_keys[key],&kv)!=NULL;
+    bool length_ok=!exists || kv.value_len==WF_RUNTIME_BYTES;
+    size_t n=exists && length_ok ? fdb_kv_get_blob(&settings_db,runtime_keys[key],fdb_blob_make(&blob,bytes,capacity)):0;
+    bool fault=wf_storage_write_guard_status().fault!=0;
+    size_t result=fault || !length_ok || (exists && !n) ? SIZE_MAX:!exists ? 0:n==blob.saved.len && n<=capacity ? n:SIZE_MAX;
+    rt_mutex_release(&database_lock);return result;
+}
+static bool runtime_write(unsigned key,const uint8_t *bytes,void *context)
+{ (void)context;return storage_ready && key<2 && set_record(runtime_keys[key],bytes,WF_RUNTIME_BYTES); }
+#endif
 static const char *const steps_keys[] = {"steps_a", "steps_b"};
 size_t wristflow_product_services_steps_read(unsigned key, uint8_t *record, size_t capacity, void *context)
 {
@@ -219,10 +255,15 @@ void wristflow_product_services_start(wristflow_settings_t *settings, wristflow_
         rt_kprintf("[product] layout restore=%s generation=%u pages=%u\n",
             layout_restored ? "yes" : "defaults", layout_store.generation, layout->count);
     }
+#if !defined(WF_STORAGE_PROBE) && !defined(WF_RESOURCE_PROBE)
+    wf_product_runtime_start(storage_ready?runtime_read:NULL,storage_ready?runtime_write:NULL,NULL,
+        wristflow_product_services_monotonic(),(uint32_t)SystemPowerOnModeGet(),pm_get_pwron_wakeup_src());
+#endif
     if (storage_ready) {
-        const wristflow_settings_store_io_t backend = {NULL, read_settings, write_settings, read_layout, write_layout};
+        const wristflow_settings_store_io_t backend = {NULL, read_settings, write_settings, read_layout, write_layout,wf_product_runtime_process};
         storage_ready = wristflow_product_settings_store_start(settings, restored, &layout_store, &backend);
     }
+    if(!storage_ready)wf_product_runtime_disable_storage();
     service_ready = true;
     rt_kprintf("[product] storage=%s restore=%s brightness=%u face=%s breathing=%u rtc=%s\n",
         storage_ready ? "ready" : "unavailable", restored ? "yes" : "defaults",
@@ -252,6 +293,8 @@ wristflow_watch_snapshot_t wristflow_product_services_snapshot(void)
     uint32_t seconds = 0;
     rt_mutex_take(&rtc_lock, RT_WAITING_FOREVER);
     bool valid = rtc && rt_device_control(rtc, RT_DEVICE_CTRL_RTC_GET_TIME, &seconds) == RT_EOK;
+    runtime_clock=(wristflow_alarm_clock_t){.utc=seconds,.valid=valid && seconds>=WRISTFLOW_TIME_MIN && seconds<=WRISTFLOW_TIME_MAX,
+        .revision=rtc_revision,.monotonic_ms=monotonic_locked()};
     rt_mutex_release(&rtc_lock);
     wristflow_watch_snapshot_t snapshot = wristflow_product_snapshot(valid, seconds);
     snapshot.uptime_seconds = rt_tick_get() / RT_TICK_PER_SECOND;
@@ -267,6 +310,8 @@ int wristflow_product_services_set_time(uint32_t seconds)
     rt_err_t result = rt_device_control(rtc, RT_DEVICE_CTRL_RTC_SET_TIME, &seconds);
     ++rtc_revision; /* Also invalidates scheduling if SET/readback is uncertain. */
     if (result == RT_EOK) result = rt_device_control(rtc, RT_DEVICE_CTRL_RTC_GET_TIME, &readback);
+    runtime_clock=(wristflow_alarm_clock_t){.utc=readback,.valid=result==RT_EOK && readback>=seconds && readback-seconds<=1 && readback>=WRISTFLOW_TIME_MIN && readback<=WRISTFLOW_TIME_MAX,
+        .revision=rtc_revision,.monotonic_ms=monotonic_locked()};
     rt_mutex_release(&rtc_lock);
     wristflow_product_alarm_clock_changed();
     wristflow_product_steps_clock_changed();

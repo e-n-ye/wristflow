@@ -10,6 +10,7 @@ typedef struct {
     bool (*write_settings)(void *, const uint8_t record[WRISTFLOW_SETTINGS_BYTES]);
     wristflow_layout_read_t read_layout;
     wristflow_layout_write_t write_layout;
+    void (*process_record)(void *); /* Optional independent lane, after configuration jobs. */
 } wristflow_settings_store_io_t;
 
 /* Startup only. Owns copies of the backend and restored layout publication.
@@ -24,5 +25,7 @@ uint32_t wristflow_product_settings_request(const wristflow_settings_t *, void *
 wristflow_save_state_t wristflow_product_settings_status(uint32_t, void *);
 uint32_t wristflow_product_layout_request(const wristflow_layout_t *, void *);
 wristflow_save_state_t wristflow_product_layout_status(uint32_t, void *);
+/* Wake the existing worker for an already-due RAM record; adds no deadline. */
+bool wristflow_product_settings_store_notify(void);
 
 #endif
