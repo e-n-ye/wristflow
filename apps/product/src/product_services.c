@@ -4,6 +4,7 @@
 #include "product_steps.h"
 #include "product_pm.h"
 #include "steps_store.h"
+#include "storage_write_guard.h"
 #include <rtthread.h>
 #include <rtdevice.h>
 #include <flashdb.h>
@@ -75,6 +76,23 @@ wristflow_alarm_clock_t wristflow_product_services_time(void)
     rt_mutex_release(&rtc_lock); return clock;
 }
 bool wristflow_product_services_storage_ready(void) { return storage_ready; }
+bool wristflow_product_services_storage_failed(void)
+{
+    if(!service_ready)return false;
+    rt_mutex_take(&database_lock,RT_WAITING_FOREVER);
+    bool failed=wf_storage_write_guard_status().fault!=0;
+    rt_mutex_release(&database_lock);return failed;
+}
+static bool set_record(const char *key,const uint8_t *record,size_t size)
+{
+    rt_mutex_take(&database_lock,RT_WAITING_FOREVER);
+    struct fdb_blob blob;
+    bool ok=!wf_storage_write_guard_status().fault &&
+        fdb_kv_set_blob(&settings_db,key,fdb_blob_make(&blob,record,size))==FDB_NO_ERR &&
+        !wf_storage_write_guard_status().fault;
+    rt_mutex_release(&database_lock);
+    return ok; /* SDK success alone is insufficient after a latched FAL error. */
+}
 static const char *const steps_keys[] = {"steps_a", "steps_b"};
 size_t wristflow_product_services_steps_read(unsigned key, uint8_t *record, size_t capacity, void *context)
 {
@@ -89,9 +107,7 @@ bool wristflow_product_services_steps_write(unsigned key, const uint8_t *record,
 {
     (void)context;
     if (!storage_ready || key >= 2) return false;
-    struct fdb_blob blob;
-    return fdb_kv_set_blob(&settings_db, steps_keys[key],
-        fdb_blob_make(&blob, record, WRISTFLOW_STEPS_RECORD_BYTES)) == FDB_NO_ERR;
+    return set_record(steps_keys[key],record,WRISTFLOW_STEPS_RECORD_BYTES);
 }
 static const char *const alarm_keys[] = {"alarm_a", "alarm_b", "alarm_ca", "alarm_cb"};
 bool wristflow_product_services_alarm_read(unsigned key, uint8_t *record, void *context)
@@ -106,10 +122,7 @@ bool wristflow_product_services_alarm_write(unsigned key, const uint8_t *record,
 {
     (void)context;
     if (!storage_ready || key >= 4) return false;
-    struct fdb_blob blob;
-    fdb_err_t result = fdb_kv_set_blob(&settings_db, alarm_keys[key], fdb_blob_make(&blob, record, WRISTFLOW_ALARM_BYTES));
-    if (result != FDB_NO_ERR) rt_kprintf("[alarm] FlashDB key=%u result=%d\n", key, result);
-    return result == FDB_NO_ERR;
+    return set_record(alarm_keys[key],record,WRISTFLOW_ALARM_BYTES);
 }
 
 static void lock_weather(void *context)
@@ -164,10 +177,7 @@ static bool read_layout(unsigned key, uint8_t *record, void *context)
 static bool write_layout(unsigned key, const uint8_t *record, void *context)
 {
     (void)context;
-    struct fdb_blob blob;
-    fdb_err_t result = fdb_kv_set_blob(&settings_db, layout_keys[key], fdb_blob_make(&blob, record, WRISTFLOW_LAYOUT_BYTES));
-    if (result != FDB_NO_ERR) rt_kprintf("[product] layout FlashDB result=%d\n", result);
-    return result == FDB_NO_ERR;
+    return set_record(layout_keys[key],record,WRISTFLOW_LAYOUT_BYTES);
 }
 
 static bool read_settings(void *context, uint8_t record[WRISTFLOW_SETTINGS_BYTES])
@@ -180,11 +190,7 @@ static bool read_settings(void *context, uint8_t record[WRISTFLOW_SETTINGS_BYTES
 static bool write_settings(void *context, const uint8_t record[WRISTFLOW_SETTINGS_BYTES])
 {
     (void)context;
-    struct fdb_blob blob;
-    fdb_err_t result = fdb_kv_set_blob(&settings_db, "preferences",
-        fdb_blob_make(&blob, record, WRISTFLOW_SETTINGS_BYTES));
-    if (result != FDB_NO_ERR) rt_kprintf("[product] preferences FlashDB result=%d\n", result);
-    return result == FDB_NO_ERR;
+    return set_record("preferences",record,WRISTFLOW_SETTINGS_BYTES);
 }
 
 void wristflow_product_services_start(wristflow_settings_t *settings, wristflow_layout_t *layout)
@@ -200,8 +206,11 @@ void wristflow_product_services_start(wristflow_settings_t *settings, wristflow_
     wristflow_weather_set_clock(weather_time, NULL);
     fdb_kvdb_control(&settings_db, FDB_KVDB_CTRL_SET_LOCK, lock_database);
     fdb_kvdb_control(&settings_db, FDB_KVDB_CTRL_SET_UNLOCK, unlock_database);
-    fdb_err_t result = fdb_kvdb_init(&settings_db, "preferences", "settings", NULL, NULL);
-    storage_ready = result == FDB_NO_ERR;
+    fal_init();
+    const struct fal_partition *part=fal_partition_find("settings");
+    bool guarded=wf_storage_write_guard_bind(part);
+    fdb_err_t result = guarded ? fdb_kvdb_init(&settings_db, "preferences", "settings", NULL, NULL) : FDB_INIT_FAILED;
+    storage_ready = result == FDB_NO_ERR && !wf_storage_write_guard_status().fault;
     bool restored = false;
     if (storage_ready) {
         uint8_t data[WRISTFLOW_SETTINGS_BYTES];

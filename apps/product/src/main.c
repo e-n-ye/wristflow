@@ -7,6 +7,7 @@
 #include "wristflow_ui.h"
 #include "product_ui.h"
 #include "product_services.h"
+#include "storage_notice.h"
 #include "product_ble.h"
 #include "product_pm.h"
 #include "product_steps.h"
@@ -779,6 +780,7 @@ int main(void)
         sync_endurance_services();
         sync_automatic_brightness();
         sync_compass();
+        wf_product_storage_notice_poll();
         uint32_t wait_ms = lv_timer_handler();
         wf_product_resource_poll();
         sync_compass();

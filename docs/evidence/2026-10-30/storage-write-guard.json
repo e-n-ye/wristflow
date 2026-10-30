@@ -1,0 +1,154 @@
+{
+  "date": "2026-10-30",
+  "base_commit": "c511d7b0842b7df8fd7c2f6e3cbe31e3efc2e475",
+  "scope": "Shared-storage guard and foreground failure indication; recorder not implemented",
+  "decision": "User accepted visible failure, partition freeze, RAM continuation, export before explicit reboot. No automatic restart.",
+  "tests": {
+    "debug": "4/4",
+    "release_assertions": "4/4",
+    "real_sdk_matrix": "5 types x 111 first-GC mutation points; old business keys retained with production guard",
+    "unguarded_negative_error": "76 post-reboot business-key mismatches;66 SDK success with pre-reboot mismatch",
+    "normal": "102 checkpoint writes and fresh-cache reboot",
+    "limits": "No target hardware fault, arbitrary corruption, long-run, current or battery-life claim. Product backend locking reviewed in source; no dynamic concurrency proof."
+  },
+  "build": {
+    "result": "D:/MY_Desk/project/wristflow/artifacts/product/20261030-160129-842/result.json",
+    "bin_sha256": "e1b0a6212abbbd59137c212aacecdedb33a8edc8e8a98b3466fac84aab18e421",
+    "bin_bytes": 3019796,
+    "static_ram": 254012,
+    "sdk_unchanged": true,
+    "elf_wrapper_calls": {
+      "_fdb_flash_erase": "1203bc8c ->120af380",
+      "_fdb_flash_write": "1203bca4 ->120af300"
+    },
+    "host_reset_symbol_absent": true
+  },
+  "failures": [
+    "First unguarded admission test intentionally failed and risk characterized.",
+    "Initial in-progress Product build missed newly added notice source; final full rerun passed."
+  ],
+  "records": [
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-guard-host-test.log",
+      "bytes": 662,
+      "sha256": "698242b6bebb8f4ac4d3a54d27a3d005c6ca78a315b24594b375fff8ae18013e"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-guard-release-test.log",
+      "bytes": 672,
+      "sha256": "fd4f42d011b06395900eae9252ba179a98fa25b83db2ca5325cf5f0387724bfb"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/flashdb-gc-guard-final.log",
+      "bytes": 491,
+      "sha256": "b4a69318e23ff475539012ae37270b89424032c926fc9ff3201be3ec1af3359b"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/flashdb-gc-characterize.log",
+      "bytes": 495,
+      "sha256": "b945ec96ba6a1929870b87130b6dab90461e95d0a8f394d8ec75952839aa3c21"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-guard-build-check.json",
+      "bytes": 137620,
+      "sha256": "800cd40f6dfb3ec76becd7e3e301ac6b32093ceffc68d24588207835354e3cd3"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-guard-disassembly.log",
+      "bytes": 22287043,
+      "sha256": "2287b0897853171d9ab2bbb7d82a4cfd935a1ac68ae224a13f02dc8bdb743f7d"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-guard-nm.log",
+      "bytes": 343907,
+      "sha256": "a9694d857563dbcf85d331429995bd706cc58daa8cc7b769e6267491784e7651"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-guard-product-final.log",
+      "bytes": 14578,
+      "sha256": "20e6a06ac249132914937fa3dc36f2055ddf2dd2cf3a7f3b35e51cd8137f1f47"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-guard-product-build.log",
+      "bytes": 16803,
+      "sha256": "226832d3c7d29145df90e136949dd9bd49024d4545c2f5c6c1e505010849cc85"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/storage-guard-20261030/build.zip",
+      "bytes": 16402209,
+      "sha256": "d7f93a96d482aac5dfd8d513fd115b6c6e0a24785982920af15b5ceddfec7fad"
+    }
+  ],
+  "source_records": [
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/SConscript",
+      "bytes": 1765,
+      "sha256": "e1bb0906b79e59139f0ef4f4af2c4b5ab4ea3881683ab452a001d48fec1a7890"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/main.c",
+      "bytes": 41626,
+      "sha256": "4eb404e5a89297e9ecadb5672c720f283b1e9d0992151cdf37a5473db9307823"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/product_services.c",
+      "bytes": 14071,
+      "sha256": "e4e7f64b70a57163229fca58df15a99540f9c9150cc6ff6bb5fc4617792818a4"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/product_services.h",
+      "bytes": 2136,
+      "sha256": "9b64ad7cde5fdf6ee407ba04d535083757d064a89b54a1b4a4d6f9c5a3bc68b7"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/tests/CMakeLists.txt",
+      "bytes": 24749,
+      "sha256": "004ee522fe9d2e5f716a9a31e4ef3b8661e2ff5b56ac23e70396b4914d9f3fe2"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/storage_notice.c",
+      "bytes": 713,
+      "sha256": "ca9bc4ca2d68eb5197897b3da1998cee5a8d677a4681677411cb2c53a7697bc3"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/storage_notice.h",
+      "bytes": 205,
+      "sha256": "f3ac2ec10ca2b46e5a1688451d5d4e6f0951095954751e514b7ca93a954b5dd9"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/storage_write_guard.c",
+      "bytes": 2560,
+      "sha256": "c86e1f9b922728547bc8ff57197f8ba8146177e985cf6177026418621d277b8e"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/apps/product/src/storage_write_guard.h",
+      "bytes": 754,
+      "sha256": "4a7131c6439787e1885b0d9f16ec2282e8e8557ec77cf1a68c7110999ffdf062"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/tests/flashdb_gc.c",
+      "bytes": 10566,
+      "sha256": "7ae210cda969cfc2f2479095fe310ae445622ee50189581f89c288f0f63e33f7"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/tests/storage_notice.c",
+      "bytes": 1134,
+      "sha256": "cdc6ad774a11748e8d33ac429efdbbc97fd61d6fcd46d06f5e87aa937556c3e8"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/tests/storage_write_guard.c",
+      "bytes": 2612,
+      "sha256": "c5c74147faedf127284c4c9678c0af59655894bdabed6c5fd43fb6ea75427c29"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/tests/support/fdb/fal_cfg.h",
+      "bytes": 141,
+      "sha256": "80f342035c8b47f84788eb66c00376a53e9acbdd7d0489e7c21dfe7ec0658cd8"
+    },
+    {
+      "path": "D:/MY_Desk/project/wristflow/tests/support/fdb/rtthread.h",
+      "bytes": 281,
+      "sha256": "8218b5165ec4209890c31d5565a665bb9060f91c42912ab2329c33526484593f"
+    }
+  ]
+}

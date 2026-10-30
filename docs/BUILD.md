@@ -1,5 +1,9 @@
 # 可复现构建基线
 
+## 2026-10-30 共享存储写保护
+
+`Build.ps1 -Example product -Jobs 4`最终`20261030-160129-842`退出0，BIN3,019,796B／`e1b0a621…`，较恢复普通版增加536B；源码／29产物严格检查通过。最终ELF的`_fdb_flash_write`与`_fdb_flash_erase`明确调用两个FAL wrapper，无主机复位入口。Debug及保留断言Release相关各4/4通过，涵盖真实SDK回收矩阵、保护边界和顶层提示跨页面保持。首次`155815-594`在开发中新增提示模块后、构建入口已收集源文件的情况下出现未链接该模块的失败，最终完整重跑通过；未忽略失败或操作设备。[保护契约](BATTERY-ESTIMATE.md#storage-write-guard-20261030)；记录器本体及实机／功耗仍待后续。
+
 ## 2026-10-29 8KiB诊断修正构建
 
 仅Product诊断与协议按实际flash2 NOR的8KiB×2修正，公共Build入口／SDK／分区未变。`Build.ps1 -Example product -StorageProbe -Jobs 4`诊断`20261029-210322-710`／BIN`0cfa7942…`为3,022,040B；`-Example product -Jobs 4`普通`20261029-210603-926`／`0bc211f9…`为3,019,260B，余5,369,348B。两者编译及598源码／29产物严格核验、完整ZIP保全通过；普通ELF排除诊断命令／解析／复制／source预检。相关C3/3、Python13/13及采集模拟通过；[精简证据](evidence/2026-10-29/storage-probe-8k.json)。旧4KiB构建与设备失败留作历史；本节不提供新设备容量结论。
