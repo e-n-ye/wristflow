@@ -1,0 +1,244 @@
+{
+  "date": "2026-10-30",
+  "status": "paused_by_user",
+  "resume_date": "2026-10-31",
+  "base_commit": "f51ac838ddb05aeb6195bcffe039d809f7de12bf",
+  "branch": "codex/runtime-scene-lab",
+  "git_delivery": "Uncommitted, unpushed, not integrated; preserve worktree",
+  "firmware_bin_sha256": "0fc781bf6317a3508dff865cc0fc70351451a300bf73b0244fe1504f4cbb9865",
+  "firmware_sdk_partition_unchanged": true,
+  "software": {
+    "executed_v1_tests": 15,
+    "v1_browser_phases": 26,
+    "v1_browser_happy_and_cancel_passed": true,
+    "first_simulation_failure_preserved": "120s battery setup expired while source review continued; no device",
+    "v1_tool_snapshot": "artifacts/runtime-scenes-tools-001.zip",
+    "resume_v2_tests": 18,
+    "resume_v2_changes": [
+      "Four-row readonly pages; at most one retry after frozen-identity check; preserve failed bytes",
+      "Compare prior complete export before replacing RAM trace",
+      "Reject mixed ACTIVE/FULL/unknown/fault charging state as BAT endpoint",
+      "Preserve original preference reference across resumed windows"
+    ],
+    "v2_snapshot": "artifacts/runtime-scenes-tools-002.zip",
+    "v2_browser_simulation": "Interrupted at user request before approval; pending",
+    "v2_hardware_executed": false
+  },
+  "hardware": {
+    "conditions_confirmed": "Same Huangshan board/screen, original battery plus computer USB, fixed wiring, operator present, no reflash",
+    "on": {
+      "host_timed_seconds": 900.0105835,
+      "checks": {
+        "recording": true,
+        "no_save_failure": true,
+        "target_duration_supported": true,
+        "no_new_fault": true,
+        "no_active_fault": true
+      },
+      "scene_delta_ms": {
+        "unknown": 0,
+        "on": 978763,
+        "flashlight": 0,
+        "dim": 0,
+        "off": 0,
+        "aod": 0
+      },
+      "before_generation": 7,
+      "after_generation": 7,
+      "saved_successes_delta": 0,
+      "unsaved_recorded_ms": 1320237,
+      "ram_trace": {
+        "schema": 1,
+        "session": 1,
+        "state": 3,
+        "count": 183,
+        "cap": 256,
+        "start": 11810676,
+        "duration": 900000,
+        "now": 12782266
+      },
+      "start_count": 1,
+      "coherent_voltage_mv": [
+        4157,
+        4143
+      ],
+      "original_endpoint_limit": "Original report selected PG no-input plus ACTIVE charge mixed context. Original report retained; offline v2 recheck selects earlier coherent BAT sample with same4143mV. No new device sample.",
+      "limits": "Counter delta includes preparation/reconnection; not exact isolated BAT duration or continuous scene proof. RAM trace expires900s after USB arm, before the full offline window ends. End uses bounded recent runtime samples; OFF endpoints are awake readings. No SOC, charge, current or battery-life accuracy claim."
+    },
+    "flashlight": {
+      "timer_started": false,
+      "new_trace_started": false,
+      "failure": "ProtocolError('Incomplete/extra page rows')",
+      "failed_read": "wf_battery dump1/128/16; power log visibly interleaved in row142 filter line",
+      "old_ram_overwritten": false
+    },
+    "off": {
+      "timer_started": false
+    }
+  },
+  "shutdown": {
+    "real_collection_terminal": true,
+    "all_real_transports_closed": true,
+    "ram_session1_expired_and_exported": true,
+    "host_resume_simulator_terminated": true,
+    "operator_chose_keep_test_settings": true,
+    "operator_reported_device_normal": true,
+    "temporary_always_on_manual_off_confirmed": false,
+    "long_recorder_stopped": false,
+    "reset_flash_time_or_pm_control": false,
+    "no_more_device_commands_after_stop_request": true
+  },
+  "next_step": "Tomorrow verify v2 browser simulation, reconfirm field/firmware/power and actual RAM state, then only flashlight and OFF15min each. Preserve first initial-cache as original preference reference; do not repeat ordinary-on. No historical command is new authorization.",
+  "records": [
+    {
+      "path": "artifacts/runtime-scenes-preflight-001.json",
+      "bytes": 140095,
+      "sha256": "4ef9b3f480d89ae634bf27779154b6e3d487ae27061869b429af9bc1f2412217"
+    },
+    {
+      "path": "artifacts/runtime-scene-host-test-final-015.log",
+      "bytes": 1938,
+      "sha256": "b881ffc0e936d98ed246e510855d6912b2c558dc33cf21735564c17281d6a015"
+    },
+    {
+      "path": "artifacts/runtime-scene-host-test-resume.log",
+      "bytes": 2328,
+      "sha256": "fbc475189fec63d518a96dabe2ef93d5525756b4c43b117a29333a4e13edf0a0"
+    },
+    {
+      "path": "artifacts/runtime-scenes-tools-001.json",
+      "bytes": 2566,
+      "sha256": "4caf4b6bbcd15f0ee82719bce1409cfaef76a3baa2e796cc2d30b10e26deee37"
+    },
+    {
+      "path": "artifacts/runtime-scenes-tools-001.zip",
+      "bytes": 53871,
+      "sha256": "9251152bc60ffb0c292512130d7ff05d6c868828b4a2f1327b70f3c0999b8f35"
+    },
+    {
+      "path": "artifacts/runtime-scenes-tools-002.zip",
+      "bytes": 54798,
+      "sha256": "86e9c4a86542c4267a66a95488761ed12471a747734c4cc8cc8932f8c258c558"
+    },
+    {
+      "path": "artifacts/runtime-scenes-simulation-001/experiment.json",
+      "bytes": 1448,
+      "sha256": "a06f221b3255b706a207b0b2db7b3faf1fbb73d8de292e02050418303b4624d5"
+    },
+    {
+      "path": "artifacts/runtime-scenes-simulation-002/experiment.json",
+      "bytes": 3415,
+      "sha256": "0f5765acaeb2f5966543130ebb64defa1a3ea227d9257b8535e1d724f353102a"
+    },
+    {
+      "path": "artifacts/runtime-scenes-cancel-simulation-001/experiment.json",
+      "bytes": 423,
+      "sha256": "e7a2c3f04ecbe0576570d89044a287e205d979f3251a24656ba946ef34d5998e"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261030-001/binding.json",
+      "bytes": 145189,
+      "sha256": "3007e63dbef83e9c2d1bd129bdba6f80759c432af3c9b132b672a9c4ecb87ff1"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261030-001/events.jsonl",
+      "bytes": 7549,
+      "sha256": "abb1d7e92a12f21472f7a9ccd09fb47c1fcc0ffc41c1feb21844b37e6707e94a"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261030-001/experiment.json",
+      "bytes": 2381,
+      "sha256": "d01cc8431760d1e180ff921447bee72cdcf5536491e8572fb73928e6e691ea79"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261030-001/initial-cache/snapshot.json",
+      "bytes": 6024,
+      "sha256": "357d3df6514ca0b6031ea29b8a71c609f0470b69f613c2936942dd45334e86e0"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261030-001/on/analysis.json",
+      "bytes": 1676,
+      "sha256": "f4a4bcdfd8efa3754a7a8ca264c1f4c3239b9c876ac7b374b8ccb317931c9aef"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261030-001/on/analysis-recheck-v2.json",
+      "bytes": 1677,
+      "sha256": "d5825e496d7b699c1950a561b7386f6878a65307131af9acfc98d0cfce4172f5"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261030-001/on/trace-end/records.json",
+      "bytes": 110624,
+      "sha256": "12889fc8643f2c67c283e739812054a6998b7d42a111f2f491b4bd1d67f39c29"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261030-001/initial-cache/events.jsonl",
+      "bytes": 3046,
+      "sha256": "5e374ff46f661d428a33eba2ba8cebfc3bf24bc4ba9a55cf53c2fb4ba6a05a96"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261030-001/initial-cache/uart.bin",
+      "bytes": 4657,
+      "sha256": "4190504927f3434187961720da3055b7b71f2a341d1fb035c77f982cc298338d"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261030-001/on/before/events.jsonl",
+      "bytes": 6313,
+      "sha256": "a75abadf68170a0601178f2a56a765a83c4a2a769a7b6410571b697b5afbda42"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261030-001/on/before/uart.bin",
+      "bytes": 17015,
+      "sha256": "ea493a085383f6aefe42b25994675144d63bf90516b65838cfd9cada462b6b5b"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261030-001/on/trace-arm/events.jsonl",
+      "bytes": 2400,
+      "sha256": "809726a1534322eb5bf0e13e0873ee5d8c262ec112038ef9ac7403c2b6916bdd"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261030-001/on/trace-arm/uart.bin",
+      "bytes": 712,
+      "sha256": "3fc59ef259814d185bfec92f8761578974e81d624b08fafd266bf8921da550da"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261030-001/on/trace-end/events.jsonl",
+      "bytes": 6825,
+      "sha256": "3ea2a1675c380e99b0402d025d8708ecb4dc20c7e75b6de671588945e54e98ad"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261030-001/on/trace-end/uart.bin",
+      "bytes": 67246,
+      "sha256": "739d306068254db142a3a5381c2f6f49c0faf61d50c15c2b4c33bea460d57f1d"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261030-001/on/after/events.jsonl",
+      "bytes": 5978,
+      "sha256": "28d6b13097fb629e2112286e824e199e4c1098acb012ecc554310c4befc52208"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261030-001/on/after/uart.bin",
+      "bytes": 17345,
+      "sha256": "d56104a3c0796099432f21fd3180cb1fb00cc21614a914eb4a37e345acd35df4"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261030-001/flashlight/before/events.jsonl",
+      "bytes": 6358,
+      "sha256": "99989d1fc549ef2b72e5aca7583cf1af3c0c6a8b59a87234c84b07b33160a042"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261030-001/flashlight/before/uart.bin",
+      "bytes": 17304,
+      "sha256": "6e5b9d08ccd02838df9fa4c98178614a13d5a520e2d345fdc819f76c2787455a"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261030-001/flashlight/trace-arm/events.jsonl",
+      "bytes": 5605,
+      "sha256": "c3f87e90b46d6d60926930d667e2e6fd1c9c144bebee58687a979070fffc74ad"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261030-001/flashlight/trace-arm/uart.bin",
+      "bytes": 53114,
+      "sha256": "baedccddcc4a1af3417935b3bb19c66533d3735a291871933a228c69ef036df3"
+    }
+  ]
+}

@@ -1,0 +1,625 @@
+{
+  "date": "2026-10-31",
+  "status": "passed_bounded_two_scene_window",
+  "base_commit": "f51ac838ddb05aeb6195bcffe039d809f7de12bf",
+  "branch": "codex/runtime-scene-lab",
+  "firmware_bin_sha256": "0fc781bf6317a3508dff865cc0fc70351451a300bf73b0244fe1504f4cbb9865",
+  "field_confirmation": "Same board/screen/battery/USB; operator present; no reboot, power loss or reflash; two remaining15min windows accepted",
+  "settings_decision": "Keep test settings as previously chosen",
+  "tests": 18,
+  "browser_simulation_phases": 18,
+  "build_or_flash_executed": false,
+  "input_check_correction": "First file check used absent key files and failed; rerun with actual records key passed; both reports preserved",
+  "device_run": "artifacts/runtime-scenes-device-20261031-001",
+  "records": [
+    {
+      "path": "artifacts/runtime-scene-host-test-20261031.log",
+      "bytes": 182,
+      "sha256": "3c3a5eea9d927082d6bf319c810a491520f485b81e04cb54498eadfb6dfb7d2f"
+    },
+    {
+      "path": "artifacts/runtime-scenes-resume-simulation-20261031-001/experiment.json",
+      "bytes": 2410,
+      "sha256": "49249e375e4b2997b47228249cd091969a1510a92324fcde033bba55767f63cc"
+    },
+    {
+      "path": "artifacts/runtime-scenes-resume-simulation-20261031-001/events.jsonl",
+      "bytes": 12504,
+      "sha256": "162f1e74f499f039a770d3ae9e3a1dace80eead801d8cadd57890f3b3ccffbb2"
+    },
+    {
+      "path": "artifacts/runtime-scenes-tools-20261031-001.zip",
+      "bytes": 54934,
+      "sha256": "183a55ca3abfe401990c525d5997b673fe4e3eff47d4ae1f7a0f2e4b0b5231aa"
+    },
+    {
+      "path": "artifacts/runtime-scenes-tools-20261031-001.json",
+      "bytes": 2555,
+      "sha256": "fe6871dfa350c73639f10d5d33bef170c7cfa478292582a783dd05620244d717"
+    },
+    {
+      "path": "artifacts/runtime-scenes-build-check-20261031-001.json",
+      "bytes": 144554,
+      "sha256": "965a5cf1afb8301814b475cef295d8688e4bdd296b1bbc674ef9ff0740a8d0b1"
+    },
+    {
+      "path": "artifacts/runtime-scenes-input-files-20261031-001.json",
+      "bytes": 68,
+      "sha256": "4827308f7d08094f270774e6328e58d90acfbd8bb9169828d1a3107df8201b16"
+    },
+    {
+      "path": "artifacts/runtime-scenes-input-files-20261031-002.json",
+      "bytes": 7962,
+      "sha256": "b627fd2470e678cb1463212e6a18bf3633c382c29c7b4309af9a26910a4a8d17"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/initial-cache/snapshot.json",
+      "bytes": 5824,
+      "sha256": "c66656e1f23997da198b5b9748cb6a4e933b4bf0f98b83ed77bc01dec2a9452e"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/before/records.json",
+      "bytes": 24369,
+      "sha256": "6a7615402afc2f35cc96970b9f540b0fe95dc71f8506a4debed6a6bd8be8e026"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/trace-arm/protected.json",
+      "bytes": 110624,
+      "sha256": "d760441b3fefbef384e142295749454381ce87400b7c4de5a3d39dbbdd45465d"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/trace-arm/ownership.json",
+      "bytes": 337,
+      "sha256": "fd2a624a550a6cd1d48c011364281f81019e6da10dafd4604df9d1a6b42108ad"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/trace-end/records.json",
+      "bytes": 112786,
+      "sha256": "7a2cfc5a4322218a5d6363a6763be986c7cff91b88bcc14a3a8e4258144d01f1"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/trace-end/events.jsonl",
+      "bytes": 22902,
+      "sha256": "eeae7901ab6f232e63f0967f1b25dbaaa2155e66ac01217f118d560c03bf2f59"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/trace-end/records.json-page-100-attempt-0.bin",
+      "bytes": 1688,
+      "sha256": "44e8b1088b694e015a7a03f6c336b4efc736af1a3401ae790938e80d8b90c0d8"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/trace-end/records.json-page-100-attempt-1.bin",
+      "bytes": 1648,
+      "sha256": "c25123022ea5de57291ab35f8035feca1abbaaa4cebb632610659dea21839ea4"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/after/records.json",
+      "bytes": 24713,
+      "sha256": "09852760062c3281ddeb9ffadac63aea6df0dbbeca8ca4760cdee320bf0ecb38"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/analysis.json",
+      "bytes": 1696,
+      "sha256": "4c9564b1545ff48777b30b848c84ab5d761060b4e1df4685c7003c55393d3f48"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/binding.json",
+      "bytes": 146161,
+      "sha256": "50e527b3c480d968fbb1a1e93bc7ffecd8eec91ee6347fc54c4731804e25fd8d"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/experiment.json",
+      "bytes": 4312,
+      "sha256": "e5e7e8655e052147b14f94afec643f88531a3c443e594948737779a81170e039"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/events.jsonl",
+      "bytes": 12561,
+      "sha256": "de4632876880bf34a3e61d56d9b5426f199416f0fdbf825b883afd4aa2d98226"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/progress.json",
+      "bytes": 142,
+      "sha256": "b5b4b6ea3273513a472a54ac4291732fb5778defa470f680135b33af4db21d5b"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/analysis.json",
+      "bytes": 1686,
+      "sha256": "0cde4eff40d3d5825b9282e57e917beeb80d4450c68086c09b1da85867c4182f"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/trace-arm/protected.json",
+      "bytes": 112786,
+      "sha256": "1788aeb4ba3e269e2707946068bf9fe10150d7d8ffe59ed5b13f8f8c494c68e7"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/trace-arm/ownership.json",
+      "bytes": 337,
+      "sha256": "4a167faa850f89a2134ec5f7b91e4fa5263bfedaae9e8dee5e3984a0d87fd9be"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/trace-end/records.json",
+      "bytes": 11021,
+      "sha256": "35cb92e5cf580fd2781ecd3fb929b1fcefc42557e4a79207af28b6e9aed9187b"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/initial-cache/binding.json",
+      "bytes": 146443,
+      "sha256": "03944056bc3483d5b85bf3059624f9a3696fd20842a9e177edf7a27ab0226991"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/initial-cache/events.jsonl",
+      "bytes": 3384,
+      "sha256": "d9b9a76350e10d1e433a14801ecf3c1235aafb75f1ec39d8da6869bde9bac589"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/initial-cache/uart.bin",
+      "bytes": 4537,
+      "sha256": "964c6ec958c4f0419fde722850c392ccc450d55be3bfd7810f3a69467bf7623e"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/before/binding.json",
+      "bytes": 146500,
+      "sha256": "59380e18bf771fc6fdf078a281ed7dd55c05e96df404481d70430f261258b30c"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/before/events.jsonl",
+      "bytes": 6269,
+      "sha256": "7d7ee2606a8233a8149d6c8533f04923ce8d286117a7bb9997863643320d4063"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/before/uart.bin",
+      "bytes": 17102,
+      "sha256": "a37e6bb87d35efa9b6a600d145fe6369d90c4836cb13b60431a29ee98310a36d"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/before/export.json",
+      "bytes": 571,
+      "sha256": "6f9e6781e8adacbd03ab455cebc34c37e1b08e58583a4cbaa86751408a41add9"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/trace-arm/binding.json",
+      "bytes": 146089,
+      "sha256": "c9c4f77555474069a8a4839f4294b9029e1b42a53db7f24211cc259beb09ee43"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/trace-arm/events.jsonl",
+      "bytes": 22415,
+      "sha256": "de2650accf81404a958ee08a3f0671b6564a355b455d987c801a75fefaeb3620"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/trace-arm/uart.bin",
+      "bytes": 74666,
+      "sha256": "31902ad2f57b18340d42447b267d3a6dd659c4c722851e92a65209f3cf12f975"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/trace-end/binding.json",
+      "bytes": 146089,
+      "sha256": "c9c4f77555474069a8a4839f4294b9029e1b42a53db7f24211cc259beb09ee43"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/trace-end/uart.bin",
+      "bytes": 77491,
+      "sha256": "fa3ad59a6b15af54722ba84c0cc878932b64f195346d8ad71dc4c7362641845d"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/after/binding.json",
+      "bytes": 146758,
+      "sha256": "ca18f7529b3668b9b8681851689197e895c5c2f2b6473c5f3db70e31344e316e"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/after/events.jsonl",
+      "bytes": 6691,
+      "sha256": "857285de402f1f60bebdea8234156ab642ce5c44b3fd2382a3db598a03a18a78"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/after/uart.bin",
+      "bytes": 17275,
+      "sha256": "337a1b4503bf85b3b21a13e9e22fbe6707709ab391890033fe0bb659f3099984"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/flashlight/after/export.json",
+      "bytes": 571,
+      "sha256": "aa3cc932a5853a2a0bbdea7515a1ac99ba3a12d99bf176a2697f095d7d508b33"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/before/binding.json",
+      "bytes": 146758,
+      "sha256": "dda4a44249bc8ecf1fee1791829aaa18438bca0a6927b40d684518b03ab074c0"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/before/events.jsonl",
+      "bytes": 6194,
+      "sha256": "6deb51b5bf0ac6a09f8aefffc376a502b9d03888e7a0b97a56fd793e43fad9e9"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/before/uart.bin",
+      "bytes": 17246,
+      "sha256": "d842a5d34d45858216529ff3324c5dfd6e7c45a91ec5562cf670718d10defc73"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/before/records.json",
+      "bytes": 24701,
+      "sha256": "d0edefc29ac264ef0c361376559b1b55ac1ab4f9f76dc567486fc1953b671ff9"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/before/export.json",
+      "bytes": 565,
+      "sha256": "9066b612c754430fb58026518ab2f622e16eac6e0164a3ef7fc43c27f07272c6"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/trace-arm/binding.json",
+      "bytes": 146346,
+      "sha256": "28eb97d5e152a02b39760455d5a9cefd6618cf8eeeab0e30a8dce8fbd362a39f"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/trace-arm/events.jsonl",
+      "bytes": 23930,
+      "sha256": "a895818dbea56fe63bcc6f4c7732212eef47b5cd39f57d2cb56c6c9104889edc"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/trace-arm/uart.bin",
+      "bytes": 76232,
+      "sha256": "c9a1374c46185f9dbb9216645ac65aef631a2074f71cd4d20381ddc50a26da9f"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/trace-end/binding.json",
+      "bytes": 146346,
+      "sha256": "28eb97d5e152a02b39760455d5a9cefd6618cf8eeeab0e30a8dce8fbd362a39f"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/trace-end/events.jsonl",
+      "bytes": 3353,
+      "sha256": "e8cca923d697c9bdd4bb208ae3597cac309b8bd7b78e173bd9592ff82d67a896"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/trace-end/uart.bin",
+      "bytes": 7466,
+      "sha256": "b9d9def67fb07db2e1a2d382af6723eb074669a4497114ba9646512aa972869c"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/after/binding.json",
+      "bytes": 147007,
+      "sha256": "4203f8f422c485e46dd483efafffaeef6af9cdde753b6d8561a008b84533c76b"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/after/events.jsonl",
+      "bytes": 6327,
+      "sha256": "c935b6087bfa6b403640ea93ee90d41d6f9d860d41fb05a7617ff2f261e12bb8"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/after/uart.bin",
+      "bytes": 17275,
+      "sha256": "14f3a6051527b34713b5cdfe30d9c98b4cbcf0d7994d1c9f2abbaf7d1793f374"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/after/records.json",
+      "bytes": 24591,
+      "sha256": "92f548569049e7df02fe0a4da711036acfee5fa8128903b80e3dc5e516bc6e70"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/after/export.json",
+      "bytes": 564,
+      "sha256": "2c78b82bd0ebab58671f5d30cb1e859f88f9f2ffab22fb74ca40423952b774f8"
+    },
+    {
+      "path": "artifacts/runtime-scene-host-test-final-20261031.log",
+      "bytes": 123,
+      "sha256": "ccc1cee076b960195ef5709e1cc24078e839e27b3342953159b1e501884eb841"
+    },
+    {
+      "path": "artifacts/runtime-scenes-tools-final-20261031-001.zip",
+      "bytes": 55060,
+      "sha256": "dc735b5d8ea3ff3b4ea38338572adaee9b131bc08ff30a08d390699832985aaa"
+    },
+    {
+      "path": "artifacts/runtime-scenes-tools-final-20261031-001.json",
+      "bytes": 3193,
+      "sha256": "86801dee49ae7c29f1eabb1a2fc09e6a3a762a9c7783dae9d637cc5ec384cc93"
+    },
+    {
+      "path": "artifacts/runtime-scenes-final-analysis-20261031-001/on.json",
+      "bytes": 1677,
+      "sha256": "d5825e496d7b699c1950a561b7386f6878a65307131af9acfc98d0cfce4172f5"
+    },
+    {
+      "path": "artifacts/runtime-scenes-final-analysis-20261031-001/flashlight.json",
+      "bytes": 1696,
+      "sha256": "4c9564b1545ff48777b30b848c84ab5d761060b4e1df4685c7003c55393d3f48"
+    },
+    {
+      "path": "artifacts/runtime-scenes-final-analysis-20261031-001/off.json",
+      "bytes": 1686,
+      "sha256": "0cde4eff40d3d5825b9282e57e917beeb80d4450c68086c09b1da85867c4182f"
+    }
+  ],
+  "flashlight": {
+    "analysis": {
+      "scene": "flashlight",
+      "checks": {
+        "recording": true,
+        "no_save_failure": true,
+        "target_duration_supported": true,
+        "no_new_fault": true,
+        "no_active_fault": true
+      },
+      "recorder_checks_passed": true,
+      "scene_delta_ms": {
+        "unknown": 0,
+        "on": 96653,
+        "flashlight": 910005,
+        "dim": 0,
+        "off": 0,
+        "aod": 0
+      },
+      "before_generation": 26,
+      "after_generation": 26,
+      "saved_successes_delta": 0,
+      "unsaved_recorded_ms": 1285968,
+      "voltage_start": {
+        "session": 2,
+        "index": 13,
+        "obs": 67210171,
+        "eval": 67210171,
+        "seq": 703,
+        "adc": 67209943,
+        "age": 228,
+        "mv": 4120,
+        "raw_valid": 1,
+        "display_valid": 1,
+        "usb_valid": 1,
+        "usb_good": 0,
+        "charge": 4,
+        "reason": 6,
+        "cycle": 0,
+        "mode": 0,
+        "decision": 0,
+        "filter": 41338,
+        "filter_valid": 1,
+        "candidate": 97,
+        "percent": 98,
+        "percent_valid": 1,
+        "surface": 5,
+        "phase": 0,
+        "flags": 7,
+        "requested": 100,
+        "ack": 100
+      },
+      "voltage_end": {
+        "ms": 68110171,
+        "sequence": 883,
+        "sampled_ms": 68109943,
+        "utc": 1793427904,
+        "millivolts": 4050,
+        "flags": 55,
+        "percent": 94,
+        "requested": 100,
+        "acknowledged": 100,
+        "charge": 4,
+        "scene": 2
+      },
+      "voltage_endpoints_available": true,
+      "limits": "Counter delta includes preparation/reconnection; not exact isolated BAT duration or continuous scene proof. RAM trace expires900s after USB arm, before the full offline window ends. End uses bounded recent runtime samples; OFF endpoints are awake readings. No SOC, charge, current or battery-life accuracy claim."
+    },
+    "host_timed_seconds": 900.0024497,
+    "trace_status": {
+      "schema": 1,
+      "session": 2,
+      "state": 3,
+      "count": 186,
+      "cap": 256,
+      "start": 67172650,
+      "duration": 900000,
+      "now": 68155182
+    },
+    "readonly_page_retry": {
+      "offset": 100,
+      "attempts": 2,
+      "frozen_identity_rechecked": true
+    }
+  },
+  "device_process_exit_code": 0,
+  "device_summary": {
+    "workflow_passed": true,
+    "hardware_verified_automatically": false,
+    "operator_final_confirmed": true,
+    "settings_retained": true,
+    "temporary_awake_manually_disabled": "not_requested_or_confirmed",
+    "firmware_reset_time_pm_or_long_recorder_control": false,
+    "remaining_limits": [
+      "No battery-energy/SOC/current/life claim",
+      "Counter intervals include setup/reconnection",
+      "OFF voltages are awake observations, not sleeping curve",
+      "24h stability, controlled power loss/fault recovery and long-sleep accuracy still pending"
+    ]
+  },
+  "off": {
+    "analysis": {
+      "scene": "off",
+      "checks": {
+        "recording": true,
+        "no_save_failure": true,
+        "target_duration_supported": true,
+        "no_new_fault": true,
+        "no_active_fault": true
+      },
+      "recorder_checks_passed": true,
+      "scene_delta_ms": {
+        "unknown": 6,
+        "on": 74532,
+        "flashlight": 0,
+        "dim": 5000,
+        "off": 905896,
+        "aod": 0
+      },
+      "before_generation": 26,
+      "after_generation": 27,
+      "saved_successes_delta": 1,
+      "unsaved_recorded_ms": 269074,
+      "voltage_start": {
+        "session": 3,
+        "index": 7,
+        "obs": 68230976,
+        "eval": 68230976,
+        "seq": 907,
+        "adc": 68230748,
+        "age": 228,
+        "mv": 4100,
+        "raw_valid": 1,
+        "display_valid": 1,
+        "usb_valid": 1,
+        "usb_good": 0,
+        "charge": 4,
+        "reason": 6,
+        "cycle": 0,
+        "mode": 0,
+        "decision": 0,
+        "filter": 41021,
+        "filter_valid": 1,
+        "candidate": 96,
+        "percent": 96,
+        "percent_valid": 1,
+        "surface": 9,
+        "phase": 0,
+        "flags": 7,
+        "requested": 50,
+        "ack": 50
+      },
+      "voltage_end": {
+        "ms": 69168614,
+        "sequence": 914,
+        "sampled_ms": 69168380,
+        "utc": 1793428962,
+        "millivolts": 4095,
+        "flags": 55,
+        "percent": 96,
+        "requested": 50,
+        "acknowledged": 50,
+        "charge": 4,
+        "scene": 1
+      },
+      "voltage_endpoints_available": true,
+      "limits": "Counter delta includes preparation/reconnection; not exact isolated BAT duration or continuous scene proof. RAM trace expires900s after USB arm, before the full offline window ends. End uses bounded recent runtime samples; OFF endpoints are awake readings. No SOC, charge, current or battery-life accuracy claim."
+    },
+    "host_timed_seconds": 900.0041707,
+    "trace_status": {
+      "schema": 1,
+      "session": 3,
+      "state": 3,
+      "count": 18,
+      "cap": 256,
+      "start": 68210877,
+      "duration": 900000,
+      "now": 69181049
+    }
+  },
+  "final_recorder": {
+    "boot": 2,
+    "generation": 27,
+    "total_recorded_ms": 69183913,
+    "prior_verified_recorded_ms": 68913747,
+    "attempts": 26,
+    "successes": 26,
+    "failures": 0,
+    "periodic_saves": 25,
+    "explicit_saves": 1,
+    "faults": 0,
+    "fault_mask": 0,
+    "clock_errors": 0,
+    "event_drops": 93,
+    "sample_drops": 1001,
+    "ring_overwrite_limit": "8 events and64 samples; drops are bounded tail-ring overwrites, not Flash save failures"
+  },
+  "sessions": [
+    {
+      "path": "initial-cache",
+      "transport_closed": true,
+      "starts": 0,
+      "stops": 0,
+      "readonly_page_rejections": 0
+    },
+    {
+      "path": "flashlight/before",
+      "transport_closed": true,
+      "starts": 0,
+      "stops": 0,
+      "readonly_page_rejections": 0
+    },
+    {
+      "path": "flashlight/trace-arm",
+      "transport_closed": true,
+      "starts": 1,
+      "stops": 0,
+      "readonly_page_rejections": 0
+    },
+    {
+      "path": "flashlight/trace-end",
+      "transport_closed": true,
+      "starts": 0,
+      "stops": 0,
+      "readonly_page_rejections": 1
+    },
+    {
+      "path": "flashlight/after",
+      "transport_closed": true,
+      "starts": 0,
+      "stops": 0,
+      "readonly_page_rejections": 0
+    },
+    {
+      "path": "off/before",
+      "transport_closed": true,
+      "starts": 0,
+      "stops": 0,
+      "readonly_page_rejections": 0
+    },
+    {
+      "path": "off/trace-arm",
+      "transport_closed": true,
+      "starts": 1,
+      "stops": 0,
+      "readonly_page_rejections": 0
+    },
+    {
+      "path": "off/trace-end",
+      "transport_closed": true,
+      "starts": 0,
+      "stops": 0,
+      "readonly_page_rejections": 0
+    },
+    {
+      "path": "off/after",
+      "transport_closed": true,
+      "starts": 0,
+      "stops": 0,
+      "readonly_page_rejections": 0
+    }
+  ],
+  "git_delivery": "Focused branch delivery; reviewed merge and main sync recorded in PR Closure",
+  "next_bounded_experiment": "At least24h same-firmware offline ordinary-use observation and final export, pending fresh field confirmation; no automatic reset/flash",
+  "software_final": {
+    "device_executed_tests": 18,
+    "device_executed_sources": "artifacts/runtime-scenes-tools-20261031-001.zip",
+    "final_tests": 19,
+    "final_sources": "artifacts/runtime-scenes-tools-final-20261031-001.zip",
+    "post_device_change": "Apply IDLE/STOPPED charge-state coherence filter to start endpoint too",
+    "post_device_change_hardware_executed": false,
+    "browser_workflow_changed": false,
+    "three_scene_offline_analysis_identical": true
+  },
+  "independent_readonly_review": {
+    "blockers": [],
+    "scope": [
+      "Session ownership and single-send controls",
+      "9 session event/UART logs;4 runtime raw redecodes",
+      "Prior trace exact protection, page100 retry and offline no-open interval",
+      "Final start-coherence filter and new test",
+      "All3 final offline analyses equal their original valid reports"
+    ],
+    "not_covered": [
+      "No physical hardware actions or fault tests",
+      "No independent build/archive recheck"
+    ],
+    "final_source_sha256": "a13bed84e88a46d986241b674af70827a637eb94e52b9d24ce24ba49ada47b2b"
+  }
+}
