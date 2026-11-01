@@ -14,4 +14,11 @@ int wf_product_fs_block_sync(void);
  * No reset/rearm API; a new boot is required. */
 void wf_product_fs_block_stop(void);
 wf_product_fs_block_state_t wf_product_fs_block_state(void);
+#ifdef WF_CYCLE_LOG
+/* Dedicated CycleLog build only: explicit worker admission after prepare.
+ * No mount/format on admission. Caller first proves a bounded operation on
+ * the blank candidate sector; physical authorization is external to this API. */
+bool wf_product_fs_block_admit(void);
+wf_fs_block_t *wf_product_fs_block_device(void);
+#endif
 #endif

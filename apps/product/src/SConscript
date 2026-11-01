@@ -1,6 +1,6 @@
 import os
 from building import *
-from SCons.Script import ARGUMENTS
+from SCons.Script import ARGUMENTS, VariantDir, Dir
 
 Import('SIFLI_SDK')
 cwd = GetCurrentDir()
@@ -24,17 +24,31 @@ if fs == '1':
     if storage == '1' or probe == '1':
         raise ValueError('Use only one diagnostic build at a time')
     local_defines += ['WF_FS_PROBE']
+cycle = ARGUMENTS.get('cycle_log', '0')
+if cycle not in ('0', '1'):
+    raise ValueError('cycle_log must be 0 or 1')
+if cycle == '1':
+    if storage == '1' or probe == '1' or fs == '1':
+        raise ValueError('CycleLog cannot mix diagnostic builds')
+    local_defines += ['WF_CYCLE_LOG','LFS_NO_MALLOC']
+lfs = os.path.join(SIFLI_SDK, 'rtos/rtthread/components/dfs/filesystems/littlefs')
+extra_link = ['-Wl,--wrap=rt_flash_read', '-Wl,--wrap=rt_flash_write', '-Wl,--wrap=rt_flash_erase'] if cycle == '1' else []
 objs = DefineGroup('WristFlowProduct', Glob('*.c'), depend=[''],
-                   CPPPATH=[cwd, os.path.join(base64, 'include'), os.path.join(cwd, '../../../ui/xml'),
+                   CPPPATH=[cwd, lfs, os.path.join(base64, 'include'), os.path.join(cwd, '../../../ui/xml'),
                             os.path.join(cwd, '../../../ui/runtime'), os.path.join(cwd, '../../../core'), memsic],
                    LIBS=[':MemsicAlgo.lib'], LIBPATH=[memsic],
                    CPPDEFINES=['LV_LVGL_H_INCLUDE_SIMPLE'],
                    LOCAL_CPPDEFINES=local_defines,
                    LINKFLAGS=['-Wl,--wrap=BSP_LCD_PowerDown', '-Wl,--wrap=BSP_LCD_PowerUp',
                               '-Wl,--wrap=fal_partition_write', '-Wl,--wrap=fal_partition_erase',
-                              '-Wl,--wrap=fal_partition_read'],
+                              '-Wl,--wrap=fal_partition_read'] + extra_link,
                    LOCAL_CCFLAGS=' -Wall -Wextra -Werror=implicit-function-declaration')
 objs = objs + DefineGroup('WristFlowWeatherBase64', [os.path.join(base64, 'library/base64.c')], depend=[''],
                     CPPPATH=[cwd, os.path.join(base64, 'include')],
                     LOCAL_CPPDEFINES=[('MBEDTLS_CONFIG_FILE', '\\"weather_base64_config.h\\"')])
+if cycle == '1':
+    lfs_variant = os.path.join(Dir('.').abspath, 'cycle_lfs')
+    VariantDir(lfs_variant, lfs, duplicate=0)
+    objs += DefineGroup('WristFlowCycleLFS', [os.path.join(lfs_variant, 'lfs.c'), os.path.join(lfs_variant, 'lfs_util.c')], depend=[''],
+                        CPPPATH=[lfs], LOCAL_CPPDEFINES=['LFS_NO_MALLOC', 'LFS_NO_DEBUG', 'LFS_NO_WARN', 'LFS_NO_ERROR'])
 Return('objs')

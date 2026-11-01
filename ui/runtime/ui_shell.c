@@ -51,6 +51,7 @@ struct wristflow_ui_shell {
     bool recentering;
     bool transitioning;
     bool ready;
+    bool flashlight_guard;
     bool edge_press;
     lv_point_t edge_origin;
     wristflow_settings_t preferences;
@@ -164,6 +165,12 @@ static uint8_t untimed_brightness(const wristflow_ui_shell_t *shell, uint8_t ini
 static void display_tick(lv_timer_t *timer)
 {
     wristflow_ui_shell_t *shell = lv_timer_get_user_data(timer);
+    if(shell->flashlight_guard && shell->navigation.surface==WRISTFLOW_SURFACE_FLASHLIGHT &&
+        !wristflow_ui_shell_charging_active(shell)) {
+        shell->display.flashlight=false;shell->display.keep_ms=0;
+        shell->display.phase=WRISTFLOW_DISPLAY_OFF;shell->display.off_at=lv_tick_get();
+        apply_brightness(shell,0);return;
+    }
     if (shell->endurance.holding) wristflow_display_activity(&shell->display, lv_tick_get());
     cover_charging(shell);
     if (wristflow_display_expired(&shell->display, lv_tick_get())) {
@@ -524,6 +531,15 @@ bool wristflow_ui_shell_home(wristflow_ui_shell_t *shell)
     if (wristflow_components_back(shell->components, true)) return true;
     wristflow_navigation_home(&shell->navigation);
     return load_surface(shell);
+}
+void wristflow_ui_shell_flashlight_guard(wristflow_ui_shell_t *shell,bool stop)
+{
+    if(!shell)return;
+    shell->flashlight_guard=stop;
+    if(stop && shell->navigation.surface==WRISTFLOW_SURFACE_FLASHLIGHT) {
+        shell->display.flashlight=false;shell->display.keep_ms=0;
+        shell->display.phase=WRISTFLOW_DISPLAY_OFF;shell->display.off_at=lv_tick_get();apply_brightness(shell,0);
+    }
 }
 
 static bool session_exempt(wristflow_ui_shell_t *shell)

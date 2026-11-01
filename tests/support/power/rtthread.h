@@ -15,6 +15,8 @@ struct rt_event { unsigned bits; };
 struct rt_mutex { unsigned held; };
 struct rt_thread { void (*entry)(void *); void *context; };
 typedef struct rt_thread *rt_thread_t;
+rt_thread_t rt_thread_self(void);
+unsigned rt_interrupt_get_nest(void);
 #define RT_NULL NULL
 #define RT_TICK_PER_SECOND 1000
 #define RT_WAITING_FOREVER -1

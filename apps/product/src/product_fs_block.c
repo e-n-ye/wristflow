@@ -7,6 +7,9 @@
 #include <drv_flash.h>
 #include <flash_table.h>
 #include "ptab.h"
+#ifdef WF_CYCLE_LOG
+#include "product_flash_gate.h"
+#endif
 
 static wf_fs_block_t block_device;
 static bool claimed,ready,stopped,in_flight;
@@ -30,7 +33,14 @@ static bool acquire(void *context)
         rt_base_t level=rt_hw_interrupt_disable();
         bool already=in_flight;if (!already) in_flight=true;
         rt_hw_interrupt_enable(level);
-        if (!already) return true;
+        if (!already) {
+#ifdef WF_CYCLE_LOG
+            if(wf_product_flash_gate_take())return true;
+            level=rt_hw_interrupt_disable();in_flight=false;rt_hw_interrupt_enable(level);
+#else
+            return true;
+#endif
+        }
         wf_product_storage_gate_release(); /* Reject recursive FS entry. */
     }
 #ifdef RT_USING_PM
@@ -41,6 +51,9 @@ static bool acquire(void *context)
 static void release(void *context)
 {
     (void)context;
+#ifdef WF_CYCLE_LOG
+    wf_product_flash_gate_give();
+#endif
     rt_base_t level=rt_hw_interrupt_disable();in_flight=false;rt_hw_interrupt_enable(level);
     wf_product_storage_gate_release();
 #ifdef RT_USING_PM
@@ -120,3 +133,29 @@ int wf_product_fs_block_sync(void)
     if (!wf_product_fs_block_state().ready) return WF_FS_BLOCK_NOT_READY;
     return wf_fs_block_sync(&block_device);
 }
+#ifdef WF_CYCLE_LOG
+static int program_bytes(void *context,uint32_t addr,const void *buffer,size_t n)
+{
+    (void)context;
+    if(addr<WF_FS_BLOCK_START || addr>=WF_FS_BLOCK_END || n!=256 || n>WF_FS_BLOCK_END-addr)return -1;
+    return rt_flash_write(addr,buffer,(int)n);
+}
+static int erase_bytes(void *context,uint32_t addr,size_t n)
+{
+    (void)context;
+    if(addr<WF_FS_BLOCK_START || addr>=WF_FS_BLOCK_END || addr%4096 || n!=4096 || n>WF_FS_BLOCK_END-addr)return -1;
+    return rt_flash_erase(addr,(int)n);
+}
+static int sync_bytes(void *context) { (void)context;return 0; /* SDK calls are synchronous. */ }
+bool wf_product_fs_block_admit(void)
+{
+    if(!ready || !acquire(NULL))return false;
+    bool ok=!stopped && !block_device.fault;
+    if(ok) {
+        block_device.prog=program_bytes;block_device.erase=erase_bytes;block_device.sync=sync_bytes;
+        block_device.budget_ms=1000;block_device.writable=true;
+    }
+    release(NULL);return ok;
+}
+wf_fs_block_t *wf_product_fs_block_device(void) { return ready ? &block_device:NULL; }
+#endif

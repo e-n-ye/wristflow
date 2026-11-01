@@ -1,5 +1,15 @@
 # 黄山派选型复评
 
+## 2026-11-01 完整cycle日志首次写擦与USB上板
+
+用户授权同板屏／原电池＋电脑USB／固定接线且在旁、候选`eef7981b…`：保全旧记录→刷诊断→首4KiB擦除／256B编程读回／恢复空白→全4MiB确认FF后显式初始化`[0x129A0000,0x12DA0000)`→USB30秒smoke与导出→一次SDK reboot后只mount重读→普通恢复及必要校时。不以代码／BLE／settings为测试目标，无整片擦除或裸Flash／scfg命令；SDK单次操作无硬截止限制已告知。[完整证据](evidence/2026-11-01/cycle-log.json)／[解释边界](BATTERY-ESTIMATE.md#cycle-log-20261101)。
+
+候选三镜像write＋verify、probe及一次init成功；首smoke资格result-6拒绝，关口后用户唤醒常亮6秒，新窗session20261101为7条／448B、30,006ms、saved7／dropped0／LIMIT，raw4165–4166mV／percent98。全部flashlight=false／USB valid good，UTC2000原值但valid0；只支持USB采样／持久化，不是FULL／手电筒放电。CRC`c0647547`，单次SDK reboot后不format重挂，第二次导出448B完全一致。FS区和smoke文件保留，未创建正式cycle文件或启动整轮放电。
+
+普通`91e68338…`三镜像恢复成功；首startup零字节且未校时，用户唤醒常亮后新窗单次校真实UTC并回读，boot7／代次80／保存失败0，0步／检查点315 verified clean、腕／光感关闭偏好保持。旧faults1等累计保留；刷机恢复只取检查点、RAM尾段在电脑，不称无损。15会话各开关一次，用户确认常亮关闭、自然OFF约5秒／KEY1、显示／触摸／时间／偏好正常，无保存失败提示，设备窗口结束。
+
+用户确认本版新鲜raw≤3.6V实验停止；3.4V仅后续分段低压验证目标，验证前不启用。真实低压保存／3.6V断载、3.4V准入、物理掉电／功耗及寿命仍未验，结束后及时回充，不以黑屏当整机断电；原充电参数保持。
+
 ## 2026-11-01 FS_REGION读取及普通记录器恢复
 
 用户新确认同板屏／原电池＋电脑USB／固定接线且在旁，上次SDK重启后未再重启或重刷，授权记录保全→诊断下载→单命令双遍扫描→普通恢复。COM5 CH340位置1-1.1、禁Modem流控1与完整构建归档重验。诊断`056710fb…`和恢复普通`2655b930…`均三镜像write＋verify成功，SDK／分区不变，本轮未重编固件。候选4MiB两遍各读满／全FF、CRC`7d5b6975`、各1024ms、guard0；SDK返回ID`0018400b`／16MiB／dual0／erase alignment4096。上述为读取及SDK元数据，不提升为所有权、实体容量或实擦除几何验证，也未格式化或擦写FS_REGION。[原始证据索引](evidence/2026-11-01/fs-region-hardware.json)／[解释边界](BATTERY-ESTIMATE.md#fs-region-hardware-20261101)。

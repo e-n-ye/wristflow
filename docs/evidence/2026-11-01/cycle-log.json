@@ -1,0 +1,1483 @@
+{
+  "schema": 1,
+  "date": "2026-11-01",
+  "baseline": "13a295468b5a06dfae2569f79da9e34592046785",
+  "branch": "codex/cycle-log",
+  "checkout": "D:/MY_Desk/project/wristflow",
+  "status": "cycle_log_software_and_usb_board_smoke_passed_ordinary_restored",
+  "goal": "Complete persistent discharge-log first version through board smoke; no full discharge started",
+  "decisions": {
+    "stop_raw_mv": 3600,
+    "stop_basis": "Fresh raw voltage, not old percent or cell cutoff",
+    "proposed_3400_mv": "Only after separate staged low-voltage runtime/save validation; not active in this version",
+    "source_percent": "Uncalibrated pinned SDK Huangshan reference, not our cell measurements"
+  },
+  "implementation": {
+    "schema": 1,
+    "row_bytes": 64,
+    "max_rows": 40000,
+    "max_elapsed_ms": 172800000,
+    "sample_interval_min_ms": 5000,
+    "sync_samples": 4,
+    "queue_rows": 16,
+    "worker_stack": 8192,
+    "files": [
+      "smoke.bin",
+      "cycle.bin"
+    ],
+    "create": "O_EXCL, no overwrite/delete/resume",
+    "format": "Explicit probe and full blank scan; never on mount failure",
+    "low_stop": "UI-thread flashlight brightness zero/OFF latch, cleared only by valid USB; not system poweroff",
+    "flash_coordination": "CycleLog-only PREV recursive gate wrapping cross-object rt_flash_read/write/erase; not all same-TU debug/OTP/ROM paths",
+    "sdk_wait": "Operation count bounded, SDK busy loops/semaphore not hard-time-bounded; no forced release while call active",
+    "export": "Strict row/page/session/order/CRC + before/after whole-file manifest, shared20min deadline, BIN and UTF-8 CSV",
+    "rtc": "UTC validity separately encoded; monotonic elapsed always used",
+    "new_adc_or_off_wake": false
+  },
+  "software": {
+    "debug": 91,
+    "debug_total": 91,
+    "release_related": 9,
+    "release_total": 9,
+    "python": 6,
+    "actual_48h_rows": 34561,
+    "actual_48h_bytes": 2211904,
+    "prior_lfs_fault_cases": 372,
+    "prior_lfs_cut_cases": 114,
+    "source_review_agents": [
+      "cycle_flash_admission",
+      "cycle_record_integration"
+    ],
+    "blocking_findings_remaining": 0,
+    "fixes": [
+      "Always close/reload/verify prefix after append or final sync errors",
+      "Reserve END queue and row slots",
+      "Preserve inhibit latch after false load observation",
+      "Age worker stale rows from current enqueue time",
+      "Export explicit session binding and shared total deadline"
+    ],
+    "failures": [
+      "First LFS SCons objects written inside vendor; next build rejected dirty SDK. Preserved two .o and used official VariantDir, SDK source unchanged",
+      "Baseline environment export temporary atomic replace WinError5; rerun succeeded",
+      "Initial deadline test froze global monotonic and host run was killed at120s; corrected test to replace only adapter clock, six tests passed"
+    ]
+  },
+  "builds": {
+    "candidate": {
+      "result": "artifacts/product/20261101-201647-565/result.json",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4 cycle_log=1",
+      "exit_code": 0,
+      "source_count": 625,
+      "artifact_count": 29,
+      "firmware": {
+        "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+        "bytes": 3051816,
+        "sha256": "eef7981bee5c635968383fe68fd72f3ff9314ec4e2b384dc668030626b920041"
+      },
+      "sdk": {
+        "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+        "submodules": {
+          "middleware/bluetooth": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c",
+          "tools/SiliconSchema": "304658c6edd5497211b7d152932327ce6e4450ff"
+        },
+        "clean": true
+      },
+      "archive": {
+        "path": "artifacts/cycle-log-20261101-candidate-build.zip",
+        "bytes": 16668692,
+        "sha256": "35dd5572f4d78388bb12c1bdee399163cde635bfb4fc48e900f0ef27ceba40d8"
+      },
+      "flash": {
+        "path": "artifacts/flash/product/20261101-203123-125/result.json",
+        "exit_code": 0,
+        "images": [
+          {
+            "name": "bootloader.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+            "address": "0x12010000",
+            "bytes": 58496,
+            "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+          },
+          {
+            "name": "main.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+            "address": "0x12020000",
+            "bytes": 3051816,
+            "sha256": "eef7981bee5c635968383fe68fd72f3ff9314ec4e2b384dc668030626b920041"
+          },
+          {
+            "name": "ftab.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+            "address": "0x12000000",
+            "bytes": 11288,
+            "sha256": "3e4d6f83b694a09b6d67348e1066450197fa2aca09ada8a38b8cb170bd40df8c"
+          }
+        ],
+        "command": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000"
+      }
+    },
+    "ordinary": {
+      "result": "artifacts/product/20261101-202913-690/result.json",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "exit_code": 0,
+      "source_count": 625,
+      "artifact_count": 29,
+      "firmware": {
+        "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+        "bytes": 3028848,
+        "sha256": "91e68338a08f5968af05ee14b7f630c6ac5fa2615419b2bcba7d735704befc9e"
+      },
+      "sdk": {
+        "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+        "submodules": {
+          "middleware/bluetooth": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c",
+          "tools/SiliconSchema": "304658c6edd5497211b7d152932327ce6e4450ff"
+        },
+        "clean": true
+      },
+      "archive": {
+        "path": "artifacts/cycle-log-20261101-ordinary-build.zip",
+        "bytes": 16497056,
+        "sha256": "323ccf95dd58451cde3c7bb77f402ede50c6ca7c25022096c3495361279cdd86"
+      },
+      "flash": {
+        "path": "artifacts/flash/product/20261101-203915-758/result.json",
+        "exit_code": 0,
+        "images": [
+          {
+            "name": "bootloader.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+            "address": "0x12010000",
+            "bytes": 58496,
+            "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+          },
+          {
+            "name": "main.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+            "address": "0x12020000",
+            "bytes": 3028848,
+            "sha256": "91e68338a08f5968af05ee14b7f630c6ac5fa2615419b2bcba7d735704befc9e"
+          },
+          {
+            "name": "ftab.bin",
+            "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+            "address": "0x12000000",
+            "bytes": 11288,
+            "sha256": "ef6e4b1b8c199587b9a09ff22672fa45d69cb8bec9997edd825656768ff84e41"
+          }
+        ],
+        "command": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000"
+      }
+    },
+    "hello": {
+      "result": "artifacts/hello/20261101-202259-259/result.json",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "exit_code": 0,
+      "source_count": 9,
+      "artifact_count": 22,
+      "firmware": {
+        "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\get-started\\hello_world\\rtt\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+        "bytes": 300336,
+        "sha256": "5d1e396f2e9cd6edd35f0586d2c30dbd7f3dd4cf0f42a5bcf17c9a976e4173c0"
+      },
+      "sdk": {
+        "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+        "submodules": {
+          "middleware/bluetooth": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c",
+          "tools/SiliconSchema": "304658c6edd5497211b7d152932327ce6e4450ff"
+        },
+        "clean": true
+      },
+      "archive": null
+    },
+    "ble": {
+      "result": "artifacts/ble/20261101-202312-786/result.json",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "exit_code": 0,
+      "source_count": 8,
+      "artifact_count": 29,
+      "firmware": {
+        "path": "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\example\\ble\\peripheral\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+        "bytes": 490064,
+        "sha256": "09d17264a1822a45731664091785dea1b0a0324f5be2af46f32c154500d396d2"
+      },
+      "sdk": {
+        "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+        "submodules": {
+          "middleware/bluetooth": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c",
+          "tools/SiliconSchema": "304658c6edd5497211b7d152932327ce6e4450ff"
+        },
+        "clean": true
+      },
+      "archive": null
+    },
+    "bringup": {
+      "result": "artifacts/bringup/20261101-202749-127/result.json",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "exit_code": 0,
+      "source_count": 8,
+      "artifact_count": 22,
+      "firmware": {
+        "path": "D:\\MY_Desk\\project\\wristflow\\apps\\bringup\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+        "bytes": 614176,
+        "sha256": "deadadab94b802be43bbd3eeab9580de1828c28fafa679c9254b9334984895fb"
+      },
+      "sdk": {
+        "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+        "submodules": {
+          "middleware/bluetooth": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c",
+          "tools/SiliconSchema": "304658c6edd5497211b7d152932327ce6e4450ff"
+        },
+        "clean": true
+      },
+      "archive": null
+    },
+    "ui_demo": {
+      "result": "artifacts/ui_demo/20261101-202825-244/result.json",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "exit_code": 0,
+      "source_count": 528,
+      "artifact_count": 22,
+      "firmware": {
+        "path": "D:\\MY_Desk\\project\\wristflow\\apps\\ui_demo\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+        "bytes": 2719516,
+        "sha256": "c59fac80d8ac1f7a7b8f0fd763d6a395342c0ada7b7a3ed142c0831ad12f672a"
+      },
+      "sdk": {
+        "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+        "submodules": {
+          "middleware/bluetooth": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c",
+          "tools/SiliconSchema": "304658c6edd5497211b7d152932327ce6e4450ff"
+        },
+        "clean": true
+      },
+      "archive": null
+    }
+  },
+  "hardware": {
+    "operator_current_same_board_screen_original_battery_usb_fixed_wiring_present": true,
+    "precise_region_format_and_probe_explicitly_authorized": true,
+    "region_start": "0x129a0000",
+    "region_end_exclusive": "0x12da0000",
+    "one_probe": true,
+    "one_explicit_init": true,
+    "first_smoke_refused": -6,
+    "first_smoke_no_file_created": "Inference from qualification before create, not independent absence query",
+    "user_refreshed_awake_before_successful_smoke": true,
+    "smoke_session": 20261101,
+    "smoke_rows": 7,
+    "smoke_bytes": 448,
+    "smoke_duration_ms": 30006,
+    "smoke_saved": 7,
+    "smoke_dropped": 0,
+    "smoke_stop_reason": 6,
+    "raw_mv": [
+      4165,
+      4166
+    ],
+    "old_percent": 98,
+    "adc_sequences": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "all_usb_flags": 15,
+    "all_flashlight": false,
+    "all_utc_valid": false,
+    "utc_raw": 946684800,
+    "whole_crc": "c0647547",
+    "sdk_reboot_sent": 1,
+    "reboot_mount_without_format": true,
+    "reexport_byte_identical": true,
+    "ordinary_restored_sha256": "91e68338a08f5968af05ee14b7f630c6ac5fa2615419b2bcba7d735704befc9e",
+    "first_ordinary_startup_zero_bytes": true,
+    "first_startup_clock_command_sent": false,
+    "refresh_awake_then_new_startup": true,
+    "ordinary_sync_commands": 1,
+    "steps_total": 0,
+    "steps_generation": 315,
+    "steps_verified_clean": true,
+    "wrist_requested": 0,
+    "auto_light_enabled": 0,
+    "final_user_normal_display_touch_time_preferences": true,
+    "no_save_failure_notice": true,
+    "always_on_disabled_natural_off_key1_confirmed": true,
+    "all_ports_closed": true,
+    "full_discharge_started": false,
+    "physical_power_loss_test": false
+  },
+  "old_runtime": {
+    "before_boot": 4,
+    "before_generation": 77,
+    "before_ram_total": 174594550,
+    "before_saved_total": 173575926,
+    "exported_tail": 1018624,
+    "after_boot": 7,
+    "after_generation": 80,
+    "after_total": 173701955,
+    "after_failures": 0,
+    "after_faults": 1,
+    "after_event_drops": 1047,
+    "after_sample_drops": 2989,
+    "limits": "Two firmware downloads plus one SDK reboot restore saved checkpoints only; RAM tails retained on PC, not lossless totals"
+  },
+  "sessions": [
+    {
+      "name": "before-cache",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "show_date",
+        "wf_steps status",
+        "wf_wrist status",
+        "wf_light status",
+        "wf_pm status"
+      ],
+      "passed": true,
+      "error": ""
+    },
+    {
+      "name": "before-runtime",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "wf_record snapshot 14232997522231677089",
+        "wf_record summary 14232997522231677089 current",
+        "wf_record summary 14232997522231677089 saved",
+        "wf_record samples 14232997522231677089 0",
+        "wf_record samples 14232997522231677089 1",
+        "wf_record samples 14232997522231677089 2",
+        "wf_record samples 14232997522231677089 3",
+        "wf_record samples 14232997522231677089 4",
+        "wf_record samples 14232997522231677089 5",
+        "wf_record samples 14232997522231677089 6",
+        "wf_record samples 14232997522231677089 7"
+      ],
+      "passed": true,
+      "error": ""
+    },
+    {
+      "name": "candidate-before-reboot-runtime",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "wf_record snapshot 7564087115064885766",
+        "wf_record summary 7564087115064885766 current",
+        "wf_record summary 7564087115064885766 saved",
+        "wf_record samples 7564087115064885766 0",
+        "wf_record samples 7564087115064885766 1",
+        "wf_record samples 7564087115064885766 2",
+        "wf_record samples 7564087115064885766 3",
+        "wf_record samples 7564087115064885766 4"
+      ],
+      "passed": true,
+      "error": ""
+    },
+    {
+      "name": "candidate-cache",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "show_date",
+        "wf_steps status",
+        "wf_wrist status",
+        "wf_light status",
+        "wf_pm status"
+      ],
+      "passed": true,
+      "error": ""
+    },
+    {
+      "name": "export-after-reboot",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "wf_cycle info smoke",
+        "wf_cycle page smoke 20261101 0 4",
+        "wf_cycle page smoke 20261101 4 3",
+        "wf_cycle info smoke"
+      ],
+      "passed": true,
+      "error": ""
+    },
+    {
+      "name": "export-before-reboot",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "wf_cycle info smoke",
+        "wf_cycle page smoke 20261101 0 4",
+        "wf_cycle page smoke 20261101 4 3",
+        "wf_cycle info smoke"
+      ],
+      "passed": true,
+      "error": ""
+    },
+    {
+      "name": "init",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "wf_cycle init"
+      ],
+      "passed": true,
+      "error": ""
+    },
+    {
+      "name": "mount-after-reboot",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "wf_cycle mount"
+      ],
+      "passed": true,
+      "error": ""
+    },
+    {
+      "name": "ordinary-runtime",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "wf_record snapshot 7748720240074928039",
+        "wf_record summary 7748720240074928039 current",
+        "wf_record summary 7748720240074928039 saved",
+        "wf_record samples 7748720240074928039 0",
+        "wf_record samples 7748720240074928039 1",
+        "wf_record samples 7748720240074928039 2"
+      ],
+      "passed": true,
+      "error": ""
+    },
+    {
+      "name": "ordinary-startup",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "show_date"
+      ],
+      "passed": false,
+      "error": "TimeoutError('No complete response before deadline')"
+    },
+    {
+      "name": "ordinary-startup-002",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "show_date",
+        "wf_time 1793536941",
+        "show_date",
+        "wf_steps status",
+        "wf_wrist status",
+        "wf_light status",
+        "wf_pm status"
+      ],
+      "passed": true,
+      "error": ""
+    },
+    {
+      "name": "probe",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "wf_cycle probe"
+      ],
+      "passed": true,
+      "error": ""
+    },
+    {
+      "name": "reboot",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "reboot"
+      ],
+      "passed": true,
+      "error": ""
+    },
+    {
+      "name": "smoke",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "wf_cycle smoke 20261101 30"
+      ],
+      "passed": false,
+      "error": "ValueError(\"Cycle command failed: ['[cycle-accepted] cmd=4 accepted=1', 'msh />msh />[cycle-done] cmd=4 result=-6']\")"
+    },
+    {
+      "name": "smoke-002",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "wf_cycle smoke 20261101 30",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status",
+        "wf_cycle status"
+      ],
+      "passed": true,
+      "error": ""
+    }
+  ],
+  "exports": [
+    {
+      "name": "export-after-reboot",
+      "info": {
+        "session": 20261101,
+        "rows": 7,
+        "bytes": 448,
+        "crc": 3227809095,
+        "terminal": true
+      },
+      "first": {
+        "kind": 1,
+        "flags": 46,
+        "session": 20261101,
+        "sequence": 0,
+        "elapsed_ms": 0,
+        "utc": 946684800,
+        "clock_revision": 0,
+        "adc_sampled_ms": 212044,
+        "adc_sequence": 8,
+        "raw_mv": 4165,
+        "filtered_decimillivolts": 41655,
+        "percent": 98,
+        "candidate": 98,
+        "mode": 1,
+        "decision": 3,
+        "charge": 2,
+        "charge_reason": 0,
+        "requested": 50,
+        "acknowledged": 50,
+        "surface": 0,
+        "context_flags": 7,
+        "phase": 0,
+        "stop_reason": 0,
+        "usb_flags": 15,
+        "sample_age_ms": 1943
+      },
+      "last": {
+        "kind": 3,
+        "flags": 46,
+        "session": 20261101,
+        "sequence": 6,
+        "elapsed_ms": 30006,
+        "utc": 946684800,
+        "clock_revision": 0,
+        "adc_sampled_ms": 242044,
+        "adc_sequence": 14,
+        "raw_mv": 4165,
+        "filtered_decimillivolts": 41652,
+        "percent": 98,
+        "candidate": 98,
+        "mode": 1,
+        "decision": 3,
+        "charge": 2,
+        "charge_reason": 0,
+        "requested": 50,
+        "acknowledged": 50,
+        "surface": 0,
+        "context_flags": 7,
+        "phase": 0,
+        "stop_reason": 6,
+        "usb_flags": 15,
+        "sample_age_ms": 1949
+      },
+      "raw_uart_redecode_matches": true
+    },
+    {
+      "name": "export-before-reboot",
+      "info": {
+        "session": 20261101,
+        "rows": 7,
+        "bytes": 448,
+        "crc": 3227809095,
+        "terminal": true
+      },
+      "first": {
+        "kind": 1,
+        "flags": 46,
+        "session": 20261101,
+        "sequence": 0,
+        "elapsed_ms": 0,
+        "utc": 946684800,
+        "clock_revision": 0,
+        "adc_sampled_ms": 212044,
+        "adc_sequence": 8,
+        "raw_mv": 4165,
+        "filtered_decimillivolts": 41655,
+        "percent": 98,
+        "candidate": 98,
+        "mode": 1,
+        "decision": 3,
+        "charge": 2,
+        "charge_reason": 0,
+        "requested": 50,
+        "acknowledged": 50,
+        "surface": 0,
+        "context_flags": 7,
+        "phase": 0,
+        "stop_reason": 0,
+        "usb_flags": 15,
+        "sample_age_ms": 1943
+      },
+      "last": {
+        "kind": 3,
+        "flags": 46,
+        "session": 20261101,
+        "sequence": 6,
+        "elapsed_ms": 30006,
+        "utc": 946684800,
+        "clock_revision": 0,
+        "adc_sampled_ms": 242044,
+        "adc_sequence": 14,
+        "raw_mv": 4165,
+        "filtered_decimillivolts": 41652,
+        "percent": 98,
+        "candidate": 98,
+        "mode": 1,
+        "decision": 3,
+        "charge": 2,
+        "charge_reason": 0,
+        "requested": 50,
+        "acknowledged": 50,
+        "surface": 0,
+        "context_flags": 7,
+        "phase": 0,
+        "stop_reason": 6,
+        "usb_flags": 15,
+        "sample_age_ms": 1949
+      },
+      "raw_uart_redecode_matches": true
+    }
+  ],
+  "limitations": [
+    "USB smoke not FULL-to-discharge/fixed flashlight/real3600mV cutoff or low voltage save validation",
+    "3400mV not enabled or validated",
+    "No physical power loss/interrupted-write, wear/cache/current/lifetime proof",
+    "SDK busy wait has no hard timeout; only dedicated white-listed operator window admitted",
+    "Current ordinary firmware excludes logger; FS and smoke file retained. One cycle file cannot be overwritten for a new run",
+    "Boot and cumulative scene counters remain in separate old runtime; row elapsed does not cross boots",
+    "Up to four-row batch tail may be absent after sudden power loss, terminal=false indicates incomplete prefix"
+  ],
+  "next_bounded_step": "Separate pure-battery/fixed-load/protection-stop validation window before staged3400mV admission or full discharge. No automatic device actions.",
+  "local_evidence_archive": {
+    "path": "artifacts/cycle-log-executed-tools-evidence-20261101.zip",
+    "bytes": 39015294,
+    "sha256": "34da31330177d92ad20460c201b9a95a20c18fa0b9bd0c2a8b0a8c2079482971",
+    "members": 156,
+    "readback_verified": true
+  },
+  "records": [
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/before-cache/binding.json",
+      "bytes": 145822,
+      "sha256": "61a2a7b0ab41693bd11e9d0fdd3482159124e1a8998f189cc1d0dce6f5653e9d"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/before-cache/events.jsonl",
+      "bytes": 3046,
+      "sha256": "e1f8552a5a3cca4bf935c857f3ca7a2626c5492c9ea5abed966c27c442f75750"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/before-cache/progress.json",
+      "bytes": 248,
+      "sha256": "cdee56b8fa3c43c732eca6fc820602f388eacf34bc9a94249a8b31a60bbc5825"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/before-cache/snapshot.json",
+      "bytes": 5803,
+      "sha256": "a317afa8423e1f6f80cb069c75b74a11669797dfc476749cbf59ad7defcbaed4"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/before-cache/uart.bin",
+      "bytes": 4460,
+      "sha256": "3c60103b0febd5ec2a84ebb94bf6d479921f098a0caf679ec7495d158783976a"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/before-runtime/binding.json",
+      "bytes": 145497,
+      "sha256": "989d3ff78ce7db4710446172082c16a87669a6370bb506b0c2fdc657de746701"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/before-runtime/events.jsonl",
+      "bytes": 6335,
+      "sha256": "250f796bf91e7cdda8b10bcd5161c6f2132ea57ffa26750e7821171a7a951ab9"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/before-runtime/export.json",
+      "bytes": 563,
+      "sha256": "cdd227a854d7941f358738e5eacf7ca3fb95d8773f814d0a284f0c07acae88df"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/before-runtime/progress.json",
+      "bytes": 248,
+      "sha256": "90325beaeadea7ce698cbda19c7cff6a14ff537c0342f8eda821c5b3b7c6fc4f"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/before-runtime/records.json",
+      "bytes": 24300,
+      "sha256": "b976dc912891f5d300538f1abf9c87c58b7cdcc4b91a8adc658fd2b80a30bde9"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/before-runtime/uart.bin",
+      "bytes": 17188,
+      "sha256": "a8632af43211398f3ede49435359c3f2953c22be5f7c069ce90318f50fb170de"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/candidate-before-reboot-runtime/binding.json",
+      "bytes": 148239,
+      "sha256": "074f92ca52d63cd3f7ebd2f6b7ad3a9de1ac8986719d6dd01a18d3c67941499a"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/candidate-before-reboot-runtime/events.jsonl",
+      "bytes": 4829,
+      "sha256": "841f54c640eacc30f3206238bcfd8fea88ee1689fd8cf5f50c47aaa73d3e0dbc"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/candidate-before-reboot-runtime/export.json",
+      "bytes": 579,
+      "sha256": "9c054257f276ce09350795c4ddfc57ba07a01eb88667e77eb68ac217dac4e757"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/candidate-before-reboot-runtime/progress.json",
+      "bytes": 248,
+      "sha256": "67ffeb2873717758749db8974a4ed472dfb95eab93619394340e03503410382e"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/candidate-before-reboot-runtime/records.json",
+      "bytes": 16315,
+      "sha256": "47098b14c7f2eeb837df116462acec19570c37781c9c8a5a55e804af9a58167f"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/candidate-before-reboot-runtime/uart.bin",
+      "bytes": 11662,
+      "sha256": "2dd0cd0725c2139f59913d386c1bb219fd21d287d1ea0344056d85e4853c2a6f"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/candidate-cache/binding.json",
+      "bytes": 148664,
+      "sha256": "171c993ccadf2245117e892b45676c7068c8ed580cbda66e27a851ebe9048471"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/candidate-cache/events.jsonl",
+      "bytes": 3171,
+      "sha256": "dbf2a64147f97d22590d064d78a06beeec4b8746b76f9db3da9db993bf7bd137"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/candidate-cache/progress.json",
+      "bytes": 248,
+      "sha256": "d2740823ec7e2c949c63ca2ea0cb72b9411c703a1d4c0706a2ccc43cd4a44f0c"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/candidate-cache/snapshot.json",
+      "bytes": 4959,
+      "sha256": "052f7262c48b9c0ed98476547cd7774be59737bfb7d34186cee22b40e75b2e79"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/candidate-cache/uart.bin",
+      "bytes": 3831,
+      "sha256": "874b7d23478d6bf9f293366e4817e98901cf54ba6e0435aaa5f35d099614df7a"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/export-after-reboot/binding.json",
+      "bytes": 148434,
+      "sha256": "cce5a6c96be8f2c3b7a387236c47d61e5dc9873d5b60e868dcab3890d82bb90c"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/export-after-reboot/cycle.bin",
+      "bytes": 448,
+      "sha256": "e8ee7121e9f2a063b91f81816f91406037f93dcaf8e27a1df4a1471d1d793f21"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/export-after-reboot/cycle.csv",
+      "bytes": 895,
+      "sha256": "57c8d743066531ac08a14e06b9282bd7069b5e776dffadd4633d22e9ea049313"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/export-after-reboot/events.jsonl",
+      "bytes": 2601,
+      "sha256": "5e55375a2f7d1e2b8c7877e88418f2c4c2ae8eb66ee12c1c29e22325396c3f78"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/export-after-reboot/progress.json",
+      "bytes": 425,
+      "sha256": "e31b9f4ad07ce852f60beda2244691491addbd59fdfc65e55aa7f0eeb4914f44"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/export-after-reboot/report.json",
+      "bytes": 313,
+      "sha256": "74809074bc488674d5631085dc59f956424845f1242a99f0cb780ce5856f1b06"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/export-after-reboot/uart.bin",
+      "bytes": 1909,
+      "sha256": "87c79335b225e7f81739b86638a78a2b10ba6a7b8d9a9b68be6a7ae8d16fe743"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/export-before-reboot/binding.json",
+      "bytes": 148434,
+      "sha256": "cce5a6c96be8f2c3b7a387236c47d61e5dc9873d5b60e868dcab3890d82bb90c"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/export-before-reboot/cycle.bin",
+      "bytes": 448,
+      "sha256": "e8ee7121e9f2a063b91f81816f91406037f93dcaf8e27a1df4a1471d1d793f21"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/export-before-reboot/cycle.csv",
+      "bytes": 895,
+      "sha256": "57c8d743066531ac08a14e06b9282bd7069b5e776dffadd4633d22e9ea049313"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/export-before-reboot/events.jsonl",
+      "bytes": 2469,
+      "sha256": "9f50d56814f856f9ac8df5a877c6df4b3d1ce192cf683447ee16c5e34473ee27"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/export-before-reboot/progress.json",
+      "bytes": 425,
+      "sha256": "ee09ae2f1b3b94729b8d5391f797c307eaee8502cecf48db9840fd18f25215e0"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/export-before-reboot/report.json",
+      "bytes": 313,
+      "sha256": "74809074bc488674d5631085dc59f956424845f1242a99f0cb780ce5856f1b06"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/export-before-reboot/uart.bin",
+      "bytes": 1909,
+      "sha256": "2f6deb0b0b216d90dd8d7cd633338fbc58f1602bdd70f7658661779afcc5442a"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/init/binding.json",
+      "bytes": 148434,
+      "sha256": "d40c3b7df18ca3403ae54e80675076be673ead5567517c8d574854766461dda6"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/init/events.jsonl",
+      "bytes": 1253,
+      "sha256": "8b4c924ebfc29cccdede7636f030d2d2ac6af4fca742ada9d89394e762bf23dc"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/init/progress.json",
+      "bytes": 235,
+      "sha256": "588362f82142e8a6b124cdf1f84d9d2b741a7706a325cda2ff85d93347adcb02"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/init/report.json",
+      "bytes": 124,
+      "sha256": "6ec6e4281eda7ba100913958a56c44c320ea32295f08c237fb7f4225b884d51e"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/init/uart.bin",
+      "bytes": 105,
+      "sha256": "f5c7f853dd412718a01993b8845ec5fd441e2216a34faa56f9fc0ca7e0870f61"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/mount-after-reboot/binding.json",
+      "bytes": 148435,
+      "sha256": "318a9eca0bfdcd00bad15f51b22f12a44e76202038de8e283debb8a9842fc4c8"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/mount-after-reboot/events.jsonl",
+      "bytes": 1502,
+      "sha256": "1fe99b6d699b64ebb831d1547bfb923665902531640d47c251baa21778dd717b"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/mount-after-reboot/progress.json",
+      "bytes": 236,
+      "sha256": "e29424d712147da868c8f386f8b44c1446583365bbbf3a79430c949e884b614a"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/mount-after-reboot/report.json",
+      "bytes": 125,
+      "sha256": "a177a50c061280284c8b912d226f23b430cc13ea071a4486d097b81314370f38"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/mount-after-reboot/uart.bin",
+      "bytes": 105,
+      "sha256": "8eb374d0082487cd4ca41fedbc0e66247de2a9404f84e030b62ce285d9768760"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/ordinary-runtime/binding.json",
+      "bytes": 148337,
+      "sha256": "a41d3037480d3da4acca9d8ce32487ec7ef91dcfdba5d9e15e124b0e8caf708d"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/ordinary-runtime/events.jsonl",
+      "bytes": 3833,
+      "sha256": "493c7d67afba77844abb9cc0fe3cc2275c9f0897b923ea220a508e58e7dc1ec3"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/ordinary-runtime/export.json",
+      "bytes": 563,
+      "sha256": "457f67af8b826ae49e4ada45391d27a187bb60e6f646dbb89cb2d58a39c327eb"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/ordinary-runtime/progress.json",
+      "bytes": 248,
+      "sha256": "37027cfd02942c10802d253d251714fc9c9ec24ae9b4200fa3befbc91e847cb9"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/ordinary-runtime/records.json",
+      "bytes": 11578,
+      "sha256": "6c162353b2357b13625a5cf2b967f25a8dbc55bf3c853c77733b96333e0aff66"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/ordinary-runtime/uart.bin",
+      "bytes": 8074,
+      "sha256": "4864185573a0d6ee23587914efc2de5d8cd53f9e6034d761f965368927d1a1ca"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/ordinary-startup/binding.json",
+      "bytes": 148646,
+      "sha256": "32297fd882f8f18981a6af61f72fb598f9a5cedeefc2df059421628b7223bd42"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/ordinary-startup/events.jsonl",
+      "bytes": 1303,
+      "sha256": "54db349d1dc0204b02d79c326184a71819b3a76349bfbe7d281fac8ecb3810ce"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/ordinary-startup/progress.json",
+      "bytes": 249,
+      "sha256": "a84d39cd735dcc59665199e1048963370653fde06dc8028581c3c73c4edfbc74"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/ordinary-startup/snapshot.json",
+      "bytes": 713,
+      "sha256": "c9ffd6a865937551b1606d2d0f556de2c958c68bad0ee44098b7e96228c0e9bd"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/ordinary-startup/uart.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/ordinary-startup-002/binding.json",
+      "bytes": 148646,
+      "sha256": "32297fd882f8f18981a6af61f72fb598f9a5cedeefc2df059421628b7223bd42"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/ordinary-startup-002/events.jsonl",
+      "bytes": 3936,
+      "sha256": "21de48169f2e1e1016ecba68d3156b2d350121d7a985aea3eb99b6a59b8827da"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/ordinary-startup-002/progress.json",
+      "bytes": 248,
+      "sha256": "915fb55d89f3eb40af3a0bbcb6e731865c79a30301b83d5f4b1b4fd531b7f5c8"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/ordinary-startup-002/snapshot.json",
+      "bytes": 6082,
+      "sha256": "55b14fdd3a2b8564371d2397d9f2fc39b1b2b0517c3277c29798a468f0076c56"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/ordinary-startup-002/uart.bin",
+      "bytes": 4599,
+      "sha256": "921a95cf8f100191fd274cebbad52f3a35d7143b02ad3c46a66f50bbd238de7c"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/probe/binding.json",
+      "bytes": 148435,
+      "sha256": "197ae78c79d282fc11d636fa04c0e4a099db53b40c94d047299ea6264be3948d"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/probe/events.jsonl",
+      "bytes": 1256,
+      "sha256": "5a95f680fb92f5435f624b06bc8cf3633318b98c38ae158f10eddd245a3c0e0e"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/probe/progress.json",
+      "bytes": 236,
+      "sha256": "4df2d71f6bdf2e4d1839d12b5bacb918f60263fc6d18b9262191ebb22767d4aa"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/probe/report.json",
+      "bytes": 125,
+      "sha256": "eeb794c6f7024f584bf3beee6a2ab0e589181c316fc91116e4ce47802c08c026"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/probe/uart.bin",
+      "bytes": 312,
+      "sha256": "94bbfc1c8c6f6b36b132daa2a86df881721dcaf4b7cc5393df28cd06b3e2c3f4"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/reboot/binding.json",
+      "bytes": 149431,
+      "sha256": "4d7cd7aaac23bb0abe3ff944c3397641cf512fcf49f31feeefc157c178c82a0d"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/reboot/events.jsonl",
+      "bytes": 1328,
+      "sha256": "cd3bfd3dc1a317b0fea8fff7dc0e65f2620472dbe6eaafd72eb09ff68969919e"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/reboot/progress.json",
+      "bytes": 223,
+      "sha256": "5ee61b2fe6cb34d9fc5cc901ade63e5488c00ada15fb3665b091c93a08b35011"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/reboot/reboot.json",
+      "bytes": 640,
+      "sha256": "96826481df26e02a73850082404b07d79d81c242e006753c29ef8e1aa01a5b08"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/reboot/uart.bin",
+      "bytes": 5539,
+      "sha256": "1c98ab6597356f6d628b04844e71099fdfab39c091f3e99b9628b656c2517c7f"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/smoke/binding.json",
+      "bytes": 148433,
+      "sha256": "f4b593f5133f8da13019d97a533278a10d80b82385c505123c455702e8a80b57"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/smoke/events.jsonl",
+      "bytes": 1410,
+      "sha256": "708c63ac1434ccba1cfb08c1a506a7d092e2949225536e684cdde21290f5be72"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/smoke/progress.json",
+      "bytes": 370,
+      "sha256": "98664038464684402c5d9d689d5dba89452331d456a51cd6b8963b29b0368aa9"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/smoke/report.json",
+      "bytes": 259,
+      "sha256": "e30dc5f15ffabef12e6d28b761bdeb42cde9170b6f845cb625e6d092fa45186e"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/smoke/uart.bin",
+      "bytes": 77,
+      "sha256": "d38a92d22b5d6f394f877013694a3956a24a3ec40dcd0daa08c138d12e911e4f"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/smoke-002/binding.json",
+      "bytes": 148433,
+      "sha256": "f4b593f5133f8da13019d97a533278a10d80b82385c505123c455702e8a80b57"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/smoke-002/events.jsonl",
+      "bytes": 15895,
+      "sha256": "b431c3298d14e2529dbcff62aa24407ae00d64226c58e5fabc4508b246e50f59"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/smoke-002/progress.json",
+      "bytes": 410,
+      "sha256": "1764b00c1d845165a38e97aa973b1deaa9c179bf1c0b9cfc2a801c1dbd7a53fb"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/smoke-002/report.json",
+      "bytes": 297,
+      "sha256": "93e034dbc290700cccbbca11cafbfffebda71a4c97655f40a06cd71992c73503"
+    },
+    {
+      "path": "artifacts/cycle-log-device-20261101-001/smoke-002/uart.bin",
+      "bytes": 4810,
+      "sha256": "03af26b8d6c6838f54d86c44b56b68a2b655f7d64a072db90a232425baa466f7"
+    },
+    {
+      "path": "artifacts/product/20261101-201647-565/result.json",
+      "bytes": 126043,
+      "sha256": "395bb13d8c038017c0711d76ba378f0e08197552f10a239a3e710cf61bd75f32"
+    },
+    {
+      "path": "artifacts/cycle-log-20261101-candidate-build.zip",
+      "bytes": 16668692,
+      "sha256": "35dd5572f4d78388bb12c1bdee399163cde635bfb4fc48e900f0ef27ceba40d8"
+    },
+    {
+      "path": "artifacts/product/20261101-202913-690/result.json",
+      "bytes": 126032,
+      "sha256": "1551f624987bd1a1eb3a0819e630c8860480092219220d5ffb931441102d25d5"
+    },
+    {
+      "path": "artifacts/cycle-log-20261101-ordinary-build.zip",
+      "bytes": 16497056,
+      "sha256": "323ccf95dd58451cde3c7bb77f402ede50c6ca7c25022096c3495361279cdd86"
+    },
+    {
+      "path": "artifacts/hello/20261101-202259-259/result.json",
+      "bytes": 10231,
+      "sha256": "dad41be5a883146b0c70ffcb3a58340401d3f38e08f8d2aec55ed305e62838be"
+    },
+    {
+      "path": "artifacts/ble/20261101-202312-786/result.json",
+      "bytes": 11461,
+      "sha256": "c21bcb7543e45ad02eb53216a7a2ac006eed8a067346716a1be97ea17f642840"
+    },
+    {
+      "path": "artifacts/bringup/20261101-202749-127/result.json",
+      "bytes": 8546,
+      "sha256": "d38e7e1a483dd7fb1e1b7622a26ce74f1e941bd70f5c92f6f3aaa3b80987ee6c"
+    },
+    {
+      "path": "artifacts/ui_demo/20261101-202825-244/result.json",
+      "bytes": 105999,
+      "sha256": "f989865e8dcd89433f0f9f04abe44f509dc065617a0bb03ca213381e614059b0"
+    },
+    {
+      "path": "artifacts/flash/product/20261101-203123-125/result.json",
+      "bytes": 1767,
+      "sha256": "a95aa51136ee0536d2fbb315e1bbaad00cc2632cc984a1aef5d84ccba3899ff1"
+    },
+    {
+      "path": "artifacts/flash/product/20261101-203123-125/sftool.log",
+      "bytes": 203,
+      "sha256": "cac540f5b9d56cd12cbd71c4a7b8dc586e376daaa2956ed720f85e70fe8cebcd"
+    },
+    {
+      "path": "artifacts/flash/product/20261101-203915-758/result.json",
+      "bytes": 1767,
+      "sha256": "7d7da8f2e295ee9e745ee7e8119bb671ef22a1ab8047255166502fe61fd97326"
+    },
+    {
+      "path": "artifacts/flash/product/20261101-203915-758/sftool.log",
+      "bytes": 203,
+      "sha256": "8e31cd6fa226bd980b35b36627c0eeb5535ccda6c22621b056df434a9f01d44a"
+    },
+    {
+      "path": "apps/product/src/cycle_record.c",
+      "bytes": 4316,
+      "sha256": "5e001399a7ec8cd059cff096908d035b95345e09229d4da343ce9ed484e71c76"
+    },
+    {
+      "path": "apps/product/src/cycle_record.h",
+      "bytes": 972,
+      "sha256": "c18f34177de1074b2a3dac420877ae8cdd18441078dc7fa681fe0bdc4148635f"
+    },
+    {
+      "path": "apps/product/src/cycle_store.c",
+      "bytes": 5088,
+      "sha256": "a90b0b716e2e2643fac4f39d14c024f45b46619569e73fd447974dbc962e3bb3"
+    },
+    {
+      "path": "apps/product/src/cycle_store.h",
+      "bytes": 1241,
+      "sha256": "f16f1ee23b19c0f7d42b5a1351a72bce52b7ce2aee04714390564705c0b881bf"
+    },
+    {
+      "path": "apps/product/src/product_cycle.c",
+      "bytes": 12608,
+      "sha256": "04ccae88cf4fa7207279810ee423ebad636bb7025de483bb8a14946b82b171e9"
+    },
+    {
+      "path": "apps/product/src/product_cycle.h",
+      "bytes": 512,
+      "sha256": "80b19f6b544d7e51274d87e9617fc543ed7e7db8c4693cf87305d70137489d36"
+    },
+    {
+      "path": "apps/product/src/product_flash_gate.c",
+      "bytes": 1420,
+      "sha256": "a460f42a76bfbd397f254578ecca00be2df453c360c7f61d5a8017f5023e9701"
+    },
+    {
+      "path": "apps/product/src/product_flash_gate.h",
+      "bytes": 170,
+      "sha256": "69e740a440fa5a5a35b6a67d7e13d44f081ecc25fc235fe6ec8a742b3047a603"
+    },
+    {
+      "path": "apps/product/src/product_fs_block.c",
+      "bytes": 6417,
+      "sha256": "beb90ea15ba5d5df41a860a612156936c04f135049a91ea4451ca114383375b0"
+    },
+    {
+      "path": "apps/product/src/product_fs_block.h",
+      "bytes": 1290,
+      "sha256": "ab618bd152c5f5ca6416df26fa6e0da19b949705ba4523391fb9b477dce6c0c5"
+    },
+    {
+      "path": "apps/product/src/fs_block.c",
+      "bytes": 4667,
+      "sha256": "b8320f0ccb35757950d190d89f1810ffc8c36ef08f92f85ed7ca5131f8231fc1"
+    },
+    {
+      "path": "apps/product/src/fs_block.h",
+      "bytes": 1844,
+      "sha256": "3a9f9762b3be267a68d57f7673b89c9421baaa631b6714ad181b7ea4c79d3447"
+    },
+    {
+      "path": "apps/product/src/main.c",
+      "bytes": 42615,
+      "sha256": "3e92d0510f9ca0f24ce04cf05eac68f739f38028ebfb126ef2a5663f808a86b9"
+    },
+    {
+      "path": "apps/product/src/SConscript",
+      "bytes": 3049,
+      "sha256": "aeafd508f55c808c3f843016dd974db43f90a7f4a40d63f368b8be404c1daaa2"
+    },
+    {
+      "path": "ui/runtime/ui_shell.c",
+      "bytes": 80184,
+      "sha256": "c461c6dde0474fd61025ebd08f5025612b00d78889fb86e7f28061b94b275211"
+    },
+    {
+      "path": "ui/runtime/ui_shell.h",
+      "bytes": 13234,
+      "sha256": "6b9fe2bb1dde7e7ec8c8f19c17e34538b37680702d84e8842bb737082fe32101"
+    },
+    {
+      "path": "scripts/Build.ps1",
+      "bytes": 7104,
+      "sha256": "7eb3d0beae8606a612c04b479d4fd88e3b48f1cb27579b8cb12d116f305f2798"
+    },
+    {
+      "path": "scripts/cycle_log_lab.py",
+      "bytes": 7339,
+      "sha256": "f148ba05a1607fb16542e79cf4b2e63130decc623ae90db308db5b11c7951f84"
+    },
+    {
+      "path": "scripts/cycle_protocol.py",
+      "bytes": 3657,
+      "sha256": "71338a018bfbb00dbcf778d0baad7ac20caa09d9a6a73e2e3bf31c27bbdb0235"
+    },
+    {
+      "path": "tests/cycle_log.c",
+      "bytes": 6379,
+      "sha256": "62e848588b5c753796b8355a17a9a374c6d992f9e571c3d91239169ac89e3bfe"
+    },
+    {
+      "path": "tests/product_cycle.c",
+      "bytes": 7395,
+      "sha256": "1846b841f38044f5cfabc5418e7b276987261e9287de9db6e8cc42d379ed907d"
+    },
+    {
+      "path": "tests/cycle_flash.c",
+      "bytes": 4021,
+      "sha256": "a858e78dd511497969bbd0d12891fdd56a56e1be5c7a866fd946dda853291037"
+    },
+    {
+      "path": "tests/test_cycle_log.py",
+      "bytes": 5974,
+      "sha256": "d7ed4197d8ba98df27f602fb6331a98128a20a450b10ca4e56a4159ed4128020"
+    },
+    {
+      "path": "tests/settings_ui.c",
+      "bytes": 38434,
+      "sha256": "c67b5a238476088c8a6ab9e301797151b58a7304212c62eca8e296b81a7fa023"
+    },
+    {
+      "path": "tests/CMakeLists.txt",
+      "bytes": 30115,
+      "sha256": "3abc8df01985099ca5d83543602becacf3bd21b850b1256c92b92a068f60bf55"
+    },
+    {
+      "path": "tests/support/fs/drv_flash.h",
+      "bytes": 315,
+      "sha256": "91af1786d9a0a3cd08bf603392e24c9c51037c984bd154b2b5c0ed60518c59b4"
+    },
+    {
+      "path": "tests/support/power/rtthread.h",
+      "bytes": 1609,
+      "sha256": "8c98fa159a8e706720b41561d7542a0e150f038a64a6e2a9bf47ed0db78e383c"
+    },
+    {
+      "path": "sdk.lock.json",
+      "bytes": 473,
+      "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+    },
+    {
+      "path": "apps/product/project/sf32lb52-lchspi-ulp_hcpu/ptab.json",
+      "bytes": 2112,
+      "sha256": "41d89872c94d54a8e85c679d640eea27981ca4760b928fe0a335d9d79ef35445"
+    },
+    {
+      "path": "scripts/lab_serial.py",
+      "bytes": 9088,
+      "sha256": "8ac5b08fc0f7d68180b1f657d91d7bc11d4b3cc349d6603bde59e90710c49703"
+    },
+    {
+      "path": "scripts/serial_lab.py",
+      "bytes": 13798,
+      "sha256": "7fe4ad1d5a6a2007f59c97c586cf954791c15310a881075a50db12a946d78aa6"
+    },
+    {
+      "path": "scripts/lab_evidence.py",
+      "bytes": 1498,
+      "sha256": "618487f3802b663b347c1bbd97b081147df2ef31ae6f471a9fcf2ac692e64864"
+    },
+    {
+      "path": "scripts/lab_check.py",
+      "bytes": 17510,
+      "sha256": "ce9a332f6b81c552da46bbbe91a6a941271f0acbb3ab2936ee0d09bb9142678b"
+    },
+    {
+      "path": "scripts/battery_lab.py",
+      "bytes": 24301,
+      "sha256": "cee5934f0bfc191bbbc90aab867f9613ab5ab621e8698e3c81ad3c6bd3da8785"
+    },
+    {
+      "path": "scripts/battery_console.py",
+      "bytes": 13885,
+      "sha256": "1298063edc037d1d4a84d33bf90f221f616fdb6e747ca6aa004ebf442cb1311e"
+    },
+    {
+      "path": "scripts/battery_device.py",
+      "bytes": 17306,
+      "sha256": "34b07b98c1f10afcc03111d262cdadcd41699caec7cdb56a8ea865af35ad6768"
+    },
+    {
+      "path": "scripts/battery_collect.py",
+      "bytes": 23428,
+      "sha256": "304345942c16486a4626e49bb59bdd9a4126b3611630f81ba9b7d3081f0d2c05"
+    },
+    {
+      "path": "scripts/runtime_export.py",
+      "bytes": 9311,
+      "sha256": "84b280902836d0d15e323a19062ed27043113ae507879a5d77d359e4bb0ddb00"
+    },
+    {
+      "path": "scripts/runtime_record_decode.py",
+      "bytes": 10383,
+      "sha256": "41fc2dd141a9bb843e40f7caeefefaec1955c9189e7dcb1864ba8ae514f99a39"
+    },
+    {
+      "path": "scripts/device_snapshot.py",
+      "bytes": 12078,
+      "sha256": "0195f5297b87bd26084887210dc42618ed169243f4248ae58a26204fed84189f"
+    },
+    {
+      "path": "scripts/device_reboot.py",
+      "bytes": 7839,
+      "sha256": "15850acff133e2b64b8c192124e92208f58fbc9003e14650d87eb8c151c2cd71"
+    },
+    {
+      "path": "scripts/Flash.ps1",
+      "bytes": 4611,
+      "sha256": "efda24097a5dd5686d0b7529d5ab2f661c14a02b6fe0a315e055bf75fe045d08"
+    },
+    {
+      "path": "artifacts/cycle-log-report.py",
+      "bytes": 14670,
+      "sha256": "cbd23a5981b6384ca8524c918073d400f62f944e6e5d2f0106cf65b40c1fad57"
+    },
+    {
+      "path": "artifacts/cycle-restore-artifacts.py",
+      "bytes": 1066,
+      "sha256": "a0a67afa0c60a0a8ddd9544f561acbed520c3c672e31bd84523a1b7fad7d1c34"
+    },
+    {
+      "path": "artifacts/cycle-log-all-host-tests-20261101-006.log",
+      "bytes": 9638,
+      "sha256": "beb71fbaa71d69cf2f3b0c66de3807eb58601cc10ce942e006915d690cc47e2c"
+    },
+    {
+      "path": "artifacts/cycle-log-release-tests-20261101-002.log",
+      "bytes": 4863,
+      "sha256": "abbe3dcb985a15e91c8104b26903c3a9035fbdb7aa3b642494e598115573d8b9"
+    },
+    {
+      "path": "artifacts/cycle-log-python-tests-20261101-003.log",
+      "bytes": 881,
+      "sha256": "0295cbc7f96810b3d0e1cd29203a5556a4e4a8aab14807522f80bd1b6a267a11"
+    },
+    {
+      "path": "artifacts/cycle-log-python-tests-20261101-002.log",
+      "bytes": 280,
+      "sha256": "ce58eb1dd1cd13f90775069cd85b00fc668dc8f1942428deb54ca30e67c04f30"
+    },
+    {
+      "path": "artifacts/cycle-log-build-20261101-001.log",
+      "bytes": 40261,
+      "sha256": "817731994776ad11817d26da502f2c990ccacd9713ea7bc045f953fb28f76f1e"
+    },
+    {
+      "path": "artifacts/cycle-log-build-20261101-002.log",
+      "bytes": 360,
+      "sha256": "8fa6dd058a18555db7ba27f0c1ff0eda1aa4f71022c7a60de67cece91c58d6cc"
+    },
+    {
+      "path": "artifacts/cycle-log-build-20261101-003.log",
+      "bytes": 14137,
+      "sha256": "b035d1e6b0c2045e01c194ebdf56e99e416e3a9f3675a143b9df9fcfe1cf98cf"
+    },
+    {
+      "path": "artifacts/cycle-log-baseline-bringup-20261101-001.log",
+      "bytes": 2411,
+      "sha256": "81b8d3255f204fe1093c788e6c74ded03cdc655b9baed395ad54d284e742b344"
+    },
+    {
+      "path": "artifacts/cycle-log-baseline-hello-20261101-001.log",
+      "bytes": 5564,
+      "sha256": "1562f27d7fbbe4d46016664aa7042cabb0359826c40a5e0d263e9bc9d73b4fbf"
+    },
+    {
+      "path": "artifacts/cycle-log-baseline-ble-20261101-001.log",
+      "bytes": 7792,
+      "sha256": "1bee7bd3214b13007234a6aeb49dd09d079333ea4f37553fa343c6a4dc5aac1c"
+    },
+    {
+      "path": "artifacts/cycle-log-baseline-bringup-20261101-002.log",
+      "bytes": 5491,
+      "sha256": "5978b604cde5f6cf25bc7a4d0202b97316ac37e79e270bd3b34af8e3a1612151"
+    },
+    {
+      "path": "artifacts/cycle-log-baseline-ui_demo-20261101-002.log",
+      "bytes": 10794,
+      "sha256": "7eef40066f458f4bb145613fdf1ee6b75e6758adb086a4d1ca5f3658e53d599d"
+    },
+    {
+      "path": "artifacts/cycle-log-baseline-product-20261101-002.log",
+      "bytes": 32629,
+      "sha256": "006f6e1eabbf0c71ef85e6acb68b104eb2135b895a7ef79c56708e449ae0e9df"
+    },
+    {
+      "path": "artifacts/cycle-log-candidate-symbols.txt",
+      "bytes": 275348,
+      "sha256": "61546e8367d142d97fc005071e5ff5829adecac44959e02329df852e1fa9cef8"
+    },
+    {
+      "path": "artifacts/cycle-log-ordinary-symbols.txt",
+      "bytes": 269921,
+      "sha256": "9fa280667712aea15a7cbecbc4ccfcc6ae94833c28f513d5cbccc0d03af1e222"
+    },
+    {
+      "path": "artifacts/cycle-log-candidate-disassembly.txt",
+      "bytes": 22810866,
+      "sha256": "cb53b65585c1b69145cabdaed6367f39b3bea65e113c32dd95d3fa3addac250d"
+    },
+    {
+      "path": "artifacts/cycle-log-initial-vendor-lfs.o",
+      "bytes": 244816,
+      "sha256": "8fbfcad4a91da7722cfff706097b802a65ecf91ab3b6513c1bc610cc1a509556"
+    },
+    {
+      "path": "artifacts/cycle-log-initial-vendor-lfs_util.o",
+      "bytes": 4832,
+      "sha256": "d80d45375fa473cf21ee9134ccf1baa7f4da9bd109b28720fe4430d152dd83e5"
+    },
+    {
+      "path": "artifacts/cycle-log-executed-tools-evidence-20261101.zip",
+      "bytes": 39015294,
+      "sha256": "34da31330177d92ad20460c201b9a95a20c18fa0b9bd0c2a8b0a8c2079482971"
+    }
+  ]
+}

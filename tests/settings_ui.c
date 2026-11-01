@@ -402,6 +402,11 @@ int main(int argc,char **argv)
     jump(119000); key(); surface(WRISTFLOW_SURFACE_FACE_MANAGEMENT);
     jump(5050); jump(120000); check_wake_home=true; key(); check_wake_home=false; surface(WRISTFLOW_SURFACE_HOME);
     key(); open(WRISTFLOW_SURFACE_FLASHLIGHT); jump(600000); assert(brightness==100 && wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_ACTIVE);
+    wristflow_ui_shell_flashlight_guard(shell,true);
+    assert(brightness==0 && wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_OFF);
+    jump(3000);assert(brightness==0 && wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_OFF);
+    wristflow_ui_shell_flashlight_guard(shell,false);wristflow_ui_shell_display_retry(shell);advance(32);
+    assert(brightness==100 && wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_ACTIVE);
     key(); assert(brightness==27); jump(3000); assert(wristflow_ui_shell_display_phase(shell)==WRISTFLOW_DISPLAY_ACTIVE);
     key(); open(WRISTFLOW_SURFACE_STOPWATCH); press("stopwatch_toggle"); advance(1200); press("stopwatch_reset"); jump(5050); jump(120000); key(); surface(WRISTFLOW_SURFACE_STOPWATCH);
     assert(lv_obj_get_child_count(named(lv_screen_active(), "stopwatch_laps")) == 1);
