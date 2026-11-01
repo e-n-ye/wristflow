@@ -1,4 +1,5 @@
 import copy
+import json
 from pathlib import Path
 import sys
 import tempfile
@@ -31,7 +32,7 @@ class ShortTests(unittest.TestCase):
             root = Path(temp)
             peer = Simulation()
             r = run(self.args(root / "good"), peer, AutoConsole)
-            self.assertTrue(r["passed"] and r["owned"] and r["stopped"])
+            self.assertTrue(r["passed"] and r["owned"] and r["stopped"], r)
             self.assertEqual(peer.calls, ["arm", "status", "status", "export"])
             class Cancel(AutoConsole):
                 cancel_at = "reconnect"
@@ -62,6 +63,22 @@ class ShortTests(unittest.TestCase):
             r = run(self.args(root / "lost"), peer, AutoConsole)
             self.assertTrue(r["possible_arm"] and r["recovery_required"])
             self.assertEqual(peer.calls, ["arm"])
+    def test_full_handoff_closes_host_without_claiming_discharge_done(self):
+        with tempfile.TemporaryDirectory() as temp:
+            peer=Simulation();args=self.args(Path(temp)/"full");args.full=True
+            r=run(args,peer,AutoConsole)
+            self.assertTrue(r["passed"] and r["full_handoff"] and r["device_may_be_active"])
+            self.assertFalse(r["stopped"] or r["device_running_verified"] or r["recovery_required"])
+            self.assertIsNone(r["analysis"])
+            self.assertEqual(peer.calls,["arm","status"])
+            self.assertIsNone(json.loads((args.out/"binding.json").read_text(encoding="utf-8"))["seconds"])
+            class Cancel(AutoConsole):
+                cancel_at="handoff"
+            peer=Simulation();args.out=Path(temp)/"cancel-full"
+            r=run(args,peer,Cancel)
+            self.assertFalse(r["passed"] or r["full_handoff"])
+            self.assertTrue(r["recovery_required"])
+            self.assertEqual(peer.calls,["arm","status"])
 
     def test_failed_terminal_still_exports_evidence(self):
         with tempfile.TemporaryDirectory() as temp:

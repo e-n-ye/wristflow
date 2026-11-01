@@ -72,17 +72,22 @@ class Simulation:
 
 def run(args, backend=None, console_type=Console):
     simulated = args.port is None
+    full = getattr(args, "full", False)
     if not 0 < args.seconds <= 120 or (not simulated and args.seconds < 60):
         raise ValueError("Device window60..120 seconds")
     if not 0 < args.session < 2**32:
         raise ValueError("Explicit nonzero uint32 session required")
     backend = backend or (Simulation() if simulated else Device(args))
-    journal = Journal(args.out, binding=dict(backend.binding, session=args.session, seconds=args.seconds,
-        adapter=file_record(Path(__file__))), mode="cycle-short")
+    journal = Journal(args.out, binding=dict(backend.binding, session=args.session,
+        seconds=None if full else args.seconds, full_handoff=full, adapter=file_record(Path(__file__))),
+        mode="cycle-full-prepare" if full else "cycle-short")
     outcome, detail, current = "passed", "", "prepare"
     possible = owned = stopped = reconnect_confirmed = False
     analysis = None
-    with console_type(journal, PHASES, mode="Cycle短窗模拟（无设备）" if simulated else "Cycle纯电池短窗") as console:
+    handed_off = False
+    phases = PHASES[:3] + [("handoff", "交接完整放电观察")] if full else PHASES
+    mode = "Cycle完整放电准备" if full else "Cycle纯电池短窗"
+    with console_type(journal, phases, mode=mode + ("模拟（无设备）" if simulated else "")) as console:
         print(console.url, flush=True)
         def prompt(key, text, timeout=180):
             nonlocal current
@@ -117,42 +122,51 @@ def run(args, backend=None, console_type=Console):
             prompt("unplug", "串口已关闭。现在拔USB，只留原电池，打开手电筒。确认白屏持续全亮后点击继续；不要更改电池接线。异常时退出手电筒、接USB并取消。", 120)
             if time.monotonic() - armed_at > 120:
                 raise TimeoutError("Battery preparation exceeded120s")
-            current = "timer"
-            console.automatic(current, f"保持手电筒白屏和USB拔出，程序计时{args.seconds:g}秒。不要提前退出。异常时立即退出手电筒、接USB并取消。", args.seconds)
-            prompt("exit", "计时结束，USB仍保持拔出。手动退出手电筒，回电池页，等待约10秒让停止和保存完成；确认手电筒已退出后继续。")
-            prompt("reconnect", "现在接回原电脑USB端口，开启临时常亮并保持亮屏，等Windows连接稳定后确认。确认后才重新开串口。")
-            reconnect_confirmed = True
-            current = "read"; console.stage(current, "running")
-            s = action("status", "ended-status")["status"]
-            if s["session"] != args.session or s["state"] not in (5, 6):
-                raise ValueError("Owned terminal session not confirmed; no foreign/active stop")
-            stopped = True
-            # Preserve the full file even when terminal health fails qualification.
-            exported = action("export", "export")
-            if simulated:
-                analysis = dict(passed=True, checks={"simulated_workflow": True})
+            if full:
+                prompt("handoff", "完整放电已交接给设备，串口保持关闭。保持USB拔出和手电筒白屏，不再触摸或切换负载；固件每约5秒取既有ADC。看到白屏自行关闭，及时接回USB并告诉助手，由助手核对是否LOW／末电压≤3.6V及保存完整。其他异常也会黑屏，不能只凭黑屏判定成功。需要提前结束时退出手电筒并回USB。请保持能及时发现停止并回充；离开前主动结束。确认理解后关闭本准备流程，整轮结果仍待回读。")
+                handed_off = True
+                journal.event("full_handoff", session=args.session, device_running_verified=False,
+                              max_device_ms=172800000, stop_raw_mv=3600)
             else:
-                raw = (args.out / "export" / "cycle.bin").read_bytes()
-                rows = decode_file(raw, exported["info"])
-                analysis = analyze(rows, args.seconds)
-            write_json(args.out / "analysis.json", analysis)
-            if s["state"] != 5 or s["reason"] != 4 or s["dropped"] or s["queued"] or s["saved"] != s["accepted"] or not analysis["passed"]:
-                raise ValueError("Short-window qualification failed; exported evidence preserved")
-            console.stage(current, "complete")
-            prompt("finish", "日志已导出，串口已关闭。保持USB连接，确认显示、触摸正常且无保存失败提示；随后由助手恢复普通版。不要自行重启或重刷。")
+                current = "timer"
+                console.automatic(current, f"保持手电筒白屏和USB拔出，程序计时{args.seconds:g}秒。不要提前退出。异常时立即退出手电筒、接USB并取消。", args.seconds)
+                prompt("exit", "计时结束，USB仍保持拔出。手动退出手电筒，回电池页，等待约10秒让停止和保存完成；确认手电筒已退出后继续。")
+                prompt("reconnect", "现在接回原电脑USB端口，开启临时常亮并保持亮屏，等Windows连接稳定后确认。确认后才重新开串口。")
+                reconnect_confirmed = True
+                current = "read"; console.stage(current, "running")
+                s = action("status", "ended-status")["status"]
+                if s["session"] != args.session or s["state"] not in (5, 6):
+                    raise ValueError("Owned terminal session not confirmed; no foreign/active stop")
+                stopped = True
+                # Preserve the full file even when terminal health fails qualification.
+                exported = action("export", "export")
+                if simulated:
+                    analysis = dict(passed=True, checks={"simulated_workflow": True})
+                else:
+                    raw = (args.out / "export" / "cycle.bin").read_bytes()
+                    rows = decode_file(raw, exported["info"])
+                    analysis = analyze(rows, args.seconds)
+                write_json(args.out / "analysis.json", analysis)
+                if s["state"] != 5 or s["reason"] != 4 or s["dropped"] or s["queued"] or s["saved"] != s["accepted"] or not analysis["passed"]:
+                    raise ValueError("Short-window qualification failed; exported evidence preserved")
+                console.stage(current, "complete")
+                prompt("finish", "日志已导出，串口已关闭。保持USB连接，确认显示、触摸正常且无保存失败提示；不要自行重启或重刷。")
         except BaseException as exc:
             outcome = "cancelled" if isinstance(exc, (Cancelled, KeyboardInterrupt)) else "timeout" if isinstance(exc, TimeoutError) else "error"
             detail = repr(exc)
             journal.event("short_failed", phase=current, error=detail)
             console.stage(current, outcome)
         outcome = console.seal(outcome)
+        handed_off = handed_off and outcome == "passed"
         report = dict(passed=outcome == "passed", outcome=outcome, detail=detail, simulation=simulated,
             hardware_verified=False, session=args.session, possible_arm=possible, owned=owned,
             stopped=stopped, reconnect_confirmed=reconnect_confirmed,
-            recovery_required=possible and not stopped, analysis=analysis,
-            limits="Single cycle.bin consumed. No format, reset, flash or clock writes. Errors/cancellation never reconnect or send blind stop; operator exits load and reconnects, then assistant independently verifies device state.")
+            recovery_required=possible and not stopped and not handed_off, full_handoff=handed_off,
+            device_may_be_active=possible and not stopped, device_running_verified=False, analysis=analysis,
+            limits="No format, reset, flash or clock writes. Full handoff verifies ARM/START and operator actions only, not RUNNING or full-discharge success. Errors/cancellation never reconnect or send blind stop; operator exits load and reconnects, then assistant independently verifies device state.")
         write_json(args.out / "experiment.json", report)
-        console.finish(outcome, "短窗流程完成，保持USB连接等待恢复普通版。" if report["passed"] else
+        success = "准备流程完成，设备独立继续。白屏自行关闭后及时接USB并告诉助手，整轮结果待核验。" if handed_off else "短窗流程完成，保持USB连接。"
+        console.finish(outcome, success if report["passed"] else
             "流程未通过。请立即退出手电筒并接回USB，保持设备亮屏并告知助手；不要重启或重刷。主机关口不证明设备停止。" + detail)
         return report
 
@@ -160,7 +174,8 @@ def run(args, backend=None, console_type=Console):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--out", type=Path, required=True)
-    p.add_argument("--seconds", type=float, default=120)
+    p.add_argument("--seconds", type=float, default=120, help="Short-window duration; unused for --full")
+    p.add_argument("--full", action="store_true", help="Prepare and hand off a FULL-to3600mV run; does not wait for or claim completion")
     p.add_argument("--session", type=int, required=True)
     p.add_argument("--port")
     p.add_argument("--location", default="1-1.1")

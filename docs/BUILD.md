@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-11-01 CycleLog新会话候选
+
+`pwsh -NoProfile -File scripts/Build.ps1 -Example product -CycleLog -Jobs 4`的`20261101-214345-360`退出0，BIN3,052,400B／`10086d00…`，比首版候选增加584B；625源码／29产物逐哈希检查，完整ZIP逐项读回通过。ELF含新会话create／info／read、`lfs_fs_size`及原Flash write／erase wrappers；SDK／子模块／分区／公共构建入口不变，本轮不重编普通版或五目标。新会话／legacy边界见[契约](BATTERY-ESTIMATE.md#cycle-sessions-20261101)，实际活动回STATUS。
+
+相关Debug2/2、保留断言Release2/2、Python12/12，以及实际浏览器完整放电准备4步模拟通过。内存NOR验证旧smoke／legacy及独立新轮共存、48小时2,211,904B恢复、容量不足创建前拒绝；真实worker替身验证named前缀恢复、错误身份与append／final-sync失败。首Python回归遭Windows C盘临时进度文件原子替换拒绝，失败保留，在明确D盘测试目录复验通过；不改公共证据写入器以掩盖问题。软件预算与主机通过不证明实体GC耗时／低压写入或完整放电已成功。[精简证据](evidence/2026-11-01/cycle-sessions.json)包含归档、实际write＋verify及准备交接；完整结果仍待回读。
+
 ## 2026-11-01 CycleLog完整日志与USB首窗
 
 `Build.ps1 -Example product -CycleLog -Jobs 4`最终`20261101-201647-565`退出0，BIN3,051,816B／`eef7981b…`，625源码／29产物及完整ZIP核验；普通恢复`20261101-202913-690`为3,028,848B／`91e68338…`同样保全。显式开关与probe互斥，原版LFS通过官方VariantDir编译到项目构建区，不改SDK。候选ELF包含cycle／LFS／admit／Flash wrappers，反汇编核FAL和FS跨对象调用进入wrap；普通ELF排除cycle／LFS／Flash wrappers，原记录器保持。详见[日志契约及限制](BATTERY-ESTIMATE.md#cycle-log-20261101)／[精简证据](evidence/2026-11-01/cycle-log.json)。

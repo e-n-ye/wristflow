@@ -1,0 +1,344 @@
+{
+  "schema": 1,
+  "date": "2026-11-01",
+  "baseline": "892e081f05751ce793a78e819ee692c6a1550a3f",
+  "branch": "codex/cycle-sessions",
+  "checkout": "D:\\MY_Desk\\project\\wristflow",
+  "status": "full_discharge_handed_off_device_result_pending",
+  "authorization": {
+    "continue_after_short": "接下来不用刷普通版了，如果正常就继续完整放电，做完整放电有什么前置吗",
+    "time_sync": "允许必要的单次校时并回读",
+    "field": "新候选正常，已充满并常亮",
+    "stop_raw_mv": 3600,
+    "target3400_enabled": false,
+    "retain_candidate_after_round": true
+  },
+  "storage": {
+    "session": 2026110104,
+    "actual_filename": "cycle-78c3fc98.bin",
+    "new_filename": "cycle-%08lx.bin",
+    "no_overwrite": "O_EXCL; legacy/smoke never moved or deleted",
+    "admission_required_free_bytes": 2691072,
+    "admission": "lfs_fs_size free blocks, maximum40000x64B plus128KiB metadata/GC software allowance. ARM accepted this gate; not a measured physical capacity/latency guarantee. Free bytes not separately reported.",
+    "legacy": "info cycle remains legacy; info cycle SID/page choose named; NOENT alone permits matching legacy export fallback",
+    "recovery": "Finalization reloads strict named file and requested identity, never legacy fallback"
+  },
+  "software": {
+    "debug_related_passed": 2,
+    "release_assertions_related_passed": 2,
+    "python_passed": 12,
+    "browser_simulation": "Actual4-step FULL prepare/ARM-close/unplug/handoff. Later full-mode journal label/duration metadata clarified and final12 checks rerun; UI/control unchanged.",
+    "memory_nor": "Legacy/smoke + named sessions; duplicate/legacy-ID refusal; named34561rows2211904B48h recovery; low-space refusal before create; range canaries.",
+    "worker": "Named identity mismatch and append/final-sync failure prefix checks; ownership/foreign/lostACK/full-handoff cancellation/no blind retry covered.",
+    "failed_initial_python": "Windows C: Temp progress.json atomic replace WinError5. Initial error/failure preserved; explicit D: test temp final12/12. Shared writer unchanged.",
+    "commands": [
+      "cmake --build artifacts/host-ui-build --target cycle_log product_cycle",
+      "ctest --test-dir artifacts/host-ui-build -R '^(cycle_log|product_cycle)$' --output-on-failure --timeout 60",
+      "cmake --build artifacts/flashdb-gc-release --target cycle_log product_cycle",
+      "ctest --test-dir artifacts/flashdb-gc-release -R '^(cycle_log|product_cycle)$' --output-on-failure --timeout 60",
+      "Python unittest discover test_cycle*.py, tempfile.tempdir=artifacts/cycle-sessions-test-temp",
+      "pwsh -NoProfile -File scripts/Build.ps1 -Example product -CycleLog -Jobs 4"
+    ],
+    "source_review": "Primary + read-only cycle_readiness_review; no blocker. Primary verified added named-failure tests."
+  },
+  "build": {
+    "result": "artifacts/product/20261101-214345-360/result.json",
+    "main_bytes": 3052400,
+    "main_sha256": "10086d00508fbae8137140c13ba34b9a846f2929b076bca8a71a411415ee554a",
+    "source_count": 625,
+    "artifact_count": 29,
+    "archive": "artifacts/cycle-sessions-20261101-candidate-build.zip",
+    "archive_sha256": "bf7d1c66f27bab6fdad0ff2651b05cba2a46afec380343ff2fbc74cbda8a2585",
+    "sdk": "Unchanged locked SDK/submodules, clean. No partition/public build-entry change; no ordinary/five-target rebuild.",
+    "elf": "Named create/info/read, lfs_fs_size and original write/erase Flash wrappers present"
+  },
+  "device": {
+    "flash_result": "artifacts/flash/product/20261101-214934-563/result.json",
+    "write_verify": true,
+    "preflash_ordinary": {
+      "boot": 9,
+      "generation": 83,
+      "failures": 0,
+      "faults": 1,
+      "fault_mask": 0
+    },
+    "startup": "One authorized UTC sync, readback Sun Nov1 13:52:39UTC; preference cache read; mount only, no probe/init/format.",
+    "legacy_short_exact_match_bytes": 1728,
+    "legacy_smoke_exact_match_bytes": 448,
+    "legacy_short_reference": "artifacts/cycle-short-device-20261101-001/window/export/cycle.bin",
+    "legacy_smoke_reference": "artifacts/cycle-log-device-20261101-001/export-after-reboot/cycle.bin",
+    "last_observed_firmware_state": {
+      "state": 2,
+      "session": 2026110104,
+      "accepted": 1,
+      "saved": 1,
+      "queued": 0,
+      "dropped": 0,
+      "reason": 0,
+      "inhibit": 0
+    },
+    "operator_confirmed_local_times": {
+      "prepare": "2026-11-01T21:56:31.958174+08:00",
+      "unplug": "2026-11-01T21:56:45.367512+08:00",
+      "handoff": "2026-11-01T21:57:32.014246+08:00"
+    },
+    "full_handoff": true,
+    "stopped": false,
+    "device_running_verified": false,
+    "record_complete": null,
+    "end_reason": null,
+    "start_row_voltage_not_exported_while_active": true,
+    "uart_collections_closed": 7,
+    "operator_action_basis": "Console confirmed FULL, unplug/white screen and stop/recharge instructions; no UART RUNNING proof in BAT mode. Workflow passed is not discharge success."
+  },
+  "next_bounded_action": "Await operator white-screen shutoff and USB reconnection; fresh field/endpoint binding; same-session status and explicit2026110104 full export. No ARM/probe/init/reboot/reflash while outstanding.",
+  "end_acceptance": {
+    "transport": "Same-session terminal; accepted=saved, queued=dropped0; stable manifests/row+fileCRC; complete END",
+    "full_curve": "START softwareFULL/valid estimate/USB; samples fresh BAT flashlight100/no overlay; END LOW2 with fresh valid raw<=3600. Other reasons/prefix-only interrupted. Do not use LOAD-only short analyzer.",
+    "recharge": "Black screen can mean stale/storage errors, not LOW or system poweroff. Prompt USB reconnection, then reason/save reviewed.",
+    "retain_firmware": true
+  },
+  "not_verified": [
+    "actual3600mV stop/save",
+    "completed full curve",
+    "named complete-file hardware export",
+    "3400mV",
+    "physical power cuts",
+    "wear/current/capacity/battery-life accuracy"
+  ],
+  "sources": [
+    {
+      "path": "apps/product/src/cycle_store.c",
+      "bytes": 7038,
+      "sha256": "51e3f7d2489325e3e0b4185b1c0f6282dbe1925ed01059e4d97fbae5ebbba89c"
+    },
+    {
+      "path": "apps/product/src/cycle_store.h",
+      "bytes": 1866,
+      "sha256": "11b8e8ad76f26d5853f152334a4feb50e2929de771d135554d14869ee0387685"
+    },
+    {
+      "path": "apps/product/src/product_cycle.c",
+      "bytes": 13754,
+      "sha256": "a86dc99cebf375acd7e692d5e30da217be9c96cdcf09dfc83db5539fe4ac4687"
+    },
+    {
+      "path": "scripts/cycle_log_lab.py",
+      "bytes": 7576,
+      "sha256": "dd0a83d22baeb089bca039587637f90ff4caf04ab1fdc833acd85f819c183da8"
+    },
+    {
+      "path": "scripts/cycle_short_lab.py",
+      "bytes": 12760,
+      "sha256": "d765d49451e392abc32e3186eac6e43944e488aca640c5a37104b255657240d4"
+    },
+    {
+      "path": "tests/cycle_log.c",
+      "bytes": 9470,
+      "sha256": "f57901b3d2eeb6f69839664df42318b76674166a0f9f90b82116e25a0dd12fd8"
+    },
+    {
+      "path": "tests/product_cycle.c",
+      "bytes": 9448,
+      "sha256": "b5519413c5272261a7369f651bdfa5bf71dcfe73690168b98a9ff022bb2f5bb8"
+    },
+    {
+      "path": "tests/test_cycle_log.py",
+      "bytes": 6595,
+      "sha256": "fcac7d2fd9057614aa2c678119f919cad498a32f93c5bc57cd819400b85a9acb"
+    },
+    {
+      "path": "tests/test_cycle_short_lab.py",
+      "bytes": 5439,
+      "sha256": "ffa595f4ba95a856dfc92b218b228965647c2b6dc9d6e808fa728820d1c22278"
+    }
+  ],
+  "tool_snapshot": "artifacts/cycle-full-device-20261101-001/tool-snapshot (evidence only)",
+  "files": [
+    {
+      "path": "artifacts/product/20261101-214345-360/result.json",
+      "bytes": 126043,
+      "sha256": "bba1608efb69b6f64b20b89a4d32ca661d2e11d9f84d8c3a725cabb507ed60fd"
+    },
+    {
+      "path": "artifacts/cycle-sessions-20261101-candidate-build.zip",
+      "bytes": 16673652,
+      "sha256": "bf7d1c66f27bab6fdad0ff2651b05cba2a46afec380343ff2fbc74cbda8a2585"
+    },
+    {
+      "path": "artifacts/flash/product/20261101-214934-563/result.json",
+      "bytes": 1767,
+      "sha256": "a2e0156920d429459cc938d18c04c35d749a025483063fd8691e18cea5c993c9"
+    },
+    {
+      "path": "artifacts/cycle-sessions-build-check-20261101-001.json",
+      "bytes": 146990,
+      "sha256": "b18beab2609d63b0a0e9508dae8555bf04d73786e903a3bb962a69096a4016d7"
+    },
+    {
+      "path": "artifacts/cycle-sessions-host-tests-20261101-002.log",
+      "bytes": 428,
+      "sha256": "27996b86be998bbbc1fb88f1afbaa974a1c21fb54f8d95a854ebc6fbb4996f8b"
+    },
+    {
+      "path": "artifacts/cycle-sessions-release-tests-20261101-001.log",
+      "bytes": 438,
+      "sha256": "500b71a2e5ec02f74c4601f7cf540c8eefeaef1591368db87fd8e8ce9ce876f8"
+    },
+    {
+      "path": "artifacts/cycle-sessions-python-20261101-001.log",
+      "bytes": 3895,
+      "sha256": "4a34cbef5372426b14cd6486ab17d88ed44780acb2b3db320af989b2191d7eae"
+    },
+    {
+      "path": "artifacts/cycle-sessions-python-20261101-003.log",
+      "bytes": 1926,
+      "sha256": "eeb01b806586ab5ca17c13540900414a19136a3282d5a9cde2b73c352de4d7dd"
+    },
+    {
+      "path": "artifacts/cycle-sessions-nm-20261101-001.txt",
+      "bytes": 275538,
+      "sha256": "e274be79a1e67750b1f3be01330e8301354771ee3b9bec8d2d1aa38682f33b28"
+    },
+    {
+      "path": "artifacts/cycle-full-handoff-sim-20261101-001/experiment.json",
+      "bytes": 688,
+      "sha256": "b354736ef2c92a86c6a37b75817283fdb9302a4f62f71597c5be61df1b891a44"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/preflash-runtime/export.json",
+      "bytes": 565,
+      "sha256": "97075a4c4529a400944d422b46861702e631751acdb8619f257b5ad2c4a46c27"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/preflash-runtime/records.json",
+      "bytes": 11597,
+      "sha256": "2eb51d2261ac4f61144c1f8ad6d442f2bec88501f1b633baa3b8973851c1c76d"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/preflash-runtime/events.jsonl",
+      "bytes": 3832,
+      "sha256": "a7c7549f8bd3dc7a55b92f04ebc15ae39c53fbd65e4482b4162d9ef9c3db068d"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/preflash-runtime/uart.bin",
+      "bytes": 8123,
+      "sha256": "51ac8c89bc47e8f1e1e95ed1907adfdd6001b890deb4f24bb4e7ac0ffd99a053"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/startup/snapshot.json",
+      "bytes": 6097,
+      "sha256": "7c673350b615b4a8983147e8e98981432a98aca9dbce3c5de9edede4ef7d41f8"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/startup/events.jsonl",
+      "bytes": 3936,
+      "sha256": "90e7842967233d58f575f9dc8b5560d9b74cdc4aa4169542dd1169f015d14e73"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/startup/uart.bin",
+      "bytes": 4617,
+      "sha256": "badc2b8ec3295bf97e50721340baa6ee525860f5c31684fd32836a677ede70ec"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/mount/report.json",
+      "bytes": 125,
+      "sha256": "16b9bb606dc41c0a8f13cef7362138f9f638f8a4d49a66c8160249084f39c048"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/mount/events.jsonl",
+      "bytes": 1255,
+      "sha256": "443b55edf44fb1d835cc2cc318670bc79f6083df431a47772b92a5ec1c990806"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/mount/uart.bin",
+      "bytes": 76,
+      "sha256": "30287adb7a5689171455d7f8f28aa45e76bfa92719c6566f85a7cd829cc5ab32"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/legacy-short-export/report.json",
+      "bytes": 320,
+      "sha256": "9ce7e17e5f1b0f178a2eedcf93345b1ba855da90fa76d35140d54dc742936aaa"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/legacy-short-export/events.jsonl",
+      "bytes": 4371,
+      "sha256": "9972468ff917d9ee66c192bfe724ba6d948694a876ee333ca2c44852bbf1f4a1"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/legacy-short-export/uart.bin",
+      "bytes": 6530,
+      "sha256": "273f658a4b16cd60561feca3b7fc62d0064581cf3352a444ce16918a9062347a"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/legacy-short-export/cycle.bin",
+      "bytes": 1728,
+      "sha256": "7ed7c53ee8a5ea717dfa8815852f8f32059158c6ec0068aab7a968b6856d53fb"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/legacy-smoke-export/report.json",
+      "bytes": 313,
+      "sha256": "74809074bc488674d5631085dc59f956424845f1242a99f0cb780ce5856f1b06"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/legacy-smoke-export/events.jsonl",
+      "bytes": 2469,
+      "sha256": "77dc212332cd40ab6fddeade08c1868182b74fd70dd8ba320c3a2a79f3305415"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/legacy-smoke-export/uart.bin",
+      "bytes": 1909,
+      "sha256": "c604bd2c1bec54f3df582d21538b1924d0d9fb89dfccaf5f2ebf7a2cb7fb43d0"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/legacy-smoke-export/cycle.bin",
+      "bytes": 448,
+      "sha256": "e8ee7121e9f2a063b91f81816f91406037f93dcaf8e27a1df4a1471d1d793f21"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/prepare/binding.json",
+      "bytes": 149029,
+      "sha256": "6ddd55b7b20e17db62460df78ad38469c1b6dc4bb32e9c742eca31c5252438f2"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/prepare/events.jsonl",
+      "bytes": 3300,
+      "sha256": "0cbacdd44cef4094517af3762d50fa335c1b5489b024e9b29e641deb3355d1da"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/prepare/experiment.json",
+      "bytes": 689,
+      "sha256": "0d5d576bacea1e202cd0bc05097fae5f0689346c7c654299e9f86ac89cdba046"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/prepare/arm/report.json",
+      "bytes": 123,
+      "sha256": "ca663dc1f9a40d332a93284d2994d054b9ab02f78dbb37b08c8735a30bf720ad"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/prepare/arm/events.jsonl",
+      "bytes": 1271,
+      "sha256": "9396d8843da01fba132f433491d837c22f04b55a45cf7a8820c0e8e43af84956"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/prepare/arm/uart.bin",
+      "bytes": 76,
+      "sha256": "4483906e4e44f92cfabdcd67249b352e369cf4927c353127fa06da3396d383cd"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/prepare/armed-status-0/report.json",
+      "bytes": 302,
+      "sha256": "4d4577d534254807f582769e88fd0da9f1a3858953ad4b577ac30d841a094857"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/prepare/armed-status-0/events.jsonl",
+      "bytes": 1387,
+      "sha256": "d4e0f250f82be83f4d384dbb152f8dfa7bf50c06ec44083071908d89f8560840"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/prepare/armed-status-0/uart.bin",
+      "bytes": 139,
+      "sha256": "d2e51b3e85bdc952ac60f8faf4490cd3a73ea2ee4faec3b9a5338f71a887da47"
+    }
+  ]
+}

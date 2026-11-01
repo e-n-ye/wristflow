@@ -5,6 +5,9 @@
 #include <stdarg.h>
 static uint64_t time_ms;
 static bool commit_fail,append_fail,close_fail;
+static bool wrong_named_identity;
+static uint32_t file_session;
+static unsigned named_infos;
 static unsigned appended,committed,closes,reloads;
 static uint8_t rows[40000][64];
 static wf_fs_block_t fake_device;
@@ -33,19 +36,29 @@ int wf_product_fs_block_prog(uint32_t b,uint32_t o,const void *p,size_t n) {(voi
 void wf_cycle_store_init(wf_cycle_store_t *s,wf_fs_block_t *d) {memset(s,0,sizeof *s);s->cfg.context=d;}
 int wf_cycle_store_mount(wf_cycle_store_t *s,bool format) {(void)format;s->mounted=true;return 0;}
 int wf_cycle_store_create(wf_cycle_store_t *s,bool is_smoke,uint32_t id)
-{s->opened=true;s->session=id;s->smoke=is_smoke;s->rows=0;appended=committed=0;return 0;}
+{s->opened=true;s->session=id;s->smoke=is_smoke;s->rows=0;file_session=id;appended=committed=0;return 0;}
+int wf_cycle_store_create_session(wf_cycle_store_t *s,uint32_t id)
+{return wf_cycle_store_create(s,false,id);}
 int wf_cycle_store_append(wf_cycle_store_t *s,const uint8_t row[64])
 {if(append_fail)return -1;assert(s->opened);memcpy(rows[appended++],row,64);s->rows=appended;return 0;}
 int wf_cycle_store_commit(wf_cycle_store_t *s) {(void)s;if(commit_fail)return -1;committed=appended;return 0;}
 int wf_cycle_store_close(wf_cycle_store_t *s) {++closes;s->opened=false;return close_fail ? -1:0;}
-int wf_cycle_store_reload(wf_cycle_store_t *s) {++reloads;assert(!s->opened);return 0;}
+int wf_cycle_store_reload(wf_cycle_store_t *s) {++reloads;assert(!s->opened);s->session=0;return 0;}
 int wf_cycle_store_info(wf_cycle_store_t *s,bool is_smoke,wf_cycle_info_t *info)
 {
     (void)is_smoke;if(s->opened || !committed)return -1;
-    *info=(wf_cycle_info_t){.session=s->session,.rows=committed,.bytes=committed*64,.terminal=rows[committed-1][5]==WF_CYCLE_END};return 0;
+    *info=(wf_cycle_info_t){.session=file_session,.rows=committed,.bytes=committed*64,.terminal=rows[committed-1][5]==WF_CYCLE_END};return 0;
+}
+int wf_cycle_store_info_session(wf_cycle_store_t *s,uint32_t id,wf_cycle_info_t *info)
+{
+    ++named_infos;assert(id==file_session);int result=wf_cycle_store_info(s,false,info);
+    if(!result && wrong_named_identity)info->session=id+1;
+    return result;
 }
 int wf_cycle_store_read(wf_cycle_store_t *s,bool k,uint32_t id,uint32_t index,uint8_t row[64])
 {(void)s;(void)k;(void)id;if(index>=committed)return -1;memcpy(row,rows[index],64);return 0;}
+int wf_cycle_store_read_session(wf_cycle_store_t *s,uint32_t id,uint32_t index,uint8_t row[64])
+{return wf_cycle_store_read(s,false,id,index,row);}
 static wristflow_battery_record_t observation(void)
 {
     return (wristflow_battery_record_t){.observed_ms=(uint32_t)time_ms,.adc_valid=true,
@@ -60,6 +73,7 @@ static void reset(void)
     started=last_row_at=last_observed=armed_at=full_at=0;
     store=(wf_cycle_store_t){.mounted=true};
     time_ms=1000;commit_fail=append_fail=close_fail=false;appended=committed=closes=reloads=0;
+    wrong_named_identity=false;file_session=0;named_infos=0;
     assert(wf_product_cycle_start());wristflow_battery_record_t o=observation();wf_product_cycle_observe(&o,false);
 }
 int main(void)
@@ -73,7 +87,25 @@ int main(void)
     assert(!execute(CMD_ARM,123,0,0,false));process_once();assert(state==ARMED);
     time_ms+=5000;o=observation();wf_product_cycle_observe(&o,true);process_once();assert(state==RUNNING);
     time_ms+=5000;o=observation();o.power.millivolts=3600;wf_product_cycle_observe(&o,true);assert(inhibit);process_once();
-    assert(state==DONE && reason==WF_CYCLE_LOW && persisted==3 && prefix_verified);
+    assert(state==DONE && reason==WF_CYCLE_LOW && persisted==3 && prefix_verified && named_infos==1);
+    /* Named recovery must retain the requested identity across store reload. */
+    reset();o=observation();o.power.charge=WF_POWER_CHARGE_FULL;wf_product_cycle_observe(&o,false);
+    assert(!execute(CMD_ARM,129,0,0,false));process_once();
+    time_ms+=5000;o=observation();wf_product_cycle_observe(&o,true);process_once();
+    wrong_named_identity=true;time_ms+=5000;o=observation();o.power.millivolts=3600;
+    wf_product_cycle_observe(&o,true);process_once();assert(state==FAILED && !prefix_verified && named_infos==1);
+    for(unsigned fault=0;fault<2;++fault) {
+        reset();o=observation();o.power.charge=WF_POWER_CHARGE_FULL;wf_product_cycle_observe(&o,false);
+        assert(!execute(CMD_ARM,130+fault,0,0,false));process_once();
+        if(fault)append_fail=true;
+        time_ms+=5000;o=observation();wf_product_cycle_observe(&o,true);process_once();
+        if(!fault) {
+            commit_fail=true;time_ms+=5000;o=observation();o.power.millivolts=3600;
+            wf_product_cycle_observe(&o,true);process_once();
+        }
+        assert(state==FAILED && !store.opened && persisted==1 && prefix_verified && named_infos==1);
+        assert(closes==1 && reloads==1 && inhibit);
+    }
     /* Final sync failure always closes and revalidates the committed prefix. */
     reset();assert(!execute(CMD_SMOKE,124,10,0,true));process_once();commit_fail=true;
     time_ms+=10000;o=observation();wf_product_cycle_observe(&o,true);process_once();

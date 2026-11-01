@@ -98,7 +98,9 @@ python scripts/device_snapshot.py capture --result <Build结果> --flash <Flash�
 
 完整cycle日志另由`cycle_log_lab.py`复用同一绑定／RecordedSession／租约／Journal，要求独占`cycle_log is True`构建。`--action probe|init|mount|smoke|arm|stop|status|export`分别单用途、只发wf_cycle白名单；probe／init是写擦动作，必须先有当前具体授权，不能由历史命令自动启动。smoke仅10..120秒，正式arm需软件FULL及纯电池手电筒资格；主机失败关口不重发，已接纳的设备窗口仍有固件自身停止条件，不能把主机关口当设备已停止。export每页1..4行，绑定文件session、前后manifest、行及整文件CRC，共享20分钟deadline，完成后产生BIN／CSV。新适配已通过分片模拟、主机故障与[USB首窗](BATTERY-ESTIMATE.md#cycle-log-20261101)，非真实低压／整轮放电。每次操作输出新目录，初始化与mount分开，不自动格式化；首次format范围、固件和现场需单独核清。
 
-纯电池短窗用`scripts/cycle_short_lab.py`复用该适配及Console／Journal，默认无端点模拟；真实窗口60..120秒，显式session／构建／下载记录／完整归档／BIN／现场确认。进入前已刷CycleLog并独立mount；单发arm、同session ARMED及START持久化读回后关串口，再人工拔USB进入手电筒、程序计时、人工退出并等待保存、确认回连后重开导出。接纳丢ACK、异session、取消／失败均不重发或盲停，不自动重连，明确要求操作者退出负载并接USB；设备停止须独立核验。结束以LOAD、完整CRC、零丢弃／积压、saved=accepted及纯电池100亮度样本跨度判定；不是3.6V断载或功耗验收。现版只允许一份`cycle.bin`，短窗占用此名；不由工具删除旧轮、format或刷机，普通版恢复另走Flash入口。
+纯电池短窗用`scripts/cycle_short_lab.py`复用该适配及Console／Journal，默认无端点模拟；真实窗口60..120秒，显式session／构建／下载记录／完整归档／BIN／现场确认。进入前已刷CycleLog并独立mount；单发arm、同session ARMED及START持久化读回后关串口，再人工拔USB进入手电筒、程序计时、人工退出并等待保存、确认回连后重开导出。接纳丢ACK、异session、取消／失败均不重发或盲停，不自动重连，明确要求操作者退出负载并接USB；设备停止须独立核验。结束以LOAD、完整CRC、零丢弃／积压、saved=accepted及纯电池100亮度样本跨度判定；不是3.6V断载或功耗验收。`68dfe0f`首版只允许一份`cycle.bin`，该次短窗占用此名；不由工具删除旧轮、format或刷机，普通版恢复另走Flash入口。
+
+新会话版本保留legacy文件，新正式轮按session独立命名并预留容量，详见[新会话契约](BATTERY-ESTIMATE.md#cycle-sessions-20261101)。同一协作入口加`--full`只做有限准备／交接（4步），不运行120秒后退出的短测步骤，不扩展通用Console的900秒等待上限。交接后主机已关口，设备独立运行；操作者看到白屏自行关闭即回USB并告知，助手再核显式session的状态和完整导出。`full_handoff=true`只证明ARM／START持久化与人工准备确认，不证明全程RUNNING、LOW或整轮完成。取消／错误保留可能活动状态，不把主机关口当设备已停。新固件先模拟实际交互，再核构建／下载／现场；旧版本固定文件限制仍按其原证据保留。
 
 在仓库根目录运行；下例的result、ZIP与flash路径由本次实验明确选择，不自动把日期最新的文件当作正确版本。`--out`放在子命令前且必须为新路径，可省略后仅输出JSON。失败退出1并保留错误；不要通过改写旧报告消除失败。
 

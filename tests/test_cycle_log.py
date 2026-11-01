@@ -80,6 +80,13 @@ class CycleTests(unittest.TestCase):
                 peer=Peer();result=collect(root/str(expected),peer,binding={'simulation':True},identity=lambda:{},locks=root/'locks',action='export',session=expected)
                 self.assertEqual(result['passed'],passed);self.assertTrue(result['resources_closed'])
                 if passed:self.assertEqual(result['session'],123)
+    def test_named_cycle_export_selects_session_on_both_manifests(self):
+        with tempfile.TemporaryDirectory() as temp:
+            peer=Peer();result=collect(Path(temp)/'named',peer,binding={'simulation':True},identity=lambda:{},
+                locks=Path(temp)/'locks',action='export',kind='cycle',session=123)
+            self.assertTrue(result['passed'])
+            self.assertEqual(peer.commands.count('wf_cycle info cycle 123'),2)
+            self.assertIn('wf_cycle page cycle 123 0 4',peer.commands)
     def test_export_shared_deadline_and_late_final_manifest_fails(self):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp);offset=[0.0];original=lab.command;info_count=[0];deadlines=[]
