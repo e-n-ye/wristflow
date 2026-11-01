@@ -1,3 +1,10 @@
+#ifdef WF_STORAGE_GATE_HOST
+/* Compile the exact gate below with host mutex substitutes; no Product body. */
+#include "product_storage_access.h"
+#include <rtthread.h>
+static struct rt_mutex database_lock;
+static bool service_ready;
+#else
 #include "product_services.h"
 #include "product_alarm.h"
 #include "product_settings_store.h"
@@ -6,6 +13,7 @@
 #include "steps_store.h"
 #include "storage_write_guard.h"
 #include "product_runtime_record.h"
+#include "product_storage_access.h"
 #include <bf0_hal.h>
 #include <bf0_pm.h>
 #include <system_bf0_ap.h>
@@ -355,3 +363,16 @@ static int wf_time(int argc, char **argv)
     return wristflow_product_services_set_time((uint32_t)value);
 }
 MSH_CMD_EXPORT(wf_time, Set product RTC with UTC Unix seconds);
+#endif
+
+bool wf_product_storage_gate_acquire(uint32_t timeout_ms)
+{
+    return service_ready && timeout_ms && timeout_ms<=100 &&
+        rt_mutex_take(&database_lock,rt_tick_from_millisecond(timeout_ms))==RT_EOK;
+}
+void wf_product_storage_gate_release(void)
+{
+    rt_err_t result=rt_mutex_release(&database_lock);
+    RT_ASSERT(result==RT_EOK);
+    (void)result; /* Release must execute even when RT_DEBUG disables asserts. */
+}

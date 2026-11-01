@@ -362,6 +362,21 @@ OFF程序计时900.0042秒，目标累计增加905,896ms，另ON74,532／DIM5,00
 
 下一小闭环为Product候选块设备适配的软件准备：复用官方SDK路径但在项目边界收敛范围／完整读回／错误锁存、同Flash并发与PM资源、底层无界调用及停止策略，再验证真实适配。主机通过不授权设备格式化或写擦；先保持普通固件运行，不将SDK示例的mount失败自动mkfs迁入产品。
 
+<a id="fs-block-adapter-20261101"></a>
+## 2026-11-01 Product候选块适配的软件准备（只读且未启用）
+
+用户同意接续主机验证后的下一小闭环。本轮把`tests/support/lfs/nor_guard`的范围／读回／首错冻结提升到Product可复用的`fs_block.c/h`，不依赖LittleFS；旧LittleFS主机facade改用同一个模块，不保留两套保护实现。固定ptab候选区／4KiB块，读分256B、编程逐256B并立即完整读回、擦除单4KiB后全量读回；首错冻结prog／erase／sync，诊断读保留。所有访问都需owner gate，状态在gate内访问；调用方持有缓冲直到同步返回。[本轮证据](evidence/2026-11-01/fs-block-adapter.json)。
+
+`product_fs_block`是真实SDK读取适配，只有显式一次prepare，无INIT、FinSH、MTD注册、mount／mkfs或现有业务调用。prepare核生成ptab、首末句柄、NOR、dual0、16MiB、4KiB alignment、实测ID`0018400b`及官方精确表／指针；仍是可能缓存的SDK元数据。实际适配永久`writable=false`，不安装SDK prog／erase／sync回调，写擦请求默认拒绝，没有“全FF自动可写”。普通Product编译这些源，最终链接丢弃全部候选模块与gate符号，原记录器／settings wrapper保留；因此不是已经启用文件后端。
+
+**并发与PM**：`product_storage_access`提供100ms内的settings数据库mutex准入；与FlashDB共享递归锁，新增FS重入另以in_flight拒绝，PM IDLE在取锁前持有，失败／正常返回后只释放本调用的引用。不是BLE／DFU／所有Flash调用者的全局事务锁。SDK自身按页／sector取非递归semaphore，不能外层持`rt_flash_lock`再调用SDK写擦；普通映射读也不自动取它。真实写擦仍须先收敛所有参与者、XIP／cache及读写互斥，不能因本轮gate测试通过宣称全Flash安全。
+
+**预算与停止**：项目取锁最多100ms，取到后另起100ms的软件操作预算（不是总共100ms硬截止）；逐块前后及prepare元数据返回后检查。stop单向锁存，无rearm；SDK已进入时保持in_flight、gate和PM，返回后才结束并释放。read的部分缓冲在失败时不可用；mutating在已开始后遇停止／预算耗尽会锁存错误，防继续写擦。底层信号量／busy loop仍可能无界且关中断，不能抢占、杀线程释放资源或宣称超时完成。stop可与ready同时为真，后续操作仍拒绝；prepare只允许发布前调用一次，失败需新boot，不自动重试。此处是接口契约与主机替身验证，非真实时长或卡死恢复证明。
+
+**验证**：Debug最终88/88、保留断言Release相关8/8通过；旧LittleFS同一追加轨迹的372故障／114中断和容量回归均使用新共享core并通过。新增core测试覆盖只读拒写、忙拒绝、stop-before-entry、底层返回前stop与嵌套调用、预算耗尽、tick回绕及写擦读回冻结；实际Product适配源码以host SDK／服务／PM替身运行，验证prepare、七类元数据拒绝、PM原有引用不被误释、递归拒绝及in_flight stop。独立审查发现新增gate把release副作用置于RT_ASSERT内，关闭RT_DEBUG会漏释放；已改为断言外执行，并直接编译真实服务gate函数，以断言参数求值／不求值两模式补验。修复前构建仅留历史，不作最终证据。
+
+最终普通Product `20261101-193356-530`编译成功，BIN3,028,744B／`de523ce6…`，617源码／29产物与完整ZIP逐哈希读回；SDK／子模块／分区／公共构建入口不变，无新LittleFS固件配置／DFS依赖。板上仍为普通`2655b930…`，本轮无下载／串口／格式化／擦写／放电。下一小闭环应先确定实际写擦准入的阻断处置：同Flash参与者协调、SDK无界调用、明确区域所有权及操作窗口；确定后再准备显式、可审核的受限诊断，不能直接启用cycle后端或自动mkfs。
+
 ## 数据来源与精度边界
 
 沿用固定SDK `421126d9f476ed8e2a6f0b0ca28a9f241c182e65` 的黄山派 `customer/boards/sf32lb52-lchspi-ulp_base/battery_table.c` 充放电表，每5%取一个参考点，共21点／表；相邻点线性插值。表中41808对应4.1808V，保留0.1mV尺度：同SDK `docs/source/en/middleware/battery_calculator.md` 的示例明确写`38000 // 3.8V`，并将`bat1`通道7读数原样传入计算器。结构／函数注释中的mV与示例数值不一致，不能按普通mV直接使用。

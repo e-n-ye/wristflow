@@ -1,0 +1,382 @@
+{
+  "schema": 1,
+  "date": "2026-11-01",
+  "checkout": "D:/MY_Desk/project/wristflow",
+  "baseline": "2c25ac2fed35334a53696c3daf121969136cc1b8",
+  "branch": "codex/fs-block-adapter",
+  "status": "software_ready_read_only_candidate_not_enabled",
+  "scope": "Reusable guard and explicit Product SDK read-only adapter, settings gate, PM/cooperative stop; no device actions",
+  "build": {
+    "result": "artifacts/product/20261101-193356-530/result.json",
+    "exit_code": 0,
+    "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+    "firmware": {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+      "bytes": 3028744,
+      "sha256": "de523ce6cfcb61aa2931804c03455d6ad136d171a83a5e8336e5031060103863"
+    },
+    "sources": 617,
+    "artifacts": 29,
+    "sdk": {
+      "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "submodules": {
+        "middleware/bluetooth": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c",
+        "tools/SiliconSchema": "304658c6edd5497211b7d152932327ce6e4450ff"
+      },
+      "clean": true
+    },
+    "archive": {
+      "path": "artifacts/fs-block-final-build-20261101.zip",
+      "bytes": 16486508,
+      "sha256": "38e87f4a2e6e0116ed5a1f8743b2c87c1fedea993384cbf3b621aabd1324c395"
+    },
+    "archive_source_and_artifact_readback": true,
+    "candidate_symbols_absent_from_ordinary_elf": true,
+    "recorder_and_settings_wrapper_present": true
+  },
+  "toolchain": {
+    "cmake": "cmake version 3.31.4",
+    "compiler": "cc.exe (Rev13, Built by MSYS2 project) 15.2.0"
+  },
+  "configuration": {
+    "start": "0x129a0000",
+    "end_exclusive": "0x12da0000",
+    "block_size": 4096,
+    "block_count": 1024,
+    "read_chunk": 256,
+    "program_chunk": 256,
+    "gate_wait_ms": 100,
+    "operation_budget_after_gate_ms": 100,
+    "exact_observed_id": "0x0018400b",
+    "sdk_capacity": 16777216,
+    "dual": 0,
+    "adapter_writable": false,
+    "sdk_program_callback_installed": false,
+    "sdk_erase_callback_installed": false,
+    "auto_init": false,
+    "finsh_command": false,
+    "device_registration": false,
+    "mount_or_format": false
+  },
+  "contracts": {
+    "shared_gate": "Existing recursive settings DB mutex; not all BLE/DFU/SDK Flash2 participants",
+    "pm": "Own IDLE reference before gate acquisition, release only own reference after returning; preserve pre-existing references",
+    "stop": "Monotonic stop, no rearm; in-flight SDK call retains resources until return; ready and stopped may coexist",
+    "budget": "Bounded project gate wait plus separately timed cooperative operation budget; no SDK preemption/hard deadline",
+    "fault": "First reason latched; freeze mutation/sync, diagnostic reads allowed; partial failed read buffer must be discarded",
+    "lifetime": "One prepare before publication; caller buffers remain alive through synchronous completion",
+    "sdk_semaphore": "Do not hold rt_flash_lock while calling SDK write/erase: its internal nor_lock would reacquire nonrecursive semaphore"
+  },
+  "tests": {
+    "debug_passed": 88,
+    "debug_total": 88,
+    "release_related_passed": 8,
+    "release_related_total": 8,
+    "littlefs_error_injection_cases": 372,
+    "littlefs_cut_cases": 114,
+    "littlefs_guard_uses_shared_product_core": true,
+    "core": "Read-only refusal, busy, pre-stop, in-call stop/reentry, deadline, tick rollover, false erase success, error freeze",
+    "adapter": "Exact Product adapter source with SDK/service/PM substitutes; seven metadata rejects, one prepare, PM reference preservation, in-flight and recursion semantics",
+    "real_service_gate": "Exact gate function body with RT_ASSERT argument evaluating/not evaluating; startup/timeout/busy/release",
+    "release_assertions_enabled": true
+  },
+  "review": {
+    "research_agent": "fs_concurrency_pm",
+    "review_agent": "fs_block_review",
+    "blocking_findings_remaining": 0,
+    "finding": "Initial new gate release put side effect in RT_ASSERT; no release with RT_DEBUG disabled",
+    "current_config_rt_debug_enabled": true,
+    "fix": "Execute rt_mutex_release before assertion; exact body dual assertion-mode test",
+    "final_source_recheck_no_blocker": true,
+    "tests_rerun": true,
+    "superseded_build": "artifacts/product/20261101-192935-893/result.json",
+    "superseded_artifacts_preserved": "artifacts/fs-block-pre-review-artifacts-20261101.zip"
+  },
+  "commands": [
+    "cmake -S tests -B artifacts/host-ui-build",
+    "cmake --build artifacts/host-ui-build",
+    "ctest --test-dir artifacts/host-ui-build --output-on-failure --timeout 60",
+    "cmake -S tests -B artifacts/flashdb-gc-release",
+    "cmake --build artifacts/flashdb-gc-release --target fs_block_guard product_fs_block product_storage_gate littlefs_host",
+    "ctest --test-dir artifacts/flashdb-gc-release -R '^(fs_block_guard|product_fs_block|product_storage_gate|littlefs_)' -V --timeout 60",
+    "pwsh -NoProfile -File scripts/Build.ps1 -Example product -Jobs 4",
+    "python scripts/lab_check.py build --result artifacts/product/20261101-193356-530/result.json",
+    "arm-none-eabi-nm <actual final main.elf>; candidate prefixes absent, wf_record and FAL wrapper present",
+    "python artifacts/fs-block-adapter-report.py"
+  ],
+  "hardware": {
+    "actions": false,
+    "firmware_flash": false,
+    "format_or_erase": false,
+    "discharge_started": false,
+    "current_bin_unchanged": "2655b9300e3bb6be11a197348a1452ff4560113abe4fdc14447e67f6c0f9c3c0",
+    "sdk_partition_and_public_build_entry_unchanged": true
+  },
+  "limitations": [
+    "No hardware cache/XIP/timing or multithread execution validation",
+    "SDK polling/semaphore may block indefinitely with interrupts disabled; no fake timeout or forced resource release",
+    "Settings gate is not complete BLE/DFU/all-Flash transaction coordination",
+    "Write/erase metadata ownership and field admission unresolved, adapter deliberately installs no mutating SDK callbacks",
+    "No enabled filesystem, full cycle log, low voltage stop or hardware experiment"
+  ],
+  "next_bounded_step": "Resolve real write-admission blockers (all shared Flash participants, unbounded SDK calls, region ownership and operator window), then prepare explicit bounded diagnostic; no automatic format or cycle enable",
+  "host_archive": {
+    "path": "artifacts/fs-block-host-evidence-20261101.zip",
+    "bytes": 765336,
+    "sha256": "67d0344e2a139f74be4f49ef827f53a1543dadbbb4c0bcbe3f2120516d09d93d",
+    "members": 47,
+    "readback_verified": true
+  },
+  "records": [
+    {
+      "path": "apps/product/src/fs_block.c",
+      "bytes": 4564,
+      "sha256": "33cfc37a872a9826d4fe41fd9e03066d998900836bffe51e4d73d5e7ab26dbbf"
+    },
+    {
+      "path": "apps/product/src/fs_block.h",
+      "bytes": 1803,
+      "sha256": "def424efc5295e7a249f5dbd77fc3bbf0258fe34e25ac6af937c00b532043a07"
+    },
+    {
+      "path": "apps/product/src/product_fs_block.c",
+      "bytes": 4880,
+      "sha256": "7ec3051cb7d24f59bde93f7c2fc581d47ec2cd862ca64fe588fca324b5efb3d7"
+    },
+    {
+      "path": "apps/product/src/product_fs_block.h",
+      "bytes": 919,
+      "sha256": "6bb76179552f1d2b1f67200707b8e13095c78c709313f2e5bf6c24912c61a531"
+    },
+    {
+      "path": "apps/product/src/product_storage_access.h",
+      "bytes": 452,
+      "sha256": "a9a6c3168d5dbc9b25531b395fef2ce921237310ca912359987e88d47cb5b97c"
+    },
+    {
+      "path": "apps/product/src/product_services.c",
+      "bytes": 17387,
+      "sha256": "54623cfef5c40c41d83d36d0c6da7c4b335f14de4b6bf7123c487b4be0359d92"
+    },
+    {
+      "path": "tests/CMakeLists.txt",
+      "bytes": 28440,
+      "sha256": "823c284abd29a188a0cdd8ba50969e002519686bddc5cbe4753014f61643063e"
+    },
+    {
+      "path": "tests/fs_block_guard.c",
+      "bytes": 4844,
+      "sha256": "7e6b63bba71eae928ff0fcba919a9d2cd920f6b85dcba377745537b658b082e7"
+    },
+    {
+      "path": "tests/product_fs_block.c",
+      "bytes": 5962,
+      "sha256": "97949502e707c60669d9948071c59d1306a323fe7e0faf3a4f041343f267f442"
+    },
+    {
+      "path": "tests/product_storage_gate.c",
+      "bytes": 1461,
+      "sha256": "705f7958c88b7a680a39481fe1b83cb2c6ea154c30cbef2c6d8957a99537e11b"
+    },
+    {
+      "path": "tests/littlefs_host.c",
+      "bytes": 15240,
+      "sha256": "131bc3ae6ba602f70967ae4fa993296f2063d90079c5d42d16d751946c2d3043"
+    },
+    {
+      "path": "tests/support/lfs/nor_guard.c",
+      "bytes": 1160,
+      "sha256": "0ceb5eb44f1e43cdfa4721d44387d136b86dc7d29212c915c8a0e57859f979be"
+    },
+    {
+      "path": "tests/support/lfs/nor_guard.h",
+      "bytes": 784,
+      "sha256": "b05825fe5db92ae9295e9f92703f09b7c42b95b1b9413635a9b97496e231a6b3"
+    },
+    {
+      "path": "tests/support/power/rtthread.h",
+      "bytes": 1535,
+      "sha256": "21a4eee545f1a0a24c0d728b6722f01486ee35b5937f0316b6680500f7f15b9d"
+    },
+    {
+      "path": "sdk.lock.json",
+      "bytes": 473,
+      "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+    },
+    {
+      "path": "apps/product/project/sf32lb52-lchspi-ulp_hcpu/ptab.json",
+      "bytes": 2112,
+      "sha256": "41d89872c94d54a8e85c679d640eea27981ca4760b928fe0a335d9d79ef35445"
+    },
+    {
+      "path": "vendor/SiFli-SDK/rtos/rtthread/bsp/sifli/drivers/drv_spi_flash.c",
+      "bytes": 50811,
+      "sha256": "1fcf1143712d015f3b365a0435569dfe6ca0ba148ec785d0addaf77c2e4444c8"
+    },
+    {
+      "path": "vendor/SiFli-SDK/rtos/rtthread/include/rtdebug.h",
+      "bytes": 8547,
+      "sha256": "faa6b50d55e02b5076786fbf6ab3e0e555fd4759c4478a75778542cb7dd4cf40"
+    },
+    {
+      "path": "artifacts/fs-block-adapter-report.py",
+      "bytes": 10132,
+      "sha256": "be79c633a3773e3f52fbda96ef27a2376dd208bc9359df40f1a342d60a38e589"
+    },
+    {
+      "path": "artifacts/product/20261101-193356-530/result.json",
+      "bytes": 124517,
+      "sha256": "912cb072239e1a669685fcd7cb7e4d4b3072970fc9c1c8a0eabf74d56d8193ff"
+    },
+    {
+      "path": "artifacts/fs-block-debug-configure-20261101-001.log",
+      "bytes": 143,
+      "sha256": "485abec61265dd8d41380131c4d512978f43a8d8f3faae1ce69d083ff540f1ab"
+    },
+    {
+      "path": "artifacts/fs-block-debug-build-20261101-001.log",
+      "bytes": 1185,
+      "sha256": "3fc966c2859fa7dc04f64cedc9168d138bd1edbfcb33b88ae67da285714fc563"
+    },
+    {
+      "path": "artifacts/fs-block-debug-tests-20261101-001.log",
+      "bytes": 929,
+      "sha256": "bdb7132df2bf3cbb07442e246a3cdd0873cf27f0d2059e97a33fc05ca5249bde"
+    },
+    {
+      "path": "artifacts/fs-block-release-tests-20261101-001.log",
+      "bytes": 3918,
+      "sha256": "bf167d8cc851ec9fba1c9e2634b4952931d5c4c88014c99cd9b9e0281b5287dc"
+    },
+    {
+      "path": "artifacts/fs-block-all-debug-tests-20261101-001.log",
+      "bytes": 9229,
+      "sha256": "c84e293e27bac81f23aaf6bdf4985d20954202ee9583db555fbd1e558d125d2a"
+    },
+    {
+      "path": "artifacts/fs-block-debug-configure-20261101-002.log",
+      "bytes": 143,
+      "sha256": "485abec61265dd8d41380131c4d512978f43a8d8f3faae1ce69d083ff540f1ab"
+    },
+    {
+      "path": "artifacts/fs-block-all-debug-build-20261101-002.log",
+      "bytes": 2267,
+      "sha256": "b6316e5286bea8ec98e581a4b743facc1362e8b5db56dd784a71e9cfe50a0d35"
+    },
+    {
+      "path": "artifacts/fs-block-all-debug-tests-20261101-002.log",
+      "bytes": 9338,
+      "sha256": "5dcf60966487ce99e1d9cb09de8fbd71d0e1a23e296c42bf658e6d6657c088ef"
+    },
+    {
+      "path": "artifacts/fs-block-release-configure-20261101-002.log",
+      "bytes": 148,
+      "sha256": "bb9b0657d52da0199807677da641276cd233e1200226cfc21f0a8ae6a3445be2"
+    },
+    {
+      "path": "artifacts/fs-block-release-build-20261101-002.log",
+      "bytes": 312,
+      "sha256": "5c5e937e91120ef5148539434a647ae655a579bf3f4aedbfc241fa03b3deffbf"
+    },
+    {
+      "path": "artifacts/fs-block-release-tests-20261101-002.log",
+      "bytes": 4266,
+      "sha256": "e621c70da60c04d04143990ad21e5523ccc2b8b4bfed59aa006ee060f0642ba9"
+    },
+    {
+      "path": "artifacts/fs-block-product-build-20261101-001.log",
+      "bytes": 11293,
+      "sha256": "bb1a0f5e544822613aaaf2471a30b36d49c8b345d25c6f53d2d1f91c1b0d5967"
+    },
+    {
+      "path": "artifacts/fs-block-product-build-20261101-002.log",
+      "bytes": 11078,
+      "sha256": "b5f4c55d2aa6875ac546347a4293b45d5c1f46a516a6f51f24575866ba99e988"
+    },
+    {
+      "path": "artifacts/fs-block-final-build-check-20261101-001.json",
+      "bytes": 140786,
+      "sha256": "c00b6489cd9ecdb6425410aa9e80f814aa4cc7854bc95fbeba1caca7cab219a0"
+    },
+    {
+      "path": "artifacts/fs-block-final-symbols-20261101-001.txt",
+      "bytes": 269873,
+      "sha256": "2d08d6ff9783071764933199d6132c41a8ca4ecea2414c08d59d1e326cb54614"
+    },
+    {
+      "path": "artifacts/host-ui-build/fs_block_guard.exe",
+      "bytes": 160648,
+      "sha256": "f67360d1dc46e223290bb0d8ab993e05ebeb67d33100e941c01063ab3af43295"
+    },
+    {
+      "path": "artifacts/host-ui-build/product_fs_block.exe",
+      "bytes": 168175,
+      "sha256": "0e1654e7eaed8a372a2443a14370169fed8ddb16b820464de9c7a3bad239762b"
+    },
+    {
+      "path": "artifacts/host-ui-build/product_storage_gate.exe",
+      "bytes": 143471,
+      "sha256": "c5a3d63f6805fef705bd675cb153a8fea8c3a3f18e6841f224c6a973507a8bf1"
+    },
+    {
+      "path": "artifacts/host-ui-build/littlefs_host.exe",
+      "bytes": 295310,
+      "sha256": "ffecbd44384e21c13b5a132db2bfc82ffff3e2e2f1cde23a88e2a1bb06cbf8d8"
+    },
+    {
+      "path": "artifacts/flashdb-gc-release/fs_block_guard.exe",
+      "bytes": 149661,
+      "sha256": "edf7e172717fa9ecf23fe249cecc112778476688cf66b16a8aee72bbb236c51a"
+    },
+    {
+      "path": "artifacts/flashdb-gc-release/product_fs_block.exe",
+      "bytes": 152636,
+      "sha256": "c3dbfa6fb688139634fc96fbef585f0cdf7232a43ec5504784ee734297fa219c"
+    },
+    {
+      "path": "artifacts/flashdb-gc-release/product_storage_gate.exe",
+      "bytes": 140254,
+      "sha256": "aac4f52014431bb16f683a13bd55d8e9d6fe05d3bdbf889839cf7e59ab38160f"
+    },
+    {
+      "path": "artifacts/flashdb-gc-release/littlefs_host.exe",
+      "bytes": 237279,
+      "sha256": "cc78d00d6dc891b53bdce1388403683c862ebfcdd2cbe80af6b226b9e200c75f"
+    },
+    {
+      "path": "artifacts/host-ui-build/build.ninja",
+      "bytes": 866735,
+      "sha256": "02148401094e332dd50794270dc3ee2a2a1dfe51a43d010a6befc539cb66bf0f"
+    },
+    {
+      "path": "artifacts/flashdb-gc-release/build.ninja",
+      "bytes": 877640,
+      "sha256": "0d0a08c2492f6cffb622d281fb253e19e664a53daa5384f41354505bc6427e0b"
+    },
+    {
+      "path": "artifacts/host-ui-build/CMakeCache.txt",
+      "bytes": 15449,
+      "sha256": "292ed3822ef63af00fb5070359144fb191c30e552b3870cb33fa0ea9c98e71a9"
+    },
+    {
+      "path": "artifacts/flashdb-gc-release/CMakeCache.txt",
+      "bytes": 15259,
+      "sha256": "5f7566caec4f4ce251ec1aa4864d488973a38275b96bf0b82f3d0c5ce06cd8e8"
+    },
+    {
+      "path": "artifacts/fs-block-final-build-20261101.zip",
+      "bytes": 16486508,
+      "sha256": "38e87f4a2e6e0116ed5a1f8743b2c87c1fedea993384cbf3b621aabd1324c395"
+    },
+    {
+      "path": "artifacts/fs-block-host-evidence-20261101.zip",
+      "bytes": 765336,
+      "sha256": "67d0344e2a139f74be4f49ef827f53a1543dadbbb4c0bcbe3f2120516d09d93d"
+    },
+    {
+      "path": "artifacts/fs-block-pre-review-artifacts-20261101.zip",
+      "bytes": 12604718,
+      "sha256": "72fc0252e02c9c3e46463d417b27a4815dd5ec54a82fb3f05e5dd97e5ff0de56"
+    }
+  ]
+}

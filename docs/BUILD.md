@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-11-01 Product候选块适配（默认未启用）
+
+`pwsh -NoProfile -File scripts/Build.ps1 -Example product -Jobs 4`最终`20261101-193356-530`退出0，BIN3,028,744B／`de523ce6…`，617源码／29产物严格核验及完整ZIP读回通过。候选适配与core编译通过，最终普通ELF排除`wf_fs_block_*`／`wf_product_fs_block_*`／`wf_product_storage_gate_*`全部符号，`wf_record`及settings FAL写wrapper仍在，无自动启用或新命令。初版`192935-893`通过编译但有审查发现的配置相关release缺陷，后续修复后重编为最终版；旧产物保全，不混作最终源码证据。
+
+Debug最终88/88、保留断言Release相关8/8，覆盖原LittleFS372故障／114中断及新增core／实际适配／真实gate函数三项。源码与测试详情见[专题](BATTERY-ESTIMATE.md#fs-block-adapter-20261101)／[证据](evidence/2026-11-01/fs-block-adapter.json)。本轮只改Product模块与主机测试，无SDK／公共构建入口变更，未跑五目标或云端基线；编译不下载，板上仍`2655b930…`，未新增设备／时长／功耗结论。
+
 ## 2026-11-01 LittleFS主机验证
 
 仅新增测试目标`littlefs_host`，直接编译锁定SDK原版`lfs.c`／`lfs_util.c`及测试候选保护层；SDK／固件构建入口／Product源码与分区均未变，无新固件编译或设备操作。`cmake -S tests -B artifacts/host-ui-build`、`cmake --build artifacts/host-ui-build`后最终`ctest --test-dir artifacts/host-ui-build --output-on-failure --timeout 60`为85/85；Release目录`artifacts/flashdb-gc-release`重配置并构建`--target littlefs_host`后，`ctest --test-dir artifacts/flashdb-gc-release -R '^littlefs_' -V --timeout 60`为5/5，保留断言且禁用malloc。372项返回错误／假成功注入及114项模拟中断、容量与NOSPC、未知挂载保护均通过；测试语义、边界、原始日志及源码哈希见[专题](BATTERY-ESTIMATE.md#littlefs-host-20261101)／[证据](evidence/2026-11-01/littlefs-host.json)。这是内存NOR和直接LittleFS callbacks验证，未覆盖DFS／MTD注册、真实设备写擦或底层超时。

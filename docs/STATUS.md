@@ -5,19 +5,21 @@
 
 本区是活动任务和下一步的唯一权威来源；历史命令和计划不构成执行授权。
 
-**目标与本轮**：用户已授权进入主机软件验证，完成原版LittleFS＋4MiB内存NOR的最小闭环。仅新增测试候选保护层及故障／中断／容量测试，没有接Product、构建固件、操作设备或启动放电；首轮负载仍为固定手电筒100。
+**目标与本轮**：用户接续Product候选块适配的软件准备；共享保护core、显式一次prepare的只读SDK适配、settings gate／PM／stop契约及主机测试完成。未启用文件后端或SDK写擦，没有设备动作；首轮放电负载仍为固定手电筒100，尚未开始。
 
-**工作基线**：[PR #188](https://github.com/e-n-ye/wristflow/pull/188)已Rebase合并`c3bd3e1`，Closure／干净main同步已核实。本轮`codex/littlefs-host-validation`从该主线开始；SDK／子模块与分区不变，板上仍为普通`2655b930…`，记录器继续运行。
+**工作基线**：[PR #189](https://github.com/e-n-ye/wristflow/pull/189)已Rebase合并`2c25ac2`，Closure／干净main同步已核实。本轮`codex/fs-block-adapter`从该主线开始；SDK／子模块／分区／公共构建入口不变，板上仍为普通`2655b930…`，记录器继续运行。
 
 **存储依据**：Product预留4MiB FS_REGION，现版无已发现的持久化消费者或fs_root下载；前轮两遍读满／全FF、CRC`7d5b6975`、各1024ms／guard0，SDK元数据为ID`0018400b`／16MiB／dual0／erase4096。只能支持候选软件试验，所有权／实体擦除与格式化准入仍未确认。[设备证据](evidence/2026-11-01/fs-region-hardware.json)。
 
-**SDK风险与候选保护**：SDK整页写及部分擦除可能忽略底层失败，MTD缺末端守卫，忙等待／锁无软件截止。测试候选层先校验范围及对齐、用64位算术映射地址，写擦要求正确返回并完整读回，首错后冻结写擦／sync。原SDK文件无修改，读回不解决底层卡死；DFS／MTD及设备适配未验证。
+**SDK风险与候选保护**：`fs_block`从测试目录提升为LFS无关共享core，范围／对齐／完整读回／首错冻结由原LittleFS矩阵重验。SDK整页写及部分擦除会误报、忙等待无界；真实适配永久只读且不装写擦回调，无INIT／FinSH／注册／mount。共享settings DB mutex最多等100ms＋取到后100ms软件预算，并非全BLE／DFU事务锁或底层硬超时；stop期间in_flight保留gate／PM至返回。[适配契约](BATTERY-ESTIMATE.md#fs-block-adapter-20261101)。
 
 **主机结果**：Debug最终85/85、保留断言Release新增5/5通过；8KiB旧文件＋8KiB追加正常轨迹上372项返回错误／假成功注入，及38个prog／erase／sync位置前／半／后共114项模拟中断后，旧提交完整、文件只呈旧／完整新内容。未知／空白挂载失败不改镜像，零／短／负返回和越界拒绝，canary与正常失败锁平衡通过。静态缓存且禁malloc；48小时估算载荷2,211,840B可提交，RAM布局NOSPC后4,173,824B内容仍完整，这不是产品容量或正式schema承诺。[结果与边界](BATTERY-ESTIMATE.md#littlefs-host-20261101)／[软件证据](evidence/2026-11-01/littlefs-host.json)。
 
+**本轮验证**：最终Debug88/88、Release相关8/8通过（原LittleFS矩阵＋core／实际适配／真实gate）；审查发现RT_ASSERT内release副作用已修复，断言参数求值／不求值双模式补验。Product最终`20261101-193356-530`／BIN`de523ce6…`编译、617源码／29产物归档读回通过；普通ELF丢弃候选core／适配／gate全部符号，原记录器保留，没有自动调用。[软件证据](evidence/2026-11-01/fs-block-adapter.json)。
+
 **未覆盖**：立即持久的内存模型不证明真实掉电、缓存一致性、写擦时长、功耗或磨损；无完整cycle采样／分页导出／低电停止。原指南针未证恢复、产品退出协调与物理掉电恢复保留；停止条件不能直接取2.75V或旧算法10%。
 
-**唯一下一步**：本轮测试／证据PR合并及主线同步回Closure。下一小闭环为Product候选块设备适配的软件准备，明确同Flash并发、PM持有与释放、底层无界调用及停止策略，验证项目边界的范围／读回／错误冻结。主机通过不授权实机格式化或写擦，不迁入SDK示例的mount失败自动mkfs，不启动放电。
+**唯一下一步**：本轮软件PR合并及主线同步回Closure。随后先确定实际写擦准入阻断的处置：同Flash参与者协调、SDK无界调用、明确区域所有权与操作窗口；确定后再准备显式受限诊断。主机通过和未启用的适配不授权实机格式化／写擦，不直接启用cycle后端或自动mkfs，不启动放电。
 
 <a id="history-fs-region-before-host-20261101"></a>
 ## 2026-11-01 FS_REGION上板结束快照（原current，已由主机验证接续）

@@ -8,6 +8,7 @@
 #define MSH_CMD_EXPORT(function, description)
 typedef uint32_t rt_uint32_t;
 typedef int32_t rt_int32_t;
+typedef int rt_err_t;
 typedef uint32_t rt_tick_t;
 typedef intptr_t rt_base_t;
 struct rt_event { unsigned bits; };
