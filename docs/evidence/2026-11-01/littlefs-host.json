@@ -1,0 +1,316 @@
+{
+  "schema": 1,
+  "date": "2026-11-01",
+  "checkout": "D:/MY_Desk/project/wristflow",
+  "baseline": "c3bd3e1eeccdc6caf361b72108d3a9174f30d72c",
+  "branch": "codex/littlefs-host-validation",
+  "status": "host_validation_passed_not_product_integrated",
+  "scope": "Original pinned SDK LittleFS with host-only guarded synchronous 4MiB RAM NOR; no device actions",
+  "sdk": {
+    "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "submodules": {
+      "middleware/bluetooth": "4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c",
+      "tools/SiliconSchema": "304658c6edd5497211b7d152932327ce6e4450ff"
+    },
+    "clean": true
+  },
+  "littlefs_version": "2.4",
+  "littlefs_disk_version": "2.0",
+  "vendor_sources_modified": false,
+  "toolchain": {
+    "cmake": "cmake version 3.31.4",
+    "cmake_executable": "C:/Program Files/CMake/bin/cmake.exe",
+    "compiler": "cc.exe (Rev13, Built by MSYS2 project) 15.2.0",
+    "generator": "Ninja",
+    "flags": {
+      "debug": [
+        "-DLFS_NO_DEBUG -DLFS_NO_ERROR -DLFS_NO_MALLOC -DLFS_NO_WARN",
+        "-g -std=gnu11 -UNDEBUG -Wall -Wextra"
+      ],
+      "release": [
+        "-DLFS_NO_DEBUG -DLFS_NO_ERROR -DLFS_NO_MALLOC -DLFS_NO_WARN",
+        "-O3 -DNDEBUG -std=gnu11 -UNDEBUG -Wall -Wextra"
+      ]
+    }
+  },
+  "configuration": {
+    "start": "0x129a0000",
+    "end_exclusive": "0x12da0000",
+    "bytes": 4194304,
+    "block_size": 4096,
+    "blocks": 1024,
+    "read_size": 32,
+    "prog_size": 256,
+    "cache_size": 256,
+    "lookahead_size": 16,
+    "block_cycles": 100,
+    "static_buffers": true,
+    "malloc_disabled": true,
+    "release_assertions_enabled": true
+  },
+  "source_findings": {
+    "region": "Reserved Product FS region; no current persistent consumer discovered; only three firmware image paths",
+    "id": "SDK exact match 0b/40/18 comments XT25F128F_RDID, not physical full-part identification",
+    "sdk_risks": [
+      "Some page program and erase paths ignore HAL errors",
+      "MTD callbacks lack partition-end bounds",
+      "SDK polling and locks may wait indefinitely; post-return readback cannot fix a hang"
+    ],
+    "candidate_guard": "Test-only: geometry/bounds/alignment before widened address arithmetic; exact program length, zero-success erase, full readback and first-fault write/erase/sync freeze; reads remain available"
+  },
+  "tests": {
+    "debug_passed": 85,
+    "debug_total": 85,
+    "release_related_passed": 5,
+    "release_related_total": 5,
+    "cases": [
+      "bounds",
+      "lifecycle",
+      "faults",
+      "cuts",
+      "capacity"
+    ],
+    "baseline_append": {
+      "old_committed_bytes": 8192,
+      "append_bytes": 8192,
+      "read_calls": 130,
+      "prog_calls": 34,
+      "erase_calls": 3,
+      "sync_calls": 1
+    },
+    "returned_error_and_false_success_cases": 372,
+    "cut_cases": 114,
+    "cut_positions": 38,
+    "cut_phases": [
+      "before",
+      "half",
+      "after"
+    ],
+    "committed_prefix_bytewise_preserved": true,
+    "visible_file_length_old_or_full_append_only": true,
+    "invalid_request_cases": 12,
+    "zero_short_negative_returns_rejected": true,
+    "complete_final_chunk_readback_checked": true,
+    "boundary_canaries_unchanged": true,
+    "returned_failure_lock_balance_before_reset": true,
+    "blank_and_unknown_mount_failure_image_unchanged": true,
+    "format_only_explicit_host_ram": true,
+    "nominal_48h_5s_64B_payload": 2211840,
+    "nospc_committed_bytes": 4173824,
+    "nospc_remount_bytewise_preserved": true
+  },
+  "commands": [
+    "cmake -S tests -B artifacts/host-ui-build",
+    "cmake --build artifacts/host-ui-build --target littlefs_host",
+    "cmake --build artifacts/host-ui-build",
+    "ctest --test-dir artifacts/host-ui-build --output-on-failure --timeout 60",
+    "cmake -S tests -B artifacts/flashdb-gc-release",
+    "cmake --build artifacts/flashdb-gc-release --target littlefs_host",
+    "ctest --test-dir artifacts/flashdb-gc-release -R '^littlefs_' -V --timeout 60",
+    "python artifacts/littlefs-host-report.py",
+    "python scripts/lab_check.py files --manifest docs/evidence/2026-11-01/littlefs-host.json --key records"
+  ],
+  "failures": [],
+  "evidence_correction": "Initial report resolved cmake via Python PATH as 4.2.3; actual build CMakeCache binds C:/Program Files/CMake/bin/cmake.exe 3.31.4. Corrected to the bound executable without changing toolchain/build/tests; initial report and archive preserved locally.",
+  "review": {
+    "agent": "lfs_host_review",
+    "blocking_findings": 0,
+    "finding": "Returned-error lock state could be masked by test boot reset",
+    "correction": "Assert unlocked and balanced lock/unlock counts in frozen() before state reset; cuts intentionally abandon locks",
+    "final_source_recheck_passed": true,
+    "affected_tests_rerun_passed": true
+  },
+  "archive": {
+    "path": "artifacts/littlefs-host-20261101-final-v2.zip",
+    "bytes": 348721,
+    "sha256": "40e8c3b537dd05d86f2033d068d7b684ed9254d1a5a1cfe699624e9f3efcd816",
+    "members": 33,
+    "all_members_readback_verified": true
+  },
+  "hardware": {
+    "actions": false,
+    "firmware_build": false,
+    "firmware_flash": false,
+    "format_or_erase": false,
+    "on_board_bin_unchanged": "2655b9300e3bb6be11a197348a1452ff4560113abe4fdc14447e67f6c0f9c3c0",
+    "partition_changed": false,
+    "full_cycle_logger_implemented": false,
+    "discharge_started": false
+  },
+  "limitations": [
+    "Host candidate guard is not Product/DFS/MTD integration or a real driver",
+    "Fault matrix enumerates only the successful 8KiB append trace, not all operation histories or arbitrary read-data corruption",
+    "RAM writes immediately durable; sync cut phases do not model different delayed-media persistence",
+    "Setjmp cuts discard volatile caches/locks; no physical power-loss, hardware cache, timing, wear or current proof",
+    "Capacity is for this RAM file layout; 64-byte payload budget is not a finalized schema or field-capacity promise",
+    "Region ownership and any real format/erase admission remain separate"
+  ],
+  "next_bounded_step": "Prepare guarded Product block-device adapter software with shared-Flash concurrency, PM lifetime and unbounded-call/stop policy; no automatic formatting or hardware writes",
+  "records": [
+    {
+      "path": "tests/CMakeLists.txt",
+      "bytes": 27423,
+      "sha256": "142483970636dd9360d72d03410c4086733113c4b8b62af98b3e132c47e7c179"
+    },
+    {
+      "path": "tests/littlefs_host.c",
+      "bytes": 14330,
+      "sha256": "d4599e780f8409132b2e7989f77cc5333bd83157a2093055a0930fea016f93ec"
+    },
+    {
+      "path": "tests/support/lfs/nor_guard.c",
+      "bytes": 3055,
+      "sha256": "6c8ff0dfb3828a6e449df0c22ec17a586b02991e2a12e7a37bce1d09dd1497c7"
+    },
+    {
+      "path": "tests/support/lfs/nor_guard.h",
+      "bytes": 1093,
+      "sha256": "cdb8f6bf67530c244acdd1606c1f7c026c4e0c2c94611b41a2572d32b14fa85e"
+    },
+    {
+      "path": "vendor/SiFli-SDK/rtos/rtthread/components/dfs/filesystems/littlefs/lfs.c",
+      "bytes": 178522,
+      "sha256": "fee4540a5f0de6b76ae099c175056665fac7d4fa66a32ba6778b6830fd40e711"
+    },
+    {
+      "path": "vendor/SiFli-SDK/rtos/rtthread/components/dfs/filesystems/littlefs/lfs.h",
+      "bytes": 23972,
+      "sha256": "a50926aa7aa6c991a104bdac347ea25223d6cbcabfe97296b9d8e36d226d8135"
+    },
+    {
+      "path": "vendor/SiFli-SDK/rtos/rtthread/components/dfs/filesystems/littlefs/lfs_util.c",
+      "bytes": 906,
+      "sha256": "2c6226aa6d9d86033f99dba5d754fc2ea45b6214a07e190ebd7d8141d7fdcef2"
+    },
+    {
+      "path": "vendor/SiFli-SDK/rtos/rtthread/components/dfs/filesystems/littlefs/lfs_util.h",
+      "bytes": 7565,
+      "sha256": "b0695a3861bd721179d6ec9bb983cd8415371c7834f5d801874899525691b89f"
+    },
+    {
+      "path": "sdk.lock.json",
+      "bytes": 473,
+      "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+    },
+    {
+      "path": "apps/product/project/sf32lb52-lchspi-ulp_hcpu/ptab.json",
+      "bytes": 2112,
+      "sha256": "41d89872c94d54a8e85c679d640eea27981ca4760b928fe0a335d9d79ef35445"
+    },
+    {
+      "path": "apps/product/project/sf32lb52-lchspi-ulp_hcpu/custom_mem_map.h",
+      "bytes": 579,
+      "sha256": "ca4d4058a5af84a05bf5234132b77aeb79af502d04bc1e6cced0aa7f02cd4658"
+    },
+    {
+      "path": "vendor/SiFli-SDK/rtos/rtthread/bsp/sifli/drivers/drv_spi_flash.c",
+      "bytes": 50811,
+      "sha256": "1fcf1143712d015f3b365a0435569dfe6ca0ba148ec785d0addaf77c2e4444c8"
+    },
+    {
+      "path": "vendor/SiFli-SDK/drivers/hal/flash_table.c",
+      "bytes": 34592,
+      "sha256": "d1d6653eaca0ea58da7c987ccf41001b388b745b69b3ed02a8f5313fd61dfe9d"
+    },
+    {
+      "path": "artifacts/littlefs-host-report.py",
+      "bytes": 8837,
+      "sha256": "337ae2f518648f53aee72110deeb1be7813ea37102d146022d2565fd27abdcb5"
+    },
+    {
+      "path": "artifacts/littlefs-host-initial-report.json",
+      "bytes": 12090,
+      "sha256": "cae6d0debd3f8d364a16d6936aad366d1a7f7a76534ff434216cb5775d164700"
+    },
+    {
+      "path": "artifacts/littlefs-host-debug-configure-20261101-001.log",
+      "bytes": 143,
+      "sha256": "768bb7d561e7267414df1cc4dd5be8009767f0ab3c19cfc7e442f34629994532"
+    },
+    {
+      "path": "artifacts/littlefs-host-release-configure-20261101-001.log",
+      "bytes": 148,
+      "sha256": "63879035d00f3b67998464c65496a246fd3c58f7baa90bd96dc792f3dd230526"
+    },
+    {
+      "path": "artifacts/littlefs-host-debug-build-20261101-001.log",
+      "bytes": 569,
+      "sha256": "30f8c93d6044df359137ec72856ce7d2cadfb59f6a8a6a91240892f1e7fde758"
+    },
+    {
+      "path": "artifacts/littlefs-host-debug-tests-20261101-001.log",
+      "bytes": 733,
+      "sha256": "efb9d1bdd71eba7f22863e18e51b7f389d3e641cff8d89580b9f02806f9c4568"
+    },
+    {
+      "path": "artifacts/littlefs-host-all-debug-build-20261101-001.log",
+      "bytes": 504,
+      "sha256": "5585fa05f1015f77e06dca52d18cffa894cdd1a1f009bb7754fce0fd3420c9c9"
+    },
+    {
+      "path": "artifacts/littlefs-host-all-debug-tests-20261101-001.log",
+      "bytes": 9021,
+      "sha256": "b2a27bb848a8ce800f2739be37c4f8b71c98773b982a551189092fcec033f2a4"
+    },
+    {
+      "path": "artifacts/littlefs-host-release-build-20261101-001.log",
+      "bytes": 57282,
+      "sha256": "3a3088d8d596e1bcd7e2c4081ffb5e7f9088a2cce79e17591578cda0ee7e8f91"
+    },
+    {
+      "path": "artifacts/littlefs-host-release-tests-20261101-001.log",
+      "bytes": 743,
+      "sha256": "7c8be412ddd4adf249b4686ca2ab908e6a749c4f6c56d299ec009db7fb622a89"
+    },
+    {
+      "path": "artifacts/littlefs-host-debug-build-20261101-002.log",
+      "bytes": 162,
+      "sha256": "21a14d7d33de1da535a50e561c785113dd71fad32ff0181e1c9ed788f6722f51"
+    },
+    {
+      "path": "artifacts/littlefs-host-all-debug-tests-20261101-002.log",
+      "bytes": 9021,
+      "sha256": "1813b4fac76d30d7f90fa8e0ae0cc8815cc7d887cc7c4b2249016dc1cae4bb8f"
+    },
+    {
+      "path": "artifacts/littlefs-host-release-build-20261101-002.log",
+      "bytes": 162,
+      "sha256": "21a14d7d33de1da535a50e561c785113dd71fad32ff0181e1c9ed788f6722f51"
+    },
+    {
+      "path": "artifacts/littlefs-host-release-tests-20261101-002.log",
+      "bytes": 3010,
+      "sha256": "31dc6067e74015f50b34ff00d93d3492111b66d59c4ce0e07e7d82e72591ce64"
+    },
+    {
+      "path": "artifacts/host-ui-build/littlefs_host.exe",
+      "bytes": 287506,
+      "sha256": "27e9a60a358f87f5297c42148ff1e57e67575126b4010d746e3dc7a1ee93b8be"
+    },
+    {
+      "path": "artifacts/flashdb-gc-release/littlefs_host.exe",
+      "bytes": 234479,
+      "sha256": "411df8addbf70ce59cca64b2f7e3e7c066bac111b4c26b13db2bc45880f7b173"
+    },
+    {
+      "path": "artifacts/host-ui-build/CMakeCache.txt",
+      "bytes": 15449,
+      "sha256": "292ed3822ef63af00fb5070359144fb191c30e552b3870cb33fa0ea9c98e71a9"
+    },
+    {
+      "path": "artifacts/flashdb-gc-release/CMakeCache.txt",
+      "bytes": 15259,
+      "sha256": "5f7566caec4f4ce251ec1aa4864d488973a38275b96bf0b82f3d0c5ce06cd8e8"
+    },
+    {
+      "path": "artifacts/host-ui-build/build.ninja",
+      "bytes": 858969,
+      "sha256": "b6954a90f5780d3494121077ca7d0f9ce42ca21cc6c0edb6ca5258f6e5a9a1d1"
+    },
+    {
+      "path": "artifacts/flashdb-gc-release/build.ninja",
+      "bytes": 869766,
+      "sha256": "3b1e0d9bafa324a08e3a38915da60a965f6ce1ef834c1e21a4c87740274b81cf"
+    }
+  ]
+}
