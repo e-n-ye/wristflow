@@ -1,0 +1,188 @@
+{
+  "date": "2026-11-01",
+  "phase": "source_and_capacity_preflight_only",
+  "base_commit": "d8ae665be16ba116e11fc9f1d9f58873551aaff5",
+  "load_choice": "fixed flashlight100; run not started",
+  "photo": {
+    "scope": "Manufacturer generic sheet, not ZCLP500/protector-specific",
+    "cutoff_v_per_cell": 2.75,
+    "minimum_storage_v_per_cell": 3.7,
+    "continuous_discharge_c": 0.5,
+    "continuous_discharge_below_10c": 0.1,
+    "maximum_discharge_c": 1,
+    "maximum_discharge_below_10c": 0.2,
+    "maximum_charge_c": 0.5,
+    "maximum_charge_below_20c": 0.2,
+    "charge_v_per_cell": 4.2,
+    "charge_temperature_c": [
+      10,
+      45
+    ],
+    "discharge_temperature_c": [
+      -10,
+      55
+    ],
+    "specific_or_protected_model_limits_take_precedence": true
+  },
+  "layout": {
+    "flash_base": "0x12000000",
+    "regions": [
+      {
+        "tags": [
+          "FLASH_TABLE"
+        ],
+        "offset": 0,
+        "size": 32768,
+        "end": 32768
+      },
+      {
+        "tags": [
+          "FLASH_BOOT_LOADER"
+        ],
+        "offset": 65536,
+        "size": 65536,
+        "end": 131072
+      },
+      {
+        "tags": [
+          "HCPU_FLASH_CODE"
+        ],
+        "offset": 131072,
+        "size": 8388608,
+        "end": 8519680
+      },
+      {
+        "tags": [
+          "DFU_FLASH_CODE"
+        ],
+        "offset": 8519680,
+        "size": 393216,
+        "end": 8912896
+      },
+      {
+        "tags": [
+          "DFU_DOWNLOAD_REGION"
+        ],
+        "offset": 8912896,
+        "size": 1179648,
+        "end": 10092544
+      },
+      {
+        "tags": [
+          "FS_REGION"
+        ],
+        "offset": 10092544,
+        "size": 4194304,
+        "end": 14286848
+      },
+      {
+        "tags": [
+          "KVDB_DFU_REGION"
+        ],
+        "offset": 14286848,
+        "size": 16384,
+        "end": 14303232
+      },
+      {
+        "tags": [
+          "KVDB_BLE_REGION"
+        ],
+        "offset": 14303232,
+        "size": 16384,
+        "end": 14319616
+      },
+      {
+        "tags": [
+          "KVDB_SETTINGS_REGION"
+        ],
+        "offset": 14319616,
+        "size": 16384,
+        "end": 14336000
+      }
+    ],
+    "declared_fs_bytes": 4194304,
+    "nonoverlap": true,
+    "settings_region_unchanged": true
+  },
+  "budget": {
+    "proposal_only": true,
+    "record_bytes": 64,
+    "interval_seconds": 5,
+    "hours": 48,
+    "payload_bytes": 2211840,
+    "filesystem_metadata_and_reserve_not_included": true
+  },
+  "admission": {
+    "region_declared": true,
+    "region_content_readback": false,
+    "ownership_verified": false,
+    "runtime_geometry_verified": false,
+    "file_backend_ready": false,
+    "format_or_erase_authorized": false,
+    "near_empty_run_ready": false
+  },
+  "facts": [
+    "Product has DFS and MTD NOR enabled; no established cycle file backend",
+    "SDK register_nor_device uses4096 sector size with dualFlash adjustment; device geometry still must be checked",
+    "Official LittleFS sample automatically formats after mount failure; do not copy before ownership/readback/initialization decision",
+    "SDK example platform is not a current-board validation",
+    "64 sample tail and two512B checkpoints do not preserve whole cycle",
+    "B1 max256 rows900s is insufficient",
+    "0% does not shut device down; about3.3V screen observation is not cell cutoff or proof of whole-board poweroff"
+  ],
+  "next_bounded_step": "Prepare read-only FS_REGION diagnostic; no format/write/download/discharge in this preflight",
+  "initial_manifest_error": "Wrong core/battery_trace.h path refused report generation; corrected to apps/product/src/battery_trace.h; photo was already copied and retained",
+  "hardware_actions": false,
+  "firmware_build_or_flash": false,
+  "references": [
+    "https://www.analog.com/en/resources/technical-articles/battery-fuel-gauges-accurately-measuring-charge-level.html",
+    "https://www.analog.com/en/resources/technical-articles/characterizing-a-li-cell-for-use-with-a-fuel-gauge.html"
+  ],
+  "records": [
+    {
+      "path": "apps/product/project/sf32lb52-lchspi-ulp_hcpu/ptab.json",
+      "bytes": 2112,
+      "sha256": "41d89872c94d54a8e85c679d640eea27981ca4760b928fe0a335d9d79ef35445"
+    },
+    {
+      "path": "apps/product/project/sf32lb52-lchspi-ulp_hcpu/custom_mem_map.h",
+      "bytes": 579,
+      "sha256": "ca4d4058a5af84a05bf5234132b77aeb79af502d04bc1e6cced0aa7f02cd4658"
+    },
+    {
+      "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/.config",
+      "bytes": 36943,
+      "sha256": "4f5c5422135a2302c2861d9cd874aeec497853b713027af30409943be8b3abbb"
+    },
+    {
+      "path": "core/battery_estimate.c",
+      "bytes": 6493,
+      "sha256": "2e1a5224b06d04523d4fb80910d08b7ba4054b3b5d62e5e0edff6701e9566be3"
+    },
+    {
+      "path": "core/runtime_record.h",
+      "bytes": 3398,
+      "sha256": "3f50d20d63f11802b34e47af99046b39c1bf9a291750f0464b3b18e454068d66"
+    },
+    {
+      "path": "apps/product/src/battery_trace.h",
+      "bytes": 2175,
+      "sha256": "dbb9d55d08677e22c4f8a357198d857fa8a889387dc26039267e1fa5b6b8fd9c"
+    },
+    {
+      "path": "vendor/SiFli-SDK/example/storage/littlefs/nor/README.md",
+      "bytes": 3445,
+      "sha256": "1097cad4ec37fcca803ef0db94121466800ab560ab1bc7411f2d4a87060cdcd6"
+    },
+    {
+      "path": "vendor/SiFli-SDK/rtos/rtthread/bsp/sifli/drivers/drv_spi_flash.c",
+      "bytes": 50811,
+      "sha256": "1fcf1143712d015f3b365a0435569dfe6ca0ba148ec785d0addaf77c2e4444c8"
+    },
+    {
+      "path": "artifacts/battery-cycle-preflight-20261101-001/battery-parameters-generic.jpg",
+      "bytes": 147381,
+      "sha256": "fa17f19a82c858d59d3a8d1fa3b15f9d4116445119a6a3dbc3c299150b678346"
+    }
+  ]
+}
