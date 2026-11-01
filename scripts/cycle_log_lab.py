@@ -14,7 +14,7 @@ from serial_lab import prepare_capture
 from cycle_protocol import parse_info,parse_page,decode_file,csv_text
 
 class CycleClient(RecordedClient):
-    COMMAND_PATTERN=r'wf_cycle (?:status|probe|init|mount|smoke [1-9]\d* \d+|arm [1-9]\d*|stop [1-9]\d*|info (?:smoke|cycle)|page (?:smoke|cycle) [1-9]\d* \d+ [1-4])'
+    COMMAND_PATTERN=r'wf_cycle (?:status|probe|init|mount|smoke [1-9]\d* \d+|arm [1-9]\d*|stop [1-9]\d*|info (?:smoke|cycle(?: [1-9]\d*)?)|page (?:smoke|cycle) [1-9]\d* \d+ [1-4])'
     BOOT_MARKERS=(b'[product] storage=',b'SFBL')
 
 def command(client,text,code,*,deadline=None):
@@ -64,14 +64,15 @@ def collect(out,transport,*,binding,identity,locks,action,kind='smoke',session=N
                     raise ValueError('Smoke not durably complete')
             elif action=='export':
                 deadline=time.monotonic()+1200
-                info=parse_info(command(client,'info '+kind,7,deadline=deadline));result['info']=info
+                selector='info '+kind+(f' {session}' if kind=='cycle' and session is not None else '')
+                info=parse_info(command(client,selector,7,deadline=deadline));result['info']=info
                 if session is not None and session!=info['session']:raise ValueError('Explicit cycle session differs from file')
                 result['session']=info['session'];raw=bytearray()
                 for offset in range(0,info['rows'],4):
                     if time.monotonic()>=deadline:raise TimeoutError('Cycle whole export 20min deadline')
                     n=min(4,info['rows']-offset)
                     raw.extend(parse_page(command(client,f'page {kind} {info["session"]} {offset} {n}',8,deadline=deadline),info['session'],offset,n))
-                if parse_info(command(client,'info '+kind,7,deadline=deadline))!=info:raise ValueError('Cycle file changed during export')
+                if parse_info(command(client,selector,7,deadline=deadline))!=info:raise ValueError('Cycle file changed during export')
                 rows=decode_file(raw,info)
                 if time.monotonic()>=deadline:raise TimeoutError('Cycle whole export completed outside deadline')
                 (out/'cycle.bin').write_bytes(raw);(out/'cycle.csv').write_text(csv_text(rows),encoding='utf-8',newline='')

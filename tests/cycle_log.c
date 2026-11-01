@@ -57,6 +57,48 @@ static void encode_tests(void)
     o=r.observation;assert(wf_cycle_stop_reason(&o,false,0,false)==WF_CYCLE_LOAD);
     assert(wf_cycle_stop_reason(&o,true,WF_CYCLE_MAX_MS,false)==WF_CYCLE_LIMIT);
 }
+static void session_tests(void)
+{
+    /* Fresh simulated NOR: preserve a legacy short round plus smoke while a
+     * named 48h run consumes space. No physical device or filesystem cleanup. */
+    memset(media+32,255,0x400000);boot();assert(!wf_cycle_store_mount(&store,true));
+    uint8_t bytes[64],saved_legacy[64],readback[64];wf_cycle_info_t info;wf_cycle_row_t r;
+    assert(!wf_cycle_store_create(&store,false,123));
+    for(unsigned i=0;i<3;++i) {r=row(i,i==0 ? WF_CYCLE_START:i==2 ? WF_CYCLE_END:WF_CYCLE_SAMPLE);
+        assert(wf_cycle_encode(&r,bytes) && !wf_cycle_store_append(&store,bytes));}
+    memcpy(saved_legacy,bytes,64);assert(!wf_cycle_store_commit(&store) && !wf_cycle_store_close(&store));
+    assert(wf_cycle_store_create_session(&store,123)==LFS_ERR_EXIST);
+    assert(!wf_cycle_store_create(&store,true,124));r=row(0,WF_CYCLE_START);r.session=124;
+    assert(wf_cycle_encode(&r,bytes) && !wf_cycle_store_append(&store,bytes) && !wf_cycle_store_close(&store));
+    for(uint32_t id=201;id<=202;++id) {
+        assert(!wf_cycle_store_create_session(&store,id));
+        for(unsigned i=0;i<3;++i) {r=row(i,i==0 ? WF_CYCLE_START:i==2 ? WF_CYCLE_END:WF_CYCLE_SAMPLE);r.session=id;
+            assert(wf_cycle_encode(&r,bytes) && !wf_cycle_store_append(&store,bytes));}
+        assert(!wf_cycle_store_commit(&store) && !wf_cycle_store_close(&store));
+    }
+    assert(wf_cycle_store_create_session(&store,201)==LFS_ERR_EXIST);
+    assert(wf_cycle_store_info_session(&store,123,&info)==LFS_ERR_NOENT); /* Strict, no legacy recovery. */
+    assert(wf_cycle_store_read_session(&store,201,3,bytes)<0);
+    assert(!wf_cycle_store_create_session(&store,203));
+    for(unsigned i=0;i<=34560;++i) {
+        r=row(i,i==0 ? WF_CYCLE_START:i==34560 ? WF_CYCLE_END:WF_CYCLE_SAMPLE);r.session=203;
+        assert(wf_cycle_encode(&r,bytes) && !wf_cycle_store_append(&store,bytes));
+        if(i%4==3)assert(!wf_cycle_store_commit(&store));
+    }
+    assert(!wf_cycle_store_commit(&store) && !wf_cycle_store_close(&store));
+    assert(wf_cycle_store_create_session(&store,204)==LFS_ERR_NOSPC);
+    assert(wf_cycle_store_info_session(&store,204,&info)==LFS_ERR_NOENT); /* Refusal created nothing. */
+    boot();assert(!wf_cycle_store_mount(&store,false));
+    assert(!wf_cycle_store_info(&store,false,&info) && info.session==123 && info.rows==3);
+    assert(!wf_cycle_store_read(&store,false,123,2,readback) && !memcmp(saved_legacy,readback,64));
+    assert(!wf_cycle_store_info(&store,true,&info) && info.session==124 && info.rows==1);
+    for(uint32_t id=201;id<=203;++id) {
+        assert(!wf_cycle_store_info_session(&store,id,&info) && info.session==id && info.terminal);
+        assert(info.rows==(id==203 ? 34561u:3u));
+        assert(!wf_cycle_store_read_session(&store,id,info.rows-1,readback));
+        wf_cycle_row_t decoded;assert(wf_cycle_decode(readback,&decoded) && decoded.session==id);
+    }
+}
 int main(void)
 {
     encode_tests();memset(media,0xa5,sizeof media);memset(media+32,255,0x400000);boot();
@@ -88,7 +130,8 @@ int main(void)
     assert(!wf_cycle_store_info(&store,true,&info) && info.rows==100);
     assert(!wf_cycle_store_info(&store,false,&info) && info.rows==34561 && info.terminal);
     assert(!wf_cycle_store_read(&store,false,123,34560,readback) && !memcmp(bytes,readback,64));
+    session_tests();
     for(unsigned i=0;i<32;++i)assert(media[i]==0xa5 && media[32+0x400000+i]==0xa5);
-    puts("cycle_log: row CRC/thresholds, blank-only format, no overwrite, 100-row smoke and 34561-row/2211904B full 48h file, terminal/nonterminal recovery passed");
+    puts("cycle_log: legacy/smoke preserved, independent named sessions/duplicate refusal, 48h2211904B recovery with old files, capacity refusal before create, CRC/thresholds passed");
     return 0;
 }

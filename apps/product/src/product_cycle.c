@@ -134,14 +134,23 @@ static int execute(unsigned cmd,uint32_t a,uint32_t b,uint32_t n,bool is_smoke)
             !wf_cycle_stop_reason(&latest,last_flashlight,0,true) &&
             (cmd==CMD_SMOKE || (full_seen && clock_ms()-full_at<300000));
         give();if(!eligible)return -6;
-        int result=wf_cycle_store_create(&store,cmd==CMD_SMOKE,a);if(result)return result;
+        int result=cmd==CMD_SMOKE ? wf_cycle_store_create(&store,true,a):wf_cycle_store_create_session(&store,a);
+        if(result)return result;
         take();smoke=cmd==CMD_SMOKE;session=a;seconds=b;next_row=persisted=dropped=0;head=count=0;reason=0;
         prefix_verified=false;armed_at=started=clock_ms();state=smoke ? RUNNING:ARMED;
         last_adc=latest.power.voltage_sequence;last_adc_ms=latest.power.voltage_sampled_ms;enqueue(WF_CYCLE_START,0,started);
         give();return 0;
     }
     if(cmd==CMD_INFO) {
-        wf_cycle_info_t info;int result=wf_cycle_store_info(&store,is_smoke,&info);if(result)return result;
+        wf_cycle_info_t info;int result=!is_smoke && a ? wf_cycle_store_info_session(&store,a,&info):
+            wf_cycle_store_info(&store,is_smoke,&info);
+        /* Explicit export alone may find a matching legacy identity. Recovery
+         * below deliberately uses only the named file for a new formal run. */
+        if(!is_smoke && a && result==LFS_ERR_NOENT) {
+            result=wf_cycle_store_info(&store,false,&info);
+            if(!result && info.session!=a)result=LFS_ERR_NOENT;
+        }
+        if(result)return result;
         rt_kprintf("[cycle-info] id=%lu rows=%lu bytes=%lu crc=%08lx terminal=%u\n",
             (unsigned long)info.session,(unsigned long)info.rows,(unsigned long)info.bytes,(unsigned long)info.crc,info.terminal);return 0;
     }
@@ -150,7 +159,9 @@ static int execute(unsigned cmd,uint32_t a,uint32_t b,uint32_t n,bool is_smoke)
         /* Four rows per command: finite UART output and explicit end marker. */
         if(!n || n>4)return -9;
         for(unsigned i=0;i<n;++i) {
-            int result=wf_cycle_store_read(&store,is_smoke,a,b+i,row);
+            int result=is_smoke ? wf_cycle_store_read(&store,true,a,b+i,row):
+                wf_cycle_store_read_session(&store,a,b+i,row);
+            if(!is_smoke && result==LFS_ERR_NOENT)result=wf_cycle_store_read(&store,false,a,b+i,row);
             if(result)return result;
             if(!wf_cycle_decode(row,&decoded))return -7;
             print_row(a,b+i,row);
@@ -188,7 +199,9 @@ static void process_once(void)
             int result=wf_cycle_store_commit(&store);
             int closed=wf_cycle_store_close(&store); /* Always detach even after sync failure. */
             wf_cycle_info_t info;
-            bool verified=!wf_cycle_store_reload(&store) && !wf_cycle_store_info(&store,smoke,&info);
+            bool verified=!wf_cycle_store_reload(&store) &&
+                !(smoke ? wf_cycle_store_info(&store,true,&info):wf_cycle_store_info_session(&store,session,&info)) &&
+                info.session==session;
             take();prefix_verified=verified;if(verified)persisted=info.rows;
             state=result || closed || failed || !verified || !info.terminal ? FAILED:DONE;
             if(state==FAILED) {if(!reason)reason=WF_CYCLE_STORAGE;inhibit=inhibit || last_flashlight;}
@@ -226,6 +239,7 @@ static int wf_cycle(int argc,char **argv)
     if(argc==3 && !strcmp(argv[1],"stop") && number(argv[2],&a) && a)cmd=CMD_STOP;
     if(argc==4 && !strcmp(argv[1],"smoke") && number(argv[2],&a) && a && number(argv[3],&b) && b>=10 && b<=120)cmd=CMD_SMOKE;
     if(argc==3 && !strcmp(argv[1],"info") && (!strcmp(argv[2],"smoke") || !strcmp(argv[2],"cycle"))) {cmd=CMD_INFO;s=!strcmp(argv[2],"smoke");}
+    if(argc==4 && !strcmp(argv[1],"info") && !strcmp(argv[2],"cycle") && number(argv[3],&a) && a)cmd=CMD_INFO;
     if(argc==6 && !strcmp(argv[1],"page") && (!strcmp(argv[2],"smoke") || !strcmp(argv[2],"cycle")) &&
         number(argv[3],&a) && a && number(argv[4],&b) && number(argv[5],&n) && n && n<=4 && b<=WF_CYCLE_MAX_ROWS-n) {cmd=CMD_PAGE;s=!strcmp(argv[2],"smoke");}
     if(!cmd)return -2;

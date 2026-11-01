@@ -1,5 +1,11 @@
 # 黄山派选型复评
 
+## 2026-11-01 新会话候选与完整放电交接
+
+用户要求短测正常后继续完整放电、后续保留测试版，并授权必要单次校时。新刷前普通显示／触摸正常、USB／原电池／FULL／常亮再次确认；最新boot9／代次83／保存失败0／旧faults1／活动fault0尾段已保全。候选`10086d00…`三镜像write＋verify后用户确认正常／FULL／常亮；一次UTC同步读回13:52:39UTC，仅mount既有FS，无probe／init／format。新版下旧短测1728B及smoke448B均重导逐字节一致。[本轮证据](evidence/2026-11-01/cycle-sessions.json)。
+
+新session2026110104的START回读accepted=saved1、queued=dropped0后关串口；操作者于本地21:56:45确认拔USB／手电筒白屏，21:57:32确认停止表现与及时回USB说明。新文件`cycle-78c3fc98.bin`，7次本轮UART采集全关闭。交接事实不证明全程RUNNING、LOW或完整曲线，低压断载／保存与掉电／功耗仍未验；白屏自行关闭后及时回USB查原因。后续不例行恢复普通版，实际当前状态只见STATUS。
+
 ## 2026-11-01 纯电池手电筒120秒短窗
 
 同板屏／原ZCLP500／固定接线且在旁，USB及页面已充满已确认；复用CycleLog候选`eef7981b…`三镜像write＋verify，已有FS仅mount，无probe／init。协作页人工确认拔USB与手电筒白屏、程序计时120.013s、人工先退出负载再回USB；25个BAT／100亮度样本覆盖120,048ms，raw4156→4125mV。session2026110103以LOAD4结束，27行1728B／CRC`954dea72`完整保存导出、无丢弃／积压；旧smoke448B逐字节保留。START是软件FULL100／4165mV，UTC无效，非物理停流或容量依据。[完整证据](evidence/2026-11-01/cycle-short.json)／[解释边界](BATTERY-ESTIMATE.md#cycle-short-20261101)。

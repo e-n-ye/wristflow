@@ -420,7 +420,20 @@ session2026110103的START为软件FULL100／raw4165mV／USB，UTC有效位0；25
 
 普通首导出零字节后唤醒重开成功；候选mount采集被主代理误设的外层10秒截止杀进程，零RX、无closure事件，不能解释SDK硬超时或取消。独立status遭ClearCommError拒绝访问后正常关口；重核端点的新只读窗口返回READY1／session0／计数0，未重发mount／init。失败原样保留。用户提出后续不恢复普通版时，本次恢复烧录已在执行，已完成写入／校验；普通boot9／代次83／保存失败0、活动fault0、旧faults1，0步／检查点316 verified clean、腕／光感关闭保持。RTC读2000，未再校时，下一候选前不声称时间恢复；普通后刷显示／触摸尚未另行人工复核。
 
-本版raw≤3600会保存结束并锁存手电筒亮度0／OFF，表现为白屏关闭；无专门声振／结束提示，stale或存储错误等也可能黑屏，必须及时接USB读取结束原因及末电压／持久结果，不能以黑屏推定LOW或整机关机。本短窗仅验证LOAD，不抵扣LOW。现版唯一`cycle.bin`已被占用，未提供删除／覆盖；用户要求正常后继续完整放电并保留测试版，先准备保留旧轮的新会话入口及对应验证。活动项只见STATUS。
+本版raw≤3600会保存结束并锁存手电筒亮度0／OFF，表现为白屏关闭；无专门声振／结束提示，stale或存储错误等也可能黑屏，必须及时接USB读取结束原因及末电压／持久结果，不能以黑屏推定LOW或整机关机。本短窗仅验证LOAD，不抵扣LOW。该首版唯一`cycle.bin`已被占用，未提供删除／覆盖；用户要求正常后继续完整放电并保留测试版，当时的新会话准备已由下节接续。活动项只见STATUS。
+
+<a id="cycle-sessions-20261101"></a>
+### 2026-11-01 新会话与完整放电交接
+
+短测后用户要求正常就继续完整放电，后续保留测试版。新正式ARM创建`cycle-%08lx.bin`（非零uint32 session），仍O_EXCL；旧`cycle.bin`／`smoke.bin`不移动、不删除、不覆盖。创建前校验legacy，禁止复用其session；按LittleFS已用块核剩余空间，至少预留`40000×64B + 128KiB`（最大行数及元数据／GC软件预算），不足即拒绝、尚不创建文件。预算不是物理介质、GC耗时或写擦可靠性的保证。
+
+`info cycle`保留legacy读取，`info cycle <session>`选择新轮，只有新文件NOENT才允许匹配session的legacy兼容读；page沿用显式session并做相同选择，其他错误不降级。电脑导出前后用同一带session的manifest。故障收尾reload之后严格按本轮命名文件核前缀，并核session；该恢复路径不回退legacy，不能把旧轮误作本轮保存成功。
+
+电脑端沿用`cycle_short_lab.py --full`作有限准备／交接：软件FULL／新鲜ADC、单发ARM、同身份START保存、关串口后人工拔线／手电筒、人工确认理解停止表现后结束主机准备流程。设备独立采集，主机不长期占串口，也不宣称已看到RUNNING或整轮成功；白屏自行关闭后须及时回USB，按显式session读状态／完整CRC导出，独立判断LOW／末原始电压／保存完整。异常或提前离开时先退出负载再回USB；取消／丢ACK不自动重连或盲停。使用共享Console／Journal，不扩展公共等待上限或新增ADC／OFF唤醒。活动项与实际证据回STATUS。
+
+本版相关Debug2/2、保留断言Release2/2、Python12/12及实际浏览器完整准备4步模拟通过；新正式轮与旧文件共存的48小时数据量、余量拒绝、wrong-session及named append／finalsync故障前缀通过。官方候选`20261101-214345-360`／`10086d00…` 3,052,400B，625源码／29产物及完整ZIP核验。首Python回归C盘临时文件原子替换拒绝保留，D盘明确测试目录复验通过。源码／构建与实机交接分别记录于[本轮证据](evidence/2026-11-01/cycle-sessions.json)。
+
+候选三镜像write＋verify后，用户确认正常／FULL／常亮，授权必要单次UTC校时并读回13:52:39UTC；仅mount，新版显式session导出legacy短测1728B与smoke448B均逐字节一致。会话2026110104在START accepted=saved1／queued=dropped0及关口后，由操作者于本地21:56:45确认拔USB／白屏、21:57:32确认交接说明；新文件`cycle-78c3fc98.bin`。这是准备／文件持久起点与人工动作证据，尚无BAT期间UART RUNNING回读、完整新文件导出或LOW终态；不能把handoff通过写成整轮成功。7次本轮UART采集均关闭；当前接续与是否已结束只以STATUS及后续实读为准。
 
 ## 数据来源与精度边界
 
