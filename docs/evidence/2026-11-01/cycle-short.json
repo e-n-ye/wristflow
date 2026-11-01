@@ -1,0 +1,290 @@
+{
+  "schema": 1,
+  "date": "2026-11-01",
+  "baseline": "68dfe0f8d3ddb525c301fece02fc23a70cf01ccb",
+  "branch": "codex/cycle-short-window",
+  "checkout": "D:\\MY_Desk\\project\\wristflow",
+  "status": "battery_flashlight_short_qualification_passed_ordinary_already_restored",
+  "authorization": {
+    "selection": "先短测吧",
+    "field": "Same Huangshan board/screen/original ZCLP500, fixed wiring, operator present, USB and software FULL confirmed",
+    "later_steering": "接下来不用刷普通版了，如果正常就继续完整放电，做完整放电有什么前置吗",
+    "timing": "Ordinary restore had already started before later steering; allowed current write/verify to finish, no subsequent flash in this closure."
+  },
+  "implementation": {
+    "firmware_changed": false,
+    "new_host_adapter": "scripts/cycle_short_lab.py",
+    "reuse": [
+      "Console",
+      "Journal",
+      "CycleLog collect",
+      "RecordedSession",
+      "PortLease",
+      "build/archive/endpoint guards"
+    ],
+    "control": "ARM single send, explicit session and START saved before USB unplug; offline timer; operator load exit before USB reconnect; terminal status then strict full export",
+    "failure": "No automatic reconnect, format, retry ARM or blind STOP; preserve possible ownership and require operator exit/reconnect plus separate state check",
+    "qualification": "LOAD4, same session, DONE, saved=accepted, queued=dropped0, full CRC, valid BAT flashlight100 samples spanning >=105s for120s host window",
+    "single_file": "cycle.bin consumed by this short window; existing smoke.bin preserved; multiple new rounds need a separate no-overwrite session entry"
+  },
+  "software": {
+    "python_tests_passed": 10,
+    "python_tests_total": 10,
+    "command": "uv run --offline --no-project python -m unittest discover -s tests -p 'test_cycle*.py' -v",
+    "firmware_build": "No rebuild; original candidate and ordinary625-source/29-artifact archives reverified against build/flash records and pinned SDK",
+    "browser_rehearsal": "Actual browser clicks completed8/8 simulation, disabled confirmation during timer, second rehearsal cancellation after ARM showed recovery guidance; automated tests cover foreign identity/lost ACK/failed terminal export/offline cancellation"
+  },
+  "hardware": {
+    "candidate_flash": "artifacts/flash/product/20261101-211238-177/result.json",
+    "candidate_sha256": "eef7981bee5c635968383fe68fd72f3ff9314ec4e2b384dc668030626b920041",
+    "session": 2026110103,
+    "host_timer_seconds": 120.0133138,
+    "samples": 25,
+    "sample_span_ms": 120048,
+    "start_raw_mv": 4165,
+    "start_software_percent": 100,
+    "start_charge": 3,
+    "start_utc_valid": false,
+    "sample_first_raw_mv": 4156,
+    "sample_last_raw_mv": 4125,
+    "sample_first_old_percent": 98,
+    "sample_last_old_percent": 97,
+    "end_raw_mv": 4124,
+    "end_elapsed_ms": 134634,
+    "rows": 27,
+    "bytes": 1728,
+    "crc32": "954dea72",
+    "saved": 27,
+    "queued": 0,
+    "dropped": 0,
+    "stop_reason": "LOAD4",
+    "record_complete": true,
+    "old_smoke_bytes": 448,
+    "old_smoke_exact_match": true,
+    "old_smoke_reference": "artifacts/cycle-log-device-20261101-001/export-after-reboot/cycle.bin",
+    "ordinary_flash": "artifacts/flash/product/20261101-212338-469/result.json",
+    "ordinary_sha256": "91e68338a08f5968af05ee14b7f630c6ac5fa2615419b2bcba7d735704befc9e",
+    "ordinary_runtime": {
+      "boot": 9,
+      "generation": 83,
+      "failures": 0,
+      "faults": 1,
+      "fault_mask": 0
+    },
+    "ordinary_steps_checkpoint": 316,
+    "ordinary_wrist_auto_light": "disabled preferences preserved",
+    "ordinary_rtc": "2000-01-01; observed, not synchronized because next candidate preparation requested; no claim restored time",
+    "operator_confirmation": "Real workflow prepare/unplug/exit/reconnect/finish confirmed by operator; end display/touch normal and no save failure. Ordinary post-flash display/touch has not been separately reconfirmed."
+  },
+  "failures_preserved": [
+    {
+      "step": "Initial ordinary read-only export",
+      "result": "No bytes/timeout; resources closed. Operator awake/temporary keep-on/new window succeeded."
+    },
+    {
+      "step": "First Flash launch shell",
+      "result": "Non-login shell lacked pwsh; exit127 before device access. FastCtx launch then succeeded."
+    },
+    {
+      "step": "Mount capture",
+      "result": "Host outer10s timeout killed collector after single mount TX, zero RX and no closure event; no ARM. Does not bound/cancel SDK operation."
+    },
+    {
+      "step": "Independent status",
+      "result": "ClearCommError PermissionError5, zero RX; finally resources_closed true. Endpoint reverified, new readonly window returned READY1/session0/all counters0; no mount/init resend."
+    }
+  ],
+  "not_verified": [
+    "real3600mV stop/save",
+    "3400mV admission",
+    "full discharge",
+    "physical power-loss safety",
+    "wear/current/capacity/battery life",
+    "low-stop black screen is distinguishable from fault without reason readback"
+  ],
+  "next_bounded_step": "Deliver short qualification evidence; preserve old files and add session-selected new cycle file/full-run handoff before another FULL-to3600mV experiment. User wants testing firmware retained after future full round.",
+  "sources": [
+    {
+      "path": "scripts/cycle_short_lab.py",
+      "bytes": 10840,
+      "sha256": "32836f20f5bf827c60ca79d8094bd68c948e2e564a33216cd5ba3184d0f9c58b"
+    },
+    {
+      "path": "scripts/cycle_log_lab.py",
+      "bytes": 7466,
+      "sha256": "4586c0ecee026b5b0be90dbd0c21b6f76122f3c91b8c2a0f4cb7d0aaf92ae597"
+    },
+    {
+      "path": "tests/test_cycle_short_lab.py",
+      "bytes": 4307,
+      "sha256": "523390ff8172d02f07e36488b6a6ec22b3016b9f8f930179134539802101518f"
+    }
+  ],
+  "files": [
+    {
+      "path": "artifacts/cycle-short-tests-20261101-001.log",
+      "bytes": 1560,
+      "sha256": "d7b2707cd1a9987c66739a861002711fe895be5ec28d253a017c5e6e897b6f3a"
+    },
+    {
+      "path": "artifacts/cycle-short-ui-sim-20261101-001/experiment.json",
+      "bytes": 601,
+      "sha256": "d85062c745f7fb890dc8d6ed113dc88f8e91a7fea400899af28ad2bcdf32cde8"
+    },
+    {
+      "path": "artifacts/cycle-short-ui-cancel-20261101-001/experiment.json",
+      "bytes": 556,
+      "sha256": "d61ce309cf25b36e97ebf7a214fce6cfa7517b5fea3da7cf004deae491cfb64e"
+    },
+    {
+      "path": "artifacts/cycle-short-candidate-flash-20261101-001.log",
+      "bytes": 43,
+      "sha256": "f86cd53c47676e089a0b2adb907fd3978a432333be03da74f9e891c669462a27"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/preflash-runtime-awake/records.json",
+      "bytes": 24375,
+      "sha256": "e6745271b1a0322340c56e4082a90d885dc7aef1f38bb5082e2b73f9ccd0653b"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/preflash-cache/snapshot.json",
+      "bytes": 5843,
+      "sha256": "f100ffe47ee7f0bee7df7b6f930a8c3f08541ef422f4848f65474238df456e51"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/mount/events.jsonl",
+      "bytes": 782,
+      "sha256": "7350f5901168d41023507f3c4dbfa34337bccf6fefab38335d60cff00942e61e"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/mount/uart.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/mount-status/report.json",
+      "bytes": 235,
+      "sha256": "6ae84cbd0e53b5baed3ce255ccfdcd1287d9856d6949617f4b54b7789c254c17"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/status-new-window/report.json",
+      "bytes": 293,
+      "sha256": "f2e1c9eecf7bd2e7fd11e7dce35b113dd40d44e3b9cb8b5ba5cc5ef363faa610"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/window/binding.json",
+      "bytes": 149000,
+      "sha256": "7021d5d9f6a0f4dd422d046d1ae7051c8031c23584dd7eb8b89cd3ac65a1b0ce"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/window/events.jsonl",
+      "bytes": 5396,
+      "sha256": "40ea4b764899212575baeb8f33916dd16aabfb082961d579088b856abc5f7118"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/window/experiment.json",
+      "bytes": 987,
+      "sha256": "32a912bae85dee24d59a120d4dd0847b2539302349e1f0e0a7f4f9486216706d"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/window/export/report.json",
+      "bytes": 320,
+      "sha256": "9ce7e17e5f1b0f178a2eedcf93345b1ba855da90fa76d35140d54dc742936aaa"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/window/export/cycle.bin",
+      "bytes": 1728,
+      "sha256": "7ed7c53ee8a5ea717dfa8815852f8f32059158c6ec0068aab7a968b6856d53fb"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/window/export/cycle.csv",
+      "bytes": 2842,
+      "sha256": "7785f97952e085bf9df7d5375809ddf421aa5e0929dbb1e19ad160496d9c39c4"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/old-smoke-preserved/cycle.bin",
+      "bytes": 448,
+      "sha256": "e8ee7121e9f2a063b91f81816f91406037f93dcaf8e27a1df4a1471d1d793f21"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/candidate-runtime/records.json",
+      "bytes": 23617,
+      "sha256": "2c6a5489deed4237030c8cc46df0dc9d5deb52df01eb2c07b80e995011b2af84"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/ordinary-cache/snapshot.json",
+      "bytes": 4961,
+      "sha256": "321dcff59c5ab90881ad1d18c85b1b5d9e627231b70e8eba8832f228f78e8323"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/ordinary-runtime/records.json",
+      "bytes": 9201,
+      "sha256": "b1e3e28689952b0ef7d74c132a07e61aee669cede9cb179236216b298ee31f41"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/window/arm/events.jsonl",
+      "bytes": 1271,
+      "sha256": "32a166b66ef735d445c1322cf14e61345a7175fcc614b3ae3ce21789996d4536"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/window/arm/report.json",
+      "bytes": 123,
+      "sha256": "3b182af65e657aab09b24f06c6b71c70de7ea1ac9e77d705e635e9f872c43be3"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/window/arm/uart.bin",
+      "bytes": 76,
+      "sha256": "4483906e4e44f92cfabdcd67249b352e369cf4927c353127fa06da3396d383cd"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/window/armed-status-0/events.jsonl",
+      "bytes": 1387,
+      "sha256": "d2106f7eabe24ad5513e53bace8a35b72e56a4d6988eddbbbec1f0f32cbd41fd"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/window/armed-status-0/report.json",
+      "bytes": 302,
+      "sha256": "1723036f0dc33b0569ecd50894d4e01ec8c33eafdf1ca1831f324fd9585f4f04"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/window/armed-status-0/uart.bin",
+      "bytes": 139,
+      "sha256": "aa22e0e1af2bdcfe18e55ab20dc2f64d9dec65f598761653d981ca87378bd664"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/window/ended-status/events.jsonl",
+      "bytes": 1389,
+      "sha256": "05243ac8649bb4e5d38e855069cec45be88b9d3a77654bf997cbf1ad5ecdeaed"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/window/ended-status/report.json",
+      "bytes": 304,
+      "sha256": "49c19eb6197849459941d05ef5d84b1b1e2a012ec27cf3cba2de3c66588a144c"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/window/ended-status/uart.bin",
+      "bytes": 141,
+      "sha256": "481aeed5c3579b528b3e99813c710e17e45fbe9e406cc109f49918811462d033"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/window/export/events.jsonl",
+      "bytes": 4578,
+      "sha256": "d91716b4122bfee6fa0a905ad0023693b59a3f114b4fc9678b36377e75e7d11e"
+    },
+    {
+      "path": "artifacts/cycle-short-device-20261101-001/window/export/uart.bin",
+      "bytes": 6559,
+      "sha256": "ffe767aaa2b20dce6fd3f92576c299ad403082415ff1a1b68329fb68ef0d03b8"
+    },
+    {
+      "path": "artifacts/flash/product/20261101-211238-177/result.json",
+      "bytes": 1767,
+      "sha256": "8f1e17049cc261983e2a6cbde8f34eb033f239c2afa73a67baf28f921f5eefb9"
+    },
+    {
+      "path": "artifacts/flash/product/20261101-212338-469/result.json",
+      "bytes": 1767,
+      "sha256": "4e0649f81fc7e5f99e75421ac3fc49bc6996e2ca12efc411c037fec07405a52a"
+    }
+  ]
+}
