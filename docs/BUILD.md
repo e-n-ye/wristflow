@@ -1,5 +1,9 @@
 # 可复现构建基线
 
+## 2026-11-01 LittleFS主机验证
+
+仅新增测试目标`littlefs_host`，直接编译锁定SDK原版`lfs.c`／`lfs_util.c`及测试候选保护层；SDK／固件构建入口／Product源码与分区均未变，无新固件编译或设备操作。`cmake -S tests -B artifacts/host-ui-build`、`cmake --build artifacts/host-ui-build`后最终`ctest --test-dir artifacts/host-ui-build --output-on-failure --timeout 60`为85/85；Release目录`artifacts/flashdb-gc-release`重配置并构建`--target littlefs_host`后，`ctest --test-dir artifacts/flashdb-gc-release -R '^littlefs_' -V --timeout 60`为5/5，保留断言且禁用malloc。372项返回错误／假成功注入及114项模拟中断、容量与NOSPC、未知挂载保护均通过；测试语义、边界、原始日志及源码哈希见[专题](BATTERY-ESTIMATE.md#littlefs-host-20261101)／[证据](evidence/2026-11-01/littlefs-host.json)。这是内存NOR和直接LittleFS callbacks验证，未覆盖DFS／MTD注册、真实设备写擦或底层超时。
+
 ## 2026-11-01 FS_REGION只读诊断
 
 `Build.ps1 -Example product -FsProbe -Jobs 4`显式转发`fs_probe=1`，仅限Product并与其他诊断互斥；构建不下载。诊断`20261101-171649-772`／BIN`056710fb…`为3,028,996B，普通Product`20261101-172133-776`／`2655b930…`为3,028,744B；各612源码／29产物及完整ZIP逐哈希核验通过。实际ELF核诊断命令存在，普通版排除扫描且保留`wf_record`；SDK锁、子模块和分区不变。
