@@ -1,0 +1,288 @@
+{
+  "schema": 1,
+  "date": "2026-11-01",
+  "baseline": "a196cf14a6ba2e34e48d6cf4ec6e46690f1084ff",
+  "branch": "codex/cycle-early-end",
+  "checkout": "D:\\MY_Desk\\project\\wristflow",
+  "status": "cycle_ended_on_first_load_exit_complete_file_partial_discharge",
+  "user_request": "我想提前接回usb，当前快要下班了",
+  "field_return": "已先退出并等待10秒，再接回USB，设备正常",
+  "clarification": "早期的时候有退出过，想查看当前电量消耗，后来又重进了手电筒，这个会影响吗",
+  "final_operator": "全部正常，临时常亮已关闭",
+  "acquisition": {
+    "firmware_sha256": "10086d00508fbae8137140c13ba34b9a846f2929b076bca8a71a411415ee554a",
+    "build": "artifacts/product/20261101-214345-360/result.json",
+    "flash": "artifacts/flash/product/20261101-214934-563/result.json",
+    "archive": "artifacts/cycle-sessions-20261101-candidate-build.zip",
+    "endpoint": "COM5/CH340/location1-1.1/disable_modem1; reverified before every opening",
+    "actions": [
+      "status SID2026110104",
+      "export cycle SID2026110104",
+      "runtime snapshot/export",
+      "cache date/steps/wrist/light/pm",
+      "legacy cycle SID2026110103 export",
+      "smoke SID20261101 export"
+    ],
+    "closed_collections": 6,
+    "reset": false,
+    "tool_flash_write": false,
+    "normal_runtime_background_saves": "Continue under the original policy; read-only tool actions do not imply no background Flash writes.",
+    "format": false,
+    "time_write": false,
+    "stop_command": false,
+    "source_changes": false,
+    "firmware_rebuild": false
+  },
+  "cycle": {
+    "session": 2026110104,
+    "filename": "cycle-78c3fc98.bin",
+    "status": {
+      "state": 5,
+      "session": 2026110104,
+      "accepted": 850,
+      "saved": 850,
+      "queued": 0,
+      "dropped": 0,
+      "reason": 4,
+      "inhibit": 0
+    },
+    "rows": 850,
+    "samples": 848,
+    "bytes": 54400,
+    "crc32": "1e6e0b19",
+    "record_complete": true,
+    "device_elapsed_ms": 4248513,
+    "sample_span_ms": 4235019,
+    "start_raw_mv": 4165,
+    "start_old_percent": 100,
+    "first_bat_raw_mv": 4137,
+    "first_bat_old_percent": 98,
+    "last_bat_raw_mv": 3903,
+    "last_bat_old_percent": 50,
+    "end_raw_mv": 3903,
+    "end_old_percent": 50,
+    "end_cached_local": "2026-11-01T23:07:19+08:00",
+    "end_reason": "LOAD4; first earlier exit, not latest pre-departure exit and not LOW",
+    "sample_checks": "All848 fresh valid BAT flashlight100, no overlay, ACTIVE; full row/fileCRC and stable manifests.",
+    "lifecycle": "First loss of fixed load closes this session. Re-entering flashlight cannot auto-resume/restart it."
+  },
+  "timing": {
+    "first_host_status_open_utc": "2026-11-01T15:36:24.135377Z",
+    "initial_causal_statement_corrected": "Initially attributed LOAD to latest manual exit; device END predates readback. User then confirmed earlier exits/reentries, also shown by runtime scene events.",
+    "runtime_scene_local": [
+      "23:07:19 exit",
+      "23:07:23 reenter",
+      "23:07:35 exit",
+      "23:07:48 reenter"
+    ],
+    "limits": "UTC is device cached time; elapsed from device extended ticks, not independent host-duration calibration."
+  },
+  "supplementary": {
+    "runtime_tail": {
+      "observations": 64,
+      "unique_adc_identities": 57,
+      "first_cached_time": "2026-11-01T23:35:08+08:00",
+      "last_cached_time": "2026-11-01T23:39:49+08:00",
+      "bat_flashlight_observations": 10,
+      "bat_first_cached_time": "2026-11-01T23:35:08+08:00",
+      "bat_last_cached_time": "2026-11-01T23:35:54+08:00"
+    },
+    "saved_endpoints": [
+      {
+        "cached_local": "2026-11-01T23:07:48+08:00",
+        "raw_mv": 3924,
+        "old_percent": 50,
+        "scene": 2,
+        "brightness": 100
+      },
+      {
+        "cached_local": "2026-11-01T23:20:39+08:00",
+        "raw_mv": 3867,
+        "old_percent": 42,
+        "scene": 2,
+        "brightness": 100
+      }
+    ],
+    "limits": "64 observations/57 ADC identities, including USB return and rebound. Only10 BAT flashlight observations23:35:08-23:35:54. Two saved endpoints/scene totals are not continuous records. No interpolation or splice into cycle;23:20:39-23:35:08 has no retained per-sample curve.",
+    "retention": "Runtime keeps64 samples/8 events. Overwrite/drop counters are cumulative runtime ring accounting, not cycle queue loss."
+  },
+  "preservation": {
+    "old_short_exact_bytes": 1728,
+    "old_smoke_exact_bytes": 448,
+    "runtime_boot": 10,
+    "runtime_generation": 87,
+    "failures": 0,
+    "old_faults": 1,
+    "active_fault_mask": 0,
+    "steps_checkpoint": 318,
+    "steps_total": 0,
+    "steps_verified_clean": true,
+    "firmware_retained": true,
+    "operator_normal_display_touch_time_no_save_failure": true,
+    "temporary_keep_on": false
+  },
+  "scope": "Named complete-file persistence/export verified for this interrupted BAT run. Full-to3600mV/LOW, lower voltage, capacity/current/lifetime and power-cut recovery still unverified.",
+  "next": "Window closed; no automatic restart/flash. Preserve and analyze existing partial data; a new FULL continuous run requires a separately agreed window and no intermediate load exit.",
+  "files": [
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/early-end-status/report.json",
+      "bytes": 306,
+      "sha256": "cab14d23f1aff0eb398649b00fe0cdd5d31da33d57eb90bf9c8e31bf2d15132c"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/early-end-status/binding.json",
+      "bytes": 148441,
+      "sha256": "63aa4c93f5389326edbae7623ba36010d852cc8d2af75d6cb02baa567a2b7918"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/early-end-status/events.jsonl",
+      "bytes": 1391,
+      "sha256": "b54445ae5585cd5ad42f2c5e74c554423b0b9824effdfc00b685d35c7b1144ae"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/early-end-status/uart.bin",
+      "bytes": 143,
+      "sha256": "763924dbb59f905c58e61ae06fd320dd1d44dc0b959b0bd0a730f606612a1bbb"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/early-end-export/report.json",
+      "bytes": 322,
+      "sha256": "f553addaa7ed336315ada46ef16e5238d3a9526250c407f8357823de892de985"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/early-end-export/binding.json",
+      "bytes": 148441,
+      "sha256": "6eb6e43936ddebe1a5e4edd88085b881ed2d4ee7bad9a7ee08c268b5cb27921c"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/early-end-export/events.jsonl",
+      "bytes": 87840,
+      "sha256": "ff325bf56a44acbefbbddde9e1da34d94a69e8a6faa14bb4896fd8df6979aafb"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/early-end-export/uart.bin",
+      "bytes": 200193,
+      "sha256": "6b57e8b703c17d96cce650d719ff4eb0a2003edea172369b644e84f7f7c7f51b"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/end-runtime/export.json",
+      "bytes": 559,
+      "sha256": "33739c9bd62ee2a758e3ba83114713c6b86aec3353fd9c79c6cceb744b81f06c"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/end-runtime/binding.json",
+      "bytes": 148344,
+      "sha256": "6ec2c74efb56cfd0559c02e80102f8b0755de8c8d93705047e5c79cf187c1eea"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/end-runtime/events.jsonl",
+      "bytes": 6053,
+      "sha256": "a75e92dcc1a437c787d7fcf400a425b66a1dbe77c407f7ad70012e837e21afa0"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/end-runtime/uart.bin",
+      "bytes": 16900,
+      "sha256": "8785f695a81c39d767706a22f7beb95fca31ba9765f1d765d2f5f5adc418ac1a"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/end-cache/snapshot.json",
+      "bytes": 5949,
+      "sha256": "d825ed91c1fdffde052ecbb0561e485b90d7d85e90adab8bb802345cbb93c6b4"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/end-cache/binding.json",
+      "bytes": 148671,
+      "sha256": "e6b21590d970580a3ee7263a1f3894a11ad2f17f57fadd2b81d0ad6f1b2d8f3c"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/end-cache/events.jsonl",
+      "bytes": 3059,
+      "sha256": "89c2f7f2adce27d4e8f37a4a14538e63414913a0f6f6aa8498a5acd43a11af26"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/end-cache/uart.bin",
+      "bytes": 4560,
+      "sha256": "b1c4626d0322f8ca6f4a64cfcec83eb81431f33c12fd8396ab77ef4ad241db59"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/end-legacy-short/report.json",
+      "bytes": 320,
+      "sha256": "9ce7e17e5f1b0f178a2eedcf93345b1ba855da90fa76d35140d54dc742936aaa"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/end-legacy-short/binding.json",
+      "bytes": 148441,
+      "sha256": "67937dac4aaa8f43eed4a19c0b33bc99bbdc582e16b6faf032f86d76a1ded0aa"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/end-legacy-short/events.jsonl",
+      "bytes": 4873,
+      "sha256": "812df759ea7efac1a0b53e80c165ac8632c5a2c9967784c0f02d191ef3385a55"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/end-legacy-short/uart.bin",
+      "bytes": 6687,
+      "sha256": "845274fdaf0a3ca1fec0abb338bd81be5c2ad46d29ea740ca2f2763e6f9891e8"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/end-legacy-smoke/report.json",
+      "bytes": 313,
+      "sha256": "74809074bc488674d5631085dc59f956424845f1242a99f0cb780ce5856f1b06"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/end-legacy-smoke/binding.json",
+      "bytes": 148439,
+      "sha256": "ea7205f1f2c1b5d4aac7ed7f80390f973c32afd465ed6c371e1be27fceb48272"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/end-legacy-smoke/events.jsonl",
+      "bytes": 2469,
+      "sha256": "33104bb42f12bfb2dc8ef6452aa6d217018eadc0ac24e67a1388cb64aeb5777a"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/end-legacy-smoke/uart.bin",
+      "bytes": 1880,
+      "sha256": "a7e1743249e2d96eaaf5913fb2fd16108fa720b12b8dd4c5349aace95a1a0637"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/early-end-export/cycle.bin",
+      "bytes": 54400,
+      "sha256": "756ad969ca0e43b0891274e4b4571268878795fcccd4cfee09b09b947b6a823c"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/early-end-export/cycle.csv",
+      "bytes": 86447,
+      "sha256": "6daeafe1164273af200f0867cad883f90d2676f48b09c60a6a3689e7ec026d28"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/end-runtime/records.json",
+      "bytes": 24619,
+      "sha256": "e2b672d9c755ff19d98e516384f2865948884ce5da259fb66a903fdb8a1203b3"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/early-end-analysis.json",
+      "bytes": 2989,
+      "sha256": "fffadca21bc51ef2e165c079a94a440c1631f6c25b380e80c71d6155928d778b"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/runtime-tail.csv",
+      "bytes": 5244,
+      "sha256": "ec255ec2db1378b4db2b498174581918a8120c1b48a53c29acc3528fc9485f07"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/retained-endpoints.csv",
+      "bytes": 308,
+      "sha256": "f3f80fae647253099f623bab1c084457ae4beb10058b62d394725552fd426db2"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/end-legacy-short/cycle.bin",
+      "bytes": 1728,
+      "sha256": "7ed7c53ee8a5ea717dfa8815852f8f32059158c6ec0068aab7a968b6856d53fb"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261101-001/end-legacy-smoke/cycle.bin",
+      "bytes": 448,
+      "sha256": "e8ee7121e9f2a063b91f81816f91406037f93dcaf8e27a1df4a1471d1d793f21"
+    }
+  ]
+}
