@@ -1,0 +1,689 @@
+{
+  "schema": 1,
+  "date": "2026-11-01",
+  "base_commit": "d9b42d3a8c41eebf095c85820c12ce4c71bd08e4",
+  "branch": "codex/fs-region-hardware",
+  "checkout": "D:/MY_Desk/project/wristflow",
+  "status": "two_pass_blank_read_and_ordinary_restore_passed",
+  "operator": {
+    "same_board_screen_original_battery_usb_fixed_wiring_present": true,
+    "no_intervening_reboot_or_reflash": true,
+    "diagnostic_download_one_scan_and_ordinary_restore_authorized": true,
+    "initial_necessary_single_sync_authorized": true,
+    "additional_ordinary_sync_explicitly_authorized_after_rtc_reset": true,
+    "final_display_touch_clock_preferences_normal": true,
+    "no_save_failure_notice": true,
+    "temporary_always_on_disabled_and_natural_off_key1_wake_confirmed": true
+  },
+  "software": {
+    "no_new_firmware_build": true,
+    "source_sdk_partition_unchanged": true,
+    "old_build": "artifacts/product/20261030-191750-966/result.json",
+    "old_bin": "0fc781bf6317a3508dff865cc0fc70351451a300bf73b0244fe1504f4cbb9865",
+    "diagnostic_build": "artifacts/product/20261101-171649-772/result.json",
+    "ordinary_build": "artifacts/product/20261101-172133-776/result.json",
+    "ordinary_bin": "2655b9300e3bb6be11a197348a1452ff4560113abe4fdc14447e67f6c0f9c3c0",
+    "build_source": "Explicit full build ZIP archives verified before restoring only 29 recorded build artifacts",
+    "current_source_attestation": false,
+    "simulation_passed": true,
+    "executed_tool_archive_readback_files": 16
+  },
+  "validation_commands": [
+    "device_snapshot.py simulate --query fs --out artifacts/fs-region-device-20261101-001/simulation",
+    "lab_check.py build --result <explicit old/diagnostic/ordinary result> --build-archive <matching ZIP> --recorded-root D:/MY_Desk/project/wristflow [--flash <explicit matching result>]",
+    "python artifacts/fs-region-restore-build.py <diagnostic|ordinary>; only 29 recorded artifacts restored, no device access",
+    "pwsh -NoProfile -File scripts/Flash.ps1 -Example product -Port COM5 -DryRun",
+    "runtime_export.py capture / device_snapshot.py capture|startup; complete build/flash/BIN/port/location binding and exact TX in each session binding.json/events.jsonl",
+    "python artifacts/fs-region-hardware-report.py; strict raw UART re-decode, FS accounting/CRC, seven session opens/closes, both Flash results and 16 executed source ZIP readback",
+    "lab_check.py files --manifest docs/evidence/2026-11-01/fs-region-hardware.json --key records"
+  ],
+  "capability_choice": {
+    "path": "Official pinned SDK read/handle/ID/size/alignment and exact official ID table; no custom driver",
+    "physical_capacity_verified": false,
+    "physical_erase_test": false,
+    "fresh_rdid_or_sfdp": false,
+    "ownership_verified": false
+  },
+  "scan": {
+    "layout": {
+      "schema": 1,
+      "base": 301989888,
+      "offset": 10092544,
+      "bytes": 4194304,
+      "end": 316276736,
+      "chunk": 1024,
+      "budget_ms": 12000
+    },
+    "device": {
+      "base": 301989888,
+      "bytes": 16777216,
+      "rdid": 1589259,
+      "table_bytes": 16777216,
+      "table_match": 1,
+      "dual": 0,
+      "erase": 4096,
+      "handles": 1,
+      "nor": 1
+    },
+    "passes": [
+      {
+        "i": 0,
+        "bytes": 4194304,
+        "calls": 4096,
+        "ff": 4194304,
+        "nonff": 0,
+        "crc": 2103142773,
+        "ms": 1024
+      },
+      {
+        "i": 1,
+        "bytes": 4194304,
+        "calls": 4096,
+        "ff": 4194304,
+        "nonff": 0,
+        "crc": 2103142773,
+        "ms": 1024
+      }
+    ],
+    "previews": [
+      {
+        "pass": 0,
+        "edge": 0,
+        "data": "ffffffffffffffffffffffffffffffff"
+      },
+      {
+        "pass": 0,
+        "edge": 1,
+        "data": "ffffffffffffffffffffffffffffffff"
+      },
+      {
+        "pass": 1,
+        "edge": 0,
+        "data": "ffffffffffffffffffffffffffffffff"
+      },
+      {
+        "pass": 1,
+        "edge": 1,
+        "data": "ffffffffffffffffffffffffffffffff"
+      }
+    ],
+    "done": {
+      "result": 0,
+      "complete": 1,
+      "stable": 1,
+      "guard": 0
+    },
+    "observed_all_ff": true,
+    "physical_capacity_verified": false,
+    "ownership_verified": false,
+    "format_or_erase_authorized": false
+  },
+  "flashes": [
+    {
+      "result": "artifacts/flash/product/20261101-184259-289/result.json",
+      "exit_code": 0,
+      "command": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+      "images": [
+        {
+          "name": "bootloader.bin",
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+          "address": "0x12010000",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "name": "main.bin",
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+          "address": "0x12020000",
+          "bytes": 3028996,
+          "sha256": "056710fbccd0c1d47cb0c11b96f6a233d4c445c3015fcdcc5252ea07d16680ab"
+        },
+        {
+          "name": "ftab.bin",
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+          "address": "0x12000000",
+          "bytes": 11288,
+          "sha256": "4741fa56891dd25c361dfd8507e80b3dcb46b39f030bd4f17eaea9aac5660a46"
+        }
+      ]
+    },
+    {
+      "result": "artifacts/flash/product/20261101-184513-110/result.json",
+      "exit_code": 0,
+      "command": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+      "images": [
+        {
+          "name": "bootloader.bin",
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin",
+          "address": "0x12010000",
+          "bytes": 58496,
+          "sha256": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21"
+        },
+        {
+          "name": "main.bin",
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+          "address": "0x12020000",
+          "bytes": 3028744,
+          "sha256": "2655b9300e3bb6be11a197348a1452ff4560113abe4fdc14447e67f6c0f9c3c0"
+        },
+        {
+          "name": "ftab.bin",
+          "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin",
+          "address": "0x12000000",
+          "bytes": 11288,
+          "sha256": "9c9fde249659aaa1976c8c424b734885abfe16a893c3c86ed60d671086a9e038"
+        }
+      ]
+    }
+  ],
+  "sessions": [
+    {
+      "path": "artifacts/fs-region-device-20261101-001/before-runtime",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "wf_record snapshot 8251081981463516442",
+        "wf_record summary 8251081981463516442 current",
+        "wf_record summary 8251081981463516442 saved",
+        "wf_record samples 8251081981463516442 0",
+        "wf_record samples 8251081981463516442 1",
+        "wf_record samples 8251081981463516442 2",
+        "wf_record samples 8251081981463516442 3",
+        "wf_record samples 8251081981463516442 4",
+        "wf_record samples 8251081981463516442 5",
+        "wf_record samples 8251081981463516442 6",
+        "wf_record samples 8251081981463516442 7"
+      ],
+      "passed": true,
+      "resources_closed": true,
+      "clock_write_attempted": false
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/before-cache",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "show_date",
+        "wf_steps status",
+        "wf_wrist status",
+        "wf_light status",
+        "wf_pm status"
+      ],
+      "passed": true,
+      "resources_closed": true,
+      "clock_write_attempted": false
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/diagnostic-startup",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "show_date",
+        "wf_time 1793529864",
+        "show_date",
+        "wf_steps status",
+        "wf_wrist status",
+        "wf_light status",
+        "wf_pm status"
+      ],
+      "passed": true,
+      "resources_closed": true,
+      "clock_write_attempted": true
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/fs-scan",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "wf_fs scan"
+      ],
+      "passed": true,
+      "resources_closed": true,
+      "clock_write_attempted": false
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/ordinary-date",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "show_date"
+      ],
+      "passed": true,
+      "resources_closed": true,
+      "clock_write_attempted": false
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/ordinary-startup",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "show_date",
+        "wf_time 1793530051",
+        "show_date",
+        "wf_steps status",
+        "wf_wrist status",
+        "wf_light status",
+        "wf_pm status"
+      ],
+      "passed": true,
+      "resources_closed": true,
+      "clock_write_attempted": true
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/after-runtime",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "wf_record snapshot 10456098028993947668",
+        "wf_record summary 10456098028993947668 current",
+        "wf_record summary 10456098028993947668 saved",
+        "wf_record samples 10456098028993947668 0",
+        "wf_record samples 10456098028993947668 1"
+      ],
+      "passed": true,
+      "resources_closed": true,
+      "clock_write_attempted": false
+    }
+  ],
+  "recovery": {
+    "checks": {
+      "restored": true,
+      "recording": true,
+      "boot_increased_once": true,
+      "no_save_failure": true,
+      "seed_newer_than_pre_snapshot": true,
+      "seed_plus_current_equals_total": true,
+      "generation_advanced": true,
+      "scene_counters_nondecreasing": true
+    },
+    "passed": true,
+    "before_boot": 3,
+    "after_boot": 4,
+    "before_generation": 73,
+    "after_generation": 75,
+    "before_ram_total_ms": 168372793,
+    "before_saved_total_ms": 166602173,
+    "pre_snapshot_exported_tail_ms": 1770620,
+    "after_total_ms": 168479417,
+    "after_this_boot_recorded_ms": 77239,
+    "recovered_seed_ms": 168402178,
+    "recovered_seed_minus_pre_saved_ms": 1800005,
+    "recovered_seed_minus_pre_ram_ms": 29385,
+    "after_saved_total_ms": 168403266,
+    "after_tail_ms": 76151,
+    "before_failures": 0,
+    "after_failures": 0,
+    "interpretation": "A later pre-flash checkpoint is inferred: recovered seed is 1800005ms newer than observed saved checkpoint and 29385ms newer than observed RAM. Generation 74 is inferred, not directly captured. No exact total loss claim.",
+    "faults_before": 1,
+    "faults_after": 1,
+    "compass_recovery_proved": false
+  },
+  "rtc": {
+    "diagnostic_started_at_2000": true,
+    "ordinary_started_at_2000": true,
+    "sync_attempts": 2,
+    "diagnostic_command": "wf_time 1793529864",
+    "ordinary_command": "wf_time 1793530051",
+    "ordinary_before": [
+      "Sat Jan  1 00:00:00 2000"
+    ],
+    "ordinary_after": [
+      "Sun Nov  1 10:47:31 2026"
+    ],
+    "correction": "Initial single-sync authorization used during diagnostic startup; ordinary stage used read-only date first, then explicitly obtained additional authorization before its single sync",
+    "unassisted_time_retention_proved": false
+  },
+  "cache": {
+    "steps_total": 0,
+    "steps_generation": 313,
+    "verified": true,
+    "dirty": false,
+    "failed": false,
+    "wrist_requested": 0,
+    "auto_light_enabled": 0
+  },
+  "limits": [
+    "All FF and stable CRC are observed contents, not exclusive ownership or format/erase authorization",
+    "Driver 16MiB and 4096-byte erase alignment are SDK metadata, not full-chip or physical erase validation",
+    "Read-only scope is new FS scan; firmware downloads write three image regions and original settings services may write other partitions",
+    "Pre-snapshot RAM tail preserved on PC; later natural save inferred; exact lost duration unknown",
+    "No cycle file backend/export/low-voltage stop, discharge, power-current or battery-life test"
+  ],
+  "format_or_erase_fs_executed": false,
+  "discharge_started": false,
+  "all_serial_resources_closed": true,
+  "independent_readonly_audit": {
+    "agent": "fs_hardware_audit",
+    "blocking_findings": 0,
+    "confirmed": "Seven sessions each open/close once, unique scan, two separately authorized single syncs, recovery-seed arithmetic and ordinary cache",
+    "not_covered": "Build artifacts, raw re-decoding and device behavior remain primary-agent validation; host binding is not firmware attestation"
+  },
+  "next_bounded_step": "Review candidate-region ownership and exact chip/SDK erase contract; only then define an explicit file-backend admission and minimal software test. No automatic formatting or discharge.",
+  "records": [
+    {
+      "path": "artifacts/fs-region-device-20261101-001/before-runtime/binding.json",
+      "bytes": 144853,
+      "sha256": "e8d9c34c13591d0e2b505fc93e058bf0ee3860a8654bdd64ecc70650fe56edaf"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/before-runtime/events.jsonl",
+      "bytes": 6579,
+      "sha256": "87327ec4290174e7d60227ec40dbdbdcfd0ba0a0ac37e081e0faf21c94abe7eb"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/before-runtime/uart.bin",
+      "bytes": 17073,
+      "sha256": "ff91d6d925b4c659aacb6b6eb6e3da9d7e3acd841014cfb13ac3155696190cb2"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/before-runtime/export.json",
+      "bytes": 562,
+      "sha256": "9f495972c7b4441acefde443ae76ca5aa9c303bb966457ba021009aa4a2039b9"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/before-runtime/progress.json",
+      "bytes": 248,
+      "sha256": "c3bfe86265dd27fbaf9370d8d7f4cee14e65ef19916008e49a49a8a3f9db23c5"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/before-runtime/records.json",
+      "bytes": 24043,
+      "sha256": "3922e732cd816ab7cc8428734f32150c5e8b884cfd2a61cc30a8b83205ebd336"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/before-cache/binding.json",
+      "bytes": 145179,
+      "sha256": "0a5fcb715c593549734dca4f33400afb306012bacb230bad0114cd554f84f4fd"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/before-cache/events.jsonl",
+      "bytes": 3059,
+      "sha256": "fb6da15a4f06f4a32058015461aa10eb8f1dd3c6c34bb81ce8c7716373883ebf"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/before-cache/uart.bin",
+      "bytes": 4440,
+      "sha256": "67a3a38b485e02a1cdc1be7527aea2c1763425c2fb1447959baafe57fca3f57c"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/before-cache/snapshot.json",
+      "bytes": 5786,
+      "sha256": "33a948e6e3b7192b71c554caff4ff877653234251e2492e47e68f978271dd3b4"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/before-cache/progress.json",
+      "bytes": 248,
+      "sha256": "7eb2612d6c0bf39cf3fdb0d8b24112ec48fcda9492f50188bfbc6f762e0870f1"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/diagnostic-startup/binding.json",
+      "bytes": 145807,
+      "sha256": "61dd8e07d0e05f7223ff71c364328d1f30fdee94fe1abf937051e03ff7802f66"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/diagnostic-startup/events.jsonl",
+      "bytes": 4068,
+      "sha256": "5defc5fe9ffa520322add7b15e3a0af0360ad559fa4648beed7483d0e6dab67e"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/diagnostic-startup/uart.bin",
+      "bytes": 4583,
+      "sha256": "c41dc9129887b6ecaf0f19cc81c0c54f61fb5705142a56de3be747ca6c79c54f"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/diagnostic-startup/snapshot.json",
+      "bytes": 6076,
+      "sha256": "2d91c4d3ce22af3a7c9e22417509a29f8167ec3b4ed5cacd94f31de31a86ca54"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/diagnostic-startup/progress.json",
+      "bytes": 248,
+      "sha256": "720f121bdeb123ff0648e8a2607e6e9de23d3642ae863858d74e1c80ceb6d518"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/fs-scan/binding.json",
+      "bytes": 145769,
+      "sha256": "d673b5339ef8f0cbc97e858532bcf74967cd180a367d450ee14231328f7d0acb"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/fs-scan/events.jsonl",
+      "bytes": 1271,
+      "sha256": "eefca1cb2340d816e6c2ae9f05027c943e2dce4338ae4becf3de8c356fc8c99a"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/fs-scan/uart.bin",
+      "bytes": 773,
+      "sha256": "a2f839feb678aad4661116dadfde1b5433c121aa19995177b027878f3c4511d3"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/fs-scan/snapshot.json",
+      "bytes": 1536,
+      "sha256": "108c16c74c22455b53df5ae2b17beeb1fde08a2494c69596e6a6f34455eae32d"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/fs-scan/progress.json",
+      "bytes": 247,
+      "sha256": "c7c05964723b1d79d3434130710ce3b29a5bcb4baa50f69b1305cb615d5f4542"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/ordinary-date/binding.json",
+      "bytes": 145769,
+      "sha256": "b07409bc458bbccfb4e6cc59fa2bd303fe822afd2b241f02278bb89dabf2b06f"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/ordinary-date/events.jsonl",
+      "bytes": 1268,
+      "sha256": "b86290b115d0a827337f1704e59fd02047dad48a6516fdefdd497c70e76f3e6a"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/ordinary-date/uart.bin",
+      "bytes": 38,
+      "sha256": "b20038cd7b32f6c00211373e6d3a31b651c4daa6644da0246364d386a9fd08d8"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/ordinary-date/snapshot.json",
+      "bytes": 718,
+      "sha256": "704c3c97c859e65da5ff0e92c2ff3dd1f5214394d857c8640c5d2d6805f5d343"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/ordinary-date/progress.json",
+      "bytes": 247,
+      "sha256": "17f59620ec6d028150f271bf18356ac7346ede551bb1ccfb4bed0385d53e9ef3"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/ordinary-startup/binding.json",
+      "bytes": 145805,
+      "sha256": "ff23465898e493c302c9d95c276ab4d028e97f4da7bc6ecbb2e05c82242e4980"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/ordinary-startup/events.jsonl",
+      "bytes": 4068,
+      "sha256": "2a373c468f7637c8f06465cce900cd1fb602a04700f18a9789336fe2ffc62a72"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/ordinary-startup/uart.bin",
+      "bytes": 4554,
+      "sha256": "d653e60efc422d9c3bdbf3de98c08421b948cd4d2f61f606db875aea66581505"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/ordinary-startup/snapshot.json",
+      "bytes": 5986,
+      "sha256": "b9bc2f15739f763ca47e95d2ba843e9044641de59cf45bbcef3ebd6190b45cac"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/ordinary-startup/progress.json",
+      "bytes": 248,
+      "sha256": "a88217292104932401d5a325baa70a5ad6a2a699e5eda2071a87ddd8e0823bb5"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/after-runtime/binding.json",
+      "bytes": 145497,
+      "sha256": "1cb02695101f93f8411f65fb8a0ed69b1b5dbed1f1064b25ae99b41797b0322e"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/after-runtime/events.jsonl",
+      "bytes": 3334,
+      "sha256": "e79dcd84f0127da38e33cb58360a4a89f2958567d9f5c67bad5f83ac026faac8"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/after-runtime/uart.bin",
+      "bytes": 7497,
+      "sha256": "bc73fdb51946f0e31bb05c057e89f9c166f073398f858eaee1f5dfe07e2d3326"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/after-runtime/export.json",
+      "bytes": 561,
+      "sha256": "5e432310978e2e158c3f7fe7e2d07c9b321f0380d250139e5e2f128c09e7ceca"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/after-runtime/progress.json",
+      "bytes": 248,
+      "sha256": "cd5a6bf4cef71ab8e0a7f740fac19b29d19db18c3eda1a79eb935eac0030dbb7"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/after-runtime/records.json",
+      "bytes": 10831,
+      "sha256": "2db03774fefa3d0b9ce6356600e25b4e9257d7d0998489f717f957e5d2104c6e"
+    },
+    {
+      "path": "artifacts/flash/product/20261101-184259-289/result.json",
+      "bytes": 1767,
+      "sha256": "e4283e587c9e71197b9d430260cab4de8300d634278d8dd180999e1f2c573412"
+    },
+    {
+      "path": "artifacts/flash/product/20261101-184259-289/sftool.log",
+      "bytes": 203,
+      "sha256": "8e31cd6fa226bd980b35b36627c0eeb5535ccda6c22621b056df434a9f01d44a"
+    },
+    {
+      "path": "artifacts/flash/product/20261101-184513-110/result.json",
+      "bytes": 1767,
+      "sha256": "7f858d8ecacde3d2f4ad6a34e0002a631f1bcdbdb69ce78babdc18fb3e6511e2"
+    },
+    {
+      "path": "artifacts/flash/product/20261101-184513-110/sftool.log",
+      "bytes": 203,
+      "sha256": "8e31cd6fa226bd980b35b36627c0eeb5535ccda6c22621b056df434a9f01d44a"
+    },
+    {
+      "path": "scripts/runtime_export.py",
+      "bytes": 9311,
+      "sha256": "84b280902836d0d15e323a19062ed27043113ae507879a5d77d359e4bb0ddb00"
+    },
+    {
+      "path": "scripts/runtime_record_decode.py",
+      "bytes": 10383,
+      "sha256": "41fc2dd141a9bb843e40f7caeefefaec1955c9189e7dcb1864ba8ae514f99a39"
+    },
+    {
+      "path": "scripts/device_snapshot.py",
+      "bytes": 12078,
+      "sha256": "0195f5297b87bd26084887210dc42618ed169243f4248ae58a26204fed84189f"
+    },
+    {
+      "path": "scripts/fs_protocol.py",
+      "bytes": 4773,
+      "sha256": "4afc42b2c8448449d5b834de998ac4a8a89900d1980ad416fab9d6c2c94c6a3d"
+    },
+    {
+      "path": "scripts/storage_protocol.py",
+      "bytes": 4724,
+      "sha256": "e379b6cc494352b6cc59c481d51a558fdf1ebf144af167e46b5e9fbbcaf6b279"
+    },
+    {
+      "path": "scripts/serial_lab.py",
+      "bytes": 13798,
+      "sha256": "7fe4ad1d5a6a2007f59c97c586cf954791c15310a881075a50db12a946d78aa6"
+    },
+    {
+      "path": "scripts/lab_serial.py",
+      "bytes": 9088,
+      "sha256": "8ac5b08fc0f7d68180b1f657d91d7bc11d4b3cc349d6603bde59e90710c49703"
+    },
+    {
+      "path": "scripts/lab_evidence.py",
+      "bytes": 1498,
+      "sha256": "618487f3802b663b347c1bbd97b081147df2ef31ae6f471a9fcf2ac692e64864"
+    },
+    {
+      "path": "scripts/lab_check.py",
+      "bytes": 17510,
+      "sha256": "ce9a332f6b81c552da46bbbe91a6a941271f0acbb3ab2936ee0d09bb9142678b"
+    },
+    {
+      "path": "scripts/battery_device.py",
+      "bytes": 17306,
+      "sha256": "34b07b98c1f10afcc03111d262cdadcd41699caec7cdb56a8ea865af35ad6768"
+    },
+    {
+      "path": "scripts/battery_collect.py",
+      "bytes": 23428,
+      "sha256": "304345942c16486a4626e49bb59bdd9a4126b3611630f81ba9b7d3081f0d2c05"
+    },
+    {
+      "path": "scripts/battery_console.py",
+      "bytes": 13885,
+      "sha256": "1298063edc037d1d4a84d33bf90f221f616fdb6e747ca6aa004ebf442cb1311e"
+    },
+    {
+      "path": "scripts/battery_lab.py",
+      "bytes": 24301,
+      "sha256": "cee5934f0bfc191bbbc90aab867f9613ab5ab621e8698e3c81ad3c6bd3da8785"
+    },
+    {
+      "path": "scripts/light_protocol.py",
+      "bytes": 1127,
+      "sha256": "e1cb95b7ed014e76f739f324b01bc14c86759dcef7da1ba452a968312e71ab9c"
+    },
+    {
+      "path": "scripts/compass_protocol.py",
+      "bytes": 1479,
+      "sha256": "268acef47f7fc9eb7a1fd07025c688f8ff6301759e195374f603fe26976800c5"
+    },
+    {
+      "path": "scripts/Flash.ps1",
+      "bytes": 4611,
+      "sha256": "efda24097a5dd5686d0b7529d5ab2f661c14a02b6fe0a315e055bf75fe045d08"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/executed-tools.zip",
+      "bytes": 56501,
+      "sha256": "c7a7d2c97ced9ca9a298f2b4da2ed96c109798aba619228636821873b0757414"
+    },
+    {
+      "path": "sdk.lock.json",
+      "bytes": 473,
+      "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+    },
+    {
+      "path": "apps/product/project/sf32lb52-lchspi-ulp_hcpu/ptab.json",
+      "bytes": 2112,
+      "sha256": "41d89872c94d54a8e85c679d640eea27981ca4760b928fe0a335d9d79ef35445"
+    },
+    {
+      "path": "artifacts/fs-region-restore-build.py",
+      "bytes": 1441,
+      "sha256": "740f483d74ce3944addd26872a3385d5ebb1706ca8433103f78b8e770aff2102"
+    },
+    {
+      "path": "artifacts/fs-region-hardware-report.py",
+      "bytes": 10914,
+      "sha256": "de0f82dec64b9b4347daea4cb65aaef505970a072dc9ed3bfe671a49538c3ea8"
+    },
+    {
+      "path": "artifacts/fs-region-device-20261101-001/simulation/snapshot.json",
+      "bytes": 1453,
+      "sha256": "9f70253b0dd295a6ba34793f1a38d00d2d728aa8bda7dd19f47818fe6399ea0f"
+    },
+    {
+      "path": "artifacts/fs-region-diagnostic-dryrun-20261101-001.log",
+      "bytes": 452,
+      "sha256": "c25403361591c6b608e2e6f3270a01726c4979f4ef6e545b8efe0e73871e14ae"
+    },
+    {
+      "path": "artifacts/fs-region-ordinary-dryrun-20261101-001.log",
+      "bytes": 452,
+      "sha256": "b4bb683b1407afbd5a282e076b23887ae06ec325815b9139a4b3a545f290258e"
+    }
+  ]
+}
