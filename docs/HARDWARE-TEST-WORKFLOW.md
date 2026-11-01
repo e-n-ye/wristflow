@@ -96,6 +96,8 @@ python scripts/device_snapshot.py capture --result <Build结果> --flash <Flash�
 
 ### 公共检查与重验条件
 
+完整cycle日志另由`cycle_log_lab.py`复用同一绑定／RecordedSession／租约／Journal，要求独占`cycle_log is True`构建。`--action probe|init|mount|smoke|arm|stop|status|export`分别单用途、只发wf_cycle白名单；probe／init是写擦动作，必须先有当前具体授权，不能由历史命令自动启动。smoke仅10..120秒，正式arm需软件FULL及纯电池手电筒资格；主机失败关口不重发，已接纳的设备窗口仍有固件自身停止条件，不能把主机关口当设备已停止。export每页1..4行，绑定文件session、前后manifest、行及整文件CRC，共享20分钟deadline，完成后产生BIN／CSV。新适配已通过分片模拟、主机故障与[USB首窗](BATTERY-ESTIMATE.md#cycle-log-20261101)，非真实低压／整轮放电。每次操作输出新目录，初始化与mount分开，不自动格式化；首次format范围、固件和现场需单独核清。
+
 在仓库根目录运行；下例的result、ZIP与flash路径由本次实验明确选择，不自动把日期最新的文件当作正确版本。`--out`放在子命令前且必须为新路径，可省略后仅输出JSON。失败退出1并保留错误；不要通过改写旧报告消除失败。
 
 ```bash

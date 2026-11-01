@@ -377,6 +377,40 @@ OFF程序计时900.0042秒，目标累计增加905,896ms，另ON74,532／DIM5,00
 
 最终普通Product `20261101-193356-530`编译成功，BIN3,028,744B／`de523ce6…`，617源码／29产物与完整ZIP逐哈希读回；SDK／子模块／分区／公共构建入口不变，无新LittleFS固件配置／DFS依赖。板上仍为普通`2655b930…`，本轮无下载／串口／格式化／擦写／放电。下一小闭环应先确定实际写擦准入的阻断处置：同Flash参与者协调、SDK无界调用、明确区域所有权及操作窗口；确定后再准备显式、可审核的受限诊断，不能直接启用cycle后端或自动mkfs。
 
+<a id="cycle-log-20261101"></a>
+## 2026-11-01 完整cycle日志首版与USB上板闭环
+
+用户要求目标模式持续推进完整放电日志到上板，并确认首轮以**新鲜原始电压≤3600mV**停止手电筒；3400mV是后续分段低压验证目标，验证前不启用。SDK参考表0%／5%的3.5042／3.6813V不是本电池实测或保护截止，百分比不能换算真实容量。本阶段源码、主机、构建、USB上板与未验低压分别见[交付证据](evidence/2026-11-01/cycle-log.json)。
+
+**存储准入与构建**：Product专属`Build.ps1 -Example product -CycleLog`与三个probe互斥；普通版排除cycle worker／命令／原版LFS。官方VariantDir将锁定SDK原版LittleFS对象放到项目构建目录，静态cache、禁malloc，无SDK源码修改。仍使用`[0x129A0000,0x12DA0000)`／4MiB。仅CycleLog增加PREV初始化的递归Flash gate，包跨对象`rt_flash_read/write/erase`并拒ISR／无线程入口；FS依次持settings DB gate→Flash gate及自身PM引用，写擦和完整读回在同一gate内。它覆盖当前FAL／settings／BLE NVDS路径，但GNU wrap不覆盖同TU裸Flash命令，syscfg OTP／BSP直调也非其全局防护范围；现场只用专用白名单，不运行裸Flash／scfg命令，现配置无DFU。底层busy／信号量仍可能无界，预算只在返回后检查，不保证硬超时／可抢占；未返回时停止追加命令，不强杀后伪称资源已释放。
+
+`wf_cycle probe`先检查首4KiB空白，再单sector擦除／全量读回、256B编程／完整读回、擦除恢复空白；打印每阶段进入／返回，失败冻结后续写擦。只有本boot完整probe通过才允许`init`；它再读全4MiB逐字节确认FF后显式format，任意非FF拒绝。`mount`失败不自动mkfs。首次真实初始化由用户针对精确区间、候选BIN和现场明确授权，不从空白／主机通过自动推导；三镜像下载和settings／BLE／代码分区保持原范围。
+
+**记录与生命周期**：`cycle_record`持64B小端schema1／单行CRC，`cycle_store`持原LFS及`smoke.bin`／`cycle.bin`两独立文件；均`CREAT|EXCL`，没有覆盖／删除／续写旧会话命令，旧文件存在拒绝新轮。`product_cycle`用16行队列／独立8KiB栈事件worker；UI hook只复制已有B1 record，不改估算／charger，不新增ADC或OFF唤醒。正式实验每≥5秒且ADC身份变化接纳一条，4条sample一sync，START／END立即sync；突然复位可能丢约20秒批次尾段，非无损。状态区分accepted／saved／queued／dropped与prefix verified；故障始终尝试sync／close，再丢易失cache重挂验证实际持久前缀，END预留队列和行数槽，不用队列数量推断保存成功。
+
+| 64B行字段 | 含义与限制 |
+|---|---|
+| session／sequence／kind、64位elapsed | 0序号START、递增SAMPLE、末尾END；elapsed从ARM或SMOKE接受起算，包含ARM等待；重启后只读旧前缀，不跨boot续记 |
+| UTC／修订及flags bit0 | UTC无效保留原值与无效标记，持续时间以elapsed为准 |
+| ADC完成ms／sequence／raw mV、flags bit1与bit5、age | 原ADC／当前电压有效分别保留；age为观察至入队年龄，16位ms饱和65535，worker stale END补等待年龄 |
+| filtered 0.1mV／candidate／percent／mode／decision、flags bit2与bit3 | 旧算法诊断副本与各自有效性，非容量标定 |
+| surface／display phase／context flags、requested／ack、flags bit4 | 手电筒无覆盖且ack100的事实；ack非实测亮度；上下文随样本保留，不是全部UI事件流 |
+| charge／reason／USB有效与good位、stop reason | 区分供电和结束原因；旧runtime累计时间／场景／boot另用原导出保全，不重复塞入64B行 |
+
+`arm <非零session>`要求15秒内有效ADC、raw>3600mV且5分钟内观测过软件FULL，先保存START；最多5分钟等USB拔除与手电筒无覆盖／ack100再RUNNING。正式实验在raw≤3600、ADC失效／age>15秒、USB返回或不明、退出固定负载、48小时、队列／行数上限、存储错误、匹配session手动stop时结束。UI线程消费锁存flashlight guard，直接撤销手电筒keep-awake、亮度0／OFF，不依赖可能拒绝的home，worker不调LVGL；故障收尾不能因下一观察已断载而清除锁存，仅有效USB恢复清除。不是整机断电／过放保护，结束后及时回充。`smoke <id> <10..120秒>`允许USB短窗，跳过FULL／纯电池／固定负载要求，保留低压／stale检查，不是放电结果。
+
+**完整导出**：`cycle_log_lab.py`复用RecordedSession／租约／Journal及Build／Flash／BIN／工具／端点重验，只用wf_cycle窄白名单、单发不重试。`info smoke|cycle`逐行核CRC／序号／session／时间单调／START-END位置，输出总行数／字节／CRC；`page <kind> <id> <offset> <1..4>`每行两个32B十六进制块，适配console128B限制。电脑拒缺／重／乱序／混session，前后manifest一致及全文件CRC通过才生成BIN／UTF-8 CSV。指定session不符失败，20分钟总deadline透传每次request并在解析后复查。无END的有效前缀可导出但`record_complete=false`，不能当完整实验；CRC不是设备身份认证。
+
+**软件验证**：最终Debug91/91、Release相关9/9、Python6/6；实际64B schema的48小时34,561条／2,211,904B与smoke两文件在4MiB内存NOR重挂通过，旧372故障／114中断矩阵继续通过。真实worker替身覆盖FULL-arm、raw3600、stale、END预留、append／finalsync失败关闭和持久前缀重验、断载后观察false仍锁存；UI guard测试验证100→0／OFF保持。CycleLog真实wrapper＋adapter替身验证递归gate、ISR／早期拒绝、admit及假成功冻结。立即持久RAM模型与特定轨迹不等于实体掉电／cache／磨损。首次LFS对象落vendor导致下次洁净检查拒绝，保全两`.o`并修VariantDir；五目标一次环境导出WinError5、初次deadline测试误冻全局clock导致主机超时均保留，修正／重跑后通过。
+
+**版本与USB上板**：候选`20261101-201647-565`／BIN`eef7981b…` 3,051,816B，普通恢复`20261101-202913-690`／`91e68338…` 3,028,848B，各625源码／29产物及完整ZIP读回，五目标基线成功。候选ELF核FAL／FS跨对象调用进入三项wrap；普通ELF排除cycle命令／worker／LFS／wrap，UI guard默认false，原记录器保留。SDK／分区不变。用户确认同板屏／原电池＋USB／固定接线且在旁，并授权首区probe、一次初始化、USB30秒smoke、一次SDK重启后只mount读回及普通恢复校时。旧boot4／代次77、RAM累计174,594,550ms／saved173,575,926ms、尾段1,018,624ms已导出。
+
+候选三镜像write＋verify、首sector探测及恢复result0、全区FF后一次init成功。首次smoke资格result-6拒绝；源码顺序支持未创建文件，现场未单独查“文件不存在”。人工唤醒常亮6秒后新窗口session20261101成功：7条／448B、末elapsed30,006ms、saved=accepted7／dropped0、LIMIT，raw4165–4166mV／旧percent98，ADC序号8..14。全部flashlight=false／USB有效good；UTC原值2000但flags46的bit0为0，表示未知UTC，非FULL／手电筒100／低电试验。整文件CRC`c0647547`，一次SDK reboot后仅mount、无再format，第二次448B逐字节相同。
+
+普通`91e68338…`三镜像恢复成功；首次startup零字节且未校时，用户唤醒常亮后新窗口单次真实UTC校时及读回。boot7／代次80／保存失败0，0步／检查点315 verified clean，腕／光感关闭保持；旧faults1／event_drops1047／sample_drops2989仍保留，不能概括全健康计数为0。刷机及SDK恢复仅取检查点、旧RAM尾段在电脑，累计退回不称无损。用户确认常亮关闭、自然OFF约5秒／KEY1、显示／触摸／时间及偏好正常，无保存失败提示；15会话各开关一次，设备窗口结束，FS区与smoke文件保留。
+
+本阶段完成完整日志首版到上板短窗，未启动整轮放电。FULL→纯电池／固定手电筒全程、真实3.6V断载／低压保存、3.4V分段准入、真实掉电／保存中断、功耗／寿命均未验；未启用WDT或宣称底层硬超时。下一项先在专门窗口验证纯电池负载和保护断载／保存，再据证据决定低压目标，不将主机或USB短窗写成整轮曲线通过。
+
 ## 数据来源与精度边界
 
 沿用固定SDK `421126d9f476ed8e2a6f0b0ca28a9f241c182e65` 的黄山派 `customer/boards/sf32lb52-lchspi-ulp_base/battery_table.c` 充放电表，每5%取一个参考点，共21点／表；相邻点线性插值。表中41808对应4.1808V，保留0.1mV尺度：同SDK `docs/source/en/middleware/battery_calculator.md` 的示例明确写`38000 // 3.8V`，并将`bat1`通道7读数原样传入计算器。结构／函数注释中的mV与示例数值不一致，不能按普通mV直接使用。

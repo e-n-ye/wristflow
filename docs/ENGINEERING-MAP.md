@@ -6,6 +6,7 @@
 
 | 对象 | 事实来源与所有权 | 操作 / 验证入口 |
 |---|---|---|
+| 完整cycle持久日志首版 | `cycle_record`持64B CRC与raw低压／stale判定，`cycle_store`持原LFS文件及blank-only初始化／O_EXCL，`product_cycle`持16行队列／worker／FinSH；`product_flash_gate`仅CycleLog包跨对象SDK访问，main只复制旧ADC记录，UI shell执行锁存flashlight guard | 显式`-CycleLog`，普通版排除；`cycle_log_lab.py`复用共享绑定／Journal，`cycle_protocol.py`核全文件及CSV；[契约／USB证据](BATTERY-ESTIMATE.md#cycle-log-20261101)。3.6V实验停止，3.4V待验证；无自动format／旧文件覆盖，不新增ADC／OFF唤醒 |
 | Product候选块适配 | `fs_block.c/h`持有LFS无关范围／分块／读回／首错冻结；`product_fs_block`持显式prepare／精确SDK元数据／只读SDK读取、in_flight与单向stop，`product_storage_access`借用settings DB gate并由调用者配对PM | [本轮契约](BATTERY-ESTIMATE.md#fs-block-adapter-20261101)；无自动初始化／注册／命令／mount，适配不安装SDK写擦回调，普通ELF丢弃；只共享settings锁，不是全部Flash参与者锁，预算不抢占底层 |
 | LittleFS主机候选验证 | `tests/littlefs_host.c`持有4MiB内存NOR／故障与中断矩阵，`tests/support/lfs/nor_guard.c/h`仅为LittleFS测试facade，调用Product共享`fs_block`；直接链接锁定SDK原版lfs／lfs_util | CMake目标`littlefs_host`、CTest的`littlefs_*`五项；[原结果与限制](BATTERY-ESTIMATE.md#littlefs-host-20261101)，与新增适配／gate测试分别验收，无Product文件后端或真实写擦，不能替代DFS／MTD／实体掉电验证 |
 | FS_REGION只读前置诊断 | Product `fs_probe.c/h`持有范围／SDK元数据守卫及1KiB分块统计，`product_fs_probe.c`持有官方SDK适配／互斥FinSH；`fs_protocol.py`严格校验，device_snapshot复用原采集 | [诊断契约](BATTERY-ESTIMATE.md#fs-readonly-probe-20261101)；显式`-FsProbe`，普通版排除，不启动长期记录器；两遍各12秒预算、无挂载／格式化／写接口，SDK几何与实体容量／所有权分别判定 |

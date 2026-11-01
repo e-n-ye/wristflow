@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-11-01 CycleLog完整日志与USB首窗
+
+`Build.ps1 -Example product -CycleLog -Jobs 4`最终`20261101-201647-565`退出0，BIN3,051,816B／`eef7981b…`，625源码／29产物及完整ZIP核验；普通恢复`20261101-202913-690`为3,028,848B／`91e68338…`同样保全。显式开关与probe互斥，原版LFS通过官方VariantDir编译到项目构建区，不改SDK。候选ELF包含cycle／LFS／admit／Flash wrappers，反汇编核FAL和FS跨对象调用进入wrap；普通ELF排除cycle／LFS／Flash wrappers，原记录器保持。详见[日志契约及限制](BATTERY-ESTIMATE.md#cycle-log-20261101)／[精简证据](evidence/2026-11-01/cycle-log.json)。
+
+公共入口验证五目标Hello`20261101-202259-259`、BLE`202312-786`、Bringup`202749-127`、UI Demo`202825-244`、普通Product`202913-690`均通过。最终Debug91/91、Release相关9/9、Python6/6；正式schema48小时数据量、worker故障收尾、UI断载及完整导出通过。首次LFS对象落vendor后洁净检查拒绝、环境导出WinError5和截止测试误冻全局clock导致主机超时均保留，修正重跑通过。候选USB30秒及重启持久化已验，非纯电池／低压结果；最终板上普通`91e68338…`，SDK／分区不变。
+
 ## 2026-11-01 Product候选块适配（默认未启用）
 
 `pwsh -NoProfile -File scripts/Build.ps1 -Example product -Jobs 4`最终`20261101-193356-530`退出0，BIN3,028,744B／`de523ce6…`，617源码／29产物严格核验及完整ZIP读回通过。候选适配与core编译通过，最终普通ELF排除`wf_fs_block_*`／`wf_product_fs_block_*`／`wf_product_storage_gate_*`全部符号，`wf_record`及settings FAL写wrapper仍在，无自动启用或新命令。初版`192935-893`通过编译但有审查发现的配置相关release缺陷，后续修复后重编为最终版；旧产物保全，不混作最终源码证据。

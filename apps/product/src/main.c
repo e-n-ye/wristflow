@@ -19,6 +19,7 @@
 #include "product_power.h"
 #include "battery_estimate.h"
 #include "product_battery_trace.h"
+#include "product_cycle.h"
 #include "product_countdown.h"
 #include "product_alarm.h"
 #include "product_motor.h"
@@ -106,6 +107,8 @@ static void capture_battery(void)
     bool diagnostic=probe_reserved;
     rt_hw_interrupt_enable(runtime_level);
     wf_product_runtime_capture(&record,resident_cache.phase==WF_AOD_PANEL_RESIDENT,flashlight,diagnostic);
+    wf_product_cycle_observe(&record,flashlight);
+    wristflow_ui_shell_flashlight_guard(product_shell,wf_product_cycle_inhibit());
 }
 
 static void capture_carousel(void)
@@ -716,6 +719,7 @@ int main(void)
     wristflow_settings_t settings;
     wristflow_layout_t layout;
     wristflow_product_services_start(&settings, &layout);
+    if(!wf_product_cycle_start())rt_kprintf("[cycle] worker unavailable\n");
     const wristflow_alarm_port_t *alarm = wristflow_product_alarm_start();
     wristflow_product_ble_start(!settings.endurance_mode);
     wristflow_watch_snapshot_t snapshot = read_snapshot(true);

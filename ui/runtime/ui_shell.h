@@ -87,6 +87,9 @@ bool wristflow_ui_shell_key(wristflow_ui_shell_t *shell);
  * while ACTIVE does not extend the display timeout. Respects the user switch. */
 bool wristflow_ui_shell_wrist_wake(wristflow_ui_shell_t *shell);
 bool wristflow_ui_shell_home(wristflow_ui_shell_t *shell);
+/* UI-thread experiment safety stop: inhibit flashlight keep-awake/brightness
+ * until input power returns (caller clears stop); no charger or poweroff I/O. */
+void wristflow_ui_shell_flashlight_guard(wristflow_ui_shell_t *,bool stop);
 const wristflow_navigation_t *wristflow_ui_shell_navigation(const wristflow_ui_shell_t *shell);
 typedef struct {
     uint32_t sampled_ms, mismatch;
