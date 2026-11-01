@@ -1,5 +1,11 @@
 # 黄山派选型复评
 
+## 2026-11-01 纯电池手电筒120秒短窗
+
+同板屏／原ZCLP500／固定接线且在旁，USB及页面已充满已确认；复用CycleLog候选`eef7981b…`三镜像write＋verify，已有FS仅mount，无probe／init。协作页人工确认拔USB与手电筒白屏、程序计时120.013s、人工先退出负载再回USB；25个BAT／100亮度样本覆盖120,048ms，raw4156→4125mV。session2026110103以LOAD4结束，27行1728B／CRC`954dea72`完整保存导出、无丢弃／积压；旧smoke448B逐字节保留。START是软件FULL100／4165mV，UTC无效，非物理停流或容量依据。[完整证据](evidence/2026-11-01/cycle-short.json)／[解释边界](BATTERY-ESTIMATE.md#cycle-short-20261101)。
+
+首mount主机采集被10秒外层期限误杀，后续status遇驱动拒绝访问，新只读窗READY确认挂载，无重发初始化。用户提出后续不刷普通版时，本次恢复已启动并完成；普通`91e68338…`回读boot9／代次83／保存失败0，旧faults1／活动fault0及偏好保留，RTC2000未校时。后续按用户要求保留测试版。真实3.6V断载／保存、3.4V准入及整轮放电仍未验；自动黑屏也可由异常触发，看到白屏自行关闭后及时接USB查原因，不视作整机关机。
+
 ## 2026-11-01 完整cycle日志首次写擦与USB上板
 
 用户授权同板屏／原电池＋电脑USB／固定接线且在旁、候选`eef7981b…`：保全旧记录→刷诊断→首4KiB擦除／256B编程读回／恢复空白→全4MiB确认FF后显式初始化`[0x129A0000,0x12DA0000)`→USB30秒smoke与导出→一次SDK reboot后只mount重读→普通恢复及必要校时。不以代码／BLE／settings为测试目标，无整片擦除或裸Flash／scfg命令；SDK单次操作无硬截止限制已告知。[完整证据](evidence/2026-11-01/cycle-log.json)／[解释边界](BATTERY-ESTIMATE.md#cycle-log-20261101)。

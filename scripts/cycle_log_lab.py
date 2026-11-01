@@ -34,7 +34,7 @@ def status(client):
     values=list(map(int,matches[0].groups()))
     return dict(zip(('state','session','accepted','saved','queued','dropped','reason','inhibit'),values))
 
-def collect(out,transport,*,binding,identity,locks,action,kind='smoke',session=None,seconds=30):
+def collect(out,transport,*,binding,identity,locks,action,kind='smoke',session=None,seconds=30,cancel=None):
     if action not in ('probe','init','mount','smoke','arm','stop','status','export'):raise ValueError('Cycle action')
     if not 10<=seconds<=120:raise ValueError('Smoke duration 10..120 seconds')
     if session is not None and not 0<session<2**32:raise ValueError('Session uint32 required')
@@ -45,7 +45,7 @@ def collect(out,transport,*,binding,identity,locks,action,kind='smoke',session=N
     if action in ('arm','stop') and not session:raise ValueError('Explicit session ID required')
     sid=session or secrets.randbelow(2**32-1)+1
     journal=Journal(out,binding=dict(binding,action=action,kind=kind,session=sid,seconds=seconds),mode='cycle_log')
-    cancel=threading.Event();runner=RecordedSession(journal,transport,cancel,CycleClient,identity=identity,locks=locks,timeout=60)
+    cancel=cancel or threading.Event();runner=RecordedSession(journal,transport,cancel,CycleClient,identity=identity,locks=locks,timeout=60)
     result=dict(passed=False,action=action,simulation=binding.get('simulation',False),session=sid)
     try:
         with runner as client:
