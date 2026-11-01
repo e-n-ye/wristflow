@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-11-01 FS_REGION只读诊断
+
+`Build.ps1 -Example product -FsProbe -Jobs 4`显式转发`fs_probe=1`，仅限Product并与其他诊断互斥；构建不下载。诊断`20261101-171649-772`／BIN`056710fb…`为3,028,996B，普通Product`20261101-172133-776`／`2655b930…`为3,028,744B；各612源码／29产物及完整ZIP逐哈希核验通过。实际ELF核诊断命令存在，普通版排除扫描且保留`wf_record`；SDK锁、子模块和分区不变。
+
+公共入口变更已完成Hello／BLE／Bringup／UI Demo／Product五目标本地基线及源码／产物检查；Debug80/80、相关保留断言Release2/2，Python FS5项、快照13项、记录／场景33项、重启9项及C输出分片模拟通过。首轮主机有符号容量比较编译失败，修正后通过；既有SDK／链接警告保留。[软件契约](BATTERY-ESTIMATE.md#fs-readonly-probe-20261101)及[证据](evidence/2026-11-01/fs-readonly-probe.json)保留命令、完整版本和失败。无设备操作，板上仍为原普通`0fc781bf…`；软件通过不等于实体容量、区域所有权或文件后端准入。
+
 ## 2026-10-30 最小长期记录器
 
 `Build.ps1 -Example product -Jobs 4`最终`20261030-191750-966`退出0，BIN3,028,744B／`0fc781bf…`，609源码／29产物严格核验和完整ZIP读回通过；SDK锁不变，ELF的FlashDB read／write／erase进入三项FAL wrapper，主机复位入口未编入。UI Demo `20261030-183030-190`最终增量构建与字节核验通过。Debug78/78、保留断言Release相关9/9，后续UTC修正相关各2/2、设备格式化修正各1/1与Python14/14及C→串口分片模拟→解码通过；首轮临时文件替换拒绝、实机不支持long-long输出和修正均保留。资源、静态栈帧及设备分版结果见[记录器专题](BATTERY-ESTIMATE.md#runtime-recorder-20261030)及[证据](evidence/2026-10-30/runtime-recorder.json)；已有SDK／链接警告保留，未测功耗。

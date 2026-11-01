@@ -18,6 +18,7 @@ from lab_evidence import digest, file_record, verify_files, write_json
 from lab_serial import RecordedClient, RecordedSession, SerialTransport, lease_directory
 from serial_lab import prepare_capture
 from storage_protocol import parse_storage, simulated_storage
+from fs_protocol import parse_fs, simulated_fs
 
 ROOT = Path(__file__).resolve().parents[1]
 QUERIES = {
@@ -27,6 +28,7 @@ QUERIES = {
     "probe": ("wf_cprobe status", "[cp-param]"), "threads": ("list_thread", "wf_imu"),
     "memory": ("free", "maximum allocated"),
     "storage": ("wf_storage scan", "[storage-done]"),
+    "fs": ("wf_fs scan", "[fs-done]"),
 }
 DEFAULT_QUERIES = ("date", "steps", "wrist", "light", "pm")
 DATE = re.compile(r"[A-Z][a-z]{2} [A-Z][a-z]{2}\s+\d{1,2} \d{2}:\d{2}:\d{2} \d{4}")
@@ -54,20 +56,31 @@ def validate(queries, startup, allow_time_sync, seconds):
         raise ValueError("Select unique known query names")
     if not 0 < seconds <= 60 or startup != allow_time_sync:
         raise ValueError("Window must be 0..60 seconds; startup requires explicit time-sync permission")
-    if startup and "storage" in queries:
+    if startup and any(key in queries for key in ("storage", "fs")):
         raise ValueError("Storage metadata must use capture, without RTC writes")
+    if "fs" in queries and queries != ("fs",):
+        raise ValueError("FS scan requires its own bounded read-only capture")
+
+
+def validate_build(build, queries):
+    for key, flag in (("storage", "storage_probe"), ("fs", "fs_probe")):
+        if key in queries and (build.get(flag) is not True or any(
+                build.get(other) for other in ("storage_probe", "resource_probe", "fs_probe") if other != flag)):
+            raise ValueError(key + " requires its explicit exclusive diagnostic build")
 
 
 def collect(output, transport, *, binding, identity_check, locks, queries=DEFAULT_QUERIES,
             startup=False, allow_time_sync=False, seconds=60, cancel=None):
     queries = tuple(queries)
     validate(queries, startup, allow_time_sync, seconds)
+    if binding.get("simulation") is not True:
+        validate_build(json.loads(Path(binding["build"]["build_result"]["path"]).read_text(encoding="utf-8-sig")), queries)
     cancel = cancel or threading.Event()
     binding = dict(binding, queries=queries, startup=startup, allow_time_sync=allow_time_sync,
                    seconds=seconds, tool=file_record(Path(__file__)))
     journal = Journal(output, binding=binding, mode="startup" if startup else "device_snapshot")
     session = RecordedSession(journal, transport, cancel, StartupClient if startup else SnapshotClient,
-                              identity=identity_check, locks=locks, timeout=6)
+                              identity=identity_check, locks=locks, timeout=30 if "fs" in queries else 6)
     replies, outcome, detail, attempted = {}, "passed", "", False
     try:
         with session as client:
@@ -92,6 +105,8 @@ def collect(output, transport, *, binding, identity_check, locks, queries=DEFAUL
                 replies[key] = replies["date_after"] if startup and key == "date" else query(key)
                 if key == "storage":
                     parse_storage(replies[key])
+                elif key == "fs":
+                    parse_fs(replies[key])
             if time.monotonic() >= deadline:
                 raise TimeoutError("Snapshot completed outside its window")
             if cancel.is_set():
@@ -138,6 +153,8 @@ class Simulation:
             reply = "[product] RTC synchronized: simulated"
         elif command == "wf_storage scan":
             reply = "\r\n".join(simulated_storage())
+        elif command == "wf_fs scan":
+            reply = "\r\n".join(simulated_fs())
         else:
             reply = next(marker for query, marker in QUERIES.values() if query == command) + " simulated"
         self.queue.extend((reply + "\r\n").encode("ascii"))
@@ -187,20 +204,21 @@ def main():
             binding, identity = {"simulation": True}, lambda: {"simulation": True}
             peer, locks = Simulation(stale_clock=startup), args.out.parent / "simulation-locks"
         else:
-            if "storage" in queries and json.loads(args.result.read_text(encoding="utf-8-sig")).get("storage_probe") is not True:
-                raise ValueError("Storage metadata requires an explicit StorageProbe build")
+            validate_build(json.loads(args.result.read_text(encoding="utf-8-sig")), queries)
             binding, guard = prepare_capture(args.result, args.flash, args.expected_bin, args.port, args.location,
                 args.confirm_same_board_and_firmware, source_archive=args.source_archive,
                 build_archive=args.build_archive, recorded_root=args.recorded_root)
             tool = file_record(Path(__file__))
             protocol = file_record(ROOT / "scripts/storage_protocol.py")
+            fs_protocol = file_record(ROOT / "scripts/fs_protocol.py")
 
             def identity():
-                verify_files([tool, protocol])
+                verify_files([tool, protocol, fs_protocol])
                 return guard()
 
             binding["policy"] = "One bounded snapshot; " + ("RTC sync authorized once if needed" if startup else "cached queries or explicit read-only storage scan")
             binding["storage_protocol"] = protocol
+            binding["fs_protocol"] = fs_protocol
             peer, locks = SerialTransport(args.port), lease_directory()
         report = collect(args.out, peer, binding=binding, identity_check=identity, locks=locks,
                          queries=queries, startup=startup, allow_time_sync=allow_time_sync, seconds=args.seconds)

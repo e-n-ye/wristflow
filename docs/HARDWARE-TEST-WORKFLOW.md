@@ -82,7 +82,9 @@ light／compass最多30秒，passive最多600秒；Ctrl+C按取消保留数据�
 
 startup使用相同绑定，另须`--allow-time-sync`，只在RTC与真实UTC偏差超过60秒时单发一次`wf_time`并读回（已校时容差8秒，未校时容差60秒）；丢回执失败不重发。它没有复位／RTS／PM／传感器控制入口，现场校时授权独立核对。准备好后直接运行，不再创建等待另一个实验progress的脚本；器件窗口停止及资源释放仍由原适配负责。
 
-显式`--query storage`只用于`-StorageProbe`诊断构建，发送一次`wf_storage scan`，不能与startup校时合并；默认快照项不包含它。复用上述有限采集而无需多阶段协作页，先用`simulate --query storage`验证交互；真实使用仍核本轮同板／BIN／供电。主机校验字段、四sector次序与字节守恒，完整但`coherent=0`的诊断可成功采集，不能解释成容量准入。只读限扫描路径，启动FlashDB和正常业务可能写入；[具体边界](BATTERY-ESTIMATE.md#storage-metadata-probe-20261029)。
+显式`--query storage`只用于`-StorageProbe`诊断构建，发送一次`wf_storage scan`，不能与startup校时合并；默认快照项不包含它。复用上述有限采集而无需多阶段协作页，先用`simulate --query storage`验证交互；真实使用仍核本轮同板／BIN／供电。主机按修正版schema2校验两sector次序与字节守恒，完整但`coherent=0`的诊断可成功采集，不能解释成容量准入。只读限扫描路径，启动FlashDB和正常业务可能写入；[具体边界](BATTERY-ESTIMATE.md#storage-metadata-probe-20261029)。
+
+完整cycle日志的只读前置另用`simulate|capture --query fs`，仅显式且独占的`-FsProbe`构建，不能混其他query或startup。单发`wf_fs scan`后最多等30秒完整回执（总窗最多60秒），失败关口、不重发；一命令包含两遍各12秒的软件预算，不保证中断阻塞的SDK调用。严格解析／源码绑定及C分片模拟先通过，实机窗口仍独立确认。单次读取适合复用本入口及聊天准备／末态确认，无另建页面；诊断前保全普通记录，验后恢复普通固件。全FF不等于所有权或格式化授权；[行为和设备待验边界](BATTERY-ESTIMATE.md#fs-readonly-probe-20261101)。
 
 ```bash
 python scripts/device_snapshot.py simulate --query steps --query wrist --out artifacts/snapshot/sim-001

@@ -319,7 +319,22 @@ OFF程序计时900.0042秒，目标累计增加905,896ms，另ON74,532／DIM5,00
 
 因此优先评估独立持久cycle日志，防低压复位只剩RAM而整轮丢失。`ptab.json`已有4MiB FS_REGION，区间与其他声明不重叠；Product配置已有DFS／MTD NOR，但FAL只暴露dfu／ble／settings，尚未建立可用cycle文件后端。官方`register_mtd_device`路径可复用，实际块几何仍须查运行设备／dualFlash，不能套用settings的8KiB。SDK LittleFS例程明确mount失败后自动格式化，本项目不能在区域内容／所有权未核清前照抄；本轮没有格式化或擦写准入。示例预算若每5秒64B、48小时载荷约2.11MiB，尚未计文件系统元数据、冗余和实际剩余空间，不是可用容量承诺。不得侵占8MiB代码余量或扩充共用16KiB设置库。
 
-当前小闭环仅完成参数证据、真实配置及容量核对，无新源码／构建／设备动作。下一步是只读FS_REGION诊断的软件和主机边界测试，再用新的现场窗口核内容／所有权／几何；文件后端、完整会话／分页导出、低电停止保护和整轮放电均待实施。拿到数据后先画时间—原始／滤波电压—旧百分比，恒定负载的剩余可用时长比例只能作为该条件参考；电压还受负载、温度及回弹影响，不能把一次用时线性拟合当真实容量标定。参考[ADI电量测量说明](https://www.analog.com/en/resources/technical-articles/battery-fuel-gauges-accurately-measuring-charge-level.html)与[应用负载表征流程](https://www.analog.com/en/resources/technical-articles/characterizing-a-li-cell-for-use-with-a-fuel-gauge.html)。活动项只回STATUS，不由本节自动启动实验。
+本前置小闭环当时仅完成参数证据、真实配置及容量核对，无源码／构建／设备动作；只读诊断软件的后续落实见下一节。文件后端、完整会话／分页导出、低电停止保护和整轮放电仍待实施。拿到数据后先画时间—原始／滤波电压—旧百分比，恒定负载的剩余可用时长比例只能作为该条件参考；电压还受负载、温度及回弹影响，不能把一次用时线性拟合当真实容量标定。参考[ADI电量测量说明](https://www.analog.com/en/resources/technical-articles/battery-fuel-gauges-accurately-measuring-charge-level.html)与[应用负载表征流程](https://www.analog.com/en/resources/technical-articles/characterizing-a-li-cell-for-use-with-a-fuel-gauge.html)。活动项只回STATUS，不由本节自动启动实验。
+
+<a id="fs-readonly-probe-20261101"></a>
+## 2026-11-01 FS_REGION只读诊断软件（设备待验）
+
+本小闭环为完整cycle日志提供存储前置证据，不实现文件后端或开始放电。新增Product专属`Build.ps1 -Example product -FsProbe`，与StorageProbe／ResourceProbe互斥；普通构建不包含扫描实现及`wf_fs`命令，诊断构建不启动长期记录器。原估算／充电参数、SDK锁和分区不变。板上仍为原普通`0fc781bf…`；本轮没有下载、复位或串口设备动作。[软件证据](evidence/2026-11-01/fs-readonly-probe.json)。
+
+**能力与读取选择**：复用锁定SDK的`rt_flash_get_handle_by_addr`、容量／ID／erase alignment查询和`rt_flash_read`，直接读取ptab生成的`[0x129A0000,0x12DA0000)`，不注册MTD／FAL、不挂载或格式化。SDK的NOR读取最终可为内存映射复制，且不替调用者验证请求末端；ID查询可使用启动缓存，ID未命中时SDK还有默认容量／命令表。因此项目逐项匹配官方ID表、命令表指针与表容量，核NOR／dual、首末同句柄、芯片范围、32位地址溢出及后续KV起点；守卫不通过读取0字节。每次底层读取另有FS边界检查，不能跨入KV。
+
+**有界契约**：FinSH仅接受`wf_fs scan`，同一时刻只准一次。每遍用1KiB缓冲读取4MiB，4096次精确长度返回；每32块让出一次调度。两遍分别报告字节／调用／FF及非FF计数、CRC32、首尾各16B预览和耗时。单遍预算12秒，两遍合计最多约24秒再加输出开销；同步SDK调用本身不可抢占，预算不是总线硬超时。短读／负返回／预算耗尽立即结束，不重试；两遍完整而不一致为`result=4 complete=1 stable=0`，仍是失败。源码和测试均没有新增写入、擦除、修复或mount失败自动format路径；原Product设置初始化和正常业务仍可能写入其他分区，不能称整份诊断固件全局只读。
+
+**采集与解释**：复用`device_snapshot.py capture --query fs`，单独一项、不能与startup校时混用，默认快照不包含它；命令单发，回执限30秒、总窗口最多60秒，失败关口不自动重连。CLI及真实直接调用均要求严格`fs_probe is True`且其他诊断关闭，并沿用原构建／Flash／BIN／端点／工具文件绑定；普通记录导出也在直接调用入口拒绝诊断固件。`fs_protocol.py`严格检查记录顺序／字段／完整字节与调用数／计数守恒／预算／两遍CRC与预览；全FF另核标准CRC。观察到全FF和重复一致不等于区域无人使用、实体容量、SFDP或实际最小擦除几何已验证，更不提供擦写准入；输出始终保留这些未验证项。
+
+**验证与交接**：Debug80/80、相关保留断言Release2/2通过；新增Python5项、快照13项、记录／场景33项、重启9项通过。C输出经严格解析及43B分片模拟采集通过，模拟端口从未访问实机。首轮C主机构建将容量有符号比较作为错误拒绝，修为正值检查后显式转换并重跑通过；失败保留在本轮证据。诊断构建、普通隔离和公共入口五目标结果由同一证据记录。FinSH配置栈4KiB，最终诊断ELF局部帧为scan1072B／命令248B，不等于运行峰值或功耗测量。
+
+后续现场必须重新确认设备／接线／供电及人在旁，先导出当前普通版记录与缓存，保全未保存RAM尾段后才考虑诊断下载。扫描结束仍需恢复普通记录器固件并回读记录／偏好和人工息屏唤醒，避免把不启动记录器的诊断版留作长期运行；单次扫描指一个命令内的两遍读取。内容／所有权和芯片资料仍需审阅后单独决定后端准入，不由全FF自动授权格式化，也不由本节历史步骤启动设备操作。
 
 ## 数据来源与精度边界
 

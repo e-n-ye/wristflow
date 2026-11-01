@@ -26,6 +26,10 @@ class ExportClient(RecordedClient):
 def collect(output, transport, *, binding, identity_check, locks, seconds=60, cancel=None):
     if not 0 < seconds <= 60 or output.exists():
         raise ValueError("New output directory and a 0..60s bound required")
+    if binding.get("simulation") is not True:
+        build = json.loads(Path(binding["build"]["build_result"]["path"]).read_text(encoding="utf-8-sig"))
+        if any(build.get(flag) for flag in ("storage_probe", "resource_probe", "fs_probe")):
+            raise ValueError("An ordinary recorder build is required")
     nonce = secrets.randbits(64) or 1
     cancel = cancel or threading.Event()
     tool, protocol = file_record(Path(__file__)), file_record(Path(__file__).with_name("runtime_record_decode.py"))
@@ -159,7 +163,7 @@ def main():
         transport, locks = Simulation(args.fixture.read_bytes()), args.out.parent / "simulation-locks"
     else:
         build = json.loads(args.result.read_text(encoding="utf-8-sig"))
-        if build.get("storage_probe") or build.get("resource_probe") or not any(
+        if build.get("storage_probe") or build.get("resource_probe") or build.get("fs_probe") or not any(
                 p["path"].replace("\\", "/").endswith("/product_runtime_record.c") for p in build.get("project_sources", [])):
             raise ValueError("An ordinary recorder build is required")
         binding, identity = prepare_capture(args.result, args.flash, args.expected_bin, args.port, args.location,
