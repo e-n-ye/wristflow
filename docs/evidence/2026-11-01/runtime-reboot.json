@@ -1,0 +1,326 @@
+{
+  "date": "2026-11-01",
+  "status": "single_sdk_reboot_checkpoint_restore_passed",
+  "base_commit": "8d10a702f19fc0c1385f666390ee6a1923909cd9",
+  "branch": "codex/runtime-reboot-acceptance",
+  "firmware_bin_sha256": "0fc781bf6317a3508dff865cc0fc70351451a300bf73b0244fe1504f4cbb9865",
+  "firmware_sdk_partition_unchanged": true,
+  "firmware_build_or_flash_executed": false,
+  "operator": {
+    "single_sdk_reboot_authorized": true,
+    "same_board_screen_battery_usb_fixed_wiring_present": true,
+    "awake_prepared_then_refreshed": true,
+    "boot_normally_and_after_readback_ready": true,
+    "final_display_touch_clock_preferences_normal": true,
+    "no_save_failure_notice": true
+  },
+  "software": {
+    "host_tests": 9,
+    "simulation_passed": true,
+    "initial_test_failure": "Windows atomic progress-file replacement WinError5 under C: temp; original log retained; tests moved to repository artifacts and9 passed; underlying lock cause not established",
+    "source_review_no_blocker": true,
+    "source_snapshot_files": 16,
+    "source_archive_readback": true,
+    "shared_serial_and_readonly_tools_unchanged": true,
+    "ui_workflow": "Simple chat preparation/readback confirmations with existing snapshot/export; no new multi-scene timer UI"
+  },
+  "analysis": {
+    "checks": {
+      "restored_flag": true,
+      "recording": true,
+      "boot_once": true,
+      "seed_total_exact": true,
+      "startup_generation": true,
+      "no_storage_failure": true,
+      "startup_checkpoint": true,
+      "nondecreasing_seed_scenes": true,
+      "scene_delta_is_this_boot": true
+    },
+    "passed": true,
+    "seed_total_ms": 159656294,
+    "recovered_seed_ms": 159656294,
+    "before_ram_total_ms": 161091663,
+    "exported_tail_not_in_seed_ms": 1435369,
+    "after_total_ms": 159749240,
+    "after_recorded_ms": 92946,
+    "after_tail_ms": 91856,
+    "before_boot": 2,
+    "after_boot": 3,
+    "before_generation": 69,
+    "after_generation": 70,
+    "before_ram_successes": 68,
+    "seed_payload_successes": 67,
+    "after_ram_successes": 68,
+    "seed_explicit_saves": 1,
+    "after_explicit_saves": 2,
+    "seed_faults": 1,
+    "after_faults": 1,
+    "before_fault_mask": 2,
+    "after_fault_mask": 0,
+    "after_recoveries": 0,
+    "limits": [
+      "Pre-snapshot RAM tail preserved on PC but not restored on device; snapshot-to-reboot interval is additional unobserved time",
+      "Boot resets known/mask; zero mask is not compass recovery",
+      "Startup checkpoint payload counters precede own successful write",
+      "RTC was in range before observed phone time sync, but no unassisted precision-retention proof",
+      "No physical power loss or interrupted-write test"
+    ]
+  },
+  "sessions": [
+    {
+      "path": "before-cache",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "show_date",
+        "wf_steps status",
+        "wf_wrist status",
+        "wf_light status",
+        "wf_pm status"
+      ]
+    },
+    {
+      "path": "before-runtime",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "wf_record snapshot 17189830996269890251",
+        "wf_record summary 17189830996269890251 current",
+        "wf_record summary 17189830996269890251 saved",
+        "wf_record samples 17189830996269890251 0",
+        "wf_record samples 17189830996269890251 1",
+        "wf_record samples 17189830996269890251 2",
+        "wf_record samples 17189830996269890251 3",
+        "wf_record samples 17189830996269890251 4",
+        "wf_record samples 17189830996269890251 5",
+        "wf_record samples 17189830996269890251 6",
+        "wf_record samples 17189830996269890251 7"
+      ]
+    },
+    {
+      "path": "reboot",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "reboot"
+      ]
+    },
+    {
+      "path": "after-runtime",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "wf_record snapshot 7862597333693437146",
+        "wf_record summary 7862597333693437146 current",
+        "wf_record summary 7862597333693437146 saved",
+        "wf_record samples 7862597333693437146 0",
+        "wf_record samples 7862597333693437146 1",
+        "wf_record samples 7862597333693437146 2",
+        "wf_record samples 7862597333693437146 3"
+      ]
+    },
+    {
+      "path": "after-cache",
+      "opens": 1,
+      "closes": 1,
+      "commands": [
+        "show_date",
+        "wf_steps status",
+        "wf_wrist status",
+        "wf_light status",
+        "wf_pm status"
+      ]
+    }
+  ],
+  "startup": {
+    "product_start_count": 1,
+    "storage_restore": "yes",
+    "brightness": 50,
+    "face": "diffusion",
+    "breathing_minutes": 1,
+    "layout_restore_generation": 56,
+    "alarm_restore_count": 4,
+    "steps_restore_generation": 311,
+    "rtc_wake": 1,
+    "rtc_in_range_before_phone_sync": true,
+    "phone_time_sync_observed": true,
+    "phone_time_utc": 1793520923,
+    "phone_time_result": 0,
+    "host_clock_write": false,
+    "prior24h_three_time_attempts_source_still_unknown": true
+  },
+  "cache": {
+    "steps_before": 0,
+    "steps_after": 0,
+    "steps_generation": 311,
+    "steps_after_restored": true,
+    "steps_after_verified_clean": true,
+    "wrist_requested_before": 0,
+    "wrist_requested_after": 0,
+    "auto_light_enabled_before": 0,
+    "auto_light_enabled_after": 0
+  },
+  "independent_review": {
+    "raw_redecode_equal": true,
+    "seed_position_exact": true,
+    "five_sessions_closed_single_reboot": true,
+    "payload_counter_semantics_confirmed": true,
+    "fault_reset_not_recovery_confirmed": true,
+    "phone_sync_and_rtc_limits_confirmed": true
+  },
+  "limits": [
+    "Pre-snapshot RAM tail preserved on PC but not restored on device; snapshot-to-reboot interval is additional unobserved time",
+    "Boot resets known/mask; zero mask is not compass recovery",
+    "Startup checkpoint payload counters precede own successful write",
+    "RTC was in range before observed phone time sync, but no unassisted precision-retention proof",
+    "No physical power loss or interrupted-write test",
+    "Not the original roadmap product-controlled reboot save-barrier/service-stop/failure-feedback implementation"
+  ],
+  "records": [
+    {
+      "path": "artifacts/device-reboot-host-20261101-001.log",
+      "bytes": 2583,
+      "sha256": "1b6460e2ddf89e1497852df7b5414a6e7223f89eebf88e836eb50a637f6298fa"
+    },
+    {
+      "path": "artifacts/device-reboot-host-20261101-002.log",
+      "bytes": 112,
+      "sha256": "34c5ab1390dec19cb0304264b1446d9b761ce8c4fc706b34b5456bb3625842ad"
+    },
+    {
+      "path": "artifacts/device-reboot-simulation-20261101-001/reboot.json",
+      "bytes": 637,
+      "sha256": "4bea49aa6760f258c1d0869db88203c3ba38322d759c7bc310dc23e7b4c73949"
+    },
+    {
+      "path": "artifacts/device-reboot-simulation-20261101-001/events.jsonl",
+      "bytes": 1163,
+      "sha256": "45a12a86e8c0b13732a4e01e6663baeb02440652884c6de8720a289d617cf48b"
+    },
+    {
+      "path": "artifacts/device-reboot-tools-20261101-001.zip",
+      "bytes": 59598,
+      "sha256": "3ea3569c85ae2d027aaf2bbc3fd0986c917656239564dca5a0ec5bff23234ac3"
+    },
+    {
+      "path": "artifacts/device-reboot-tools-20261101-001.json",
+      "bytes": 2877,
+      "sha256": "4b5f9038d294f0c5908732646b195c5aa7b71a478cca7d96a032324583674f76"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/analysis.json",
+      "bytes": 1387,
+      "sha256": "d783eb4c3e90fbe969fbf7c21dbf286a4a1f8b8aba3612a386b940c8a1c1ee98"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/before-cache/binding.json",
+      "bytes": 145440,
+      "sha256": "c11c2b49ae48002287c583fee7e2a8ac6abc0747e95c57cc784d1b108744229d"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/before-cache/uart.bin",
+      "bytes": 4549,
+      "sha256": "ac2b40155d96d6eac98b2b03f139609b2ccf142861c1d4febd6543faa9854180"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/before-cache/events.jsonl",
+      "bytes": 3028,
+      "sha256": "742e48ef87077bb640165c5f634db94e94e1ffb367adab2c4337e15be1478447"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/before-cache/snapshot.json",
+      "bytes": 5861,
+      "sha256": "bd1159fab520d0ccd1a3c8621ea2517662511552f59e1effbad116add695a433"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/before-runtime/binding.json",
+      "bytes": 145316,
+      "sha256": "87a1c7fc0e68fc44ed7e332a6eba0cdd583621497f7ec1e4dec25e2ada095342"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/before-runtime/uart.bin",
+      "bytes": 17217,
+      "sha256": "5489382be9f64ef563ad87479d33c9a8442aa819e1d070241fc2099833fb25b5"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/before-runtime/events.jsonl",
+      "bytes": 6181,
+      "sha256": "04d3b91b12aa0a3dc2091cc9b8cc96dc9fa3021252b84f70cccddc6366435c6b"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/before-runtime/records.json",
+      "bytes": 24779,
+      "sha256": "3aeae2e535d27a993a25f5f7e9a3618709b5dbd6276c2b8986d9f25e803f1129"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/before-runtime/export.json",
+      "bytes": 568,
+      "sha256": "531172f8898dccc019d7e0d911d79a74b3be085a82f4823ddd5dfd26a6b5b722"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/reboot/binding.json",
+      "bytes": 146446,
+      "sha256": "42e5076c80bdb8032291fc5a808d4a187e5ea8ccd5b27eed1626ea3ad8637afe"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/reboot/uart.bin",
+      "bytes": 6090,
+      "sha256": "55db863c15b34c9b2abe2340cbda3e2302b51647d55dc822c72332bdcb43fa37"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/reboot/events.jsonl",
+      "bytes": 1321,
+      "sha256": "4e0a1187cbc34809ba6b92b1791d2fcab1dc59f38f15ad5e0b85ae0a422fdb10"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/reboot/reboot.json",
+      "bytes": 645,
+      "sha256": "45ca7bd3c1ac16f7e10914e0ea3537ccb739a343f3e8069d3dbcba283e276a31"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/after-runtime/binding.json",
+      "bytes": 145315,
+      "sha256": "bbbba8f4c52be107cea3660541fd1052a63644bec687589fafd60fc3ac31eb67"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/after-runtime/uart.bin",
+      "bytes": 10059,
+      "sha256": "2efc93f4195d964480ad9789ca812806485185547d084f8343ab7ad385cf3b0e"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/after-runtime/events.jsonl",
+      "bytes": 4306,
+      "sha256": "e0398969eb58ccbf9b455a0ad24271de5a4d246e6cddffe410e9bbf90d1f9a5e"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/after-runtime/records.json",
+      "bytes": 14530,
+      "sha256": "1c32279c6fccc9d50dadf0db8b801bf0675374ce0799a2412e31bc535b971ddb"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/after-runtime/export.json",
+      "bytes": 566,
+      "sha256": "8f23b5bf73ce7de06eb51aa53c421e79bd0640cd472a7635625a6af0e4bab715"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/after-cache/binding.json",
+      "bytes": 145440,
+      "sha256": "c11c2b49ae48002287c583fee7e2a8ac6abc0747e95c57cc784d1b108744229d"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/after-cache/uart.bin",
+      "bytes": 4344,
+      "sha256": "5ba9666e478acbac2025f1b7f41c54890118dfa60b82690b8ed6f93ab541cd9b"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/after-cache/events.jsonl",
+      "bytes": 3028,
+      "sha256": "e2d4295a1313b9791c44193f9dd3c7daa1981870f80cc38c2378a8c58902fef3"
+    },
+    {
+      "path": "artifacts/runtime-reboot-device-20261101-001/after-cache/snapshot.json",
+      "bytes": 5664,
+      "sha256": "6e5d0bbd58c98dc5cd92540dffcc16a31c1afeb0524a24a708b806189b2bd1b0"
+    }
+  ]
+}
