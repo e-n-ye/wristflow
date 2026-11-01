@@ -106,12 +106,20 @@ static int unlock(const struct lfs_config *c)
 {
     assert(c==&config && model.locked);model.locked=false;++model.unlocks;return 0;
 }
+/* The outer LittleFS lock serializes this single-thread RAM test. Adapter
+ * gate/PM/cancellation lifetimes are tested separately, with the same guard. */
+static bool guard_acquire(void *context) { (void)context;return true; }
+static void guard_release(void *context) { (void)context; }
+static bool guard_stopped(void *context) { (void)context;return false; }
+static uint32_t guard_now(void *context) { (void)context;return 0; }
 static void boot(void)
 {
     memset(&model,0,sizeof model);memset(&fs,0,sizeof fs);memset(&file,0,sizeof file);
     memset(read_cache,0,sizeof read_cache);memset(prog_cache,0,sizeof prog_cache);
     memset(file_cache,0,sizeof file_cache);memset(lookahead,0,sizeof lookahead);
-    nor=(wf_lfs_nor_t){NULL,raw_read,raw_prog,raw_erase,raw_sync,0};
+    nor=(wf_lfs_nor_t){.read=raw_read,.prog=raw_prog,.erase=raw_erase,.sync=raw_sync,
+        .acquire=guard_acquire,.release=guard_release,.stopped=guard_stopped,.now=guard_now,
+        .budget_ms=UINT32_MAX,.writable=true};
     config=(struct lfs_config){.context=&nor,.read=wf_lfs_read,.prog=wf_lfs_prog,
         .erase=wf_lfs_erase,.sync=wf_lfs_sync,.lock=lock,.unlock=unlock,
         .read_size=32,.prog_size=256,.block_size=WF_LFS_BLOCK,.block_count=WF_LFS_BLOCKS,
