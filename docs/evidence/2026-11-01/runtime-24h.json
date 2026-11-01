@@ -1,0 +1,325 @@
+{
+  "date": "2026-11-01",
+  "status": "runtime_and_save_progress_passed_with_telemetry_findings",
+  "base_commit": "45fd12e1df8b7a0bcc2a4c646478ef0be12225ca",
+  "branch": "codex/runtime-24h-evidence",
+  "workspace": "D:/MY_Desk/project/wristflow",
+  "firmware_bin_sha256": "0fc781bf6317a3508dff865cc0fc70351451a300bf73b0244fe1504f4cbb9865",
+  "firmware_build_or_flash_executed": false,
+  "operator": {
+    "ready_for_bound_readback": true,
+    "no_charge_during_interval_except_current_usb": true,
+    "no_power_loss_or_reboot_reported": true,
+    "no_manual_time_change_reported": true,
+    "compass_opened_calibration_failed_reported": true,
+    "display_touch_clock_normal": true,
+    "no_save_failure_notice": true
+  },
+  "analysis": {
+    "baseline": "artifacts\\runtime-scenes-device-20261031-001\\off\\after",
+    "current": "artifacts\\runtime-24h-device-20261101-001\\runtime",
+    "host_open_elapsed_seconds": 86564.4817099,
+    "rtc_utc_delta_seconds": 86563,
+    "counter_delta": {
+      "generation": 40,
+      "total_recorded_ms": 86564555,
+      "successes": 40,
+      "failures": 0,
+      "periodic_saves": 40,
+      "explicit_saves": 0,
+      "faults": 1,
+      "recoveries": 0,
+      "clock_revision": 3,
+      "clock_errors": 0,
+      "event_drops": 717,
+      "sample_drops": 1580
+    },
+    "scene_delta_ms": {
+      "unknown": 3944,
+      "on": 1772821,
+      "flashlight": 2302047,
+      "dim": 65757,
+      "off": 82419986,
+      "aod": 0
+    },
+    "checks": {
+      "same_boot": true,
+      "recording": true,
+      "host_over_24h": true,
+      "recorded_over_24h": true,
+      "nondecreasing_scenes": true,
+      "scene_sum_matches_delta": true,
+      "save_progress": true,
+      "no_save_failure": true,
+      "no_new_fault": false,
+      "no_unresolved_fault": false
+    },
+    "overall_clean_pass": false,
+    "recording_and_save_checks_passed": true,
+    "boot_before": 2,
+    "boot_after": 2,
+    "fault_known_before": 29,
+    "fault_known_after": 31,
+    "fault_mask_before": 0,
+    "fault_mask_after": 2,
+    "saved_generation": 67,
+    "saved_total_recorded_ms": 155552998,
+    "unsaved_recorded_ms": 195470,
+    "host_utc_before": "2026-10-31T06:42:58.050856+00:00",
+    "host_utc_after": "2026-11-01T06:45:42.532566+00:00",
+    "original_raw_redecoded_equal": true
+  },
+  "sessions": [
+    {
+      "path": "runtime",
+      "opens": 1,
+      "closed": 1,
+      "commands": [
+        "wf_record snapshot 5269640448330114045",
+        "wf_record summary 5269640448330114045 current",
+        "wf_record summary 5269640448330114045 saved",
+        "wf_record samples 5269640448330114045 0",
+        "wf_record samples 5269640448330114045 1",
+        "wf_record samples 5269640448330114045 2",
+        "wf_record samples 5269640448330114045 3",
+        "wf_record samples 5269640448330114045 4",
+        "wf_record samples 5269640448330114045 5",
+        "wf_record samples 5269640448330114045 6",
+        "wf_record samples 5269640448330114045 7"
+      ],
+      "reset": false
+    },
+    {
+      "path": "cache",
+      "opens": 1,
+      "closed": 1,
+      "commands": [
+        "show_date",
+        "wf_steps status",
+        "wf_wrist status",
+        "wf_light status",
+        "wf_pm status"
+      ],
+      "reset": false
+    },
+    {
+      "path": "compass",
+      "opens": 1,
+      "closed": 1,
+      "commands": [
+        "wf_compass status"
+      ],
+      "reset": false
+    }
+  ],
+  "findings": {
+    "compass": {
+      "known_bit": 2,
+      "observed_fault_increase": 1,
+      "current_cache": [
+        "[compass] requested=0 active=0 valid=0 fault=0 cleanup=0 generation=14 session=7 seq=0 ms=0 heading=0 reason=0",
+        "[compass-raw] xyz=0/0/0 selftest=0 stopped=1 errors=0; uncalibrated XY, mounting zero/tilt unverified"
+      ],
+      "interpretation": "Prior fault or cleanup_pending was observed. Stopped/invalid/selftest0 is unknown health, so latched known fault is not cleared. No fresh healthy proof; current hardware damage is not established.",
+      "operator_correlation": "Calibration failure reported; exact event time/cause unavailable in8-event tail"
+    },
+    "clock": {
+      "revision_before": 1,
+      "revision_after": 4,
+      "service_set_attempts_delta": 3,
+      "clock_errors": 0,
+      "interpretation": "The only revision increment follows RTC_SET_TIME in services_set_time; attempts include uncertain/failure. Possible phone WF_PHONE_TIME entry exists. User denies manual changes; source/results of3 attempts unknown because tail events overwritten."
+    },
+    "charge": {
+      "last_valid_battery_sample": {
+        "ms": 155556964,
+        "sequence": 1771,
+        "sampled_ms": 155552285,
+        "utc": 1793515348,
+        "millivolts": 3976,
+        "flags": 55,
+        "percent": 64,
+        "requested": 0,
+        "acknowledged": 0,
+        "charge": 4,
+        "scene": 0
+      },
+      "first_valid_active_sample": {
+        "ms": 155680451,
+        "sequence": 1772,
+        "sampled_ms": 155680138,
+        "utc": 1793515472,
+        "millivolts": 4043,
+        "flags": 63,
+        "percent": 70,
+        "requested": 50,
+        "acknowledged": 50,
+        "charge": 2,
+        "scene": 1
+      },
+      "last_valid_active_sample": {
+        "ms": 155745272,
+        "sequence": 1785,
+        "sampled_ms": 155745045,
+        "utc": 1793515536,
+        "millivolts": 4063,
+        "flags": 63,
+        "percent": 79,
+        "requested": 50,
+        "acknowledged": 50,
+        "charge": 2,
+        "scene": 1
+      },
+      "operator_display_after_export_percent": 89,
+      "operator89_sample_captured": false,
+      "interpretation": "3976mV/64% at14:42:28; USB ACTIVE4043mV/70% at14:44:32 to4063mV/79% at14:45:36. Voltage reference lookup has not been calibrated for this cell; no charge amount or SOC accuracy claim."
+    }
+  },
+  "independent_readonly_review": {
+    "blockers_to_evidence_delivery": [],
+    "raw_redecode_and_deltas_confirmed": true,
+    "three_sessions_closed_no_controls_confirmed": true,
+    "compass_known_latch_semantics_confirmed": true,
+    "rtc_revision_increment_and_phone_entry_confirmed": true,
+    "no_device_actions_by_reviewer": true
+  },
+  "limits": [
+    "Not a clean no-new-fault system pass",
+    "No controlled reboot/power-loss/save-failure recovery verified",
+    "Not full24h voltage/event history;64 sample/8 event tail only",
+    "No calibrated capacity, SOC, current, battery-life or general long-sleep accuracy claim",
+    "No further device actions after three bounded captures"
+  ],
+  "records": [
+    {
+      "path": "artifacts/runtime-24h-baseline-files-20261101-001.json",
+      "bytes": 16862,
+      "sha256": "ef79db0265b1796eebfbf7b5a3fb7f21c3a97fce8c9fc940a35106dc3785cf5a"
+    },
+    {
+      "path": "artifacts/runtime-24h-export-20261101-001.log",
+      "bytes": 557,
+      "sha256": "5eb436d10f1d8cafb858f74c9473dc0d216d479eff600bcb987c3accdf1549c4"
+    },
+    {
+      "path": "artifacts/runtime-24h-cache-20261101-001.log",
+      "bytes": 5826,
+      "sha256": "ae7676d60e1a5d9fafadf4bd0cedbf3c3dc4b9bfa1018652b1e2b45033ff8178"
+    },
+    {
+      "path": "artifacts/runtime-24h-compass-20261101-001.log",
+      "bytes": 916,
+      "sha256": "dca494a168e657a8bebf6b9e80b0fcabe39e366c31b57b845e1e4449fbd00209"
+    },
+    {
+      "path": "artifacts/runtime-24h-device-20261101-001/analysis.json",
+      "bytes": 1517,
+      "sha256": "df42b0cbf0508a31a95d9f1e70b03ff5d4b85f4ae4465ec686050d503ca47c87"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/after/records.json",
+      "bytes": 24591,
+      "sha256": "92f548569049e7df02fe0a4da711036acfee5fa8128903b80e3dc5e516bc6e70"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/after/uart.bin",
+      "bytes": 17275,
+      "sha256": "14f3a6051527b34713b5cdfe30d9c98b4cbcf0d7994d1c9f2abbaf7d1793f374"
+    },
+    {
+      "path": "artifacts/runtime-scenes-device-20261031-001/off/after/events.jsonl",
+      "bytes": 6327,
+      "sha256": "c935b6087bfa6b403640ea93ee90d41d6f9d860d41fb05a7617ff2f261e12bb8"
+    },
+    {
+      "path": "artifacts/runtime-24h-device-20261101-001/runtime/binding.json",
+      "bytes": 145315,
+      "sha256": "d6648543be26e484add193448054d204d63f69160f2a11be74614aea93746f0d"
+    },
+    {
+      "path": "artifacts/runtime-24h-device-20261101-001/runtime/events.jsonl",
+      "bytes": 6423,
+      "sha256": "917cf4ca87b26cea2fc21c99be0c162a86837772040bceb2056f900e0357448a"
+    },
+    {
+      "path": "artifacts/runtime-24h-device-20261101-001/runtime/uart.bin",
+      "bytes": 17073,
+      "sha256": "3fc6ee1a1b53b6e16244e1daac613bbd4a4624e86c2072a2891c554822dadffd"
+    },
+    {
+      "path": "artifacts/runtime-24h-device-20261101-001/cache/binding.json",
+      "bytes": 145440,
+      "sha256": "c11c2b49ae48002287c583fee7e2a8ac6abc0747e95c57cc784d1b108744229d"
+    },
+    {
+      "path": "artifacts/runtime-24h-device-20261101-001/cache/events.jsonl",
+      "bytes": 3041,
+      "sha256": "89c29c26837fb26e7def7078f4b1cd44000e06e70d9fcfff9c4c4f7c3f963adb"
+    },
+    {
+      "path": "artifacts/runtime-24h-device-20261101-001/cache/uart.bin",
+      "bytes": 4521,
+      "sha256": "031e63a7dea31887da785dd9abffe595631ef19a7bbce5bd941c30a4797bf917"
+    },
+    {
+      "path": "artifacts/runtime-24h-device-20261101-001/compass/binding.json",
+      "bytes": 145390,
+      "sha256": "c8d43d44048e76db4687b5364c8f702e01869fc04bb321dffd81dc1531736648"
+    },
+    {
+      "path": "artifacts/runtime-24h-device-20261101-001/compass/events.jsonl",
+      "bytes": 1279,
+      "sha256": "264df314b62919270530f41fec2cffeb70a17c355f74349f9ae9793d2d05f704"
+    },
+    {
+      "path": "artifacts/runtime-24h-device-20261101-001/compass/uart.bin",
+      "bytes": 227,
+      "sha256": "f715245d632e587efe1c55b0058da973a02f5b6c4d156b447c651cd1be69140e"
+    },
+    {
+      "path": "artifacts/runtime-24h-device-20261101-001/runtime/records.json",
+      "bytes": 24369,
+      "sha256": "4d21ea586df4387e53d3af068a9733ef8e7da8d266636056d2d277e098e42d87"
+    },
+    {
+      "path": "artifacts/runtime-24h-device-20261101-001/runtime/export.json",
+      "bytes": 557,
+      "sha256": "5eb436d10f1d8cafb858f74c9473dc0d216d479eff600bcb987c3accdf1549c4"
+    },
+    {
+      "path": "artifacts/runtime-24h-device-20261101-001/cache/snapshot.json",
+      "bytes": 5826,
+      "sha256": "ae7676d60e1a5d9fafadf4bd0cedbf3c3dc4b9bfa1018652b1e2b45033ff8178"
+    },
+    {
+      "path": "artifacts/runtime-24h-device-20261101-001/compass/snapshot.json",
+      "bytes": 916,
+      "sha256": "dca494a168e657a8bebf6b9e80b0fcabe39e366c31b57b845e1e4449fbd00209"
+    },
+    {
+      "path": "core/runtime_record.c",
+      "bytes": 12343,
+      "sha256": "b4d98b5535b98af03eaac546b3e424907d78eb1ca20905b8b8e55b0bd33afe35"
+    },
+    {
+      "path": "apps/product/src/runtime_input.c",
+      "bytes": 3087,
+      "sha256": "adfe1bdb5cac4cb3d4a5ec66a5d06061d41b5980ce091e65b339c0c67bb9b3e9"
+    },
+    {
+      "path": "apps/product/src/product_services.c",
+      "bytes": 16613,
+      "sha256": "6c266d4d595e5d697402010ad964af10104f02f3ef9120c95ac5982399c80e1c"
+    },
+    {
+      "path": "apps/product/src/product_ble.c",
+      "bytes": 27446,
+      "sha256": "57dae89b6fa32b424d966b4a6add12e10d92ddcbe2947b8a0a71c634f42270c2"
+    },
+    {
+      "path": "core/battery_estimate.c",
+      "bytes": 6493,
+      "sha256": "2e1a5224b06d04523d4fb80910d08b7ba4054b3b5d62e5e0edff6701e9566be3"
+    }
+  ]
+}
