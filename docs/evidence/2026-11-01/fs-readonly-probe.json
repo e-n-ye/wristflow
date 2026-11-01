@@ -1,0 +1,490 @@
+{
+  "schema": 1,
+  "date": "2026-11-01",
+  "baseline": "d6113e8b619d8c21d1bcad47a2b88d12b9c22d8c",
+  "checkout": "D:/MY_Desk/project/wristflow",
+  "scope": "Read-only FS_REGION diagnostic software and host/build validation; no device actions",
+  "hardware_verified": false,
+  "device_commands_sent": false,
+  "flash_or_reset_executed": false,
+  "full_cycle_logger_implemented": false,
+  "discharge_started": false,
+  "format_or_erase_authorized": false,
+  "partition": {
+    "base": "0x12000000",
+    "offset": "0x009a0000",
+    "start": "0x129a0000",
+    "end_exclusive": "0x12da0000",
+    "bytes": 4194304
+  },
+  "capability_choice": {
+    "path": "Pinned official SDK read/handle/ID/size/alignment plus official ID table exact match",
+    "custom_flash_driver": false,
+    "physical_capacity_verified": false,
+    "geometry_basis": "SDK metadata and driver erase alignment; cached ID possible",
+    "ownership_verified": false,
+    "new_fs_write_mount_format_path": false,
+    "existing_product_settings_may_write": true
+  },
+  "bounds": {
+    "chunk_bytes": 1024,
+    "passes": 2,
+    "calls_per_complete_pass": 4096,
+    "pass_budget_ms": 12000,
+    "command_wait_seconds": 30,
+    "host_window_max_seconds": 60,
+    "blocking_sdk_call_preemptible": false,
+    "stack_config_bytes": 4096,
+    "scan_local_frame_bytes": 1072,
+    "command_local_frame_bytes": 248,
+    "runtime_peak_stack_measured": false
+  },
+  "tests": {
+    "debug": {
+      "passed": 80,
+      "total": 80
+    },
+    "release_related": {
+      "passed": 2,
+      "total": 2
+    },
+    "final_zero_negative_return_added": {
+      "debug_passed": 1,
+      "release_passed": 1
+    },
+    "python": {
+      "fs": 5,
+      "snapshot": 13,
+      "runtime_scene_decode_export": 33,
+      "reboot": 9
+    },
+    "c_to_strict_parser_and_43_byte_fragment_session": true,
+    "simulation_resources_closed": true,
+    "rejects": {
+      "wrong_target": true,
+      "mixed_storage": true,
+      "mixed_resource": true
+    },
+    "independent_readonly_review": {
+      "agents": [
+        "fs_read_path",
+        "fs_probe_integration",
+        "fs_final_review"
+      ],
+      "blocking_findings": 0
+    }
+  },
+  "builds": {
+    "diagnostic": {
+      "result": "artifacts/product/20261101-171649-772/result.json",
+      "example": "product",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4 fs_probe=1",
+      "fs_probe": true,
+      "resource_probe": false,
+      "storage_probe": false,
+      "firmware_bytes": 3028996,
+      "firmware_sha256": "056710fbccd0c1d47cb0c11b96f6a233d4c445c3015fcdcc5252ea07d16680ab",
+      "source_count": 612,
+      "artifact_count": 29,
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "result_file": {
+        "path": "artifacts/product/20261101-171649-772/result.json",
+        "bytes": 123592,
+        "sha256": "dff2fb2c01ec16bf008c63ad45c43fd50f02c9d7b57c7b5dc6140816fed5fbe7"
+      }
+    },
+    "baselines": [
+      {
+        "result": "artifacts/hello/20261101-171940-790/result.json",
+        "example": "hello",
+        "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+        "fs_probe": false,
+        "resource_probe": false,
+        "storage_probe": false,
+        "firmware_bytes": 300336,
+        "firmware_sha256": "5d1e396f2e9cd6edd35f0586d2c30dbd7f3dd4cf0f42a5bcf17c9a976e4173c0",
+        "source_count": 9,
+        "artifact_count": 22,
+        "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+        "exit_code": 0,
+        "artifact_validation_passed": true,
+        "result_file": {
+          "path": "artifacts/hello/20261101-171940-790/result.json",
+          "bytes": 10208,
+          "sha256": "9def3554b0a64f560fb56239db6b46c814676cbcf18384b108f2853cc6881aa1"
+        }
+      },
+      {
+        "result": "artifacts/ble/20261101-171956-357/result.json",
+        "example": "ble",
+        "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+        "fs_probe": false,
+        "resource_probe": false,
+        "storage_probe": false,
+        "firmware_bytes": 490064,
+        "firmware_sha256": "09d17264a1822a45731664091785dea1b0a0324f5be2af46f32c154500d396d2",
+        "source_count": 8,
+        "artifact_count": 29,
+        "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+        "exit_code": 0,
+        "artifact_validation_passed": true,
+        "result_file": {
+          "path": "artifacts/ble/20261101-171956-357/result.json",
+          "bytes": 11438,
+          "sha256": "e9bf0bc481fc9de83087c26d05ad74150b056e74d3f3126b49556f897e900791"
+        }
+      },
+      {
+        "result": "artifacts/bringup/20261101-172018-419/result.json",
+        "example": "bringup",
+        "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+        "fs_probe": false,
+        "resource_probe": false,
+        "storage_probe": false,
+        "firmware_bytes": 614176,
+        "firmware_sha256": "deadadab94b802be43bbd3eeab9580de1828c28fafa679c9254b9334984895fb",
+        "source_count": 8,
+        "artifact_count": 22,
+        "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+        "exit_code": 0,
+        "artifact_validation_passed": true,
+        "result_file": {
+          "path": "artifacts/bringup/20261101-172018-419/result.json",
+          "bytes": 8523,
+          "sha256": "f948705d9a4fcccb29a94c91d0d20e5cdfa45b13fc726bfeb5359a5ef11adc72"
+        }
+      },
+      {
+        "result": "artifacts/ui_demo/20261101-172052-826/result.json",
+        "example": "ui_demo",
+        "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+        "fs_probe": false,
+        "resource_probe": false,
+        "storage_probe": false,
+        "firmware_bytes": 2719468,
+        "firmware_sha256": "52a660b5d1ac6c29435894c94f7c14f5556aae39488fc92cf2a896443e14cec9",
+        "source_count": 528,
+        "artifact_count": 22,
+        "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+        "exit_code": 0,
+        "artifact_validation_passed": true,
+        "result_file": {
+          "path": "artifacts/ui_demo/20261101-172052-826/result.json",
+          "bytes": 105976,
+          "sha256": "5ef4763b072740952af9d683b001eb5c1f4625c5712e99a62e8b05028a5fbcc7"
+        }
+      },
+      {
+        "result": "artifacts/product/20261101-172133-776/result.json",
+        "example": "product",
+        "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+        "fs_probe": false,
+        "resource_probe": false,
+        "storage_probe": false,
+        "firmware_bytes": 3028744,
+        "firmware_sha256": "2655b9300e3bb6be11a197348a1452ff4560113abe4fdc14447e67f6c0f9c3c0",
+        "source_count": 612,
+        "artifact_count": 29,
+        "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+        "exit_code": 0,
+        "artifact_validation_passed": true,
+        "result_file": {
+          "path": "artifacts/product/20261101-172133-776/result.json",
+          "bytes": 123582,
+          "sha256": "bad7357fca2d5f1a1035a169061a9e7857ea34b4f7a44f20897f61fad10b57fd"
+        }
+      }
+    ],
+    "ordinary": {
+      "result": "artifacts/product/20261101-172133-776/result.json",
+      "example": "product",
+      "command": "scons --board=sf32lb52-lchspi-ulp -j4",
+      "fs_probe": false,
+      "resource_probe": false,
+      "storage_probe": false,
+      "firmware_bytes": 3028744,
+      "firmware_sha256": "2655b9300e3bb6be11a197348a1452ff4560113abe4fdc14447e67f6c0f9c3c0",
+      "source_count": 612,
+      "artifact_count": 29,
+      "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+      "exit_code": 0,
+      "artifact_validation_passed": true,
+      "result_file": {
+        "path": "artifacts/product/20261101-172133-776/result.json",
+        "bytes": 123582,
+        "sha256": "bad7357fca2d5f1a1035a169061a9e7857ea34b4f7a44f20897f61fad10b57fd"
+      }
+    },
+    "ordinary_probe_symbols_absent": true,
+    "diagnostic_probe_symbols_present": true,
+    "ordinary_recorder_symbol_present": true
+  },
+  "archives": {
+    "diagnostic": {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/fs-probe-20261101-diagnostic-build.zip",
+      "sha256": "c56fe141733dbfad43984d38541899122eb607a7017eaf33140da8ff4abce2fb",
+      "sources": 612,
+      "artifacts": 29,
+      "passed": true
+    },
+    "ordinary": {
+      "path": "D:/MY_Desk/project/wristflow/artifacts/fs-probe-20261101-ordinary-build.zip",
+      "sha256": "79b2156a1cafc553c4404b5917e4a83d4e885df9eb334ae31c3a101aecc292dc",
+      "sources": 612,
+      "artifacts": 29,
+      "passed": true
+    }
+  },
+  "on_board_firmware": {
+    "sha256": "0fc781bf6317a3508dff865cc0fc70351451a300bf73b0244fe1504f4cbb9865",
+    "changed": false,
+    "complete_archive": "artifacts/runtime-record-20261030-printf-build.zip",
+    "archived_build_and_flash_validation_passed": true
+  },
+  "failures": [
+    {
+      "stage": "Initial host C build",
+      "result": "failed",
+      "message": "product_fs_probe.c: comparison of int SDK capacity with uint32_t under -Werror=sign-compare",
+      "correction": "Check capacity > 0 before explicit uint32_t comparison",
+      "rerun_passed": true
+    }
+  ],
+  "warnings": "Existing SDK FinSH function casts, existing services signed comparisons and linker warnings retained; no new scanner compile error remains",
+  "limitations": [
+    "No fresh RDID/SFDP or physical capacity/erase validation",
+    "All-FF and matching CRC do not establish ownership",
+    "Only new FS scan path is read-only; original settings services remain",
+    "Cycle backend/export/low-voltage stop and full discharge are not implemented or admitted"
+  ],
+  "next_bounded_experiment": "After current field confirmation: preserve current ordinary records/cache, flash diagnostic, one command/two-pass FS read, restore ordinary recorder and verify final state; no format or erase of FS",
+  "continuation_validation": {
+    "source_and_output_hashes_passed": true,
+    "diagnostic_archive_build_check": "artifacts/fs-probe-resume-diagnostic-check.json",
+    "ordinary_current_build_check": "artifacts/fs-probe-resume-ordinary-check.json",
+    "source_files_check": "artifacts/fs-probe-resume-files-check.json",
+    "local_outputs_check": "artifacts/fs-probe-resume-outputs-check.json",
+    "changed_docs_check": "artifacts/fs-probe-resume-docs-check.json",
+    "archive_elf_probe_isolation_and_ordinary_recorder_passed": true,
+    "independent_final_readonly_review_blockers": 0,
+    "initial_check_failure": "Temporary archive verifier assumed bytes in source records and raised KeyError; reused official lab_check build successfully instead",
+    "production_sources_changed_during_continuation": false,
+    "hardware_actions": false
+  },
+  "files": [
+    {
+      "path": "apps/product/src/fs_probe.c",
+      "bytes": 3037,
+      "sha256": "a4af9222a351d20b5ce4c6e3f78c0b649c64649f8b4357c29b7210378d8faa40"
+    },
+    {
+      "path": "apps/product/src/fs_probe.h",
+      "bytes": 1367,
+      "sha256": "461646cb7f16320b478892e5746c870dbf4b8daeee0f170adb7a8423914ae9e2"
+    },
+    {
+      "path": "apps/product/src/product_fs_probe.c",
+      "bytes": 5028,
+      "sha256": "bee13cd6eb281e7db15045d87611b3cf76f815531911d50b8f0d2a42c23f2e28"
+    },
+    {
+      "path": "apps/product/src/SConscript",
+      "bytes": 2103,
+      "sha256": "3ab3dec4fe134cb3f8e5b9fe719765bc636644a167813fdab9e5b3e0bd6b785c"
+    },
+    {
+      "path": "apps/product/src/product_services.c",
+      "bytes": 16663,
+      "sha256": "9e23b964c44505bd4f820853878d5ab68a3d3a2a21f19a468778085553ea9350"
+    },
+    {
+      "path": "scripts/Build.ps1",
+      "bytes": 6883,
+      "sha256": "e6cfa70c20339d3d8101628b814bb2a6d3a431290113e936ee75ebd987d34c46"
+    },
+    {
+      "path": "scripts/fs_protocol.py",
+      "bytes": 4690,
+      "sha256": "d0ae17db4d1ae257b19cb6978330b8a4ea73510a7eda54bae76f6a7df4b7fc76"
+    },
+    {
+      "path": "scripts/device_snapshot.py",
+      "bytes": 12078,
+      "sha256": "0195f5297b87bd26084887210dc42618ed169243f4248ae58a26204fed84189f"
+    },
+    {
+      "path": "scripts/runtime_export.py",
+      "bytes": 9311,
+      "sha256": "84b280902836d0d15e323a19062ed27043113ae507879a5d77d359e4bb0ddb00"
+    },
+    {
+      "path": "tests/CMakeLists.txt",
+      "bytes": 26669,
+      "sha256": "1432433a80deaab76a0130ae4a7d2ea3f1cab8a9e2275423c912594b16dab1c5"
+    },
+    {
+      "path": "tests/fs_probe.c",
+      "bytes": 3427,
+      "sha256": "eabac5b8d49d92887868cf03c06868497c0b1c528327f51373fb9b0ca011f8d6"
+    },
+    {
+      "path": "tests/product_fs_probe.c",
+      "bytes": 2894,
+      "sha256": "5ab1ba6659239eb128d3a3e3b1aeb5f0139525bc9b1ed400bfe3b49a82cb24be"
+    },
+    {
+      "path": "tests/test_fs_protocol.py",
+      "bytes": 3940,
+      "sha256": "a057ca8636b51ca7574a769a3b7fbdab3596d0a1c9adaaf95a2e728297d1522b"
+    },
+    {
+      "path": "tests/support/fs/bf0_hal.h",
+      "bytes": 283,
+      "sha256": "0b0fb12d25c0a26248ae4cc2fa0c7e4a8d89f160e9c1a92d181178797a1aa4f8"
+    },
+    {
+      "path": "tests/support/fs/drv_flash.h",
+      "bytes": 223,
+      "sha256": "aa27c93690c2e196dc9deb67e095b604ac296343c9080b3cfad25a974e822187"
+    },
+    {
+      "path": "tests/support/fs/flash_table.h",
+      "bytes": 319,
+      "sha256": "57993e996763ce2c45ede0fe7e1aa460776a630970db0b003462175103ce6ce2"
+    },
+    {
+      "path": "tests/support/fs/ptab.h",
+      "bytes": 156,
+      "sha256": "a238a42defdea9d595dd6f9e72dd7f086a2c49039fad44d1cade778d96c2f7bc"
+    },
+    {
+      "path": "apps/product/project/sf32lb52-lchspi-ulp_hcpu/ptab.json",
+      "bytes": 2112,
+      "sha256": "41d89872c94d54a8e85c679d640eea27981ca4760b928fe0a335d9d79ef35445"
+    },
+    {
+      "path": "sdk.lock.json",
+      "bytes": 473,
+      "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+    },
+    {
+      "path": "vendor/SiFli-SDK/rtos/rtthread/bsp/sifli/drivers/drv_spi_flash.c",
+      "bytes": 50811,
+      "sha256": "1fcf1143712d015f3b365a0435569dfe6ca0ba148ec785d0addaf77c2e4444c8"
+    },
+    {
+      "path": "vendor/SiFli-SDK/drivers/hal/flash_table.c",
+      "bytes": 34592,
+      "sha256": "d1d6653eaca0ea58da7c987ccf41001b388b745b69b3ed02a8f5313fd61dfe9d"
+    }
+  ],
+  "local_outputs": [
+    {
+      "path": "artifacts/fs-probe-archive.py",
+      "bytes": 1232,
+      "sha256": "7c0af74e97901ce952fb5221ec375831fd0dc47e26ae5e54a448019f034ad644"
+    },
+    {
+      "path": "artifacts/fs-probe-report.py",
+      "bytes": 7679,
+      "sha256": "33a4332bbe9af7bda6cf1be0822070b0159b6d7544e53d539b53b5d4597b1c4f"
+    },
+    {
+      "path": "artifacts/fs-probe-c-replay.py",
+      "bytes": 855,
+      "sha256": "790de87b7631cb284c0a56ad7f0220005ed04516672d3dfe63397154eea303d1"
+    },
+    {
+      "path": "artifacts/fs-probe-host-build.log",
+      "bytes": 2294,
+      "sha256": "b86427e20e7ead29dd9b4a5362ddf722716b2eb191a8e64fec759a6f3e8cfcf4"
+    },
+    {
+      "path": "artifacts/fs-probe-host-tests.log",
+      "bytes": 8498,
+      "sha256": "c53dce9d6ffe531a59072d50e66d7b906b97a4d307f67bb3db5d85c786e2f608"
+    },
+    {
+      "path": "artifacts/fs-probe-debug-final-tests.log",
+      "bytes": 331,
+      "sha256": "9a797add986b53858442938c11e5805d47f0d9066f73573ced88b36b9f291a3e"
+    },
+    {
+      "path": "artifacts/fs-probe-release-tests.log",
+      "bytes": 444,
+      "sha256": "be5225aa46947fd092a393d8115aec41f856880fabe215981d0826e23923126a"
+    },
+    {
+      "path": "artifacts/fs-probe-release-final-tests.log",
+      "bytes": 341,
+      "sha256": "cbd36ca88789d19ea790dec2bfc7cf25953de08235690f5ac8a039834d25e46a"
+    },
+    {
+      "path": "artifacts/fs-probe-runtime-python-tests.log",
+      "bytes": 137,
+      "sha256": "1d2054b041d038c68722ae9b5b7a5e044df254b5fb9decb0c7b99c8f80d1b2be"
+    },
+    {
+      "path": "artifacts/fs-probe-reboot-python-tests.log",
+      "bytes": 112,
+      "sha256": "8f61e51cb1a1afbe0ec3f7d65211da9901a9d2c20e3e2b583506ec871ed07f25"
+    },
+    {
+      "path": "artifacts/fs-probe-c-wire.txt",
+      "bytes": 701,
+      "sha256": "7f50d29bd87ac61077be773fb8b550ee7af4a4cdf3ad738bb84b152d78cec94b"
+    },
+    {
+      "path": "artifacts/fs-probe-c-wire-check.json",
+      "bytes": 1395,
+      "sha256": "8fe1e6e12c17c0e2c3b965e08e0b358e66758f4c03e889d40214ab59b07949fd"
+    },
+    {
+      "path": "artifacts/fs-probe-c-replay.json",
+      "bytes": 1443,
+      "sha256": "a14202892e19f6b95c8ecc41cf80e5b780a1e109c6409fb38a1e617e5cbe2edf"
+    },
+    {
+      "path": "artifacts/fs-probe-simulation.json",
+      "bytes": 1438,
+      "sha256": "04b45f30377e968ad30ad48ee17df496d4f08a99fe5d310c5c40c589ec247d3c"
+    },
+    {
+      "path": "artifacts/fs-probe-diagnostic-symbols.txt",
+      "bytes": 346666,
+      "sha256": "b25b9690a83ee8d85d04135a76fad678137739a92de77262f104ed96cd638a07"
+    },
+    {
+      "path": "artifacts/fs-probe-ordinary-symbols.txt",
+      "bytes": 346274,
+      "sha256": "4217c167895853690c0c0c3c1c7ea0cfeee36f93a9c7a70bb013839f99be090e"
+    },
+    {
+      "path": "artifacts/fs-probe-scan-disassembly.txt",
+      "bytes": 5826,
+      "sha256": "193a5d560433c4ec8add7bcb49fe8c12c7a4a60f904516275917c50db18de3cc"
+    },
+    {
+      "path": "artifacts/fs-probe-command-disassembly.txt",
+      "bytes": 11687,
+      "sha256": "54b382425f186d3af017834a8c1a8c1181098ce89c59f6936e7d32017e77df7e"
+    },
+    {
+      "path": "artifacts/fs-probe-reject-target.log",
+      "bytes": 275,
+      "sha256": "e5aa9c6ca46b3ace80be5b80c3f4cb6169fa6f324222b55bc11742a0967f376d"
+    },
+    {
+      "path": "artifacts/fs-probe-reject-storage-mix.log",
+      "bytes": 268,
+      "sha256": "3f2b088d188a16939787090cca8f14807c833a47975d6da30b2c75dc0813c02f"
+    },
+    {
+      "path": "artifacts/fs-probe-reject-resource-mix.log",
+      "bytes": 268,
+      "sha256": "3f2b088d188a16939787090cca8f14807c833a47975d6da30b2c75dc0813c02f"
+    }
+  ]
+}

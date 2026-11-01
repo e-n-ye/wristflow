@@ -111,7 +111,7 @@ static bool set_record(const char *key,const uint8_t *record,size_t size)
     rt_mutex_release(&database_lock);
     return ok; /* SDK success alone is insufficient after a latched FAL error. */
 }
-#if !defined(WF_STORAGE_PROBE) && !defined(WF_RESOURCE_PROBE)
+#if !defined(WF_STORAGE_PROBE) && !defined(WF_RESOURCE_PROBE) && !defined(WF_FS_PROBE)
 static const char *const runtime_keys[]={"runtime_a","runtime_b"};
 static size_t runtime_read(unsigned key,uint8_t *bytes,size_t capacity,void *context)
 {
@@ -255,7 +255,7 @@ void wristflow_product_services_start(wristflow_settings_t *settings, wristflow_
         rt_kprintf("[product] layout restore=%s generation=%u pages=%u\n",
             layout_restored ? "yes" : "defaults", layout_store.generation, layout->count);
     }
-#if !defined(WF_STORAGE_PROBE) && !defined(WF_RESOURCE_PROBE)
+#if !defined(WF_STORAGE_PROBE) && !defined(WF_RESOURCE_PROBE) && !defined(WF_FS_PROBE)
     wf_product_runtime_start(storage_ready?runtime_read:NULL,storage_ready?runtime_write:NULL,NULL,
         wristflow_product_services_monotonic(),(uint32_t)SystemPowerOnModeGet(),pm_get_pwron_wakeup_src());
 #endif

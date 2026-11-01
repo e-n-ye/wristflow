@@ -6,6 +6,7 @@
 
 | 对象 | 事实来源与所有权 | 操作 / 验证入口 |
 |---|---|---|
+| FS_REGION只读前置诊断 | Product `fs_probe.c/h`持有范围／SDK元数据守卫及1KiB分块统计，`product_fs_probe.c`持有官方SDK适配／互斥FinSH；`fs_protocol.py`严格校验，device_snapshot复用原采集 | [诊断契约](BATTERY-ESTIMATE.md#fs-readonly-probe-20261101)；显式`-FsProbe`，普通版排除，不启动长期记录器；两遍各12秒预算、无挂载／格式化／写接口，SDK几何与实体容量／所有权分别判定 |
 | 最小长期运行记录 | `core/runtime_record.c/h`持有纯模型／512B双槽编码；Product `product_runtime_record`持互斥及快照／FinSH，`runtime_input`只消费已有缓存，`product_runtime_health`只复制IMU发布；`wf_store`增加独立保存lane | [行为与预算](BATTERY-ESTIMATE.md#runtime-recorder-20261030)；开机自动记录，start／stop可查，无新周期唤醒；`runtime_export.py`只导出缓存，`runtime_record_decode.py`离线解码；共享保存失败冻结及主机／设备分别验证 |
 | 三场景纯电池协作 | `scripts/runtime_scene_lab.py`复用Console／Journal、B1协议、受绑定runtime_export／device_snapshot；每组保护旧RAM诊断、单发900秒start、只停匹配会话，离线不自动重开，回连须人工确认 | [执行边界](BATTERY-ESTIMATE.md#runtime-scenes-20261030)；默认模拟，实机显式绑定同版及现场；B1只保留起点，尾环补末样，缺失不伪造；不控制长期记录器、PM、charger、RTC或下载 |
 | 单次SDK重启采集 | `scripts/device_reboot.py`复用RecordedSession／Journal／prepare_capture，真实完整前导出作门槛，底层只准单次`reboot`，新鲜度／文件／端点／构建重验 | [恢复补验](BATTERY-ESTIMATE.md#runtime-reboot-20261101)；simulate／capture，短写或失响应不重发，发送前冷启动拒发，预期启动后只被动收流并关口；后快照由原工具另读，不提供保存屏障或产品退出协调 |
