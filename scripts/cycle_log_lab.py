@@ -17,14 +17,21 @@ class CycleClient(RecordedClient):
     COMMAND_PATTERN=r'wf_cycle (?:status|probe|init|mount|smoke [1-9]\d* \d+|arm(?:-low)? [1-9]\d*|stop [1-9]\d*|prefix [1-9]\d*|info (?:smoke|cycle(?: [1-9]\d*)?)|page (?:smoke|cycle) [1-9]\d* \d+ [1-4])'
     BOOT_MARKERS=(b'[product] storage=',b'SFBL')
 
+class CycleResponseMalformed(ValueError):
+    pass
+
 def command(client,text,code,*,deadline=None):
     lines=client.request('wf_cycle '+text,lambda line: '[cycle-done]' in line,deadline=deadline)
     done=[re.search(r'\[cycle-done\] cmd=(\d+) result=(-?\d+)$',line) for line in lines if '[cycle-done]' in line]
     accepted=[re.search(r'\[cycle-accepted\] cmd=(\d+) accepted=([01])$',line) for line in lines if '[cycle-accepted]' in line]
-    if len(done)!=1 or not done[0] or int(done[0][1])!=code or int(done[0][2])!=0:
+    if any(m and int(m[1])==code and int(m[2])!=0 for m in done):
         raise ValueError('Cycle command failed: '+repr(lines))
-    if len(accepted)!=1 or not accepted[0] or int(accepted[0][1])!=code or accepted[0][2]!='1':
-        raise ValueError('Cycle command not uniquely accepted')
+    if any(m and int(m[1])==code and m[2]=='0' for m in accepted):
+        raise ValueError('Cycle command rejected')
+    if len(done)!=1 or not done[0] or int(done[0][1])!=code:
+        raise CycleResponseMalformed('Cycle completion malformed: '+repr(lines))
+    if len(accepted)!=1 or not accepted[0] or int(accepted[0][1])!=code:
+        raise CycleResponseMalformed('Cycle acceptance malformed')
     return lines
 
 def status(client):
@@ -52,10 +59,29 @@ def recovery_info(lines,session,info):
         raise ValueError('Recovery manifest range')
     return dict(file_bytes=total,prefix_bytes=prefix,damaged_tail=damaged)
 
-def collect(out,transport,*,binding,identity,locks,action,kind='smoke',session=None,seconds=30,cancel=None):
+def read_page(client,journal,kind,session,offset,count,deadline,retries):
+    for attempt in range(retries+1):
+        try:
+            attempt_deadline=min(deadline,time.monotonic()+3) if retries else deadline
+            lines=command(client,f'page {kind} {session} {offset} {count}',8,deadline=attempt_deadline)
+        except (TimeoutError,CycleResponseMalformed) as exc:
+            error=exc
+        else:
+            # Explicit command rejection is never retried. Only a completed,
+            # malformed page or missing completion may repeat this read.
+            try:return parse_page(lines,session,offset,count)
+            except ValueError as exc:error=exc
+        journal.event('page_read_failed',session=session,offset=offset,count=count,
+            attempt=attempt+1,error=repr(error))
+        if attempt==retries or time.monotonic()>=deadline:raise error
+        journal.event('page_read_retry',session=session,offset=offset,count=count,attempt=attempt+2)
+
+def collect(out,transport,*,binding,identity,locks,action,kind='smoke',session=None,seconds=30,cancel=None,page_rows=4,page_retries=0):
     if action not in ('probe','init','mount','smoke','arm','arm-low','stop','status','export','recover'):raise ValueError('Cycle action')
     if not 10<=seconds<=120:raise ValueError('Smoke duration 10..120 seconds')
     if session is not None and not 0<session<2**32:raise ValueError('Session uint32 required')
+    if not 1<=page_rows<=4 or not 0<=page_retries<=3:raise ValueError('Page rows 1..4 and retries 0..3 required')
+    if (page_rows!=4 or page_retries) and action not in ('export','recover'):raise ValueError('Page options require export/recover')
     if binding.get('simulation') is not True:
         build=json.loads(Path(binding['build']['build_result']['path']).read_text(encoding='utf-8-sig'))
         if build.get('cycle_log') is not True or any(build.get(x) for x in ('fs_probe','storage_probe','resource_probe')):
@@ -63,7 +89,8 @@ def collect(out,transport,*,binding,identity,locks,action,kind='smoke',session=N
     if action in ('arm','arm-low','stop','recover') and not session:raise ValueError('Explicit session ID required')
     if action=='recover' and kind!='cycle':raise ValueError('Recovery requires named cycle')
     sid=session or secrets.randbelow(2**32-1)+1
-    journal=Journal(out,binding=dict(binding,action=action,kind=kind,session=sid,seconds=seconds),mode='cycle_log')
+    journal=Journal(out,binding=dict(binding,action=action,kind=kind,session=sid,seconds=seconds,
+        page_rows=page_rows,page_retries=page_retries),mode='cycle_log')
     cancel=cancel or threading.Event();runner=RecordedSession(journal,transport,cancel,CycleClient,identity=identity,locks=locks,timeout=60)
     result=dict(passed=False,action=action,simulation=binding.get('simulation',False),session=sid)
     try:
@@ -91,10 +118,10 @@ def collect(out,transport,*,binding,identity,locks,action,kind='smoke',session=N
                 recovered=recovery_info(first,session,info) if action=='recover' else None
                 if session is not None and session!=info['session']:raise ValueError('Explicit cycle session differs from file')
                 result['session']=info['session'];raw=bytearray()
-                for offset in range(0,info['rows'],4):
+                for offset in range(0,info['rows'],page_rows):
                     if time.monotonic()>=deadline:raise TimeoutError('Cycle whole export 20min deadline')
-                    n=min(4,info['rows']-offset)
-                    raw.extend(parse_page(command(client,f'page {kind} {info["session"]} {offset} {n}',8,deadline=deadline),info['session'],offset,n))
+                    n=min(page_rows,info['rows']-offset)
+                    raw.extend(read_page(client,journal,kind,info['session'],offset,n,deadline,page_retries))
                 final=command(client,selector,code,deadline=deadline)
                 if parse_info(final)!=info:raise ValueError('Cycle file changed during export')
                 if action=='recover' and recovery_info(final,session,info)!=recovered:raise ValueError('Recovery tail changed')
@@ -117,6 +144,8 @@ def main():
     p.add_argument('--action',choices=('probe','init','mount','smoke','arm','arm-low','stop','status','export','recover'),required=True)
     p.add_argument('--kind',choices=('smoke','cycle'),default='smoke');p.add_argument('--session',type=int)
     p.add_argument('--seconds',type=int,default=30);p.add_argument('--out',type=Path,required=True)
+    p.add_argument('--page-rows',type=int,choices=range(1,5),default=4)
+    p.add_argument('--page-retries',type=int,choices=range(4),default=0)
     for key in ('port','location','expected-bin'):p.add_argument('--'+key,required=True)
     for key in ('result','flash','source-archive','build-archive','recorded-root'):
         p.add_argument('--'+key,type=Path,required=key in ('result','flash'))
@@ -128,6 +157,6 @@ def main():
     def identity():verify_files(own);return guard()
     binding['cycle_tools']=own
     r=collect(args.out,SerialTransport(args.port),binding=binding,identity=identity,locks=lease_directory(),action=args.action,
-        kind=args.kind,session=args.session,seconds=args.seconds)
+        kind=args.kind,session=args.session,seconds=args.seconds,page_rows=args.page_rows,page_retries=args.page_retries)
     print(json.dumps(r,ensure_ascii=False,indent=2));return 0 if r['passed'] else 1
 if __name__=='__main__':raise SystemExit(main())

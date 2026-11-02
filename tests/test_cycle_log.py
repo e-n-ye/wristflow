@@ -106,6 +106,76 @@ class CycleTests(unittest.TestCase):
             root=Path(temp);path=root/'build.json';path.write_text(json.dumps({'cycle_log':False}))
             with self.assertRaises(ValueError):collect(root/'out',Peer(),binding={'build':{'build_result':{'path':str(path)}}},identity=lambda:{},locks=root/'locks',action='probe')
             self.assertFalse((root/'out').exists())
+    def test_readonly_page_retry_preserves_bytes_and_records_failure(self):
+        class TransientPeer(Peer):
+            def write(self,wire):
+                self.failed=wire.startswith(b'wf_cycle page') and not any(' page ' in x for x in self.commands)
+                return super().write(wire)
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);peer=TransientPeer()
+            r=collect(root/'out',peer,binding={'simulation':True},identity=lambda:{},locks=root/'locks',
+                action='export',kind='cycle',session=123,page_rows=1,page_retries=2)
+            self.assertTrue(r['passed'] and r['resources_closed'],r)
+            self.assertEqual((root/'out/cycle.bin').read_bytes(),peer.raw)
+            self.assertEqual(peer.commands.count('wf_cycle page cycle 123 0 1'),2)
+            events=[json.loads(x) for x in (root/'out/events.jsonl').read_text().splitlines()]
+            self.assertEqual(sum(x['kind']=='page_read_failed' for x in events),1)
+            self.assertEqual(sum(x['kind']=='page_read_retry' for x in events),1)
+    def test_page_retry_bound_and_no_partial_output(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);peer=Peer(True)
+            r=collect(root/'out',peer,binding={'simulation':True},identity=lambda:{},locks=root/'locks',
+                action='export',page_retries=2)
+            self.assertFalse(r['passed']);self.assertTrue(r['resources_closed'])
+            self.assertEqual(peer.commands.count('wf_cycle page smoke 123 0 4'),3)
+            self.assertFalse((root/'out/cycle.bin').exists())
+    def test_read_page_timeout_retry_and_deadline(self):
+        client=SimpleNamespace();journal=SimpleNamespace(event=lambda *a,**k:None)
+        lines=[f'[cycle-data] id=123 i=0 p={p} hex={row(0,1)[p*32:(p+1)*32].hex()}' for p in (0,1)]
+        with patch.object(lab,'command',side_effect=[TimeoutError('missing marker'),lines]) as call:
+            self.assertEqual(lab.read_page(client,journal,'cycle',123,0,1,time.monotonic()+10,1),row(0,1))
+            self.assertEqual(call.call_count,2)
+        with patch.object(lab,'command',side_effect=TimeoutError('deadline')) as call:
+            with self.assertRaises(TimeoutError):lab.read_page(client,journal,'cycle',123,0,1,0,3)
+            self.assertEqual(call.call_count,1)
+    def test_command_rejection_and_boot_are_not_retried(self):
+        from lab_serial import SessionChanged,ProtocolError
+        journal=SimpleNamespace(event=lambda *a,**k:None)
+        for error in (ValueError('Cycle command failed'),SessionChanged('Cold boot'),ProtocolError('Partial command write')):
+            with patch.object(lab,'command',side_effect=error) as call:
+                with self.assertRaises(type(error)):lab.read_page(None,journal,'cycle',123,0,1,time.monotonic()+10,3)
+                self.assertEqual(call.call_count,1)
+    def test_interleaved_page_completion_retries_but_explicit_rejection_does_not(self):
+        class CompletionPeer(Peer):
+            def __init__(self,rejected=False):super().__init__();self.rejected=rejected;self.changed=False
+            def write(self,wire):
+                result=super().write(wire)
+                if b' page ' in wire and not self.changed:
+                    self.changed=True
+                    replacement=b'[cycle-done] cmd=8 result=-6' if self.rejected else b'[cycle-done] cmd=8 result=0ch[7]voltage=36353'
+                    self.queue=self.queue.replace(b'[cycle-done] cmd=8 result=0',replacement)
+                return result
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp)
+            for rejected in (False,True):
+                peer=CompletionPeer(rejected)
+                r=collect(root/str(rejected),peer,binding={'simulation':True},identity=lambda:{},locks=root/'locks',
+                    action='export',page_retries=2)
+                self.assertEqual(r['passed'],not rejected,r);self.assertTrue(r['resources_closed'])
+                self.assertEqual(peer.commands.count('wf_cycle page smoke 123 0 4'),1 if rejected else 2)
+    def test_explicit_rejection_precedes_malformed_or_duplicate_reply(self):
+        class Reply:
+            def __init__(self,lines):self.lines=lines;self.calls=0
+            def request(self,*args,**kwargs):self.calls+=1;return self.lines
+        journal=SimpleNamespace(event=lambda *a,**k:None)
+        for lines in (
+            ['[cycle-accepted] cmd=8 accepted=0','[cycle-done] broken'],
+            ['[cycle-accepted] cmd=8 accepted=1','[cycle-done] cmd=8 result=-6','[cycle-done] cmd=8 result=0'],
+        ):
+            peer=Reply(lines)
+            with self.assertRaises(ValueError) as caught:lab.read_page(peer,journal,'cycle',123,0,1,time.monotonic()+10,3)
+            self.assertNotIsInstance(caught.exception,lab.CycleResponseMalformed)
+            self.assertEqual(peer.calls,1)
     def test_explicit_session_and_actual_report_session(self):
         with tempfile.TemporaryDirectory() as temp:
             root=Path(temp)

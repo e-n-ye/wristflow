@@ -96,7 +96,7 @@ python scripts/device_snapshot.py capture --result <Build结果> --flash <Flash�
 
 ### 公共检查与重验条件
 
-完整cycle日志另由`cycle_log_lab.py`复用同一绑定／RecordedSession／租约／Journal，要求独占`cycle_log is True`构建。`--action probe|init|mount|smoke|arm|stop|status|export`分别单用途、只发wf_cycle白名单；probe／init是写擦动作，必须先有当前具体授权，不能由历史命令自动启动。smoke仅10..120秒，正式arm需软件FULL及纯电池手电筒资格；主机失败关口不重发，已接纳的设备窗口仍有固件自身停止条件，不能把主机关口当设备已停止。export每页1..4行，绑定文件session、前后manifest、行及整文件CRC，共享20分钟deadline，完成后产生BIN／CSV。新适配已通过分片模拟、主机故障与[USB首窗](BATTERY-ESTIMATE.md#cycle-log-20261101)，非真实低压／整轮放电。每次操作输出新目录，初始化与mount分开，不自动格式化；首次format范围、固件和现场需单独核清。
+完整cycle日志另由`cycle_log_lab.py`复用同一绑定／RecordedSession／租约／Journal，要求独占`cycle_log is True`构建。`--action probe|init|mount|smoke|arm|stop|status|export`分别单用途、只发wf_cycle白名单；probe／init是写擦动作，必须先有当前具体授权，不能由历史命令自动启动。smoke仅10..120秒，正式arm需软件FULL及纯电池手电筒资格；主机失败关口不重发，已接纳的设备窗口仍有固件自身停止条件，不能把主机关口当设备已停止。export每页1..4行，绑定文件session、前后manifest、行及整文件CRC，共享20分钟deadline，完成后产生BIN／CSV。电脑端可显式选`--page-rows 1..4`（默认4）与`--page-retries 0..3`（默认0）；仅只读page缺完成回执、回执格式损坏或页解析失败可按同session／offset有限重读，每次失败保留Journal；启用重读时单次page最多等3秒，默认不重读时仍沿用原等待。控制命令、明确拒绝、冷启动和短写不重试；不补字符，不放宽CRC／身份／前后manifest，重试不延长总期限。新适配已通过分片模拟、主机故障与[USB首窗](BATTERY-ESTIMATE.md#cycle-log-20261101)，非真实低压／整轮放电。每次操作输出新目录，初始化与mount分开，不自动格式化；首次format范围、固件和现场需单独核清。
 
 纯电池短窗用`scripts/cycle_short_lab.py`复用该适配及Console／Journal，默认无端点模拟；真实窗口60..120秒，显式session／构建／下载记录／完整归档／BIN／现场确认。进入前已刷CycleLog并独立mount；单发arm、同session ARMED及START持久化读回后关串口，再人工拔USB进入手电筒、程序计时、人工退出并等待保存、确认回连后重开导出。接纳丢ACK、异session、取消／失败均不重发或盲停，不自动重连，明确要求操作者退出负载并接USB；设备停止须独立核验。结束以LOAD、完整CRC、零丢弃／积压、saved=accepted及纯电池100亮度样本跨度判定；不是3.6V断载或功耗验收。`68dfe0f`首版只允许一份`cycle.bin`，该次短窗占用此名；不由工具删除旧轮、format或刷机，普通版恢复另走Flash入口。
 
