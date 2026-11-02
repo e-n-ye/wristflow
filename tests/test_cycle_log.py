@@ -42,6 +42,39 @@ class Peer:
         result=bytes(self.queue[:min(43,n)]);del self.queue[:len(result)];return result
 
 class CycleTests(unittest.TestCase):
+    def test_v2_events_keep_time_and_schema_separation(self):
+        def v2(sequence,kind,event=0):
+            b=bytearray(row(sequence,min(kind,3)));b[4]=2;b[5]=kind;b[6]&=~8;b[7]=event;b[54]|=1
+            if kind==4:b[6]&=~4
+            if kind!=3:b[56]=0
+            struct.pack_into('<H',b,42,1200);struct.pack_into('<I',b,60,zlib.crc32(b[:60]));return bytes(b)
+        raw=v2(0,1)+v2(1,4,2)+v2(2,3)
+        info=dict(session=123,rows=3,bytes=len(raw),crc=zlib.crc32(raw),terminal=True)
+        decoded=decode_file(raw,info)
+        self.assertEqual(decoded[1]['event'],2);self.assertEqual(decoded[1]['keep_remaining_ms'],1200000)
+        self.assertIsNone(decoded[1]['filtered_decimillivolts'])
+        mixed=v2(0,1)+row(1,3)
+        with self.assertRaises(ValueError):decode_file(mixed,dict(session=123,rows=2,bytes=128,crc=zlib.crc32(mixed),terminal=True))
+        for bad in (v2(1,4,0),v2(1,2,2),v2(1,4,7)):
+            with self.assertRaises(ValueError):decode_row(bad)
+    def test_readonly_prefix_export_marks_damaged_tail_and_uses_one_identity(self):
+        class PrefixPeer(Peer):
+            def write(self,wire):
+                words=wire.decode().strip().split()
+                if words[1]!='prefix':return super().write(wire)
+                self.commands.append(wire.decode().strip())
+                self.queue.extend((f'[cycle-accepted] cmd=10 accepted=1\r\n'
+                    f'[cycle-recovery] id=123 file_bytes=401 prefix_bytes=384 damaged_tail=1\r\n'
+                    f'[cycle-info] id=123 rows=6 bytes=384 crc={zlib.crc32(self.raw):08x} terminal=1\r\n'
+                    f'[cycle-done] cmd=10 result=0\r\n').encode())
+                return len(wire)
+        with tempfile.TemporaryDirectory() as temp:
+            peer=PrefixPeer();r=collect(Path(temp)/'recover',peer,binding={'simulation':True},identity=lambda:{},
+                locks=Path(temp)/'locks',action='recover',kind='cycle',session=123)
+            self.assertTrue(r['passed'] and r['resources_closed'] and r['prefix_only'])
+            self.assertFalse(r['record_complete']);self.assertTrue(r['recovery']['damaged_tail'])
+            self.assertEqual(peer.commands.count('wf_cycle prefix 123'),2)
+            self.assertFalse(any('arm' in command or 'stop' in command for command in peer.commands))
     def test_rows_crc_fields_and_order(self):
         raw=row(0,1)+row(1,3);info=dict(session=123,rows=2,bytes=128,crc=zlib.crc32(raw),terminal=True)
         rows=decode_file(raw,info);self.assertEqual(rows[0]['raw_mv'],4100);self.assertEqual(rows[1]['elapsed_ms'],5000)

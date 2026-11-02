@@ -1,5 +1,6 @@
 /* Actual worker/cache with an independently driven background step. */
 #define RT_USING_PM
+#define WF_CYCLE_LOG
 #include "../apps/product/src/product_power_service.c"
 #include <assert.h>
 #include <string.h>
@@ -39,13 +40,13 @@ void rt_pm_release(unsigned mode) { assert(mode == PM_SLEEP_MODE_IDLE && idle &&
 
 wristflow_power_snapshot_t wristflow_product_power_voltage(void)
 {
-    assert(!irq && idle == 1); ++adc_calls; ticks += 25;
+    assert(!irq && idle == (experiment ? 2U:1U)); ++adc_calls; ticks += 25;
     if (off_in_adc) wristflow_product_power_screen(false);
     return (wristflow_power_snapshot_t){.voltage_valid=true, .millivolts=3964};
 }
 void wristflow_product_power_input(wristflow_power_snapshot_t *value)
 {
-    assert(!irq && idle == 1); ++input_calls;
+    assert(!irq && idle == (experiment ? 2U:1U)); ++input_calls;
     /* During a five-second transfer the foreground can copy/enqueue without
      * I/O and can sleep/wake; fresh independent voltage is already published. */
     wristflow_power_snapshot_t interim = wristflow_product_power_snapshot();
@@ -64,7 +65,7 @@ static void run_background(void)
 {
     rt_uint32_t bits;
     if (rt_event_recv(&requests, 1, 3, -1, &bits) == RT_EOK) sample_once();
-    assert(!idle && !irq);
+    assert(idle==(experiment ? 1U:0U) && !irq);
 }
 int main(void)
 {
@@ -123,5 +124,14 @@ int main(void)
     sample_once(); /* Old dispatched worker claims the new pending serial once. */
     assert(adc_calls == 8 && power_events == 2);
     run_background(); assert(adc_calls == 8 && power_events == 2);
+    wristflow_product_power_aod(false);wristflow_product_power_screen(false);
+    unsigned prior=adc_calls;
+    wristflow_product_power_experiment(true);assert(idle==1);
+    run_background();assert(adc_calls==prior+1 && power_events==3 && wristflow_product_power_snapshot().voltage_valid);
+    wristflow_product_power_experiment(true);assert(idle==1); /* Idempotent lease. */
+    wristflow_product_power_request();run_background();assert(adc_calls==prior+2 && power_events==4);
+    wristflow_product_power_request();wristflow_product_power_experiment(false);assert(!idle);
+    run_background();assert(adc_calls==prior+2 && !wristflow_product_power_snapshot().voltage_valid);
+    wristflow_product_power_request();run_background();assert(adc_calls==prior+2); /* Ordinary OFF unchanged. */
     return 0;
 }

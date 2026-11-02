@@ -102,6 +102,10 @@ python scripts/device_snapshot.py capture --result <Build结果> --flash <Flash�
 
 新会话版本保留legacy文件，新正式轮按session独立命名并预留容量，详见[新会话契约](BATTERY-ESTIMATE.md#cycle-sessions-20261101)。同一协作入口加`--full`只做有限准备／交接（4步），不运行120秒后退出的短测步骤，不扩展通用Console的900秒等待上限。交接后主机已关口，设备独立运行；操作者看到白屏自行关闭即回USB并告知，助手再核显式session的状态和完整导出。`full_handoff=true`只证明ARM／START持久化与人工准备确认，不证明全程RUNNING、LOW或整轮完成。取消／错误保留可能活动状态，不把主机关口当设备已停。新固件先模拟实际交互，再核构建／下载／现场；旧版本固定文件限制仍按其原证据保留。
 
+独立低压模式用`scripts/low_voltage_lab.py --help`，默认无端点模拟；真实绑定沿用Device／RecordedSession。新`arm-low`不要求FULL，8步Console先持久起点，再保持USB关闭AOD／常亮、自然OFF20秒，人工KEY恢复并开启20分钟常亮。同身份ARMED／low、至少2个新鲜OFF样本、saved=accepted、queue/drop0和正确常亮剩余，才允许关口后拔USB／手电筒交接。USB准备样本与BAT由字段区分，正常常亮到期重复20分钟不断会话。页面只做有限准备，不等失效终点或扩展公共等待上限；物理KEY不能点亮后及时回USB并告知。AOD若临时关闭，记下原值在结束时恢复。取消／资格失败不盲重连或stop，保留recovery_required，由助手独立核状态。
+
+`cycle_log_lab.py --action recover --kind cycle --session <SID>`严格读取命名文件`prefix SID`，不降级legacy。仅扫描连续CRC／身份／顺序／版本前缀，报告原字节数、前缀字节数及坏尾；前后manifest一致、逐行／前缀CRC通过也始终标`prefix_only`。坏尾即使带END亦不算整文件完整，无END明确不完整；不能挂载／首行无有效START即失败，不修复／截断／format。正常export仍严格整文件，v1兼容。详见[低压边界](BATTERY-ESTIMATE.md#low-voltage-lab-20261102)。
+
 在仓库根目录运行；下例的result、ZIP与flash路径由本次实验明确选择，不自动把日期最新的文件当作正确版本。`--out`放在子命令前且必须为新路径，可省略后仅输出JSON。失败退出1并保留错误；不要通过改写旧报告消除失败。
 
 ```bash

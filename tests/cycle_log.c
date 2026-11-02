@@ -56,6 +56,12 @@ static void encode_tests(void)
     assert(!wf_cycle_stop_reason(&o,false,0,true));
     o=r.observation;assert(wf_cycle_stop_reason(&o,false,0,false)==WF_CYCLE_LOAD);
     assert(wf_cycle_stop_reason(&o,true,WF_CYCLE_MAX_MS,false)==WF_CYCLE_LIMIT);
+    r=row(2,WF_CYCLE_EVENT);r.low_voltage=true;r.event=WF_CYCLE_KEY_DOWN;r.keep_remaining_ms=1199501;r.observation.context.flags|=WF_BATTERY_UI_VALID;
+    assert(wf_cycle_encode(&r,bytes) && wf_cycle_decode(bytes,&decoded));
+    assert(decoded.low_voltage && decoded.event==WF_CYCLE_KEY_DOWN && decoded.keep_remaining_ms==1200000);
+    assert(!decoded.observation.diagnostic.filter_valid && !decoded.observation.diagnostic.filtered_decimillivolts);
+    for(unsigned i=0;i<64;++i) {bytes[i]^=1;assert(!wf_cycle_decode(bytes,&decoded));bytes[i]^=1;}
+    r.low_voltage=false;assert(!wf_cycle_encode(&r,bytes));
 }
 static void session_tests(void)
 {
@@ -99,6 +105,45 @@ static void session_tests(void)
         wf_cycle_row_t decoded;assert(wf_cycle_decode(readback,&decoded) && decoded.session==id);
     }
 }
+static void prefix_tests(void)
+{
+    memset(media+32,255,0x400000);boot();assert(!wf_cycle_store_mount(&store,true));
+    uint8_t bytes[64],old[64];wf_cycle_info_t info;
+    assert(!wf_cycle_store_create(&store,false,123));wf_cycle_row_t r=row(0,WF_CYCLE_START);
+    assert(wf_cycle_encode(&r,old) && !wf_cycle_store_append(&store,old) && !wf_cycle_store_commit(&store) && !wf_cycle_store_close(&store));
+    for(unsigned fault=0;fault<5;++fault) {
+        uint32_t id=400+fault;assert(!wf_cycle_store_create_session(&store,id));
+        for(unsigned i=0;i<3;++i) {
+            r=row(i,!i ? WF_CYCLE_START:i==2 ? (fault==4 ? WF_CYCLE_END:WF_CYCLE_EVENT):WF_CYCLE_SAMPLE);
+            r.session=id;r.low_voltage=true;r.event=r.kind==WF_CYCLE_EVENT ? WF_CYCLE_CONTEXT:0;
+            assert(wf_cycle_encode(&r,bytes) && !wf_cycle_store_append(&store,bytes) && !wf_cycle_store_commit(&store));
+        }
+        assert(!wf_cycle_store_close(&store));
+        uint32_t total=0;bool damaged=true;
+        assert(!wf_cycle_store_prefix_session(&store,id,&info,&total,&damaged) && info.rows==3 && total==192 && !damaged);
+        /* Fixture-only corruption after the last committed prefix. The
+         * production salvage operation below never writes or repairs it. */
+        char path[24];snprintf(path,sizeof path,"cycle-%08lx.bin",(unsigned long)id);
+        assert(!lfs_file_opencfg(&store.fs,&store.file,path,LFS_O_WRONLY|LFS_O_APPEND,&store.fcfg));
+        r=row(3,WF_CYCLE_SAMPLE);r.session=id;r.low_voltage=true;assert(wf_cycle_encode(&r,bytes));
+        unsigned length=64;
+        if(fault==0 || fault==4)length=17;
+        if(fault==1)bytes[40]^=1;
+        if(fault==2) {r.sequence=99;assert(wf_cycle_encode(&r,bytes));}
+        if(fault==3) {r.low_voltage=false;assert(wf_cycle_encode(&r,bytes));}
+        assert(lfs_file_write(&store.fs,&store.file,bytes,length)==(lfs_ssize_t)length);
+        assert(!lfs_file_sync(&store.fs,&store.file) && !lfs_file_close(&store.fs,&store.file));
+        boot();assert(!wf_cycle_store_mount(&store,false));
+        assert(wf_cycle_store_info_session(&store,id,&info)==LFS_ERR_CORRUPT);
+        unsigned p=progs,e=erases;memcpy(backup,media+32,0x400000);
+        assert(!wf_cycle_store_prefix_session(&store,id,&info,&total,&damaged));
+        assert(info.session==id && info.rows==3 && info.bytes==192 && total==192+length && damaged);
+        assert(info.terminal==(fault==4));
+        assert(!wf_cycle_store_read_session(&store,id,2,bytes));
+        assert(progs==p && erases==e && !memcmp(backup,media+32,0x400000));
+        assert(!wf_cycle_store_read(&store,false,123,0,bytes) && !memcmp(old,bytes,64));
+    }
+}
 int main(void)
 {
     encode_tests();memset(media,0xa5,sizeof media);memset(media+32,255,0x400000);boot();
@@ -131,6 +176,7 @@ int main(void)
     assert(!wf_cycle_store_info(&store,false,&info) && info.rows==34561 && info.terminal);
     assert(!wf_cycle_store_read(&store,false,123,34560,readback) && !memcmp(bytes,readback,64));
     session_tests();
+    prefix_tests();
     for(unsigned i=0;i<32;++i)assert(media[i]==0xa5 && media[32+0x400000+i]==0xa5);
     puts("cycle_log: legacy/smoke preserved, independent named sessions/duplicate refusal, 48h2211904B recovery with old files, capacity refusal before create, CRC/thresholds passed");
     return 0;

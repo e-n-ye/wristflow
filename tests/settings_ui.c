@@ -443,7 +443,11 @@ int main(int argc,char **argv)
     jump(5050); jump(600000); assert(wristflow_ui_shell_wrist_wake(shell)); assert(lv_screen_active()==draft); surface(WRISTFLOW_SURFACE_COMPONENT_EDITOR);
     assert(!lv_obj_has_state(named(draft,"edit_action"),LV_STATE_DISABLED)); assert(wristflow_ui_shell_layout(shell)->count==3); snapshot("draft_wake");
     uint8_t record[WRISTFLOW_SETTINGS_BYTES]; chosen=settings(); assert(wristflow_settings_encode(&chosen,record));
-    assert(wristflow_ui_shell_keep_awake(shell,20)); wristflow_ui_shell_destroy(shell); shell=NULL;
+    assert(wristflow_ui_shell_keep_awake(shell,20));assert(wristflow_ui_shell_keep_remaining_ms(shell)==1200000);
+    jump(1199000);assert(wristflow_ui_shell_keep_remaining_ms(shell)==1000);
+    jump(1000);assert(!wristflow_ui_shell_keep_remaining_ms(shell));
+    assert(wristflow_ui_shell_keep_awake(shell,20));jump(1000);assert(wristflow_ui_shell_keep_remaining_ms(shell)==1199000);
+    wristflow_ui_shell_destroy(shell); shell=NULL;
     assert(wristflow_settings_decode(&initial,record,sizeof record));
     shell=wristflow_product_ui_create(&state,&initial,set_brightness,NULL); advance(240);
     assert(!wristflow_ui_shell_keep_minutes(shell) && !settings().face_long_press && settings().screen_timeout==5 && brightness==27);
