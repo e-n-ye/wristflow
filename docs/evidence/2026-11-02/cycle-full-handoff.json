@@ -1,0 +1,349 @@
+{
+  "schema": 1,
+  "date": "2026-11-02",
+  "baseline": "a6c8bb0e6a88d7e80a429910b2bef937a9050a57",
+  "branch": "codex/cycle-full-20261102",
+  "checkout": "D:/MY_Desk/project/wristflow",
+  "status": "full_discharge_handed_off_device_result_pending",
+  "authorization": {
+    "request": "今天有时间做完整的放电测试",
+    "field": "已充满，正常且常亮等待超过6秒",
+    "same_board_battery_firmware_wiring": true,
+    "stop_raw_mv": 3600,
+    "target3400_enabled": false,
+    "retain_candidate": true
+  },
+  "firmware": {
+    "result": "artifacts/product/20261101-214345-360/result.json",
+    "flash": "artifacts/flash/product/20261101-214934-563/result.json",
+    "main_sha256": "10086d00508fbae8137140c13ba34b9a846f2929b076bca8a71a411415ee554a",
+    "archive": "artifacts/cycle-sessions-20261101-candidate-build.zip",
+    "preflight_passed": true,
+    "rebuilt": false,
+    "flashed": false,
+    "sdk_or_partition_changed": false
+  },
+  "charging_observation": {
+    "valid_samples": 44,
+    "raw_mv_range": [
+      4166,
+      4168
+    ],
+    "percent": 98,
+    "charge": 2,
+    "current_not_measured": true,
+    "taper_not_verified": true,
+    "initial_host_failure": "Default Python lacked pyserial before device open; preserved ModuleNotFoundError. Reused uv offline pyserial3.5, no SDK environment modification."
+  },
+  "before": {
+    "old_cycle_status": {
+      "state": 5,
+      "session": 2026110104,
+      "accepted": 850,
+      "saved": 850,
+      "queued": 0,
+      "dropped": 0,
+      "reason": 4,
+      "inhibit": 0
+    },
+    "runtime": {
+      "boot": 10,
+      "generation": 92,
+      "last": {
+        "ms": 60267620,
+        "sequence": 1697,
+        "sampled_ms": 60264393,
+        "utc": 1793601302,
+        "millivolts": 4165,
+        "flags": 63,
+        "percent": 100,
+        "requested": 50,
+        "acknowledged": 50,
+        "charge": 3,
+        "scene": 1
+      },
+      "failures": 0,
+      "fault_mask": 0
+    },
+    "failed": false
+  },
+  "session": 2026110201,
+  "filename": "cycle-78c3fcf9.bin",
+  "armed_status": {
+    "state": 2,
+    "session": 2026110201,
+    "accepted": 1,
+    "saved": 1,
+    "queued": 0,
+    "dropped": 0,
+    "reason": 0,
+    "inhibit": 0
+  },
+  "handoff": {
+    "passed": true,
+    "outcome": "passed",
+    "detail": "",
+    "simulation": false,
+    "hardware_verified": false,
+    "session": 2026110201,
+    "possible_arm": true,
+    "owned": true,
+    "stopped": false,
+    "reconnect_confirmed": false,
+    "recovery_required": false,
+    "full_handoff": true,
+    "device_may_be_active": true,
+    "device_running_verified": false,
+    "analysis": null,
+    "limits": "No format, reset, flash or clock writes. Full handoff verifies ARM/START and operator actions only, not RUNNING or full-discharge success. Errors/cancellation never reconnect or send blind stop; operator exits load and reconnects, then assistant independently verifies device state."
+  },
+  "operator_events": [
+    {
+      "sequence": 4,
+      "wall_ns": 1793601382259464400,
+      "monotonic_ns": 5193584582700,
+      "kind": "confirmed",
+      "phase": "prepare"
+    },
+    {
+      "sequence": 12,
+      "wall_ns": 1793601399706919100,
+      "monotonic_ns": 5211032038000,
+      "kind": "confirmed",
+      "phase": "unplug"
+    },
+    {
+      "sequence": 17,
+      "wall_ns": 1793601432362159600,
+      "monotonic_ns": 5243687277900,
+      "kind": "confirmed",
+      "phase": "handoff"
+    },
+    {
+      "sequence": 19,
+      "wall_ns": 1793601432364787800,
+      "monotonic_ns": 5243689906200,
+      "kind": "full_handoff",
+      "session": 2026110201,
+      "device_running_verified": false,
+      "max_device_ms": 172800000,
+      "stop_raw_mv": 3600
+    }
+  ],
+  "operator_confirmed_local_times": {
+    "prepare": "2026-11-02T14:36:22.259465+08:00",
+    "unplug": "2026-11-02T14:36:39.706919+08:00",
+    "handoff": "2026-11-02T14:37:12.362160+08:00"
+  },
+  "preservation": "New O_EXCL named file; no old file deletion/overwrite, no probe/init/format/mount/reboot/time write. Existing mounted backend retained.",
+  "verification": "No source change, build or new tests; reuse previously validated firmware and unchanged FULL Console workflow. This window proves ARMED/START durable plus human actions, not RUNNING/LOW/complete curve.",
+  "command_binding": {
+    "port": "COM5",
+    "location": "1-1.1",
+    "result": "artifacts/product/20261101-214345-360/result.json",
+    "flash": "artifacts/flash/product/20261101-214934-563/result.json",
+    "build_archive": "artifacts/cycle-sessions-20261101-candidate-build.zip",
+    "recorded_root": "D:/MY_Desk/project/wristflow",
+    "expected_bin": "10086d00508fbae8137140c13ba34b9a846f2929b076bca8a71a411415ee554a",
+    "host": "uv run --offline --no-project --with pyserial==3.5 python",
+    "current_field_confirmation": true
+  },
+  "commands": [
+    "scripts/lab_check.py --out artifacts/cycle-full-device-20261102-001/preflight-build.json build (explicit result/flash/archive/root above)",
+    "scripts/runtime_export.py capture --seconds 60 --out artifacts/cycle-full-device-20261102-001/charge-runtime-001 (bound above; exit0, closed)",
+    "scripts/cycle_log_lab.py --action status --out artifacts/cycle-full-device-20261102-001/prestart-status (bound above; exit0, closed)",
+    "scripts/runtime_export.py capture --seconds 60 --out artifacts/cycle-full-device-20261102-001/full-runtime (bound above; exit0, closed)",
+    "scripts/cycle_short_lab.py --full --session 2026110201 --out artifacts/cycle-full-device-20261102-001/prepare --confirmed (bound above; exit0, two UART sessions closed)",
+    "scripts/lab_check.py files --manifest docs/evidence/2026-11-02/cycle-full-handoff.json --key files|sources; docs --base origin/main; git diff --check"
+  ],
+  "next": "Keep fixed BAT flashlight100. On spontaneous white-screen off promptly reconnect USB and read explicit session status/full CRC export; early exit closes the session and reentry never resumes.",
+  "limits": [
+    "No current/capacity/SOC accuracy or physical poweroff claim",
+    "LOW and low-voltage persistence remain unverified until end readback",
+    "Prepare page is not live device telemetry"
+  ],
+  "files": [
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/preflight-build.json",
+      "bytes": 143055,
+      "sha256": "d62d1f62c6d3c96698138398fd2441c9a47e8d1aa9de3a18f2e32b91b95d9a41"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/charge-runtime-001-cli.log",
+      "bytes": 1125,
+      "sha256": "8ebac1a4227801bcf3b238da779bec0e0fafded637585414fad2665191e874d9"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/charge-runtime-002-cli.log",
+      "bytes": 568,
+      "sha256": "c667779d5aee12db6a6f4c10efbc728e49d4e74fc538703007034ed2f419546e"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/full-runtime-cli.log",
+      "bytes": 562,
+      "sha256": "8e4e8c740486d742d6ae9846b820984ba7badbe9bce6ca1f26a8e1ff2d889f22"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/charge-runtime-001/binding.json",
+      "bytes": 148346,
+      "sha256": "bf9d4af88a83e72853436c381feb07aab8dbe9a03d9f62f24d2897e92df9f7e0"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/charge-runtime-001/events.jsonl",
+      "bytes": 6196,
+      "sha256": "6dcd80acfee1fa61eb64a0b9861044db6ebd3a90df97a3bd9746f94dd816b9bf"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/charge-runtime-001/export.json",
+      "bytes": 568,
+      "sha256": "c667779d5aee12db6a6f4c10efbc728e49d4e74fc538703007034ed2f419546e"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/charge-runtime-001/records.json",
+      "bytes": 24416,
+      "sha256": "8e82be83c06c7064b40207717c240ebf181e901447c2af47f806a63d8d549e10"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/charge-runtime-001/uart.bin",
+      "bytes": 17246,
+      "sha256": "8ce4ebad775a2944aa69af2261ff7cdcdb868b932e960fdf69ecb035274c6846"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/prestart-status/binding.json",
+      "bytes": 148441,
+      "sha256": "e39c7dc42937b4ba08734123bfd704474617330571b3283f842aa20bbd4b5aed"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/prestart-status/events.jsonl",
+      "bytes": 1385,
+      "sha256": "cf6cadfa053f78ab33d27c9aba480bf1f784ed6224095282f404de039ff33093"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/prestart-status/report.json",
+      "bytes": 306,
+      "sha256": "fb6edd21665d03c6c542ae117b95585e5153a10e64b0f6454fefc38bd3fd7267"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/prestart-status/uart.bin",
+      "bytes": 143,
+      "sha256": "763924dbb59f905c58e61ae06fd320dd1d44dc0b959b0bd0a730f606612a1bbb"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/full-runtime/binding.json",
+      "bytes": 148346,
+      "sha256": "bc2ce26e53631e38cb31d2a2ca1a99521aaf9fe2344ea872c299668b469284e9"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/full-runtime/events.jsonl",
+      "bytes": 6314,
+      "sha256": "380a36daf3c88aba59db13c1182f1ec5e365dd00d9a09f6c6f4ab685faeb297e"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/full-runtime/export.json",
+      "bytes": 562,
+      "sha256": "8e4e8c740486d742d6ae9846b820984ba7badbe9bce6ca1f26a8e1ff2d889f22"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/full-runtime/records.json",
+      "bytes": 24489,
+      "sha256": "3d292a898f8fd5a22c69c1a8eb60a9be848f45aaebde00a55ada053b8bfad78d"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/full-runtime/uart.bin",
+      "bytes": 17217,
+      "sha256": "be91e5b47a71829d63d5f48a76953974e200d0fbb06ba56331c0643cbe0d84b2"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/prepare/binding.json",
+      "bytes": 149029,
+      "sha256": "67c7dd75285d680ce84a3b39da26a1516457acee7025386895ec791af6aaa1a6"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/prepare/events.jsonl",
+      "bytes": 3279,
+      "sha256": "29604845d5910f443f3e907b6a2f5a7d267036a461acdeac23b7d001f4a032b5"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/prepare/experiment.json",
+      "bytes": 689,
+      "sha256": "e92650e30faa4530c334a4d67f04a2c7db0e6c437470c10cc040004d708e7dff"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/prepare/progress.json",
+      "bytes": 142,
+      "sha256": "9a439b8d9837141c2d2720dff829b2f1db37e5952d12ff2fdc6fa904cfc69fc2"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/prepare/arm/binding.json",
+      "bytes": 148840,
+      "sha256": "3f1a78cdd09cdd2d460ec5e567e488eed670cd87a9472b04f1017e1274905205"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/prepare/arm/events.jsonl",
+      "bytes": 1265,
+      "sha256": "dbed869945e3b93931f42cd8e00beaea48a9416a9a90268d6d5edf53a8fca8e4"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/prepare/arm/report.json",
+      "bytes": 123,
+      "sha256": "e55b6c2b4196885794e721f0a393bb492f0b4e4019d195ef584efcdd3f20f4cd"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/prepare/arm/uart.bin",
+      "bytes": 76,
+      "sha256": "4483906e4e44f92cfabdcd67249b352e369cf4927c353127fa06da3396d383cd"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/prepare/armed-status-0/binding.json",
+      "bytes": 148843,
+      "sha256": "df7a0fda07c4160356274ca1e47244606dedcfee4ca3fd96d3190befb9b8cb00"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/prepare/armed-status-0/events.jsonl",
+      "bytes": 1381,
+      "sha256": "c7535d73407a72abb16b05c1ccb032df64bac923438be33495ee6d062ba8a0a6"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/prepare/armed-status-0/report.json",
+      "bytes": 302,
+      "sha256": "ceeaba3a67fc7ddcdc9aadf08d1e59deea451991bffb387f79d57f9e30dba273"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/prepare/armed-status-0/uart.bin",
+      "bytes": 139,
+      "sha256": "11a6700fea0f2242bfc5033c7af43418e0b7bd80b16b98353dcefa30ed01c827"
+    }
+  ],
+  "sources": [
+    {
+      "path": "scripts/cycle_short_lab.py",
+      "bytes": 12760,
+      "sha256": "d765d49451e392abc32e3186eac6e43944e488aca640c5a37104b255657240d4"
+    },
+    {
+      "path": "scripts/cycle_log_lab.py",
+      "bytes": 7576,
+      "sha256": "dd0a83d22baeb089bca039587637f90ff4caf04ab1fdc833acd85f819c183da8"
+    },
+    {
+      "path": "scripts/cycle_protocol.py",
+      "bytes": 3724,
+      "sha256": "48fb5d374b596a1b910bd8062cad8fe9eaf565c97e46436ed2b509b9ffdb206d"
+    },
+    {
+      "path": "scripts/runtime_export.py",
+      "bytes": 9311,
+      "sha256": "84b280902836d0d15e323a19062ed27043113ae507879a5d77d359e4bb0ddb00"
+    },
+    {
+      "path": "scripts/runtime_record_decode.py",
+      "bytes": 10383,
+      "sha256": "41fc2dd141a9bb843e40f7caeefefaec1955c9189e7dcb1864ba8ae514f99a39"
+    },
+    {
+      "path": "artifacts/cycle-full-20261102-evidence.py",
+      "bytes": 6646,
+      "sha256": "5211834066fb45ec8c615089d06322f7ec1c02f9f76358999c19579da7a3ea44"
+    }
+  ]
+}
