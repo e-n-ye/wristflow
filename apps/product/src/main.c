@@ -107,7 +107,7 @@ static void capture_battery(void)
     bool diagnostic=probe_reserved;
     rt_hw_interrupt_enable(runtime_level);
     wf_product_runtime_capture(&record,resident_cache.phase==WF_AOD_PANEL_RESIDENT,flashlight,diagnostic);
-    wf_product_cycle_observe(&record,flashlight);
+    wf_product_cycle_context(&record,flashlight,wristflow_ui_shell_keep_remaining_ms(product_shell));
     wristflow_ui_shell_flashlight_guard(product_shell,wf_product_cycle_inhibit());
 }
 
@@ -272,7 +272,7 @@ static void sync_endurance_key(void)
 
 static wristflow_watch_snapshot_t read_snapshot(bool force_power)
 {
-    if (!waiting_for_wake && (force_power || rt_tick_get() - power_sampled >= rt_tick_from_millisecond(5000))) {
+    if (!waiting_for_wake && !wf_product_cycle_sampling() && (force_power || rt_tick_get() - power_sampled >= rt_tick_from_millisecond(5000))) {
         wristflow_product_power_request();
         power_sampled = rt_tick_get();
     }
@@ -312,6 +312,8 @@ static void read_pointer(lv_indev_t *input, lv_indev_data_t *data)
 static void button_callback(int32_t pin, button_action_t action)
 {
     (void)pin;
+    if(action==BUTTON_PRESSED)wf_product_cycle_signal(WF_CYCLE_KEY_DOWN);
+    if(action==BUTTON_RELEASED)wf_product_cycle_signal(WF_CYCLE_KEY_UP);
     if (action == BUTTON_PRESSED) {
         key_down = true; key_pressed_tick = rt_tick_get(); ++key_press_id;
         key_mode_press = endurance_key_enabled;
@@ -556,6 +558,7 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     bool preview = false, reminder = false, charging = false, wrist = false;
     defer_brightness = true;
     for (;;) {
+        bool cycle_lcd_off=false;
         wristflow_settings_t settings;
         wristflow_ui_shell_get_settings(product_shell, &settings);
         resident.snapshot = read_snapshot(false);
@@ -577,7 +580,7 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
         else if (power_minute != minute) {
             power_minute = minute;
             rt_kprintf("[aod-power] request minute=%lu\n", (unsigned long)minute);
-            wristflow_product_power_request();
+            if(!wf_product_cycle_sampling())wristflow_product_power_request();
         }
         if (show_aod) {
             wristflow_product_pm_screen(false); /* AOD retains the known LCD IDLE guard. */
@@ -611,11 +614,13 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
             if (lcd_on) {
                 RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_POWEROFF, NULL) == RT_EOK);
                 lcd_on = false;
+                cycle_lcd_off=true;
                 rt_kprintf("[product] screen off; notification events active\n");
             }
             wristflow_product_pm_screen(true);
         }
         capture_battery();
+        if(cycle_lcd_off)wf_product_cycle_signal(WF_CYCLE_LCD_OFF_DONE);
         power_updated = false;
         clock = wristflow_product_services_time();
         wall = wristflow_product_snapshot(clock.valid, clock.utc);
@@ -671,7 +676,10 @@ arbitrate_sleep_events:
     if (wristflow_ui_shell_endurance(product_shell)) sync_endurance_key();
     wristflow_watch_snapshot_t wake_snapshot = read_snapshot(false);
     wristflow_ui_shell_update(product_shell, &wake_snapshot);
-    if (!lcd_on) RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_POWERON, NULL) == RT_EOK);
+    if (!lcd_on) {
+        wf_product_cycle_signal(WF_CYCLE_LCD_ON_REQUEST);
+        RT_ASSERT(rt_device_control(lcd, RTGRAPHIC_CTRL_POWERON, NULL) == RT_EOK);
+    }
     lcd_on = true;
     RT_ASSERT(rt_device_control(touch, RTGRAPHIC_CTRL_POWERON, NULL) == RT_EOK);
     lv_indev_reset(pointer, NULL);
@@ -694,6 +702,7 @@ arbitrate_sleep_events:
     wristflow_product_power_screen(true); /* Start device work only after the first lit frame. */
     wristflow_product_steps_screen(true);
     capture_battery();
+    wf_product_cycle_signal(WF_CYCLE_LCD_ON_DONE);
 }
 
 static uint32_t vibration_preview(wristflow_vibration_mode_t mode, void *context)

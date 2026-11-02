@@ -107,6 +107,8 @@ bool wristflow_ui_shell_carousel_snapshot(const wristflow_ui_shell_t *, wristflo
 const char *wristflow_ui_shell_watchface_id(const wristflow_ui_shell_t *shell);
 /* User preference, not temporary flashlight or power-policy brightness. */
 bool wristflow_ui_shell_get_settings(const wristflow_ui_shell_t *shell, wristflow_settings_t *settings);
+/* UI-thread read only; exact remaining temporary keep time, clipped at zero. */
+uint32_t wristflow_ui_shell_keep_remaining_ms(const wristflow_ui_shell_t *);
 /* UI-thread collection point, including brightness/menu/face changes. Call after
  * input dispatch and before sleeping; callbacks only enqueue/copy state. */
 void wristflow_ui_shell_bind_settings_store(wristflow_ui_shell_t *, wristflow_settings_request_cb_t,

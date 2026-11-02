@@ -15,6 +15,11 @@ void wristflow_product_power_screen(bool lit);
 /* AOD only permits explicit coalesced requests; it creates no sampling timer. */
 void wristflow_product_power_aod(bool active);
 void wristflow_product_power_request(void);
+#ifdef WF_CYCLE_LOG
+/* Dedicated experiment only: permits OFF acquisition and holds MCU IDLE.
+ * The cycle worker owns the bounded session and five-second request cadence. */
+void wristflow_product_power_experiment(bool active);
+#endif
 wristflow_power_snapshot_t wristflow_product_power_snapshot(void);
 
 #endif

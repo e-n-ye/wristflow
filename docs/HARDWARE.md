@@ -1,5 +1,13 @@
 # 黄山派选型复评
 
+## 2026-11-02 独立低压候选与循环交接
+
+用户选择包含OFF每约5秒记录，在手电筒后反复开启20分钟临时常亮：正常到期可KEY唤醒就续一轮，物理KEY不能点亮立即回USB；仪器暂不在手边，不以电芯耗尽为目标。新确认同板屏／原电池与接线、USB／常亮且未自行重启重刷；旧boot11／代次101／保存失败0／活动fault0、RAM尾段65,302ms已导出。候选`7721eac2…`三镜像write＋verify，用户确认显示／触摸正常及页面3.78V；startup RTC正常未校时，boot12／代次102／保存失败0／活动fault0，最新3788mV／充电中。只mount已有FS，不probe／init／format，不改SDK／分区／充电参数。
+
+会话2026110202／`cycle-78c3fcfa.bin`显式arm-low，在USB保持连接时先自然OFF20秒、KEY唤醒并设置20分钟常亮，用户确认交互。读回ARMED2／low1／inhibit0、accepted=saved42／queued=dropped0，13样本中5个新鲜OFF、28事件，常亮剩余1,193,706ms；只有该资格通过才允许关口后拔线。操作者19:17:33确认拔USB与手电筒白屏、19:18:14确认循环及及时回USB。7次实际采集均关闭，主机准备退出；这是有限资格和人工交接，尚无全程RUNNING／物理终点／END导出结论。[本轮证据](evidence/2026-11-02/low-voltage-lab.json)。
+
+新模式不按3.6V／退出手电筒／ADC陈旧主动压黑，持MCU IDLE、逐条sync以支持OFF记录，增加实验负载；不是正常待机或容量测量。最后ADC／KEY事件／提交可能早于真实失效，不能把最后一条冒充失败瞬间。若为OFF核验临时关闭AOD，结束时恢复原值；后续实际状态只见STATUS。
+
 ## 2026-11-02 3.6V LOW结果与USB黑屏恢复
 
 本轮session2026110201以LOW2正常结束，2540行162,560B／CRC`19e55e49`完整导出、accepted=saved2540且queued=dropped0。START软件FULL100／4166mV；2538个有效新鲜BAT手电筒100样本覆盖3时31分25秒，raw4142→3601mV，END新鲜3600mV／旧2%。END设备缓存时间18:08:01；用户未观察准确黑屏时间，发现后KEY不能点亮，回USB等15秒仍黑。UART仍活、inhibit1、runtime充电中；源码可达guard／OFF无电源PG缓存的循环依赖，与现象一致，不能仅据黑屏认定整板掉电／电池耗尽。[结束证据](evidence/2026-11-02/cycle-low-end.json)。

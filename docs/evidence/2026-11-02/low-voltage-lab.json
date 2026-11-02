@@ -1,0 +1,560 @@
+{
+  "schema": 1,
+  "date": "2026-11-02",
+  "baseline": "649e1fdeaa02513222deb3297eb748aa42278f15",
+  "branch": "codex/low-voltage-lab",
+  "checkout": "D:/MY_Desk/project/wristflow",
+  "status": "low_voltage_experiment_handed_off_result_pending",
+  "authorization": {
+    "goal": "Whole-device usable endpoint, flashlight then battery page repeated20minute temporary keep until physical KEY cannot light; immediate USB, not chemical empty.",
+    "off_sampling": "实验模式每5秒记录，包括息屏阶段",
+    "repeat": "本段未到终点，我会再次开启，长亮20分钟，继续循环，直到按键无法亮屏幕",
+    "field": "已接USB，正常且常亮等待超过6秒，未重启／重刷",
+    "postflash": "其他正常，当前电压3.78V",
+    "instruments_unavailable": true,
+    "threshold_not_replaced_with_arbitrary_voltage": true
+  },
+  "software": {
+    "debug_related_passed": 4,
+    "release_assertions_related_passed": 4,
+    "python_passed": 17,
+    "browser": "Actual8-step UI simulation completed;20-second automatic stage confirmation disabled. Prompt later clarified AOD-off, controls unchanged; real workflow used that wording.",
+    "failures_preserved": "Initial worker link lacked new test doubles. First fallback assertion exposed clock-stamp domain mismatch; second exposed retained estimator validity. Both fixed and final4/4 passed.",
+    "behavior": "Explicit arm-low only; v2 samples/context/KEY/LCD events, separate callback tick vs consumption elapsed. No LOW/LOAD/STALE display guard, repeated20minute holds keep one identity. OFF permit and MCU IDLE only while active; every row sync; normal arm/smoke preserved.",
+    "recovery": "Strict normal export plus explicit read-only named-prefix salvage. CRC/order/schema/identity/tail status verified, bad tail never complete; no repair/truncate/format.",
+    "limits": "No hard5-second SDK I/O guarantee; row sync and host fault tests do not guarantee final physical failure sample or electrical power-loss integrity."
+  },
+  "review": {
+    "agent": "low_black_screen_review",
+    "role": "default",
+    "fork_turns": "none",
+    "requested_model": "gpt-6.1-sol",
+    "requested_reasoning": "medium",
+    "actual_model_not_independently_observed": true,
+    "read_only": true,
+    "findings_fixed": [
+      "Invalidate old UI/brightness/keep/flashlight on background fallback",
+      "Consume each new ADC without duplicate wall-time gate",
+      "Capture callback tick and flush pending KEY/LCD before USB END",
+      "Independent PG permits ARMED->RUNNING without UI"
+    ],
+    "no_new_blocker_after_review": true
+  },
+  "build": {
+    "result": {
+      "path": "artifacts/product/20261102-190226-600/result.json",
+      "bytes": 126043,
+      "sha256": "0382f31769bfe2765aba1a5e3ad24b1a9a2c9b01f8a4ff031676985d7f6977cb"
+    },
+    "main": {
+      "path": "D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin",
+      "bytes": 3055744,
+      "sha256": "7721eac277a1bb5a263aeb74fff998d213765e93abf3852312a93943d7cd2290"
+    },
+    "source_count": 625,
+    "artifact_count": 29,
+    "archive": {
+      "path": "artifacts/low-voltage-lab-20261102-candidate-build.zip",
+      "bytes": 16698621,
+      "sha256": "799dd1a050e00a2afbdccb83a6c8e4198dd51ecda44d1b46937959e915ff0b7e"
+    },
+    "sdk": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "submodules": [
+      " 4d081f8fc4bfc0199bdccc1bb36b9fdc40e7240c middleware/bluetooth (4d081f8)",
+      " 304658c6edd5497211b7d152932327ce6e4450ff tools/SiliconSchema (304658c)"
+    ],
+    "sdk_changes": [],
+    "compiler": "arm-none-eabi-gcc.exe (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119",
+    "python": "Python 3.13.15",
+    "scons": [
+      "SCons by Steven Knight et al.:",
+      "\tSCons: v4.10.1.055b01f429d58b686701a56df863a817c36bb103, Sun, 16 Nov 2025 14:18:20 -0700, by bdbaddog on M1Dog2021",
+      "\tSCons path: ['D:\\\\MY_Desk\\\\project\\\\wristflow\\\\.tools\\\\sifli\\\\envs\\\\default\\\\b1ffa931b7485f8607540b6a2f6a9a53bbefe3696b9db68845be1c3c5cff1ab9\\\\python\\\\Lib\\\\site-packages\\\\SCons']",
+      "Copyright (c) 2001 - 2025 The SCons Foundation"
+    ],
+    "ordinary_or_five_target_rebuild": false
+  },
+  "device": {
+    "flash_result": {
+      "path": "artifacts/flash/product/20261102-190843-515/result.json",
+      "bytes": 1767,
+      "sha256": "f3ec4162cb37185842a2ec9919af12747e610af8c76d95be251a856f477714f4"
+    },
+    "write_verify": true,
+    "board_identity_verified": false,
+    "identity_basis": "Current operator continuity plus bound local firmware/transfer/archive and CH340 metadata; no attestation protocol.",
+    "before": {
+      "boot": 11,
+      "generation": 101,
+      "failures": 0,
+      "fault_mask": 0
+    },
+    "before_unsaved_runtime_ms_host_backup": 65302,
+    "after": {
+      "boot": 12,
+      "generation": 102,
+      "failures": 0,
+      "fault_mask": 0,
+      "last": {
+        "ms": 84911,
+        "sequence": 16,
+        "sampled_ms": 80583,
+        "utc": 1793617873,
+        "millivolts": 3788,
+        "flags": 63,
+        "percent": 11,
+        "requested": 50,
+        "acknowledged": 50,
+        "charge": 2,
+        "scene": 1
+      }
+    },
+    "RTC_write_attempted": false,
+    "RTC_readback": [
+      "Mon Nov  2 11:11:11 2026"
+    ],
+    "mount_only": true,
+    "probe_init_format": false,
+    "SDK_partition_charge_parameters_changed": false,
+    "session": 2026110202,
+    "filename": "cycle-78c3fcfa.bin",
+    "qualified_status": {
+      "state": 2,
+      "session": 2026110202,
+      "accepted": 42,
+      "saved": 42,
+      "queued": 0,
+      "dropped": 0,
+      "reason": 0,
+      "inhibit": 0,
+      "low_mode": true,
+      "commit_elapsed_ms": 57619,
+      "keep_remaining_ms": 1193706,
+      "low_samples": 13,
+      "off_samples": 5,
+      "low_events": 28
+    },
+    "qualification_meaning": "Counter/persistence plus operator visible OFF/KEY/keep confirmations; raw v2 rows and START voltage not exported while active.",
+    "original_AOD_preference_not_read": true,
+    "operator_confirmed_local_times": {
+      "prepare": "2026-11-02T19:16:19.640819+08:00",
+      "off": "2026-11-02T19:16:44.928501+08:00",
+      "wake": "2026-11-02T19:17:19.792573+08:00",
+      "unplug": "2026-11-02T19:17:33.774247+08:00",
+      "handoff": "2026-11-02T19:18:14.888844+08:00"
+    },
+    "handoff": {
+      "passed": true,
+      "outcome": "passed",
+      "detail": "",
+      "simulation": false,
+      "session": 2026110202,
+      "possible_arm": true,
+      "owned": true,
+      "off_sampling_qualified": true,
+      "handed_off": true,
+      "device_may_be_active": true,
+      "device_running_verified": false,
+      "recovery_required": false,
+      "discharge_complete": false,
+      "limits": "No reset/flash/format/charger/brightness control. Human physical failure and last validated prefix are separate facts; no chemical-empty/current/capacity proof. Errors never reopen or blindly stop; operator returns USB and assistant verifies."
+    },
+    "RecordedSession_count": 7,
+    "all_host_transports_closed": true,
+    "no_runtime_reboot_after_flash": true,
+    "device_running_verified": false,
+    "physical_endpoint_verified": false,
+    "complete_discharge_file": null
+  },
+  "preservation": "Old immutable v1 files retained by O_EXCL/no format. Prior FULL->3600 session2026110201 already exported/CRC and reboot byte equality in cycle-low-end.json; not re-exported in this preparation. Current recharged tail is separate, not spliced into prior round.",
+  "commands": [
+    "scons --board=sf32lb52-lchspi-ulp -j4 cycle_log=1",
+    "cmake build cycle_log product_cycle product_power_service settings_ui; ctest regex for same4 in Debug and assertions-enabled Release",
+    "Python unittest discover test_cycle_log.py/test_cycle_short_lab.py/test_low_voltage_lab.py using explicit D: temporary directory",
+    "python scripts/low_voltage_lab.py --out artifacts/low-voltage-lab-sim-001 --session1205 (no port)",
+    "lab_check build; original625sources/29artifacts ZIP hash/readback; Flash.ps1 Product COM5 DryRun then write_flash --verify",
+    "old-bound runtime_export before flash; new-bound device_snapshot startup; runtime_export; cycle_log_lab mount",
+    "low_voltage_lab.py --session2026110202 --out artifacts/low-voltage-device-20261102-001/prepare --port COM5 --location1-1.1 with explicit build/flash/archive/root/expectedBIN/current field confirmation",
+    "Explicit evidence/source file hashes; changed UTF-8/links and git diff --check"
+  ],
+  "next": "Keep current independent run. Repeat20minute keep when KEY can light, immediately return USB on physical KEY failure or abnormal/leave. Read same session status and strict export or explicitly labelled prefix recovery. No automatic new ARM/reboot/flash/format.",
+  "files": [
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/preflash-runtime/export.json",
+      "bytes": 566,
+      "sha256": "2345256ab548a5bb764867d0660b6dd8712f6ba6043b040799a54c016ca1d58e"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/preflash-runtime/records.json",
+      "bytes": 24080,
+      "sha256": "4f0bf6aabde65eb19e799c2dc96476f520e39e056a5b529a5e3afb0e1d23ac14"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/preflash-runtime/binding.json",
+      "bytes": 148345,
+      "sha256": "7fefd2136d70942bb258a94837e3b37a31f5baf29bd5555ab307437afb5fa66a"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/preflash-runtime/events.jsonl",
+      "bytes": 6592,
+      "sha256": "07d95339376969254fe22836a38f92cfc90ba8470cd2f3f2ebc5fbb4e9142250"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/preflash-runtime/uart.bin",
+      "bytes": 17171,
+      "sha256": "76c19e1eb964555c0c7c4412c04f8906447373f8175662b7037683ebb41137a9"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/startup/snapshot.json",
+      "bytes": 2611,
+      "sha256": "fc67dd99ac03831aebde663ed9e7d27b21920306e9e74b358fbac5c8e2e8f86c"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/startup/binding.json",
+      "bytes": 148630,
+      "sha256": "b9d555b73c91099bd7fd8a82820a035a89d6bb14b86e9aae80cb4f6f591e3278"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/startup/events.jsonl",
+      "bytes": 2823,
+      "sha256": "7916933fb3872181e77969265ac9a94deac79a1ae0258962cf5fffcdd56fc75a"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/startup/uart.bin",
+      "bytes": 1558,
+      "sha256": "1bbe8b4b8cf9ef9e767ca01221b59f1a933fbc24a2e3f7eb8f6145392aa08a07"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/postflash-runtime/export.json",
+      "bytes": 566,
+      "sha256": "25dc969b0d08cf688436a874b49d7d793a4853bd2ea703cc4d4cb1242eca1268"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/postflash-runtime/records.json",
+      "bytes": 13847,
+      "sha256": "56fd44e03688411cd3fd974eabec669371b34e4a92d7479ae68247586d8d8af4"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/postflash-runtime/binding.json",
+      "bytes": 148349,
+      "sha256": "e5d24d9a4157f610f601447236fca70a6cfdc018cba8b77119a437992bbe75cd"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/postflash-runtime/events.jsonl",
+      "bytes": 4580,
+      "sha256": "9a27f265fa4a58ec97e94115562591f0eddb355bbe70fb9aea6c476ad4d2c2bd"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/postflash-runtime/uart.bin",
+      "bytes": 9776,
+      "sha256": "4e653ee316564202527093fe580f1afabbb84110e6bcb40c4491583f72a262c7"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/mount/report.json",
+      "bytes": 125,
+      "sha256": "6059eaf24589aab22be12f76e881cb7199be0a9a46ef75ce44ed24f58a621078"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/mount/binding.json",
+      "bytes": 148444,
+      "sha256": "30b5df4184242572aa5197c586acd49c8f4c096e4d220f9fdcb440eedb04d375"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/mount/events.jsonl",
+      "bytes": 1255,
+      "sha256": "6c0759ad9c8e49f641315c45658132eb127900cded7851605286a5d6daaeea91"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/mount/uart.bin",
+      "bytes": 76,
+      "sha256": "30287adb7a5689171455d7f8f28aa45e76bfa92719c6566f85a7cd829cc5ab32"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/prepare/arm/report.json",
+      "bytes": 127,
+      "sha256": "a6ff2606d8f1d155c34816c8fe2d830dc8c6c88afe072c3b9583a6d4f0aa7122"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/prepare/arm/binding.json",
+      "bytes": 149053,
+      "sha256": "bee7c145e38f8f3b4f2f233407f2986c33cf35de630d320cd4637802f4bb8897"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/prepare/arm/events.jsonl",
+      "bytes": 1530,
+      "sha256": "596599adfcc501cf1f35d1c8f507beb9d096bff7603f83ee680f885896ff675a"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/prepare/arm/uart.bin",
+      "bytes": 196,
+      "sha256": "9e9be327a497b151f653083bb0a069d9bcb4ecc254d27e7f2edf6049faa7a05a"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/prepare/armed-status-0/report.json",
+      "bytes": 457,
+      "sha256": "1eb636ae420112fb72d1f60a3ab21dea2547afd2160b57f00fed568f01f6aafd"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/prepare/armed-status-0/binding.json",
+      "bytes": 149052,
+      "sha256": "744717055c0a8f641537e9b2055b885a4b247743c4e52c91822dbd1d90a16c00"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/prepare/armed-status-0/events.jsonl",
+      "bytes": 1512,
+      "sha256": "279b0bad849b15cf814e48e67ed3bbfb8c01e9d03d6f7608d24e237f99533349"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/prepare/armed-status-0/uart.bin",
+      "bytes": 251,
+      "sha256": "e5c8796d4f8a055f6884d38ac30b404d9e1c57d35969ab373bd25ed929de1a67"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/prepare/off-qualified-status/report.json",
+      "bytes": 465,
+      "sha256": "e96fbc6ea86ffeb64fcee617f86378d0e9b48b3fea096848b39627936a78aa13"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/prepare/off-qualified-status/binding.json",
+      "bytes": 149052,
+      "sha256": "744717055c0a8f641537e9b2055b885a4b247743c4e52c91822dbd1d90a16c00"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/prepare/off-qualified-status/events.jsonl",
+      "bytes": 1520,
+      "sha256": "3d9eba062e98e2212b6da7a1f8964bdae4f0567cb69a5beed296aff7b2dde356"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/prepare/off-qualified-status/uart.bin",
+      "bytes": 259,
+      "sha256": "04da741b2b0905a9576f312f79bc2bcfd2649fcac1f8bfe99ed565f0545c96cb"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/prepare/experiment.json",
+      "bytes": 608,
+      "sha256": "3db6ef320f2bea47dcbbdad65238ecadee1be249ded66d659f32c31b076a482e"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/prepare/binding.json",
+      "bytes": 149318,
+      "sha256": "d35423c0d50fbfc0264c29e6cf1dcdcd973d09366681aae1f74858fadc7982bd"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/prepare/events.jsonl",
+      "bytes": 5578,
+      "sha256": "ec76a1f647f69fec953587868a015b86c8b4143b244e30f45c2a4b68a55c5528"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/prepare/progress.json",
+      "bytes": 143,
+      "sha256": "ed609bdadb08182099b95528003d12ea1f19eb2e0894f3732504e8223b9c9c87"
+    },
+    {
+      "path": "artifacts/product/20261102-190226-600/result.json",
+      "bytes": 126043,
+      "sha256": "0382f31769bfe2765aba1a5e3ad24b1a9a2c9b01f8a4ff031676985d7f6977cb"
+    },
+    {
+      "path": "artifacts/flash/product/20261102-190843-515/result.json",
+      "bytes": 1767,
+      "sha256": "f3ec4162cb37185842a2ec9919af12747e610af8c76d95be251a856f477714f4"
+    },
+    {
+      "path": "artifacts/low-voltage-lab-archive.json",
+      "bytes": 577,
+      "sha256": "c3b9a0cd20fb0833d5ed0d0243667513db65ab95097cb3f6e26122e9a3b87734"
+    },
+    {
+      "path": "artifacts/low-voltage-lab-20261102-candidate-build.zip",
+      "bytes": 16698621,
+      "sha256": "799dd1a050e00a2afbdccb83a6c8e4198dd51ecda44d1b46937959e915ff0b7e"
+    },
+    {
+      "path": "artifacts/low-voltage-lab-build-check.json",
+      "bytes": 142792,
+      "sha256": "af8201d506248e80c53f755694db0d16a7e4296aeb4f3f106d4594a2afb31b30"
+    },
+    {
+      "path": "artifacts/low-voltage-lab-flash-dryrun.log",
+      "bytes": 452,
+      "sha256": "1beb3989863ec866847265263f3aa17a6722e357dfd15f81d593b3f6d427cc1f"
+    },
+    {
+      "path": "artifacts/low-voltage-lab-flash-001.log",
+      "bytes": 715,
+      "sha256": "71dee9898d61a2a0c85f04cbb5da11b75306ba66d2259bc21e0c029353b3ce7a"
+    },
+    {
+      "path": "artifacts/low-voltage-lab-product-build-001.log",
+      "bytes": 17990,
+      "sha256": "c2e200f6a21688ad74cf11ae35cc9afe267a8f4107d411d52cab097280ac23be"
+    },
+    {
+      "path": "artifacts/low-voltage-lab-build-001.log",
+      "bytes": 6317,
+      "sha256": "dfcfae5d83d86a6dc78f7436ce3d1afce661d6c17fe7c731af2d34a3e1ce09e3"
+    },
+    {
+      "path": "artifacts/low-voltage-lab-tests-001.log",
+      "bytes": 917,
+      "sha256": "376db9135dacc21307df162b1510f4ca6904d95bb61afe5866178e0991bc3b7e"
+    },
+    {
+      "path": "artifacts/low-voltage-lab-tests-002.log",
+      "bytes": 928,
+      "sha256": "31dde081910a055424b3f4b06ab78a8d48df5379f6508d209a1e98c67016eeaa"
+    },
+    {
+      "path": "artifacts/low-voltage-lab-tests-003.log",
+      "bytes": 634,
+      "sha256": "e27b75eab888aab4646a9f19b3356228b921f8846ae410e751679e789e9559eb"
+    },
+    {
+      "path": "artifacts/low-voltage-lab-release-build-001.log",
+      "bytes": 3008,
+      "sha256": "f313c3c5a386c26b2cad35813405a04227aa443adee621526c35b5c9e0d823d3"
+    },
+    {
+      "path": "artifacts/low-voltage-lab-release-tests-001.log",
+      "bytes": 644,
+      "sha256": "d3e071b7b2b74bda4ff8ac7bce5ba5f5142d0c23273c5a05f87e0832e27cc08a"
+    },
+    {
+      "path": "artifacts/low-voltage-lab-python-002.log",
+      "bytes": 2860,
+      "sha256": "686b966d414db187ab78e645aa4f9636d6718e8b4a225acc437cfd3e35b63e09"
+    },
+    {
+      "path": "artifacts/low-voltage-lab-sim-001/experiment.json",
+      "bytes": 601,
+      "sha256": "0a8345238f93a669fbf87c586ac44c3861bcfbaa6f6e431bb73bb6ce25a0b911"
+    },
+    {
+      "path": "artifacts/low-voltage-lab-sim-001/binding.json",
+      "bytes": 370,
+      "sha256": "c2a71917740bac10b10aa4b4c92afd286ca494c2190a2a7b82e9a08356b8c0e0"
+    },
+    {
+      "path": "artifacts/low-voltage-lab-sim-001/events.jsonl",
+      "bytes": 5577,
+      "sha256": "b1024b8f2ec1c4f332f40189f1e82e00a191204f4079caf633aa96c25c830afb"
+    },
+    {
+      "path": "artifacts/low-voltage-lab-sim-001/progress.json",
+      "bytes": 143,
+      "sha256": "f79fcb1a15b145779654daff72d481b1ba4333d6e376697006bf4fe116cb5efb"
+    }
+  ],
+  "sources": [
+    {
+      "path": "apps/product/src/cycle_record.c",
+      "bytes": 5548,
+      "sha256": "6c231e5267c2afc0ba348aa49421964410084782bcae1b437bb2c06d5a887a75"
+    },
+    {
+      "path": "apps/product/src/cycle_record.h",
+      "bytes": 1464,
+      "sha256": "3e53a08ae77957a886dcd5ffc38018653725817237aea6ba27a537e10ec65289"
+    },
+    {
+      "path": "apps/product/src/cycle_store.c",
+      "bytes": 8865,
+      "sha256": "b44f8a5a64740e15615473ab3bc18d0432be38682cc2d9a0a36373e377303100"
+    },
+    {
+      "path": "apps/product/src/cycle_store.h",
+      "bytes": 2150,
+      "sha256": "c6f212f374a3b56922354c29bdb2f32a793281981eaec6733a873c9d95a58d28"
+    },
+    {
+      "path": "apps/product/src/product_cycle.c",
+      "bytes": 23285,
+      "sha256": "7b14b652f7d9ef054fcae42fdb3d8d3fe2ff5dfb58c89e8021ef4bea9f3af74e"
+    },
+    {
+      "path": "apps/product/src/product_cycle.h",
+      "bytes": 1129,
+      "sha256": "e7f5142fcae77e4de5413c15859b5005e4f4657ae527a048c6409d2d20e028c7"
+    },
+    {
+      "path": "apps/product/src/product_power.h",
+      "bytes": 1147,
+      "sha256": "05a589518a5936a3650ceba82fee5b81ee1748615920590e1787ec062588d18c"
+    },
+    {
+      "path": "apps/product/src/product_power_service.c",
+      "bytes": 5416,
+      "sha256": "cd25b8ecca6d0414002318a13ca65e1c0e482e5669542fb5c5caa2c5f514aaaa"
+    },
+    {
+      "path": "apps/product/src/main.c",
+      "bytes": 43155,
+      "sha256": "94929d07dc9032f30193c23c731d700a21b7cc4c7f934736274032dec6fdb098"
+    },
+    {
+      "path": "ui/runtime/ui_shell.c",
+      "bytes": 80465,
+      "sha256": "d33b614bdd7d278849e1aea314626a385eaa10a1c83738ea4d7889e3f20f3703"
+    },
+    {
+      "path": "ui/runtime/ui_shell.h",
+      "bytes": 13394,
+      "sha256": "16a1650252843951a9c549580a7036eef068c04f0248b2c059320c3bc3daa494"
+    },
+    {
+      "path": "scripts/cycle_log_lab.py",
+      "bytes": 9738,
+      "sha256": "7e6e8f484bb7ddca3467af79e7a46663115c30afef49cf64c35ce5d1369f9978"
+    },
+    {
+      "path": "scripts/cycle_protocol.py",
+      "bytes": 4402,
+      "sha256": "b182d3f92acded38db3e9a11092cd716e8de49b5e9a0a7718725021e305de9e5"
+    },
+    {
+      "path": "scripts/low_voltage_lab.py",
+      "bytes": 8850,
+      "sha256": "a36bdb60b7d6ec0be2562ad72c333c9037b718a7527fbe1990cfcea93daf22a4"
+    },
+    {
+      "path": "tests/cycle_log.c",
+      "bytes": 12805,
+      "sha256": "442ab0bda50aac6725103bd8e2d27e555432458f097ec34e57b891d52d5dd45f"
+    },
+    {
+      "path": "tests/product_cycle.c",
+      "bytes": 16294,
+      "sha256": "0d5465ece49807f2d44860bdacc46aee80cbb005bf6903a6e3d51d09997db1d3"
+    },
+    {
+      "path": "tests/product_power_service.c",
+      "bytes": 8305,
+      "sha256": "373d8fa687753ea86801a580352efbf0485c2690e31921e018706c3d7da6b92a"
+    },
+    {
+      "path": "tests/settings_ui.c",
+      "bytes": 38774,
+      "sha256": "b1f266cd46096c38cf1ec86f70ef0947d326dc380441b12ee9ce3c7a067e82b1"
+    },
+    {
+      "path": "tests/test_cycle_log.py",
+      "bytes": 8931,
+      "sha256": "87968531ef3fdf6289641fd6904d38826bc28ec43f3e22097ff559ea5ddc4ff3"
+    },
+    {
+      "path": "tests/test_low_voltage_lab.py",
+      "bytes": 3158,
+      "sha256": "ed7fc6630a5a502f18d26262e35c8d4c162f7ab553784823e53730c67a259cc1"
+    },
+    {
+      "path": "artifacts/low-voltage-lab-archive.py",
+      "bytes": 1623,
+      "sha256": "297c2326f67a3550e337843f60cd994cb63cb5118caa32dec713e68b54d40910"
+    },
+    {
+      "path": "artifacts/low-voltage-lab-evidence.py",
+      "bytes": 10490,
+      "sha256": "e70c5914a6dca095418fe07af764243ef5051156b5ef669073079aed1655b823"
+    }
+  ]
+}

@@ -7,9 +7,20 @@
 static struct rt_event requests;
 static wristflow_power_snapshot_t cached;
 static bool ready, lit, aod;
+#ifdef WF_CYCLE_LOG
+static bool experiment;
+#endif
 static uint32_t epoch, request_epoch;
 static uint32_t request_serial, consumed_serial;
 static uint32_t voltage_sequence;
+static bool permitted(void)
+{
+    return lit || aod
+#ifdef WF_CYCLE_LOG
+        || experiment
+#endif
+        ;
+}
 
 /* Short snapshot copy on this HCPU only; never hold this section over I/O. */
 wristflow_power_snapshot_t wristflow_product_power_snapshot(void)
@@ -23,7 +34,7 @@ wristflow_power_snapshot_t wristflow_product_power_snapshot(void)
 static bool publish(const wristflow_power_snapshot_t *value, uint32_t generation)
 {
     rt_base_t level = rt_hw_interrupt_disable();
-    bool current = (lit || aod) && epoch == generation;
+    bool current = permitted() && epoch == generation;
     if (current) cached = *value;
     rt_hw_interrupt_enable(level);
     return current;
@@ -33,7 +44,7 @@ static void sample_once(void)
 {
     rt_base_t level = rt_hw_interrupt_disable();
     uint32_t generation = request_epoch;
-    bool active = request_serial != consumed_serial && (lit || aod) && epoch == generation;
+    bool active = request_serial != consumed_serial && permitted() && epoch == generation;
     consumed_serial = request_serial; /* A residual event bit cannot run this request twice. */
     rt_hw_interrupt_enable(level);
     if (!active) return;
@@ -51,7 +62,11 @@ static void sample_once(void)
         wristflow_product_power_input(&next);
         if (publish(&next, generation)) {
             level = rt_hw_interrupt_disable();
-            bool notify = aod && epoch == generation;
+            bool notify = (aod
+#ifdef WF_CYCLE_LOG
+                || experiment
+#endif
+                ) && epoch == generation;
             rt_hw_interrupt_enable(level);
             if (notify) {
                 rt_kprintf("[power] aod sample sequence=%lu voltage_valid=%u input_valid=%u\n",
@@ -82,7 +97,7 @@ static void worker(void *context)
 void wristflow_product_power_request(void)
 {
     rt_base_t level = rt_hw_interrupt_disable();
-    bool active = ready && (lit || aod);
+    bool active = ready && permitted();
     if (active) { request_epoch = epoch; ++request_serial; }
     rt_hw_interrupt_enable(level);
     if (active) rt_event_send(&requests, 1); /* Coalesced, never a sample queue. */
@@ -109,6 +124,25 @@ void wristflow_product_power_screen(bool visible)
     rt_hw_interrupt_enable(level);
     if (visible) wristflow_product_power_request();
 }
+
+#ifdef WF_CYCLE_LOG
+void wristflow_product_power_experiment(bool active)
+{
+    /* Only the cycle worker changes this permission. Never hold IRQ masking
+     * over PM operations, I/O, or requests to another service. */
+    rt_base_t level=rt_hw_interrupt_disable();
+    bool changed=experiment!=active;
+    if(changed) {experiment=active;++epoch;cached=(wristflow_power_snapshot_t){0};}
+    rt_hw_interrupt_enable(level);
+#ifdef RT_USING_PM
+    if(changed) {
+        if(active)rt_pm_request(PM_SLEEP_MODE_IDLE);
+        else rt_pm_release(PM_SLEEP_MODE_IDLE);
+    }
+#endif
+    if(changed && active)wristflow_product_power_request();
+}
+#endif
 
 bool wristflow_product_power_start(void)
 {

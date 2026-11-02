@@ -1275,6 +1275,13 @@ bool wristflow_ui_shell_keep_awake(wristflow_ui_shell_t *shell, unsigned minutes
 unsigned wristflow_ui_shell_keep_minutes(const wristflow_ui_shell_t *shell)
 { return shell ? shell->display.keep_ms / 60000U : 0; }
 
+uint32_t wristflow_ui_shell_keep_remaining_ms(const wristflow_ui_shell_t *shell)
+{
+    if(!shell || !shell->display.keep_ms)return 0;
+    uint32_t elapsed=lv_tick_get()-shell->display.keep_at;
+    return elapsed<shell->display.keep_ms ? shell->display.keep_ms-elapsed:0;
+}
+
 bool wristflow_ui_shell_acquire_awake(wristflow_ui_shell_t *shell, void *owner,
     const char *reason, uint32_t duration_ms, void (*expired)(void *))
 {

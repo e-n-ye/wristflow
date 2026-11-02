@@ -85,12 +85,13 @@ static int info_file(wf_cycle_store_t *s,const char *path,wf_cycle_info_t *info)
     int result=lfs_file_opencfg(&s->fs,&s->file,path,LFS_O_RDONLY,&s->fcfg);if(result)return result;
     *info=(wf_cycle_info_t){0};lfs_soff_t size=lfs_file_size(&s->fs,&s->file);
     if(size<=0 || size%64 || size>(lfs_soff_t)WF_CYCLE_MAX_ROWS*64)result=LFS_ERR_CORRUPT;
-    uint8_t row[64];wf_cycle_row_t decoded;uint64_t elapsed=0;uint32_t crc=UINT32_MAX;
+    uint8_t row[64];wf_cycle_row_t decoded;uint64_t elapsed=0;uint32_t crc=UINT32_MAX;bool low=false;
     for(unsigned i=0;!result && i<(unsigned)size/64;++i) {
         if(lfs_file_read(&s->fs,&s->file,row,64)!=64 || !wf_cycle_decode(row,&decoded) ||
             decoded.sequence!=i || (i && decoded.session!=info->session) ||
             decoded.elapsed<elapsed || (!i && decoded.kind!=WF_CYCLE_START) ||
-            (i && decoded.kind==WF_CYCLE_START) || info->terminal) {result=LFS_ERR_CORRUPT;break;}
+            (i && decoded.kind==WF_CYCLE_START) || (i && decoded.low_voltage!=low) || info->terminal) {result=LFS_ERR_CORRUPT;break;}
+        low=decoded.low_voltage;
         info->session=decoded.session;info->terminal=decoded.kind==WF_CYCLE_END;elapsed=decoded.elapsed;
         for(unsigned j=0;j<64;++j) {crc^=row[j];for(unsigned k=0;k<8;++k)crc=(crc>>1)^((crc&1)?0xedb88320u:0);}
     }
@@ -121,5 +122,32 @@ int wf_cycle_store_read_session(wf_cycle_store_t *s,uint32_t session,uint32_t in
 {
     if(!session)return LFS_ERR_INVAL;
     char path[24];session_name(path,session);return read_file(s,path,session,index,row);
+}
+int wf_cycle_store_prefix_session(wf_cycle_store_t *s,uint32_t session,wf_cycle_info_t *info,uint32_t *file_bytes,bool *damaged_tail)
+{
+    if(!session || !s->mounted || s->opened || !info || !file_bytes || !damaged_tail)return LFS_ERR_INVAL;
+    char path[24];session_name(path,session);
+    int result=lfs_file_opencfg(&s->fs,&s->file,path,LFS_O_RDONLY,&s->fcfg);if(result)return result;
+    *info=(wf_cycle_info_t){0};*file_bytes=0;*damaged_tail=false;
+    lfs_soff_t size=lfs_file_size(&s->fs,&s->file);
+    if(size<=0 || (uint64_t)size>UINT32_MAX)result=LFS_ERR_CORRUPT;
+    else {
+        *file_bytes=(uint32_t)size;
+        uint32_t crc=UINT32_MAX;uint64_t elapsed=0;bool low=false;
+        uint8_t row[64];wf_cycle_row_t decoded;
+        unsigned limit=(uint32_t)size/64;if(limit>WF_CYCLE_MAX_ROWS)limit=WF_CYCLE_MAX_ROWS;
+        for(unsigned i=0;i<limit;++i) {
+            if(info->terminal || lfs_file_read(&s->fs,&s->file,row,64)!=64 || !wf_cycle_decode(row,&decoded) ||
+                decoded.session!=session || decoded.sequence!=i || decoded.elapsed<elapsed ||
+                (!i && decoded.kind!=WF_CYCLE_START) || (i && (decoded.kind==WF_CYCLE_START || decoded.low_voltage!=low)))break;
+            low=decoded.low_voltage;elapsed=decoded.elapsed;
+            info->session=session;info->terminal=decoded.kind==WF_CYCLE_END;
+            for(unsigned j=0;j<64;++j) {crc^=row[j];for(unsigned k=0;k<8;++k)crc=(crc>>1)^((crc&1)?0xedb88320u:0);}
+            ++info->rows;info->bytes+=64;
+        }
+        info->crc=crc^UINT32_MAX;*damaged_tail=info->bytes!=*file_bytes;
+        if(!info->rows)result=LFS_ERR_CORRUPT;
+    }
+    int close=lfs_file_close(&s->fs,&s->file);return result ? result:close;
 }
 #endif

@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-11-02 独立低压实验候选
+
+沿用`pwsh -NoProfile -File scripts/Build.ps1 -Example product -CycleLog -Jobs 4`，`20261102-190226-600`退出0、BIN3,055,744B／`7721eac2…`；625源码／29产物完整ZIP逐项核验及三镜像DryRun通过。诊断构建新显式`arm-low`启用v2事件、OFF采样许可及逐条提交；常规arm／smoke与普通版边界分开，不新增构建开关，不改SDK／分区／充电参数。
+
+相关Debug4/4、保留断言Release4/4、Python17/17及实际浏览器8步模拟通过。初次host链接缺新增替身、两次worker断言失败及修正日志保留；最终通过不宣称实体低压／掉电可靠。版本行为见[低压契约](BATTERY-ESTIMATE.md#low-voltage-lab-20261102)，实际进度回STATUS；未重编普通／五目标基线。
+
 ## 2026-11-01 CycleLog新会话候选
 
 `pwsh -NoProfile -File scripts/Build.ps1 -Example product -CycleLog -Jobs 4`的`20261101-214345-360`退出0，BIN3,052,400B／`10086d00…`，比首版候选增加584B；625源码／29产物逐哈希检查，完整ZIP逐项读回通过。ELF含新会话create／info／read、`lfs_fs_size`及原Flash write／erase wrappers；SDK／子模块／分区／公共构建入口不变，本轮不重编普通版或五目标。新会话／legacy边界见[契约](BATTERY-ESTIMATE.md#cycle-sessions-20261101)，实际活动回STATUS。

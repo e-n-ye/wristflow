@@ -6,10 +6,13 @@ import struct
 import zlib
 
 def decode_row(raw):
-    if len(raw)!=64 or raw[:6] not in (b'WFCL\x01\x01',b'WFCL\x01\x02',b'WFCL\x01\x03'):
+    if len(raw)!=64 or raw[:4]!=b'WFCL' or raw[4] not in (1,2) or not 1<=raw[5]<=(4 if raw[4]==2 else 3):
         raise ValueError('Cycle row format')
-    if raw[7] or raw[6]&~63 or zlib.crc32(raw[:60])!=int.from_bytes(raw[60:],'little'):
+    if (raw[4]==1 and raw[7]) or raw[6]&~63 or (raw[4]==2 and raw[6]&8) or zlib.crc32(raw[:60])!=int.from_bytes(raw[60:],'little'):
         raise ValueError('Cycle row CRC/flags')
+    if (raw[5]==4 and (not 1<=raw[7]<=6 or raw[6]&4)) or (raw[5]!=4 and raw[7]):
+        raise ValueError('Cycle event')
+    if raw[4]==2 and raw[5]!=3 and raw[56]:raise ValueError('Low row nonterminal reason')
     session,sequence,elapsed,utc,revision,sampled,adc=struct.unpack_from('<IIQIIII',raw,8)
     mv,filtered=struct.unpack_from('<HH',raw,40)
     surface=struct.unpack_from('<H',raw,52)[0]
@@ -19,11 +22,14 @@ def decode_row(raw):
     if raw[6]&1 and not 1767225600<=utc<=4102444799:
         raise ValueError('Cycle UTC')
     if raw[6]&4 and raw[44]>100: raise ValueError('Cycle percent')
+    event=raw[4]==2 and raw[5]==4
     return dict(kind=raw[5],flags=raw[6],session=session,sequence=sequence,elapsed_ms=elapsed,
         utc=utc,clock_revision=revision,adc_sampled_ms=sampled,adc_sequence=adc,
-        raw_mv=mv,filtered_decimillivolts=filtered,percent=raw[44],candidate=raw[45],mode=raw[46],decision=raw[47],
+        raw_mv=mv,filtered_decimillivolts=filtered if raw[4]==1 else None,percent=None if event else raw[44],candidate=None if event else raw[45],mode=None if event else raw[46],decision=None if event else raw[47],
         charge=raw[48],charge_reason=raw[49],requested=raw[50],acknowledged=raw[51],surface=surface,
-        context_flags=raw[54],phase=raw[55],stop_reason=raw[56],usb_flags=raw[57],sample_age_ms=age)
+        context_flags=raw[54],phase=raw[55],stop_reason=raw[56],usb_flags=raw[57],sample_age_ms=age,
+        schema=raw[4],event=raw[7],keep_remaining_ms=filtered*1000 if raw[4]==2 and raw[54]&1 else None,
+        event_tick_ms=int.from_bytes(raw[44:48],'little') if event else None)
 
 def parse_info(lines):
     pattern=r'\[cycle-info\] id=(\d+) rows=(\d+) bytes=(\d+) crc=([0-9a-fA-F]{8}) terminal=([01])$'
@@ -55,6 +61,7 @@ def decode_file(raw,info):
     rows=[decode_row(raw[i:i+64]) for i in range(0,len(raw),64)]
     previous=0
     for i,row in enumerate(rows):
+        if row['schema']!=rows[0]['schema']:raise ValueError('Mixed cycle schema')
         if row['session']!=info['session'] or row['sequence']!=i or row['elapsed_ms']<previous:
             raise ValueError('Cycle order/time')
         if (i==0)!=(row['kind']==1) or (row['kind']==3 and i!=len(rows)-1):raise ValueError('Cycle lifecycle')

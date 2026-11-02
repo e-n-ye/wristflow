@@ -462,6 +462,19 @@ END缓存时间23:07:19早于主机首次回读23:36:24。最初曾将LOAD直接
 
 用户进一步澄清：校准目标为整机正常可用电量，0%应对应整机可用下限，不必追求电芯耗尽。约3.3V是既有可调源点亮边界候选，当前仪器不在手边；尚无该区间持续运行／最后保存／恢复验证。下一请求为手电筒后切普通亮屏／KEY检查直至物理不能点亮，须独立模式避免3.6V／LOAD／STALE停止及软件guard干扰，不能直接复用现版。3.73V／3%属于回弹／回充及旧滤波查表，未按该终点校准；回充后尾段不能拼为原连续曲线。先收尾现轮，再核低压模式与可恢复数据边界；本段不宣称已降低阈值或开始新测试。
 
+<a id="low-voltage-lab-20261102"></a>
+### 2026-11-02 独立整机低压实验模式
+
+用户选择手电筒后反复20分钟常亮：正常到期能KEY唤醒就续一轮，实体KEY不能点亮后立即回USB，不以软件主动压黑或电芯耗尽为终点。仅该实验允许每约5秒取电压并保存，包含OFF。`-CycleLog`内显式`arm-low SID`要求USB／新鲜ADC／独立PG，不要求FULL，仍用命名文件O_EXCL及原容量准入；USB下ARMED可记录准备样本。独立PG确认BAT转RUNNING，回USB／显式stop／48小时或40000行／队列或存储错误分别结束。退出手电筒、ADC陈旧或≤3600mV不使该模式主动黑屏；资源结束只是日志终止，需操作者回USB，不当作物理终点。常规arm／smoke保持旧停止规则。
+
+cycle worker每约5秒请求，power worker仅在显式低压活动会话获OFF许可和MCU IDLE，逐条sync；普通UI5秒／AOD分钟请求此时由实验调度替代，KEY首帧后可额外取样，每个新ADC身份只接纳一次。停止／失败释放实验许可，普通版不启该宏。旧guard改读charger独立input_observation清锁，避免OFF缓存循环。若UI超过2秒不再观测，后台可用新ADC续尾，立即使旧UI／亮度／keep／flashlight与估算无效；无新ADC就留缺口，不造样本。UI不执行ADC／Flash，后台不碰LVGL。
+
+v2仍64B／CRC／session／顺序／elapsed，v1字节及解码保持。kind4新增CONTEXT／KEY_DOWN／KEY_UP／LCD_ON_REQUEST／LCD_ON_DONE／LCD_OFF_DONE，byte7为事件；42–43字节改为向上取整的常亮剩余秒，v2 filtered未知，keep在UI无效时也未知。EVENT的44–47字节为回调捕获tick_ms，不解释成百分比／candidate／mode／decision；行elapsed为消费时刻，两者分开，tick允许uint32回绕。异步信号不借用消费时刻的UI／ADC有效性；LCD成功／亮度ack仅驱动结果，不证明物理发光，未进回调的失败KEY由操作者补充。ISR只操作8项有界队列／tick及事件，溢出计数QUEUE结束；END先排已收到信号并保留终止槽。
+
+正常export仍严格整文件。显式recover只对本轮命名文件只读扫描连续CRC／身份／顺序／版本，遇坏CRC、混版本、半行或END后额外数据即止，分别报告原字节数、有效前缀和damaged_tail；不修复／截断／续写／format。host核前后manifest及前缀CRC，`prefix_only`始终标明恢复路径，坏尾即使前缀含END也不算整文件完整，无END明确不完整。无法挂载或首行无有效START仍失败。每条sync与模拟故障不保证真实低压、底层硬截止或失效瞬间落盘，最后验证点与物理失败之间保留未知。
+
+Debug4/4、保留断言Release4/4、Python17/17及真实浏览器8步模拟通过；独立只读审查提出并复核UI有效性、异步抖动、KEY→USB顺序和ARMED后台转BAT修正。候选`20261102-190226-600`／`7721eac2…`、625源码／29产物完整归档通过。源码／主机／编译与实机资格、交接、最终失效结果分开，实际进度只见STATUS。
+
 ## 数据来源与精度边界
 
 沿用固定SDK `421126d9f476ed8e2a6f0b0ca28a9f241c182e65` 的黄山派 `customer/boards/sf32lb52-lchspi-ulp_base/battery_table.c` 充放电表，每5%取一个参考点，共21点／表；相邻点线性插值。表中41808对应4.1808V，保留0.1mV尺度：同SDK `docs/source/en/middleware/battery_calculator.md` 的示例明确写`38000 // 3.8V`，并将`bat1`通道7读数原样传入计算器。结构／函数注释中的mV与示例数值不一致，不能按普通mV直接使用。

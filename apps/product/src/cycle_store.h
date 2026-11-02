@@ -27,4 +27,7 @@ int wf_cycle_store_read(wf_cycle_store_t *,bool smoke,uint32_t session,uint32_t 
 /* Strict named-file access; never falls back to a legacy file during recovery. */
 int wf_cycle_store_info_session(wf_cycle_store_t *,uint32_t session,wf_cycle_info_t *);
 int wf_cycle_store_read_session(wf_cycle_store_t *,uint32_t session,uint32_t index,uint8_t row[64]);
+/* Explicit read-only salvage. Returns only the ordered CRC-valid prefix;
+ * original bytes are never repaired, truncated, appended or overwritten. */
+int wf_cycle_store_prefix_session(wf_cycle_store_t *,uint32_t session,wf_cycle_info_t *,uint32_t *file_bytes,bool *damaged_tail);
 #endif
