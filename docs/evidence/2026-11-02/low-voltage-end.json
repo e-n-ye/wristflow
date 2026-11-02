@@ -1,0 +1,750 @@
+{
+  "schema": 1,
+  "date": "2026-11-02",
+  "baseline": "d56c9aa0ef16524de7deaaafb205536c384bdbc4",
+  "branch": "codex/low-voltage-end-result",
+  "checkout": "D:\\MY_Desk\\project\\wristflow",
+  "status": "usable_endpoint_met_stored_file_fully_exported_window_closed",
+  "firmware": {
+    "main_sha256": "7721eac277a1bb5a263aeb74fff998d213765e93abf3852312a93943d7cd2290",
+    "result": "artifacts/product/20261102-190226-600/result.json",
+    "flash": "artifacts/flash/product/20261102-190843-515/result.json",
+    "archive": "artifacts/low-voltage-lab-20261102-candidate-build.zip",
+    "no_new_firmware_build_flash_sdk_partition_charge_parameter_changes": true
+  },
+  "session": 2026110202,
+  "filename": "cycle-78c3fcfa.bin",
+  "operator": {
+    "session": 2026110202,
+    "source": "operator replies in this chat",
+    "exact_observation_times_known": false,
+    "observations_in_order": [
+      {
+        "stage": "battery page after flashlight",
+        "reported_voltage_v": 3.44,
+        "reported_percent": 0,
+        "display_and_touch_normal": true,
+        "raw_adc_readback": false,
+        "returned_to_flashlight_after_reading": true,
+        "operator_confirmation": "是，查看后返回手电筒"
+      },
+      {
+        "stage": "physical endpoint",
+        "operator_text": "手表当前已经无法点亮",
+        "during_keep_or_after_expiry": "operator later reports black during flashlight stage; exact time unknown",
+        "voltage_at_failure": null
+      },
+      {
+        "stage": "after USB reconnection",
+        "operator_text": "已恢复显示和触摸",
+        "software_reboot_or_flash_requested_by_assistant": false,
+        "later_page_voltage_v": 3.55
+      }
+    ],
+    "resume_confirmation": "同板同版、未重启重刷，USB连接且显示触摸正常，已开启常亮",
+    "limits": "Operator observations do not prove the exact failure time, voltage, battery protection cutoff, or completeness of the device log. Flashlight re-entry after the 3.44V/0% page observation is confirmed. The separately CRC-verified final ADC row is 3240mV at 22:33:46+08:00, not a synchronous measurement of the failed KEY or black-screen instant."
+  },
+  "final_operator_confirmation": "已关闭常亮，显示／触摸／时间正常，无保存失败，AOD已恢复或未改",
+  "usable_endpoint_decision": {
+    "user_accepts_experiment_goal_met": true,
+    "system_empty_reference_mv": 3300,
+    "meaning": "Operational usable lower reference, not chemical empty or measured exact cutoff; future estimator work only.",
+    "hardware_explanation": "User attributes no-wake below approximately 3.3V to board LDO; no synchronized rail measurement or exact LDO threshold was established in this window."
+  },
+  "info": {
+    "session": 2026110202,
+    "rows": 2299,
+    "bytes": 147136,
+    "crc": 25912722,
+    "terminal": false
+  },
+  "crc_hex": "018b6592",
+  "analysis": {
+    "rows": 2299,
+    "kinds": {
+      "1": 1,
+      "2": 2251,
+      "4": 47
+    },
+    "event_types": {
+      "1": 42,
+      "6": 1,
+      "2": 1,
+      "4": 1,
+      "3": 1,
+      "5": 1
+    },
+    "samples": 2251,
+    "bat_samples": 2237,
+    "flashlight_samples": 2229,
+    "first": {
+      "kind": 1,
+      "flags": 39,
+      "session": 2026110202,
+      "sequence": 0,
+      "elapsed_ms": 0,
+      "utc": 1793618179,
+      "clock_revision": 1,
+      "adc_sampled_ms": 385583,
+      "adc_sequence": 77,
+      "raw_mv": 3812,
+      "filtered_decimillivolts": null,
+      "percent": 15,
+      "candidate": 15,
+      "mode": 1,
+      "decision": 3,
+      "charge": 2,
+      "charge_reason": 0,
+      "requested": 50,
+      "acknowledged": 50,
+      "surface": 9,
+      "context_flags": 7,
+      "phase": 0,
+      "stop_reason": 0,
+      "usb_flags": 15,
+      "sample_age_ms": 5200,
+      "schema": 2,
+      "event": 0,
+      "keep_remaining_ms": 839000,
+      "event_tick_ms": null,
+      "local_time": "2026-11-02T19:16:19+08:00"
+    },
+    "first_bat": {
+      "kind": 2,
+      "flags": 39,
+      "session": 2026110202,
+      "sequence": 44,
+      "elapsed_ms": 68585,
+      "utc": 1793618248,
+      "clock_revision": 1,
+      "adc_sampled_ms": 459248,
+      "adc_sequence": 93,
+      "raw_mv": 3755,
+      "filtered_decimillivolts": null,
+      "percent": 14,
+      "candidate": 14,
+      "mode": 0,
+      "decision": 2,
+      "charge": 4,
+      "charge_reason": 6,
+      "requested": 50,
+      "acknowledged": 50,
+      "surface": 9,
+      "context_flags": 7,
+      "phase": 0,
+      "stop_reason": 0,
+      "usb_flags": 5,
+      "sample_age_ms": 120,
+      "schema": 2,
+      "event": 0,
+      "keep_remaining_ms": 1185000,
+      "event_tick_ms": null,
+      "local_time": "2026-11-02T19:17:28+08:00"
+    },
+    "first_flashlight": {
+      "kind": 2,
+      "flags": 55,
+      "session": 2026110202,
+      "sequence": 48,
+      "elapsed_ms": 73708,
+      "utc": 1793618253,
+      "clock_revision": 1,
+      "adc_sampled_ms": 464320,
+      "adc_sequence": 94,
+      "raw_mv": 3730,
+      "filtered_decimillivolts": null,
+      "percent": 14,
+      "candidate": 13,
+      "mode": 0,
+      "decision": 0,
+      "charge": 4,
+      "charge_reason": 6,
+      "requested": 100,
+      "acknowledged": 100,
+      "surface": 5,
+      "context_flags": 7,
+      "phase": 0,
+      "stop_reason": 0,
+      "usb_flags": 5,
+      "sample_age_ms": 171,
+      "schema": 2,
+      "event": 0,
+      "keep_remaining_ms": 1180000,
+      "event_tick_ms": null,
+      "local_time": "2026-11-02T19:17:33+08:00"
+    },
+    "last": {
+      "kind": 2,
+      "flags": 55,
+      "session": 2026110202,
+      "sequence": 2298,
+      "elapsed_ms": 11810224,
+      "utc": 1793630026,
+      "clock_revision": 2,
+      "adc_sampled_ms": 12200803,
+      "adc_sequence": 2329,
+      "raw_mv": 3240,
+      "filtered_decimillivolts": null,
+      "percent": 0,
+      "candidate": 0,
+      "mode": 0,
+      "decision": 0,
+      "charge": 4,
+      "charge_reason": 6,
+      "requested": 100,
+      "acknowledged": 100,
+      "surface": 5,
+      "context_flags": 7,
+      "phase": 0,
+      "stop_reason": 0,
+      "usb_flags": 5,
+      "sample_age_ms": 204,
+      "schema": 2,
+      "event": 0,
+      "keep_remaining_ms": 0,
+      "event_tick_ms": null,
+      "local_time": "2026-11-02T22:33:46+08:00"
+    },
+    "bat_span_ms": 11741639,
+    "largest_bat_sample_gap_ms": 6000,
+    "clock_revisions": [
+      1,
+      2
+    ],
+    "sample_surfaces": {
+      "9": 7,
+      "5": 2229,
+      "0": 1
+    },
+    "retry_count": 30,
+    "failed_attempts": {
+      "ValueError('Malformed/mixed cycle data')": 23,
+      "TimeoutError('No complete response before deadline')": 2,
+      "ValueError('Missing/reordered cycle page')": 4,
+      "CycleResponseMalformed(\"Cycle completion malformed: ['[cycle-accepted] cmd=8 accepted=1', 'msh />msh />[cycle-data] id=2026110202 i=2000 p=0 hex=5746434c02023700fafcc378d0070000cc6d9d00000000007099e86a02000000', '[cycle-data] id=2026110202 i=2000 p=1 hex=6d63a300fd0700006f0d00000000000004066464050007000005de00149bca2d', '[cycle-data] id=2026110202 i=2001 p=0 hex=5746434c02023700fafcc378d10700004e829d00000000007699e86a02000000', '[cycle-data] id=2026110202 i=2001 p=1 hex=fa77a300fe0700006f0d00000000000004066464050007000005d300219ad815', '[cycle-data] id=2026110202 i=2002 p=0 hex=5746434c02023700fafcc378d2070000d0969d00000000007b99e86a02000000', '[cycle-data] id=2026110202 i=2002 p=1 hex=718ca300ff0700006f0d00000000000004066464050007000005de00bc1256da', '[cycle-data] id=2026110202 i=2003 p=0 hex=5746434c02023700fafcc378d307000052ab9d00000000008099e86a02000000', '[cycle-data] id=2026110202 i=2003 p=1 hex=fca0a300000800006f0d00000000000004066464050007000005d500ba0f0766', '[cycle-done] cmd=ch[7]voltage=36497;18266.19']\")": 1
+    },
+    "whole_file_crc_verified": true,
+    "normal_end_present": false
+  },
+  "prefix_scan": {
+    "file_bytes": 147136,
+    "prefix_bytes": 147136,
+    "damaged_tail": false,
+    "source": "end-recover/uart.bin first manifest; this recovery transfer later failed, not a completed recovery export"
+  },
+  "readout": {
+    "reports": {
+      "end-status": {
+        "passed": true,
+        "action": "status",
+        "simulation": false,
+        "session": 2026110202,
+        "status": {
+          "state": 0,
+          "session": 0,
+          "accepted": 0,
+          "saved": 0,
+          "queued": 0,
+          "dropped": 0,
+          "reason": 0,
+          "inhibit": 0,
+          "low_mode": false,
+          "commit_elapsed_ms": 0,
+          "keep_remaining_ms": 1110979,
+          "low_samples": 0,
+          "off_samples": 0,
+          "low_events": 0
+        },
+        "resources_closed": true
+      },
+      "end-mount": {
+        "passed": true,
+        "action": "mount",
+        "simulation": false,
+        "session": 2026110202,
+        "resources_closed": true
+      },
+      "end-export": {
+        "passed": false,
+        "action": "export",
+        "simulation": false,
+        "session": 2026110202,
+        "info": {
+          "session": 2026110202,
+          "rows": 2299,
+          "bytes": 147136,
+          "crc": 25912722,
+          "terminal": false
+        },
+        "error": "TimeoutError('No complete response before deadline')",
+        "resources_closed": true
+      },
+      "end-export-002": {
+        "passed": false,
+        "action": "export",
+        "simulation": false,
+        "session": 2026110202,
+        "info": {
+          "session": 2026110202,
+          "rows": 2299,
+          "bytes": 147136,
+          "crc": 25912722,
+          "terminal": false
+        },
+        "error": "ValueError('Malformed/mixed cycle data')",
+        "resources_closed": true
+      },
+      "resume-status": {
+        "passed": true,
+        "action": "status",
+        "simulation": false,
+        "session": 2026110202,
+        "status": {
+          "state": 1,
+          "session": 0,
+          "accepted": 0,
+          "saved": 0,
+          "queued": 0,
+          "dropped": 0,
+          "reason": 0,
+          "inhibit": 0,
+          "low_mode": false,
+          "commit_elapsed_ms": 0,
+          "keep_remaining_ms": 1162130,
+          "low_samples": 0,
+          "off_samples": 0,
+          "low_events": 0
+        },
+        "resources_closed": true
+      },
+      "end-recover": {
+        "passed": false,
+        "action": "recover",
+        "simulation": false,
+        "session": 2026110202,
+        "info": {
+          "session": 2026110202,
+          "rows": 2299,
+          "bytes": 147136,
+          "crc": 25912722,
+          "terminal": false
+        },
+        "error": "ValueError('Malformed/mixed cycle data')",
+        "resources_closed": true
+      },
+      "end-export-003": {
+        "passed": false,
+        "action": "export",
+        "simulation": false,
+        "session": 2026110202,
+        "info": {
+          "session": 2026110202,
+          "rows": 2299,
+          "bytes": 147136,
+          "crc": 25912722,
+          "terminal": false
+        },
+        "error": "ValueError(\"Cycle command failed: ['[cycle-accepted] cmd=8 accepted=1', 'msh />msh />[cycle-data] id=2026110202 i=445 p=0 hex=5746434c02023700fafcc378bd010000f2db2000000000007379e86a01000000', '[cycle-data] id=2026110202 i=445 p=1 hex=add12600ea010000260e00000303000004066464050007000005c400f747a0ee', '[cycle-done] cmd=8 result=0ch[7]voltage=36353;18194.11']\")",
+        "resources_closed": true
+      },
+      "end-tail": {
+        "passed": true,
+        "session": 2026110202,
+        "info": {
+          "session": 2026110202,
+          "rows": 2299,
+          "bytes": 147136,
+          "crc": 25912722,
+          "terminal": false
+        },
+        "first_sequence": 2287,
+        "whole_file_crc_verified": false,
+        "resources_closed": true
+      },
+      "end-export-004": {
+        "passed": true,
+        "action": "export",
+        "simulation": false,
+        "session": 2026110202,
+        "info": {
+          "session": 2026110202,
+          "rows": 2299,
+          "bytes": 147136,
+          "crc": 25912722,
+          "terminal": false
+        },
+        "record_complete": false,
+        "rows": 2299,
+        "stop_reason": null,
+        "resources_closed": true
+      }
+    },
+    "full_export_record_complete": false,
+    "all_2299_stored_rows_crc_verified": true,
+    "serial_missing_characters_and_interleaving_observed": true,
+    "serial_loss_layer_unknown": true,
+    "no_synthesized_hex": true,
+    "source_snapshot_for_successful_export": "export004-cycle_log_lab.py",
+    "final_tool_delta_after_hardware": "Explicit rejection now takes priority over malformed/duplicate reply; host tests cover this delta. No repeat hardware export required for successful path."
+  },
+  "post_runtime": {
+    "boot": 13,
+    "generation": 109,
+    "pre_experiment_boot": 12,
+    "reboot_occurred": true,
+    "reset_cause_unknown": true,
+    "current": {
+      "failures": 0,
+      "fault_mask": 0,
+      "faults": 1,
+      "io_retries": 1,
+      "io_recoveries": 1,
+      "last": {
+        "ms": 1369146,
+        "sequence": 274,
+        "sampled_ms": 1366981,
+        "utc": 1793631508,
+        "millivolts": 3652,
+        "flags": 63,
+        "percent": 2,
+        "requested": 50,
+        "acknowledged": 50,
+        "charge": 2,
+        "scene": 1
+      }
+    },
+    "unsaved_recorded_ms": 1368030,
+    "no_host_reboot_or_clock_write_or_flash": true
+  },
+  "post_snapshot": {
+    "passed": true,
+    "date_utc": "2026-11-02 14:59:32",
+    "steps": 7,
+    "checkpoint_generation": 343,
+    "checkpoint_verified": true,
+    "checkpoint_dirty": false,
+    "wrist_requested": false,
+    "auto_light_enabled": false,
+    "resources_closed": true
+  },
+  "software": {
+    "host_tests": 18,
+    "host_tests_passed": true,
+    "independent_readonly_review": true,
+    "initial_test_failures": "Windows default C: temporary directory progress.json replacement intermittently returned WinError5; bounded rerun with explicit tempfile.tempdir on D: passed. Shared writer unchanged.",
+    "firmware_compilation": "not run; host Python and evidence changes only"
+  },
+  "limits": [
+    "All stored rows verified is not all physical time recorded: no END row and no measurement after the final committed ADC.",
+    "Cached UTC revisions 1 and 2 exist; compare duration with monotonic elapsed_ms.",
+    "Recovery boot13 proves a restart since boot12, but not its electrical or reset cause.",
+    "No net current, capacity, exact LDO dropout/cutoff or chemical-empty verification. Prior and current experiments remain separate sessions."
+  ],
+  "files": [
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-status/report.json",
+      "bytes": 449,
+      "sha256": "d7376c9ecfe7548ca10430565693a1d85d56d1862bbc09a2e889fcef066a5e93"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-status/binding.json",
+      "bytes": 148445,
+      "sha256": "c2a666f69a8f1c20819e9dc0157ea07a5e6c2f606bcf9c9a3f14f8e0a8c95fa9"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-status/uart.bin",
+      "bytes": 242,
+      "sha256": "f1cac1f241891764f3e95cda90378158db7c235a80975aa97c51497df204c54d"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-status/events.jsonl",
+      "bytes": 1504,
+      "sha256": "ad680f58e878f5236cf0f6053b5fe66e798890c1bc51ad2cdc72259be9511063"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-mount/report.json",
+      "bytes": 125,
+      "sha256": "fb3038b36c9a77f86b4f3aadaf6a79d7d8f0b87f6e76a1762abcd941da519665"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-mount/binding.json",
+      "bytes": 148444,
+      "sha256": "5d2324f86fbc35ac46a12d8bbf09dd9659fe3883687a422e3cbdd2022df1ed6e"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-mount/uart.bin",
+      "bytes": 76,
+      "sha256": "30287adb7a5689171455d7f8f28aa45e76bfa92719c6566f85a7cd829cc5ab32"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-mount/events.jsonl",
+      "bytes": 1255,
+      "sha256": "a8acbf29e1a4502a7b76ff8cdd5a1d1c5ea93a5387dc9d89a47534b52fe7d4a5"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-export/report.json",
+      "bytes": 328,
+      "sha256": "d2a19795d6425f7ffc84c0aa74a2847754efe9765bb0d215d9889476936bc27a"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-export/binding.json",
+      "bytes": 148445,
+      "sha256": "7ebe7e2be301155b044ae8227d7e568352a832d4ec3f71b8562f9beb4d70439f"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-export/uart.bin",
+      "bytes": 13018,
+      "sha256": "0ea839c7b69932aee6bfaa1374d20c51ad14fc9984cabb2bb0bab8084a26f4ff"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-export/events.jsonl",
+      "bytes": 5816,
+      "sha256": "b766901fa1d2b27239cb1ed2828cc770feee0ad63c525f96dbcc05dcc7e0cba5"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-export-002/report.json",
+      "bytes": 316,
+      "sha256": "7ce9975596c7b4f679723812d9cde3fcf4c30f7589a68c22376dc299975f6a9f"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-export-002/binding.json",
+      "bytes": 148445,
+      "sha256": "7ebe7e2be301155b044ae8227d7e568352a832d4ec3f71b8562f9beb4d70439f"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-export-002/uart.bin",
+      "bytes": 54551,
+      "sha256": "35a25966c575926a4ef4706268154962db6f3e847f6b42dd9a33091554d294e7"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-export-002/events.jsonl",
+      "bytes": 24233,
+      "sha256": "c40ba14d838515eb3f4a2619984e884cf9c7b8bc33925079f057e949345a9688"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/resume-status/report.json",
+      "bytes": 449,
+      "sha256": "edea221857a45b11b368c3f052e4717e3af992953f0db7e7a50ea1806d7b0449"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/resume-status/binding.json",
+      "bytes": 148445,
+      "sha256": "c2a666f69a8f1c20819e9dc0157ea07a5e6c2f606bcf9c9a3f14f8e0a8c95fa9"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/resume-status/uart.bin",
+      "bytes": 271,
+      "sha256": "688ff64e358215828923559a8f05fb7174bc51938b7553a9c0fff6d6658e8747"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/resume-status/events.jsonl",
+      "bytes": 1504,
+      "sha256": "0e7433775891464aff5dee6a78852751ad123134f7127e23289bf1cbcc9d041e"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-recover/report.json",
+      "bytes": 317,
+      "sha256": "c56b3a4568ee2d20fcbf97fa41bf4a88e8871640568c92b5119041288a81d926"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-recover/binding.json",
+      "bytes": 148446,
+      "sha256": "1295e6ec33add77176f69c47cb405f67e1e37d7b3eda91411c0d71e544220a49"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-recover/uart.bin",
+      "bytes": 136472,
+      "sha256": "4147ffb51ad834cc05b9c2187fd4e7c470e98a1742efbe5ebf014e86cf3d7e25"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-recover/events.jsonl",
+      "bytes": 60228,
+      "sha256": "59e8a1f0b71a96da7bc82dd278423a0f5b5be3d760686d01f38d39b33f49ed71"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-export-003/report.json",
+      "bytes": 639,
+      "sha256": "2f119c3cb14e865ece9a75de44dde789306db91804f5b3c7dd02455ac0fb56d6"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-export-003/binding.json",
+      "bytes": 148487,
+      "sha256": "ce2ae8e42e0dcd82aa99acdf3e5db737c223ac5684b3b95b2d2fdc57a5ee07ed"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-export-003/uart.bin",
+      "bytes": 144119,
+      "sha256": "b7b3d5853714ced929f353fe28101899f840a32cd161a3ecda90c97bb4114980"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-export-003/events.jsonl",
+      "bytes": 195918,
+      "sha256": "9d1173e5ccb3f7ef2c15bcb0bb38abd6ad142bf04d21f8b217ad8d31b81942a3"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-tail/report.json",
+      "bytes": 9858,
+      "sha256": "23372a64d7a7f4a649a440e0f8b78a14475f8ef6fa623f96f049eb4ea3e22c4c"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-tail/binding.json",
+      "bytes": 148553,
+      "sha256": "0c89a6c7b7c615734785ca5e7923eaca2542f81a924b83159c90df1602870b12"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-tail/uart.bin",
+      "bytes": 3893,
+      "sha256": "6f74bc7f3eb5ede080710c530dbefb0c2f46791bf0329d0f2a7986c5479a6f97"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-tail/events.jsonl",
+      "bytes": 6297,
+      "sha256": "ae78c83d0cd61e7496600ac07ecdcdbf7d2c9fd670a41afb467d61e91e3e541f"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-export-004/report.json",
+      "bytes": 329,
+      "sha256": "fd5d21eb149481ec59874b2f2d306b472fbdb39b5779a2697feef8d14ebdab57"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-export-004/binding.json",
+      "bytes": 148487,
+      "sha256": "9ba0b7ebd4522dfe6ff44e77b6ba9fe1d210e6b42b2b90d2b0579d6556925091"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-export-004/uart.bin",
+      "bytes": 571546,
+      "sha256": "6cf0db6d1ba0fee61c80756af9bc728cb43030900166ef67cd6df302ca82962b"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-export-004/events.jsonl",
+      "bytes": 260367,
+      "sha256": "c54b7c34b6fe27373677db6f42776a63b487b1ecccde7d8fca4e391aa5db7d1f"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/post-runtime/binding.json",
+      "bytes": 148350,
+      "sha256": "8e7962f750c3771c3c9b69b866490cbcf4ae306f06dafd6f54406dd98ad4761b"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/post-runtime/events.jsonl",
+      "bytes": 6482,
+      "sha256": "b12c97674c0fd7bd4cfcab2a6ac1d08ed2d5905f9b6dd8e2a8ca5d01e757f6b3"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/post-runtime/export.json",
+      "bytes": 563,
+      "sha256": "f83f026c0d36a3353063b8033c1751741c5e0da11291966e893654aa916f6c91"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/post-runtime/progress.json",
+      "bytes": 248,
+      "sha256": "433f4cfc26f3842f67037a299bfe1e66ee364b2cdd40bb682756d392cdfb802d"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/post-runtime/records.json",
+      "bytes": 24337,
+      "sha256": "0b10446f5f4064ebc9526569c7a5ba9a20ac6771282ab7d79c70641b32c41c65"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/post-runtime/uart.bin",
+      "bytes": 17246,
+      "sha256": "5f2be8b0d1389b64ece00dfb7e2cc31069004b170021021a08d2a63894885387"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/post-status/binding.json",
+      "bytes": 148675,
+      "sha256": "00192dd3fd3c8cc98aa3d8ca8cf91f2b724bb71338f640b3e48ab90d33e03edf"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/post-status/events.jsonl",
+      "bytes": 3059,
+      "sha256": "851dcb970cf39936bf66e6bc7b7fa7d8ac8eb86502996f1556117fb73ed4bcc6"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/post-status/progress.json",
+      "bytes": 248,
+      "sha256": "d783ffd8b2a424b4ef99066dbc334730a90f8c7279a4d9c7eaa4e8e4863bc8ee"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/post-status/snapshot.json",
+      "bytes": 5913,
+      "sha256": "2e12b63f86dc3f8759f2222677c87d54f66cbacfda775b01d3c5ddee7b0e9828"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/post-status/uart.bin",
+      "bytes": 4530,
+      "sha256": "91b5cea3ff60f2c5426724e4c54fb2efc48fc69bfe1bf3ecf0cdb6d1e1feb1e6"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-export-004/cycle.bin",
+      "bytes": 147136,
+      "sha256": "364b3c4cea46981983cebedf3da3d51e46c59f3f8dcc7073814680ad13f2c9e7"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-export-004/cycle.csv",
+      "bytes": 236912,
+      "sha256": "334c4950db480a9cb5cd65566202c0bf2f5e0c1d060977ab5e620f0b0a6a74d4"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/analysis.json",
+      "bytes": 4751,
+      "sha256": "43007e9b85ad4d25e1e7ffd60f5aad752ba7b8fe39d3897f9b036c83b498fae9"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/analyze-end.py",
+      "bytes": 3188,
+      "sha256": "592d8115fc676f7824d873dbf0b51a86a3aeefe19870a2bf6fe37bc25d176c4a"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/host-tests.txt",
+      "bytes": 2676,
+      "sha256": "e55452b576b885b56982fc95ce3d20132a6cba036ed1d6060bfa57ad6660f0e5"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/operator-end-observations.json",
+      "bytes": 1386,
+      "sha256": "c8406d3006c3adfc51a61bcd2239ead5080d233c310dcb55890b3d18323780a4"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/export004-cycle_log_lab.py",
+      "bytes": 11435,
+      "sha256": "ba831109d8bbc8d63a7db7aff53f9763be5e583a419f505373e391e7981cf965"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/discharge-verified.png",
+      "bytes": 108495,
+      "sha256": "fc25787366219aeb4a8619a0fa6e1ae67180bfe905ef780f7a02c6581e2fa91c"
+    }
+  ],
+  "sources": [
+    {
+      "path": "scripts/cycle_log_lab.py",
+      "bytes": 11523,
+      "sha256": "f5ab5cc9d0a72e9a9f4a6c376e13a80256c936029cd58083af3fad93e84e418c"
+    },
+    {
+      "path": "scripts/cycle_protocol.py",
+      "bytes": 4402,
+      "sha256": "b182d3f92acded38db3e9a11092cd716e8de49b5e9a0a7718725021e305de9e5"
+    },
+    {
+      "path": "tests/test_cycle_log.py",
+      "bytes": 13896,
+      "sha256": "b146a3fcb7efb0c1e04ca9d6c3a1f7bf38738cd3c23bc416c2989a0bf4c03204"
+    },
+    {
+      "path": "scripts/runtime_export.py",
+      "bytes": 9311,
+      "sha256": "84b280902836d0d15e323a19062ed27043113ae507879a5d77d359e4bb0ddb00"
+    },
+    {
+      "path": "scripts/device_snapshot.py",
+      "bytes": 12078,
+      "sha256": "0195f5297b87bd26084887210dc42618ed169243f4248ae58a26204fed84189f"
+    }
+  ],
+  "commands": {},
+  "command_protocol": "Every actual TX is preserved in each hashed events.jsonl. Explicit session2026110202; common build/archive/flash/COM5/location1-1.1 binding in each binding.json.",
+  "next": "Offline time-normalized discharge curve candidate using prior FULL session and this low session; no new device action or firmware table update in this result."
+}

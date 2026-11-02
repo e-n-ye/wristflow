@@ -1,0 +1,851 @@
+{
+  "schema": 1,
+  "date": "2026-11-02",
+  "status": "offline_candidate_not_firmware",
+  "method": "Piecewise monotone first stable crossing; 3 consecutive valid fixed-load samples <= target within 12s. Old FULL segment above join, low session below join; normalize summed monotonic durations. Linear interpolation between 10mV nodes. No polynomial overshoot.",
+  "assumptions": [
+    "Fixed flashlight load makes elapsed time an approximate usable-energy proxy; no current measurement.",
+    "Use old high and new low segments as a synthetic model, not a single continuous experiment.",
+    "3300mV is the user-selected operational 0%; it is not a fitted electrical cutoff.",
+    "4142mV first loaded ADC is normalized to100 for this candidate; it does not prove rested OCV/full charge.",
+    "Keep brief exit/re-entry and load rebound in evidence. Threshold times retain that elapsed gap."
+  ],
+  "sessions": [
+    2026110201,
+    2026110202
+  ],
+  "fixed_samples": [
+    2538,
+    2229
+  ],
+  "join_mv": 3600,
+  "endpoint_mv": 3300,
+  "upper_loaded_reference_mv": 4142,
+  "new_endpoint_crossing_elapsed_ms": 11710467,
+  "model_durations_minutes": {
+    "3600": 351.4578333333333,
+    "3620": 351.02615,
+    "3640": 349.2594833333333
+  },
+  "join_spread_max_pp": 0.31923270517257407,
+  "short_load_transition_gap_ms": 43207,
+  "retained_gap_percent_upper_bound": 0.20489418597868783,
+  "nodes": [
+    {
+      "mv": 3300,
+      "percent": 0.0,
+      "join3620_percent": 0.0,
+      "join3640_percent": 0.0,
+      "join_spread_pp": 0.0
+    },
+    {
+      "mv": 3310,
+      "percent": 0.09958520391493147,
+      "join3620_percent": 0.0997076713515503,
+      "join3640_percent": 0.10021202478443797,
+      "join_spread_pp": 0.0006268208695064947
+    },
+    {
+      "mv": 3320,
+      "percent": 0.2489630097873287,
+      "join3620_percent": 0.24926917837887577,
+      "join3640_percent": 0.25053006196109495,
+      "join_spread_pp": 0.0015670521737662646
+    },
+    {
+      "mv": 3330,
+      "percent": 0.42323711663845875,
+      "join3620_percent": 0.4237576032440888,
+      "join3640_percent": 0.4259011053338614,
+      "join_spread_pp": 0.0026639886954026304
+    },
+    {
+      "mv": 3340,
+      "percent": 0.6224075244683217,
+      "join3620_percent": 0.6231729459471894,
+      "join3640_percent": 0.6263251549027373,
+      "join_spread_pp": 0.00391763043441562
+    },
+    {
+      "mv": 3350,
+      "percent": 0.8962668352343832,
+      "join3620_percent": 0.8973690421639527,
+      "join3640_percent": 0.9019082230599418,
+      "join_spread_pp": 0.005641387825558564
+    },
+    {
+      "mv": 3360,
+      "percent": 1.2199187479579106,
+      "join3620_percent": 1.2214189740564911,
+      "join3640_percent": 1.227597303609365,
+      "join_spread_pp": 0.007678555651454477
+    },
+    {
+      "mv": 3370,
+      "percent": 1.6431558645963693,
+      "join3620_percent": 1.64517657730058,
+      "join3640_percent": 1.6534984089432265,
+      "join_spread_pp": 0.010342544346857219
+    },
+    {
+      "mv": 3380,
+      "percent": 2.1161855831922938,
+      "join3620_percent": 2.118788016220444,
+      "join3640_percent": 2.129505526669307,
+      "join_spread_pp": 0.013319943477013041
+    },
+    {
+      "mv": 3390,
+      "percent": 2.642564518171217,
+      "join3620_percent": 2.6458142790786385,
+      "join3640_percent": 2.6591976576727645,
+      "join_spread_pp": 0.016633139501547323
+    },
+    {
+      "mv": 3400,
+      "percent": 3.2151794406820735,
+      "join3620_percent": 3.219133389350053,
+      "join3640_percent": 3.235416800183283,
+      "join_spread_pp": 0.02023735950120953
+    },
+    {
+      "mv": 3410,
+      "percent": 4.117170054065282,
+      "join3620_percent": 4.1222332486245445,
+      "join3640_percent": 4.14308482866774,
+      "join_spread_pp": 0.025914774602457946
+    },
+    {
+      "mv": 3420,
+      "percent": 4.8889553844060005,
+      "join3620_percent": 4.894967701599059,
+      "join3640_percent": 4.919728020747134,
+      "join_spread_pp": 0.030772636341133364
+    },
+    {
+      "mv": 3430,
+      "percent": 5.685637015725452,
+      "join3620_percent": 5.692629072411462,
+      "join3640_percent": 5.721424219022638,
+      "join_spread_pp": 0.03578720329718621
+    },
+    {
+      "mv": 3440,
+      "percent": 6.7063853558535,
+      "join3620_percent": 6.7146327037648526,
+      "join3640_percent": 6.748597473063127,
+      "join_spread_pp": 0.04221211720962703
+    },
+    {
+      "mv": 3450,
+      "percent": 7.57775589010915,
+      "join3620_percent": 7.587074828090918,
+      "join3640_percent": 7.625452689926959,
+      "join_spread_pp": 0.0476967998178095
+    },
+    {
+      "mv": 3460,
+      "percent": 8.722985735130862,
+      "join3620_percent": 8.733713048633746,
+      "join3640_percent": 8.777890974947995,
+      "join_spread_pp": 0.05490523981713302
+    },
+    {
+      "mv": 3470,
+      "percent": 9.943122622106872,
+      "join3620_percent": 9.955350429970341,
+      "join3640_percent": 10.00570779061165,
+      "join_spread_pp": 0.06258516850477847
+    },
+    {
+      "mv": 3480,
+      "percent": 11.362211777894645,
+      "join3620_percent": 11.376184746729933,
+      "join3640_percent": 11.433729143789892,
+      "join_spread_pp": 0.0715173658952466
+    },
+    {
+      "mv": 3490,
+      "percent": 12.831093535639885,
+      "join3620_percent": 12.8468728991653,
+      "join3640_percent": 12.911856509360351,
+      "join_spread_pp": 0.08076297372046604
+    },
+    {
+      "mv": 3500,
+      "percent": 14.52404200219372,
+      "join3620_percent": 14.541903312141654,
+      "join3640_percent": 14.615460930695797,
+      "join_spread_pp": 0.09141892850207611
+    },
+    {
+      "mv": 3510,
+      "percent": 16.34147197364122,
+      "join3620_percent": 16.361568314307448,
+      "join3640_percent": 16.444330383011792,
+      "join_spread_pp": 0.10285840937057245
+    },
+    {
+      "mv": 3520,
+      "percent": 18.482553857812245,
+      "join3620_percent": 18.505283248365778,
+      "join3640_percent": 18.598888915877207,
+      "join_spread_pp": 0.11633505806496203
+    },
+    {
+      "mv": 3530,
+      "percent": 20.573843140025808,
+      "join3620_percent": 20.599144346748336,
+      "join3640_percent": 20.703341436350403,
+      "join_spread_pp": 0.12949829632459497
+    },
+    {
+      "mv": 3540,
+      "percent": 23.01368063594163,
+      "join3620_percent": 23.041982294861317,
+      "join3640_percent": 23.158536043569136,
+      "join_spread_pp": 0.1448554076275066
+    },
+    {
+      "mv": 3550,
+      "percent": 25.577999636751112,
+      "join3620_percent": 25.60945483216374,
+      "join3640_percent": 25.73899568176841,
+      "join_spread_pp": 0.16099604501729914
+    },
+    {
+      "mv": 3560,
+      "percent": 28.341498529695595,
+      "join3620_percent": 28.37635220813796,
+      "join3640_percent": 28.519888913538924,
+      "join_spread_pp": 0.17839038384332895
+    },
+    {
+      "mv": 3570,
+      "percent": 31.32905464714354,
+      "join3620_percent": 31.36758234868447,
+      "join3640_percent": 31.526249657072064,
+      "join_spread_pp": 0.19719500992852446
+    },
+    {
+      "mv": 3580,
+      "percent": 34.56559274298908,
+      "join3620_percent": 34.608100659547254,
+      "join3640_percent": 34.78315955057102,
+      "join_spread_pp": 0.2175668075819388
+    },
+    {
+      "mv": 3590,
+      "percent": 37.47845995750083,
+      "join3620_percent": 37.5245500465801,
+      "join3640_percent": 37.71436127551583,
+      "join_spread_pp": 0.2359013180149958
+    },
+    {
+      "mv": 3600,
+      "percent": 39.843608550480454,
+      "join3620_percent": 39.89260724117942,
+      "join3640_percent": 40.09439686414623,
+      "join_spread_pp": 0.2507883136657796
+    },
+    {
+      "mv": 3610,
+      "percent": 42.69080169408658,
+      "join3620_percent": 42.534860531995506,
+      "join3640_percent": 42.750015520933836,
+      "join_spread_pp": 0.2151549889383304
+    },
+    {
+      "mv": 3620,
+      "percent": 44.89590263791721,
+      "join3620_percent": 44.82813697308116,
+      "join3640_percent": 45.05489209097591,
+      "join_spread_pp": 0.22675511789475422
+    },
+    {
+      "mv": 3630,
+      "percent": 47.24326815876916,
+      "join3620_percent": 47.178389226367706,
+      "join3640_percent": 47.23450363003744,
+      "join_spread_pp": 0.06487893240145581
+    },
+    {
+      "mv": 3640,
+      "percent": 49.28239376274157,
+      "join3620_percent": 49.220022496899446,
+      "join3640_percent": 48.963161057568996,
+      "join_spread_pp": 0.31923270517257407
+    },
+    {
+      "mv": 3650,
+      "percent": 51.34523012955086,
+      "join3620_percent": 51.28539568918156,
+      "join3640_percent": 51.03898157096092,
+      "join_spread_pp": 0.3062485585899424
+    },
+    {
+      "mv": 3660,
+      "percent": 52.9101404767855,
+      "join3620_percent": 52.852230524705924,
+      "join3640_percent": 52.61374196043066,
+      "join_spread_pp": 0.2963985163548415
+    },
+    {
+      "mv": 3670,
+      "percent": 54.45134006118325,
+      "join3620_percent": 54.395325438479915,
+      "join3640_percent": 54.16464234399935,
+      "join_spread_pp": 0.28669771718390535
+    },
+    {
+      "mv": 3680,
+      "percent": 55.921407357070336,
+      "join3620_percent": 55.8672005870028,
+      "join3640_percent": 55.64396270986486,
+      "join_spread_pp": 0.2774446472054777
+    },
+    {
+      "mv": 3690,
+      "percent": 57.36776389012053,
+      "join3620_percent": 57.31533581377532,
+      "join3640_percent": 57.099423069829314,
+      "join_spread_pp": 0.26834082029121475
+    },
+    {
+      "mv": 3700,
+      "percent": 58.50588050629118,
+      "join3620_percent": 58.45485205779303,
+      "join3640_percent": 58.244703353080034,
+      "join_spread_pp": 0.2611771532111433
+    },
+    {
+      "mv": 3710,
+      "percent": 59.80997246232004,
+      "join3620_percent": 59.76054775406334,
+      "join3640_percent": 59.55700367763815,
+      "join_spread_pp": 0.2529687846818902
+    },
+    {
+      "mv": 3720,
+      "percent": 61.04293212983824,
+      "join3620_percent": 60.99502368508253,
+      "join3640_percent": 60.797723984493096,
+      "join_spread_pp": 0.24520814534514557
+    },
+    {
+      "mv": 3730,
+      "percent": 62.157337983172,
+      "join3620_percent": 62.11080000734988,
+      "join3640_percent": 61.91914426184276,
+      "join_spread_pp": 0.23819372132923888
+    },
+    {
+      "mv": 3740,
+      "percent": 63.29545459934264,
+      "join3620_percent": 63.2503162513676,
+      "join3640_percent": 63.06442454509348,
+      "join_spread_pp": 0.23103005424916034
+    },
+    {
+      "mv": 3750,
+      "percent": 64.38614968983951,
+      "join3620_percent": 64.34235265188458,
+      "join3640_percent": 64.16198481654209,
+      "join_spread_pp": 0.22416487329742552
+    },
+    {
+      "mv": 3760,
+      "percent": 65.40571249182571,
+      "join3620_percent": 65.36316928715046,
+      "join3640_percent": 65.18796507028752,
+      "join_spread_pp": 0.21774742153819204
+    },
+    {
+      "mv": 3770,
+      "percent": 66.59125063367014,
+      "join3620_percent": 66.55016537466891,
+      "join3640_percent": 66.38096536534036,
+      "join_spread_pp": 0.210285268329784
+    },
+    {
+      "mv": 3780,
+      "percent": 67.56339190998256,
+      "join3620_percent": 67.52350216643404,
+      "join3640_percent": 67.35922560728368,
+      "join_spread_pp": 0.20416630269888003
+    },
+    {
+      "mv": 3790,
+      "percent": 68.60666547480565,
+      "join3620_percent": 68.56805872345028,
+      "join3640_percent": 68.40906586693016,
+      "join_spread_pp": 0.19759960787548891
+    },
+    {
+      "mv": 3800,
+      "percent": 69.64993903962875,
+      "join3620_percent": 69.61261528046653,
+      "join3640_percent": 69.45890612657666,
+      "join_spread_pp": 0.19103291305208359
+    },
+    {
+      "mv": 3810,
+      "percent": 70.69321260445184,
+      "join3620_percent": 70.65717183748276,
+      "join3640_percent": 70.50874638622315,
+      "join_spread_pp": 0.18446621822869247
+    },
+    {
+      "mv": 3820,
+      "percent": 71.78390769494871,
+      "join3620_percent": 71.74920823799974,
+      "join3640_percent": 71.60630665767177,
+      "join_spread_pp": 0.17760103727694343
+    },
+    {
+      "mv": 3830,
+      "percent": 72.94573507395624,
+      "join3620_percent": 72.91246440376783,
+      "join3640_percent": 72.77544694682354,
+      "join_spread_pp": 0.17028812713270725
+    },
+    {
+      "mv": 3840,
+      "percent": 73.91787635026867,
+      "join3620_percent": 73.88580119553296,
+      "join3640_percent": 73.75370718876687,
+      "join_spread_pp": 0.16416916150180327
+    },
+    {
+      "mv": 3850,
+      "percent": 74.8900176265811,
+      "join3620_percent": 74.8591379872981,
+      "join3640_percent": 74.73196743071018,
+      "join_spread_pp": 0.1580501958709135
+    },
+    {
+      "mv": 3860,
+      "percent": 76.00442347991485,
+      "join3620_percent": 75.97491430956545,
+      "join3640_percent": 75.85338770805984,
+      "join_spread_pp": 0.15103577185500683
+    },
+    {
+      "mv": 3870,
+      "percent": 77.02398628190106,
+      "join3620_percent": 76.99573094483132,
+      "join3640_percent": 76.87936796180529,
+      "join_spread_pp": 0.14461832009577336
+    },
+    {
+      "mv": 3880,
+      "percent": 77.87757374402904,
+      "join3620_percent": 77.8503681278446,
+      "join3640_percent": 77.73832817424332,
+      "join_spread_pp": 0.13924556978571445
+    },
+    {
+      "mv": 3890,
+      "percent": 78.9682688345259,
+      "join3620_percent": 78.94240452836159,
+      "join3640_percent": 78.83588844569194,
+      "join_spread_pp": 0.1323803888339654
+    },
+    {
+      "mv": 3900,
+      "percent": 80.011542399349,
+      "join3620_percent": 79.98696108537783,
+      "join3640_percent": 79.88572870533842,
+      "join_spread_pp": 0.1258136940105743
+    },
+    {
+      "mv": 3910,
+      "percent": 80.98368367566142,
+      "join3620_percent": 80.96029787714296,
+      "join3640_percent": 80.86398894728174,
+      "join_spread_pp": 0.11969472837968453
+    },
+    {
+      "mv": 3920,
+      "percent": 82.0506680033214,
+      "join3620_percent": 82.02859435590958,
+      "join3640_percent": 81.9376892128293,
+      "join_spread_pp": 0.11297879049210735
+    },
+    {
+      "mv": 3930,
+      "percent": 82.85683393977561,
+      "join3620_percent": 82.83575169542212,
+      "join3640_percent": 82.74892941346522,
+      "join_spread_pp": 0.10790452631039216
+    },
+    {
+      "mv": 3940,
+      "percent": 83.85268597892492,
+      "join3620_percent": 83.83282840893763,
+      "join3640_percent": 83.75104966130961,
+      "join_spread_pp": 0.10163631761531633
+    },
+    {
+      "mv": 3950,
+      "percent": 84.77740572956357,
+      "join3620_percent": 84.75868535720203,
+      "join3640_percent": 84.68158989145081,
+      "join_spread_pp": 0.09581583811275607
+    },
+    {
+      "mv": 3960,
+      "percent": 85.70212548020223,
+      "join3620_percent": 85.68454230546642,
+      "join3640_percent": 85.61213012159202,
+      "join_spread_pp": 0.08999535861021002
+    },
+    {
+      "mv": 3970,
+      "percent": 86.5794237051671,
+      "join3620_percent": 86.56291941023008,
+      "join3640_percent": 86.49495033993112,
+      "join_spread_pp": 0.08447336523597926
+    },
+    {
+      "mv": 3980,
+      "percent": 87.50425726746737,
+      "join3620_percent": 87.48889031011888,
+      "join3640_percent": 87.42560509810065,
+      "join_spread_pp": 0.0786521693667197
+    },
+    {
+      "mv": 3990,
+      "percent": 88.35784472959534,
+      "join3620_percent": 88.34352749313216,
+      "join3640_percent": 88.2845653105387,
+      "join_spread_pp": 0.07327941905664659
+    },
+    {
+      "mv": 4000,
+      "percent": 89.282564480234,
+      "join3620_percent": 89.26938444139655,
+      "join3640_percent": 89.2151055406799,
+      "join_spread_pp": 0.06745893955410054
+    },
+    {
+      "mv": 4010,
+      "percent": 90.18357346803576,
+      "join3620_percent": 90.17150146791059,
+      "join3640_percent": 90.12178576492006,
+      "join_spread_pp": 0.06178770311569792
+    },
+    {
+      "mv": 4020,
+      "percent": 91.01345016732685,
+      "join3620_percent": 91.0023987291735,
+      "join3640_percent": 90.95688597145704,
+      "join_spread_pp": 0.056564195869810874
+    },
+    {
+      "mv": 4030,
+      "percent": 91.98559144363928,
+      "join3620_percent": 91.97573552093864,
+      "join3640_percent": 91.93514621340036,
+      "join_spread_pp": 0.05044523023892111
+    },
+    {
+      "mv": 4040,
+      "percent": 92.91031119427792,
+      "join3620_percent": 92.90159246920302,
+      "join3640_percent": 92.86568644354158,
+      "join_spread_pp": 0.04462475073634664
+    },
+    {
+      "mv": 4050,
+      "percent": 93.74018789356903,
+      "join3620_percent": 93.73248973046594,
+      "join3640_percent": 93.70078665007856,
+      "join_spread_pp": 0.0394012434904738
+    },
+    {
+      "mv": 4060,
+      "percent": 94.593775355697,
+      "join3620_percent": 94.58712691347924,
+      "join3640_percent": 94.55974686251659,
+      "join_spread_pp": 0.0340284931804149
+    },
+    {
+      "mv": 4070,
+      "percent": 95.37623052931433,
+      "join3620_percent": 95.37054433124142,
+      "join3640_percent": 95.34712705725147,
+      "join_spread_pp": 0.02910347206285735
+    },
+    {
+      "mv": 4080,
+      "percent": 96.18239646576853,
+      "join3620_percent": 96.17770167075398,
+      "join3640_percent": 96.15836725788739,
+      "join_spread_pp": 0.024029207881142156
+    },
+    {
+      "mv": 4090,
+      "percent": 96.96485163938586,
+      "join3620_percent": 96.96111908851616,
+      "join3640_percent": 96.94574745262226,
+      "join_spread_pp": 0.01910418676359882
+    },
+    {
+      "mv": 4100,
+      "percent": 97.74730681300318,
+      "join3620_percent": 97.74453650627834,
+      "join3640_percent": 97.73312764735714,
+      "join_spread_pp": 0.01417916564604127
+    },
+    {
+      "mv": 4110,
+      "percent": 98.57718351229427,
+      "join3620_percent": 98.57543376754126,
+      "join3640_percent": 98.56822785389411,
+      "join_spread_pp": 0.00895565840015422
+    },
+    {
+      "mv": 4120,
+      "percent": 99.1225310575427,
+      "join3620_percent": 99.12145196779974,
+      "join3640_percent": 99.11700798961841,
+      "join_spread_pp": 0.005523067924286806
+    },
+    {
+      "mv": 4130,
+      "percent": 99.66787860279113,
+      "join3620_percent": 99.66747016805823,
+      "join3640_percent": 99.66578812534271,
+      "join_spread_pp": 0.002090477448419392
+    },
+    {
+      "mv": 4140,
+      "percent": 99.97627501070541,
+      "join3620_percent": 99.97624583429658,
+      "join3640_percent": 99.9761256780954,
+      "join_spread_pp": 0.00014933261000749098
+    },
+    {
+      "mv": 4142,
+      "percent": 100.0,
+      "join3620_percent": 100.0,
+      "join3640_percent": 100.0,
+      "join_spread_pp": 0.0
+    }
+  ],
+  "percent_nodes_5step": [
+    {
+      "percent": 0,
+      "mv": 3300
+    },
+    {
+      "percent": 5,
+      "mv": 3421.4
+    },
+    {
+      "percent": 10,
+      "mv": 3470.4
+    },
+    {
+      "percent": 15,
+      "mv": 3502.6
+    },
+    {
+      "percent": 20,
+      "mv": 3527.3
+    },
+    {
+      "percent": 25,
+      "mv": 3547.7
+    },
+    {
+      "percent": 30,
+      "mv": 3565.6
+    },
+    {
+      "percent": 35,
+      "mv": 3581.5
+    },
+    {
+      "percent": 40,
+      "mv": 3600.5
+    },
+    {
+      "percent": 45,
+      "mv": 3620.4
+    },
+    {
+      "percent": 50,
+      "mv": 3643.5
+    },
+    {
+      "percent": 55,
+      "mv": 3673.7
+    },
+    {
+      "percent": 60,
+      "mv": 3711.5
+    },
+    {
+      "percent": 65,
+      "mv": 3756.0
+    },
+    {
+      "percent": 70,
+      "mv": 3803.4
+    },
+    {
+      "percent": 75,
+      "mv": 3851.0
+    },
+    {
+      "percent": 80,
+      "mv": 3899.9
+    },
+    {
+      "percent": 85,
+      "mv": 3952.4
+    },
+    {
+      "percent": 90,
+      "mv": 4008.0
+    },
+    {
+      "percent": 95,
+      "mv": 4065.2
+    },
+    {
+      "percent": 100,
+      "mv": 4142.0
+    }
+  ],
+  "comparison": [
+    {
+      "mv": 4142,
+      "candidate_percent": 100.0,
+      "old_raw_lookup_percent": 98.32902670111973
+    },
+    {
+      "mv": 4100,
+      "candidate_percent": 97.74730681300318,
+      "old_raw_lookup_percent": 96.52024117140397
+    },
+    {
+      "mv": 4000,
+      "candidate_percent": 89.282564480234,
+      "old_raw_lookup_percent": 71.640625
+    },
+    {
+      "mv": 3900,
+      "candidate_percent": 80.011542399349,
+      "old_raw_lookup_percent": 49.960629921259844
+    },
+    {
+      "mv": 3800,
+      "candidate_percent": 69.64993903962875,
+      "old_raw_lookup_percent": 20.805084745762713
+    },
+    {
+      "mv": 3750,
+      "candidate_percent": 64.38614968983951,
+      "old_raw_lookup_percent": 13.722627737226277
+    },
+    {
+      "mv": 3700,
+      "candidate_percent": 58.50588050629118,
+      "old_raw_lookup_percent": 7.454068241469816
+    },
+    {
+      "mv": 3650,
+      "candidate_percent": 51.34523012955086,
+      "old_raw_lookup_percent": 4.116318464144551
+    },
+    {
+      "mv": 3600,
+      "candidate_percent": 39.843608550480454,
+      "old_raw_lookup_percent": 2.704686617730096
+    },
+    {
+      "mv": 3550,
+      "candidate_percent": 25.577999636751112,
+      "old_raw_lookup_percent": 1.2930547713156408
+    },
+    {
+      "mv": 3500,
+      "candidate_percent": 14.52404200219372,
+      "old_raw_lookup_percent": 0
+    },
+    {
+      "mv": 3450,
+      "candidate_percent": 7.57775589010915,
+      "old_raw_lookup_percent": 0
+    },
+    {
+      "mv": 3400,
+      "candidate_percent": 3.2151794406820735,
+      "old_raw_lookup_percent": 0
+    },
+    {
+      "mv": 3350,
+      "candidate_percent": 0.8962668352343832,
+      "old_raw_lookup_percent": 0
+    },
+    {
+      "mv": 3300,
+      "candidate_percent": 0.0,
+      "old_raw_lookup_percent": 0
+    }
+  ],
+  "endpoint_sensitivity": {
+    "last_saved_mv": 3240,
+    "extra_observed_seconds": 99.757,
+    "meaning": "Excluded below3300 by decision; no interpolation into unobserved post-log endpoint."
+  },
+  "sources": [
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/low-export/cycle.bin",
+      "bytes": 162560,
+      "sha256": "739ffb1d9f2d613a30106f326a1393beb0a40c18a4c51d96766b442626d0afb4"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/end-export-004/cycle.bin",
+      "bytes": 147136,
+      "sha256": "364b3c4cea46981983cebedf3da3d51e46c59f3f8dcc7073814680ad13f2c9e7"
+    },
+    {
+      "path": "core/battery_estimate.c",
+      "bytes": 6493,
+      "sha256": "2e1a5224b06d04523d4fb80910d08b7ba4054b3b5d62e5e0edff6701e9566be3"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/fit-usable-curve.py",
+      "bytes": 7346,
+      "sha256": "89c7abb15489b1ecb6ee06e149b5bd63d54f97f8d8e577bc9fa608999c93061a"
+    }
+  ],
+  "scope": "10mV-node piecewise-linear candidate. Maximum join spread0.319pp applies to these curves, not raw1mV crossing-time step functions or accuracy.",
+  "verification": "Independent read-only review recomputed all nodes and inverse table; no mathematical blocker. Device table unchanged.",
+  "artifacts": [
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/curve-fit.json",
+      "bytes": 23372,
+      "sha256": "b62064eef9df59eb16ad4a689e960502bf88450b3aca20c8db7b83083066a070"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/curve-fit.csv",
+      "bytes": 6869,
+      "sha256": "e0638648ac34776740fb6ff2dcf022c509b2c537c2b454077d73baa3012e1910"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/curve-fit.png",
+      "bytes": 152096,
+      "sha256": "62a072b640c442bf902d97ab3758bfb961d02b46110fea76a8efbd460f293e2d"
+    },
+    {
+      "path": "artifacts/low-voltage-device-20261102-001/fit-usable-curve.py",
+      "bytes": 7346,
+      "sha256": "89c7abb15489b1ecb6ee06e149b5bd63d54f97f8d8e577bc9fa608999c93061a"
+    }
+  ]
+}
