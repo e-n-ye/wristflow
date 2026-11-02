@@ -453,6 +453,15 @@ END缓存时间23:07:19早于主机首次回读23:36:24。最初曾将LOAD直接
 
 沿用已验收Console的`--full`流程，新session2026110201单发ARM后核同身份ARMED、START accepted=saved1、queued=dropped0；旧文件不删除／覆盖，命名规则为`cycle-78c3fcf9.bin`。操作者本地14:36:39确认关口后拔USB进入手电筒，14:37:12确认保持负载及及时回充；准备进程正常退出、5次实际UART采集均关闭。主机没有观察全程RUNNING／LOW或END，不在活动时读全文件；结束后按显式session再判定原始电压≤3600mV／LOW及完整CRC。中途退出即结束，重进不续录；3.4V、物理掉电、容量／电流／SOC仍不属已验范围。[本轮证据](evidence/2026-11-02/cycle-full-handoff.json)。
 
+<a id="cycle-low-end-20261102"></a>
+### 2026-11-02 FULL到3.6V结果及恢复缺陷
+
+会话2026110201／`cycle-78c3fcf9.bin`完整2540行162,560B／CRC`19e55e49`，DONE／LOW，accepted=saved2540、queued=dropped0；前后manifest、逐行及整文件CRC通过。START为USB软件FULL100／4166mV；2538个SAMPLE全部新鲜有效BAT／手电筒100、无覆盖，ADC身份独立2538个，相邻样本5000～5009ms，跨度12,685,060ms（3时31分25秒），raw4142→3601mV／旧98→2%。END原始3600mV、age227ms、LOW2，包含ARM准备的elapsed12,697,817ms。缓存UTC记录本地18:08:01；不是操作者看到黑屏的独立时刻或主机时长校准。证明本版固定负载采样到新鲜3.6V、正常低压结束及保存导出，不证明更低电压／物理掉电／真实容量。[完整证据](evidence/2026-11-02/cycle-low-end.json)。
+
+用户发现KEY不能唤屏，回USB仍黑；首status为inhibit1而UART活，独立runtime显示充电中。源码及候选5文件归档逐字或仅换行匹配支持：cycle只在普通电源缓存input_valid/good时清锁，OFF又清缓存并停常规采样，charger只提供独立input_observation，guard setter仍把充电overlay／KEY路径压回OFF。这是可达软件依赖且符合现场，未排除其他物理因素；本轮没有修复该代码。先全量保全后经用户许可单次SDK reboot，显示触摸恢复；只mount已有FS，重导162,560B完全一致、SHA256 `739ffb1d9f2d613a30106f326a1393beb0a40c18a4c51d96766b442626d0afb4`。runtime按保存检查点恢复、未保存1,388,474ms在主机，不称普通记录连续无损。末boot11／代次100／保存失败0／活动fault0，RTC只读正常；10次实际采集全部关闭，常亮关闭，候选保留，无新编译／刷机／校时／init／参数变更。
+
+用户进一步澄清：校准目标为整机正常可用电量，0%应对应整机可用下限，不必追求电芯耗尽。约3.3V是既有可调源点亮边界候选，当前仪器不在手边；尚无该区间持续运行／最后保存／恢复验证。下一请求为手电筒后切普通亮屏／KEY检查直至物理不能点亮，须独立模式避免3.6V／LOAD／STALE停止及软件guard干扰，不能直接复用现版。3.73V／3%属于回弹／回充及旧滤波查表，未按该终点校准；回充后尾段不能拼为原连续曲线。先收尾现轮，再核低压模式与可恢复数据边界；本段不宣称已降低阈值或开始新测试。
+
 ## 数据来源与精度边界
 
 沿用固定SDK `421126d9f476ed8e2a6f0b0ca28a9f241c182e65` 的黄山派 `customer/boards/sf32lb52-lchspi-ulp_base/battery_table.c` 充放电表，每5%取一个参考点，共21点／表；相邻点线性插值。表中41808对应4.1808V，保留0.1mV尺度：同SDK `docs/source/en/middleware/battery_calculator.md` 的示例明确写`38000 // 3.8V`，并将`bat1`通道7读数原样传入计算器。结构／函数注释中的mV与示例数值不一致，不能按普通mV直接使用。

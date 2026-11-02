@@ -1,0 +1,643 @@
+{
+  "schema": 1,
+  "date": "2026-11-02",
+  "baseline": "14b45b8193cd23c6fa17abe18fb937525ada49c5",
+  "branch": "codex/cycle-low-end-20261102",
+  "checkout": "D:/MY_Desk/project/wristflow",
+  "status": "LOW_round_exported_reboot_recovered_window_closed",
+  "firmware": {
+    "main_sha256": "10086d00508fbae8137140c13ba34b9a846f2929b076bca8a71a411415ee554a",
+    "result": "artifacts/product/20261101-214345-360/result.json",
+    "flash": "artifacts/flash/product/20261101-214934-563/result.json",
+    "archive": "artifacts/cycle-sessions-20261101-candidate-build.zip",
+    "no_source_build_flash_sdk_partition_or_charge_parameter_changes": true
+  },
+  "authorization": {
+    "operator_black_screen": "屏幕已黑，刚才没有注意是什么时候黑的，现在按按键，屏幕也无法点亮",
+    "usb_return": "已接USB，仍黑屏／按键无反应",
+    "recovery": "允许单次软件重启并核对恢复",
+    "recovered": "屏幕触摸恢复，显示充电中，常亮已开",
+    "final": "正常，临时常亮已关闭"
+  },
+  "session": 2026110201,
+  "filename": "cycle-78c3fcf9.bin",
+  "terminal_status": {
+    "state": 5,
+    "session": 2026110201,
+    "accepted": 2540,
+    "saved": 2540,
+    "queued": 0,
+    "dropped": 0,
+    "reason": 2,
+    "inhibit": 1
+  },
+  "info": {
+    "session": 2026110201,
+    "rows": 2540,
+    "bytes": 162560,
+    "crc": 434462281,
+    "terminal": true
+  },
+  "crc_hex": "19e55e49",
+  "analysis": {
+    "rows": 2540,
+    "samples": 2538,
+    "valid_fixed_load_samples": 2538,
+    "all_samples_valid_fixed_load": true,
+    "start": {
+      "kind": 1,
+      "flags": 47,
+      "session": 2026110201,
+      "sequence": 0,
+      "elapsed_ms": 0,
+      "utc": 1793601381,
+      "clock_revision": 1,
+      "adc_sampled_ms": 60344393,
+      "adc_sequence": 1713,
+      "raw_mv": 4166,
+      "filtered_decimillivolts": 41659,
+      "percent": 100,
+      "candidate": 99,
+      "mode": 2,
+      "decision": 3,
+      "charge": 3,
+      "charge_reason": 3,
+      "requested": 50,
+      "acknowledged": 50,
+      "surface": 9,
+      "context_flags": 7,
+      "phase": 0,
+      "stop_reason": 0,
+      "usb_flags": 15,
+      "sample_age_ms": 2573
+    },
+    "first_sample": {
+      "kind": 2,
+      "flags": 63,
+      "session": 2026110201,
+      "sequence": 1,
+      "elapsed_ms": 12356,
+      "utc": 1793601393,
+      "clock_revision": 1,
+      "adc_sampled_ms": 60354411,
+      "adc_sequence": 1715,
+      "raw_mv": 4142,
+      "filtered_decimillivolts": 41420,
+      "percent": 98,
+      "candidate": 98,
+      "mode": 0,
+      "decision": 3,
+      "charge": 1,
+      "charge_reason": 3,
+      "requested": 100,
+      "acknowledged": 100,
+      "surface": 5,
+      "context_flags": 7,
+      "phase": 0,
+      "stop_reason": 0,
+      "usb_flags": 5,
+      "sample_age_ms": 4911
+    },
+    "last_sample": {
+      "kind": 2,
+      "flags": 63,
+      "session": 2026110201,
+      "sequence": 2538,
+      "elapsed_ms": 12697416,
+      "utc": 1793614081,
+      "clock_revision": 1,
+      "adc_sampled_ms": 73039555,
+      "adc_sequence": 4252,
+      "raw_mv": 3601,
+      "filtered_decimillivolts": 36014,
+      "percent": 2,
+      "candidate": 2,
+      "mode": 0,
+      "decision": 3,
+      "charge": 1,
+      "charge_reason": 3,
+      "requested": 100,
+      "acknowledged": 100,
+      "surface": 5,
+      "context_flags": 7,
+      "phase": 0,
+      "stop_reason": 0,
+      "usb_flags": 5,
+      "sample_age_ms": 4827
+    },
+    "end": {
+      "kind": 3,
+      "flags": 63,
+      "session": 2026110201,
+      "sequence": 2539,
+      "elapsed_ms": 12697817,
+      "utc": 1793614081,
+      "clock_revision": 1,
+      "adc_sampled_ms": 73044555,
+      "adc_sequence": 4253,
+      "raw_mv": 3600,
+      "filtered_decimillivolts": 36011,
+      "percent": 2,
+      "candidate": 2,
+      "mode": 0,
+      "decision": 0,
+      "charge": 1,
+      "charge_reason": 3,
+      "requested": 100,
+      "acknowledged": 100,
+      "surface": 5,
+      "context_flags": 7,
+      "phase": 0,
+      "stop_reason": 2,
+      "usb_flags": 5,
+      "sample_age_ms": 227
+    },
+    "local_times": {
+      "start": "2026-11-02T14:36:21+08:00",
+      "first_sample": "2026-11-02T14:36:33+08:00",
+      "last_sample": "2026-11-02T18:08:01+08:00",
+      "end": "2026-11-02T18:08:01+08:00"
+    },
+    "sample_span_ms": 12685060,
+    "crc_hex": "19e55e49",
+    "qualification": {
+      "terminal_low": true,
+      "end_raw_at_or_below_3600": true,
+      "end_fresh_valid": true,
+      "start_software_full": true,
+      "adc_unique": 2538,
+      "max_sample_gap_ms": 5009,
+      "min_sample_gap_ms": 5000,
+      "row_and_file_crc": true,
+      "no_current_or_capacity_measurement": true
+    },
+    "duration_note": "elapsed from device extended tick; UTC from cached device clock, no independent host duration calibration"
+  },
+  "stop_display": {
+    "operator_did_not_notice_exact_time": true,
+    "key_did_not_light_before_and_after_USB": true,
+    "inhibit1_observed_while_UART_alive": true,
+    "runtime_charge_after_USB": {
+      "ms": 73433906,
+      "sequence": 0,
+      "sampled_ms": 0,
+      "utc": 1793614468,
+      "millivolts": 0,
+      "flags": 16,
+      "percent": 0,
+      "requested": 0,
+      "acknowledged": 0,
+      "charge": 2,
+      "scene": 4
+    },
+    "statement": "LOW and persistent END verified; dark screen alone never establishes hardware shutdown or battery empty."
+  },
+  "recovery": {
+    "reboot": {
+      "passed": true,
+      "outcome": "passed",
+      "detail": "",
+      "simulation": false,
+      "hardware_verified": false,
+      "reboot_write_attempted": true,
+      "boot_observed": true,
+      "product_start_count": 1,
+      "product_start_observed": true,
+      "reboot_outcome_uncertain": false,
+      "resources_closed": true,
+      "recording_control": false,
+      "clock_write": false,
+      "pm_control": false,
+      "flash": false,
+      "uart": {
+        "path": "D:\\MY_Desk\\project\\wristflow\\artifacts\\cycle-full-device-20261102-001\\reboot\\uart.bin",
+        "bytes": 5120,
+        "sha256": "04fb164a82fd5e4c28e41bd0181e416bd96c04d7dc1328b3a314ea69af1b8879"
+      }
+    },
+    "simulation_passed": true,
+    "before_boot": 10,
+    "after_boot": 11,
+    "before_saved_total_ms": 247467091,
+    "unsaved_runtime_ms_backed_up_on_host": 1388474,
+    "checkpoint_seed_exact": true,
+    "full_cycle_bytes_equal_after_reboot": true,
+    "cycle_sha256": "739ffb1d9f2d613a30106f326a1393beb0a40c18a4c51d96766b442626d0afb4",
+    "after_failures": 0,
+    "after_generation": 100,
+    "after_fault_mask": 0,
+    "after_power": {
+      "ms": 233378,
+      "sequence": 46,
+      "sampled_ms": 232997,
+      "utc": 1793614921,
+      "millivolts": 3745,
+      "flags": 63,
+      "percent": 7,
+      "requested": 50,
+      "acknowledged": 50,
+      "charge": 2,
+      "scene": 1
+    },
+    "after_cycle_status": {
+      "state": 1,
+      "session": 0,
+      "accepted": 0,
+      "saved": 0,
+      "queued": 0,
+      "dropped": 0,
+      "reason": 0,
+      "inhibit": 0
+    },
+    "time_readback": [
+      "Mon Nov  2 10:22:06 2026"
+    ],
+    "steps_readback": "7 steps / checkpoint generation339 verified clean; no step accuracy claim",
+    "no_RTC_write": true,
+    "no_init_format_probe_or_flash": true,
+    "mount_only_after_reboot": true,
+    "transport_sessions_closed": 10,
+    "note": "Cycle is byte-identical; ordinary runtime restarted from saved checkpoint, with old RAM tail on host only. Not lossless runtime continuity."
+  },
+  "source_review": {
+    "agent": "low_black_screen_review",
+    "requested_model": "gpt-6.1-sol",
+    "requested_reasoning": "medium",
+    "role": "default",
+    "fork_turns": "none",
+    "read_only": true,
+    "actual_model_not_independently_observed": true,
+    "matched_candidate_sources": [
+      {
+        "path": "apps/product/src/product_cycle.c",
+        "archived_sha256": "a86dc99cebf375acd7e692d5e30da217be9c96cdcf09dfc83db5539fe4ac4687",
+        "current_sha256": "a86dc99cebf375acd7e692d5e30da217be9c96cdcf09dfc83db5539fe4ac4687",
+        "exact": true,
+        "line_endings_only": true
+      },
+      {
+        "path": "apps/product/src/main.c",
+        "archived_sha256": "3e92d0510f9ca0f24ce04cf05eac68f739f38028ebfb126ef2a5663f808a86b9",
+        "current_sha256": "3e92d0510f9ca0f24ce04cf05eac68f739f38028ebfb126ef2a5663f808a86b9",
+        "exact": true,
+        "line_endings_only": true
+      },
+      {
+        "path": "apps/product/src/product_power_service.c",
+        "archived_sha256": "f9a0ed210933deceac91712af5ef69d56b73a018fd047ebe8e98942283371bf4",
+        "current_sha256": "f9a0ed210933deceac91712af5ef69d56b73a018fd047ebe8e98942283371bf4",
+        "exact": true,
+        "line_endings_only": true
+      },
+      {
+        "path": "apps/product/src/product_charger_service.c",
+        "archived_sha256": "2551f1a7581cad4e42c1becc1381b9fa773e3accea5766e76b59142f9c53ce36",
+        "current_sha256": "2551f1a7581cad4e42c1becc1381b9fa773e3accea5766e76b59142f9c53ce36",
+        "exact": true,
+        "line_endings_only": true
+      },
+      {
+        "path": "ui/runtime/ui_shell.c",
+        "archived_sha256": "c461c6dde0474fd61025ebd08f5025612b00d78889fb86e7f28061b94b275211",
+        "current_sha256": "c461c6dde0474fd61025ebd08f5025612b00d78889fb86e7f28061b94b275211",
+        "exact": true,
+        "line_endings_only": true
+      }
+    ],
+    "primary_checked": [
+      "product_cycle.c:54 clears inhibit only using input_valid/good",
+      "product_power_service.c:23-39,82-110 requires lit/aod and clears snapshot on OFF",
+      "product_charger_service.c:185-206 supplies independent input_observation",
+      "ui_shell.c:168-172,535-542 guard reasserts OFF including setter during charging"
+    ],
+    "conclusion": "Reachable cycle: inhibit -> OFF/invalid PG cache -> USB input_observation cannot clear inhibit -> KEY/charging path pressed OFF again. Fits evidence; not proof of sole physical cause. Reboot recovery is mitigation, code bug unfixed."
+  },
+  "user_endpoint_clarification": {
+    "goal": "Calibrate whole-device usable percentage; 0% at device usable endpoint, not electrochemical exhaustion.",
+    "prior_supply_report": "Around/below3.3V cannot light screen; prior user observation, not repeated this window.",
+    "measurement_instruments_currently_unavailable": true,
+    "new_request": "Below3.3V candidate experiment: flashlight first, then physical KEY wake checks and normal display until cannot light.",
+    "user_will_disconnect_USB_to_limit_recharge": true,
+    "instruction_given": "All UART closed; unplug allowed, ordinary natural OFF waiting only, no flashlight/new low experiment until independent software validated.",
+    "not_yet_done": "No threshold/algorithm/source change, lower-voltage run or new ARM. Current charging3.73V/3% is uncalibrated; cannot splice a recharged tail into old round."
+  },
+  "commands": [
+    "cycle_log_lab.py --action status (bound COM5/location1-1.1/candidate10086d00/archive)",
+    "cycle_log_lab.py --action export --kind cycle --session2026110201",
+    "runtime_export.py capture --seconds60: low-runtime and fresh pre-reboot",
+    "lab_check.py build with original source ZIP: passed; device_reboot.py simulate: passed",
+    "device_reboot.py capture --before pre-reboot --seconds20: one reboot, no retry",
+    "cycle_log_lab.py --action mount; export same SID; runtime_export.py capture; device_snapshot.py capture --query date --query steps --query pm; cycle status",
+    "decode_file row/file CRC and before/after raw byte comparison; decode_capture runtime CRC; explicit file/source hashes and changed-doc checks"
+  ],
+  "next": "Close this evidence PR; then bounded independent low-voltage experiment software preflight, including USB recovery guard, multi-load/KEY recording and recoverable tail. No immediate new discharge.",
+  "files": [
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/black-screen-status/report.json",
+      "bytes": 307,
+      "sha256": "bcf0881483362aa361249eb8d95a128b11c460960ac4faa33fce360b19ff2cb2"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/black-screen-status/binding.json",
+      "bytes": 148440,
+      "sha256": "f5cebe28ae8f648103e9d77d13359236c0c9a2c73f443ca713f872d538176150"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/black-screen-status/events.jsonl",
+      "bytes": 1392,
+      "sha256": "7f8c1f66ba2f319b2f72fe371ecb73fcb46237abf6d675e1054807fa423734e9"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/black-screen-status/uart.bin",
+      "bytes": 145,
+      "sha256": "c723082485bd7a29d2f141fd8984c5250b8d584935a31aee391419ec78be67a2"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/low-export/report.json",
+      "bytes": 325,
+      "sha256": "fd25ca2e6549d00d4b233000ea774856ea4573b5e8ddd1d095cc5652d6cfb2d7"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/low-export/binding.json",
+      "bytes": 148441,
+      "sha256": "b5fba9551fc557e2251758e8a52d45e5eb885287f4061b378824d60e70cc05c0"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/low-export/events.jsonl",
+      "bytes": 263484,
+      "sha256": "7e2bea5c29cd407ba20e4b686d921f8b0c22784a45cac54419d4a273220f163e"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/low-export/uart.bin",
+      "bytes": 599840,
+      "sha256": "e27f6ee4f05fe89d380535359333a205dac7798ead88e3ba5febaf077d5d55fb"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/low-export/cycle.bin",
+      "bytes": 162560,
+      "sha256": "739ffb1d9f2d613a30106f326a1393beb0a40c18a4c51d96766b442626d0afb4"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/low-export/cycle.csv",
+      "bytes": 264406,
+      "sha256": "5b6be18855cf15e3f41ed25635b39b73859ccbc884801b0c713f231db1b50a3c"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/low-runtime/export.json",
+      "bytes": 560,
+      "sha256": "7bf76059fc70a214fb19cf34a46182bd31212e76d855d545a907c09da0311821"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/low-runtime/records.json",
+      "bytes": 24382,
+      "sha256": "12929b21fa025cf5a61d272e43b925534700dbbfc1ae71144b7b76345970931a"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/low-runtime/binding.json",
+      "bytes": 148345,
+      "sha256": "64865216f6c3414951958570171728d5e9509597feaa3be58c16cd3c448103ba"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/low-runtime/events.jsonl",
+      "bytes": 6075,
+      "sha256": "1e1848a937b34f902bfac3711a3cc6cbb8b8e43a175df783141e29f28e66502b"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/low-runtime/uart.bin",
+      "bytes": 17073,
+      "sha256": "31aad1d500d0ef37b8ee54e719f3b212f07328f19401e1dfb511fc4943e1f09b"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/pre-reboot/export.json",
+      "bytes": 560,
+      "sha256": "94622f896956e60dfcea2120803b9c55fa926952ad09703054b7fa7eb56c6733"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/pre-reboot/records.json",
+      "bytes": 24383,
+      "sha256": "89b3ada400b126a1e864c273da547ec1792aa21aa8761550d9b3922dcc3d8ad9"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/pre-reboot/binding.json",
+      "bytes": 148247,
+      "sha256": "aa8dbd4644d2b781796ee8e066a038c0ed72429f6a4ea1b3b486b9a06f22343d"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/pre-reboot/events.jsonl",
+      "bytes": 6097,
+      "sha256": "e23874e595717c088578d3cf04f3131a00a863c5f844d82b0f3673395fa41ecb"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/pre-reboot/uart.bin",
+      "bytes": 17275,
+      "sha256": "108d08381deb2bab91be2a3e0c22f110d2435c727c7f515631b64242386794ce"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/reboot/reboot.json",
+      "bytes": 641,
+      "sha256": "dd5d4923ea674d2be846878417a0ae112f9414951aa98e0a16c901a206baf669"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/reboot/binding.json",
+      "bytes": 149338,
+      "sha256": "3f64f78293023339268505437c9b1294990d7d0b8814c1800508bc3569031107"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/reboot/events.jsonl",
+      "bytes": 1459,
+      "sha256": "0292218aeb01843aab6547aa89d7f458bc646590846b6b02de769871f99ed51c"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/reboot/uart.bin",
+      "bytes": 5120,
+      "sha256": "04fb164a82fd5e4c28e41bd0181e416bd96c04d7dc1328b3a314ea69af1b8879"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-mount/report.json",
+      "bytes": 125,
+      "sha256": "744c69f47f0522156a75506c044f84af83a4f42db00e345a284802f8b1ffbb92"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-mount/binding.json",
+      "bytes": 148440,
+      "sha256": "dee0740a7b5010a3c2f66fbcb3c5b249ab8bc41e37337a883ad526d40c480f2f"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-mount/events.jsonl",
+      "bytes": 1255,
+      "sha256": "1c9a16a56cf52d1f430c1da592524482e412f58d1fc84b6215a24fe973098ae0"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-mount/uart.bin",
+      "bytes": 76,
+      "sha256": "30287adb7a5689171455d7f8f28aa45e76bfa92719c6566f85a7cd829cc5ab32"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-export/report.json",
+      "bytes": 325,
+      "sha256": "fd25ca2e6549d00d4b233000ea774856ea4573b5e8ddd1d095cc5652d6cfb2d7"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-export/binding.json",
+      "bytes": 148441,
+      "sha256": "b5fba9551fc557e2251758e8a52d45e5eb885287f4061b378824d60e70cc05c0"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-export/events.jsonl",
+      "bytes": 263408,
+      "sha256": "e1fc9e91ccbe83f2f4ac4f7f813d6e3b47438378b15bddb84f3e8056ea6dbeab"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-export/uart.bin",
+      "bytes": 600403,
+      "sha256": "26caf4ab4aea4503312f8df6ea949b532f938e53e53bdc146bdb1be68c11bbca"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-export/cycle.bin",
+      "bytes": 162560,
+      "sha256": "739ffb1d9f2d613a30106f326a1393beb0a40c18a4c51d96766b442626d0afb4"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-export/cycle.csv",
+      "bytes": 264406,
+      "sha256": "5b6be18855cf15e3f41ed25635b39b73859ccbc884801b0c713f231db1b50a3c"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-runtime/export.json",
+      "bytes": 567,
+      "sha256": "a7e82dfcbb6b9ae0a7a8b3a84216bdee09b76c86b9b871dfb0b50c235d9b5dc4"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-runtime/records.json",
+      "bytes": 22700,
+      "sha256": "f55f9924d65a1f6f65945c30a05ad57473a821da479f99ead396188e43dd20b8"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-runtime/binding.json",
+      "bytes": 148344,
+      "sha256": "1555f1b393901aa7b5c2c55a4ae0178df71e0d18a1140f9ab6e26a212e8e9259"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-runtime/events.jsonl",
+      "bytes": 6671,
+      "sha256": "45a2e9b63d962657193a85c526854c514cdc8050ec3953e74fbbcb4bacde22c8"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-runtime/uart.bin",
+      "bytes": 15984,
+      "sha256": "aab67ecc488178d93472aa7eaa216623fd06fafd46842c02f903d2bf7b2714b4"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-cache/snapshot.json",
+      "bytes": 2508,
+      "sha256": "85c540abe11cd5925f16c37ff0f727d8b493889fc9d556066e9cdee3c8a291aa"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-cache/binding.json",
+      "bytes": 148643,
+      "sha256": "e0d88e94712bf928be3857bd4ba78d79fdb54df7cc71258bf98bbe4ba1a9dfd3"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-cache/events.jsonl",
+      "bytes": 2163,
+      "sha256": "dc83d5bdad63eb7a2e5d62f22917590d07d24d31107d85c09286266cac9b557a"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-cache/uart.bin",
+      "bytes": 1493,
+      "sha256": "fd9f90d766955c0d3a8ad3b7073bbb76d997fc3d750c74e7672553f45ac1f3ee"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-status/report.json",
+      "bytes": 293,
+      "sha256": "b5d88c0127fa4f8d049025c70f9d7a456749fba3c04380eb8f50a72aac81249e"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-status/binding.json",
+      "bytes": 148441,
+      "sha256": "7775f5b549e38fd7cd53fe22e19a72c2b1cdb765b2b333518510729a1f359d60"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-status/events.jsonl",
+      "bytes": 1378,
+      "sha256": "148f8d2dc9436fafd3984e507a2a2021257067e7f823a0a23513bcfaae7abe6d"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/post-reboot-status/uart.bin",
+      "bytes": 159,
+      "sha256": "160c74a0424f8a6057f680af667ed73789b0a893f79ccf70fab949f4ac82966c"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/reboot-sim/reboot.json",
+      "bytes": 635,
+      "sha256": "98cbc985b9524739c24322639f34c5993b3f693c37b9e513ffac94b75dc6c5e1"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/reboot-sim/binding.json",
+      "bytes": 329,
+      "sha256": "b1e35df29222a6b5c889e939ff201344a23ef8edef25aa392ec6e538298955ab"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/reboot-sim/events.jsonl",
+      "bytes": 1181,
+      "sha256": "6a688699eed2a047399d4cea35cab282cc64de99d20567142fb755716b7512a4"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/reboot-sim/uart.bin",
+      "bytes": 74,
+      "sha256": "df35244cfe43ab4a225202fd0d7130a0da80c5f778e0341730c821aa7e2abc50"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/low-analysis.json",
+      "bytes": 3254,
+      "sha256": "c335e98055f025774dc188a021dcb121faac3e26b811fb55a9c1e9a24cc89216"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/guard-source-match.json",
+      "bytes": 1473,
+      "sha256": "7a6883f2a8f0d4d9f28be72396490195a2885e54ecb23e3ef47dcf079025bf7c"
+    },
+    {
+      "path": "artifacts/cycle-full-device-20261102-001/reboot-build-check.json",
+      "bytes": 142959,
+      "sha256": "2b9b659565e08c9d20bb64ed7851f7e8e292e5aee71f328ba642f9547c29c0ec"
+    }
+  ],
+  "sources": [
+    {
+      "path": "scripts/cycle_log_lab.py",
+      "bytes": 7576,
+      "sha256": "dd0a83d22baeb089bca039587637f90ff4caf04ab1fdc833acd85f819c183da8"
+    },
+    {
+      "path": "scripts/cycle_protocol.py",
+      "bytes": 3724,
+      "sha256": "48fb5d374b596a1b910bd8062cad8fe9eaf565c97e46436ed2b509b9ffdb206d"
+    },
+    {
+      "path": "scripts/runtime_export.py",
+      "bytes": 9311,
+      "sha256": "84b280902836d0d15e323a19062ed27043113ae507879a5d77d359e4bb0ddb00"
+    },
+    {
+      "path": "scripts/runtime_record_decode.py",
+      "bytes": 10383,
+      "sha256": "41fc2dd141a9bb843e40f7caeefefaec1955c9189e7dcb1864ba8ae514f99a39"
+    },
+    {
+      "path": "scripts/device_reboot.py",
+      "bytes": 7839,
+      "sha256": "15850acff133e2b64b8c192124e92208f58fbc9003e14650d87eb8c151c2cd71"
+    },
+    {
+      "path": "scripts/device_snapshot.py",
+      "bytes": 12078,
+      "sha256": "0195f5297b87bd26084887210dc42618ed169243f4248ae58a26204fed84189f"
+    },
+    {
+      "path": "artifacts/cycle-low-end-20261102-evidence.py",
+      "bytes": 9085,
+      "sha256": "bb77a0658f23d4da5c04f7e931fcf0b27de3c1ce45c5e01e9109b7383c78a4f8"
+    }
+  ]
+}
