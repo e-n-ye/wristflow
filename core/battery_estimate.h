@@ -27,11 +27,13 @@ typedef struct {
 } wristflow_battery_diagnostic_t;
 
 /* UI-thread owned. Consumes each ADC sequence once; no device access or clock
- * advancement. Reference voltage estimate, not a calibrated capacity gauge. */
+ * advancement. Empirical usable-time estimate, not a capacity gauge. */
 void wristflow_battery_estimate(wristflow_battery_estimator_t *state,
     wristflow_power_snapshot_t *power, uint32_t now_ms);
 /* Optional UI-thread diagnostic copy; identical estimate and state transitions. */
 void wristflow_battery_estimate_diagnosed(wristflow_battery_estimator_t *state,
     wristflow_power_snapshot_t *power, uint32_t now_ms, wristflow_battery_diagnostic_t *diagnostic);
+/* The charging argument is retained for callers; both modes share the model.
+ * This raw mapping can return100; the estimator still caps voltage alone99. */
 uint8_t wristflow_battery_reference_percent(uint16_t millivolts, bool charging);
 #endif

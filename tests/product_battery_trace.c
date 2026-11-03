@@ -75,7 +75,7 @@ int main(void)
     ticks=201; assert(!command(2,stop));
     assert(!command(5,dump));
     assert(strstr(output,"row=1/0") && strstr(output,"row=1/1") && strstr(output,"page=1/0/2 complete"));
-    assert(wristflow_battery_trace_read(&trace,1,0,&read) && read.power.estimated_percent==91);
+    assert(wristflow_battery_trace_read(&trace,1,0,&read) && read.power.estimated_percent==92);
     assert(!wristflow_battery_trace_read(&trace,2,0,&read));
     assert(!wristflow_battery_trace_read(&trace,1,2,&read));
     restart_during_export=true; used=0; output[0]=0;
