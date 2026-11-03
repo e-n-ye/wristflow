@@ -1,0 +1,840 @@
+{
+  "schema": 1,
+  "date": "2026-11-03",
+  "baseline": "19998a6bcb73adff5d4505a3daddbf58fd4c7f2d",
+  "branch": "codex/battery-usable-curve",
+  "checkout": "D:/MY_Desk/project/wristflow",
+  "status": "firmware_flashed_short_usb_bat_acceptance_complete_device_window_closed",
+  "decision": {
+    "date": "2026-11-03",
+    "checkout": "D:/MY_Desk/project/wristflow",
+    "exact_human_observation_times_known": false,
+    "readiness": "同板同电池，USB已连接，显示触摸正常且常亮",
+    "scope_decision": "充放电统一新表，充电百分比暂作粗估",
+    "after_flash_usb": {
+      "operator_text": "3.73V,~61%,充电中",
+      "voltage_v": 3.73,
+      "percent": 61,
+      "charge_state": "充电中"
+    },
+    "bat_then_usb": {
+      "operator_text": "3.65V,51%               接回usb 3.72V ~60%",
+      "bat_voltage_v": 3.65,
+      "bat_percent": 51,
+      "usb_voltage_v": 3.72,
+      "usb_percent": 60,
+      "requested_bat_duration_seconds": 30,
+      "duration_not_independently_timed": true
+    },
+    "cleanup": "全部正常，临时常亮已关闭",
+    "cleanup_prompt_covered": "USB connected, natural OFF/AOD per original preference, KEY1 wake, display/touch/time normal, no save failure, keep-awake remains off, new firmware retained",
+    "limits": "Human page readings are rounded and not simultaneous calibrated electrical measurements. Host receipt/order is not a precise physical-action time."
+  },
+  "hardware_capability_choice": "Existing VBAT ADC and AW32001 hardware charging retained. No established hardware SOC gauge bypassed; only the existing software mapping changes.",
+  "model": {
+    "source": "docs/evidence/2026-11-02/battery-curve-candidate.json",
+    "join_mv": 3600,
+    "node_count": 86,
+    "nominal_zero_mv": 3300,
+    "loaded_upper_mv": 4142,
+    "quantization": "0.01 percentage point rounded nodes; linear in0.1mV; integer percent floors",
+    "both_modes": true,
+    "voltage_only_cap": 99,
+    "valid_full": 100,
+    "unchanged": "IIR/hysteresis/settling/freshness/mode validity/ADC scheduling/PM/charger parameters/SDK/partitions"
+  },
+  "firmware": {
+    "result": "artifacts/product/20261103-115740-843/result.json",
+    "flash": "artifacts/flash/product/20261103-120138-892/result.json",
+    "archive": {
+      "path": "artifacts/battery-curve-20261103-candidate-build.zip",
+      "bytes": 16697197,
+      "sha256": "ead4c756ee319fffdd4e18f024cbb2c65e55f874dea86b298c62b6f8f7d41816"
+    },
+    "main_sha256": "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d",
+    "main_bytes": 3055760,
+    "sources": 625,
+    "artifacts": 29,
+    "official_build_exit": 0,
+    "write_verify_exit": 0
+  },
+  "validation": {
+    "debug": "4/4: battery_estimate, product_battery_trace, product_power_service, settings_ui; final candidate-return dwell assertion strengthened and estimator1/1rerun passed",
+    "python": "4/4:1251integer ADC points in both modes;120/109historical replay; frozen source hashes",
+    "independent_review": "Read-only source/math/replay review; requested gpt-6.1-sol/medium; actual model not independently observed; no blocker",
+    "device_input_replay": {
+      "passed": true,
+      "method": "Start unseeded at first fresh trusted BAT-mode record after mode transition; replay remaining stored samples through actual current C. Does not prove unobserved histories or SOC accuracy.",
+      "compared_rows": 20,
+      "mismatches": [],
+      "sources": [
+        {
+          "path": "scripts/battery_current_replay.c",
+          "bytes": 1478,
+          "sha256": "2cd6ec11c49597f3a601aafa583ec0048b7e8342ca8617a9e024ba5a231fc943"
+        },
+        {
+          "path": "core/battery_estimate.c",
+          "bytes": 6715,
+          "sha256": "b97ae5e59d31bcea379a4e6933b833e054665431cecd031e2b36866be70c64f6"
+        },
+        {
+          "path": "core/battery_estimate.h",
+          "bytes": 1814,
+          "sha256": "2422420de11aa1c25b72705f71b7a0434544cca9d1d7c136e3384870696202de"
+        }
+      ]
+    },
+    "failures_preserved": [
+      "Initial trace host assertion retained old4040mV91%; corrected expected new92% then4/4 passed.",
+      "First new runtime export failed sample wire parsing; raw UART preserved, new nonce snapshot passed. No byte repair or firmware rewrite."
+    ]
+  },
+  "prior_runtime": {
+    "boot": 13,
+    "generation": 118,
+    "last": {
+      "ms": 48306949,
+      "sequence": 490,
+      "sampled_ms": 48305548,
+      "utc": 1793678444,
+      "millivolts": 3722,
+      "flags": 63,
+      "percent": 3,
+      "requested": 50,
+      "acknowledged": 50,
+      "charge": 2,
+      "scene": 1
+    },
+    "host_preserved_unsaved_ms": 966784,
+    "limit": "Only exported RAM tail preserved on host; flashing resumes persistent checkpoint, not this RAM tail."
+  },
+  "usb_runtime": {
+    "boot": 14,
+    "generation": 119,
+    "last": {
+      "ms": 134849,
+      "sequence": 26,
+      "sampled_ms": 129626,
+      "utc": 1793678698,
+      "millivolts": 3729,
+      "flags": 63,
+      "percent": 61,
+      "requested": 50,
+      "acknowledged": 50,
+      "charge": 2,
+      "scene": 1
+    }
+  },
+  "bat_window": {
+    "valid_records": 11,
+    "independent_adc_identities": 10,
+    "first": {
+      "ms": 169890,
+      "sequence": 34,
+      "sampled_ms": 169662,
+      "utc": 1793678733,
+      "millivolts": 3662,
+      "flags": 55,
+      "percent": 53,
+      "requested": 50,
+      "acknowledged": 50,
+      "charge": 4,
+      "scene": 1
+    },
+    "last": {
+      "ms": 217640,
+      "sequence": 43,
+      "sampled_ms": 214662,
+      "utc": 1793678781,
+      "millivolts": 3647,
+      "flags": 55,
+      "percent": 51,
+      "requested": 50,
+      "acknowledged": 50,
+      "charge": 4,
+      "scene": 1
+    },
+    "observed_span_ms": 47750,
+    "mv_range": [
+      3647,
+      3662
+    ],
+    "percent_range": [
+      51,
+      53
+    ]
+  },
+  "final_runtime": {
+    "boot": 14,
+    "generation": 119,
+    "failures": 0,
+    "active_fault_mask": 0,
+    "last": {
+      "ms": 248722,
+      "sequence": 49,
+      "sampled_ms": 244694,
+      "utc": 1793678813,
+      "millivolts": 3722,
+      "flags": 63,
+      "percent": 60,
+      "requested": 50,
+      "acknowledged": 50,
+      "charge": 2,
+      "scene": 1
+    }
+  },
+  "rtc": {
+    "clock_write_attempted": false,
+    "startup_passed": true
+  },
+  "transport_windows": [
+    {
+      "window": "preflash-runtime",
+      "passed": true,
+      "resources_closed": true,
+      "detail": "",
+      "nonce": 15049318372008917046
+    },
+    {
+      "window": "preflash-runtime-latest",
+      "passed": true,
+      "resources_closed": true,
+      "detail": "",
+      "nonce": 16393831347002470425
+    },
+    {
+      "window": "startup",
+      "passed": true,
+      "resources_closed": true,
+      "detail": "",
+      "nonce": null
+    },
+    {
+      "window": "usb-runtime",
+      "passed": false,
+      "resources_closed": true,
+      "detail": "ValueError('sample wire data')",
+      "nonce": 5415590971961495375
+    },
+    {
+      "window": "usb-runtime-002",
+      "passed": true,
+      "resources_closed": true,
+      "detail": "",
+      "nonce": 7653455368615218844
+    },
+    {
+      "window": "bat-usb-runtime",
+      "passed": true,
+      "resources_closed": true,
+      "detail": "",
+      "nonce": 4926532063623293349
+    }
+  ],
+  "device_commands": [
+    {
+      "window": "preflash-runtime",
+      "command": "wf_record snapshot 15049318372008917046"
+    },
+    {
+      "window": "preflash-runtime",
+      "command": "wf_record summary 15049318372008917046 current"
+    },
+    {
+      "window": "preflash-runtime",
+      "command": "wf_record summary 15049318372008917046 saved"
+    },
+    {
+      "window": "preflash-runtime",
+      "command": "wf_record samples 15049318372008917046 0"
+    },
+    {
+      "window": "preflash-runtime",
+      "command": "wf_record samples 15049318372008917046 1"
+    },
+    {
+      "window": "preflash-runtime",
+      "command": "wf_record samples 15049318372008917046 2"
+    },
+    {
+      "window": "preflash-runtime",
+      "command": "wf_record samples 15049318372008917046 3"
+    },
+    {
+      "window": "preflash-runtime",
+      "command": "wf_record samples 15049318372008917046 4"
+    },
+    {
+      "window": "preflash-runtime",
+      "command": "wf_record samples 15049318372008917046 5"
+    },
+    {
+      "window": "preflash-runtime",
+      "command": "wf_record samples 15049318372008917046 6"
+    },
+    {
+      "window": "preflash-runtime",
+      "command": "wf_record samples 15049318372008917046 7"
+    },
+    {
+      "window": "preflash-runtime-latest",
+      "command": "wf_record snapshot 16393831347002470425"
+    },
+    {
+      "window": "preflash-runtime-latest",
+      "command": "wf_record summary 16393831347002470425 current"
+    },
+    {
+      "window": "preflash-runtime-latest",
+      "command": "wf_record summary 16393831347002470425 saved"
+    },
+    {
+      "window": "preflash-runtime-latest",
+      "command": "wf_record samples 16393831347002470425 0"
+    },
+    {
+      "window": "preflash-runtime-latest",
+      "command": "wf_record samples 16393831347002470425 1"
+    },
+    {
+      "window": "preflash-runtime-latest",
+      "command": "wf_record samples 16393831347002470425 2"
+    },
+    {
+      "window": "preflash-runtime-latest",
+      "command": "wf_record samples 16393831347002470425 3"
+    },
+    {
+      "window": "preflash-runtime-latest",
+      "command": "wf_record samples 16393831347002470425 4"
+    },
+    {
+      "window": "preflash-runtime-latest",
+      "command": "wf_record samples 16393831347002470425 5"
+    },
+    {
+      "window": "preflash-runtime-latest",
+      "command": "wf_record samples 16393831347002470425 6"
+    },
+    {
+      "window": "preflash-runtime-latest",
+      "command": "wf_record samples 16393831347002470425 7"
+    },
+    {
+      "window": "startup",
+      "command": "show_date"
+    },
+    {
+      "window": "startup",
+      "command": "show_date"
+    },
+    {
+      "window": "startup",
+      "command": "wf_steps status"
+    },
+    {
+      "window": "startup",
+      "command": "wf_wrist status"
+    },
+    {
+      "window": "startup",
+      "command": "wf_light status"
+    },
+    {
+      "window": "startup",
+      "command": "wf_pm status"
+    },
+    {
+      "window": "usb-runtime",
+      "command": "wf_record snapshot 5415590971961495375"
+    },
+    {
+      "window": "usb-runtime",
+      "command": "wf_record summary 5415590971961495375 current"
+    },
+    {
+      "window": "usb-runtime",
+      "command": "wf_record summary 5415590971961495375 saved"
+    },
+    {
+      "window": "usb-runtime",
+      "command": "wf_record samples 5415590971961495375 0"
+    },
+    {
+      "window": "usb-runtime",
+      "command": "wf_record samples 5415590971961495375 1"
+    },
+    {
+      "window": "usb-runtime",
+      "command": "wf_record samples 5415590971961495375 2"
+    },
+    {
+      "window": "usb-runtime",
+      "command": "wf_record samples 5415590971961495375 3"
+    },
+    {
+      "window": "usb-runtime",
+      "command": "wf_record samples 5415590971961495375 4"
+    },
+    {
+      "window": "usb-runtime-002",
+      "command": "wf_record snapshot 7653455368615218844"
+    },
+    {
+      "window": "usb-runtime-002",
+      "command": "wf_record summary 7653455368615218844 current"
+    },
+    {
+      "window": "usb-runtime-002",
+      "command": "wf_record summary 7653455368615218844 saved"
+    },
+    {
+      "window": "usb-runtime-002",
+      "command": "wf_record samples 7653455368615218844 0"
+    },
+    {
+      "window": "usb-runtime-002",
+      "command": "wf_record samples 7653455368615218844 1"
+    },
+    {
+      "window": "usb-runtime-002",
+      "command": "wf_record samples 7653455368615218844 2"
+    },
+    {
+      "window": "usb-runtime-002",
+      "command": "wf_record samples 7653455368615218844 3"
+    },
+    {
+      "window": "usb-runtime-002",
+      "command": "wf_record samples 7653455368615218844 4"
+    },
+    {
+      "window": "usb-runtime-002",
+      "command": "wf_record samples 7653455368615218844 5"
+    },
+    {
+      "window": "bat-usb-runtime",
+      "command": "wf_record snapshot 4926532063623293349"
+    },
+    {
+      "window": "bat-usb-runtime",
+      "command": "wf_record summary 4926532063623293349 current"
+    },
+    {
+      "window": "bat-usb-runtime",
+      "command": "wf_record summary 4926532063623293349 saved"
+    },
+    {
+      "window": "bat-usb-runtime",
+      "command": "wf_record samples 4926532063623293349 0"
+    },
+    {
+      "window": "bat-usb-runtime",
+      "command": "wf_record samples 4926532063623293349 1"
+    },
+    {
+      "window": "bat-usb-runtime",
+      "command": "wf_record samples 4926532063623293349 2"
+    },
+    {
+      "window": "bat-usb-runtime",
+      "command": "wf_record samples 4926532063623293349 3"
+    },
+    {
+      "window": "bat-usb-runtime",
+      "command": "wf_record samples 4926532063623293349 4"
+    },
+    {
+      "window": "bat-usb-runtime",
+      "command": "wf_record samples 4926532063623293349 5"
+    },
+    {
+      "window": "bat-usb-runtime",
+      "command": "wf_record samples 4926532063623293349 6"
+    },
+    {
+      "window": "bat-usb-runtime",
+      "command": "wf_record samples 4926532063623293349 7"
+    }
+  ],
+  "cleanup": {
+    "all_six_transports_closed": true,
+    "temporary_keep_off_confirmed": true,
+    "normal_display_touch_time_off_key_confirmed": true,
+    "usb_connected": true,
+    "firmware_retained": true,
+    "host_reboot": false,
+    "time_write": false,
+    "cycle_arm": false,
+    "fs_probe_init_format": false,
+    "no_device_window_active": true
+  },
+  "limits": [
+    "Usable-time proxy from two separately recharged flashlight runs; not calibrated current,capacity,SOC,charging or OCV.",
+    "Short USB/BAT sample checks demonstrate integration only;0% does not shut down and integer floor may show0 above3300mV.",
+    "USB voltage change and mode reseed can shift display;51→60 does not mean9% capacity charged.",
+    "No repeated low-voltage discharge, ordinary-standby life, real cutoff-current or new FULL physical test.",
+    "Identity bound by operator/build/archive/transfer/endpoint, not firmware attestation.",
+    "Raw source hashes are historical tested bytes; tested-sources-final.zip preserves them if checkout line endings later change."
+  ],
+  "sources": [
+    {
+      "path": "core/battery_estimate.c",
+      "bytes": 6715,
+      "sha256": "b97ae5e59d31bcea379a4e6933b833e054665431cecd031e2b36866be70c64f6"
+    },
+    {
+      "path": "core/battery_estimate.h",
+      "bytes": 1814,
+      "sha256": "2422420de11aa1c25b72705f71b7a0434544cca9d1d7c136e3384870696202de"
+    },
+    {
+      "path": "scripts/battery_lab.py",
+      "bytes": 24502,
+      "sha256": "a666370236c173a39fb908a9a62c8c8e9b0bce7aa4b82231cae1aed165ad48eb"
+    },
+    {
+      "path": "tests/battery_estimate.c",
+      "bytes": 14041,
+      "sha256": "180e771ea7f0df03046bdda1337a032d6cedd7f681cdb0b86eff58cd95668aed"
+    },
+    {
+      "path": "tests/product_battery_trace.c",
+      "bytes": 6164,
+      "sha256": "dd6ffa55ef8956dcc669e75b2ef58ae479350e3f54933707c4d65767f6b4bdec"
+    },
+    {
+      "path": "tests/test_battery_curve.py",
+      "bytes": 2815,
+      "sha256": "1fb071fdba257442619cd384596e4f8f29f24640f86b550d39f6fd1961c91776"
+    },
+    {
+      "path": "tests/test_battery_production.py",
+      "bytes": 2991,
+      "sha256": "51471c1de257c9de14ad0a2f79d76579e7c8430177ad45df7470cbc7983836d0"
+    },
+    {
+      "path": "scripts/runtime_export.py",
+      "bytes": 9311,
+      "sha256": "84b280902836d0d15e323a19062ed27043113ae507879a5d77d359e4bb0ddb00"
+    },
+    {
+      "path": "scripts/device_snapshot.py",
+      "bytes": 12078,
+      "sha256": "0195f5297b87bd26084887210dc42618ed169243f4248ae58a26204fed84189f"
+    },
+    {
+      "path": "scripts/lab_serial.py",
+      "bytes": 9088,
+      "sha256": "8ac5b08fc0f7d68180b1f657d91d7bc11d4b3cc349d6603bde59e90710c49703"
+    },
+    {
+      "path": "scripts/serial_lab.py",
+      "bytes": 13798,
+      "sha256": "7fe4ad1d5a6a2007f59c97c586cf954791c15310a881075a50db12a946d78aa6"
+    },
+    {
+      "path": "scripts/lab_evidence.py",
+      "bytes": 1498,
+      "sha256": "618487f3802b663b347c1bbd97b081147df2ef31ae6f471a9fcf2ac692e64864"
+    },
+    {
+      "path": "scripts/battery_current_replay.c",
+      "bytes": 1478,
+      "sha256": "2cd6ec11c49597f3a601aafa583ec0048b7e8342ca8617a9e024ba5a231fc943"
+    }
+  ],
+  "files": [
+    {
+      "path": "artifacts/product/20261103-115740-843/result.json",
+      "bytes": 126043,
+      "sha256": "24650ff8d908b93dd64489b524e7e3828e479478627af9a3538cfd29a4982361"
+    },
+    {
+      "path": "artifacts/flash/product/20261103-120138-892/result.json",
+      "bytes": 1767,
+      "sha256": "c2e577ff973b4f7618f4eb75297502b0ac69cc395da848027c65d1470daad8bc"
+    },
+    {
+      "path": "artifacts/battery-curve-archive.json",
+      "bytes": 695,
+      "sha256": "4d53488414e2c21afb969fd6f6f1e98ffb71e7a21989f286eaf9211cfa1fcc3f"
+    },
+    {
+      "path": "artifacts/battery-curve-20261103-candidate-build.zip",
+      "bytes": 16697197,
+      "sha256": "ead4c756ee319fffdd4e18f024cbb2c65e55f874dea86b298c62b6f8f7d41816"
+    },
+    {
+      "path": "artifacts/battery-curve-build-check.json",
+      "bytes": 146993,
+      "sha256": "84561837392ad7f1b8fd9284ddef7719e10f8f08d2b5fd22c553fd6adccc69f3"
+    },
+    {
+      "path": "artifacts/battery-curve-product-build-001.log",
+      "bytes": 17008,
+      "sha256": "13d04e77bed08ff1d683338dc36a508f69a6c0b5a8a3f419ff047fd21d960378"
+    },
+    {
+      "path": "artifacts/battery-curve-flash-dryrun.log",
+      "bytes": 452,
+      "sha256": "a103a29cbd35c91a9e33668e40c69e4c5a0e4267042e633a492d401e46b28877"
+    },
+    {
+      "path": "artifacts/battery-curve-flash-001.log",
+      "bytes": 715,
+      "sha256": "83106ec4f678da3183a4bac088ee500d9467228556ef8798fabf8cb7a7958ac9"
+    },
+    {
+      "path": "artifacts/battery-curve-build-host-001.log",
+      "bytes": 2704,
+      "sha256": "8b696aaf4a0788e98a35b2f8984807256e89647ad85abba39ac0b66b1771eea2"
+    },
+    {
+      "path": "artifacts/battery-curve-tests-host-001.log",
+      "bytes": 957,
+      "sha256": "123309bb242f9f35f23d9c09bcb7de4d8f65ee495a9fd5423eaa94aadc552666"
+    },
+    {
+      "path": "artifacts/battery-curve-build-host-002.log",
+      "bytes": 186,
+      "sha256": "f1ab01a4b508b160f221145fbc26e8ce32574d2e7681b00ec75d42932f5670cd"
+    },
+    {
+      "path": "artifacts/battery-curve-tests-host-002.log",
+      "bytes": 649,
+      "sha256": "cf2820f980cacbff6db916d3e31c8251e84ba573c5ee0a6d636ad3cf956bef5b"
+    },
+    {
+      "path": "artifacts/battery-curve-tests-estimator-final.log",
+      "bytes": 341,
+      "sha256": "15e461c78e6ac9442c2db60e48cce8d660b2055954667e50e01e4750734ed49e"
+    },
+    {
+      "path": "artifacts/battery-curve-python-shape-001.log",
+      "bytes": 284,
+      "sha256": "24d84ae930c66c264a38a64dd97ddc5e73ced438768301e545b48a7785a33968"
+    },
+    {
+      "path": "artifacts/battery-curve-python-production-001.log",
+      "bytes": 645,
+      "sha256": "30539587ad05b016be9ce4138c5584a2fd3c133f90d6a9524662b67c6abe939d"
+    },
+    {
+      "path": "docs/evidence/2026-11-02/battery-curve-candidate.json",
+      "bytes": 24483,
+      "sha256": "0766ec6ecc885ee780f24667248514bc29052c93315ede3c18e6a8da34ff26a1"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/preflash-runtime/binding.json",
+      "bytes": 148348,
+      "sha256": "90aa95a89673c0fd57c260ab07690f9656ba8dfaebc2bff489ffed4d0330f5b0"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/preflash-runtime/events.jsonl",
+      "bytes": 6029,
+      "sha256": "704898fe14db10e2e09e84f6b89a68c4cb60e925615e43b6dc1941a5397587fb"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/preflash-runtime/progress.json",
+      "bytes": 246,
+      "sha256": "d377537e127c24b3fe493e892a23815b886223a3b8bad7363acb7d015dc089e8"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/preflash-runtime/export.json",
+      "bytes": 569,
+      "sha256": "296de35fc2af21da7a056c9b5cce2c4f87bb042e242ad6fdb92b16a52a1ff38a"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/preflash-runtime/uart.bin",
+      "bytes": 17246,
+      "sha256": "5808d2f14a527d8388953476e71f0220ce026d878fcc730e4174a410836e63a8"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/preflash-runtime/records.json",
+      "bytes": 24360,
+      "sha256": "3235c84c2e0da6bed4f83c4f47b153903c9e0b10212e3460fe956d12ec1009b5"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/preflash-runtime-latest/binding.json",
+      "bytes": 148348,
+      "sha256": "5f71683e7c3e19ba91e958761bb8140977d23b748a6bf6f86c5360dc549f82d7"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/preflash-runtime-latest/events.jsonl",
+      "bytes": 6161,
+      "sha256": "4514148f7c560e376f99e9f5f05f8eaf67b9f7817d852001b00591e604fffef0"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/preflash-runtime-latest/progress.json",
+      "bytes": 246,
+      "sha256": "2b02b33d37d8e0dd218be8408014a2de08fa20f893bf1cf87a2149141620946d"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/preflash-runtime-latest/export.json",
+      "bytes": 576,
+      "sha256": "95cc91fce7f6af3d387c20361e10ea44cdd9e9e55092f48b80b5b4f54fa4168b"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/preflash-runtime-latest/uart.bin",
+      "bytes": 17275,
+      "sha256": "a84bb59ebf7d0003856dd22e8971e5df8000d2e2a3fe6831fe30ed556b17d05d"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/preflash-runtime-latest/records.json",
+      "bytes": 24608,
+      "sha256": "44cf248e3666eb42c26ba6fec1290e5eb21c284fabf1b479f17c2f4bccea73b0"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/startup/binding.json",
+      "bytes": 148654,
+      "sha256": "25131d03062c8594e0be825bb0c2a990e57b4a6b0245075b91e34581025d514b"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/startup/events.jsonl",
+      "bytes": 3577,
+      "sha256": "66a17bd388017d31733fd5e2b9ffe0b9d1f5e26cf3e722eae8cb55b6969b96b0"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/startup/progress.json",
+      "bytes": 247,
+      "sha256": "a4dd51d58a7448f2cafa536cf65276a1dbe2eaa5d804b824b91956b288666c87"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/startup/snapshot.json",
+      "bytes": 5591,
+      "sha256": "8a0bbdb9fdc9c9292d992651de5ca49f03798135c52e78f4c7fc0e86875c911b"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/startup/uart.bin",
+      "bytes": 4262,
+      "sha256": "bdcd9472059a4909a99667213da27e55deff8378788afb94c0d922cd768da957"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/usb-runtime/binding.json",
+      "bytes": 148345,
+      "sha256": "fe0a878abc93c3c8dd420a20d78514c5cb1eac1db1dadec991cc52c6a5babf3d"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/usb-runtime/events.jsonl",
+      "bytes": 4985,
+      "sha256": "ce47f459aad0407fcaa96f228644d036a1f1197c5768cf5b604563f69a88009f"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/usb-runtime/progress.json",
+      "bytes": 247,
+      "sha256": "d04dd923cd060ad556af011fa7b42d19925c117b4684f0b8eb99bf50046bf664"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/usb-runtime/export.json",
+      "bytes": 592,
+      "sha256": "2241d5a73bd5d85aff842899b2348d6fe713e14d9b4594786716c0f5001d3aab"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/usb-runtime/uart.bin",
+      "bytes": 11139,
+      "sha256": "28b4f3cabcc4f8d5e57a00e3c0d5a62786a41edc707f2061dd48aa9abc69813a"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/usb-runtime-002/binding.json",
+      "bytes": 148345,
+      "sha256": "12b67f145acd66b57f36187bec2145e44bc69712fffbebadc14b84bdd925f65a"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/usb-runtime-002/events.jsonl",
+      "bytes": 5178,
+      "sha256": "b93765c2b3da92693bec4c0b32714ff0fbcf1ba9f1f9d3791478fb9a560657f0"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/usb-runtime-002/progress.json",
+      "bytes": 247,
+      "sha256": "65d3b8b38d6a7f11733993f2b03c84d23fe426147d5a249bd38bef09c4c31060"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/usb-runtime-002/export.json",
+      "bytes": 567,
+      "sha256": "de3454620dd0fceb1bb652522578272a9c7303daa82904a5fceeec88f272bdaa"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/usb-runtime-002/uart.bin",
+      "bytes": 12600,
+      "sha256": "4e316fbf06be74a9b379569eac56fbf555c9baa279fe2cf63d5264efaf91a161"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/usb-runtime-002/records.json",
+      "bytes": 17578,
+      "sha256": "ccbd4f2a31f66680f193ab5dba69d6665909541ab76c93ce89a32789af8a103a"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/bat-usb-runtime/binding.json",
+      "bytes": 148345,
+      "sha256": "3f8257ac9087341762c2ca6438aa2206e7c6d6b0f6f36847c3ecc551b6ef28a6"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/bat-usb-runtime/events.jsonl",
+      "bytes": 6303,
+      "sha256": "5bb76173a4590762cd0da840a69bae0076fdd97ea68910064231f6a79f0b4455"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/bat-usb-runtime/progress.json",
+      "bytes": 247,
+      "sha256": "2994cb199654e3b3fa627f88d08de2ab568575beaa43021ae89d51b00ac9b76c"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/bat-usb-runtime/export.json",
+      "bytes": 567,
+      "sha256": "4d27cd5dfbe22187b6778f09b75364ac6cf446e14ce311d94d669cc950fb8ef3"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/bat-usb-runtime/uart.bin",
+      "bytes": 17172,
+      "sha256": "fb33367fc0fcefb46e8cb6044640db45ebb1b006a2e611d1ca84292a7264f64a"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/bat-usb-runtime/records.json",
+      "bytes": 23983,
+      "sha256": "2305b542418ffd74d9073c6889dd4928dcdf001f82db85891feee0cacae8e714"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/operator-observations.json",
+      "bytes": 1106,
+      "sha256": "f01c62f15132ca7516efb425e268fa751ada8772ef6d522c34aa19b6dd2fcdda"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/device-replay.json",
+      "bytes": 792,
+      "sha256": "404aefaa751422725fde4b7e79d1502547338612fff939231181595d23c3b437"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/device-replay.log",
+      "bytes": 792,
+      "sha256": "404aefaa751422725fde4b7e79d1502547338612fff939231181595d23c3b437"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/device-replay-build.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/device-replay-input.txt",
+      "bytes": 683,
+      "sha256": "42d44e3fb2d54a9e326588cda56ce485a3e91fac455501df8362a3daaf182516"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/device-replay-output.txt",
+      "bytes": 456,
+      "sha256": "72693470d3064c710422b076d15ef606f312a6d9fcad08cc1d49b20fea195c49"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/build-evidence.py",
+      "bytes": 8768,
+      "sha256": "e2999659e64904af9004e9f95ba7535feebec49d8a91b71c6ae4ff2dd6dce6d8"
+    },
+    {
+      "path": "artifacts/battery-curve-device-20261103-001/tested-sources-final.zip",
+      "bytes": 34613,
+      "sha256": "7ea49fc7167918a2f50294223413d9db547a49a255d0955003d520e8d0470874"
+    }
+  ]
+}

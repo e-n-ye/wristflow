@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-11-03 经验电量曲线
+
+沿用`pwsh -NoProfile -File scripts/Build.ps1 -Example product -CycleLog -Jobs 4`，官方`20261103-115740-843`退出0，BIN3,055,760B／`10560604…`，比原低压候选增16B。625份源码／29份产物严格哈希复核与完整ZIP读回通过，三镜像DryRun后write＋verify退出0（下载`20261103-120138-892`）。SDK及子模块锁定、分区及充电参数不变；只有core曲线和兼容注释改变，无普通版／UI Demo／五目标重编。
+
+Debug相关4/4及Python4/4通过，涵盖全ADC整数mV双模式曲线对照、旧120／109行的冻结重放和当前回放。初次trace仍断言旧4040mV为91%而失败，更新到新表92%后通过，失败日志保留；未放宽滤波／有效性等比较。源码和数学边界经独立只读复核；上板实际显示结果另按[专题](BATTERY-ESTIMATE.md#usable-curve-20261103)及STATUS记录，不以成功编译证明充电校准或续航。
+
 ## 2026-11-02 独立低压实验候选
 
 沿用`pwsh -NoProfile -File scripts/Build.ps1 -Example product -CycleLog -Jobs 4`，`20261102-190226-600`退出0、BIN3,055,744B／`7721eac2…`；625源码／29产物完整ZIP逐项核验及三镜像DryRun通过。诊断构建新显式`arm-low`启用v2事件、OFF采样许可及逐条提交；常规arm／smoke与普通版边界分开，不新增构建开关，不改SDK／分区／充电参数。

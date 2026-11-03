@@ -97,7 +97,7 @@ def production_compare(fixture, output, cc):
         raise ValueError("Incomplete current prediction count")
     for original, actual in zip(rows[1:], current[1:]):
         for key in OUTPUT_KEYS:
-            if key == "percent":
+            if key in ("percent", "candidate"):
                 continue
             if key == "decision" and actual[key] == 3 and original[key] in (0, 1, 2):
                 continue
@@ -112,10 +112,11 @@ def production_compare(fixture, output, cc):
               "changed_percent_rows": [{"index": new["index"], "adc": new["adc"], "surface": new["surface"],
                     "candidate": new["candidate"], "recorded": old["percent"], "current": new["percent"]}
                     for old, new in zip(rows, current) if old["percent"] != new["percent"]],
-              "unchanged_fields": [k for k in OUTPUT_KEYS if k != "percent"],
+              "unchanged_fields": [k for k in OUTPUT_KEYS if k not in ("percent", "candidate")],
               "warm_state_row": 0, "pending_history_at_start": "unknown; starts empty, no claim about preceding dwell",
               "limits": ["Old device data fed into current C; this is not new firmware hardware acceptance.",
-                         "Only display behavior changes; SOC and consumed charge were not measured."]}
+                         "Current production uses the empirical usable-time curve for both modes; charging is a rough estimate.",
+                         "Row0 injects the old warm state; it is not a new-curve prediction. SOC and consumed charge were not measured."]}
     write_json(output / "comparison.json", report)
     return report
 

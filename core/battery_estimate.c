@@ -1,31 +1,34 @@
 #include "battery_estimate.h"
 #include <stddef.h>
 
-/* Every fifth percentage point from SiFli-SDK @421126d9, Huangshan
- * sf32lb52-lchspi-ulp_base/battery_table.c. Values are 0.1mV: the locked SDK
- * battery_calculator.md example explicitly identifies 38000 as 3.8V.
- * These are vendor reference points, NOT measurements of our ZCLP500 cell.
- * Keep the reference data separate from charging/protection thresholds. */
-static const uint16_t discharge[] = {
-    35042,36813,37194,37605,37962,38198,38387,38517,38612,38748,39002,
-    39390,39606,39778,39958,40086,40131,40195,40317,40647,41808
+/* ZCLP500 usable-time model, not measured capacity or charging calibration.
+ * Source: docs/evidence/2026-11-02/battery-curve-candidate.json, join3600.
+ * Hundredths of a percent at 3300,3310,...,4140,4142mV, rounded once.
+ * Both charge modes use this mapping by operator choice. Keep this separate
+ * from charger control and protection thresholds; only FULL declares100%. */
+static const uint16_t usable_percent_centi[] = {
+    0,10,25,42,62,90,122,164,212,264,
+    322,412,489,569,671,758,872,994,1136,1283,
+    1452,1634,1848,2057,2301,2558,2834,3133,3457,3748,
+    3984,4269,4490,4724,4928,5135,5291,5445,5592,5737,
+    5851,5981,6104,6216,6330,6439,6541,6659,6756,6861,
+    6965,7069,7178,7295,7392,7489,7600,7702,7788,7897,
+    8001,8098,8205,8286,8385,8478,8570,8658,8750,8836,
+    8928,9018,9101,9199,9291,9374,9459,9538,9618,9696,
+    9775,9858,9912,9967,9998,10000
 };
-static const uint16_t charging[] = {
-    35577,37276,37657,38068,38425,38661,38850,38980,39075,39211,39465,
-    39853,40069,40241,40421,40549,40594,40658,40780,41110,41998
-};
-static uint8_t lookup(uint32_t voltage, bool charge)
+static uint8_t lookup(uint32_t voltage)
 {
-    const uint16_t *table = charge ? charging : discharge;
-    if (voltage <= table[0]) return 0;
-    for (unsigned i=1; i<21; ++i) {
-        if (voltage <= table[i])
-            return (uint8_t)((i-1U)*5U + (voltage-table[i-1])*5U/(table[i]-table[i-1]));
-    }
-    return 100;
+    if (voltage <= 33000U) return 0;
+    if (voltage >= 41420U) return 100;
+    unsigned i=(voltage-33000U)/100U;
+    uint32_t span=i==84U ? 20U:100U; /* Last measured interval is only2mV. */
+    uint32_t percent=usable_percent_centi[i]+(voltage-(33000U+i*100U))*
+        (usable_percent_centi[i+1]-usable_percent_centi[i])/span;
+    return (uint8_t)(percent/100U);
 }
 uint8_t wristflow_battery_reference_percent(uint16_t millivolts, bool charge)
-{ return lookup((uint32_t)millivolts*10U, charge); }
+{ (void)charge; return lookup((uint32_t)millivolts*10U); }
 
 void wristflow_battery_estimate(wristflow_battery_estimator_t *state,
     wristflow_power_snapshot_t *power, uint32_t now_ms)
@@ -75,7 +78,7 @@ void wristflow_battery_estimate_diagnosed(wristflow_battery_estimator_t *state,
             reset ? WF_BATTERY_MODE_SEED : WF_BATTERY_NEW_SAMPLE;
         state->filtered_decimillivolts = reset ? voltage :
             (state->filtered_decimillivolts*3U+voltage+2U)/4U;
-        uint8_t candidate = lookup(state->filtered_decimillivolts, mode == 1U);
+        uint8_t candidate = lookup(state->filtered_decimillivolts);
         if (candidate > 99U) candidate = 99U; /* Voltage alone never declares FULL. */
         int difference = (int)candidate-(int)state->percent;
         if (reset || difference >= 2 || difference <= -2 || candidate == 0 || candidate == 99) {
@@ -115,7 +118,7 @@ void wristflow_battery_estimate_diagnosed(wristflow_battery_estimator_t *state,
     power->estimated_percent = state->percent;
     report.filter_valid = true;
     report.filtered_decimillivolts = state->filtered_decimillivolts;
-    report.candidate = lookup(state->filtered_decimillivolts, mode == 1U);
+    report.candidate = lookup(state->filtered_decimillivolts);
     if (report.candidate > 99U) report.candidate = 99U;
 done:
     if (diagnostic) *diagnostic = report;

@@ -22,22 +22,25 @@ class ProductionReplayTests(unittest.TestCase):
         self.assertTrue(all(r["recorded"] != r["current"] for r in report["changed_percent_rows"]))
         return report, groups
 
-    def test_first_trace_recovers_before_sleep_without_changing_validity_or_curve(self):
+    def test_first_trace_uses_new_curve_without_changing_validity(self):
         report, groups = self.compare("battery-b2-20261021.json")
         self.assertEqual(report["historical_checked_rows"], 120)
         self.assertEqual(groups["recorded"][65]["percent"], 97)
-        self.assertEqual(groups["current"][65]["percent"], 98)
+        self.assertEqual(groups["current"][65]["percent"], 99)
         self.assertFalse(groups["current"][105]["percent_valid"])
-        self.assertEqual(groups["current"][108]["percent"], 98)
+        self.assertEqual(groups["current"][108]["percent"], 99)
+        self.assertEqual(groups["current"][65]["candidate"], 99)
+        self.assertNotIn("candidate", report["unchanged_fields"])
 
-    def test_second_trace_recovers_without_sleep_and_only_display_changes(self):
+    def test_second_trace_changes_curve_but_preserves_observations_and_history(self):
         report, groups = self.compare("battery-guided-20261021.json")
         self.assertEqual(report["historical_checked_rows"], 109)
-        self.assertEqual(groups["current"][65]["percent"], 98)
+        self.assertEqual(groups["current"][65]["percent"], 99)
         self.assertEqual(groups["recorded"][65]["percent"], 97)
         for old, new in zip(groups["recorded"], groups["current"]):
-            for key in ("filter", "candidate", "percent_valid", "filter_valid", "mode"):
+            for key in ("filter", "percent_valid", "filter_valid", "mode"):
                 self.assertEqual(old[key], new[key])
+        self.assertTrue(any(old["candidate"] != new["candidate"] for old, new in zip(groups["recorded"][1:], groups["current"][1:])))
         self.assertTrue(any(r["surface"] == 5 for r in report["changed_percent_rows"]))
 
     def test_frozen_estimator_matches_accepted_old_source_content(self):
