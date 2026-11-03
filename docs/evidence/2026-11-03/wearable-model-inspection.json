@@ -1,0 +1,484 @@
+{
+  "schema": 1,
+  "date": "2026-11-03",
+  "baseline": "3f63aff89ba50c3260243c1734013e5ff802889a",
+  "kind": "offline_model_inspection",
+  "sources": [
+    {
+      "name": "黄山派适配模型（watch表带版本）【个人制作】.zip",
+      "bytes": 2255492,
+      "sha256": "372d87a7eff8da21a43e03fbbbdf357bfda6cadfb12104ec2991ba3a65788773"
+    },
+    {
+      "name": "黄山派打印.3mf",
+      "bytes": 2395237,
+      "sha256": "7cb0dd9587f8e088591783ba621c90035d79c8c24b4cbcee9eb4f28d99db3c9a"
+    }
+  ],
+  "originals_modified": false,
+  "source_models_redistributed": false,
+  "unit": "millimeter",
+  "parts": [
+    {
+      "name": "外壳.stl",
+      "sha256": "43a3a5f05bfa7205f8d533738c62e5fbc9f4c71a2bb66994e6fe9c93e51b9fea",
+      "bytes": 3497084,
+      "triangles": 69940,
+      "bounds": [
+        [
+          -51.7514533996582,
+          -3.3025288581848145,
+          -4.062658786773682
+        ],
+        [
+          -10.147066116333008,
+          44.7132682800293,
+          10.437347412109375
+        ]
+      ],
+      "extents": [
+        41.604387283325195,
+        48.01579713821411,
+        14.500006198883057
+      ],
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "底部外壳.stl",
+      "sha256": "3ba30ae108a03b85b586bb6ac699a2fb6bb53a8682826b1f1f071f70fa6ab84a",
+      "bytes": 913884,
+      "triangles": 18276,
+      "bounds": [
+        [
+          -51.54021072387695,
+          -3.1032161712646484,
+          -5.562653064727783
+        ],
+        [
+          -10.358267784118652,
+          44.51399230957031,
+          1.1411734819412231
+        ]
+      ],
+      "extents": [
+        41.1819429397583,
+        47.61720848083496,
+        6.703826546669006
+      ],
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "V0.2黄山派-按钮其一.stl",
+      "sha256": "3c5d0e0ee5e83dd2a772a8fd12eba8a44ae479583d428358ac3d1de99cfc0af5",
+      "bytes": 583084,
+      "triangles": 11660,
+      "bounds": [
+        [
+          -53.46019744873047,
+          14.234424591064453,
+          -1.6554542779922485
+        ],
+        [
+          -49.41219711303711,
+          22.494901657104492,
+          2.9378011226654053
+        ]
+      ],
+      "extents": [
+        4.048000335693359,
+        8.260477066040039,
+        4.593255400657654
+      ],
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "V0.2黄山派-按钮其二.stl",
+      "sha256": "49eff518f5ff41c71519779780d4e96953cb46756ebc856be2dd0d0a96e64bb7",
+      "bytes": 583084,
+      "triangles": 11660,
+      "bounds": [
+        [
+          -53.46019744873047,
+          23.84844207763672,
+          -1.6554542779922485
+        ],
+        [
+          -49.41219711303711,
+          32.108917236328125,
+          2.9378011226654053
+        ]
+      ],
+      "extents": [
+        4.048000335693359,
+        8.260475158691406,
+        4.593255400657654
+      ],
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "下横杆.stl",
+      "sha256": "92464e0a913f09c4f7da475b684f09772a042741eac09b50de214b52923a3a49",
+      "bytes": 166584,
+      "triangles": 3330,
+      "bounds": [
+        [
+          -48.37054443359375,
+          35.163822174072266,
+          2.3999998569488525
+        ],
+        [
+          -13.528197288513184,
+          40.02142333984375,
+          7.199999809265137
+        ]
+      ],
+      "extents": [
+        34.842347145080566,
+        4.857601165771484,
+        4.799999952316284
+      ],
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    {
+      "name": "上横杆.stl",
+      "sha256": "e6d555945c919ced37a2f03a67a1ae194857486f7f53adbc2eb0c59db4190d80",
+      "bytes": 111784,
+      "triangles": 2234,
+      "bounds": [
+        [
+          -48.6943473815918,
+          5.512224197387695,
+          4.199999809265137
+        ],
+        [
+          -13.204137802124023,
+          9.459023475646973,
+          7.199999809265137
+        ]
+      ],
+      "extents": [
+        35.49020957946777,
+        3.9467992782592773,
+        3.0
+      ],
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    }
+  ],
+  "three_mf_comparison": [
+    {
+      "name": "V0.2黄山派-按钮其二.stl",
+      "faces": 11660,
+      "max_stl_reconstruction_error_mm": 6.4595489401853e-08,
+      "build_axis_scales": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "build_transform": [
+        [
+          -2.22044605e-16,
+          0.0,
+          -1.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          1.0,
+          0.0,
+          -2.22044605e-16
+        ],
+        [
+          88.5522086,
+          147.493155,
+          2.02400017
+        ]
+      ]
+    },
+    {
+      "name": "V0.2黄山派-按钮其一.stl",
+      "faces": 11660,
+      "max_stl_reconstruction_error_mm": 6.4595489401853e-08,
+      "build_axis_scales": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "build_transform": [
+        [
+          -2.22044605e-16,
+          0.0,
+          -1.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          1.0,
+          0.0,
+          -2.22044605e-16
+        ],
+        [
+          79.7211477,
+          147.677558,
+          2.02400017
+        ]
+      ]
+    },
+    {
+      "name": "底部外壳.stl",
+      "faces": 18276,
+      "max_stl_reconstruction_error_mm": 1.4805114751936799e-06,
+      "build_axis_scales": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "build_transform": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          128.0,
+          138.0,
+          3.35191333
+        ]
+      ]
+    },
+    {
+      "name": "上横杆.stl",
+      "faces": 2234,
+      "max_stl_reconstruction_error_mm": 1.0032348640720556e-06,
+      "build_axis_scales": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "build_transform": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          79.5886112,
+          126.898051,
+          1.5
+        ]
+      ]
+    },
+    {
+      "name": "外壳.stl",
+      "faces": 69940,
+      "max_stl_reconstruction_error_mm": 1.2417022716704196e-06,
+      "build_axis_scales": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "build_transform": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          180.251189,
+          137.784175,
+          7.25000286
+        ]
+      ]
+    },
+    {
+      "name": "下横杆.stl",
+      "faces": 3330,
+      "max_stl_reconstruction_error_mm": 1.4791442879413808e-06,
+      "build_axis_scales": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "build_transform": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          -1.0,
+          1.2246468e-16
+        ],
+        [
+          0.0,
+          -1.2246468e-16,
+          -1.0
+        ],
+        [
+          79.611404,
+          118.337244,
+          2.39999998
+        ]
+      ]
+    }
+  ],
+  "imported_union_extents_mm": [
+    43.31313133239746,
+    48.01579713821411,
+    16.000000476837158
+  ],
+  "body_and_lid_union_extents_mm": [
+    41.604387283325195,
+    48.01579713821411,
+    16.000000476837158
+  ],
+  "profile": {
+    "printer_model": "Bambu Lab P1S",
+    "printer_settings_id": "Bambu Lab P1S 0.4 nozzle",
+    "print_settings_id": "0.08mm High Quality @BBL X1C",
+    "nozzle_diameter": [
+      "0.4"
+    ],
+    "filament_type": [
+      "PETG"
+    ],
+    "filament_settings_id": [
+      "Generic PETG"
+    ],
+    "layer_height": "0.08",
+    "initial_layer_print_height": "0.2",
+    "wall_loops": "2",
+    "sparse_infill_density": "15%",
+    "sparse_infill_pattern": "gyroid",
+    "enable_support": "1",
+    "support_type": "tree(auto)",
+    "support_style": "default",
+    "support_threshold_angle": "30",
+    "support_top_z_distance": "0.1",
+    "support_bottom_z_distance": "0.08",
+    "support_on_build_plate_only": "0",
+    "brim_type": "auto_brim",
+    "brim_width": "5",
+    "curr_bed_type": "Textured PEI Plate",
+    "nozzle_temperature": [
+      "255"
+    ],
+    "nozzle_temperature_initial_layer": [
+      "255"
+    ],
+    "textured_plate_temp": [
+      "70"
+    ],
+    "textured_plate_temp_initial_layer": [
+      "70"
+    ],
+    "top_shell_layers": "9",
+    "bottom_shell_layers": "7",
+    "xy_hole_compensation": "0",
+    "xy_contour_compensation": "0",
+    "elefant_foot_compensation": "0.15"
+  },
+  "application": [
+    "BambuStudio-02.00.02.57"
+  ],
+  "gcode_members": [],
+  "battery_thickness": {
+    "approx_mm": 9,
+    "provenance": "user reports maximum close to 0.9cm",
+    "precision_known": false,
+    "full_installed_envelope_verified": false
+  },
+  "lid_surface_geometry": {
+    "central_inner_z_mm": -3.562653064727783,
+    "central_outer_z_mm": -5.562653064727783,
+    "highest_boss_top_z_mm": 1.1411734819412231,
+    "height_difference_mm": 4.703826546669006,
+    "central_thickness_mm": 2.0,
+    "method": "area-grouped horizontal STL triangles; central inner patch area approx1262.079mm2; boss top patches area approx27.746mm2"
+  },
+  "fit_interpretation": {
+    "conditional": "If core PCB is positioned by highest boss tops, rear stack clearance is at most4.70mm before components, insulation or margins; approx9mm battery cannot directly stack there.",
+    "confirmed_board_mounting": false,
+    "known_actual_interference_mm": null,
+    "safe_lid_deepening_mm": null,
+    "recommendation": "One original empty shell fitting sample; use unpowered dummy envelope; establish PCB placement before changing cover or ordering speaker/band"
+  },
+  "checks": {
+    "binary_stl_sizes": "all six match84+50*triangles",
+    "mesh_edges": "each undirected edge appears twice after rounding coordinates to1e-5mm",
+    "stl_3mf_max_error_mm": 1.4805114751936799e-06,
+    "all_print_scales_one": true,
+    "sliced": false,
+    "printed": false,
+    "hardware_operated": false,
+    "self_intersections_checked": false,
+    "strength_or_skin_safety_verified": false
+  },
+  "unknowns": [
+    "PCB/screen installed coordinates and actual component height",
+    "battery fixed envelope and safe margins",
+    "strap connector size group and retention",
+    "SPK connector compatibility and speaker fit",
+    "printer-specific slicing and support removal",
+    "screw head/type/count and final penetration"
+  ],
+  "local_analysis": {
+    "directory": "artifacts/wearable-model-20261103 (ignored, main worktree only)",
+    "commands": [
+      "<bundled-python> artifacts/wearable-model-20261103/inspect_model.py",
+      "<bundled-python> artifacts/wearable-model-20261103/inspect_3mf.py"
+    ],
+    "scripts": {
+      "inspect_model.py": "04d717d6dc2843a49006a0a5d6793331dab58c1c48c2cc35d62c120e1cc21427",
+      "inspect_3mf.py": "a79bc76fd5afe5d3d68b62ebb4a993a6d9ed15c1b85c8c16c1cd149490fa4c57"
+    },
+    "versions": {
+      "python": "3.12.14",
+      "numpy": "2.3.5",
+      "Pillow": "12.3.0"
+    },
+    "limitations": "scripts and previews local only; original geometry not included; file parsing and basic mesh connectivity do not constitute CAD or physical assembly validation"
+  }
+}
