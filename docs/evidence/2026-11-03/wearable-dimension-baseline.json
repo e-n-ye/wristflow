@@ -1,0 +1,192 @@
+{
+  "schema": 1,
+  "date": "2026-11-03",
+  "baseline": "d8c1c42041165dbab2d15b45afc03dbc2516265f",
+  "scope": "speaker mechanical baseline and V1.1 physical-stack measurement preparation",
+  "speaker": {
+    "selection": "first enclosure layout baseline, not purchased or hardware-validated",
+    "manufacturer": "Waveshare",
+    "part": "8ohm 2W Speaker (B)",
+    "sku": "27859",
+    "product_url": "https://www.waveshare.net/shop/8ohm-2W-Speaker-B.htm",
+    "outline_url": "https://www.waveshare.net/photo/accessories/8ohm-2W-Speaker-B/8ohm-2W-Speaker-B-details-size.jpg",
+    "outline_sha256": "f83979e1db5cb1f27944fadc4036f0e63a9118eb920e4b2f7dc518144abf4a48",
+    "nominal_lwh_mm": [
+      30,
+      20,
+      6.8
+    ],
+    "tolerances_mm": [
+      0.2,
+      0.2,
+      0.3
+    ],
+    "upper_lwh_mm": [
+      30.2,
+      20.2,
+      7.1
+    ],
+    "height_is_working_height": true,
+    "wire_length_mm": [
+      120,
+      10
+    ],
+    "wire": "UL1571 #30 OD0.8mm",
+    "connector_drawing_text": "HOUSING:1.25-2P",
+    "product_connector_label": "2PIN PH1.25",
+    "wire_colour_drawing": "red+ black-",
+    "impedance_ohm": 8,
+    "rated_power_W": 2,
+    "installation_allowances_included": false,
+    "actual_board_mating_verified": false
+  },
+  "motor": {
+    "source": "user product image",
+    "nominal_diameter_mm": 10,
+    "nominal_thickness_mm": 2.7,
+    "approx_mass_g": 1,
+    "rated_voltage_V": [
+      3,
+      3.7
+    ],
+    "product_current_mA": [
+      68,
+      110
+    ],
+    "startup_or_stall_limit_verified": false,
+    "adhesive_solder_lead_envelope_measured": false
+  },
+  "user_images": [
+    {
+      "kind": "motor-product-parameters.jpg",
+      "bytes": 126929,
+      "sha256": "2dc823df289b630552dc646eacbafc3a4754da0868605971e5649afa8c8ba884",
+      "published": false
+    },
+    {
+      "kind": "current-side-view.jpg",
+      "bytes": 148397,
+      "sha256": "647e7f97cb7812f39d2fbf8b177573d76ab9347d6a2d5f92dd133af812b27d26",
+      "published": false
+    }
+  ],
+  "v12_design_reference": {
+    "source_url": "https://downloads.sifli.com/hardware/files/documentation/ProPrj_%E7%AB%8B%E5%88%9B%C2%B7%E9%BB%84%E5%B1%B1%E6%B4%BESF32LB52%E5%BC%80%E5%8F%91%E6%9D%BFV1.2%28202504250924%29.epro",
+    "bytes": 20092174,
+    "sha256": "61065a6b55fedf6b9a67f69013560476748bb5ac7dd4841563924a358f760a96",
+    "actual_v11_equivalence_verified": false,
+    "core_pcb_layers": {
+      "member": "PCB/e4947da8b8a84953a988023242fbea49.epcb",
+      "lines": "1447-1459",
+      "copper_mil": [
+        1.378,
+        0.598,
+        0.598,
+        1.378
+      ],
+      "dielectric_mil": [
+        8.283,
+        23.622,
+        8.283
+      ],
+      "soldermask_mil": [
+        0.394,
+        0.394
+      ],
+      "calculated_total_with_mask_mm": 1.1411712,
+      "manufacturing_nominal_thickness_and_tolerance_known": false,
+      "embedded_footprint_1_6mm_not_used": true
+    },
+    "screen_pcb_layers": {
+      "member": "PCB/02fa6060c7804795b5aa9827d746b691.epcb",
+      "lines": "124-132",
+      "dielectric_mil": [
+        35.827
+      ],
+      "copper_mil": [
+        1.378,
+        1.378
+      ],
+      "soldermask_mil": [
+        0.394,
+        0.394
+      ],
+      "calculated_total_with_mask_mm": 1.0000234
+    },
+    "screen_standoffs": {
+      "reference": "M1-M4",
+      "library_part": "SMTWE2055MTJ",
+      "lcsc": "C2928184",
+      "library_text": "M2x4.35xL5.5+1.4",
+      "member": "project.json",
+      "lines": "23035-23059",
+      "not_equivalent_to_board_gap": true
+    },
+    "cn3": {
+      "part": "XDZ127-2-15-S-1.0-G1",
+      "lcsc": "C19268856",
+      "plastic_height_mm": 1,
+      "mating_pin_length_mm": 4,
+      "member": "project.json",
+      "lines": "25398-25416",
+      "assembled_height_with_caps_unknown": true
+    },
+    "fpc1": {
+      "part": "AFH34-S22FIA-1H",
+      "lcsc": "C5139829",
+      "height_above_board_mm": 1,
+      "member": "project.json",
+      "lines": "15107-15130"
+    },
+    "cn1_cn2": {
+      "part": "A1257WR-S-2P",
+      "lcsc": "C225125",
+      "library_text": "GH1.25卧式贴片 镀锡 2P 针座连接器",
+      "member": "project.json",
+      "line_start": 14526
+    }
+  },
+  "module_drawing": {
+    "source_url": "https://downloads.sifli.com/user%20manual/DS5203-SF32LB52-MOD-1%E6%8A%80%E6%9C%AF%E8%A7%84%E6%A0%BC%E4%B9%A6%20V0p2.pdf",
+    "bytes": 4289827,
+    "sha256": "91c5d141a62caebf953023c2891775145be47b878767e2d64180bbecf614018f",
+    "section": "8.1 figure8-1",
+    "physical_page_1_based": 37,
+    "printed_page": "33/41",
+    "nominal_whd_mm": [
+      18,
+      27.9,
+      3.1
+    ],
+    "substrate_0_8mm_is_included_in_total": true,
+    "visual_review": true,
+    "render_command": "pdftoppm -f37 -l37 -r135 -singlefile -png <source> <preview>",
+    "render_warning": "Bad bounding box in Type3 glyph; inspected relevant dimension graphic readable",
+    "actual_mounted_height_verified": false
+  },
+  "physical_measurements": {
+    "instrument": "not currently available, user can borrow caliper",
+    "board_revision": "V1.1 user report",
+    "A_mm": null,
+    "A_definition": "frontmost glass surface to rear face of main PCB substrate",
+    "B_mm": null,
+    "B_definition": "same rear PCB face to farthest retained rigid protrusion, including standoffs/connectors/pins/caps",
+    "T_mm": null,
+    "alternative": "B=T-A, where T is glass to farthest retained rear point",
+    "current_photo_has_scale": false,
+    "rear_face_placement_photo_pending": true,
+    "before_measurement": "disconnect USB and battery supply; keep PCBs/FPC and inter-board fasteners assembled; no clamping glass/components"
+  },
+  "verification": {
+    "source_read": true,
+    "pdf_visual_review": true,
+    "schematic_visual_review": true,
+    "hardware_operated": false,
+    "actual_stack_measured": false,
+    "speaker_ordered": false,
+    "firmware_changed_or_built": false,
+    "cad_or_mesh_changed": false,
+    "next": "collect A and B/T and rear-facing photo before deciding installed layout or cover depth"
+  },
+  "local_artifacts": "artifacts/wearable-stack-20261103 (ignored, primary worktree only)"
+}
