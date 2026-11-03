@@ -1,8 +1,9 @@
 {
   "schema": 1,
   "date": "2026-11-03",
-  "baseline": "d8c1c42041165dbab2d15b45afc03dbc2516265f",
-  "scope": "speaker mechanical baseline and V1.1 physical-stack measurement preparation",
+  "baseline": "8e639a7edf51e94383f9c8e79ae1898de8631f09",
+  "scope": "speaker mechanical baseline and user-reported V1.1 physical-stack measurements",
+  "prior_reference_baseline": "d8c1c42041165dbab2d15b45afc03dbc2516265f",
   "speaker": {
     "selection": "first enclosure layout baseline, not purchased or hardware-validated",
     "manufacturer": "Waveshare",
@@ -68,6 +69,13 @@
       "bytes": 148397,
       "sha256": "647e7f97cb7812f39d2fbf8b177573d76ab9347d6a2d5f92dd133af812b27d26",
       "published": false
+    },
+    {
+      "kind": "measured-stack-side-view.jpg",
+      "bytes": 2557413,
+      "sha256": "f5c529731ed6c7e05f845e2c9e06e9ba376b04120e67efe4ab0b2f72a213b3f9",
+      "published": false,
+      "colour_measurements_supplied_in_chat": true
     }
   ],
   "v12_design_reference": {
@@ -165,28 +173,57 @@
     "actual_mounted_height_verified": false
   },
   "physical_measurements": {
-    "instrument": "not currently available, user can borrow caliper",
+    "source": "user reported measurements and explicitly confirmed colour-line endpoints in chat",
+    "instrument": "model, resolution, accuracy and repeatability not reported",
     "board_revision": "V1.1 user report",
-    "A_mm": null,
+    "red_A_mm": 11.32,
+    "A_mm": 11.32,
     "A_definition": "frontmost glass surface to rear face of main PCB substrate",
-    "B_mm": null,
+    "blue_T_electronics_mm": 16.1,
+    "yellow_T_standoff_mm": 18.66,
+    "green_board_gap_mm": 4.84,
+    "green_definition": "clear gap between opposing faces of the two PCBs, not rear protrusion height",
+    "derived_B_electronics_mm": 4.78,
+    "derived_B_standoff_mm": 7.34,
+    "derived_values_independently_measured": false,
+    "B_mm": 7.34,
     "B_definition": "same rear PCB face to farthest retained rigid protrusion, including standoffs/connectors/pins/caps",
-    "T_mm": null,
+    "T_mm": 18.66,
     "alternative": "B=T-A, where T is glass to farthest retained rear point",
     "current_photo_has_scale": false,
+    "measurement_power_state_reported": false,
     "rear_face_placement_photo_pending": true,
     "before_measurement": "disconnect USB and battery supply; keep PCBs/FPC and inter-board fasteners assembled; no clamping glass/components"
+  },
+  "battery": {
+    "user_reported_thickness_mm": 8.92,
+    "supersedes_approx_thickness_mm": 9,
+    "photo_approx_lw_mm": [30, 20],
+    "full_lw_and_wire_envelope_measured": false,
+    "installed_clearance_or_protection_verified": false
+  },
+  "conditional_layout_arithmetic": {
+    "premise": "battery entirely behind main PCB rear face, not inserted into inter-board gap",
+    "body_plus_battery_ideal_lower_bound_mm": 20.24,
+    "body_plus_battery_plus_speaker_upper_height_sum_mm": 27.34,
+    "included": "A plus battery thickness; second sum also adds speaker upper working height 7.1mm",
+    "excluded": "local PCB components, insulation, mounting, expansion and wire clearances, housing walls",
+    "approx_battery_and_speaker_planar_pair_lw_mm": [30.2, 40.2],
+    "planar_pair_basis": "battery photo approx 30x20, speaker upper 30.2x20.2, arranged along long direction",
+    "fit_confirmed": false,
+    "preferred_investigation": "check battery and speaker beside one another using rear component placement; motor mounting separate from cell"
   },
   "verification": {
     "source_read": true,
     "pdf_visual_review": true,
     "schematic_visual_review": true,
     "hardware_operated": false,
-    "actual_stack_measured": false,
+    "actual_stack_measured": true,
+    "actual_stack_measurement_by": "user; agent only records and checks arithmetic",
     "speaker_ordered": false,
     "firmware_changed_or_built": false,
     "cad_or_mesh_changed": false,
-    "next": "collect A and B/T and rear-facing photo before deciding installed layout or cover depth"
+    "next": "collect rear-facing photo and battery complete length/width and wire exit before first placement sketch; installed clearances and cover depth remain unknown"
   },
   "local_artifacts": "artifacts/wearable-stack-20261103 (ignored, primary worktree only)"
 }
