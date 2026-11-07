@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1240" viewBox="0 0 1700 1240" role="img" aria-labelledby="title desc">
+<title id="title">WristFlow 外壳布局草图 v0.1</title>
+<desc id="desc">左侧仅示意主板背面功能区，右侧按厂家尺寸画器件占位，未与PCB或原壳配准；底部列出条件厚度计算。不是打印定稿。</desc>
+<rect x="0" y="0" width="1700" height="1240" rx="0" fill="#f4f6fa" stroke="#f4f6fa" stroke-width="2"/>
+<text x="48" y="66" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="36">WristFlow · 外壳布局草图 v0.1</text>
+<text x="48" y="111" fill="#596c87" font-family="Microsoft YaHei, sans-serif" font-size="23">2026-11-07  |  器件尺寸可追溯；位置、孔位、净空与后盖深度尚未定稿</text>
+<rect x="40" y="145" width="620" height="615" rx="14" fill="#ffffff" stroke="#d9e0eb" stroke-width="2"/>
+<rect x="685" y="145" width="975" height="615" rx="14" fill="#ffffff" stroke="#d9e0eb" stroke-width="2"/>
+<text x="65" y="192" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="27">① 主板背面功能区：按照片示意</text>
+<text x="65" y="229" fill="#596c87" font-family="Microsoft YaHei, sans-serif" font-size="21">非尺寸图；不从照片像素推算坐标</text>
+<rect x="173" y="260" width="350" height="425" rx="40" fill="#edf1f7" stroke="#63758f" stroke-width="2"/>
+<rect x="244" y="264" width="210" height="57" rx="14" fill="#fce8d9" stroke="#e0a16d" stroke-width="2"/>
+<text x="278" y="300" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="24">天线区域</text>
+<text x="73" y="353" fill="#a95825" font-family="Microsoft YaHei, sans-serif" font-size="21">顶部避让</text>
+<line x1="156" y1="345" x2="245" y2="294" stroke="#c16f34" stroke-width="3"/>
+<circle cx="205" cy="338" r="17" fill="#e4c578" stroke="#9c803f" stroke-width="2"/>
+<circle cx="205" cy="655" r="17" fill="#e4c578" stroke="#9c803f" stroke-width="2"/>
+<circle cx="491" cy="338" r="17" fill="#e4c578" stroke="#9c803f" stroke-width="2"/>
+<circle cx="491" cy="655" r="17" fill="#e4c578" stroke="#9c803f" stroke-width="2"/>
+<rect x="266" y="342" width="167" height="226" rx="3" fill="#dce8f7" stroke="#7894b9" stroke-width="2"/>
+<text x="288" y="432" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="24">中央模组</text>
+<text x="280" y="470" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="20">上方电池候选</text>
+<text x="280" y="504" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="20">需独立托架</text>
+<rect x="150" y="451" width="62" height="72" rx="3" fill="#dce2e9" stroke="#8492a4" stroke-width="2"/>
+<text x="75" y="497" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="22">USB</text>
+<rect x="176" y="589" width="53" height="44" rx="3" fill="#ffffff" stroke="#8492a4" stroke-width="2"/>
+<text x="72" y="618" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="22">BAT</text>
+<rect x="471" y="589" width="53" height="44" rx="3" fill="#ffffff" stroke="#8492a4" stroke-width="2"/>
+<text x="537" y="618" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="22">SPK</text>
+<rect x="252" y="590" width="194" height="44" rx="3" fill="#f1dcdc" stroke="#c99191" stroke-width="2"/>
+<text x="276" y="617" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="21">CN3 / 跳帽</text>
+<text x="281" y="669" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="19">底部调试焊盘</text>
+<rect x="507" y="382" width="24" height="34" rx="3" fill="#b9c6d5" stroke="#8492a4" stroke-width="2"/>
+<rect x="507" y="469" width="24" height="34" rx="3" fill="#b9c6d5" stroke="#8492a4" stroke-width="2"/>
+<text x="542" y="439" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="21">按键</text>
+<text x="65" y="727" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="21">铜柱保留；后盖可拆以维护排针、跳帽和线束</text>
+<text x="710" y="192" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="27">② 背部附件候选：并排占位，尚未对齐PCB</text>
+<text x="710" y="229" fill="#596c87" font-family="Microsoft YaHei, sans-serif" font-size="21">仅器件本体按比例；空隙示意，不表示可装入原壳</text>
+<rect x="755" y="280" width="272" height="168" rx="4" fill="#dfeee5" stroke="#71a589" stroke-width="2"/>
+<text x="797" y="336" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="24">电池上限占位</text>
+<text x="806" y="380" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="24">34 × 21 mm</text>
+<text x="811" y="417" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="21">厚度按10 mm</text>
+<rect x="755" y="492" width="241.6" height="161.6" rx="4" fill="#dce9fb" stroke="#6a93c7" stroke-width="2"/>
+<text x="791" y="549" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="24">带声腔喇叭</text>
+<text x="781" y="590" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="22">30.2 × 20.2 mm</text>
+<text x="791" y="630" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="21">高度上限7.1 mm</text>
+<circle cx="1065" cy="572" r="40" fill="#eadff5" stroke="#9e7ab9" stroke-width="2"/>
+<text x="1032" y="576" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="21">电机</text>
+<text x="1007" y="647" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="20">Ø10 × 2.7</text>
+<text x="1168" y="301" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="23">电池上方避开天线</text>
+<text x="1168" y="349" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="23">左侧保留BAT走线</text>
+<text x="1168" y="397" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="23">右侧保留SPK走线</text>
+<text x="1168" y="445" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="23">电机固定在壳体</text>
+<text x="1168" y="493" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="23">喇叭出声朝侧面</text>
+<text x="1168" y="541" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="23">固定框 / 线弯另留</text>
+<text x="1168" y="589" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="23">排针维护需可拆</text>
+<text x="710" y="707" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="23">电池＋喇叭：34 × 41.2 mm 的零间隙本体包络</text>
+<text x="710" y="741" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="21">加侧置电机：至少(40.2＋器件间隙) × (41.2＋器件间隙) mm</text>
+<rect x="40" y="785" width="1620" height="390" rx="14" fill="#ffffff" stroke="#d9e0eb" stroke-width="2"/>
+<text x="65" y="832" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="27">③ 厚度约束：当前实物与供货公差分别计算</text>
+<text x="65" y="883" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="25">主体11.32 ＋ 现电池8.92 ＝ 20.24 mm</text>
+<text x="900" y="881" fill="#596c87" font-family="Microsoft YaHei, sans-serif" font-size="23">理想下限，未计局部元件 / 结构空间</text>
+<text x="65" y="935" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="25">主体11.32 ＋ 电池公差上限10 ＝ 21.32 mm</text>
+<text x="900" y="933" fill="#596c87" font-family="Microsoft YaHei, sans-serif" font-size="23">供货尺寸占位，仍未计托架 / 壳壁</text>
+<text x="65" y="986" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="24">若托架跨过最高电子元件：16.10 ＋ 10 ＝ 26.10 mm</text>
+<text x="65" y="1038" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="24">若电池托架从铜柱端面起布置：18.66 ＋ 10 ＝ 28.66 mm</text>
+<text x="65" y="1091" fill="#9c532a" font-family="Microsoft YaHei, sans-serif" font-size="23">后两项仍须加托架厚度、装配与电池余量、后盖；均不是成品厚度。</text>
+<text x="65" y="1138" fill="#9c532a" font-family="Microsoft YaHei, sans-serif" font-size="23">厂家图注明带封装尺寸可能更大；34 × 21 × 10 不等于完整安装空间。</text>
+<text x="48" y="1213" fill="#596c87" font-family="Microsoft YaHei, sans-serif" font-size="21">本图是位置与风险草图；未更改社区模型，未建立装配配准或碰撞模型，未批准打印／佩戴。</text>
+</svg>
