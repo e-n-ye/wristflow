@@ -23,7 +23,7 @@
 | BLE、PM 或产品集成 | [产品入口](docs/PRODUCT-RUNTIME.md)、[BLE](docs/BLE-FIRST-LINK.md)、[PM](docs/PM-EVENT-WAKE.md)、[AOD面板与显示](docs/AOD.md)，仅选相关域；倒计时后台边界见 [COUNTDOWN 第二轮](docs/COUNTDOWN.md#round2) |
 | 架构、裁剪或风险核查 | [ARCHITECTURE](docs/ARCHITECTURE.md) 相关契约与 [审查债务 §3](docs/ARCHITECTURE-REVIEW.md#3-债务清单全部未关闭)，先核对证据提交 |
 | 硬件准备、焊接、电池、功耗与试戴 | [HARDWARE](docs/HARDWARE.md) → [电池与电机接入准备](docs/ACCEPTANCE.md#battery-motor-preparation)；[测流方法](docs/ACCEPTANCE.md#first-power-session)／[完整清单](docs/ACCEPTANCE.md#hardware-sequence)仅存契约，活动顺序回 STATUS |
-| 外壳试打印、壳内喇叭／表带、分级佩戴验证与自定义PCB初评 | [可佩戴准备](docs/WEARABLE-PREPARATION.md)；实物与供电回HARDWARE，唯一活动项及下一步回STATUS，不由规划自动采购／接线／试戴 |
+| 外壳CAD／试打印、壳内喇叭／表带、分级佩戴验证与自定义PCB初评 | [可佩戴准备](docs/WEARABLE-PREPARATION.md) → [FreeCAD源与核验入口](mechanical/wearable/README.md)；实物与供电回HARDWARE，唯一活动项及下一步回STATUS，不由规划自动采购／接线／试戴 |
 | 电机控制的软件边界与诊断 | [手动限时电机](docs/MOTOR-PULSE.md)；真实引脚／驱动与负载条件见HARDWARE，当前活动项回STATUS |
 | 电量算法、电池页、长续航及充电进度环 | [电压估算契约](docs/BATTERY-ESTIMATE.md)、[电池主页面](docs/BATTERY-PAGE.md)、[长续航](docs/ENDURANCE.md)及[充电画面](docs/CHARGING-UI.md)；软件／同版设备验证与容量校准分别判断，活动项回STATUS |
 | 听懂当前系统与低功耗做到了哪里 | [当前系统／PM 说明](docs/PM-EVENT-WAKE.md#current-power-system)；区分当前源码、分版本 USB 证据与尚未测得的电流／续航 |
