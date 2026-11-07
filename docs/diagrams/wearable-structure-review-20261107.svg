@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1380" viewBox="0 0 1800 1380" role="img" aria-labelledby="title desc">
+<title id="title">WristFlow 外壳结构评审与3D交接</title>
+<desc id="desc">原模型两套定位结构、后部独立托盘及电机错层候选。所有器件位置未配准；无CAD修改或适配结论。</desc>
+<rect x="0" y="0" width="1800" height="1380" rx="0" fill="#f4f6fa" stroke="#f4f6fa" stroke-width="2"/>
+<text x="45" y="64" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="36">WristFlow · 外壳结构评审 / 3D建模交接</text>
+<text x="45" y="108" fill="#596c87" font-family="Microsoft YaHei, sans-serif" font-size="23">2026-11-07  |  尺寸基准与结构取舍已整理；到此停止，不修改原STL / 3MF</text>
+<rect x="35" y="140" width="780" height="625" rx="12" fill="#ffffff" stroke="#d9e0eb" stroke-width="2"/>
+<rect x="835" y="140" width="930" height="625" rx="12" fill="#ffffff" stroke="#d9e0eb" stroke-width="2"/>
+<text x="60" y="187" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="27">① 原模型：两套结构必须分开</text>
+<text x="60" y="224" fill="#596c87" font-family="Microsoft YaHei, sans-serif" font-size="21">图按原STL坐标；外框仅画包围框，非实际轮廓</text>
+<rect x="200.0" y="255.0" width="353.6372895" height="408.1342745" rx="0" fill="#f6f8fb" stroke="#9aaac0" stroke-width="2"/>
+<circle cx="508.09264899999994" cy="617.691158" r="13" fill="#e0ecfa" stroke="#648ab9" stroke-width="2"/>
+<circle cx="245.544309" cy="617.691158" r="13" fill="#e0ecfa" stroke="#648ab9" stroke-width="2"/>
+<circle cx="508.09264899999994" cy="300.442768" r="13" fill="#e0ecfa" stroke="#648ab9" stroke-width="2"/>
+<circle cx="245.544309" cy="300.442768" r="13" fill="#e0ecfa" stroke="#648ab9" stroke-width="2"/>
+<circle cx="471.913759" cy="614.014823" r="10.7" fill="#f2debe" stroke="#b88a4d" stroke-width="2"/>
+<circle cx="281.723199" cy="614.014823" r="10.7" fill="#f2debe" stroke="#b88a4d" stroke-width="2"/>
+<circle cx="507.526124" cy="356.384413" r="10.7" fill="#f2debe" stroke="#b88a4d" stroke-width="2"/>
+<circle cx="246.110834" cy="356.384413" r="10.7" fill="#f2debe" stroke="#b88a4d" stroke-width="2"/>
+<text x="225" y="291" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="21">+Y / 天线端候选</text>
+<text x="285" y="581" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="21">CN3端候选</text>
+<text x="60" y="485" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="20">USB侧</text>
+<text x="452" y="485" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="20">按键侧</text>
+<text x="590" y="316" fill="#5079ac" font-family="Microsoft YaHei, sans-serif" font-size="20">蓝：壳盖定位</text>
+<text x="590" y="354" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="20">30.888 ×</text>
+<text x="590" y="390" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="20">37.323 mm</text>
+<text x="590" y="445" fill="#9d713b" font-family="Microsoft YaHei, sans-serif" font-size="20">棕：内部孔柱</text>
+<text x="590" y="483" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="20">宽排30.755</text>
+<text x="590" y="521" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="20">窄排22.375</text>
+<text x="590" y="559" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="20">排距30.309</text>
+<text x="60" y="707" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="21">内部孔柱用途尚未证实；不可默认等于实物铜柱位置</text>
+<text x="60" y="745" fill="#9c532a" font-family="Microsoft YaHei, sans-serif" font-size="21">模型顶面不是已核PCB / 玻璃安装基准</text>
+<text x="860" y="187" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="27">② 先验证后部附件舱：电机独立错层</text>
+<text x="860" y="224" fill="#596c87" font-family="Microsoft YaHei, sans-serif" font-size="21">器件占位示意；未与孔柱 / 天线 / PCB配准</text>
+<rect x="895" y="275" width="238" height="147" rx="4" fill="#dfeee5" stroke="#71a589" stroke-width="2"/>
+<text x="925" y="331" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="24">电池 34 × 21</text>
+<text x="945" y="377" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="22">上限厚10 mm</text>
+<rect x="895" y="468" width="211.4" height="141.4" rx="4" fill="#dce9fb" stroke="#6a93c7" stroke-width="2"/>
+<text x="916" y="510" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="21">喇叭 30.2 × 20.2</text>
+<text x="1220" y="636" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="21">喇叭高7.1 / 电机厚2.7 mm</text>
+<circle cx="1055" cy="567" r="35" fill="#eadff5" stroke="#9e7ab9" stroke-width="2"/>
+<text x="1034" y="570" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="19">电机</text>
+<line x1="1093" y1="568" x2="1210" y2="550" stroke="#9e7ab9" stroke-width="3"/>
+<line x1="1210" y1="550" x2="1200.1139584380107" y2="556.8019248918687" stroke="#9e7ab9" stroke-width="3"/>
+<line x1="1210" y1="550" x2="1198.5266072132638" y2="546.4841419310121" stroke="#9e7ab9" stroke-width="3"/>
+<text x="1220" y="302" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="22">前框 / 按键 / USB / 表带界面</text>
+<text x="1220" y="343" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="22">先作为保留参考，不整体缩放</text>
+<text x="1220" y="406" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="23">电池独立绝缘托盘</text>
+<text x="1220" y="446" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="22">力经后盖筋 / 止口传递</text>
+<text x="1220" y="508" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="23">电机与喇叭XY可重叠</text>
+<text x="1220" y="548" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="22">Z方向分层，分别固定于结构</text>
+<text x="1220" y="589" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="22">不压振膜，不靠电池承力</text>
+<text x="860" y="680" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="21">该候选零间隙投影：34 × 41.2 mm；实际要加固定 / 走线 / 余量</text>
+<text x="860" y="725" fill="#9c532a" font-family="Microsoft YaHei, sans-serif" font-size="21">原四孔柱和现有铜柱仍需加入装配，不能把该矩形当可用内腔</text>
+<rect x="35" y="790" width="1730" height="385" rx="12" fill="#ffffff" stroke="#d9e0eb" stroke-width="2"/>
+<text x="60" y="837" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="27">③ 两种取舍：比较值不是成品厚度</text>
+<text x="60" y="890" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="25">电机与喇叭同层并排</text>
+<text x="520" y="889" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="24">该排列零间隙投影约40.2 × 41.2 mm</text>
+<text x="1180" y="888" fill="#596c87" font-family="Microsoft YaHei, sans-serif" font-size="23">可能需要后盖局部外扩</text>
+<text x="60" y="945" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="25">电机与喇叭独立错层</text>
+<text x="520" y="944" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="24">该排列零间隙投影约34 × 41.2 mm</text>
+<text x="1180" y="943" fill="#596c87" font-family="Microsoft YaHei, sans-serif" font-size="23">省宽度，但增加局部厚度</text>
+<text x="60" y="1007" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="22">统一比较前提：电池下方h_b暂取目测2，喇叭下方h_s暂取全局4.78；所有结构余量暂取0。</text>
+<text x="60" y="1054" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="24">同层：11.32 + max(2+10, 4.78+7.1, 4.78+2.7) = 23.32 mm</text>
+<text x="60" y="1102" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="24">错层：11.32 + max(2+10, 4.78+7.1+2.7) = 25.90 mm</text>
+<text x="60" y="1148" fill="#9c532a" font-family="Microsoft YaHei, sans-serif" font-size="23">两式仅用于取舍；若覆盖铜柱或托架仍架在柱顶，前提改变，必须重算。</text>
+<rect x="35" y="1200" width="1730" height="120" rx="12" fill="#edf1f7" stroke="#d9e0eb" stroke-width="2"/>
+<text x="60" y="1239" fill="#26354a" font-family="Microsoft YaHei, sans-serif" font-size="24">进入3D软件后的首件事：板屏 / 铜柱包络配准 → 定支承面 → 比较后舱变体 → 碰撞与合盖检查。</text>
+<text x="60" y="1283" fill="#596c87" font-family="Microsoft YaHei, sans-serif" font-size="22">中央约2 mm仍是估计；原盖4.70 mm仅是表面高差。未通过适配 / 佩戴 / 充电验收。</text>
+<text x="45" y="1356" fill="#596c87" font-family="Microsoft YaHei, sans-serif" font-size="20">原创结构示意图；未嵌入用户照片或第三方模型。详细CAD输入与停止边界见WEARABLE-PREPARATION。</text>
+</svg>
