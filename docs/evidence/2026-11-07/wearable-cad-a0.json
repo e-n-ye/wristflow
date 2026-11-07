@@ -1,0 +1,379 @@
+{
+  "schema": 1,
+  "date": "2026-11-07",
+  "baseline": "f19277fb9bd96fc138ed24df59db0bdbf8db516e",
+  "scope": "A0 native editable CAD layout review; no physical assembly or manufacturing release",
+  "source_archive_sha256": "372d87a7eff8da21a43e03fbbbdf357bfda6cadfb12104ec2991ba3a65788773",
+  "source_files": {
+    "mechanical/wearable/build_freecad.py": {
+      "bytes": 24686,
+      "sha256": "a3027acb2188e34eb15b47999bbb9667674c9b42f47025cacd0ae317c5445ae5"
+    },
+    "mechanical/wearable/check_freecad.py": {
+      "bytes": 5681,
+      "sha256": "1dae019427543e76e67ed5da1bfb5021c6528a8a18f2cc03c4eaac51908cab08"
+    },
+    "mechanical/wearable/render.py": {
+      "bytes": 2701,
+      "sha256": "2e97c1fcade7352ed851bec9cf28afc05b09be076b650eb4c61f8ff0cb4acaa0"
+    },
+    "mechanical/wearable/review_freecad.py": {
+      "bytes": 3781,
+      "sha256": "a7b8c518c579ffbe5d09752818d59f4909c521ef30d56fbb9bb02abda91a6474"
+    },
+    "mechanical/wearable/run.py": {
+      "bytes": 2881,
+      "sha256": "190c66535065a08e6509584a08fa3ef7f8e43922b322efa4b8b04fefce5be433"
+    },
+    "mechanical/wearable/validate.py": {
+      "bytes": 1285,
+      "sha256": "a930e3a72523436b6aa87ddfeb2c13d00839d0101a06fb3be99998e1071ae536"
+    },
+    "mechanical/wearable/parameters.json": {
+      "bytes": 6883,
+      "sha256": "1464b787398b42ec63e8a72b13288846dc0efd4c80b7f6884a3c4a4f7553e089"
+    }
+  },
+  "freecad_version": [
+    "1",
+    "1",
+    "4",
+    "20260928 (Git shallow)",
+    "Unknown",
+    "2026/09/28 13:46:34",
+    "(HEAD detached at 4fd3bf320)",
+    "4fd3bf320d9566a27e60069fc8387448aaa3a094"
+  ],
+  "local_only_output": {
+    "worktree": "D:/MY_Desk/project/wristflow",
+    "directory": "artifacts/wearable-cad-20261107/run07",
+    "availability": "Ignored local evidence; geometry and images are not distributed by this repository",
+    "files_after_gui_save_and_native_validation": {
+      "WristFlow_A0_A_NOT_FOR_PRINTING.FCStd": {
+        "bytes": 8070232,
+        "sha256": "9aa45f22e3a68882b95b5f604e3987c0807c5058bb604ce391cac7782daba6d8"
+      },
+      "WristFlow_A0_A_NOT_FOR_PRINTING.step": {
+        "bytes": 8416493,
+        "sha256": "4bd13d46548b99d56eaec7725c1aeb6de8d6db25b522c6013c4ed770d098cf51"
+      },
+      "report_A.json": {
+        "bytes": 4870,
+        "sha256": "ca169c487074ab7f802a7f7bbea7d0048590df8d5f14a0b53191b4e4de7f6826"
+      },
+      "visual-review_A.json": {
+        "bytes": 328,
+        "sha256": "db542a67cf2edfa1afe7c3f9ce8ed36fd4edc976b40f928be965765cf319e0f0"
+      },
+      "open_iso_A.png": {
+        "bytes": 192536,
+        "sha256": "45885f540ae4aeb8e1b126ff3c9785ef49acb474a371f3f9c98718a90909bf96"
+      },
+      "rear_plan_A.png": {
+        "bytes": 47960,
+        "sha256": "f177c6673e323aebe634e2114d0f8f832a21ee3887b3237c7197c2315412456a"
+      },
+      "closed_iso_A.png": {
+        "bytes": 68671,
+        "sha256": "36327da28ff52b5ed1ab624375eb88f97112cc8ab9410aca0c1a51c47b8a7e5e"
+      },
+      "WristFlow_A0_B_NOT_FOR_PRINTING.FCStd": {
+        "bytes": 8081987,
+        "sha256": "0ad44380fd6e20506326fd8ce20228fb6f307c38c6eefdad00899f4cb10cfdb6"
+      },
+      "WristFlow_A0_B_NOT_FOR_PRINTING.step": {
+        "bytes": 8434858,
+        "sha256": "7ec2106527b693a6687c44ab3dbb4486060f819811473e939ce55954d0023d91"
+      },
+      "report_B.json": {
+        "bytes": 4881,
+        "sha256": "ead6cdbd87b5c066d849ab598d21ddd0821b14fbc47f422559b953199b86f57d"
+      },
+      "visual-review_B.json": {
+        "bytes": 328,
+        "sha256": "158ac5c9e9e3c9b690041b0de8d1ad68eeddbf4ba8c0d06ba0acd05be3546740"
+      },
+      "open_iso_B.png": {
+        "bytes": 217276,
+        "sha256": "e139dfb1e5406db5983864f633689cc9084da4f845b422e9c84674524e165163"
+      },
+      "rear_plan_B.png": {
+        "bytes": 53424,
+        "sha256": "2743d610771afa8d41cab22216f543b4693339483aea5422a50224c659110ab4"
+      },
+      "closed_iso_B.png": {
+        "bytes": 92643,
+        "sha256": "829af35b59f3946a197b062f1b31a757131f0582f2dd69108359220827cd327c"
+      },
+      "build-result.json": {
+        "bytes": 11735,
+        "sha256": "efa5ea994919e96656bb64eb98e70bf7cf3a25ce3daf8a5a438f83af82742acc"
+      },
+      "native-validation.json": {
+        "bytes": 5202,
+        "sha256": "11f955bbd95f446e7c63b877f012ff147fb57df1296e6cb3f02b1f22b89f6a2c"
+      },
+      "freecad-build.log": {
+        "bytes": 9997,
+        "sha256": "57c6b56d62694c7b6187ef7cdc0e5fb7d42e4587bfbfbf56645d0b94d59d7aa7"
+      },
+      "native-validation.log": {
+        "bytes": 26347,
+        "sha256": "68dc7ac2b184d5f28ad42368c4fe1409214dad4b413b448a59f5dabd2df6240b"
+      },
+      "gui-render_A.log": {
+        "bytes": 280,
+        "sha256": "a21bb3bf7cc07c0a657746965ea239768c268a2355831e4b1fa9f0434c6538cd"
+      },
+      "gui-render_B.log": {
+        "bytes": 280,
+        "sha256": "a21bb3bf7cc07c0a657746965ea239768c268a2355831e4b1fa9f0434c6538cd"
+      }
+    }
+  },
+  "commands": [
+    {
+      "command": "python mechanical/wearable/run.py --freecadcmd '<FreeCAD 1.1.4>/bin/FreeCADCmd.exe' --source-zip '<locked local archive>' --out artifacts/wearable-cad-20261107/run07",
+      "exit_code": 0
+    },
+    {
+      "command": "python mechanical/wearable/render.py --freecad '<FreeCAD 1.1.4>/bin/FreeCAD.exe' --out '<run07 absolute path>'",
+      "exit_code": 0
+    },
+    {
+      "command": "python mechanical/wearable/validate.py --freecadcmd '<FreeCAD 1.1.4>/bin/FreeCADCmd.exe' --out '<run07 absolute path>'",
+      "exit_code": 0
+    }
+  ],
+  "variants": [
+    {
+      "variant": "A",
+      "rear_body_bbox_mm": [
+        52.0,
+        64.0,
+        18.00382648194123
+      ],
+      "candidate_glass_to_lid_mm": 31.123826,
+      "final_shapes": {
+        "RearHousing": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 9469.602296553025
+        },
+        "RearLid": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 6092.899035176043
+        },
+        "BatteryEnvelope": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 7140.0
+        },
+        "SpeakerEnvelope": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 4331.284
+        },
+        "MotorEnvelope": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 212.05750411731105
+        },
+        "CorePCBReference": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 1561.7146023451733
+        },
+        "ScreenPCBReference": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 1387.9652293806612
+        },
+        "InterboardSupport0": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 71.93061225493894
+        },
+        "InterboardSupport1": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 71.93061225493896
+        },
+        "InterboardSupport2": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 71.93061225493894
+        },
+        "InterboardSupport3": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 71.93061225493896
+        }
+      },
+      "collision_pairs_passed": 13,
+      "collision_volume_tolerance_mm3": 0.001,
+      "maximum_common_volume_mm3": 0.0,
+      "native_reopen": true,
+      "battery_height_edit_mm": [
+        10.0,
+        14.0
+      ],
+      "opening_z_edit_mm": [
+        -16.862653,
+        -20.862653
+      ],
+      "width_plus2mm": true,
+      "STEP_valid_solids": 2,
+      "restored_in_memory": true,
+      "collision_negative_control": "moved antenna band rejected",
+      "viewport_files": [
+        "open_iso_A.png",
+        "rear_plan_A.png",
+        "closed_iso_A.png"
+      ]
+    },
+    {
+      "variant": "B",
+      "rear_body_bbox_mm": [
+        43.0,
+        62.0,
+        19.703826481941228
+      ],
+      "candidate_glass_to_lid_mm": 32.823826000000004,
+      "final_shapes": {
+        "RearHousing": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 9514.557635077188
+        },
+        "RearLid": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 4883.6990351760405
+        },
+        "BatteryEnvelope": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 7140.0
+        },
+        "SpeakerEnvelope": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 4331.284
+        },
+        "MotorEnvelope": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 212.05750411731105
+        },
+        "CorePCBReference": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 1561.7146023451733
+        },
+        "ScreenPCBReference": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 1387.9652293806612
+        },
+        "InterboardSupport0": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 71.93061225493894
+        },
+        "InterboardSupport1": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 71.93061225493896
+        },
+        "InterboardSupport2": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 71.93061225493894
+        },
+        "InterboardSupport3": {
+          "valid": true,
+          "solids": 1,
+          "volume_mm3": 71.93061225493896
+        }
+      },
+      "collision_pairs_passed": 13,
+      "collision_volume_tolerance_mm3": 0.001,
+      "maximum_common_volume_mm3": 0.0,
+      "native_reopen": true,
+      "battery_height_edit_mm": [
+        10.0,
+        15.5
+      ],
+      "opening_z_edit_mm": [
+        -18.562653,
+        -22.362653
+      ],
+      "width_plus2mm": true,
+      "STEP_valid_solids": 2,
+      "restored_in_memory": true,
+      "collision_negative_control": "moved antenna band rejected",
+      "viewport_files": [
+        "open_iso_B.png",
+        "rear_plan_B.png",
+        "closed_iso_B.png"
+      ]
+    }
+  ],
+  "human_decisions": {
+    "original_fixing_role": "screen board fixing",
+    "outward_gold_posts_in_enclosure": false,
+    "interboard_supports_and_FPC_retained": true,
+    "physical_device_modified": false
+  },
+  "reference_limits": {
+    "board": "official V1.2, not measured V1.1",
+    "PCB_scaled": false,
+    "rigid_mount_fit_rms_mm": 0.240279,
+    "PCB_rear_z_mm": 1.141173,
+    "z_is_physical_registration": false,
+    "glass_above_original_frame_mm": 2.023826,
+    "nominal_M2_shaft_radial_margin_mm": 0.00895,
+    "margin_proves_print_fit": false
+  },
+  "visual_review": {
+    "all_six_native_viewports_inspected": true,
+    "B_opened_in_existing_FreeCAD_window": true,
+    "observations": [
+      "A motor is beside speaker; B motor is at a separate carrier level above speaker",
+      "Both rear housings protrude substantially beyond source frame; closed views show two provisional lid holes",
+      "Low locating frames do not provide vertical battery retention; bulkhead wiring path is unresolved"
+    ],
+    "visual_review_proves_physical_fit": false
+  },
+  "failures_and_corrections": [
+    "Earlier run02/03/04 retained: null mixed faceted/analytic boolean or disconnected B carrier; analytic subassembly fusion and disabling refinement of the mixed union resolved final shape checks",
+    "Independent review found reopen validator omitted 13 collision pairs; now recomputed, with an antenna-band intrusion rejected by the same checker",
+    "run06 validation predates final checker and is superseded by run07; previous outputs are preserved"
+  ],
+  "independent_review": {
+    "role": "default read-only",
+    "requested_model": "gpt-6.1-sol",
+    "requested_reasoning_effort": "medium",
+    "runtime_model_and_effort": "Spawn result exposed task identity only; actual execution settings not independently reported",
+    "execution_not_performed_by_reviewer": true,
+    "followup_source_review": "No further findings after collision recheck fix"
+  },
+  "remaining": [
+    "V1.1 mount axes and real board/glass bearing Z",
+    "Complete battery packaging/protection end, wiring, connectors, FPC and cross-bulkhead assembly path",
+    "Independent vertical battery retention and insulation, selected screw heads/engagement/tips",
+    "Speaker orientation/acoustics/SPK mating, B speaker insertion/removal under the fixed bridge, motor attachment and magnetic effects",
+    "USB plug, KEY release, strap locking/articulation and wrist clearance",
+    "Print material/tolerance/strength, skin-contact edges, normal-load temperatures and battery/charging safety"
+  ],
+  "next_bounded_experiment": "Confirm real bearing surfaces and V1.1 hole registration; then redesign bulkhead/tray and wiring in CAD before any print decision",
+  "source_inspected": true,
+  "native_CAD_build_and_validation_passed": true,
+  "firmware_build": "not run; firmware and SDK unchanged",
+  "hardware_verified": false,
+  "print_release": false,
+  "wear_release": false,
+  "charging_safety_release": false
+}
