@@ -1,0 +1,136 @@
+{
+  "schema": 1,
+  "date": "2026-11-07",
+  "baseline": "7ca953a62c3f2149a1b41b78eb784229ce488064",
+  "scope": "pre-CAD structural review; stage-sized delivery workflow and enclosure handoff, stopping before 3D model modification",
+  "source": {
+    "archive_name": "黄山派适配模型（watch表带版本）【个人制作】.zip",
+    "archive_sha256": "372d87a7eff8da21a43e03fbbbdf357bfda6cadfb12104ec2991ba3a65788773",
+    "members": ["外壳.stl", "底部外壳.stl"],
+    "unit": "millimeter, previously confirmed from supplied 3MF",
+    "prior_model_evidence": "docs/evidence/2026-11-03/wearable-model-inspection.json",
+    "prior_component_evidence": "docs/evidence/2026-11-03/wearable-dimension-baseline.json",
+    "prior_layout_and_estimate_evidence": "docs/evidence/2026-11-07/wearable-layout-draft.json",
+    "models_modified_or_redistributed": false
+  },
+  "reference_geometry": {
+    "precision_note": "fitted triangle-mesh reference coordinates; not manufacturing tolerance or physical PCB dimensions",
+    "outer_shell_cover_locators": {
+      "xy_mm": [[-46.39326, 2.04372], [-15.50522, 2.04372], [-46.39326, 39.36706], [-15.50522, 39.36706]],
+      "xy_pitch_mm": [30.88804, 37.32334],
+      "main_partial_round_pocket_radius_mm": 1.518,
+      "cover_boss_radius_mm": 1.4168,
+      "nominal_radial_difference_mm": 0.1012,
+      "joint_z_mm": -4.062653,
+      "main_pocket_top_z_mm": -2.562653,
+      "cover_boss_top_z_mm": -2.762653,
+      "nominal_z_gap_mm": 0.2,
+      "roles": "matching outer locating pockets and cover bosses; not four full screw holes",
+      "printed_fit_verified": false
+    },
+    "cover_internal_hole_posts": {
+      "xy_mm": [[-42.13692, 2.47623], [-19.76156, 2.47623], [-46.32661, 32.78569], [-15.57187, 32.78569]],
+      "narrow_row_pitch_mm": 22.37537,
+      "wide_row_pitch_mm": 30.75474,
+      "row_spacing_mm": 30.30946,
+      "hole_radius_mm": 1.265,
+      "narrow_row_outer_radius_mm": 1.8216,
+      "wide_row_outer_radius_mm": 2.0746,
+      "top_z_mm": 1.141173,
+      "pattern": "trapezoid, not rectangle",
+      "physical_PCB_holes_or_standoffs_registered": false,
+      "role": "coplanar annular top surfaces exist; whether these support PCB, surround or replace actual standoffs is unknown"
+    },
+    "possible_front_support_surface": {
+      "positive_z_ring_surface_z_mm": 10.23735,
+      "inner_boundary_xy_bbox_mm": [32.77625, 40.00233],
+      "highest_outer_edge_z_mm": 10.43735,
+      "negative_z_facing_surface_z_mm": 8.73735,
+      "glass_support_role_verified": false,
+      "bbox_is_not_a_verified_screen_opening_or_usable_cavity": true
+    },
+    "cover_floor": {
+      "central_inner_z_mm": -3.562653,
+      "central_outer_z_mm": -5.562653,
+      "central_wall_thickness_mm": 2,
+      "post_top_to_floor_surface_difference_mm": 4.703826,
+      "usable_battery_clearance_verified": false
+    },
+    "orientation_hint": "photo has wide standoff row toward antenna and narrow row toward CN3; visually consistent with model +Y wide row and -Y narrow row, but no photo-to-mm registration",
+    "PCB_rear_surface_model_z_mm": null,
+    "glass_front_model_z_mm": null
+  },
+  "primary_spot_checks": {
+    "method": "verify source SHA256; count independent raw mesh vertices on selected ring/arc radius and Z planes returned by read-only researcher",
+    "radius_tolerance_mm": 0.00003,
+    "z_tolerance_mm": 0.00002,
+    "matching_vertices": {
+      "one_narrow_internal_hole": 45,
+      "one_wide_internal_hole": 45,
+      "one_outer_cover_boss": 47,
+      "one_outer_main_pocket": 27
+    },
+    "complete_mechanical_or_collision_verification": false
+  },
+  "structural_proposal": {
+    "status": "reviewable pre-CAD proposal, not approved manufacturing dimensions",
+    "preserve_as_reference": ["front frame and screen relationship", "USB and KEY locations", "strap slides and bars", "outer shell-cover locating interface"],
+    "preserve_actual_hardware": ["two-board assembly and FPC", "existing inter-board supports", "existing outward golden standoffs", "CN3 pins and jumpers"],
+    "redesign_next_stage": ["removable rear accessory housing", "independent insulated battery tray and load ribs", "speaker frame and sound path", "separate motor mount and wire channels", "covered maintenance access"],
+    "load_path_proposed": "battery -> independent tray -> rear-housing ribs -> housing rim/fasteners -> front frame; no load through cell to ICs or pins",
+    "first_CAD_candidate": "battery and speaker beside one another in plan; motor on separate structural level overlapping speaker in XY where possible",
+    "fallback_CAD_candidate": "motor beside speaker with local rear-housing widening; preserve front interfaces without overall scale",
+    "original_cover_full_assembly_ready": false,
+    "standoff_removal_authorized_or_done": false,
+    "device_or_original_model_modified": false
+  },
+  "comparison": {
+    "common_assumptions": "A=11.32; battery upper 34x21x10; speaker upper 30.2x20.2x7.1; motor nominal diameter10 and height2.7; hb=2 is only user estimate; hs/hv=4.78 conservative electronics reference; zero structural allowances solely for comparison",
+    "coplanar_motor": {
+      "zero_gap_projected_bbox_mm": [40.2, 41.2],
+      "formula": "11.32 + max(2+10, 4.78+7.1, 4.78+2.7)",
+      "bare_sum_mm": 23.32,
+      "tradeoff": "lower bare stack, larger planar housing requirement"
+    },
+    "separate_motor_level_overlapping_speaker": {
+      "zero_gap_projected_bbox_mm": [34, 41.2],
+      "speaker_motor_bare_height_sum_mm": 9.8,
+      "formula": "11.32 + max(2+10, 4.78+7.1+2.7)",
+      "bare_sum_mm": 25.9,
+      "tradeoff": "smaller planar bbox, increased local stack; motor and speaker independently fixed"
+    },
+    "bare_sums_are_finished_thickness_or_proven_lower_bounds_for_all_layouts": false,
+    "excluded": "battery packaging and expansion allowance, all mounts/trays/adhesive, part gaps, wire/connector bends, walls, corners, antenna keepout, model posts and physical standoff volumes",
+    "if_standoff_plane_is_intersected": "4.78 reference may be insufficient; use actual standoff/fastener envelope or a verified avoided region and recalculate",
+    "if_tray_stays_on_standoff_top": "18.66 glass-to-standoff plane controls; 2mm local estimate cannot lower it",
+    "rear_extension_formula": "delta = max(0, H_required - g0), with g0 = Z_PCB_rear - Z_existing_cover_inner; g0 unknown until assembly registration",
+    "rear_extension_mm": null
+  },
+  "CAD_handoff": {
+    "starting_files": "original STL members in their source coordinates, not the separated 3MF print-bed placements",
+    "required_first_checks": [
+      "match actual trapezoid standoff axes and USB/KEY orientation to reference model, preserving actual assembly",
+      "establish actual PCB rear and glass front datums; determine role and clearance of internal printed posts versus golden standoffs",
+      "place complete battery, speaker, motor and retained pins/fasteners/cables as separate parametric envelopes",
+      "compare overlap and widened rear variants; define tray support and loads before choosing depth",
+      "check glass/FPC, key release, USB plug access, antenna region, speaker sound path and removable CN3/debug access",
+      "after geometry is closed, use offline fit coupons and actual printer-specific slicing before whole-case or wearable trials"
+    ],
+    "measurements_to_close_before_manufacturing": ["physical standoff row pitches and relevant hole/board outline", "highest point across entire battery projection with datum", "battery packaging/lead connector envelope", "strap connector section and lock engagement", "SPK connector mating and wire bend"],
+    "no_repeat_request_for": ["overall A/T measurements", "existing rear photos", "battery manufacturer LWH tolerances"],
+    "software_editing_started": false,
+    "stop_reason": "user-requested pre-3D boundary reached; next meaningful step is 3D assembly registration and model modification, not another scalar thickness calculation"
+  },
+  "outputs": {
+    "editable_review_diagram": "docs/diagrams/wearable-structure-review-20261107.svg",
+    "local_preview": "artifacts/wearable-structure-20261107/structure-review.png (ignored, primary worktree only)",
+    "local_analysis": "artifacts/wearable-structure-20261107/reference-check.json (ignored, primary worktree only)"
+  },
+  "validation_limits": {
+    "source_and_schematic_review_only": true,
+    "firmware_compilation_or_hardware_operation": false,
+    "CAD_or_mesh_edit_or_slicing_or_print": false,
+    "purchase_or_seller_contact": false,
+    "wear_and_charging_gates_advanced": false
+  }
+}
