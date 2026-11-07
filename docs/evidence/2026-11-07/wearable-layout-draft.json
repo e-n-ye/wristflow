@@ -2,6 +2,7 @@
   "schema": 1,
   "date": "2026-11-07",
   "baseline": "873f833aa888ce43ea2dea5f7407893111d28eee",
+  "estimate_update_baseline": "2b33addbb9d047d4b56bef5c9a0a15d7b4c8dbaa",
   "scope": "user-supplied rear photos, battery manufacturer-image dimensions and first component-placement sketch",
   "sources": [
     {
@@ -22,6 +23,13 @@
       "sha256": "5c4f3dc7649c71fb7a22b06c74624d159353b45b6102777bf3655a21eac6d7b4",
       "published": false,
       "manufacturer_url_or_signed_drawing_available": false
+    },
+    {
+      "kind": "centre-module-side-photo-with-user-estimate-about-2mm",
+      "bytes": 141184,
+      "sha256": "50e2ff10318e0d971cfd3d57ddeadbb00fdee6e86ff0ff0fb80a8c02b1562621",
+      "published": false,
+      "scale_available": false
     }
   ],
   "battery": {
@@ -70,6 +78,22 @@
     "installed_or_finished_thickness": null,
     "all_sums_exclude": "tray, insulation, assembly and cell allowance, rear housing wall; local placement and support plane unverified"
   },
+  "centre_height_estimate_scenario": {
+    "user_estimate_mm": 2,
+    "is_measurement_or_upper_bound": false,
+    "datum_and_full_mounted_stack_inclusion_confirmed": false,
+    "battery_entire_projection_highest_point_confirmed": false,
+    "photo_observation": "central module qualitatively lower than pins and standoffs; no pixel-to-mm conversion",
+    "premise": "battery entire projection clears a local height of 2mm above main PCB rear face and a lower tray support is feasible",
+    "body_plus_estimate_plus_existing_battery_mm": 22.24,
+    "body_plus_estimate_plus_battery_upper_mm": 23.32,
+    "difference_from_global_electronics_height_scenario_mm": 2.78,
+    "difference_is_achieved_reduction": false,
+    "excluded": "tray, insulation, assembly and cell allowances, rear wall",
+    "standoff_top_supported_scenario_changed": false,
+    "prior_official_module_3_1mm_reference_replaced": false,
+    "conservative_schematic_changed": false
+  },
   "outputs": {
     "editable_schematic": "docs/diagrams/wearable-layout-20261107.svg",
     "local_preview": "artifacts/wearable-layout-20261107/layout-draft.png (ignored, primary worktree only)",
@@ -85,5 +109,5 @@
     "purchased_or_contacted_seller": false,
     "wear_or_charging_acceptance_advanced": false
   },
-  "next_bounded_step": "align candidate layout to original enclosure PCB support datum and mounting holes; use conservative heights until local centre-module clearance can be measured; retain actual strap and connector fit questions"
+  "next_bounded_step": "continue offline alignment to enclosure mounting datum and holes, check whole battery footprint and lower tray load path; 2mm remains estimate-only and global 4.78mm remains conservative reference before support height is finalized"
 }
