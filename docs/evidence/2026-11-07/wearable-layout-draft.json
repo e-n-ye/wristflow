@@ -1,0 +1,89 @@
+{
+  "schema": 1,
+  "date": "2026-11-07",
+  "baseline": "873f833aa888ce43ea2dea5f7407893111d28eee",
+  "scope": "user-supplied rear photos, battery manufacturer-image dimensions and first component-placement sketch",
+  "sources": [
+    {
+      "kind": "rear-board-photo",
+      "bytes": 207871,
+      "sha256": "f04fbc1210eccc73b5cc54748b6e0bc8117f4011d75b862de6c26a6c7cf4d2ea",
+      "published": false
+    },
+    {
+      "kind": "battery-wire-and-board-photo",
+      "bytes": 3211612,
+      "sha256": "58420f5bb7206f1d5899d584239bd39fa0c36420e015005a29c929410dbab5e2",
+      "published": false
+    },
+    {
+      "kind": "manufacturer-product-image-forwarded-by-user",
+      "bytes": 711041,
+      "sha256": "5c4f3dc7649c71fb7a22b06c74624d159353b45b6102777bf3655a21eac6d7b4",
+      "published": false,
+      "manufacturer_url_or_signed_drawing_available": false
+    }
+  ],
+  "battery": {
+    "image_part": "LP902030",
+    "image_brand": "ZONCELL / 中顺芯",
+    "image_nominal_lwh_mm": [32, 20, 9],
+    "image_plus_minus_mm": [2, 1, 1],
+    "image_upper_lwh_mm": [34, 21, 10],
+    "image_rated_capacity_mAh": 500,
+    "image_approx_mass_g": 9.5,
+    "user_measured_single_unit_thickness_mm": 8.92,
+    "drawing_warning": "带封装的尺寸略大一些; wire length, gauge and other options depend on actual item",
+    "upper_dimensions_are_complete_installed_envelope": false,
+    "protection_cell_temperature_limits_or_wire_quality_verified": false
+  },
+  "photo_observations": {
+    "rear_placement_photo_available": true,
+    "board_revision_still_user_report": "V1.1",
+    "top": "printed antenna pattern",
+    "centre": "populated module",
+    "bottom": "CN3 pins and fitted jumpers, debug pads below",
+    "left": "USB and BAT with mated battery lead visible",
+    "right": "KEY1/KEY2 and SPK",
+    "corners": "four retained golden standoffs",
+    "wiring": "tape-covered sections visible; no internal joint or insulation verification",
+    "pixel_coordinates_used_as_mm": false,
+    "power_and_firmware_state_inferred": false
+  },
+  "candidate_layout": {
+    "status": "proposal; not registered to PCB or community enclosure",
+    "battery": "central region above module on independent insulated load-bearing tray, avoid antenna region",
+    "speaker": "lower region beside battery in plan, on removable mounting structure with side sound path and CN3 maintenance access",
+    "motor": "beside speaker, fixed to housing, not loading battery",
+    "standoffs_removed": false,
+    "battery_speaker_zero_gap_planar_bound_mm": [34, 41.2],
+    "shown_motor_arrangement_zero_gap_planar_bound_mm": [40.2, 41.2],
+    "excluded": "part gaps, battery packaging and leads, mounting and cable bends, antenna/component keepouts, walls, corners and screw bosses",
+    "original_case_fit_confirmed": false,
+    "hardware_compass_influence_verified": false
+  },
+  "conditional_thickness_sums_mm": {
+    "body_plus_existing_battery": 20.24,
+    "body_plus_battery_upper": 21.32,
+    "glass_to_highest_electronics_plus_battery_upper": 26.1,
+    "glass_to_standoff_end_plus_battery_upper": 28.66,
+    "installed_or_finished_thickness": null,
+    "all_sums_exclude": "tray, insulation, assembly and cell allowance, rear housing wall; local placement and support plane unverified"
+  },
+  "outputs": {
+    "editable_schematic": "docs/diagrams/wearable-layout-20261107.svg",
+    "local_preview": "artifacts/wearable-layout-20261107/layout-draft.png (ignored, primary worktree only)",
+    "photographs_or_vendor_image_in_svg": false,
+    "cad_or_printable_mesh_created": false
+  },
+  "verification": {
+    "user_images_visually_inspected": true,
+    "preview_visually_inspected": true,
+    "hardware_operated_by_agent": false,
+    "firmware_changed_or_built": false,
+    "model_modified_or_sliced_or_printed": false,
+    "purchased_or_contacted_seller": false,
+    "wear_or_charging_acceptance_advanced": false
+  },
+  "next_bounded_step": "align candidate layout to original enclosure PCB support datum and mounting holes; use conservative heights until local centre-module clearance can be measured; retain actual strap and connector fit questions"
+}
