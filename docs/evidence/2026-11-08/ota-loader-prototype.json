@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "date": "2026-11-08",
+  "baseline": "eaba0be58ccb9c54ed563b3df18eb5c44bccb088",
+  "branch": "codex/ota-loader-prototype",
+  "scope": "Standalone read-only loader build, guarded physical-read entry and callback-based dual-record journal; no boot handoff or Flash mutation adapter.",
+  "local_artifact_root": "artifacts/ota-loader-prototype-20261108",
+  "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+  "sdk_lock_changed": false,
+  "sdk_and_submodules_clean_and_locked": true,
+  "tools": {"firmware_python": "3.13.15", "arm_gcc": "14.2.1", "scons": "4.10.1"},
+  "tests": {
+    "debug": {"command": "cmake --build artifacts/host-ui-build && ctest --test-dir artifacts/host-ui-build --output-on-failure --timeout 60", "passed": 94, "failed": 0, "seconds": 39.13},
+    "release": {"command": "cmake -S tests -B artifacts/flashdb-gc-release -DCMAKE_BUILD_TYPE=Release && cmake --build artifacts/flashdb-gc-release --target ota_physical_read ota_journal ota_ab && ctest --test-dir artifacts/flashdb-gc-release -R '^ota_(ab|journal|physical_read)$' -V --timeout 60", "passed": 3, "failed": 0, "assertions_enabled": true},
+    "per_configuration": {"journal_checks": 17071, "callback_faults": 164, "program_prefix_cuts": 516, "erase_prefix_cuts": 16388, "physical_reader_checks": 21, "ab_model_checks": 2566},
+    "debug_log_sha256": "152dc526bf141636cdd03cdf495c289590189b3bdb2d3470a5d15e4cf9522753",
+    "release_log_sha256": "89ef249c006fbee9640e9e5ae460696c92ac9992a3dc17f7ed620aca4a7f41ac",
+    "limits": "Callbacks and in-memory NOR; prefix erase/program interruption is not physical power-loss qualification. Platform register guards reviewed statically, not executed on a device."
+  },
+  "loader": {
+    "command": "pwsh -NoProfile -File scripts/Build-Ota-Loader.ps1 -Jobs 4",
+    "result": "artifacts/ota_loader/20261108-162953-142/result.json",
+    "exit_code": 0, "artifact_validation_passed": true,
+    "main_bytes": 134344,
+    "main_sha256": "bbe84ad6c90fa8feb31317a035b362e0f14e6ca256e557eff51e3bf34a063aca",
+    "rom_start": "0x12820000", "rom_budget_bytes": 393216, "rom_used_bytes": 141335, "static_ram_bytes": 42564,
+    "sources": 24, "artifacts": 7,
+    "archive": "artifacts/ota-loader-prototype-20261108/loader-20261108-162953-142.zip",
+    "archive_sha256": "664cea0a415363ba89f4438fe4e05c671892df5e7f4418b58b4c8fa35d759bbb",
+    "archive_readback_verified": true,
+    "strong_startup_override_verified": true,
+    "interactive_shell_exports_absent": true,
+    "journal_mutation_and_alias_apply_symbols_absent": true,
+    "vendor_ram_flash_write_erase_symbols_may_remain": true,
+    "ftab_bootloader_and_deployment_manifest_emitted": false,
+    "deployable": false
+  },
+  "baselines": {
+    "command": "for target in hello ble bringup ui_demo product; do pwsh -NoProfile -File scripts/Build.ps1 -Example \"$target\" -Jobs 4 || exit \"$?\"; done",
+    "all_exit_codes": 0, "all_sources_and_artifacts_hash_verified": true, "all_zip_readbacks_verified": true,
+    "hello": {"run": "20261108-162319-186", "sources": 9, "artifacts": 22, "main_bytes": 300336, "main_sha256": "5d1e396f2e9cd6edd35f0586d2c30dbd7f3dd4cf0f42a5bcf17c9a976e4173c0", "archive_sha256": "d521807301634c68d5059d8681deaf5e51253cf2c51ffb07d829f91fcb5b491f"},
+    "ble": {"run": "20261108-162333-359", "sources": 8, "artifacts": 29, "main_bytes": 490064, "main_sha256": "09d17264a1822a45731664091785dea1b0a0324f5be2af46f32c154500d396d2", "archive_sha256": "bd7d6c7e2452463a1c012738d1d36775af13776d8f29045272e340a38ef8bf7a"},
+    "bringup": {"run": "20261108-162349-468", "sources": 8, "artifacts": 22, "main_bytes": 614176, "main_sha256": "deadadab94b802be43bbd3eeab9580de1828c28fafa679c9254b9334984895fb", "archive_sha256": "27599c36501c2c4b54e4dca9b503d31e177d1d0dfcd663362fde604a7cb24298"},
+    "ui_demo": {"run": "20261108-162408-372", "sources": 532, "artifacts": 22, "main_bytes": 2719516, "main_sha256": "e6444719a721b3c2abe63ff5403bdd38199479908ef924c7e3feaa1818aad2e7", "archive_sha256": "0cc437321bac17f09e92df2f1134f0d1e9f9d6b41efe3de68388158fe08ff175", "ota_implementation_symbols_absent": true},
+    "product": {"run": "20261108-162454-619", "sources": 629, "artifacts": 29, "main_bytes": 3028888, "main_sha256": "5907909de105963a01cad8c62056cfcfc4c09d8fdfcad0d9c928a232b5ce90c9", "archive_sha256": "aea42ee0bdfa5be42af6ebd55593278248ddb6949b42ed0ef66c5510122a6708", "ota_implementation_symbols_absent": true}
+  },
+  "candidate_layout": {
+    "a": "0x12020000", "b": "0x12420000", "slot_bytes": 4194304,
+    "loader": "0x12820000", "metadata": "0x12da0000", "metadata_allocation_unit_bytes": 8192,
+    "nor_erase_alignment_bytes": 4096, "formal_partitions_frozen": false,
+    "fs_ble_settings_addresses_preserved": true, "dfu_region_reinterpretation_is_candidate_only": true,
+    "planned_alias_relative_start": "0x00020000", "planned_alias_end": "0x00420000", "planned_alias_offset": "0x00400000",
+    "physical_read_guard": "Verified startup inhibition, exact NOR metadata, all three alias registers zero and AES off before and after each read.",
+    "known_boot_limit": "Official boot leaves identity alias with nonzero range; this prototype conservatively refuses it. RAM unmapping and B execution remain unverified."
+  },
+  "critical_source_sha256": {
+    "core/ota_journal.c": "3c1595b5acb7cc64ac67fc809613813a89d3638283d1c3a7466f6d5680ba7ebc",
+    "core/ota_journal.h": "7f888f9a40f4bfb694f4f5757c8a2633e56b91978a336a562a4b147359ecb09a",
+    "tests/ota_journal.c": "d9bb1aeac3c94079e30f9558252260bc27325b460d6953f9bd3c967828ba7f82",
+    "tests/ota_physical_read.c": "0d79cf3922d5b51892d72aed3cda742ba986c88f22095fd5003287bb6748d3e3",
+    "tests/CMakeLists.txt": "24c96d57169308f4948d82f710d56ec3fb8a342a26b086ca8121b83b0810475f"
+  },
+  "failures_and_corrections": [
+    "Previous thread stopped on usage limit after failed loader builds; existing sources and logs preserved.",
+    "Kconfig omitted select custom_mem_map; project map was generated but not selected. Fixed and map ROM geometry checked.",
+    "Shared source objects landed in source directories. Moved compilation to official VariantDir and removed only the three exact generated object paths.",
+    "Initial guard confused 8 KiB metadata allocation units with 4 KiB NOR erase alignment. Independent review found the permanent-refusal path; corrected and re-reviewed.",
+    "Overbroad symbol check rejected vendor RAM-retained Flash write/erase functions; these remain distinct from project mutation entry points.",
+    "SDK includes writable FAL shell even without FlashDB; removing FAL alone left regop/pin mutation commands. Final configuration disables the entire interactive shell and rejects any shell export."
+  ],
+  "independent_review": {"requested_model": "gpt-6.1-sol", "requested_reasoning": "medium", "roles": "Two read-only source reviewers; no writes, builds, Git, devices or child delegation.", "result": "Reported alignment and writable-shell blockers fixed; final focused review found no new blocker. Actual model execution metadata not separately exposed."},
+  "hardware_operation": false,
+  "publisher_authentication_verified": false,
+  "physical_mapping_and_rollback_verified": false,
+  "next_bounded_experiment": "Project-owned boot entry and RAM alias transition prototype; resolve inherited identity alias, cache/instruction-fetch, B execution and reset route before freezing formal partitions."
+}

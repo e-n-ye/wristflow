@@ -1,0 +1,17 @@
+import os
+from building import *
+from SCons.Script import VariantDir, Dir
+cwd = GetCurrentDir()
+root = os.path.normpath(os.path.join(cwd, '../../..'))
+product = os.path.join(root, 'apps/product/src')
+core = os.path.join(root, 'core')
+sources = Glob('*.c')
+product_variant = os.path.join(Dir('.').abspath, 'shared_product')
+core_variant = os.path.join(Dir('.').abspath, 'shared_core')
+VariantDir(product_variant, product, duplicate=0)
+VariantDir(core_variant, core, duplicate=0)
+sources += [File(os.path.join(product_variant, 'aw32001_inhibit.c'))]
+sources += [File(os.path.join(core_variant, name)) for name in ('ota_ab.c', 'ota_journal.c')]
+group = DefineGroup('WristFlowOtaLoader', sources, depend=[''], CPPPATH=[cwd, product, core],
+                    LOCAL_CCFLAGS=' -Wall -Wextra -Werror=implicit-function-declaration')
+Return('group')
