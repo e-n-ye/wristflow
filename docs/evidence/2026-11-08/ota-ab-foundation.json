@@ -1,0 +1,72 @@
+{
+  "schema": 1,
+  "date": "2026-11-08",
+  "baseline": "bee670a619aa6acee9d47a6a42e2885f90bb3277",
+  "branch": "codex/ota-foundation",
+  "decision": "First OTA targets A/B automatic rollback; verify mapping and independent loader before freezing partitions.",
+  "scope": "Host package preflight and pure A/B boot-decision model; no device adapter or OTA entry enabled.",
+  "preserved_planning_checkpoint": "codex/wearable-integrated-layout@12bdbb0",
+  "tests": {
+    "python": {"command": "python -m unittest discover -s tests -p test_ota_preflight.py -v", "passed": 11, "failed": 0},
+    "c_debug": {"directory": "artifacts/host-ui-build", "ctest": "ota_ab", "passed": 1, "checks": 2566},
+    "c_release": {"directory": "artifacts/flashdb-gc-release", "ctest": "ota_ab", "assertions_enabled": true, "passed": 1, "checks": 2566},
+    "fault_matrix": {"single_bit_corruptions": 2048, "prefix_cut_positions_per_transition": 129, "transitions": 4},
+    "limits": "Memory records and model only; not physical NOR timing, cache, authentication or power-loss qualification."
+  },
+  "builds": {
+    "product": {
+      "result": "artifacts/product/20261108-154214-928/result.json",
+      "exit_code": 0, "main_bytes": 3028888,
+      "main_sha256": "3bd7160a40de85c89fcb6f50867e249d34f689f75528e6f5b038f4be61532c06",
+      "sources": 627, "artifacts": 29,
+      "archive": "artifacts/ota-preflight-20261108/delivery-product-20261108-154214-928.zip",
+      "archive_sha256": "bd19ede899e3679542fe43c673283ba84fb142e653b54b1cc76e12191fa62622",
+      "archive_readback_verified": true, "ota_model_symbols_absent": true
+    },
+    "ui_demo": {
+      "result": "artifacts/ui_demo/20261108-154407-923/result.json",
+      "exit_code": 0, "main_bytes": 2719516,
+      "main_sha256": "4cccf551d03cf9c2a15084b33d10d0c21a098e46e16416dd0c7fb069d41c49ec",
+      "sources": 530, "artifacts": 22,
+      "archive": "artifacts/ota-preflight-20261108/delivery-ui_demo-20261108-154407-923.zip",
+      "archive_sha256": "7c42f502afe870674647e764b079e8500c9b64a9de07621831dbcc7f9e8ef543",
+      "archive_readback_verified": true, "ota_model_symbols_absent": true
+    }
+  },
+  "official_package": {
+    "path": "artifacts/ota-preflight-20261108/offline-final-zlib/offline_install.bin",
+    "tool": "vendor/SiFli-SDK/tools/secureboot/imgtoolv37.exe",
+    "arguments": ["gen_dfu", "--img_para", "main", "16", "0", "--com_type=1", "--offline_img=2"],
+    "bytes": 1557077, "sha256": "0e8ea3e6ce22eadb75c9fffd483a4864c1a54b51621088f7374284e363d548b8",
+    "blocks": 296, "exact_final_build_roundtrip": true,
+    "current_download_bytes": 1179648, "required_erase_bytes": 1560576,
+    "fits_current_download": false, "expected_capacity_exit": 2,
+    "decoder_required": "DFU_DECOMPRESS_USING_SOFTWARE",
+    "header_covered_by_crc": false, "publisher_authentication_verified": false
+  },
+  "ab_budget": {
+    "slot_bytes": 4194304, "main_free_per_slot": 1165416,
+    "candidate_a": "0x12020000", "candidate_b": "0x12420000",
+    "partitions_frozen": false, "physical_mapping_verified": false
+  },
+  "source_sha256": {
+    "core/ota_ab.c": "c6bf68a13583abfdc78e04a09bc16340a956eb30af8e05fd44e0abaa543024b4",
+    "core/ota_ab.h": "f7b24c180117f15cc15f23e10ae739c3e46a61ad0a59356e54d0dcc89067966f",
+    "tests/ota_ab.c": "6cff1806df237805ba7b55c16497ee19068c63037060cdcca869f5d6417ed06a",
+    "tests/CMakeLists.txt": "cd4c82756ebf669cb9a43d0251d3c1ac1c80cfb6b802746a34b93294ace20971",
+    "scripts/ota_preflight.py": "11d5baab71aa1e7244b6dee1597e94cd9856520311d7e4f99cc3fb7768cc7e8d",
+    "tests/test_ota_preflight.py": "8370af22dbd0703fdae2ced59d155d0e1acc137026ed16fbfb9484af1735a68e"
+  },
+  "failures_and_corrections": [
+    "Locked EZIP no longer exposes legacy -gzip: official hardware-gzip pack failed and was preserved; official zlib mode succeeded.",
+    "Review found relative firmware_path could be re-read outside verified build: use normalized verified image plus digest, with regression coverage.",
+    "Review found corrupt TRIED could expose old READY and repeat trial: lone READY is conservatively consumed and rolls back; 1024 regression flips added.",
+    "First archive command exceeded a 10-second host timeout; partial final-* archives retained, new delivery-* archives fully verified.",
+    "Preflight rejected baseline package against final relinked BIN; regenerated from exact final BIN and verified all blocks."
+  ],
+  "independent_review": "Read-only source review; both reported blockers fixed and re-reviewed with no new blocker.",
+  "sdk_lock_changed": false,
+  "formal_partition_changed": false,
+  "hardware_operation": false,
+  "next_bounded_experiment": "Project-owned independent loader/boot mapping prototype, physical inactive-slot access and durable metadata adapter; preserve FS/KVDB addresses before freezing layout."
+}

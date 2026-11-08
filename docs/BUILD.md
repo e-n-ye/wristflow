@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-11-08 OTA A/B前置模型
+
+`Build.ps1 -Example product -Jobs 4`最终`20261108-154214-928`成功，BIN3,028,888B／`3bd7160a…`，627源码／29产物逐字节核验；UI Demo `20261108-154407-923`成功，BIN2,719,516B／`4cccf551…`，530源码／22产物核验。两者完整ZIP逐项读回通过，ELF均排除`wf_ota_ab_*`，纯模型虽经Arm编译但没有业务调用或设备升级入口。SDK／正式分区／公共构建入口不改，没有刷机。
+
+Debug／保留断言Release的`ota_ab`各1/1及2566项故障／生命周期检查、Python包核验11/11通过。最终官方zlib包1,557,077B、296块与最终Product严格往返；现下载区不足，预检退出2为预期拒绝，不是安装成功。首gzip接口不兼容、归档10秒超时与旧包／新链接BIN不匹配的拒绝均保留，最终重新打包并核验；原上板CycleLog归档保持。完整命令、哈希和未验边界见[OTA专题](OTA-PREPARATION.md#ab-foundation-20261108)及[精简证据](evidence/2026-11-08/ota-ab-foundation.json)。
+
 ## 2026-11-03 经验电量曲线
 
 沿用`pwsh -NoProfile -File scripts/Build.ps1 -Example product -CycleLog -Jobs 4`，官方`20261103-115740-843`退出0，BIN3,055,760B／`10560604…`，比原低压候选增16B。625份源码／29份产物严格哈希复核与完整ZIP读回通过，三镜像DryRun后write＋verify退出0（下载`20261103-120138-892`）。SDK及子模块锁定、分区及充电参数不变；只有core曲线和兼容注释改变，无普通版／UI Demo／五目标重编。

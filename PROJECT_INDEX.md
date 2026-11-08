@@ -21,6 +21,7 @@
 | 实验前核现有构建／传输记录、显式证据哈希或改动文档 | [公共检查与重验条件](docs/HARDWARE-TEST-WORKFLOW.md#公共检查与重验条件)；lab_check的build／files／docs，先看--help；只读本地输入，设备连续性仍由适配与现场确认 |
 | UI / XML / 字体资源 | [UI-DEMO](docs/UI-DEMO.md)、[UI 交互契约](docs/UI-INTERACTION.md)；先由地图确认源与输出，再定位对应专题，如 [控制中心／共用选时](docs/CONTROL-CENTER.md)、[充电画面](docs/CHARGING-UI.md)、[呼吸训练](docs/BREATHING.md)、[闹钟](docs/ALARM.md)、[倒计时](docs/COUNTDOWN.md)、[2048](docs/GAME-2048.md)、[活力指标](docs/ACTIVITY.md)、[指南针](docs/COMPASS.md) |
 | BLE、PM 或产品集成 | [产品入口](docs/PRODUCT-RUNTIME.md)、[BLE](docs/BLE-FIRST-LINK.md)、[PM](docs/PM-EVENT-WAKE.md)、[AOD面板与显示](docs/AOD.md)，仅选相关域；倒计时后台边界见 [COUNTDOWN 第二轮](docs/COUNTDOWN.md#round2) |
+| OTA路线、容量、升级与恢复 | [OTA前置与阶段契约](docs/OTA-PREPARATION.md)：真实包容量、实际boot路由、保存退出、完整性／认证、loader供电及重传／救援；活动项和实质取舍回STATUS |
 | 架构、裁剪或风险核查 | [ARCHITECTURE](docs/ARCHITECTURE.md) 相关契约与 [审查债务 §3](docs/ARCHITECTURE-REVIEW.md#3-债务清单全部未关闭)，先核对证据提交 |
 | 硬件准备、焊接、电池、功耗与试戴 | [HARDWARE](docs/HARDWARE.md) → [电池与电机接入准备](docs/ACCEPTANCE.md#battery-motor-preparation)；[测流方法](docs/ACCEPTANCE.md#first-power-session)／[完整清单](docs/ACCEPTANCE.md#hardware-sequence)仅存契约，活动顺序回 STATUS |
 | 外壳CAD／试打印、壳内喇叭／表带、分级佩戴验证与自定义PCB初评 | [可佩戴准备](docs/WEARABLE-PREPARATION.md) → [FreeCAD源与核验入口](mechanical/wearable/README.md)；实物与供电回HARDWARE，唯一活动项及下一步回STATUS，不由规划自动采购／接线／试戴 |
