@@ -1,0 +1,8 @@
+import rtconfig
+from building import *
+PrepareEnv()
+SifliEnv()
+TARGET = rtconfig.OUTPUT_DIR + rtconfig.TARGET_NAME + '.' + rtconfig.TARGET_EXT
+objs = PrepareBuilding(None)
+DoBuilding(TARGET, objs)
+# Diagnostic RAM boot only: no FTAB, child bootloader or download registration.

@@ -156,3 +156,36 @@ Debug及保留断言Release分别通过：journal17071项检查（164个回调�
 五目标Hello／BLE／Bringup／UI Demo／Product本地基线全过，源码／产物及ZIP读回均通过；普通Product3,028,888B、UI Demo2,719,516B，ELF均排除OTA实现。全量Debug94/94，相关Release3/3；命令为`cmake --build artifacts/host-ui-build`及`ctest --test-dir artifacts/host-ui-build --output-on-failure --timeout 60`，Release配置后构建`ota_physical_read ota_journal ota_ab`并运行`ctest --test-dir artifacts/flashdb-gc-release -R '^ota_(ab|journal|physical_read)$' -V --timeout 60`。固件环境沿用Python3.13.15／ArmGCC14.2.1／SCons4.10.1，SDK及子模块锁保持。
 
 前序额度中断保留三份失败日志；接续修复Kconfig未select自定义map和外部对象落源目录。中间符号检查拒绝SDK保留的低层写擦／可写FAL shell；审查进一步发现regop可绕过guard，最终关闭整个shell。另一审查发现把8KiB分配单元误作4KiB硬件对齐会恒拒绝，已分开表达并复核。最终独立只读复核无新阻断。[精简证据](evidence/2026-11-08/ota-loader-prototype.json)保存基线、哈希、失败与边界；本轮无设备操作，正式分区、真实映射执行、签名与自动回滚均未放行。
+
+<a id="ram-boot-20261108"></a>
+## 2026-11-08 项目自有RAM boot软件原型
+
+从PR209／`2381d08`进入本闭环。已确认官方boot整个执行区在片内RAM且`cache_enable`为空，因此把项目映射修改也限定在复位后的RAM boot阶段；loader保持物理读取环境，不在本轮引入运行中的RTOS／XIP直接切换。关闭边界为真实RAM链接、可检查的寄存器窗口、结构计划模型与无镜像启动的诊断入口；B执行及复位恢复仍需设备实验。
+
+### 工程、入口与旧路径隔离
+
+`apps/ota_boot`独立使用官方SCons／NO_OS与板支持，`link.lds`直接包含锁定SDK的RAM boot链接脚本；候选ptab明确分开Flash存储`0x12010000`／64KiB、代码／常量／向量表RAM`0x20020000`／64KiB、数据RAM`0x20040000`／64KiB。栈8KiB和堆3KiB沿用官方脚本，A/B、loader及现FS／KVDB地址沿用候选账单。没有修改Product正式ptab或SDK，也不调用AddFTAB、AddBootLoader、GenDownloadScript。
+
+项目拥有`entry`、`hw_preinit0`、MSP/cache钩子及`boot_error`，通过VariantDir引用官方board／Flash／efuse支持。排除vendor `main.c`，避免旧`boot_images_help/select_boot`的配置写回与自动选镜像；错误只在RAM记录并停止，不自动重启。早期钩子保留官方低版本电源处理和efuse bank0读取，不依赖已初始化全局变量；RESERVE0 RAM hook／resume旁路在该诊断中不支持，不能据此改变现Product的PM契约。
+
+官方`dfu_flash_init()`的switch仍带SD后端链接依赖，因此引用其官方支持源，但entry在调用它之前就拒绝非NOR。**初始化仍要求现有FTAB magic有效**；它会先读旧FTAB再归一化alias，任意继承alias若使FTAB不可读会停止，不是无FTAB依赖的恢复程序。没有新的FTAB或从Boot ROM进入该原型的实际部署证据。boot诊断也尚未完成电气准入，loader的禁充读回不能倒推为boot阶段已有物理保护证明。
+
+### RAM窗口与结构计划
+
+诊断entry先拒绝异常上下文、非零CONTROL、boot RAM外的VTOR及开启的I/D cache；按官方顺序初始化Flash，核16MiB／dual0的NOR handle及AES关闭。`wf_ota_ram_apply`在RAM参数／栈／向量表、无其他Flash使用者的前提下，保存PRIMASK并禁IRQ，DSB／ISB后关闭原range与offset，再设置新值，屏障后精确读回；不一致就停在RAM。该窗口没有日志、回调、HAL调用或Flash常量依赖。本诊断实际只应用全零alias，然后读取loader前两个向量，记录结构计划并停止。
+
+`boot_plan`检查Flash／槽／loader的1KiB对齐、范围／加法溢出、连续且不覆盖的两槽与loader、镜像长度内的Thumb PC和RAM内8B对齐SP。A和loader计划无alias；B仍以A为链接向量地址，生成相对start=`0x20000`、end=`0x420000`、offset=`0x400000`。它只是结构计划，SP／PC看起来合理不构成镜像完整性、签名、板型或健康认证；当前诊断用loader区上限作结构边界，也没有声称知道真实镜像长度。
+
+保留的`wf_ota_ram_jump`只供静态检查：停止SysTick并清SysTick/PendSV pending，按ICTR清所有外部IRQ enable／pending，再设置VTOR、CONTROL／BASEPRI／FAULTMASK／MSPLIM／MSP并分支。它不被诊断入口调用，认证身份、试运行持久化和电气准入均未绑定。启用前仍须验证目标栈与异常帧覆盖、NMI／HardFault、真实外设／LCPU／DMA清理，以及目标初始化行为；结构模型通过不放行跳转。
+
+### 检查与证据
+
+`Build-Ota-Boot.ps1 -Jobs 4`最终`20261108-171758-563`成功：BIN31436B／SHA`24f11089…`，代码RAM占32327/65536B，数据RAM占33880/65536B。`ota_boot_check.py`调用官方nm／objdump，核所有ALLOC／LOAD section、必需符号与数据的RAM放置，拒绝旧选镜像／写配置／shell入口；按nm精确尺寸核映射与跳转函数没有调用、PC相对常量或窗口外分支。最终apply36条、jump41条，均在代码RAM；源码及反汇编未发现诊断路径调用jump。检查器只检查符号化外部引用，不是通用间接控制流证明。
+
+`python -m unittest discover -s tests -p 'test_ota_boot_check.py' -v`为9/9，通过正常叶函数及Flash地址、调用、外部分支、PC literal、嵌入数据、缺屏障和错误跳转尾部的拒绝回归。Debug／保留断言Release的`ota_boot_plan`各1130检查，覆盖A/B/loader计划、SP／PC边界、布局破坏、1023个未对齐偏移及审查发现的Flash基址反例；地址模型采用预期半开窗口，不证明硬件终点比较或MPI内部预取语义。
+
+全量Debug95/95、相关Release4/4（`ota_boot_plan ota_physical_read ota_journal ota_ab`）通过；五目标本地基线全部成功，普通Product／UI Demo ELF排除OTA实现。18份boot项目输入、7份产物及六个目标的源码／产物ZIP完整读回通过，本机归档在`artifacts/ota-boot-ram-20261108/`，[精简证据](evidence/2026-11-08/ota-boot-ram-prototype.json)记录命令、哈希与版本。
+
+首构建因板级charger配置残留、同名board.h及重复efuse声明失败；修正后官方Flash初始化带来的SD链接依赖暴露，补官方源而不增加可选运行路径。检查器随后分别误分类copy/zero启动表、误把jump自身的IRQ循环当外部引用，均按实际section／符号边界修正并增加回归。只读审查另发现Flash基址未对齐会产生错误alias，以及未来jump需清IRQ／SysTick，已修复并定点复核；最终无新源码／构建阻断。
+
+**设备与接续门槛**：本轮没有设备操作，不能声称清alias、B执行、Boot ROM搬运、真实reset范围或自动回滚已通过。SYSRESETREQ不能仅由源码存在就当成MPI／LCPU／DMA归零，冷启动／无其他Flash使用者仍须实验确认。正式分区不冻结；受控A/B执行实验须先形成准确镜像、写入区、供电、ROM有线救援及备份恢复评审包，再讨论部署。活动顺序只回STATUS。

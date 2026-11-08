@@ -6,6 +6,7 @@
 
 | 对象 | 事实来源与所有权 | 操作 / 验证入口 |
 |---|---|---|
+| RAM boot与映射切换原型 | `apps/ota_boot`持有NO_OS入口／早期钩子／错误停止、候选RAM布局、结构计划及寄存器切换；官方board／Flash初始化／efuse通过VariantDir引用，link.lds包含锁定官方RAM boot脚本；不编译vendor main | `scripts/Build-Ota-Boot.ps1`＋`ota_boot_check.py`检查RAM放置及切换窗口；入口只归一化alias并读loader向量后停止，跳转准入未绑定，无FTAB／部署清单。[契约与证据](OTA-PREPARATION.md#ram-boot-20261108)，活动回STATUS |
 | 独立OTA只读loader原型 | `apps/ota_loader`拥有独立SCons／候选ptab、禁充启动覆盖、无alias物理读取守卫与只读journal端口；`core/ota_journal`拥有双擦除单元持久状态契约，平台回调另定 | `scripts/Build-Ota-Loader.ps1`仅构建／检查，不产出部署清单；禁shell、BLE、DFU、自动充电和持久服务。候选配置不覆盖Product正式分区；[软件边界及失败证据](OTA-PREPARATION.md#loader-probe-20261108)，实际活动回STATUS |
 | 可佩戴外壳CAD研究 | `mechanical/wearable/parameters.json`持尺寸来源／假设，`build_freecad.py`持原生Part／Spreadsheet依赖图；社区原网格和含该几何的派生模型／截图仅在本机artifacts，不公开再分发 | [FreeCAD入口](../mechanical/wearable/README.md)：显式本机ZIP及新输出目录，原生重开／参数变化／STEP往返／视口复核；只证明限定草案几何，不放行打印／试戴或操作设备 |
 | 完整cycle持久日志 | `cycle_record`持64B CRC与版本化记录，`cycle_store`持原LFS文件、session新文件／容量准入及只读前缀恢复，`product_cycle`持16行队列／worker／FinSH；`product_flash_gate`仅CycleLog包跨对象SDK访问 | 显式`-CycleLog`，普通版排除；`cycle_log_lab.py`共享绑定／Journal，`cycle_protocol.py`核文件及CSV，`cycle_short_lab.py`短窗或`--full`交接。常规arm／smoke仍原3.6V／stale／负载停止与旧采样；不自动format／覆盖旧文件。[首版](BATTERY-ESTIMATE.md#cycle-log-20261101)／[新会话](BATTERY-ESTIMATE.md#cycle-sessions-20261101) |

@@ -5,19 +5,19 @@
 
 本区是活动任务和下一步的唯一权威来源；历史命令和计划不构成执行授权。
 
-**目标与本轮**：用户已授权继续OTA并要求实质取舍先讨论；首版以A/B自动回滚为目标，先验证映射与独立loader再冻结分区。本轮交付[独立只读loader软件原型与双记录持久层](OTA-PREPARATION.md#loader-probe-20261108)，尚未接入设备升级；SDK锁保持，硬件规划暂停。
+**目标与本轮**：用户继续授权OTA软件推进，实质取舍先讨论；首版以A/B自动回滚为目标，先验证映射与独立loader再冻结分区。本轮交付[项目自有RAM boot与映射切换软件原型](OTA-PREPARATION.md#ram-boot-20261108)，只做诊断，不启动镜像；SDK锁保持，硬件规划暂停。
 
-**工作基线与保存**：包核验与A/B模型已由[PR208](https://github.com/e-n-ye/wristflow/pull/208)合入`eaba0be`。本轮从该干净主线建立`codex/ota-loader-prototype`，续接额度中断留下的改动。外壳研究及规划检查点`b195dc9`／`12bdbb0`保留在本地`codex/wearable-integrated-layout`，不随OTA交付。
+**工作基线与保存**：包核验／A/B模型由PR208合入`eaba0be`；独立只读loader／journal由[PR209](https://github.com/e-n-ye/wristflow/pull/209)合入`2381d08`。本轮从该干净主线建立`codex/ota-boot-ram-prototype`。外壳研究与规划检查点`b195dc9`／`12bdbb0`继续保留在本地`codex/wearable-integrated-layout`。
 
-**容量与路线证据**：普通main3,028,888B；最终官方zlib包1,557,077B、296块完整往返，但按4KiB擦除需1,560,576B，现下载区不足380,928B。旧gzip工具接口不兼容的失败保留。A/B预算两份4MiB、每槽余1,165,416B；尚未修改正式分区。实际boot支持alias的源码依据已核，但普通NOR读会受映射影响，下一轮优先评估独立loader承担物理槽访问。
+**容量与路线证据**：普通main3,028,888B；首闭环最终zlib包1,557,077B、擦除预算超现下载区380,928B，历史工具失败保留。A/B两份4MiB、loader384KiB及boot64KiB目前均有链接容量余量，正式分区仍未冻结；本轮没有重新打升级包。
 
 **设备证据边界**：11/03最后CycleLog快照boot14、保存失败0／活动fault0、用户息屏／KEY恢复且采集关闭，是历史末态；11/07未核版本或串口，照片可见BAT插接，不推断今日供电／连续性。未开口／重ARM，旧低压窗口已结束；曲线／软件FULL及旧约200mA口述不等于容量、正常功耗／续航或充电安全。
 
-**软件结果**：`core/ota_journal`接通合法状态迁移、双擦除单元交替写、sync／精确读回及写错冻结；Debug／保留断言Release各17071检查。loader只绑定读取，前后核禁充、NOR几何、alias三寄存器全零及AES关闭；读取守卫各21检查，原A/B模型各2566检查。关闭整个调试shell，防止任意寄存器／引脚写绕过守卫。Product无新OTA入口，真实签名、写擦适配及数据迁移仍待实现。
+**软件结果**：新boot拥有entry／早期钩子／错误停止，排除旧镜像选择与配置写回；整体在片内RAM、缓存关闭的前提下归一化alias，只读loader向量并记录结构计划后停住。映射窗口反汇编无调用／PC常量／外部分支；保留的跳转函数没有外部符号引用，认证与试运行准入未绑定。loader、journal及Product行为保持，真实签名、写擦、数据迁移与设备OTA仍待接入。
 
-**构建与证据**：loader`20261108-162953-142`成功，BIN134344B，候选ROM384KiB内占141335B；无FTAB／bootloader／部署清单。五目标基线、全量Debug94/94及相关Release3/3通过，源码／产物和ZIP读回通过；Product／UI Demo ELF排除OTA实现。[精简证据](evidence/2026-11-08/ota-loader-prototype.json)保留失败与修复。没有设备操作，编译不证明真实映射、充电或回滚通过。
+**构建与证据**：RAM boot`20261108-171758-563`成功，BIN31436B，代码RAM占32327/65536B、数据RAM占33880/65536B；不产出FTAB／部署清单。五目标基线、Debug95/95、相关Release4/4、检查器Python9/9通过；结构模型两配置各1130检查。源码／产物及ZIP读回通过，普通Product／UI Demo ELF排除OTA实现；[精简证据](evidence/2026-11-08/ota-boot-ram-prototype.json)。没有设备操作，B执行与真实复位域仍缺证据。
 
-**唯一下一步**：本软件原型审阅／集成后，闭合项目自有boot入口与RAM映射切换原型：解决官方boot遗留identity alias，核清解除映射时的取指／缓存、B执行与复位路由，再决定正式分区能否冻结。当前loader会保守拒绝遗留alias，不能直接部署；FS／BLE／settings地址保持，DFU元数据区仅候选重解释。试运行健康确认、回滚数据兼容及具体版本／供电／救援的设备准入继续单独评审。
+**唯一下一步**：本软件原型审阅／集成后，准备受控A/B映射执行实验评审包：闭合准确boot／loader／最小测试镜像、供电、ROM有线救援、备份恢复及写入区域，再讨论设备部署。当前boot仍依赖有效旧FTAB，未接通loader跳转或生产OTA；普通软件复位不能当成冷启动／外设归零证据。实机执行与恢复成立后再决定正式分区，FS／BLE／settings地址优先保持。
 
 <a id="history-usable-curve-20261103"></a>
 ## 2026-11-03 新曲线接入结束快照（原current，已由可佩戴准备接续）
