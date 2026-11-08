@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-11-08 独立OTA只读loader原型
+
+新增独立入口`pwsh -NoProfile -File scripts/Build-Ota-Loader.ps1 -Jobs 4`，复用现有锁定SDK环境与官方SCons，不调用设备工具。最终`20261108-162953-142`成功：BIN134344B／`bbe84ad6…`，map中候选ROM`0x12820000`／384KiB，占141335B，静态RAM42564B。24份项目输入、7份产物和完整ZIP读回通过；强启动覆盖、读取实现、禁用服务／shell及无alias设置／journal写入符号均经脚本检查。
+
+五目标Hello／BLE／Bringup／UI Demo／Product于`162319-186`／`162333-359`／`162349-468`／`162408-372`／`162454-619`全部成功，逐哈希及完整ZIP读回通过；Product／UI Demo不链接OTA实现。全量Debug94/94、相关保留断言Release3/3通过。未改公共`Build.ps1`、SDK或Product正式分区；没有云端运行或设备操作。项目配置遗漏、遗留可写shell和4KiB／8KiB守卫修复见[原型专题](OTA-PREPARATION.md#loader-probe-20261108)及[精简证据](evidence/2026-11-08/ota-loader-prototype.json)。本入口只生成非部署诊断镜像，不生成FTAB、bootloader或下载清单；官方boot遗留alias的解除仍需下一原型验证。
+
 ## 2026-11-08 OTA A/B前置模型
 
 `Build.ps1 -Example product -Jobs 4`最终`20261108-154214-928`成功，BIN3,028,888B／`3bd7160a…`，627源码／29产物逐字节核验；UI Demo `20261108-154407-923`成功，BIN2,719,516B／`4cccf551…`，530源码／22产物核验。两者完整ZIP逐项读回通过，ELF均排除`wf_ota_ab_*`，纯模型虽经Arm编译但没有业务调用或设备升级入口。SDK／正式分区／公共构建入口不改，没有刷机。

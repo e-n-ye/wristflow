@@ -123,3 +123,36 @@ OTA可减少后续封壳后反复连接下载口的维护负担，也能复用�
 首次只读审查发现“较新TRIED损坏后退选READY再次试启动”的路径，已改唯一READY保守按TRIED处理，补1024项该路径回归；最终定点复核无新阻断。上述是内存记录和纯模型，未操控设备或模拟真实Flash延迟／缓存／供电。
 
 最终普通Product`20261108-154214-928`／UI Demo`20261108-154407-923`均编译通过，627／530源码、29／22产物及完整ZIP读回通过；ELF均不含模型符号。最终main大小仍3,028,888B，重链接字节与基线不同，旧包被精确匹配检查拒绝后按最终BIN重打；最终包1,557,077B，擦除预算不变。首归档命令10秒超时，保留残件并改为新`delivery-*`归档，最终逐项核验。版本、源码哈希、失败及[精简证据](evidence/2026-11-08/ota-ab-foundation.json)一并保存；本轮无设备操作，签名与真实A/B启动仍未接入。
+
+<a id="loader-probe-20261108"></a>
+## 2026-11-08 独立只读loader与双记录持久层
+
+本轮从首闭环已合入的`eaba0be`续接，关闭边界为可审阅的软件原型、准确链接容量、受守卫只读入口和双记录故障模型。正式boot路由、RAM解除alias、B槽执行、真实签名／Flash写擦和设备实验各保留后续准入，不能由本轮编译或主机测试替代。
+
+### 所有权、候选地址与启动保护
+
+项目独立工程在`apps/ota_loader`，复用锁定SDK与官方SCons；共享的Product禁充逻辑及core源通过官方VariantDir编译到本工程构建区，避免对象文件落入源目录。独立候选ptab保留A=`0x12020000`、B=`0x12420000`各4MiB，loader=`0x12820000`／384KiB；下载区、FS、BLE和settings地址沿用现布局。现`KVDB_DFU_REGION`仅在该诊断工程候选为两份8KiB元数据单元，原DFU FlashDB被排除；这不是正式分区变更或未知旧数据的格式化许可。
+
+loader以强`BSP_PowerUpCustom`覆盖板级弱实现，保留PA38／PA26／PA30及500μs时序，复用`aw32001_inhibit`设置CEB并核寄存器；禁充失败则读取入口拒绝。warm调用使旧成功状态失效。关闭自动充电、PM、LCD／触摸、音频、BLE、DFU、FlashDB、DFS和FinSH；启动时仅输出一次诊断。SDK禁FlashDB后仍包含FAL，调试shell的`regop`又可任意写寄存器，因此最终直接关闭整个shell，并在配置和ELF中检查。vendor保留的RAM区低层写擦函数可能仍存在；项目不引用它们，也没有journal写回调或可写shell入口。寄存器禁充读回不等于物理充电电流实测。
+
+### 物理读取与映射边界
+
+`physical_read`每次至多256B，只接受四个已限定区域内的偏移，防加法溢出／越界；读取前后均核准入，短读或准入变化会清零结果并冻结该reader。平台端与journal共用busy锁，要求精确NOR ID／16MiB／dual0／4KiB SDK擦除对齐、同一handle、AES关闭，以及`AASAR==AAEAR==AAOAR==0`。8KiB是元数据分配单元，不是单NOR的硬件擦除对齐。该检查复用[既有FS读取的元数据观测](HARDWARE.md#2026-11-01-fs_region读取及普通记录器恢复)，本轮没有重新读取设备。
+
+槽诊断只输出各槽前8B，元数据经`wf_ota_journal_load`解析；前缀不构成镜像完整性／身份认证。映射预算按[HAL实现](../vendor/SiFli-SDK/drivers/hal/bf0_hal_mpi.c#L474)输出B→A的相对起点`0x00020000`、终点`0x00420000`及偏移`0x00400000`，仅打印而不apply；寄存器值本身为低10位对齐的字节地址，不再次左移。
+
+**实际限制**：官方[boot启动路径](../vendor/SiFli-SDK/example/boot_loader/project/butterflmicro/board/main.c#L171)即使源地址等于执行地址，也会设置非零range的identity alias。当前守卫会保守拒绝该状态，不能据本轮构建称实机物理读取已可用。必须进一步在项目自有boot入口／RAM代码中验证解除与切换映射、缓存、B执行及复位路由；不能从正在执行的Flash代码中直接试清映射。当前原型不生成FTAB、bootloader或部署清单，`deployable=false`。
+
+### 双记录持久契约与故障测试
+
+`core/ota_journal`为A/B模型增加平台回调层：两个独占擦除单元、同一锁内重载当前代次及完整身份、只擦写另一单元、全单元空白读回、精确写入／sync／128B读回、旧记录复核与最终重新选择。仅接受模型允许的状态迁移，不允许READY直接确认、伪造稳定镜像身份或代次回绕；任何I/O／超预算错误冻结该实例写入，失败readback清零。首次provision只接受两个全空白单元及generation1稳定状态，不会因加载失败自动擦除。软件预算不能抢占阻塞的底层调用，平台仍须提供有界访问与真实持久语义。
+
+Debug及保留断言Release分别通过：journal17071项检查（164个回调故障、516个编程前缀截断、16388个擦除前缀截断及生命周期／拒绝路径）、物理读取守卫21项、原A/B模型2566项。覆盖四种模型迁移，短读写／假成功、旧记录保全、非法迁移、越界／溢出及读取前后准入变化。实际适配仅绑定journal读取，写擦／sync均未绑定；内存NOR前缀故障模型不证明真实Flash任意位序、缓存或断电持久性。
+
+### 构建、失败与交付证据
+
+`pwsh -NoProfile -File scripts/Build-Ota-Loader.ps1 -Jobs 4`最终`20261108-162953-142`退出0：BIN134344B／SHA`bbe84ad6…`，map中ROM384KiB内占141335B，静态RAM42564B。脚本检查强启动覆盖、必需读取实现、关闭服务／shell、无journal提交／provision／alias设置符号及无部署清单。24份项目输入、7份产物逐哈希和完整ZIP读回通过，归档仅本机`artifacts/ota-loader-prototype-20261108/`保存。
+
+五目标Hello／BLE／Bringup／UI Demo／Product本地基线全过，源码／产物及ZIP读回均通过；普通Product3,028,888B、UI Demo2,719,516B，ELF均排除OTA实现。全量Debug94/94，相关Release3/3；命令为`cmake --build artifacts/host-ui-build`及`ctest --test-dir artifacts/host-ui-build --output-on-failure --timeout 60`，Release配置后构建`ota_physical_read ota_journal ota_ab`并运行`ctest --test-dir artifacts/flashdb-gc-release -R '^ota_(ab|journal|physical_read)$' -V --timeout 60`。固件环境沿用Python3.13.15／ArmGCC14.2.1／SCons4.10.1，SDK及子模块锁保持。
+
+前序额度中断保留三份失败日志；接续修复Kconfig未select自定义map和外部对象落源目录。中间符号检查拒绝SDK保留的低层写擦／可写FAL shell；审查进一步发现regop可绕过guard，最终关闭整个shell。另一审查发现把8KiB分配单元误作4KiB硬件对齐会恒拒绝，已分开表达并复核。最终独立只读复核无新阻断。[精简证据](evidence/2026-11-08/ota-loader-prototype.json)保存基线、哈希、失败与边界；本轮无设备操作，正式分区、真实映射执行、签名与自动回滚均未放行。

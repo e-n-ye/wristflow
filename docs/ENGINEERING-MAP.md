@@ -6,6 +6,7 @@
 
 | 对象 | 事实来源与所有权 | 操作 / 验证入口 |
 |---|---|---|
+| 独立OTA只读loader原型 | `apps/ota_loader`拥有独立SCons／候选ptab、禁充启动覆盖、无alias物理读取守卫与只读journal端口；`core/ota_journal`拥有双擦除单元持久状态契约，平台回调另定 | `scripts/Build-Ota-Loader.ps1`仅构建／检查，不产出部署清单；禁shell、BLE、DFU、自动充电和持久服务。候选配置不覆盖Product正式分区；[软件边界及失败证据](OTA-PREPARATION.md#loader-probe-20261108)，实际活动回STATUS |
 | 可佩戴外壳CAD研究 | `mechanical/wearable/parameters.json`持尺寸来源／假设，`build_freecad.py`持原生Part／Spreadsheet依赖图；社区原网格和含该几何的派生模型／截图仅在本机artifacts，不公开再分发 | [FreeCAD入口](../mechanical/wearable/README.md)：显式本机ZIP及新输出目录，原生重开／参数变化／STEP往返／视口复核；只证明限定草案几何，不放行打印／试戴或操作设备 |
 | 完整cycle持久日志 | `cycle_record`持64B CRC与版本化记录，`cycle_store`持原LFS文件、session新文件／容量准入及只读前缀恢复，`product_cycle`持16行队列／worker／FinSH；`product_flash_gate`仅CycleLog包跨对象SDK访问 | 显式`-CycleLog`，普通版排除；`cycle_log_lab.py`共享绑定／Journal，`cycle_protocol.py`核文件及CSV，`cycle_short_lab.py`短窗或`--full`交接。常规arm／smoke仍原3.6V／stale／负载停止与旧采样；不自动format／覆盖旧文件。[首版](BATTERY-ESTIMATE.md#cycle-log-20261101)／[新会话](BATTERY-ESTIMATE.md#cycle-sessions-20261101) |
 | 整机低压可用终点实验 | 同一诊断构建显式`arm-low`启v2；power worker拥有OFF许可／IDLE，cycle worker每约5秒请求并逐行sync；main提供有界KEY／LCD信号与UI上下文，shell只读常亮剩余，后台不碰LVGL | `low_voltage_lab.py`共享Console先USB下OFF采样／KEY／20分钟常亮资格，再关口交接；退出手电筒与常亮循环不断会话，不以3.6V／stale压黑，回USB结束；`recover`只导验证前缀，坏尾不算完整。[低压契约](BATTERY-ESTIMATE.md#low-voltage-lab-20261102)，普通采样不变，不是正常待机／容量测量 |
