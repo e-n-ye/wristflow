@@ -1,0 +1,18 @@
+import os
+from building import *
+from SCons.Script import VariantDir, Dir
+Import('SIFLI_SDK')
+cwd = GetCurrentDir()
+vendor_board = os.path.join(SIFLI_SDK, 'example/boot_loader/project/butterflmicro/board')
+variant = os.path.join(Dir('.').abspath, 'vendor_board')
+VariantDir(variant, vendor_board, duplicate=0)
+# Project owns entry, early hooks and error handling. Never include vendor
+# main.c/select_boot(), which can rewrite legacy configuration.
+names = ['board.c', 'boot_flash.c', 'efuse.c', 'board_psram.c',
+         'sd_emmc_ops.c', 'sd_nand_drv.c', 'sd_nand_ops.c']
+sources = Glob('*.c') + [File(os.path.join(variant, name)) for name in names]
+group = DefineGroup('WristFlowOtaBoot', sources, depend=[''], CPPPATH=[cwd, vendor_board],
+    CPPDEFINES=['WF_OTA_BOOT_DIAGNOSTIC'],
+    LINKFLAGS=['-Wl,--undefined=wf_ota_ram_jump'],
+    LOCAL_CCFLAGS=' -Wall -Wextra -Werror=implicit-function-declaration')
+Return('group')

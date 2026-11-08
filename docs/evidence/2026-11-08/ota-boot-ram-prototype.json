@@ -1,0 +1,185 @@
+{
+  "schema": 1,
+  "date": "2026-11-08",
+  "baseline": "2381d0835c4d4f31d18a86362f7e1fff684a6761",
+  "branch": "codex/ota-boot-ram-prototype",
+  "scope": "RAM-linked NO_OS diagnostic boot, alias normalization, structural A/B/loader plans and retained but unreferenced jump assembly. No image authentication, production boot admission or deployment.",
+  "sdk_lock_changed": false,
+  "sdk_and_submodules_clean_and_locked": true,
+  "formal_partition_changed": false,
+  "hardware_operation": false,
+  "tools": {
+    "firmware_python": "3.13.15",
+    "arm_gcc": "14.2.1",
+    "scons": "4.10.1"
+  },
+  "boot": {
+    "result": "artifacts/ota_boot/20261108-171758-563/result.json",
+    "main_bytes": 31436,
+    "main_sha256": "24f110895bd60cb7c2250c112f85f1f4fbf4ecace925b9b2d65008f683975f34",
+    "sources": 18,
+    "artifacts": 7,
+    "archive": "artifacts/ota-boot-ram-20261108/boot-20261108-171758-563.zip",
+    "archive_sha256": "6585ee25f9eaa3a2722634291c96c96fe6db9d298fb731bc6e789f963c3e071c",
+    "archive_readback_verified": true,
+    "elf_check": {
+      "passed": true,
+      "elf_sha256": "684b46db6746d327bed8cd9580dd2a93b2695df60bbde70fe5878f6084f9b154",
+      "ram_placement_passed": true,
+      "apply": {
+        "start": "0x20023924",
+        "instructions": 36
+      },
+      "jump": {
+        "start": "0x2002397c",
+        "instructions": 41
+      },
+      "jump_admission_bound": false,
+      "hardware_verified": false
+    }
+  },
+  "memory": {
+    "code_start": "0x20020000",
+    "code_budget_bytes": 65536,
+    "code_used_bytes": 32327,
+    "data_start": "0x20040000",
+    "data_budget_bytes": 65536,
+    "data_used_bytes": 33880,
+    "stack_bytes": 8192,
+    "heap_bytes": 3072,
+    "flash_storage_candidate": "0x12010000",
+    "flash_storage_budget_bytes": 65536
+  },
+  "tests": {
+    "debug_passed": 95,
+    "debug_failed": 0,
+    "debug_seconds": 26.18,
+    "release_related_passed": 4,
+    "release_failed": 0,
+    "release_assertions_enabled": true,
+    "structural_plan_checks_per_configuration": 1130,
+    "elf_checker_python_passed": 9,
+    "logs": {
+      "debug": "8513cf6ea50f68d47859292cd52497f0425ae44889fdc5e5e6b2da2b38b8d9e9",
+      "release": "d9285e4eb791801817e78f302e3d781908e0af696ab18dbfead514203deac9a0"
+    },
+    "commands": [
+      "python -m unittest discover -s tests -p test_ota_boot_check.py -v",
+      "cmake --build artifacts/host-ui-build && ctest --test-dir artifacts/host-ui-build --output-on-failure --timeout 60",
+      "cmake -S tests -B artifacts/flashdb-gc-release -DCMAKE_BUILD_TYPE=Release && cmake --build artifacts/flashdb-gc-release --target ota_boot_plan ota_ab ota_journal ota_physical_read && ctest --test-dir artifacts/flashdb-gc-release -R ^ota_(boot_plan|ab|journal|physical_read)$ -V --timeout 60"
+    ],
+    "limits": "Host structural address model and static ELF/assembly checks; not peripheral alias endpoint semantics, MPI buffering, real B execution, power or reset qualification."
+  },
+  "baselines": {
+    "hello": {
+      "result": "artifacts/hello/20261108-171400-049/result.json",
+      "main_bytes": 300336,
+      "main_sha256": "5d1e396f2e9cd6edd35f0586d2c30dbd7f3dd4cf0f42a5bcf17c9a976e4173c0",
+      "sources": 9,
+      "artifacts": 22,
+      "archive": "artifacts/ota-boot-ram-20261108/hello-20261108-171400-049.zip",
+      "archive_sha256": "5174ba1d74003c0d54264a44fd96093d4f6161f8c8d66c6aecd7f19684a8bb0f",
+      "archive_readback_verified": true
+    },
+    "ble": {
+      "result": "artifacts/ble/20261108-171415-038/result.json",
+      "main_bytes": 490064,
+      "main_sha256": "09d17264a1822a45731664091785dea1b0a0324f5be2af46f32c154500d396d2",
+      "sources": 8,
+      "artifacts": 29,
+      "archive": "artifacts/ota-boot-ram-20261108/ble-20261108-171415-038.zip",
+      "archive_sha256": "5347efad3adee4865add0d2e517c2d465ad5fe725796cda05a0849b9a5b0b480",
+      "archive_readback_verified": true
+    },
+    "bringup": {
+      "result": "artifacts/bringup/20261108-171440-185/result.json",
+      "main_bytes": 614176,
+      "main_sha256": "deadadab94b802be43bbd3eeab9580de1828c28fafa679c9254b9334984895fb",
+      "sources": 8,
+      "artifacts": 22,
+      "archive": "artifacts/ota-boot-ram-20261108/bringup-20261108-171440-185.zip",
+      "archive_sha256": "61fd4f816730c3705990fcedc8d17e406bfc9fa25b6f693c06190466c7ee70ac",
+      "archive_readback_verified": true
+    },
+    "ui_demo": {
+      "result": "artifacts/ui_demo/20261108-171506-299/result.json",
+      "main_bytes": 2719516,
+      "main_sha256": "e6444719a721b3c2abe63ff5403bdd38199479908ef924c7e3feaa1818aad2e7",
+      "sources": 532,
+      "artifacts": 22,
+      "archive": "artifacts/ota-boot-ram-20261108/ui_demo-20261108-171506-299.zip",
+      "archive_sha256": "5fc93623b04de3007f21d058d8385d79a6e784bf323a714eed55a7985e4d2e95",
+      "archive_readback_verified": true
+    },
+    "product": {
+      "result": "artifacts/product/20261108-171533-204/result.json",
+      "main_bytes": 3028888,
+      "main_sha256": "5907909de105963a01cad8c62056cfcfc4c09d8fdfcad0d9c928a232b5ce90c9",
+      "sources": 629,
+      "artifacts": 29,
+      "archive": "artifacts/ota-boot-ram-20261108/product-20261108-171533-204.zip",
+      "archive_sha256": "3f06b3386477fbe5b6ff1cd44d502ddd72821607a923c78c8ab6a228cb22c3e3",
+      "archive_readback_verified": true
+    }
+  },
+  "product_and_ui_demo_ota_symbols_absent": true,
+  "critical_source_sha256": {
+    "apps/ota_boot/src/entry.c": "d41ef85be09eacc20c807191bdb664ab8268a043c7ebcdfd632a69188f1e5f33",
+    "apps/ota_boot/src/ram_transition.c": "90c9297f1810a9a29a4323e81a9f3fe126bb3f14bd7fe5a7e0ee48e3ce8f8b3e",
+    "apps/ota_boot/src/boot_plan.c": "eb244193cf138926210305ea68d74a57e2e35690f3cc06f291b4497516f91c6f",
+    "scripts/ota_boot_check.py": "d7e541b4b081aad016301f92525e84591d0d7893a0441fdae4eb4db5af774415",
+    "tests/test_ota_boot_check.py": "cddc4472281c2b8d366562b3566c8f86d99fa3195e43f20068bb0409fd83a941",
+    "tests/ota_boot_plan.c": "4c9da86fabd52358f127d87d89d38c3891367722b5861d6c52a34ea4fb634e25",
+    "tests/CMakeLists.txt": "9e5689bc975e524b238bf974a3ee0911fa9dcc4205f98bdee38e111ae4d66419"
+  },
+  "ownership": {
+    "project": "Entry/early hooks/error halt/plans/RAM transition/configuration and checker",
+    "vendor": "Official locked RAM linker, board/Flash initialization, efuse and link-required SD support sources via VariantDir",
+    "excluded": "Vendor main.c, boot_images_help/select_boot legacy configuration writes, RAM resume hook and automatic error reboot"
+  },
+  "admission": {
+    "deployable": false,
+    "ftab_or_download_emitted": false,
+    "existing_ftab_still_required": true,
+    "normalize_only_after_official_flash_init": true,
+    "caches_disabled_required": true,
+    "privileged_thread_and_ram_vtor_required": true,
+    "other_flash_users_not_allowed": true,
+    "diagnostic_end": "RAM record then halt; no jump",
+    "jump_admission_bound": false,
+    "real_physical_mapping_verified": false,
+    "reset_domains_verified": false,
+    "partitions_frozen": false
+  },
+  "failures_and_corrections": [
+    {
+      "run": "20261108-170210-360",
+      "result": "Compile failed: charger default configuration, same-name board header resolution and duplicate efuse declaration. Corrected project configuration and explicit official header."
+    },
+    {
+      "run": "20261108-170456-402",
+      "result": "Link failed: official dfu_flash_init switch retains SD backend dependencies. Added official support sources; entry continues to refuse non-NOR before helper call."
+    },
+    {
+      "run": "20261108-170630-855",
+      "result": "SCons linked but ELF checker misclassified startup copy table. Explicitly classified copy/zero tables as code RAM."
+    },
+    {
+      "run": "20261108-171113-677",
+      "result": "SCons linked but jump-reference checker rejected jump internal IRQ loop. Bound references to precise nm function span; regression added."
+    },
+    {
+      "review": "Generic flash-base alignment hole produced unaligned alias with flash=0x11ffffff; flash/base size alignment now checked and negative regression added."
+    },
+    {
+      "review": "Retained future jump initially enabled IRQ without clearing SysTick/external IRQ state; added disable/clear sequence. Jump remains unreferenced and unqualified."
+    }
+  ],
+  "independent_review": {
+    "requested_model": "gpt-6.1-sol",
+    "requested_reasoning": "medium",
+    "roles": "Two read-only researchers/reviewers; no writes, builds, Git, devices or child delegation. Actual model metadata not separately exposed.",
+    "result": "Reported alignment, checker and IRQ gaps corrected; focused final reviews found no new current diagnostic reachable blocker."
+  },
+  "next_bounded_experiment": "Prepare exact boot/loader/minimal A/B image identities, explicit write areas, power conditions, ROM wired rescue and backup/restore review package; discuss deployment before device work."
+}

@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-11-08 RAM boot与映射切换原型
+
+独立入口`pwsh -NoProfile -File scripts/Build-Ota-Boot.ps1 -Jobs 4`复用官方NO_OS／RAM boot链接脚本及锁定板支持，项目持有entry与策略；最终`20261108-171758-563`成功，BIN31436B／`24f11089…`。代码／常量／向量表全部在`0x20020000`／64KiB，map占32327B；栈／堆／数据在`0x20040000`／64KiB，占33880B。ELF守卫通过：RAM切换函数36条指令、保留的跳转函数41条，无调用／PC常量／窗口外分支；诊断代码无跳转函数的外部符号引用。18份项目输入、7份产物及完整ZIP读回通过。
+
+五目标Hello／BLE／Bringup／UI Demo／Product于`171400-049`／`171415-038`／`171440-185`／`171506-299`／`171533-204`通过并逐哈希／ZIP读回，普通Product／UI Demo排除OTA实现。全量Debug95/95、相关保留断言Release4/4、ELF检查器Python9/9；结构模型各1130检查。首次头文件／配置及官方Flash帮助函数的SD链接依赖失败、启动表分类与jump自身循环的检查器误判均保留；[完整边界](OTA-PREPARATION.md#ram-boot-20261108)及[精简证据](evidence/2026-11-08/ota-boot-ram-prototype.json)。没有设备操作、云端运行或正式分区修改，不生成FTAB／部署清单；诊断末态为停止，不跳转镜像。
+
 ## 2026-11-08 独立OTA只读loader原型
 
 新增独立入口`pwsh -NoProfile -File scripts/Build-Ota-Loader.ps1 -Jobs 4`，复用现有锁定SDK环境与官方SCons，不调用设备工具。最终`20261108-162953-142`成功：BIN134344B／`bbe84ad6…`，map中候选ROM`0x12820000`／384KiB，占141335B，静态RAM42564B。24份项目输入、7份产物和完整ZIP读回通过；强启动覆盖、读取实现、禁用服务／shell及无alias设置／journal写入符号均经脚本检查。
