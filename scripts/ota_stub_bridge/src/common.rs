@@ -12,6 +12,12 @@ struct Channel { address: u32, enabled: bool, ccr: u32, count: u32, source: u32,
 // Addresses and offsets are from the locked SDK SF32LB52 register definitions.
 // A snapshot reports hardware values; it does not classify an enabled DMA as owned.
 pub fn snapshot(tool: &mut SF32LB52Tool) -> Result<Value> {
+    snapshot_impl(tool,false)
+}
+pub fn snapshot_strict(tool: &mut SF32LB52Tool) -> Result<Value> {
+    snapshot_impl(tool,true)
+}
+fn snapshot_impl(tool: &mut SF32LB52Tool,fail_stop:bool) -> Result<Value> {
     tool.debug_command(SifliUartCommand::Enter)?;
     let result=(|| -> Result<Value> {
         let pmr=tool.debug_read_word32(0x40040000)?;
@@ -38,6 +44,7 @@ pub fn snapshot(tool: &mut SF32LB52Tool) -> Result<Value> {
         Ok(json!({"pmr":pmr,"cpuwait":pmr&4!=0,"rstr1":rstr,"channels":channels,
             "all_flash_users_controlled":false,"continuous_quiescence_proven":false}))
     })();
+    if fail_stop && result.is_err() {return result;}
     // Exit is a single command, not an ACK-based proof that the application runs.
     let exit=tool.debug_command(SifliUartCommand::Exit);
     match result { Ok(value)=>{exit?;Ok(value)}, Err(error)=>Err(error) }

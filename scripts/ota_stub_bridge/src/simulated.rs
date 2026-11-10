@@ -7,18 +7,25 @@ pub const B_SCENARIOS:&[&str]=&["success","fragmented","lcpu-running","register-
     "restore-data-fail","b-hang-read"];
 
 struct State {input:Vec<u8>,output:VecDeque<u8>,nor:Vec<u8>,registers:HashMap<u32,u32>,
-    scenario:String,reads:usize,fragments:usize,ready:bool,timeout:Duration,b_sector:bool,pending:bool,sector_writes:usize}
+    scenario:String,reads:usize,fragments:usize,ready:bool,timeout:Duration,b_sector:bool,pending:bool,sector_writes:usize,
+    execution:bool,exec_pending:Option<(usize,usize)>,exec_writes:[usize;2],entries:usize,boot:Vec<u8>,frames:Vec<u8>}
 pub struct Peer {state:Arc<Mutex<State>>,writes:Arc<std::sync::atomic::AtomicUsize>}
 impl Peer {
     pub fn new(nor:Vec<u8>,scenario:&str)->Self {
         Self {state:Arc::new(Mutex::new(State {input:vec![],output:VecDeque::new(),nor,
-            registers:HashMap::new(),scenario:scenario.into(),reads:0,fragments:0,ready:false,timeout:Duration::from_secs(5),b_sector:false,pending:false,sector_writes:0})),
+            registers:HashMap::new(),scenario:scenario.into(),reads:0,fragments:0,ready:false,timeout:Duration::from_secs(5),b_sector:false,pending:false,sector_writes:0,
+            execution:false,exec_pending:None,exec_writes:[0;2],entries:0,boot:vec![],frames:vec![]})),
             writes:Arc::new(std::sync::atomic::AtomicUsize::new(0))}
     }
     #[cfg(test)]
     pub fn write_counter(&self)->Arc<std::sync::atomic::AtomicUsize> {self.writes.clone()}
     pub fn b_sector(nor:Vec<u8>,scenario:&str)->Self {
         let peer=Self::new(nor,scenario);peer.state.lock().unwrap().b_sector=true;peer
+    }
+    pub fn execution(nor:Vec<u8>,boot:Vec<u8>,frames:Vec<u8>,scenario:&str)->Self {
+        let peer=Self::new(nor,scenario);{
+            let mut s=peer.state.lock().unwrap();s.execution=true;s.boot=boot;s.frames=frames;
+        }peer
     }
 }
 impl State {
@@ -27,6 +34,7 @@ impl State {
         self.output.extend([0x10,0,code]);self.output.extend(data);self.output.push_back(6);
     }
     fn value(&self,address:u32)->u32 {
+        if self.execution && self.scenario=="alias-retained" && self.entries==2 && (0x5004206c..=0x50042074).contains(&address) {return 0x400000}
         if address==0x40040000 {return if self.scenario=="lcpu-running" {0}else{4}}
         if address==0x50081080 {return 0x10af} // A deliberately active synthetic UART RX DMA.
         if address==0x50081084 {return 32362}
@@ -45,6 +53,11 @@ impl State {
     fn consume(&mut self)->io::Result<()> {
         loop {
             if self.input.is_empty() {return Ok(())}
+            if let Some((address,size))=self.exec_pending {
+                if self.input.len()<size {return Ok(())}
+                let data:Vec<_>=self.input.drain(..size).collect();self.nor[address..address+size].copy_from_slice(&data);self.exec_pending=None;
+                self.output.extend(b"OK\r\nmsh >");continue
+            }
             if self.pending {
                 if self.input.len()<4096 {return Ok(())}
                 let data:Vec<_>=self.input.drain(..4096).collect();self.nor[0x420000..0x421000].copy_from_slice(&data);
@@ -72,6 +85,11 @@ impl State {
                 else if p.starts_with(&[0x40,0x72]) {
                     let address=u32::from_le_bytes(p[2..6].try_into().unwrap());
                     let words=u16::from_le_bytes(p[6..8].try_into().unwrap());
+                    if self.execution && ((self.scenario=="initial-register-fail" && self.entries==1 && address==0x40040000) ||
+                        (self.scenario=="restore-register-fail" && self.entries==2 && address==0x40040000) ||
+                        (self.scenario=="restore-alias-fail" && self.entries==2 && address==0x5004206c)) {
+                        self.response(0xdf,&[]);continue;
+                    }
                     if self.scenario=="register-read-fail" && address==0x40040000 {
                         return Err(io::Error::other("Synthetic inaccessible LP register"))
                     }
@@ -94,6 +112,43 @@ impl State {
                 let parts:Vec<_>=command.split_whitespace().collect();
                 match parts.as_slice() {
                     []=>{if self.ready {self.output.extend(b"msh >")}},
+                    ["burn_read",address,size] if self.execution=>{
+                        let address=usize::from_str_radix(address.trim_start_matches("0x"),16).map_err(io::Error::other)?;
+                        let size=usize::from_str_radix(size.trim_start_matches("0x"),16).map_err(io::Error::other)?;
+                        if !((address==0x12000000 && size==4096) || ([0x12010000,0x12420000].contains(&address) && size==65536)) {return Err(io::Error::other("Synthetic unapproved read"))}
+                        let offset=address-0x12000000;self.reads+=1;let mut data=self.nor[offset..offset+size].to_vec();
+                        if self.scenario=="before-changed" && self.reads==1 {data[0]^=1}
+                        if self.scenario=="b-compare" && address==0x12420000 && self.exec_writes[1]==1 && self.entries==1 {data[0]^=1}
+                        if self.scenario=="boot-compare" && address==0x12010000 && self.exec_writes[0]==1 && self.entries==1 {data[0]^=1}
+                        let checksum=crc::Crc::<u32>::new(&CRC_ALGORITHM).checksum(&data);
+                        let checksum=if self.scenario=="restore-read-fail" && self.exec_writes[1]==2 {checksum^1}else{checksum};
+                        self.output.extend(b"start_trans\r\n");self.output.extend(data);self.output.extend(format!("\r\ncrc:0x{checksum:08x}\r\nOK\r\nmsh >").bytes());
+                    },
+                    ["burn_erase_write",address,size] if self.execution=>{
+                        let address=usize::from_str_radix(address.trim_start_matches("0x"),16).map_err(io::Error::other)?;
+                        let size=usize::from_str_radix(size.trim_start_matches("0x"),16).map_err(io::Error::other)?;
+                        let index=if address==0x12010000 && [58496,65536].contains(&size) {0}else if address==0x12420000 && size==4096 {1}else{return Err(io::Error::other("Synthetic unapproved mutation"))};
+                        if self.exec_writes[index]>=2 {return Err(io::Error::other("Synthetic third write forbidden"))}
+                        self.exec_writes[index]+=1;let offset=address-0x12000000;self.nor[offset..offset+size].fill(255);
+                        if (self.scenario=="write-fail" && index==1 && self.exec_writes[1]==1) ||
+                            (self.scenario=="restore-boot-fail" && index==0 && size==65536) ||
+                            (self.scenario=="restore-b-fail" && index==1 && self.exec_writes[1]==2) {self.output.extend(b"Fail\r\n");}
+                        else {self.exec_pending=Some((offset,size));self.output.extend(b"RX_WAIT\r\n");}
+                    },
+                    ["burn_reset"] if self.execution=>{
+                        if (self.scenario=="probe-start-fail" && self.exec_writes==[1,1]) ||
+                            (self.scenario=="original-start-fail" && self.exec_writes==[2,2]) {self.output.extend(b"Fail\r\n");continue;}
+                        self.output.extend(b"OK\r\n");self.ready=false;
+                        if self.nor[0x10000..0x10000+self.boot.len()]==self.boot {
+                            let mut frames=self.frames.clone();
+                            if self.scenario=="no-frames" {frames.clear();}
+                            if self.scenario=="bad-tag" {frames[12]^=1;}
+                            if self.scenario=="bad-crc" {frames[79]^=1;}
+                            if self.scenario=="short-frames" {frames.truncate(239);}
+                            if self.scenario=="duplicate-frames" {frames.extend(self.frames[..80].iter());}
+                            self.output.extend(frames);
+                        }
+                    },
                     ["burn_read","0x12000000","0x01000000"]=>{
                         self.reads+=1;
                         let mut data=self.nor.clone();
@@ -130,7 +185,7 @@ impl State {
 impl Read for Peer {
     fn read(&mut self,buf:&mut [u8])->io::Result<usize> {
         let mut s=self.state.lock().unwrap();
-        if s.scenario=="hang-read" || s.scenario=="b-hang-read" {drop(s);loop {std::thread::sleep(Duration::from_secs(1))}}
+        if s.scenario=="hang-read" || s.scenario=="b-hang-read" || s.scenario=="execute-hang" {drop(s);loop {std::thread::sleep(Duration::from_secs(1))}}
         if s.output.is_empty() {return Err(io::Error::new(io::ErrorKind::TimedOut,"Synthetic empty queue"))}
         let limit=if s.scenario=="fragmented" {s.fragments+=1;if s.fragments%2==1 {1}else{31}}else{4096};
         let count=buf.len().min(s.output.len()).min(limit);
@@ -156,7 +211,7 @@ impl SerialPort for Peer {
     fn set_parity(&mut self,_:Parity)->serialport::Result<()> {Ok(())}
     fn set_stop_bits(&mut self,_:StopBits)->serialport::Result<()> {Ok(())}
     fn write_request_to_send(&mut self,value:bool)->serialport::Result<()> {
-        if value {let mut s=self.state.lock().unwrap();s.output.clear();s.input.clear();s.ready=false}
+        if value {let mut s=self.state.lock().unwrap();s.output.clear();s.input.clear();s.ready=false;s.entries+=1;}
         Ok(())
     }
     fn write_data_terminal_ready(&mut self,_:bool)->serialport::Result<()> {Ok(())}
