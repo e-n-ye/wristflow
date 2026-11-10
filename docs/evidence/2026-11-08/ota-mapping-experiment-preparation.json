@@ -1,0 +1,91 @@
+{
+  "schema": 1,
+  "date": "2026-11-08",
+  "baseline": "011894cb65b916fdda9233eaf957ca19645b3bbe",
+  "branch": "codex/ota-mapping-experiment",
+  "stage_closed": false,
+  "scope": "Minimal A-linked/B-storage fixture and offline backup/FTAB inspection; experiment entry, UART result capture, actual FTAB and ROM rescue admission remain open.",
+  "slot": {
+    "result": "artifacts/ota_slot_probe/20261108-185741-039/result.json",
+    "main_bytes": 1188,
+    "main_sha256": "4b69c59e98a491fbfeb6b8f9e30bc639932b516a095295ea341707a17a71d713",
+    "sources": 15,
+    "artifacts": 7,
+    "elf_check": {
+      "passed": true,
+      "bytes": 1188,
+      "sha256": "4b69c59e98a491fbfeb6b8f9e30bc639932b516a095295ea341707a17a71d713",
+      "elf_sha256": "f7e084a851b31ba311d5a4c4686b0c5e5fc4d64274d9fdee8260d09664d67547",
+      "linked_address": "0x12020000",
+      "candidate_storage": "0x12420000",
+      "candidate_erase_bytes": 4096,
+      "symbols": {
+        "Reset_Handler": 302122100,
+        "wf_ota_slot_fault": 302122116,
+        "wf_ota_slot_main": 302121984,
+        "wf_ota_slot_marker": 302122144
+      },
+      "initial_sp": "0x20002000",
+      "reset_pc": "0x12020475",
+      "ram_result": "0x20003000",
+      "deployable": false,
+      "hardware_verified": false
+    },
+    "archive": "artifacts/ota-mapping-experiment-20261108/slot-20261108-185741-039.zip",
+    "archive_sha256": "3f6d9cd7241fa4e2855ebb0d89e141d62910e60179b7c4fab929fa0b4d89c07c",
+    "archive_readback_verified": true
+  },
+  "tests": {
+    "checker_python_passed": 12,
+    "backup_review_python_passed": 8,
+    "logs": {
+      "checker-tests.log": "306ad304ebc52de04eb0aff4e809f8d28fb77cf3a83ba74655fa69546c2e7366",
+      "backup-tests.log": "54df15da8761999a97d40f3e1948518ba555334abf27afe1476ad45944262371"
+    }
+  },
+  "source_sha256": {
+    "scripts/ota_backup_review.py": "c2d0b10abbfaebcd2cc26394b1176ab0c1784c6c45e8a35e9b78bf5589acf3df",
+    "tests/test_ota_backup_review.py": "771122439d8c6626764ffada3b8c766486784c64df9670b134ff64d8bfc31609",
+    "scripts/ota_slot_check.py": "2fa6638727f199d68bd8333e2c00fbd825b2712f59e6d414a28c835e81604b3e",
+    "tests/test_ota_slot_check.py": "9c7005ccf952fb236c42cdcf464b0a7dbe6269fdc6ab31582221de86d91a71e8"
+  },
+  "host_ftab_fixture": {
+    "source": "artifacts/product/20261108-171533-204/result.json; host-only verified images assembled in memory, not device backup",
+    "boot_declared_bytes": 58496,
+    "main_declared_bytes": 3028888,
+    "boot_vectors": [
+      "0x20042000",
+      "0x200220c9"
+    ],
+    "header_offsets_verified_against_sdk_generated_bin": true
+  },
+  "tool_capabilities": {
+    "sftool_version": "0.2.5",
+    "local_help_only": true,
+    "read_flash": "filename@address:size; accepts multiple files",
+    "write_flash": "--verify filename@address; erase-all is optional and forbidden for this experiment",
+    "public_ram_load_run_command": false
+  },
+  "operator_input": {
+    "available_connection": "Original USB UART only; user confirmed",
+    "swd_connected": false,
+    "fresh_device_version_and_power_confirmed": false
+  },
+  "known_gates": [
+    "Current device FTAB length and flags must be read; host FTAB is not device evidence.",
+    "No qualified test boot calls jump; existing boot is diagnostic halt only.",
+    "Slot currently emits a RAM result only; USB observation/capture is not yet bound.",
+    "Full NOR backup pair and forced ROM rescue path have not been exercised.",
+    "Any boot replacement must honor actual FTAB copy length, or separately review an FTAB update.",
+    "Boot electrical admission and exact write/restore artifacts remain open."
+  ],
+  "failures_and_corrections": [
+    "Initial slot ELF defaulted to entry/main instead of Reset_Handler despite correct vectors. Explicit link entry and readelf-to-vector guard added; orphan init/fini fragments removed.",
+    "Backup parser accepted a reset instruction truncated by one byte at declared image tail. Added complete 2-byte bound and regression."
+  ],
+  "sdk_lock_changed": false,
+  "formal_partition_changed": false,
+  "hardware_operation": false,
+  "deployment_authorized": false,
+  "next_step": "Fresh operator conditions and approval for current-version snapshot, one bounded ROM connection reading two full NOR files without Flash mutation, return to existing firmware and offline FTAB review; retain the stage branch."
+}

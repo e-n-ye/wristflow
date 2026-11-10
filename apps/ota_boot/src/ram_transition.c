@@ -21,6 +21,56 @@ __attribute__((noinline)) bool wf_ota_ram_apply(MPI_TypeDef *mpi, const wf_ota_a
     return matched;
 }
 
+#ifdef WF_OTA_BOOT_EXECUTE_PROBE
+/* Same register handoff as the retained generic jump, but IRQs stay masked.
+ * The only caller has matched the complete embedded test image. */
+__attribute__((naked,noreturn)) void wf_ota_ram_jump_probe(const wf_ota_boot_plan_t *plan __attribute__((unused)))
+{
+    __asm volatile(
+        "cpsid i\n"
+        "ldr r1, [r0, #16]\n"
+        "ldr r2, [r0, #20]\n"
+        "ldr r3, [r0, #24]\n"
+        "movw r0, #0xe010\n"
+        "movt r0, #0xe000\n"
+        "movs r4, #0\n"
+        "str r4, [r0]\n"
+        "str r4, [r0, #8]\n"
+        "movw r0, #0xed04\n"
+        "movt r0, #0xe000\n"
+        "movw r4, #0\n"
+        "movt r4, #0x0a00\n"
+        "str r4, [r0]\n"
+        "movw r0, #0xe004\n"
+        "movt r0, #0xe000\n"
+        "ldr r4, [r0]\n"
+        "and r4, r4, #15\n"
+        "adds r4, #1\n"
+        "movw r0, #0xe180\n"
+        "movt r0, #0xe000\n"
+        "mvn r5, #0\n"
+        "1:\n"
+        "str r5, [r0]\n"
+        "str r5, [r0, #256]\n"
+        "adds r0, #4\n"
+        "subs r4, #1\n"
+        "bne 1b\n"
+        "movw r0, #0xed08\n"
+        "movt r0, #0xe000\n"
+        "str r1, [r0]\n"
+        "dsb 0xf\n"
+        "isb 0xf\n"
+        "movs r0, #0\n"
+        "msr control, r0\n"
+        "msr basepri, r0\n"
+        "msr faultmask, r0\n"
+        "msr msplim, r0\n"
+        "msr msp, r2\n"
+        "isb 0xf\n"
+        "bx r3\n");
+}
+#endif
+
 /* Retained for static inspection only. Prototype entry never calls this:
  * verified image authentication / durable trial admission is not bound yet.
  * All field offsets are asserted against the assembly below. */

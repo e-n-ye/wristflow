@@ -1,14 +1,20 @@
 #requires -Version 7.0
-param([ValidateRange(1,32)][int]$Jobs = 4)
+param([ValidateRange(1,32)][int]$Jobs = 4, [string]$ProbeBinding, [string]$EvidenceDir)
 . "$PSScriptRoot/Set-LocalEnvironment.ps1"
 Enable-SdkEnvironment
 $bootProject = Join-Path $ProjectRoot 'apps/ota_boot/project'
 $bootBoard = $SdkLock.board
-$bootRun = Join-Path $ProjectRoot ("artifacts/ota_boot/{0}" -f (Get-Date -Format 'yyyyMMdd-HHmmss-fff'))
+$bootRun = if ($EvidenceDir) {[IO.Path]::GetFullPath($EvidenceDir)} else {Join-Path $ProjectRoot ("artifacts/ota_boot/{0}" -f (Get-Date -Format 'yyyyMMdd-HHmmss-fff'))}
+if (Test-Path -LiteralPath $bootRun) {throw 'Evidence directory must be new'}
+if ($ProbeBinding) {$ProbeBinding=(Resolve-Path -LiteralPath $ProbeBinding).Path}
 New-Item -ItemType Directory -Path $bootRun -Force | Out-Null
 Push-Location $bootProject
 try {
-    & scons "--board=$bootBoard" "-j$Jobs" *>&1 | Tee-Object -FilePath (Join-Path $bootRun 'build.log')
+    $bootArgs=@("--board=$bootBoard","-j$Jobs")
+    if ($ProbeBinding) {
+        $bootArgs+="wf_probe_binding=$ProbeBinding"
+    }
+    & scons @bootArgs *>&1 | Tee-Object -FilePath (Join-Path $bootRun 'build.log')
     $bootExit = $LASTEXITCODE
 } finally { Pop-Location }
 $bootBuild = Join-Path $bootProject "build_${bootBoard}_hcpu"
@@ -27,7 +33,9 @@ if ($bootExit -eq 0) {
         if ($map -notmatch '(?m)^ROM\s+0x20020000\s+0x00010000\s' -or
             $map -notmatch '(?m)^RAM\s+0x20040000\s+0x00010000\s') { throw 'Unexpected boot RAM geometry' }
         if ((Get-Item -LiteralPath (Join-Path $bootBuild 'main.bin')).Length -gt 0x10000) { throw 'Boot exceeds 64 KiB storage budget' }
-        & python (Join-Path $PSScriptRoot 'ota_boot_check.py') --elf (Join-Path $bootBuild 'main.elf') --output (Join-Path $bootRun 'elf-check.json')
+        $checkArgs=@((Join-Path $PSScriptRoot 'ota_boot_check.py'),'--elf',(Join-Path $bootBuild 'main.elf'),'--bin',(Join-Path $bootBuild 'main.bin'),'--output',(Join-Path $bootRun 'elf-check.json'))
+        if ($ProbeBinding) {$checkArgs+=@('--probe-binding',$ProbeBinding)}
+        & python @checkArgs
         if ($LASTEXITCODE -ne 0) { throw 'RAM boot ELF validation failed' }
         foreach ($name in 'main.elf','main.bin','main.map','.config','rtconfig.h','ptab.h','link_copy.lds') {
             $path = Join-Path $bootBuild $name
@@ -38,11 +46,16 @@ if ($bootExit -eq 0) {
 $bootSources = @(Get-ChildItem -LiteralPath $bootProject -File | Where-Object { $_.Name -match '^(SConstruct|SConscript|Kconfig.*|proj.conf|rtconfig.py|link.lds)$' })
 $bootSources += @(Get-ChildItem -LiteralPath (Join-Path $bootProject "${bootBoard}_hcpu") -File)
 $bootSources += @(Get-ChildItem -LiteralPath (Join-Path $ProjectRoot 'apps/ota_boot/src') -File)
+if ($ProbeBinding) {
+    $bootSources+=@(Get-ChildItem -LiteralPath (Join-Path $ProjectRoot 'apps/ota_probe_support') -File)
+    $bootSources+=Get-Item -LiteralPath $ProbeBinding
+    if (Test-Path -LiteralPath (Join-Path $bootBuild 'src/probe_binding.h')) {$bootSources+=Get-Item -LiteralPath (Join-Path $bootBuild 'src/probe_binding.h')}
+}
 foreach ($name in 'scripts/Build-Ota-Boot.ps1','scripts/ota_boot_check.py','scripts/Set-LocalEnvironment.ps1','sdk.lock.json') {
     $bootSources += Get-Item -LiteralPath (Join-Path $ProjectRoot $name)
 }
 $record = [ordered]@{
-    kind='ram-ota-boot-prototype'; command="scons --board=$bootBoard -j$Jobs"
+    kind='ram-ota-boot-prototype'; command=($bootArgs -join ' '); probe_execution_enabled=[bool]$ProbeBinding
     exit_code=$bootExit; artifact_validation_passed=($bootExit -eq 0 -and $null -eq $bootError)
     artifact_validation_error=$bootError; deployable=$false; hardware_verified=$false
     sdk_commit=(Get-CheckedOutput git @('-C',$SdkRoot,'rev-parse','HEAD'))
@@ -53,4 +66,4 @@ $record = [ordered]@{
 $record | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $bootRun 'result.json') -Encoding utf8
 Write-Host "RAM boot evidence: $bootRun"
 if (-not $record.artifact_validation_passed) { throw "RAM boot build/validation failed: $bootError" }
-Write-Host 'BUILD SUCCEEDED: RAM boot prototype; diagnostic only, no device operations'
+Write-Host 'BUILD SUCCEEDED: RAM boot review artifact; deployable=false, no device operations'

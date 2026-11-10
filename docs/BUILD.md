@@ -1,5 +1,14 @@
 # 可复现构建基线
 
+## 2026-11-09 固定探针执行软件评审包
+
+`pwsh -NoProfile -File scripts/Prepare-Ota-Probe.ps1 -FirstBackup <首份完整NOR> -SecondBackup <第二份完整NOR> -Out <全新目录> -Jobs 4`只读核备份、执行两个官方SCons构建并封存评审包，不调用设备。脚本显式传递每个构建的`-EvidenceDir`，不按最新日期猜结果；slot的`-Tag`与boot的`-ProbeBinding`固定整份测试镜像和本包结果帧。独立`Build-Ota-Boot.ps1`不传绑定时仍是诊断模式。
+
+最终本机`artifacts/ota-execution-probe-20261108-006`通过：slot1684B／`d46f4a7d…`、执行boot34240B／`5c45fe8f…`，精确58496B兼容候选／`db747d90…`；boot／B首扇区恢复文件及76成员ZIP逐字节读回通过，ZIP SHA`62c81356…`。默认boot另在`artifacts/ota-boot-default-sealed-20261109`复构建，BIN31436B／原SHA`24f11089…`、无探针执行路径。两个ELF入口均绑定Reset_Handler并核向量／LOAD跨度；RAM放置与切换／jump反汇编通过。
+
+`cmake --build artifacts/host-ui-build`后全量CTest96/96；Release重建`ota_probe`并检查`ota_(probe|boot_plan|ab|journal|physical_read)`5/5；Python `test_ota_*.py`＋runtime导出／解码共68/68。SDK／公共Build.ps1／正式分区未改，协议源仅链接实验目标，本轮不重编普通Product／UI Demo或五目标基线。001–003的宏格式／52 UART枚举／RAM常量符号分类失败、入口修正及004→005隔离复构建均保留；006补构建SDK提交绑定后封存，默认诊断另存冻结副本。[完整契约](OTA-PREPARATION.md#execution-review-20261109)／[精简证据](evidence/2026-11-09/ota-probe-execution-package.json)。无设备执行、映射／强制救援或完整OTA通过声明。
+
+
 ## 2026-11-08 RAM boot与映射切换原型
 
 独立入口`pwsh -NoProfile -File scripts/Build-Ota-Boot.ps1 -Jobs 4`复用官方NO_OS／RAM boot链接脚本及锁定板支持，项目持有entry与策略；最终`20261108-171758-563`成功，BIN31436B／`24f11089…`。代码／常量／向量表全部在`0x20020000`／64KiB，map占32327B；栈／堆／数据在`0x20040000`／64KiB，占33880B。ELF守卫通过：RAM切换函数36条指令、保留的跳转函数41条，无调用／PC常量／窗口外分支；诊断代码无跳转函数的外部符号引用。18份项目输入、7份产物及完整ZIP读回通过。
