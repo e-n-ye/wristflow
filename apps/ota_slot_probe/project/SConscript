@@ -1,0 +1,10 @@
+import os
+from building import *
+from SCons.Script import Flatten
+Import('SIFLI_SDK')
+cwd = GetCurrentDir()
+objs = SConscript(os.path.join(SIFLI_SDK, 'SConscript'), variant_dir='sifli_sdk', duplicate=0)
+# This probe owns vectors/reset and deliberately never runs SystemInit.
+objs = [node for node in Flatten(objs) if node.rfile().name != 'startup_bf0_hcpu.S']
+objs += SConscript(os.path.join(cwd, '../src/SConscript'), variant_dir='src', duplicate=0)
+Return('objs')

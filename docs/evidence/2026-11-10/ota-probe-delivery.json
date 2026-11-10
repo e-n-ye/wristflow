@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "date": "2026-11-10",
+  "scope": "Independent fixed-probe software delivery",
+  "primary_worktree": "D:/MY_Desk/project/wristflow",
+  "delivery_worktree": "D:/MY_Desk/project/wristflow-delivery",
+  "base": "12c3b90cda6621c7c6c8d9ba6c5e9a0c6917828f",
+  "inspection": "Read-only independent review and primary source/hash/ELF review; no blocking source finding",
+  "dependencies": [
+    "ota_backup_review.py",
+    "test_ota_backup_review.py",
+    "tests/CMakeLists.txt ota_probe target"
+  ],
+  "not_required_for_software_merge": [
+    "ROM/stub adapter",
+    "B device execution",
+    "production OTA rollback"
+  ],
+  "validation": {
+    "independent_tree_python_tests": 26,
+    "skipped": 0,
+    "independent_tree_ctest": 5,
+    "source_sha_records_verified": 20,
+    "original_two_target_build_and_default_rebuild_reused": true,
+    "firmware_source_changed_since_build": false,
+    "frozen_elf_and_binary_rechecked": true,
+    "default_check": {
+      "elf_sha256": "92a8dcb36899ba9d5e0504db4525f0613968ade16c5bc98161ec8de7a6de1b20",
+      "ram_placement_passed": true,
+      "apply": {
+        "start": "0x20023924",
+        "instructions": 36
+      },
+      "jump": {
+        "start": "0x2002397c",
+        "instructions": 41
+      },
+      "jump_admission_bound": false,
+      "hardware_verified": false,
+      "probe_execution_bound": false,
+      "bin_bytes": 31436,
+      "bin_sha256": "24f110895bd60cb7c2250c112f85f1f4fbf4ecace925b9b2d65008f683975f34",
+      "initial_sp": "0x20042000",
+      "reset_pc": "0x20020355"
+    },
+    "logs": [
+      {
+        "path": "artifacts/ota-probe-delivery-python-20261110.log",
+        "bytes": 3201,
+        "sha256": "735cc04d04f435b4279a390a5e8c28484adebe3561999e6bb104336c724dfd70"
+      },
+      {
+        "path": "artifacts/ota-probe-delivery-ctest-20261110.log",
+        "bytes": 627,
+        "sha256": "5dd4c1f249ac006e34eee27bcb8c1c55981c1a752e0f879fea2672af6c30f56e"
+      },
+      {
+        "path": "artifacts/ota-probe-delivery-source-check-20261110.json",
+        "bytes": 1772,
+        "sha256": "e8415b323f3eb083db477f041ca9a5753b11ed9b9f022c0e97331374b5f99bfd"
+      },
+      {
+        "path": "artifacts/ota-probe-delivery-configure-20261110.log",
+        "bytes": 1416,
+        "sha256": "264158b7414ec777f03dce268c71e2830eb64849181f07efd27d04ca1fb3bff4"
+      },
+      {
+        "path": "artifacts/ota-probe-delivery-configure-retry-20261110.log",
+        "bytes": 414,
+        "sha256": "b2619f270711c34cd99952e5046d98f1914b891edeca6ef38708ab797dc76218"
+      }
+    ]
+  },
+  "failures": [
+    "First CMake compiler probe failed with host runtime DLL directory absent from process PATH; retry with existing UCRT bin first succeeded. No toolchain/SDK change."
+  ],
+  "sdk_lock_unchanged": true,
+  "device_actions": false,
+  "hardware_pending": [
+    "B physical execution",
+    "exact write/restore device evidence",
+    "automatic rollback"
+  ],
+  "delivery_boundary": "Build and validate isolated default-stopping experimental firmware/package; no device authorization or deployment"
+}

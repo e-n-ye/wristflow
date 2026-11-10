@@ -1,0 +1,8 @@
+import rtconfig
+from building import *
+PrepareEnv()
+SifliEnv()
+TARGET = rtconfig.OUTPUT_DIR + rtconfig.TARGET_NAME + '.' + rtconfig.TARGET_EXT
+objs = PrepareBuilding(None)
+DoBuilding(TARGET, objs)
+# A-linked test image only. No FTAB, bootloader or download manifests.

@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import re
 import subprocess
+import struct
 
 RAM_CODE = (0x20020000, 0x20030000)
 RAM_DATA = (0x20040000, 0x20050000)
@@ -53,7 +54,7 @@ def jump_unreferenced(disassembly, start, size):
         require(start <= int(match[1], 16) < start + size, "Diagnostic code references jump")
 
 
-def check(elf):
+def check(elf, binary=None, binding=None):
     def output(tool, *args):
         return subprocess.check_output([tool, *args, str(elf)], text=True, encoding="utf-8")
     symbols = output("arm-none-eabi-nm", "-S")
@@ -71,6 +72,7 @@ def check(elf):
     # Every allocated executable/readonly section must execute/load from boot
     # RAM; initialized writable sections may use RAM_DATA with a RAM_CODE LMA.
     sections = output("arm-none-eabi-objdump", "-h")
+    load_ends=[]
     for match in re.finditer(r"(?m)^\s*\d+ (\S+)\s+([0-9a-f]+)\s+([0-9a-f]+)\s+([0-9a-f]+)[^\n]*\n\s+([^\n]+)", sections):
         name, size, vma, lma, flags = match.groups()
         size, vma, lma = (int(value, 16) for value in (size, vma, lma))
@@ -79,23 +81,60 @@ def check(elf):
             require(limits[0] <= vma < vma + size <= limits[1], "Section placement: " + name)
             if "LOAD" in flags:
                 require(RAM_CODE[0] <= lma < lma + size <= RAM_CODE[1], "Section load address: " + name)
+                load_ends.append(lma+size)
     # Entry never references the retained jump function: structural vector
     # plausibility alone must not become permission to boot an image.
     jump = re.search(r"(?m)^([0-9a-f]+) [0-9a-f]+ [Tt] wf_ota_ram_jump$", symbols)
     jump_unreferenced(disassembly, int(jump[1], 16), sizes["wf_ota_ram_jump"])
+    extra={"probe_execution_bound":False}
+    if binary is not None:
+        data=binary.read_bytes()
+        require(load_ends and max(load_ends)-RAM_CODE[0]==len(data),"BIN differs from ELF LOAD extent")
+        sp,pc=struct.unpack_from('<II',data)
+        require(sp==0x20042000 and pc&1 and RAM_CODE[0]<=pc-1<pc+1<=RAM_CODE[0]+len(data),"Boot BIN vectors invalid")
+        reset=re.search(r'(?m)^([0-9a-f]+) [0-9a-f]+ [Tt] Reset_Handler$',symbols)
+        require(reset and (pc&~1)==int(reset[1],16),'Boot vector bypasses Reset_Handler')
+        entry=struct.unpack_from('<I',elf.read_bytes(),24)[0]
+        require((entry&~1)==(pc&~1),'Boot ELF entry bypasses reset initialization')
+        extra.update(bin_bytes=len(data),bin_sha256=hashlib.sha256(data).hexdigest(),initial_sp=hex(sp),reset_pc=hex(pc))
+    if binding is not None:
+        require(binary is not None,"Probe binding requires boot BIN")
+        item=json.loads(binding.read_text(encoding='utf-8'))
+        probe=Path(item['probe']['path']).read_bytes()
+        require(hashlib.sha256(probe).hexdigest()==item['probe']['sha256'],"Bound probe changed")
+        symbol=re.search(r'(?m)^([0-9a-f]+) ([0-9a-f]+) [RrTt] wf_ota_probe_expected$',symbols)
+        require(symbol and int(symbol[2],16)==len(probe),"Missing exact literal probe identity")
+        offset=int(symbol[1],16)-RAM_CODE[0]
+        require(0<=offset<=len(data)-len(probe) and data[offset:offset+len(probe)]==probe,"Embedded probe bytes differ")
+        tag=re.search(r'(?m)^([0-9a-f]+) 00000010 [RrTt] wf_ota_probe_tag$',symbols)
+        require(tag,"Missing probe tag")
+        offset=int(tag[1],16)-RAM_CODE[0]
+        require(struct.unpack_from('<4I',data,offset)==tuple(item['tag']),"Boot tag differs")
+        jump_probe=re.search(r'(?m)^([0-9a-f]+) ([0-9a-f]+) [Tt] wf_ota_ram_jump_probe$',symbols)
+        require(jump_probe,"Missing masked-IRQ probe handoff")
+        extra['probe_jump']=leaf_block(disassembly,'wf_ota_ram_jump_probe',final_jump=True,byte_size=int(jump_probe[2],16))
+        block=re.search(r'<wf_ota_ram_jump_probe>:\n(.*?)(?=^[0-9a-f]+ <|\Z)',disassembly,re.S|re.M)[1]
+        require('cpsie' not in block,"Probe handoff unmasks IRQs")
+        require(re.search(r'<wf_ota_ram_jump_probe>',disassembly[:disassembly.find('<wf_ota_ram_jump_probe>:')]) or
+                len(re.findall(r'<wf_ota_ram_jump_probe>',disassembly))>1,"Probe execution route missing")
+        extra['probe_execution_bound']=True
+    else:
+        require(not re.search(r'\bwf_ota_ram_jump_probe$',symbols,re.M),"Unexpected execution code in diagnostic build")
     return {"elf_sha256": hashlib.sha256(elf.read_bytes()).hexdigest(), "ram_placement_passed": True,
             "apply": leaf_block(disassembly, "wf_ota_ram_apply", byte_size=sizes["wf_ota_ram_apply"]),
             "jump": leaf_block(disassembly, "wf_ota_ram_jump", final_jump=True, byte_size=sizes["wf_ota_ram_jump"]),
-            "jump_admission_bound": False, "hardware_verified": False}
+            "jump_admission_bound": False, "hardware_verified": False, **extra}
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--elf", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--bin", type=Path)
+    parser.add_argument("--probe-binding", type=Path)
     args = parser.parse_args()
     try:
-        report = dict(passed=True, **check(args.elf))
+        report = dict(passed=True, **check(args.elf,args.bin,args.probe_binding))
     except (ValueError, OSError, subprocess.SubprocessError) as exc:
         report = {"passed": False, "error": str(exc)}
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

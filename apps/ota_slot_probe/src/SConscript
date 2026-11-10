@@ -1,0 +1,17 @@
+import os
+from building import *
+from SCons.Script import ARGUMENTS, VariantDir, Dir
+cwd = GetCurrentDir()
+root=os.path.normpath(os.path.join(cwd,'../../..'))
+shared=os.path.join(Dir('.').abspath,'probe_shared')
+VariantDir(shared,os.path.join(root,'apps/ota_probe_support'),duplicate=0)
+tag=ARGUMENTS.get('wf_probe_tag','0'*32)
+if len(tag)!=32 or any(c not in '0123456789abcdef' for c in tag):
+    raise ValueError('wf_probe_tag must be32 lowercase hex digits')
+defines=['WF_OTA_PROBE_TAG'+str(i)+'=0x'+tag[8*i:8*i+8]+'u' for i in range(4)]
+group = DefineGroup('WristFlowOtaSlotProbe', Glob('*.c') + Glob('*.S') +
+                    [File(os.path.join(shared,'uart.c')),File(os.path.join(shared,'ota_probe.c'))], depend=[''],
+                    CPPPATH=[cwd,os.path.join(root,'apps/ota_probe_support')],
+                    CPPDEFINES=defines, LINKFLAGS=['-Wl,-e,Reset_Handler'],
+                    LOCAL_CCFLAGS=' -Wall -Wextra -Werror=implicit-function-declaration')
+Return('group')

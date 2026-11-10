@@ -1,6 +1,6 @@
-import os
+import os, json, hashlib
 from building import *
-from SCons.Script import VariantDir, Dir
+from SCons.Script import VariantDir, Dir, ARGUMENTS
 Import('SIFLI_SDK')
 cwd = GetCurrentDir()
 vendor_board = os.path.join(SIFLI_SDK, 'example/boot_loader/project/butterflmicro/board')
@@ -11,8 +11,36 @@ VariantDir(variant, vendor_board, duplicate=0)
 names = ['board.c', 'boot_flash.c', 'efuse.c', 'board_psram.c',
          'sd_emmc_ops.c', 'sd_nand_drv.c', 'sd_nand_ops.c']
 sources = Glob('*.c') + [File(os.path.join(variant, name)) for name in names]
-group = DefineGroup('WristFlowOtaBoot', sources, depend=[''], CPPPATH=[cwd, vendor_board],
-    CPPDEFINES=['WF_OTA_BOOT_DIAGNOSTIC'],
-    LINKFLAGS=['-Wl,--undefined=wf_ota_ram_jump'],
+root=os.path.normpath(os.path.join(cwd,'../../..'))
+defines=['WF_OTA_BOOT_DIAGNOSTIC']
+includes=[cwd,vendor_board]
+binding=ARGUMENTS.get('wf_probe_binding')
+if binding:
+    with open(binding,encoding='utf-8') as stream: item=json.load(stream)
+    if item.get('schema')!=1 or item.get('mode')!='literal-probe-only':
+        raise ValueError('Only a fixed experimental probe binding is supported')
+    tag=item['tag']; probe=item['probe']
+    if len(tag)!=4 or any(type(v) is not int or not 0<=v<=0xffffffff for v in tag) or not any(tag):
+        raise ValueError('Nonzero128-bit probe tag required')
+    with open(probe['path'],'rb') as stream: data=stream.read()
+    if not 1024<len(data)<=4096 or probe['bytes']!=len(data) or hashlib.sha256(data).hexdigest()!=probe['sha256']:
+        raise ValueError('Bound probe bytes/hash changed')
+    marker=probe['marker_address']
+    if not 0x12020400<=marker<=0x12020000+len(data)-4:
+        raise ValueError('Probe marker outside bound image')
+    generated=Dir('.').abspath
+    header='/* Generated from an explicit host-checked probe binding. */\n'
+    header+='#define WF_OTA_PROBE_BYTES %du\n#define WF_OTA_PROBE_MARKER_ADDRESS 0x%xu\n'%(len(data),marker)
+    header+='const uint32_t wf_ota_probe_tag[4]={'+','.join('0x%xu'%v for v in tag)+'};\n'
+    header+='const uint8_t wf_ota_probe_expected[WF_OTA_PROBE_BYTES]={'+','.join('0x%02x'%v for v in data)+'};\n'
+    with open(os.path.join(generated,'probe_binding.h'),'w',encoding='utf-8',newline='\n') as stream:stream.write(header)
+    includes+=[generated,os.path.join(root,'apps/ota_probe_support')]
+    shared=os.path.join(generated,'probe_shared')
+    VariantDir(shared,os.path.join(root,'apps/ota_probe_support'),duplicate=0)
+    sources+=[File(os.path.join(shared,'uart.c')),File(os.path.join(shared,'ota_probe.c'))]
+    defines+=['WF_OTA_BOOT_EXECUTE_PROBE','WF_OTA_PROBE_UART_INIT']
+group = DefineGroup('WristFlowOtaBoot', sources, depend=[''], CPPPATH=includes,
+    CPPDEFINES=defines,
+    LINKFLAGS=['-Wl,--undefined=wf_ota_ram_jump','-Wl,-e,Reset_Handler'],
     LOCAL_CCFLAGS=' -Wall -Wextra -Werror=implicit-function-declaration')
 Return('group')

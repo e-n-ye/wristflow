@@ -189,3 +189,23 @@ Debug及保留断言Release分别通过：journal17071项检查（164个回调�
 首构建因板级charger配置残留、同名board.h及重复efuse声明失败；修正后官方Flash初始化带来的SD链接依赖暴露，补官方源而不增加可选运行路径。检查器随后分别误分类copy/zero启动表、误把jump自身的IRQ循环当外部引用，均按实际section／符号边界修正并增加回归。只读审查另发现Flash基址未对齐会产生错误alias，以及未来jump需清IRQ／SysTick，已修复并定点复核；最终无新源码／构建阻断。
 
 **设备与接续门槛**：本轮没有设备操作，不能声称清alias、B执行、Boot ROM搬运、真实reset范围或自动回滚已通过。SYSRESETREQ不能仅由源码存在就当成MPI／LCPU／DMA归零，冷启动／无其他Flash使用者仍须实验确认。正式分区不冻结；受控A/B执行实验须先形成准确镜像、写入区、供电、ROM有线救援及备份恢复评审包，再讨论部署。活动顺序只回STATUS。
+
+<a id="execution-review-20261109"></a>
+## 2026-11-09 USB观测与固定探针执行软件评审包
+
+本闭环从`f256e7b`接续，关闭边界为两份可审阅实验镜像、完整固定镜像准入、电脑可解析结果、实读FTAB长度兼容及原区域恢复文件。默认boot继续诊断后停止；显式`-ProbeBinding`才编入固定B探针执行路径。新模式没有生产升级、签名／试运行journal或自动回滚入口，探针发送结果后停住，恢复原Product需明确的有线恢复流程。本轮未枚举／打开端点、复位或写入设备；手机传输和完整OTA仍未接通。
+
+`apps/ota_probe_support`独立持有纯帧协议、整份镜像比较与UART适配，仅由boot／slot两个实验工程显式VariantDir引用，普通Product的core通配构建不纳入这些源。白名单是编入RAM boot的完整探针BIN；清alias、缓存关闭且禁IRQ后，每次最多256B读取固定B地址，逐字节比较所有镜像字节，前后核同一MPI2／16MiB／AES关闭／无alias，短读或差异即拒绝。结构计划另限制探针SP=`0x20002000`、PC在A链接镜像内，应用B→A映射后再读向量和marker匹配；专用jump清SysTick／外部IRQ并保持PRIMASK=1。通用jump仍保留且不被默认诊断或探针入口调用。固定字节白名单仅用于这份最小实验镜像，主机SHA为归档标识，生产认证仍保留独立门槛。
+
+原CH340对应的调试发送为USART1／PA19，固定1M／8N1、仅TX；slot继承boot建立的UART，不调用HAL／SystemInit。初始化按锁定SDK52路径配置CR1/CR2/CR3、UE后设置BRR=48及采样位。52没有通用USART1门控枚举，已按官方条件编译路径省略；首次引用该枚举的编译失败保留。帧固定80B、小端、schema1，带128位本包tag、阶段、真实PC／SP／VTOR／CCR／PRIMASK、alias三元组、marker及IEEE CRC32。PREPARED→MAPPED→EXECUTED必须完整且有序；接收器允许非帧UART噪声，拒绝坏CRC／tag、缺失／重复／乱序／错误阶段、上下文或映射不符。发送每帧总计最多200万次flag读取，含最终TC，预算耗尽停止，不依赖中断tick、不重发或自动复位；这是软件工作量上界，实际波特和耗时仍待设备确认。
+
+`scripts/Prepare-Ota-Probe.ps1`只做离线备份复核→构建带tag探针→冻结产物并生成字面白名单→构建可选执行boot→兼容填充／恢复范围／归档。`ota_probe_package.py`复核原构建源与7份产物、冻结副本／result哈希、真实ELF向量与LOAD末端、嵌入完整探针及tag；所有ALLOC段仍受RAM范围检查，切换36条／专用jump40条指令无调用或PC常量依赖。boot和slot的ELF入口均显式指向Reset_Handler，交叉匹配BIN向量；首版boot ELF原入口指向C entry的问题已修正，默认诊断BIN字节仍为原`24f11089…`。默认诊断复构建通过，`probe_execution_bound=false`，执行函数不链接进该模式。
+
+最终包`artifacts/ota-execution-probe-20261108-006`：slot1684B／SHA`d46f4a7d…`，RAM boot34240B／`5c45fe8f…`。在不改FTAB的候选方案下，将该boot精确填充到58496B，前34240B不变、其余24256B为FF；B候选文件填充到4KiB。评审范围仅boot存储`0x12010000..0x12020000`与B首扇区`0x12420000..0x12421000`；按4KiB几何，候选文件名义擦除量分别61440B／4096B，传输工具实际擦除仍待执行前审查。原boot64KiB与B首4KiB直接从已一致的双NOR提取并封存SHA，可精确覆盖恢复；FTAB、A、loader、FS和KVDB均不在提议写入范围。包不含下载脚本或设备命令，`deployable/deployment_authorized/rom_rescue_verified=false`是当前状态声明。
+
+全量Debug96/96、相关保留断言Release5/5及Python68/68通过。发送模型覆盖TXE永不就绪／TC不完成／总预算耗尽，白名单逐一拒绝4096个单字节破坏；C生成的真实80B帧与Python逐字节匹配，解析器覆盖协议及上下文反例，恢复切片与兼容填充均有主机检查。最终ZIP76成员逐项读回，476811B／SHA`62c81356…`。首轮SCons宏tuple格式、52时钟枚举及RAM常量nm类型分类失败留在001–003；004先通过，005将实验协议隔离到专用支持目录，006补齐构建SDK提交绑定反例后最终封存。默认诊断产物也独立冻结，避免后续复构建覆盖证据。[精简证据](evidence/2026-11-09/ota-probe-execution-package.json)保存准确源码／产物／命令与失败。
+
+**设备准入仍未成立**：目前只有正常旧boot下ROM双读证据。写入新boot前还需可绕过故障Flash boot的强制ROM入口、复位／无其他Flash使用者条件、原区域有线恢复步骤与新鲜现场确认；不能从编译、模拟帧或字面白名单推导这些硬件结论。本软件包形成后，活动与唯一下一步仍回STATUS，不自动启用Flash写入。
+
+
+2026-11-10交付边界复核：上述固定探针构建包、解析器及恢复输入作为独立软件成果交付；默认诊断不跳转，实验入口与普通Product隔离。隔离交付树Python26/26（无跳过）、相关CTest5/5通过，20份既有构建源SHA与交付树一致，固定boot／slot及默认诊断的冻结ELF／BIN再核通过；[交付证据](evidence/2026-11-10/ota-probe-delivery.json)。后续ROM／stub工具和B执行是分别验收的变更，不作为这份软件合入条件。设备事实及当前动作仅回STATUS。
