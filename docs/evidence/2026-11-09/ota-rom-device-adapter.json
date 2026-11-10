@@ -1,0 +1,194 @@
+{
+  "schema": 1,
+  "date": "2026-11-09",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/ota-mapping-experiment",
+  "source_base": "3f3d0fc06742a28907b464406dc87eb25288c308",
+  "scope": "Bound real-clock UART adapter and owned-worker cancellation; fake serial and browser acceptance only",
+  "device": {
+    "enumerated": false,
+    "serial_opened": false,
+    "reset": false,
+    "flash_write_or_erase": false,
+    "rtc_write": false,
+    "hardware_verified": false,
+    "rom_rescue_verified": false,
+    "deployment_authorized": false
+  },
+  "sdk": {
+    "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "lock_changed": false,
+    "source_changed": false,
+    "firmware_built": false
+  },
+  "implementation": {
+    "entry": "scripts/ota_rom_device.py",
+    "modes": [
+      "simulate",
+      "capture",
+      "status"
+    ],
+    "internal_mode": "worker",
+    "transport": "scripts/ota_rom_transport.py",
+    "protocol": "scripts/ota_rom_protocol.py",
+    "state_machine": "scripts/ota_rom_rescue.py",
+    "default": "explicit simulation",
+    "shared": [
+      "Console",
+      "Journal",
+      "PortLease",
+      "ReadProcess Windows Job",
+      "prepare_capture",
+      "ota_rom_backup.application/recovery"
+    ],
+    "workflow_seconds_max": 300,
+    "rom_active_seconds_max": 22,
+    "rom_cleanup_seconds_max": 8,
+    "force_reap_seconds_max": 5,
+    "application_seconds_max": 60,
+    "fresh_before_seconds_max": 120,
+    "operator_prompt_seconds_max": 120,
+    "wall_clock_hold_ms_min": 2500,
+    "per_response_seconds_max": 1,
+    "core_register_transfer_seconds_max": 0.1,
+    "read_timeout_seconds": 0.01,
+    "write_timeout_seconds": 0.05,
+    "flush_called": false,
+    "entry_rts_max": 1,
+    "sysresetreq_max": 1,
+    "conditional_exit_rts_max": 1,
+    "rtc_elapsed_clock": "same worker monotonic_ns",
+    "lease_retained_if_exit_uncertain": true,
+    "auto_reconnect": false,
+    "flash_or_rtc_write": false
+  },
+  "validation": {
+    "new_tests": 16,
+    "related_ota_python": {
+      "command": "python -X utf8 -m unittest discover -s tests -p 'test_ota*.py' -v",
+      "passed": 92,
+      "total": 92,
+      "seconds": 53.385,
+      "exit_code": 0,
+      "log": {
+        "path": "artifacts/ota-rom-device-20261109/ota-rom-device-all-tests-20261109.log",
+        "bytes": 13677,
+        "sha256": "283e00beb7ef41465c8ddd9226f0bccbfa2608cd1cfe9d33335c6b20d97bd001"
+      }
+    },
+    "python": {
+      "executable": "D:/msys64/ucrt64/bin/python.exe",
+      "version": "3.14.3 (main, Feb  5 2026, 13:34:54)  [MINGW GCC UCRT 15.2.0 64 bit (AMD64)]"
+    },
+    "ui": {
+      "success": {
+        "report": {
+          "path": "artifacts/ota-rom-device-20261109/ui-success/device.json",
+          "bytes": 2675,
+          "sha256": "0f20d79eb451a13e4dc80f9085e4117e1ac4769438d0506f15123ada6645ec7a"
+        },
+        "outcome": "passed",
+        "source_bindings_verified": true,
+        "resources_closed": true,
+        "worker_exit": 0,
+        "checks": "4/4",
+        "screenshot": {
+          "path": "artifacts/ota-rom-device-20261109/ui-success.jpg",
+          "bytes": 44548,
+          "sha256": "61f0dd3a013f0113eca9f14c5956324bd35b246be571fa7b1a2ef85caceb5ef4"
+        }
+      },
+      "cancel": {
+        "report": {
+          "path": "artifacts/ota-rom-device-20261109/ui-cancel/device.json",
+          "bytes": 1784,
+          "sha256": "bd01589c3798e82985eaf256be09ac41318e8e883013fd71a1dcd79421a2fd0a"
+        },
+        "outcome": "cancelled",
+        "source_bindings_verified": true,
+        "resources_closed": true,
+        "worker_exit": 0,
+        "automatic_confirm_disabled": true,
+        "debug_release_confirmed": true,
+        "rts_released": true,
+        "application_after_opened": false,
+        "screenshot": {
+          "path": "artifacts/ota-rom-device-20261109/ui-cancel-automatic.jpg",
+          "bytes": 51661,
+          "sha256": "c34a38dcb0973b348c89b59719410fa4119fb89871fb692c33a4cc7997a15dd3"
+        }
+      }
+    },
+    "read_only_reviews": {
+      "read_only": true,
+      "remaining_blockers": 0,
+      "corrections": [
+        "Always close/reap the owned process after IPC or poll failure",
+        "Use same-worker monotonic elapsed for RTC recovery; retain wall-clock logs"
+      ]
+    },
+    "coverage": [
+      "Open/read/write/close driver hangs force owned worker termination",
+      "Cancel after catch releases only owned debug state; no after open",
+      "IPC cancel write and poll failure still attempt process close",
+      "Uncertain close retains endpoint lease",
+      "Source/fixture or endpoint change refuses new open",
+      "After-state failure preserves ROM observation independently",
+      "Late/pre-request delayed receive cannot extend request deadline",
+      "Active timeout preserves reserved debug-exit time",
+      "Host wall-clock jump cannot substitute for device RTC continuity",
+      "Native Windows Job normal exit, descendant kill and parent-death cleanup"
+    ],
+    "sdk_runtime": {
+      "executable": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\envs\\default\\b1ffa931b7485f8607540b6a2f6a9a53bbefe3696b9db68845be1c3c5cff1ab9\\python\\Scripts\\python.exe",
+      "version": "3.13.15 (main, Sep  1 2026, 14:16:48) [MSC v.1944 64 bit (AMD64)]",
+      "serial_version": "3.5",
+      "serial_module": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\envs\\default\\b1ffa931b7485f8607540b6a2f6a9a53bbefe3696b9db68845be1c3c5cff1ab9\\python\\Lib\\site-packages\\serial\\__init__.py",
+      "device_enumerated": false,
+      "device_opened": false
+    },
+    "sdk_ota_python": {
+      "command": "SDK-managed Python -X utf8 -m unittest discover -s tests -p 'test_ota*.py' -v",
+      "passed": 92,
+      "total": 92,
+      "seconds": 60.403,
+      "exit_code": 0,
+      "log": {
+        "path": "artifacts/ota-rom-device-20261109/ota-tests-sdk.log",
+        "bytes": 13677,
+        "sha256": "dd9bc924a15f223260fe3018454c9ed6284700fd2f1a6af3e35447c0c145b86c"
+      }
+    },
+    "runtime_selection": "PATH Python lacks pySerial; capture uses existing SDK Python with pySerial 3.5. No packages installed.",
+    "documents": {
+      "checker": "scripts/lab_check.py docs; 12 changed files only",
+      "passed": true,
+      "utf8_files": 12,
+      "added_local_links": 10,
+      "diff_check": "git diff --check passed",
+      "final_report": "artifacts/ota-rom-device-docs-final-20261109.json"
+    }
+  },
+  "archive": {
+    "path": "artifacts/ota-rom-device-20261109-002.zip",
+    "bytes": 247965,
+    "sha256": "4b70682a2db4891b728374942719702aa47b7b6a0e31a63cd24d8870902640e7",
+    "members": 100,
+    "all_members_read_back_identical": true,
+    "source_manifest": "artifacts/ota-rom-device-20261109/source-manifest.json",
+    "source_files": 35,
+    "earlier_package_retained": "artifacts/ota-rom-device-20261109.zip; sealed before SDK-runtime check; final package is -002"
+  },
+  "remaining_boundary": [
+    "Fresh same-board/firmware, fixed USB/BAT, nearby operator and screen/touch confirmation plus explicit reset/exit authorization",
+    "Actual UART ACK shape, ROM reset-catch and original application/RTC recovery",
+    "Driver open/close electrical control-line behavior",
+    "LCPU/DMA/other Flash ownership, exact erase and wired restore writes",
+    "Real B execution and complete OTA automatic rollback"
+  ],
+  "stage": {
+    "closed": false,
+    "pr_opened": false,
+    "reason": "Same controlled-mapping stage awaits fresh authorized hardware rehearsal; retain focused branch"
+  }
+}

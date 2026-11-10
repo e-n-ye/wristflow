@@ -1,0 +1,392 @@
+{
+  "schema": 1,
+  "date": "2026-11-09",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/ota-mapping-experiment",
+  "source_head": "09de8998c953a0644f54f95f9f468bbbfee3af40",
+  "scope": "Offline minimal write/restore command review, exact protected bytes and fixed-source provenance; stage remains open",
+  "manual_poststate": {
+    "source": "User reply in continuation chat",
+    "quote": "已关闭，时间／显示／触摸／KEY1 正常",
+    "closes": "Pending manual confirmation after RTC recovery; does not revise original captured reports"
+  },
+  "inputs": {
+    "schema": 1,
+    "source_commit": "09de8998c953a0644f54f95f9f468bbbfee3af40",
+    "backups": [
+      {
+        "path": "artifacts/ota-rom-backup-20261108/device-001/nor-first.bin",
+        "bytes": 16777216,
+        "sha256": "9140bb4e1bb700c8a7b1d06f29f510c3f18b13fb6da86e34b7f453fec639ab74"
+      },
+      {
+        "path": "artifacts/ota-rom-backup-20261108/device-001/nor-second.bin",
+        "bytes": 16777216,
+        "sha256": "9140bb4e1bb700c8a7b1d06f29f510c3f18b13fb6da86e34b7f453fec639ab74"
+      }
+    ],
+    "images": [
+      {
+        "path": "artifacts/ota-execution-probe-20261108-006/boot-compatible-58496.bin",
+        "bytes": 58496,
+        "sha256": "db747d9070aeb3642a64e765045a0b6671b922d16f72d5860e6e3bbb334c2303",
+        "marker_offsets": {
+          "7e79": [],
+          "4072": [],
+          "4077": []
+        }
+      },
+      {
+        "path": "artifacts/ota-execution-probe-20261108-006/probe-b-sector.bin",
+        "bytes": 4096,
+        "sha256": "14102c47df5a8078fd934f9efaea7a271ef790eb7ffd265546abf4cf5b4440fe",
+        "marker_offsets": {
+          "7e79": [],
+          "4072": [],
+          "4077": []
+        }
+      },
+      {
+        "path": "artifacts/ota-execution-probe-20261108-006/restore-boot-64k.bin",
+        "bytes": 65536,
+        "sha256": "f59f948f987362f1270b1da541405e82bd887c1a16c306364c04913c9c07f667",
+        "marker_offsets": {
+          "7e79": [],
+          "4072": [],
+          "4077": []
+        }
+      },
+      {
+        "path": "artifacts/ota-execution-probe-20261108-006/restore-b-first4k.bin",
+        "bytes": 4096,
+        "sha256": "154ff4e9b4b26b0a5f13ce0f4ec94f32418d48cbabdb276ae48f842879713070",
+        "marker_offsets": {
+          "7e79": [],
+          "4072": [],
+          "4077": []
+        }
+      }
+    ],
+    "historical_regions": [
+      {
+        "start": "0x12410000",
+        "end": "0x12420000",
+        "bytes": 65536,
+        "non_ff": 64299,
+        "sha256": "8d18df8c87cc8d3c03accdbfe072300a67c71e68151d7680f87c516543d26d5f"
+      },
+      {
+        "start": "0x12420000",
+        "end": "0x12421000",
+        "bytes": 4096,
+        "non_ff": 3895,
+        "sha256": "154ff4e9b4b26b0a5f13ce0f4ec94f32418d48cbabdb276ae48f842879713070"
+      },
+      {
+        "start": "0x12421000",
+        "end": "0x12430000",
+        "bytes": 61440,
+        "non_ff": 53547,
+        "sha256": "b31918e48b3fe0552474517ef624c00214edb85b8a503662fc832f64a8b33f36"
+      },
+      {
+        "start": "0x12430000",
+        "end": "0x12440000",
+        "bytes": 65536,
+        "non_ff": 61170,
+        "sha256": "758280d93fa9afa0a2697fded8d0d887a937a04bbdca6828369aeb4c2b4409c7"
+      },
+      {
+        "start": "0x1201e480",
+        "end": "0x12020000",
+        "bytes": 7040,
+        "non_ff": 0,
+        "sha256": "9b1a86b90d36a5e5cad8137f1ac06fe3ff106d51d76621554080c64b07c90ef5"
+      }
+    ],
+    "sources": [
+      {
+        "path": "artifacts/ota-write-recovery-review-20261109/upstream/sftool-lib/src/common/write_flash.rs",
+        "bytes": 6557,
+        "sha256": "793c77b7d5a68ac18cd42fa0f531eddab4f66f03c0223c8eee4046c6ba4cadbf",
+        "git_blob": "d255d14ec611f560a50d7784a632d87dcf55c551",
+        "url": "https://github.com/OpenSiFli/sftool/blob/be2adab37bfb0ef4eb623b7e47e7b8693918b1e1/sftool-lib/src/common/write_flash.rs"
+      },
+      {
+        "path": "artifacts/ota-write-recovery-review-20261109/upstream/sftool-lib/src/common/read_flash.rs",
+        "bytes": 6284,
+        "sha256": "86be7907e938e27c690caf1c0092f40bf558c25ee42c0b2bad338009aaef026a",
+        "git_blob": "4b3c8b8856b9f0ddd1bead3379dd216e156b9d08",
+        "url": "https://github.com/OpenSiFli/sftool/blob/be2adab37bfb0ef4eb623b7e47e7b8693918b1e1/sftool-lib/src/common/read_flash.rs"
+      },
+      {
+        "path": "artifacts/ota-write-recovery-review-20261109/upstream/sftool/src/main.rs",
+        "bytes": 7312,
+        "sha256": "34a400845ccf7be84ff22543c16e6d3c878fffad3a7d3a8aa9859606e4ef70e2",
+        "git_blob": "29e3fed3c3500cc40e2dd669f82384fa94fdd534",
+        "url": "https://github.com/OpenSiFli/sftool/blob/be2adab37bfb0ef4eb623b7e47e7b8693918b1e1/sftool/src/main.rs"
+      },
+      {
+        "path": "artifacts/ota-write-recovery-review-20261109/upstream/sftool-lib/src/lib.rs",
+        "bytes": 9076,
+        "sha256": "d097d33bd8d608e63885a2967dbb27a0ff08487d858af6775ec1a9bdc3140b3e",
+        "git_blob": "75f8962d1f81ad5bb473fce18a310de9dbb8b8a9",
+        "url": "https://github.com/OpenSiFli/sftool/blob/be2adab37bfb0ef4eb623b7e47e7b8693918b1e1/sftool-lib/src/lib.rs"
+      },
+      {
+        "path": "artifacts/ota-write-recovery-review-20261109/upstream/sftool-lib/src/common/ram_command.rs",
+        "bytes": 5491,
+        "sha256": "af20c8e0f264d18c41a3180367ee5a7f84f5d6d89e9eaaed4c4d199004e78ba9",
+        "git_blob": "f46a0f669d05d532261c56d163d02c34b5535d74",
+        "url": "https://github.com/OpenSiFli/sftool/blob/be2adab37bfb0ef4eb623b7e47e7b8693918b1e1/sftool-lib/src/common/ram_command.rs"
+      },
+      {
+        "path": "artifacts/ota-write-recovery-review-20261109/upstream/sftool-lib/src/common/speed.rs",
+        "bytes": 905,
+        "sha256": "df997926bf01b17dd5095a5550a0f959fa68481b7c5cc506c2bb4e894ed6dcaa",
+        "git_blob": "4ac4ca6b031c3242e5c05279fad764868b11d61e",
+        "url": "https://github.com/OpenSiFli/sftool/blob/be2adab37bfb0ef4eb623b7e47e7b8693918b1e1/sftool-lib/src/common/speed.rs"
+      },
+      {
+        "path": "artifacts/ota-write-recovery-review-20261109/upstream/sftool-lib/src/ram_stub.rs",
+        "bytes": 3532,
+        "sha256": "993e305e4e1cc89a91a9e61921c9f34bfba4b601a6419361067c8e9559e5f726",
+        "git_blob": "60eb3228137c35cbca2a918c7177fec8b749d029",
+        "url": "https://github.com/OpenSiFli/sftool/blob/be2adab37bfb0ef4eb623b7e47e7b8693918b1e1/sftool-lib/src/ram_stub.rs"
+      },
+      {
+        "path": "artifacts/ota-write-recovery-review-20261109/upstream/sftool/src/cli.rs",
+        "bytes": 9447,
+        "sha256": "ee1804b7dd94423e7b80253db4cb20a6bbba7c6b804f8d049be280a664092be1",
+        "git_blob": "a6f90c2bb23b6129ecf2bc5f0fd0e1bfc0ebe4f1",
+        "url": "https://github.com/OpenSiFli/sftool/blob/be2adab37bfb0ef4eb623b7e47e7b8693918b1e1/sftool/src/cli.rs"
+      }
+    ],
+    "stub": {
+      "path": "vendor/SiFli-SDK/tools/uart_download/file/ram_patch_52X.bin",
+      "bytes": 132816,
+      "sha256": "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43",
+      "git_blob": "194c22c8f7899c81777ae36af587e31da738c2e2",
+      "url": "https://github.com/OpenSiFli/sftool/blob/be2adab37bfb0ef4eb623b7e47e7b8693918b1e1/sftool-lib/stub/ram_patch_52X.bin"
+    },
+    "executable": {
+      "path": ".tools/sifli/tools/sftool/0.2.5/sftool.exe",
+      "bytes": 7943168,
+      "sha256": "1ccc425e72048db93c410614114f8343e389988ee8aa90251aa46f05ae0b3e0f"
+    },
+    "checks": {
+      "exact_restore_slices": true,
+      "marker_free_fixed_files": true,
+      "source_git_blobs_verified": true,
+      "stub_matches_pinned_upstream": true
+    },
+    "device_actions": false,
+    "flash_commands_executed": false,
+    "deployment_authorized": false,
+    "hardware_erase_envelope_verified": false,
+    "other_flash_users_controlled_verified": false
+  },
+  "source_findings": [
+    {
+      "path": "sftool-lib/src/sf32lb52/mod.rs",
+      "lines": [
+        244,
+        254
+      ],
+      "fact": "Every new process opens1M, writes RTS=false, and skips stub only when should_download_stub is false."
+    },
+    {
+      "path": "sftool-lib/src/common/speed.rs",
+      "lines": [
+        11,
+        29
+      ],
+      "fact": "Sends target speed command before changing host baud; retained500k stub is incompatible with naive new1M CLI session."
+    },
+    {
+      "path": "sftool-lib/src/common/write_flash.rs",
+      "lines": [
+        74,
+        138
+      ],
+      "fact": "Incremental path skips equal CRC, otherwise sends exact address/file length to erase-write and optionally verifies target CRC; physical erase is inside stub."
+    },
+    {
+      "path": "sftool/src/main.rs",
+      "lines": [
+        201,
+        205
+      ],
+      "fact": "Normal after reset is reached only after successful operation; no claim about construct/reopen/stub failure state."
+    },
+    {
+      "path": "sftool-lib/src/common/read_flash.rs",
+      "lines": [
+        80,
+        110
+      ],
+      "fact": "Checks payload CRC and terminalOK before creating output file; host byte comparison remains separately required."
+    }
+  ],
+  "bounded_symbol_comparison": {
+    "elf": {
+      "path": "apps/product/project/build_sf32lb52-lchspi-ulp_hcpu/main.elf",
+      "bytes": 14285596,
+      "sha256": "1cc3bc8e7cb606ef0eeffbe5eaae1a17555504ce3c78764d6f1e6694fb5472cb"
+    },
+    "comparisons": [
+      {
+        "symbol": "HAL_RCC_Reset_and_Halt_LCPU",
+        "address": "0x20007838",
+        "bytes": 84,
+        "sha256": "f8823b29cecbcbf0d0f52d7f0dd4258cef11f5cd3dd0a8f3b00688f2885bc8f8",
+        "stub_exact_matches": 0
+      },
+      {
+        "symbol": "rt_nor_erase_rom",
+        "present": false
+      },
+      {
+        "symbol": "rt_flash_erase",
+        "address": "0x20003910",
+        "bytes": 432,
+        "sha256": "378ae0895b9eba9d82b9608306fb99b759dd7d69c7601e174d79c229da5a9e0e",
+        "stub_exact_matches": 0
+      }
+    ],
+    "interpretation": "No matching code or call path established. No-match does not prove absence of equivalent functionality. No further reverse engineering."
+  },
+  "upstream_reports": [
+    {
+      "url": "https://github.com/OpenSiFli/sftool/issues/55",
+      "status": "open at review",
+      "scope": "Contributor report:0.2.5/SF32LB52/NOR/USART1/1M/Linux; not this device result"
+    },
+    {
+      "url": "https://github.com/OpenSiFli/sftool/pull/56",
+      "status": "open, not adopted",
+      "scope": "Contributor workaround and tests, not part of fixed tool"
+    }
+  ],
+  "command_review": {
+    "executable_sha256": "1ccc425e72048db93c410614114f8343e389988ee8aa90251aa46f05ae0b3e0f",
+    "port": "must be freshly bound; deliberately not generated",
+    "common_arguments": [
+      "-c",
+      "SF32LB52",
+      "-m",
+      "nor",
+      "-b",
+      "1000000",
+      "--before",
+      "no_reset_no_sync",
+      "--after",
+      "no_reset",
+      "--compat",
+      "false"
+    ],
+    "operations": [
+      {
+        "name": "candidate_b",
+        "args": [
+          "write_flash",
+          "--verify",
+          "probe-b-sector.bin@0x12420000"
+        ]
+      },
+      {
+        "name": "candidate_boot",
+        "args": [
+          "write_flash",
+          "--verify",
+          "boot-compatible-58496.bin@0x12010000"
+        ]
+      },
+      {
+        "name": "restore_boot",
+        "args": [
+          "write_flash",
+          "--verify",
+          "restore-boot-64k.bin@0x12010000"
+        ]
+      },
+      {
+        "name": "read_restored_boot",
+        "args": [
+          "read_flash",
+          "boot-restored.bin@0x12010000:0x10000"
+        ]
+      },
+      {
+        "name": "restore_b",
+        "args": [
+          "write_flash",
+          "--verify",
+          "restore-b-first4k.bin@0x12420000"
+        ]
+      },
+      {
+        "name": "read_restored_b",
+        "args": [
+          "read_flash",
+          "b-restored.bin@0x12420000:0x1000"
+        ]
+      }
+    ],
+    "executed": false,
+    "ready_for_device_execution": false,
+    "preconditions": [
+      "Same owned unmodified stub at1M, exact inputs and continuous endpoint ownership",
+      "All other Flash users controlled and physical erase envelope accepted",
+      "Fresh same-window data baseline; independent byte comparison before next action",
+      "Fresh scoped authorization including restore and bounded exception cleanup"
+    ],
+    "process_reopen_unverified": true,
+    "final_start_not_implicit": true,
+    "erase_all_forbidden": true
+  },
+  "conclusions": {
+    "four_fixed_images_verified": true,
+    "known_marker_scan_clear": true,
+    "following_b_60k_non_ff": 53547,
+    "scope_expanded": false,
+    "physical_erase_envelope_verified": false,
+    "other_flash_users_controlled_verified": false,
+    "restore_writes_executed": false,
+    "restore_files_present_and_exact": true
+  },
+  "validation": {
+    "reproduce": "SDK Python -B -X utf8 artifacts/ota-write-recovery-review-20261109/audit.py",
+    "offline_passed": true,
+    "source_files": 8,
+    "git_blobs_verified": true,
+    "firmware_build": false,
+    "new_host_unit_tests": false,
+    "docs_check": "Bounded lab_check docs report saved separately in artifacts",
+    "independent_review": {
+      "scope": "Facts, conditional command parameters/order, no new write authorization or B-range expansion",
+      "finding": "Nominal4KiB rounding had been worded as actual last4KiB preservation",
+      "resolution": "Reworded as conditional nominal envelope; actual stub boundary remains open",
+      "remaining_blockers": "Other Flash users and physical erase envelope are retained as execution gaps"
+    }
+  },
+  "device": {
+    "enumerated": false,
+    "serial_opened": false,
+    "reset": false,
+    "rtc_write": false,
+    "flash_write_or_erase": false,
+    "new_hardware_claim": false
+  },
+  "sdk_lock_changed": false,
+  "stage_closed": false,
+  "pr_created": false,
+  "next_boundary": "Design and simulate the minimal owned stub session and physical erase/other-user observation contract; no repeat of accepted ROM hold/release, no boot replacement as tool test",
+  "archive": {
+    "path": "artifacts/ota-write-recovery-review-20261109.zip",
+    "bytes": 173216,
+    "sha256": "182637f0d241244f9975554cb13502d99d069771071dc18d3e541e22e490be28",
+    "members": 25,
+    "all_members_read_back_identical": true
+  }
+}

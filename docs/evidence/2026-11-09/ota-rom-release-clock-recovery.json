@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "date": "2026-11-09",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/ota-mapping-experiment",
+  "source_commit": "e13857d6409498acb8f850bb1374dba1ab3c25d4",
+  "authorization": "已亮屏，授权本次单次校时并回验",
+  "command": "SDK Python -X utf8 scripts/device_snapshot.py startup --query date --query steps --seconds 30; original build/flash/full archive bound in binding.json",
+  "binding": {
+    "path": "artifacts/ota-rom-release-time-recovery-20261109-001/binding.json",
+    "bytes": 148617,
+    "sha256": "89a0503e51333e4562c7ab5bbaef4e34162161280ad18bd13a410b9383ff1dac"
+  },
+  "report": {
+    "path": "artifacts/ota-rom-release-time-recovery-20261109-001/snapshot.json",
+    "bytes": 2558,
+    "sha256": "08409a33f761de403d5bb2b3c07ed3b21d0241815aa74367c6eff916e6494203"
+  },
+  "uart": {
+    "path": "artifacts/ota-rom-release-time-recovery-20261109-001/uart.bin",
+    "bytes": 1465,
+    "sha256": "a658884f80b1706ec8cf20938a1e793381e6e12b2694431ceff2e05b07dc529b"
+  },
+  "events": {
+    "path": "artifacts/ota-rom-release-time-recovery-20261109-001/events.jsonl",
+    "bytes": 2598,
+    "sha256": "53283f06476925263c7cc43aaae74c6326e936136ff75248e3f56f4ca52cbac3"
+  },
+  "commands": [
+    "show_date",
+    "wf_time 1794231231",
+    "show_date",
+    "wf_steps status"
+  ],
+  "clock_write_commands": 1,
+  "before": [
+    "Sat Jan  1 00:18:03 2000"
+  ],
+  "after_utc": [
+    "Mon Nov  9 13:33:51 2026"
+  ],
+  "after_local": "2026-11-09 21:33:51 Asia/Shanghai",
+  "steps": {
+    "valid": true,
+    "restored": true,
+    "day": 20766,
+    "generation": 493,
+    "total": 0,
+    "hours_mask": "0x3fffff",
+    "verified": true,
+    "dirty": false,
+    "failed": false
+  },
+  "elapsed_seconds": 1.1053824,
+  "exit": 0,
+  "resources_closed": true,
+  "reset": false,
+  "flash_write_or_erase_command": false,
+  "new_firmware_build": false,
+  "new_host_tests": false,
+  "sdk_lock_changed": false,
+  "firmware_replaced": false,
+  "previous_device_failure_preserved": true,
+  "final_manual_confirmation_pending": true,
+  "application_log": "Authorized time sync accompanied ordinary alarm saved generation1263; raw retained",
+  "sources": [
+    {
+      "path": "scripts/device_snapshot.py",
+      "bytes": 12078,
+      "sha256": "0195f5297b87bd26084887210dc42618ed169243f4248ae58a26204fed84189f"
+    },
+    {
+      "path": "scripts/serial_lab.py",
+      "bytes": 13798,
+      "sha256": "7fe4ad1d5a6a2007f59c97c586cf954791c15310a881075a50db12a946d78aa6"
+    },
+    {
+      "path": "scripts/lab_serial.py",
+      "bytes": 9088,
+      "sha256": "8ac5b08fc0f7d68180b1f657d91d7bc11d4b3cc349d6603bde59e90710c49703"
+    },
+    {
+      "path": "scripts/lab_evidence.py",
+      "bytes": 1498,
+      "sha256": "618487f3802b663b347c1bbd97b081147df2ef31ae6f471a9fcf2ac692e64864"
+    }
+  ],
+  "archive": {
+    "path": "artifacts/ota-rom-release-time-recovery-20261109-001.zip",
+    "bytes": 51607,
+    "sha256": "3d7d973379674b4b8f4bc630289d10bd3759a1477b7be62d182c05fd27119994",
+    "members": 11,
+    "all_members_read_back_identical": true
+  }
+}

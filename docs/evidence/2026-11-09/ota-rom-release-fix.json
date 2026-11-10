@@ -1,0 +1,420 @@
+{
+  "schema": 1,
+  "date": "2026-11-09",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/ota-mapping-experiment",
+  "base_commit": "2826ed61f0f68632d215e6d55e0121a367912678",
+  "scope": "Host-only debug-disable ACK plus observed SFBL startup tail; independent strict DHCSR readback; no new hardware window",
+  "official_reference": {
+    "source": {
+      "path": "vendor/SiFli-SDK/tools/sdk_py_actions/sifli_uart_dap.py",
+      "bytes": 12425,
+      "sha256": "d70af17831d85247a6d02f0a3afd0b9f0afb9d3cf9e880fa13383a77bfcfb73f"
+    },
+    "close_lines": [
+      118,
+      126
+    ],
+    "write32_lines": [
+      171,
+      181
+    ],
+    "send_receive_lines": [
+      231,
+      278
+    ],
+    "findings": [
+      "SDK close sends Exit then closes UART; no DEMCR/DHCSR release ordering or readback contract",
+      "SDK clears pending UART input and scans non-frame bytes; project preserves raw bytes and stricter checks",
+      "No proof target UART DAP remains readable after debug disable; must be measured in next separately authorized window",
+      "Target SFBL sender remains unidentified"
+    ]
+  },
+  "observed_fixture": {
+    "path": "tests/fixtures/ota-rom-release-sfbl-20261109.uart",
+    "bytes": 13,
+    "sha256": "dff129d24cfcacbb8c96350876b6b56b852c8f0c6596caa64ef1980fa89d1556",
+    "source": "artifacts/ota-rom-rescue-second-20261109/device-002/worker/rom-rx.bin",
+    "source_span": [
+      429,
+      442
+    ],
+    "source_bytes": 442,
+    "hex": "7e7902001000d3065346424c0a",
+    "byte_identical": true
+  },
+  "implementation": {
+    "allowed": [
+      "8-byte exact D3 ACK",
+      "ACK plus SFBL LF",
+      "ACK plus SFBL CRLF"
+    ],
+    "maximum_bytes": 14,
+    "quiet_read_required": true,
+    "allowed_only": "Owned cleanup single DHCSR=0xA05F0000; guard and release parser allowance consumed before I/O",
+    "independent_confirmation": "Subsequent DHCSR request; strict frame start including response phase; exact D2 and HALT/DEBUG cleared",
+    "report_fields": [
+      "debug_release_acknowledged",
+      "debug_release_readback",
+      "debug_release_confirmed"
+    ],
+    "ack_tail_offsets_separate": true,
+    "retry": false,
+    "request_seconds": 1,
+    "cleanup_seconds": 8,
+    "rom_seconds": 30,
+    "wire_nonce": false,
+    "late_identical_d2_causality_unproven": true
+  },
+  "validation": {
+    "command": "SDK Python -X utf8 -m unittest discover -s tests -p test_ota*.py -v",
+    "python": "3.13.15",
+    "pyserial": "3.5",
+    "related_tests": 125,
+    "seconds": 79.495,
+    "exit": 0,
+    "focused_tests": 14,
+    "new_test_methods": 16,
+    "final_log": {
+      "path": "artifacts/ota-rom-release-fix-20261109/final-all-tests-002.log",
+      "bytes": 19111,
+      "sha256": "59e1cb5d17b2db31f573213a387b1977f552f92d9ccd6dc496f4bbbffca6b44b"
+    },
+    "focused_log": {
+      "path": "artifacts/ota-rom-release-fix-20261109/final-focused-tests.log",
+      "bytes": 2322,
+      "sha256": "7f648c4d20d3608fcc9297ba7f184b55391a251691e79b96058c9e16fd3cd46e"
+    },
+    "initial_result": "123/123 before strict readback followup",
+    "incomplete_log": {
+      "path": "artifacts/ota-rom-release-fix-20261109/final-all-tests.log",
+      "bytes": 8560,
+      "sha256": "fed2880f174ed512ba07b8b052f5c68e603d742cbe0e3d990057b803b9d192a8"
+    },
+    "iterations": {
+      "initial_tests": "123/123 80.473s; before strict release readback",
+      "final_tests": "125/125 79.495s",
+      "intermediate_error": "Local event-span edit used Reply.ACK in normal Reply path; focused tests detected AttributeError; corrected before final focused14/all125/UI",
+      "incomplete_run": "final-all-tests.log stopped without end/exit record; final-all-tests-002.log contains complete rerun",
+      "prepare_timeouts": [
+        "ui-failure-final",
+        "ui-cancel-final"
+      ],
+      "hardware_actions": false
+    },
+    "review": "Read-only official-source investigation and independent final implementation/test review; no remaining blockers",
+    "source_manifest": {
+      "path": "artifacts/ota-rom-release-fix-20261109/source-manifest.json",
+      "bytes": 6542,
+      "sha256": "1a4260471e7f03ddfec047837a503c6f121c530772842dc920806cb914753379"
+    },
+    "source_files": [
+      {
+        "path": "scripts/ota_rom_rescue_lab.py",
+        "bytes": 11139,
+        "sha256": "6c70594ac9e14ea22492c6cf1adb8c03c3c02c40063f6398c210a18d2f51434d"
+      },
+      {
+        "path": "scripts/ota_rom_rescue.py",
+        "bytes": 20860,
+        "sha256": "cea6f8f52da1fc01aae34b84963f4d9f116725714d7592d1d449768cc4a05c1e"
+      },
+      {
+        "path": "scripts/ota_rom_protocol.py",
+        "bytes": 6895,
+        "sha256": "0eac7d35e83f2d318467cd7a8220eff3853a961771cdbb07e63bbdae54e7705f"
+      },
+      {
+        "path": "scripts/ota_rom_backup.py",
+        "bytes": 20757,
+        "sha256": "fdc4237ed47bc6934a9d862add5998f2eb118acf7334cd5b924fa7614c66bae9"
+      },
+      {
+        "path": "scripts/runtime_export.py",
+        "bytes": 9381,
+        "sha256": "bb60c3aac7063bef8c8d6c9bb77c46563304e86e7c5957f11c80aa969d477885"
+      },
+      {
+        "path": "scripts/runtime_record_decode.py",
+        "bytes": 10383,
+        "sha256": "41fc2dd141a9bb843e40f7caeefefaec1955c9189e7dcb1864ba8ae514f99a39"
+      },
+      {
+        "path": "scripts/battery_console.py",
+        "bytes": 13914,
+        "sha256": "7590d5e5a75f8b4c277e5085af9b4fe430a144056b735173441c2edd8e982316"
+      },
+      {
+        "path": "scripts/battery_lab.py",
+        "bytes": 24502,
+        "sha256": "a666370236c173a39fb908a9a62c8c8e9b0bce7aa4b82231cae1aed165ad48eb"
+      },
+      {
+        "path": "scripts/lab_serial.py",
+        "bytes": 9088,
+        "sha256": "8ac5b08fc0f7d68180b1f657d91d7bc11d4b3cc349d6603bde59e90710c49703"
+      },
+      {
+        "path": "scripts/lab_evidence.py",
+        "bytes": 1498,
+        "sha256": "618487f3802b663b347c1bbd97b081147df2ef31ae6f471a9fcf2ac692e64864"
+      },
+      {
+        "path": "scripts/device_snapshot.py",
+        "bytes": 12078,
+        "sha256": "0195f5297b87bd26084887210dc42618ed169243f4248ae58a26204fed84189f"
+      },
+      {
+        "path": "scripts/cycle_log_lab.py",
+        "bytes": 11523,
+        "sha256": "f5ab5cc9d0a72e9a9f4a6c376e13a80256c936029cd58083af3fad93e84e418c"
+      },
+      {
+        "path": "scripts/cycle_protocol.py",
+        "bytes": 4402,
+        "sha256": "b182d3f92acded38db3e9a11092cd716e8de49b5e9a0a7718725021e305de9e5"
+      },
+      {
+        "path": "scripts/storage_protocol.py",
+        "bytes": 4724,
+        "sha256": "e379b6cc494352b6cc59c481d51a558fdf1ebf144af167e46b5e9fbbcaf6b279"
+      },
+      {
+        "path": "scripts/fs_protocol.py",
+        "bytes": 4773,
+        "sha256": "4afc42b2c8448449d5b834de998ac4a8a89900d1980ad416fab9d6c2c94c6a3d"
+      },
+      {
+        "path": "scripts/ota_rom_device.py",
+        "bytes": 28382,
+        "sha256": "621ce133cf34b413454908a546a6b408e488aeffb6ff91be7cdcdd77d94d025f"
+      },
+      {
+        "path": "scripts/ota_rom_transport.py",
+        "bytes": 2420,
+        "sha256": "215b9a0b2a9e69bbcf4e9ceddde3fe36830a684aff80912868a221ce10f3d615"
+      },
+      {
+        "path": "scripts/ota_rom_process.py",
+        "bytes": 7956,
+        "sha256": "5dee3ab333b8218accb60e6b7f61382cbb6870b9497f84ac8f82af0e9c359362"
+      },
+      {
+        "path": "scripts/serial_lab.py",
+        "bytes": 13798,
+        "sha256": "7fe4ad1d5a6a2007f59c97c586cf954791c15310a881075a50db12a946d78aa6"
+      },
+      {
+        "path": "scripts/lab_check.py",
+        "bytes": 17510,
+        "sha256": "ce9a332f6b81c552da46bbbe91a6a941271f0acbb3ab2936ee0d09bb9142678b"
+      },
+      {
+        "path": "scripts/battery_device.py",
+        "bytes": 17306,
+        "sha256": "34b07b98c1f10afcc03111d262cdadcd41699caec7cdb56a8ea865af35ad6768"
+      },
+      {
+        "path": "scripts/battery_collect.py",
+        "bytes": 23428,
+        "sha256": "304345942c16486a4626e49bb59bdd9a4126b3611630f81ba9b7d3081f0d2c05"
+      },
+      {
+        "path": "scripts/light_protocol.py",
+        "bytes": 1127,
+        "sha256": "e1cb95b7ed014e76f739f324b01bc14c86759dcef7da1ba452a968312e71ab9c"
+      },
+      {
+        "path": "scripts/compass_protocol.py",
+        "bytes": 1479,
+        "sha256": "268acef47f7fc9eb7a1fd07025c688f8ff6301759e195374f603fe26976800c5"
+      },
+      {
+        "path": "scripts/ota_backup_review.py",
+        "bytes": 5143,
+        "sha256": "c2d0b10abbfaebcd2cc26394b1176ab0c1784c6c45e8a35e9b78bf5589acf3df"
+      },
+      {
+        "path": ".tools/sifli/envs/default/b1ffa931b7485f8607540b6a2f6a9a53bbefe3696b9db68845be1c3c5cff1ab9/python/Scripts/python.exe",
+        "bytes": 45568,
+        "sha256": "dd8abfafd37acde0e87808d83e5139b1599e9a8abe3b8718fa909ca66bf33084"
+      },
+      {
+        "path": "tests/test_ota_rom_release.py",
+        "bytes": 11312,
+        "sha256": "8f1fe0f70f769f2b68084fbd13a0d5c0dfbe8c1ebeecd4757e8be843cfeaeef5"
+      },
+      {
+        "path": "tests/test_ota_rom_device.py",
+        "bytes": 16657,
+        "sha256": "7a2f2e462f6e45fae35fa1c2599e8a5d301abdbbf482d7513add7f0faa28d5b8"
+      },
+      {
+        "path": "tests/test_ota_rom_rescue.py",
+        "bytes": 24490,
+        "sha256": "22adcc825d57cbf9cfbd2f71e88204c447a3b321573f1a3e3c1805c638315440"
+      },
+      {
+        "path": "tests/fixtures/ota-rom-release-sfbl-20261109.uart",
+        "bytes": 13,
+        "sha256": "dff129d24cfcacbb8c96350876b6b56b852c8f0c6596caa64ef1980fa89d1556"
+      },
+      {
+        "path": "sdk.lock.json",
+        "bytes": 473,
+        "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+      },
+      {
+        "path": "vendor/SiFli-SDK/tools/sdk_py_actions/sifli_uart_dap.py",
+        "bytes": 12425,
+        "sha256": "d70af17831d85247a6d02f0a3afd0b9f0afb9d3cf9e880fa13383a77bfcfb73f"
+      },
+      {
+        "path": "tests/test_ota_backup_review.py",
+        "bytes": 4087,
+        "sha256": "771122439d8c6626764ffada3b8c766486784c64df9670b134ff64d8bfc31609"
+      },
+      {
+        "path": "tests/test_ota_boot_check.py",
+        "bytes": 3069,
+        "sha256": "ac1fc1d32718e820b3589601ac4a387c7dcf990731a84f3bfa4e4cf361b5e466"
+      },
+      {
+        "path": "tests/test_ota_preflight.py",
+        "bytes": 8860,
+        "sha256": "9dca71852317ce962a88c304031e6dd665b642ba5f0cad2f29005b40a2211607"
+      },
+      {
+        "path": "tests/test_ota_probe_package.py",
+        "bytes": 4414,
+        "sha256": "ea3a94958405e77159e0cfa1f3eeeabddea0c36cc2475655fc40bb5642fd06aa"
+      },
+      {
+        "path": "tests/test_ota_rom_backup.py",
+        "bytes": 15243,
+        "sha256": "b8fe779798a315ff086254830b581bbf31432ac9233c67dbec1399939109de91"
+      },
+      {
+        "path": "tests/test_ota_slot_check.py",
+        "bytes": 837,
+        "sha256": "9c7005ccf952fb236c42cdcf464b0a7dbe6269fdc6ab31582221de86d91a71e8"
+      }
+    ],
+    "all_final_ui_source_bindings_verified": true,
+    "new_firmware_build": false,
+    "sdk_lock_changed": false,
+    "vendor_changed": false,
+    "documents": "scripts/lab_check.py docs on changed files; result stored separately in artifacts"
+  },
+  "ui": {
+    "ui-success-final": {
+      "outcome": "passed",
+      "observation_passed": true,
+      "application_recovery_passed": true,
+      "worker_exit": 0,
+      "worker_forced": false,
+      "resources_closed": true,
+      "cleanup": {
+        "debug_release_confirmed": true,
+        "debug_release_acknowledged": true,
+        "debug_release_readback": 65536,
+        "exit_sent": true,
+        "exit_acknowledged": false,
+        "exit_reset_attempted": false,
+        "resources_closed": true,
+        "errors": [],
+        "rts_released": true
+      },
+      "report": {
+        "path": "artifacts/ota-rom-release-fix-20261109/ui-success-final/device.json",
+        "bytes": 3016,
+        "sha256": "3f0cb7e137b1a03b285a430c03f2fa7eed20f2623954d124a7a8ba80bc396432"
+      }
+    },
+    "ui-failure-final-002": {
+      "outcome": "error",
+      "observation_passed": true,
+      "application_recovery_passed": true,
+      "worker_exit": 0,
+      "worker_forced": false,
+      "resources_closed": true,
+      "cleanup": {
+        "debug_release_confirmed": false,
+        "debug_release_acknowledged": true,
+        "debug_release_readback": 196609,
+        "exit_sent": false,
+        "exit_acknowledged": false,
+        "exit_reset_attempted": true,
+        "resources_closed": true,
+        "errors": [
+          "ProtocolError('Debug release not confirmed')"
+        ],
+        "rts_released": true
+      },
+      "report": {
+        "path": "artifacts/ota-rom-release-fix-20261109/ui-failure-final-002/device.json",
+        "bytes": 3373,
+        "sha256": "62264d753bbe4dbd848a9eef0a35112f3639606216d798276edb02cb0475ce36"
+      }
+    },
+    "ui-cancel-final-002": {
+      "outcome": "cancelled",
+      "observation_passed": false,
+      "application_recovery_passed": false,
+      "worker_exit": 0,
+      "worker_forced": false,
+      "resources_closed": true,
+      "cleanup": {
+        "debug_release_confirmed": false,
+        "debug_release_acknowledged": false,
+        "debug_release_readback": null,
+        "exit_sent": true,
+        "exit_acknowledged": false,
+        "exit_reset_attempted": false,
+        "resources_closed": true,
+        "errors": [],
+        "rts_released": true
+      },
+      "report": {
+        "path": "artifacts/ota-rom-release-fix-20261109/ui-cancel-final-002/device.json",
+        "bytes": 2507,
+        "sha256": "4889e61cf4127bdd8a8f0ff77fbaf051284a2c73e44343b2069a08583badcb7f"
+      }
+    }
+  },
+  "ui_screenshots": [
+    {
+      "path": "artifacts/ota-rom-release-fix-20261109/ui-success-final.jpg",
+      "bytes": 45337,
+      "sha256": "997d85ed93c8e3a708c1190db769dc8ba3851101e9fe25ae50476db5ccf4e9cb"
+    },
+    {
+      "path": "artifacts/ota-rom-release-fix-20261109/ui-failure-final-002.jpg",
+      "bytes": 59505,
+      "sha256": "73162fc08afd16c4ccca14e2c3877fe88698bf02fb791ae4440aafd0cd678f44"
+    },
+    {
+      "path": "artifacts/ota-rom-release-fix-20261109/ui-cancel-final-002-automatic.jpg",
+      "bytes": 50256,
+      "sha256": "b7d9396b0294e3f5294a840b3e78de2f50b509b810657a5c5859b496b46feb01"
+    }
+  ],
+  "hardware": {
+    "port_enumeration": false,
+    "device_opened": false,
+    "reset": false,
+    "clock_write": false,
+    "flash_write_or_erase": false,
+    "new_hardware_conclusion": false,
+    "previous_evidence": "docs/evidence/2026-11-09/ota-rom-capture-exit.json"
+  },
+  "archive": {
+    "path": "artifacts/ota-rom-release-fix-20261109.zip",
+    "bytes": 403650,
+    "sha256": "2db7c0708f22028ba2ddf9940672d3fcc17a5061279c67bff5a52ffce146088d",
+    "members": 180,
+    "all_members_read_back_identical": true
+  },
+  "next_boundary": "New explicit window and fresh same-board/same-firmware/fixed USB-BAT/operator/always-on conditions; one entry RTS, one SYSRESETREQ, at most one authorized fallback RTS; independent debug-release state/Exit and app/RTC poststate; no Flash write or automatic clock recovery.",
+  "stage": "Retain codex/ota-mapping-experiment checkpoint; stage incomplete, no PR yet; no OTA boot/B deployment authorization"
+}

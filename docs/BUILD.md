@@ -1,5 +1,17 @@
 # 可复现构建基线
 
+## 2026-11-10 原版stub主机观测入口
+
+`python scripts/ota_stub_build.py --out <全新归档目录> --cargo <cargo.exe> --cargo-home <项目工具缓存> --target-dir <主机构建目录> --cc <GNU主机gcc.exe>`只构建主机EXE：固定原`sftool-lib`提交及Cargo.lock、显式`x86_64-pc-windows-gnu`，Rust测试／Release成功后重核源码并冻结产物。不打开串口，不构建／刷写固件，不改变SDK锁或系统PATH。
+
+首包`artifacts/ota-stub-observer-build-20261109-005`由固定官方Rust1.90.0组件构建，Rust4项及OTA Python138/138通过；该包用于11/10实际观测，原[软件证据](evidence/2026-11-10/ota-stub-observer-software.json)保留。初次锁解析、下载、主机DLL搜索顺序、模拟空行及测试目录冲突修正均有日志。
+
+接收记录缓冲修正包为`artifacts/ota-stub-observer-build-20261110-001`，沿用上述构建命令及工具版本，Rust7/7和Release通过；设置`WRISTFLOW_STUB_OBSERVER_BUILD=<该包result.json>`后运行SDK Python `-B -X utf8 -m unittest discover -s tests -p 'test_ota*.py' -v`，140/140、125.580秒通过，含完整16MiB的1／31B分片双读及少152B仍拒收。新包没有设备动作，不声称修复实机丢字根因。新主机依赖与原SDK／ARM工具链分开；无Product／boot／UI Demo复构建、SDK锁或依赖变更。[新软件证据](evidence/2026-11-10/ota-stub-buffered-software.json)与[现场结果](evidence/2026-11-10/ota-stub-observer-device.json)分开，具体边界见[OTA接收修正](OTA-PREPARATION.md#stub-buffered-20261110)，活动仍回STATUS。
+
+固定RAM短窗包为`artifacts/ota-stub-geometry-build-20261110-002`，同一构建入口／工具链完成Rust8/8及Release；新增`src/geometry.rs`纳入源码绑定。`WRISTFLOW_STUB_OBSERVER_BUILD=<该包result.json>`下同一OTA Python命令145/145、134.930秒通过。`ota_stub_observe.py simulate|capture --geometry-only`选择固定RAM计划；总窗300秒、stub60秒、人工确认各60秒，无NOR请求。首次142项回归的一次Windows请求文件拒绝访问及中断日志保留；现有原子发布保持，只为PermissionError增加250ms有界只读重试。没有新增固件构建或设备操作。[短窗合同](OTA-PREPARATION.md#stub-geometry-20261110)／[软件证据](evidence/2026-11-10/ota-stub-geometry-software.json)。
+
+RTOS UART选址修正包为`artifacts/ota-stub-geometry-build-20261110-003`：实际现场002只采到调试对象，修正为固定bin中ISR／RTOS路径的`0x20042260`，总采样上限保持；Rust8/8及Release、对应Python17/17通过。交付审查另修复损坏ROM响应误报无设备动作及旧备份入口关闭不确定时释放租约两项守卫，最终同包OTA Python146/146、136.724秒通过。003及守卫修正未操作设备；[最终软件交付证据](evidence/2026-11-10/ota-host-delivery.json)与[002现场证据](evidence/2026-11-10/ota-stub-geometry-device.json)分开。
+
 ## 2026-11-09 固定探针执行软件评审包
 
 `pwsh -NoProfile -File scripts/Prepare-Ota-Probe.ps1 -FirstBackup <首份完整NOR> -SecondBackup <第二份完整NOR> -Out <全新目录> -Jobs 4`只读核备份、执行两个官方SCons构建并封存评审包，不调用设备。脚本显式传递每个构建的`-EvidenceDir`，不按最新日期猜结果；slot的`-Tag`与boot的`-ProbeBinding`固定整份测试镜像和本包结果帧。独立`Build-Ota-Boot.ps1`不传绑定时仍是诊断模式。
@@ -8,6 +20,9 @@
 
 `cmake --build artifacts/host-ui-build`后全量CTest96/96；Release重建`ota_probe`并检查`ota_(probe|boot_plan|ab|journal|physical_read)`5/5；Python `test_ota_*.py`＋runtime导出／解码共68/68。SDK／公共Build.ps1／正式分区未改，协议源仅链接实验目标，本轮不重编普通Product／UI Demo或五目标基线。001–003的宏格式／52 UART枚举／RAM常量符号分类失败、入口修正及004→005隔离复构建均保留；006补构建SDK提交绑定后封存，默认诊断另存冻结副本。[完整契约](OTA-PREPARATION.md#execution-review-20261109)／[精简证据](evidence/2026-11-09/ota-probe-execution-package.json)。无设备执行、映射／强制救援或完整OTA通过声明。
 
+## 2026-11-08 A链接最小槽探针（实验准备检查点）
+
+`pwsh -NoProfile -File scripts/Build-Ota-Slot-Probe.ps1 -Jobs 4`最终`20261108-185741-039`通过，BIN1188B／`4b69c59e…`，15份项目输入／7份产物和完整ZIP读回。自有Reset／向量、代码、栈与结果区经ELF／BIN交叉检查；首版链接入口默认main的缺口已修复并加readelf守卫。检查器Python12/12、离线备份检查8/8；SDK和既有boot／loader／Product源未变，本轮不重复五目标构建。没有设备操作，不产出部署清单；当前探针只留RAM结果，UART观测／可执行boot／ROM救援和实际FTAB仍待闭合。[阶段准备](OTA-PREPARATION.md#mapping-experiment-preparation-20261108)／[精简证据](evidence/2026-11-08/ota-mapping-experiment-preparation.json)，当前只保留同阶段检查点。
 
 ## 2026-11-08 RAM boot与映射切换原型
 

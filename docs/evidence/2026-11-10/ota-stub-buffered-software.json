@@ -1,0 +1,145 @@
+{
+  "schema": 1,
+  "date": "2026-11-10",
+  "source_base_commit": "dce27481bab9e65aa02c609f3ed12ac082599fd3",
+  "purpose": "Bounded trace buffering after incomplete device NOR receive",
+  "sources": [
+    {
+      "path": "scripts/ota_stub_build.py",
+      "bytes": 4682,
+      "sha256": "dece62bc3b62e0eee90419e21643c313036fbab90da9fa223facbbb2462a2cff"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/Cargo.toml",
+      "bytes": 395,
+      "sha256": "b771de50a26bc45239018830d207e64f40aa3596b7e8d13118e0722cf4a78e50"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/Cargo.lock",
+      "bytes": 64750,
+      "sha256": "812a423b3ffbe4aeae606ffcdca0fde1dae3fb9b735142c76844d90639c24fde"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/main.rs",
+      "bytes": 14585,
+      "sha256": "9787ad6d0e3cfd57b0f29a3c90c25f47dc1b669472c9e8d1f14f4d56a9b0add6"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/port.rs",
+      "bytes": 13834,
+      "sha256": "f3e8ef12ffd1ad8b33bd9f2b937685cc36f9ed1fb16f7bc93018068965bb19d1"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/simulated.rs",
+      "bytes": 8773,
+      "sha256": "b656865fc3d36ab547f74363fe2900d7106b7c970bcee32933b2bb50cf1761df"
+    },
+    {
+      "path": "scripts/ota_stub_observe.py",
+      "bytes": 12023,
+      "sha256": "3cec286b6ce03547ca3c95c04205f2b1753bb146bd05d4180677882110799a59"
+    },
+    {
+      "path": "tests/test_ota_stub_observe.py",
+      "bytes": 12846,
+      "sha256": "c72f9346bedbb7c31cec087662699e9279fc00f51a1177bcbfd67d26762db5b7"
+    }
+  ],
+  "build": {
+    "path": "artifacts/ota-stub-observer-build-20261110-001/result.json",
+    "bytes": 2891,
+    "sha256": "93468578bfe246a5b5d9e86d85c61568d78031e60abaa0e1e819a33212b1bc6d"
+  },
+  "rust_tests": {
+    "passed": 7,
+    "failed": 0
+  },
+  "python_tests": {
+    "passed": 140,
+    "failed": 0,
+    "skipped": 0,
+    "elapsed_seconds": 125.58,
+    "log": {
+      "path": "artifacts/ota-stub-observer-buffered-tests-20261110.log",
+      "bytes": 21788,
+      "sha256": "97048add864f617ed9526b2d6e2edfc58b3185716ccd3d1b09900f0f5c9ee890"
+    }
+  },
+  "simulations": {
+    "test_full_nor_in_one_and_31_byte_fragments_keeps_crc_and_batches_trace-fragmented": {
+      "simulation": true,
+      "passed": true,
+      "observation_passed": true,
+      "trace": {
+        "event_capacity": 262144,
+        "flushed": true,
+        "limits": "OS write completion, not power-loss durability; forced termination can lose buffered tails",
+        "raw_capacity": 65536,
+        "writes": {
+          "events": 1215,
+          "intents": 171,
+          "rx": 678,
+          "tx": 171
+        }
+      },
+      "errors": [],
+      "elapsed_stub_seconds": 2.3092867,
+      "fallback_completed": false,
+      "resources_closed": true
+    },
+    "test_missing_152_bytes_with_crc_and_ok_cannot_be_adopted-short-read": {
+      "simulation": true,
+      "passed": false,
+      "observation_passed": false,
+      "trace": {
+        "event_capacity": 262144,
+        "flushed": true,
+        "limits": "OS write completion, not power-loss durability; forced termination can lose buffered tails",
+        "raw_capacity": 65536,
+        "writes": {
+          "events": 399,
+          "intents": 97,
+          "rx": 349,
+          "tx": 97
+        }
+      },
+      "errors": [
+        "timeout while waiting for reading flash at 0x12FFC000"
+      ],
+      "elapsed_stub_seconds": 11.0223475,
+      "fallback_completed": true,
+      "resources_closed": true
+    }
+  },
+  "implementation": {
+    "raw_capacity_bytes": 65536,
+    "event_capacity_bytes": 262144,
+    "total_capacity_bytes": 458752,
+    "tx_intent_flushed_before_send": true,
+    "flush_at_protocol_boundaries_and_finish": true,
+    "sticky_fault_retained": true,
+    "serial_consumed_bytes_never_reported_unsent": true,
+    "raw_byte_events_not_coalesced": true,
+    "forced_termination_can_lose_buffered_tails": true,
+    "flush_is_os_write_not_power_loss_durability": true
+  },
+  "hardware_verified": false,
+  "device_actions": false,
+  "clock_write": false,
+  "flash_write": false,
+  "flash_erase": false,
+  "sdk_lock_changed": false,
+  "dependencies_changed": false,
+  "firmware_build": false,
+  "actual_152_byte_loss_cause": "Not localized; synchronous trace overhead reduced, device improvement not claimed",
+  "unchanged_ui_evidence": "docs/evidence/2026-11-10/ota-stub-observer-software.json",
+  "actual_device_evidence": "docs/evidence/2026-11-10/ota-stub-observer-device.json",
+  "review": "Read-only review found no blocking defect; no device or timing/driver-overrun simulation claim",
+  "archive": {
+    "path": "artifacts/ota-stub-buffered-20261110.zip",
+    "bytes": 22535331,
+    "sha256": "76cd4e72f2485920aa6864391f57f0b40f02748f8c2a8ee0d7e121ef88ccf103",
+    "members": 94,
+    "all_members_read_back_identical": true
+  }
+}

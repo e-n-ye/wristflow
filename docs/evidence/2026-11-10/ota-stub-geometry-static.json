@@ -1,0 +1,193 @@
+{
+  "schema": 1,
+  "date": "2026-11-10",
+  "source_commit_base": "bb785e32d49732e6828bb9f9a6be5b4363c08d84",
+  "stub": {
+    "path": "vendor/SiFli-SDK/tools/uart_download/file/ram_patch_52X.bin",
+    "bytes": 132816,
+    "sha256": "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43",
+    "load_base": 537239552,
+    "initial_sp": 537147720,
+    "initial_pc": 537240821
+  },
+  "basis": "Read-only bounded binary investigation with primary spot checks; no matching source/ELF/map claimed",
+  "erase_chain": {
+    "command_entry": 537284712,
+    "consumer": 537299460,
+    "erase": 537321828,
+    "geometry_query": 537322260,
+    "shared_state": 536872752,
+    "notification": 536872840,
+    "sector_expression": "4096 << byte(H+0x24)",
+    "block_expression": "65536 << byte(H+0x24)",
+    "nand_geometry": "byte(H+0x23)!=0 returns131072",
+    "mapping_special": 536872876,
+    "mapping_special_start": 536872936,
+    "mapping_special_size": 536872940,
+    "ordinary_handles": [
+      537141236,
+      537141308,
+      537141380,
+      537141452,
+      537141524
+    ],
+    "range_fields": [
+      60,
+      64
+    ],
+    "fallback_index": 536872036,
+    "special_range_checked_first": true,
+    "table_pointer_field": 12,
+    "command_stride": 9,
+    "command_offsets": {
+      "27": 259,
+      "41": 385
+    },
+    "command_dispatch": 537255720,
+    "controller_opcode_write": [
+      537256924,
+      537257010
+    ],
+    "runtime_values_unknown": true
+  },
+  "uart_chain": {
+    "handle": 536873688,
+    "rx_start": 537269520,
+    "rx_pointer_offset": 84,
+    "rx_size_offset": 88,
+    "dma_pointer_offset": 108,
+    "dma_instance_offset": 0,
+    "dma_parent_offset": 48,
+    "dma_callbacks": [
+      537273121,
+      537273173,
+      537273035
+    ],
+    "runtime_binding_unknown": true
+  },
+  "proposed_read_bounds": {
+    "fixed_bytes": 568,
+    "derived_dma_bytes_max": 64,
+    "command_table_bytes_max": 144,
+    "ready_register_bytes": 280,
+    "total_bytes_max": 1056,
+    "dma_pointer_min": 536870912,
+    "dma_pointer_max": 537239488,
+    "table_window_start": 537239552,
+    "table_window_end": 537372368,
+    "no_nor_read": true
+  },
+  "disassembly_windows": [
+    {
+      "path": "artifacts/ota-stub-geometry-static-20261110/2006e190-2006e1bc.txt",
+      "sha256": "d660e00ff6121123471719f2106c0092160c367c2b4eab009fbdf22764337b20",
+      "command": [
+        "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\arm-none-eabi-gcc\\14.2.1\\bin\\arm-none-eabi-objdump.exe",
+        "-D",
+        "-b",
+        "binary",
+        "-m",
+        "arm",
+        "-M",
+        "force-thumb",
+        "--adjust-vma=537239552",
+        "--start-address=537321872",
+        "--stop-address=537321916",
+        "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\tools\\uart_download\\file\\ram_patch_52X.bin"
+      ]
+    },
+    {
+      "path": "artifacts/ota-stub-geometry-static-20261110/2005c4e4-2005c512.txt",
+      "sha256": "087f4f2c92f07d9fd6ca9adeeadefda9cb317fa83bcfa5be366f0bf7dfbd4d2b",
+      "command": [
+        "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\arm-none-eabi-gcc\\14.2.1\\bin\\arm-none-eabi-objdump.exe",
+        "-D",
+        "-b",
+        "binary",
+        "-m",
+        "arm",
+        "-M",
+        "force-thumb",
+        "--adjust-vma=537239552",
+        "--start-address=537248996",
+        "--stop-address=537249042",
+        "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\tools\\uart_download\\file\\ram_patch_52X.bin"
+      ]
+    },
+    {
+      "path": "artifacts/ota-stub-geometry-static-20261110/2005bfe0-2005c020.txt",
+      "sha256": "af588f2834c062b8078668b23a6da30972ea52d30ef467a0facf05af24c9a04e",
+      "command": [
+        "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\arm-none-eabi-gcc\\14.2.1\\bin\\arm-none-eabi-objdump.exe",
+        "-D",
+        "-b",
+        "binary",
+        "-m",
+        "arm",
+        "-M",
+        "force-thumb",
+        "--adjust-vma=537239552",
+        "--start-address=537247712",
+        "--stop-address=537247776",
+        "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\tools\\uart_download\\file\\ram_patch_52X.bin"
+      ]
+    },
+    {
+      "path": "artifacts/ota-stub-geometry-static-20261110/20061738-20061750.txt",
+      "sha256": "568f736ebada6c7cea8debeb7e8c18829b14fa6a8b5835685707fd8a1275c9e5",
+      "command": [
+        "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\arm-none-eabi-gcc\\14.2.1\\bin\\arm-none-eabi-objdump.exe",
+        "-D",
+        "-b",
+        "binary",
+        "-m",
+        "arm",
+        "-M",
+        "force-thumb",
+        "--adjust-vma=537239552",
+        "--start-address=537270072",
+        "--stop-address=537270096",
+        "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\tools\\uart_download\\file\\ram_patch_52X.bin"
+      ]
+    },
+    {
+      "path": "artifacts/ota-stub-geometry-static-20261110/20061548-20061566.txt",
+      "sha256": "27963ccbb8394aaf9828266757aff5d8e65641fc9b304fac3def4250e9d06af8",
+      "command": [
+        "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\arm-none-eabi-gcc\\14.2.1\\bin\\arm-none-eabi-objdump.exe",
+        "-D",
+        "-b",
+        "binary",
+        "-m",
+        "arm",
+        "-M",
+        "force-thumb",
+        "--adjust-vma=537239552",
+        "--start-address=537269576",
+        "--stop-address=537269606",
+        "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\tools\\uart_download\\file\\ram_patch_52X.bin"
+      ]
+    },
+    {
+      "path": "artifacts/ota-stub-geometry-static-20261110/20062320-20062330.txt",
+      "sha256": "62e6ec84b8c7553629f5c2b2cdb29f13bed3cd37bb442374113f35c19a150875",
+      "command": [
+        "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\arm-none-eabi-gcc\\14.2.1\\bin\\arm-none-eabi-objdump.exe",
+        "-D",
+        "-b",
+        "binary",
+        "-m",
+        "arm",
+        "-M",
+        "force-thumb",
+        "--adjust-vma=537239552",
+        "--start-address=537273120",
+        "--stop-address=537273136",
+        "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\tools\\uart_download\\file\\ram_patch_52X.bin"
+      ]
+    }
+  ],
+  "device_actions": false,
+  "all_flash_users_controlled": false,
+  "physical_erase_envelope_verified": false
+}

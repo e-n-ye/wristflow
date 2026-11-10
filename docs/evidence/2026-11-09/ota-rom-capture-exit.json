@@ -1,0 +1,320 @@
+{
+  "schema": 1,
+  "date": "2026-11-09",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/ota-mapping-experiment",
+  "executed_source_commit": "99a3eca383bee5a74cdbee5e4cee60d20d94f04a",
+  "scope": "HCPU ROM capture passes; debug-release ACK plus startup text rejects cleanup; one authorized fallback RTS returns app; separate RTC recovery",
+  "operator": {
+    "reset_authorization": "现场条件满足，授权本次演练",
+    "ready": "临时常亮已开启，现在开始",
+    "clock_authorization": "授权本次单次校时并回验",
+    "wake_before_clock_retry": "已亮屏且临时常亮已开启",
+    "final": "已关闭，时间／显示／触摸／KEY1 正常"
+  },
+  "binding": {
+    "build": "artifacts/product/20261103-115740-843/result.json",
+    "flash": "artifacts/flash/product/20261103-120138-892/result.json",
+    "archive": "artifacts/battery-curve-20261103-candidate-build.zip",
+    "expected_main_sha256": "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d",
+    "endpoint": {
+      "device": "COM5",
+      "vid": 6790,
+      "pid": 29987,
+      "location": "1-1.1",
+      "serial_number": "",
+      "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+      "disable_modem": 1
+    },
+    "preflight": {
+      "path": "artifacts/ota-rom-rescue-second-20261109/preflight-build-002.json",
+      "bytes": 147586,
+      "sha256": "7120b08932dd7ae361bde72c0bf1075c67a034da35ace07eb8b03e6c6c1c070b"
+    },
+    "source_bindings_verified": true
+  },
+  "preparation_timeout": {
+    "path": "artifacts/ota-rom-rescue-second-20261109/device-001",
+    "outcome": "timeout",
+    "worker_started": false,
+    "serial_opened": false,
+    "reset": false,
+    "authorization_not_consumed": true,
+    "note": "Browser window control stopped on uncertain URL; resumed through direct operator link after fresh readiness."
+  },
+  "capture": {
+    "command": "SDK Python -X utf8 scripts/ota_rom_device.py capture; explicit bound inputs in archived config.json",
+    "report": {
+      "path": "artifacts/ota-rom-rescue-second-20261109/device-002/device.json",
+      "bytes": 157825,
+      "sha256": "812b8dda2d411fa38f766adc7abd7f7ba1357cea8b163f4f719c6073f4cf7ca2"
+    },
+    "response": {
+      "path": "artifacts/ota-rom-rescue-second-20261109/device-002/response-2.json",
+      "bytes": 1336,
+      "sha256": "5101fa6466325c9df05f229c1f2dd923eea50cde5d8d6501e848d2ee2f58066c"
+    },
+    "parent_exit": 1,
+    "worker_exit": 0,
+    "worker_forced": false,
+    "resources_closed": true,
+    "lease_retained": false,
+    "elapsed_seconds": 88.8857339,
+    "operator_confirmed_phases": [
+      "prepare",
+      "return"
+    ],
+    "entry_rts_pulses": 1,
+    "initial_enter_commands": 1,
+    "initial_halt_commands": 1,
+    "sysresetreq_commands": 1,
+    "post_sysreset_enter_commands": 1,
+    "no_post_reset_halt": true,
+    "first": {
+      "dhcsr": 33751043,
+      "dfsr": 8,
+      "demcr": 1,
+      "vtor": 0,
+      "vector_sp": 536875040,
+      "vector_pc": 2005,
+      "pc": 2004,
+      "sp": 536875040,
+      "clock_seconds": 21364.0413613,
+      "clock_kind": "monotonic"
+    },
+    "last": {
+      "dhcsr": 196611,
+      "dfsr": 8,
+      "demcr": 1,
+      "vtor": 0,
+      "vector_sp": 536875040,
+      "vector_pc": 2005,
+      "pc": 2004,
+      "sp": 536875040,
+      "clock_seconds": 21367.0035337,
+      "clock_kind": "monotonic"
+    },
+    "hold_seconds": 2.9621724000026006,
+    "hcpu_rom_reset_catch_verified": true,
+    "actual_reply_shapes_observed": true,
+    "rom_exit_verified": false,
+    "rom_rescue_verified": false,
+    "deployment_authorized": false
+  },
+  "cleanup": {
+    "demcr_clear_readback_verified": true,
+    "demcr_readback_span": [
+      417,
+      429
+    ],
+    "demcr_readback_hex": "7e7906001000d20000000006",
+    "dhcsr_release_write_sent": true,
+    "dhcsr_release_value": "0xA05F0000",
+    "release_ack_span": [
+      429,
+      437
+    ],
+    "release_ack_hex": "7e7902001000d306",
+    "trailing_startup_span": [
+      437,
+      442
+    ],
+    "trailing_startup_hex": "5346424c0a",
+    "parse_error": "ProtocolError('Extra bytes/frame cannot become a later reply')",
+    "extra_protocol_frame_observed": false,
+    "dhcsr_release_readback_sent": false,
+    "debug_release_confirmed": false,
+    "exit_command_sent": false,
+    "authorized_fallback_rts_pulses": 1,
+    "rts_released": true,
+    "rom_rx": {
+      "path": "artifacts/ota-rom-rescue-second-20261109/device-002/worker/rom-rx.bin",
+      "bytes": 442,
+      "sha256": "22839014cef775f314a3f34d3a8463604342234a97bb2e53f587a8e7c980bd0d"
+    }
+  },
+  "application": {
+    "before": {
+      "current": {
+        "boot": 25,
+        "generation": 168,
+        "total_recorded_ms": 829214183,
+        "failures": 0,
+        "faults": 3,
+        "fault_mask": 0,
+        "flags": 7
+      },
+      "saved": {
+        "generation": 168,
+        "total_recorded_ms": 828871111,
+        "scene_ms": {
+          "unknown": 40840,
+          "on": 14147120,
+          "flashlight": 31171149,
+          "dim": 530047,
+          "off": 782981955,
+          "aod": 0
+        }
+      },
+      "date": [
+        "Mon Nov  9 11:16:58 2026"
+      ],
+      "cycle": {
+        "state": 0,
+        "session": 0,
+        "accepted": 0,
+        "saved": 0,
+        "queued": 0,
+        "dropped": 0,
+        "reason": 0,
+        "inhibit": 0,
+        "low_mode": false,
+        "commit_elapsed_ms": 0,
+        "keep_remaining_ms": 1103920,
+        "low_samples": 0,
+        "off_samples": 0,
+        "low_events": 0
+      },
+      "unsaved_recorded_ms": 343072
+    },
+    "after": {
+      "current": {
+        "boot": 26,
+        "generation": 169,
+        "total_recorded_ms": 828894556,
+        "failures": 0,
+        "faults": 3,
+        "fault_mask": 0,
+        "flags": 6
+      },
+      "saved": {
+        "generation": 169,
+        "total_recorded_ms": 828872201,
+        "scene_ms": {
+          "unknown": 41930,
+          "on": 14147120,
+          "flashlight": 31171149,
+          "dim": 530047,
+          "off": 782981955,
+          "aod": 0
+        }
+      },
+      "date": [
+        "Sat Jan  1 00:00:24 2000"
+      ],
+      "cycle": {
+        "state": 0,
+        "session": 0,
+        "accepted": 0,
+        "saved": 0,
+        "queued": 0,
+        "dropped": 0,
+        "reason": 0,
+        "inhibit": 0,
+        "low_mode": false,
+        "commit_elapsed_ms": 0,
+        "keep_remaining_ms": 1194660,
+        "low_samples": 0,
+        "off_samples": 0,
+        "low_events": 0
+      },
+      "unsaved_recorded_ms": 22355
+    },
+    "checks": {
+      "exactly_one_application_boot": true,
+      "saved_generation_not_backwards": true,
+      "saved_recorded_ms_not_backwards": true,
+      "saved_scene_ms_not_backwards": true,
+      "storage_failures_before": 0,
+      "storage_failures_after": 0,
+      "active_fault_mask_before": 0,
+      "active_fault_mask_after": 0,
+      "elapsed_monotonic_seconds": 31.0186675
+    },
+    "raw_crc_redecoded_independently": true,
+    "review": {
+      "path": "artifacts/ota-rom-rescue-second-20261109/device-002/independent-application-review.json",
+      "bytes": 4428,
+      "sha256": "b80d04b890a537317f34d7b38f9cc803b0254ff30afb23d32d98010200d002c4"
+    },
+    "ram_tail_preserved_on_host_ms": 343072,
+    "ram_tail_written_back": false,
+    "original_rtc_and_rom_failures_preserved": true
+  },
+  "clock_recovery": {
+    "command": "SDK Python -X utf8 scripts/device_snapshot.py startup --query date --query steps --seconds 30; same archived-build binding",
+    "first_attempt": {
+      "report": {
+        "path": "artifacts/ota-rom-rescue-second-20261109/time-recovery-001/snapshot.json",
+        "bytes": 715,
+        "sha256": "fd1e02052642725eb14102c5b634ffc5a730da00a0d29e4e7ed49500c8431c1d"
+      },
+      "outcome": "timeout",
+      "commands": [
+        "show_date"
+      ],
+      "received_bytes": 0,
+      "clock_write_attempted": false,
+      "resources_closed": true
+    },
+    "second_attempt": {
+      "report": {
+        "path": "artifacts/ota-rom-rescue-second-20261109/time-recovery-002/snapshot.json",
+        "bytes": 2724,
+        "sha256": "254eeae3f5fe4c45ecca858a47bacd8420f27ee706833ba3361439ce52168ecf"
+      },
+      "outcome": "passed",
+      "commands": [
+        "show_date",
+        "wf_time 1794223437",
+        "show_date",
+        "wf_steps status"
+      ],
+      "clock_write_commands": 1,
+      "utc_after": [
+        "Mon Nov  9 11:23:57 2026"
+      ],
+      "local_after": "2026-11-09 19:23:57 Asia/Shanghai",
+      "steps_valid": true,
+      "steps_restored": true,
+      "steps_day": 20766,
+      "steps_generation": 491,
+      "hours_mask": "0x0fffff",
+      "application_log": "Existing preferences GC59ms then alarm save generation1261; raw retained, no storage investigation added",
+      "resources_closed": true
+    },
+    "reset": false,
+    "flash_write_or_erase_command": false
+  },
+  "validation": {
+    "read_only_rom_and_application_reviews_completed": true,
+    "new_firmware_build": false,
+    "new_host_tests": false,
+    "software_test_reference": "docs/evidence/2026-11-09/ota-rom-startup-fix.json (112/112 for executed implementation)",
+    "sdk_lock_changed": false,
+    "vendor_changed": false,
+    "firmware_replaced": false,
+    "flash_write_or_erase_command": false,
+    "documents": {
+      "checker": "scripts/lab_check.py docs; changed files only",
+      "passed": true
+    },
+    "archive_readback": true
+  },
+  "archive": {
+    "path": "artifacts/ota-rom-rescue-second-20261109.zip",
+    "bytes": 485278,
+    "sha256": "b34262a13a5f56de3bf5a608f8f9113b45be8ff6a23eadef2416f51b16cbdc4e",
+    "members": 88,
+    "source_files": 28,
+    "source_manifest": "artifacts/ota-rom-rescue-second-20261109/source-manifest.json",
+    "all_members_read_back_identical": true
+  },
+  "next_bounded_action": "Inspect official debug-disable/Exit order and replay D3 ACK plus SFBL; fix bounded cleanup without treating ACK alone as independent release confirmation; host tests before another device window.",
+  "remaining_boundary": [
+    "Normal debug exit/readback incomplete; SFBL sender not independently identified",
+    "LCPU/DMA/Flash ownership and reset domains not proven",
+    "Bad-Flash-boot rescue, erase/wired restore, B execution and complete OTA rollback not verified",
+    "Entry/SYSRESETREQ/conditional exit RTS authorization consumed; no further automatic reset"
+  ]
+}

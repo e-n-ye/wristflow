@@ -1,0 +1,192 @@
+{
+  "schema": 1,
+  "date": "2026-11-10",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "source_commit": "2c5dafbbcbea90693a0822634251f14095b0b75e",
+  "host_build": "artifacts/ota-stub-geometry-build-20261110-002/result.json",
+  "authorization": {
+    "source_commit": "2c5dafbbcbea90693a0822634251f14095b0b75e",
+    "question_id": "call_6f169cc8987a46fa9b54a165c75646c8",
+    "user_reply": "现场条件满足，授权本次 RAM 短窗",
+    "conditions": "Same original board/CycleLog, fixed USB-BAT, operator present, normal display/touch, other serial tools closed, temporary always-on; user confirmed",
+    "scope": {
+      "total_seconds": 300,
+      "stub_seconds": 60,
+      "sample_bytes_max": 1056,
+      "entry_rts_max": 1,
+      "sysresetreq_max": 1,
+      "original_fixed_ram_stub": true,
+      "official_bkp0r_pa21": true,
+      "nor_read": false,
+      "flash_write_or_erase": false,
+      "burn_reset_max": 1,
+      "conditional_exit_rts_max": 1,
+      "automatic_clock_write": false
+    },
+    "recorded_ns": 1794301749767625600
+  },
+  "command": {
+    "argv": [
+      "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\envs\\default\\b1ffa931b7485f8607540b6a2f6a9a53bbefe3696b9db68845be1c3c5cff1ab9\\python\\Scripts\\python.exe",
+      "-B",
+      "-X",
+      "utf8",
+      "scripts/ota_stub_observe.py",
+      "capture",
+      "--geometry-only",
+      "--out",
+      "D:\\MY_Desk\\project\\wristflow\\artifacts\\ota-stub-geometry-device-20261110\\device-001",
+      "--observer-build",
+      "D:\\MY_Desk\\project\\wristflow\\artifacts\\ota-stub-geometry-build-20261110-002\\result.json",
+      "--baseline-first",
+      "D:\\MY_Desk\\project\\wristflow\\artifacts\\ota-rom-backup-20261108\\device-001\\nor-first.bin",
+      "--baseline-second",
+      "D:\\MY_Desk\\project\\wristflow\\artifacts\\ota-rom-backup-20261108\\device-001\\nor-second.bin",
+      "--result",
+      "D:\\MY_Desk\\project\\wristflow\\artifacts\\product\\20261103-115740-843\\result.json",
+      "--flash",
+      "D:\\MY_Desk\\project\\wristflow\\artifacts\\flash\\product\\20261103-120138-892\\result.json",
+      "--build-archive",
+      "D:\\MY_Desk\\project\\wristflow\\artifacts\\battery-curve-20261103-candidate-build.zip",
+      "--recorded-root",
+      "D:\\MY_Desk\\project\\wristflow",
+      "--expected-bin",
+      "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d",
+      "--port",
+      "COM5",
+      "--location",
+      "1-1.1",
+      "--confirm-same-board-and-firmware",
+      "--allow-rom-reset",
+      "--allow-stub-observation",
+      "--allow-original-start",
+      "--allow-exit-reset"
+    ],
+    "cwd": "D:\\MY_Desk\\project\\wristflow",
+    "authorized_by": "authorization.json"
+  },
+  "device_report": {
+    "path": "artifacts/ota-stub-geometry-device-20261110/device-001/device.json",
+    "bytes": 170478,
+    "sha256": "ed5d3a058be488e5f6a5bcf18555f65d400a0670349ba99efb0ccb9b0654af68"
+  },
+  "raw_observer": {
+    "path": "artifacts/ota-stub-geometry-device-20261110/device-001/worker/stub-observer/observer.json",
+    "bytes": 7823,
+    "sha256": "ff67368020fb7717a5efade3047fad102fa498f2d38483f8a8c193409853cc0e"
+  },
+  "independent_review": {
+    "verified_word_reads": 218,
+    "sample_bytes": 872,
+    "raw_tx_bytes": 136279,
+    "raw_rx_bytes": 3237,
+    "raw_tx_equals_intents": true,
+    "records": {
+      "before": {
+        "generation": 176,
+        "boot": 29,
+        "total_recorded_ms": 845329941,
+        "scene_ms": {
+          "unknown": 46541,
+          "on": 15468265,
+          "flashlight": 31171149,
+          "dim": 573744,
+          "off": 798070242,
+          "aod": 0
+        },
+        "failures": 0,
+        "fault_mask": 0,
+        "faults": 3
+      },
+      "after": {
+        "generation": 177,
+        "boot": 30,
+        "total_recorded_ms": 845331030,
+        "scene_ms": {
+          "unknown": 47630,
+          "on": 15468265,
+          "flashlight": 31171149,
+          "dim": 573744,
+          "off": 798070242,
+          "aod": 0
+        },
+        "failures": 0,
+        "fault_mask": 0,
+        "faults": 3
+      }
+    },
+    "flash": {
+      "handle": "0x2004203c",
+      "controller": "0x50042000",
+      "table": "0x200751d4",
+      "capacity": 16777216,
+      "nand_field": 0,
+      "shift": 0,
+      "conditional_sector_bytes": 4096,
+      "sector_command_index": 27,
+      "sector_opcode": "0x20",
+      "command_41_zero": true,
+      "table_records_match_fixed_bin": true
+    },
+    "uart": {
+      "sampled_object": "0x20000ad8",
+      "sampled_dma_pointer": 0,
+      "binding_established": false,
+      "correction": "Sampled debug-only UART; fixed ISR and RTOS configuration paths reference0x20042260. Address corrected offline; no new device run."
+    },
+    "physical_erase_envelope_verified": false,
+    "all_flash_users_controlled": false
+  },
+  "review_record": {
+    "path": "artifacts/ota-stub-geometry-device-20261110/independent-review.json",
+    "bytes": 1595,
+    "sha256": "6dc39aa001ddbf52291947b2ed8c5eec8ce17a9a68e2526d5053be5e1eef44c4"
+  },
+  "elapsed_stub_seconds": 2.7034257,
+  "recovery": {
+    "runtime_saved_not_regressed": true,
+    "expected_new_boot": true,
+    "rtc_continuity": false,
+    "unsaved_tail_preserved_on_host_ms": 206081,
+    "limits": "Runtime saved counters and UTC only; settings, all files and bad-boot rescue are not verified"
+  },
+  "rtc": {
+    "continuity": false,
+    "host_clock_write": false,
+    "automatic_recovery": false,
+    "blocks_ota": false
+  },
+  "manual": {
+    "preparation": "Agent clicked on basis of explicit current user conditions/authorization",
+    "return_and_final": "Operator confirmed in shared page",
+    "final_confirmed": true
+  },
+  "cleanup": {
+    "worker_exit": 0,
+    "child_exit": 0,
+    "worker_forced": false,
+    "resources_closed": true,
+    "lease_retained": false,
+    "normal_start": true,
+    "fallback_rts": false
+  },
+  "archive": {
+    "path": "artifacts/ota-stub-geometry-device-20261110.zip",
+    "bytes": 656387,
+    "sha256": "ffb23d965a5c5bff379ea40c498a37d8f1501614a3063745b65ad7e972e45ee7",
+    "members": 96,
+    "all_members_read_back_identical": true
+  },
+  "device_actions": {
+    "entry_rts": 1,
+    "sysresetreq": 1,
+    "original_ram_stub": true,
+    "burn_reset": 1,
+    "fallback_rts": 0,
+    "nor_read": false,
+    "flash_write_or_erase": false,
+    "host_clock_write": false
+  },
+  "window_closed": true,
+  "new_window_authorized": false
+}

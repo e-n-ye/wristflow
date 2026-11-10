@@ -1,0 +1,189 @@
+{
+  "schema": 1,
+  "date": "2026-11-09",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/ota-mapping-experiment",
+  "source_base": "bef1ef98c6515de6afdf391a5cee5ef7d57f190e",
+  "scope": "First-Enter bounded startup preamble and independent ROM/RTC error reporting; host-only validation",
+  "device": {
+    "enumerated": false,
+    "serial_opened": false,
+    "reset": false,
+    "rtc_write": false,
+    "flash_write_or_erase": false,
+    "hardware_verified": false,
+    "rom_rescue_verified": false,
+    "deployment_authorized": false
+  },
+  "implementation": {
+    "state_machine": "scripts/ota_rom_rescue.py",
+    "device_adapter": "scripts/ota_rom_device.py",
+    "shared_console": "scripts/battery_console.py",
+    "allowed_startup_lines_hex": [
+      "5346424c0a",
+      "5346424c0d0a"
+    ],
+    "scope": "Single first Enter after owned entry RTS release; zero previous requests; not cleanup; attempt consumed before I/O",
+    "preamble_bytes_max": 6,
+    "complete_line_and_following_empty_read_required": true,
+    "other_requests_strict": true,
+    "raw_preserved": true,
+    "first_response_limit": "min(request start + 1s, deassert call start + 1.9s, phase deadline)",
+    "release_timestamp_conservative": true,
+    "post_journal_pre_write_check": true,
+    "retransmission_added": false,
+    "error_fields": "errors[{phase,error}], per-verification detail, and labeled aggregate detail",
+    "rendering": "Optional detail through textContent; absent detail leaves prior rendering unchanged"
+  },
+  "fixture": {
+    "path": "tests/fixtures/ota-rom-entry-sfbl-20261109.uart",
+    "bytes": 5,
+    "sha256": "15e9bd3a0ce970b2b9de41aca363e0252e92f451adb550d47f29bf2ebee224a4",
+    "original": {
+      "path": "artifacts/ota-rom-rescue-device-20261109/capture-002/worker/rom-rx.bin",
+      "bytes": 5,
+      "sha256": "15e9bd3a0ce970b2b9de41aca363e0252e92f451adb550d47f29bf2ebee224a4"
+    },
+    "exact_byte_match": true,
+    "gitattributes": "tests/fixtures/*.uart binary"
+  },
+  "validation": {
+    "command": "SDK-managed Python -X utf8; unittest discover(test_ota*.py) + test_battery_collect.ConsoleTests",
+    "python": "3.13.15 (main, Sep  1 2026, 14:16:48) [MSC v.1944 64 bit (AMD64)]",
+    "passed": 112,
+    "total": 112,
+    "ota_tests": 109,
+    "console_tests": 3,
+    "new_tests": 17,
+    "seconds": 68.039,
+    "exit_code": 0,
+    "log": {
+      "path": "artifacts/ota-rom-startup-fix-20261109/tests-final-004.log",
+      "bytes": 16975,
+      "sha256": "b9ee39a2837e066d2d34c859f2862c7a77772fbc9156346de7feeea18c3835df"
+    },
+    "earlier_attempts": [
+      {
+        "log": "tests-001.log",
+        "passed": 53,
+        "total": 53
+      },
+      {
+        "log": "tests-002.log",
+        "passed": 58,
+        "total": 58
+      },
+      {
+        "log": "tests-final.log",
+        "passed": 111,
+        "total": 112,
+        "exit_code": 1,
+        "reason": "Fixture renamed from .txt to .uart during in-flight run; already-loaded old filename was missing. Failure retained; final full suite repeated after names stabilized."
+      }
+    ]
+  },
+  "ui": {
+    "success": {
+      "outcome": "passed",
+      "report": {
+        "path": "artifacts/ota-rom-startup-fix-20261109/ui-success/device.json",
+        "bytes": 2927,
+        "sha256": "b9dd57b6b58aee4f38192271812f828dbed91494ea6d0b95d587ac22dadee6cd"
+      },
+      "screenshot": {
+        "path": "artifacts/ota-rom-startup-fix-20261109/ui-success.jpg",
+        "bytes": 48652,
+        "sha256": "beeee601c0a8c971548104cc8d063dea4354522e1d3470a3bf2c481bd86bae91"
+      },
+      "source_bindings_verified": true,
+      "resources_closed": true,
+      "worker_exit": 0,
+      "errors": []
+    },
+    "dual-failure": {
+      "outcome": "error",
+      "report": {
+        "path": "artifacts/ota-rom-startup-fix-20261109/ui-dual-failure/device.json",
+        "bytes": 2646,
+        "sha256": "5ef3e99eb37a7ab6e82421a1c6c740ec5f36368abc690d9a139b7100cf0cea45"
+      },
+      "screenshot": {
+        "path": "artifacts/ota-rom-startup-fix-20261109/ui-dual-failure.jpg",
+        "bytes": 70309,
+        "sha256": "e08f638d3d7b6a45aaaf12bbdf036f624c976613a8e53e4b8a6449d6f3e6ac18"
+      },
+      "source_bindings_verified": true,
+      "resources_closed": true,
+      "worker_exit": 0,
+      "errors": [
+        {
+          "phase": "rom",
+          "error": "ProtocolError('Unsolicited bytes before a new request')"
+        },
+        {
+          "phase": "recovery",
+          "error": "ValueError('RTC continuity changed; time recovery needs separate authorization')"
+        }
+      ]
+    },
+    "cancel": {
+      "outcome": "cancelled",
+      "report": {
+        "path": "artifacts/ota-rom-startup-fix-20261109/ui-cancel/device.json",
+        "bytes": 2724,
+        "sha256": "37ee33ddf23d42c142d4bf1e043d362becac5ac063b4efb0ab7c501b0dd9fedb"
+      },
+      "screenshot": {
+        "path": "artifacts/ota-rom-startup-fix-20261109/ui-cancel.jpg",
+        "bytes": 65600,
+        "sha256": "cd8d4ff9e85e97ed21aad2fa31c836e09d5ed3c416be09024f9a1db21cdff462"
+      },
+      "source_bindings_verified": true,
+      "resources_closed": true,
+      "worker_exit": 0,
+      "errors": [
+        {
+          "phase": "rom",
+          "error": "Cancelled('Cancelled during automatic stage')"
+        },
+        {
+          "phase": "rom",
+          "error": "Cancelled('Parent cancelled this worker')"
+        }
+      ]
+    }
+  },
+  "reviews": {
+    "read_only": true,
+    "remaining_blockers": 0,
+    "confirmed": [
+      "Startup permission, split input and fixed deadline boundaries",
+      "ROM and recovery error independence and textContent rendering"
+    ],
+    "correction": "Journal could consume time or observe cancellation before the old write site; actual write is now preceded by another fixed deadline/cancel check."
+  },
+  "sdk": {
+    "lock_changed": false,
+    "vendor_changed": false,
+    "firmware_built": false
+  },
+  "documents": {
+    "checker": "scripts/lab_check.py docs; changed files only",
+    "passed": true
+  },
+  "archive": {
+    "path": "artifacts/ota-rom-startup-fix-20261109.zip",
+    "bytes": 366875,
+    "sha256": "93435402adbe1c82f6fc2c7573c910bcd84981ff3f974907ce16d9b178fb6461",
+    "members": 135,
+    "source_files": 40,
+    "source_manifest": "artifacts/ota-rom-startup-fix-20261109/source-manifest.json",
+    "all_members_read_back_identical": true
+  },
+  "remaining_boundary": [
+    "Fresh explicitly bounded device reset window; previous entry authorization already consumed",
+    "Real first ACK shape, ROM reset-catch, 2.5s hold and original app/RTC recovery",
+    "UART has no request nonce; a valid delayed old response arriving only after send cannot be causally authenticated by pre-read rules alone",
+    "LCPU/DMA/Flash ownership, erase and wired restore, real B execution and full OTA rollback"
+  ]
+}

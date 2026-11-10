@@ -9,7 +9,7 @@
 
 优先复用`scripts/battery_console.py`的`Console`和`scripts/battery_lab.py`的`Journal`：已有统一页面、阶段／倒计时、确认身份、取消、进度与事件持久化及收尾展示。文件名保留既有来源，不表示只能用于电池；下文各电量入口仍只允许各自白名单，不能改标签就当作新器件适配。新器件应添加专用会话／数据适配，在同一协作会话集中准备、提示实际动作、采集、停止和末态确认，沿用通用交互与记录，而不是另外搭建临时确认页面。既有框架确实不适用时先记录具体缺口和选择依据。
 
-实机前先用不访问端点的模拟适配，实际验收按钮、阶段切换、倒计时／确认、取消／异常和资源关闭；“静态页面存在”或源码审查不等于交互可用。说明哪些动作由人确认、哪些由程序计时，自动标记不能冒充人工确认，也不能以点击代替真实设备观测。采集时限必须覆盖操作与交互延迟，超时保留已得证据和未完成项，调整方案后再开始明确的新窗口，不能隐藏失败或盲目重发。
+实机前先用不访问端点的模拟适配，实际验收按钮、阶段切换、倒计时／确认、取消／异常和资源关闭；“静态页面存在”或源码审查不等于交互可用。说明哪些动作由人确认、哪些由程序计时，自动标记不能冒充人工确认，也不能以点击代替真实设备观测。采集时限必须覆盖操作与交互延迟，超时保留已得证据和未完成项，按[核心证据规则](#core-evidence-first)判断是否需要新窗口，不能隐藏失败或盲目重发。
 
 器件适配仍须独立核对精确固件／供电／端点，保存前态与原始字节，限定命令和会话所有权，区分“页面流程完成”“数据满足窗口条件”“设备停止／恢复确认”。取消与异常只清理本工具确认拥有的窗口，关闭串口并保留失败；不借通用协作页获得复位、校时、下载或其他器件操作授权。源码／编译／实机证据继续分别判断，结果与下一步回各专题和STATUS。
 
@@ -21,6 +21,18 @@
 
 24日地磁旋转曾使用聊天逐步确认，因120秒总期限未采齐；随后临时页面按钮无法工作，状态确认未启动新采集后已停用。这暴露了通用入口不醒目及未复用既有控制页的问题。随后专用适配复用Console／Journal，实际模拟点击验完整流程、取消及超时，再用于设备。五方向与显式停止取得证据，但原workflow因把seq0初始化日志算入普通样本而失败；保留原失败，按原始字节独立核验设备条件，并用聊天末态确认补充人工证据，不能回填为页面确认。过程和脚本指纹见[本轮证据](evidence/2026-10-24/mmc5603-compass-readiness.json)，实际进度只见STATUS。
 
+<a id="core-evidence-first"></a>
+### 核心证据优先与最小补验
+
+2026-11-09用户明确要求：不因不影响核心验证的主机工具问题阻塞后续，避免反复配合相同实机流程。本规则适用于项目后续测试与验收；任务开始先写清要回答的核心问题、直接证据和完成条件，工具自身的超时、日志、页面及总`passed`只是辅助状态，不另设“工具完美”目标。
+
+- 原始数据完整、来源及版本可核、解析与语义正确且足以回答核心问题时，采用该证据继续推进。主机附加期限、日志落盘、格式或展示造成的失败单独记录；保留原始失败报告，再记录独立结论，不改写历史为全通过。
+- 同一设备的不同窗口可以分别证明保持、释放、数据值等独立事实，注明各自版本与条件。核心问题不要求同一窗口连续性时，复用已有有效证据，不为补齐总`passed`重做整套复位、接线或人工操作；跨窗组合不能伪称同窗连续运行。
+- 只有缺失／矛盾证据会改变核心结论、实际写入范围、设备所有权、恢复安全或必要连续性时才阻塞。说明具体缺口、对下一动作的影响与最小补验；芯片／协议本身的安全时限和操作授权仍按实际要求核对，不能把它们等同为工具附加期限。
+- 工具修正优先在原流回放与主机模拟完成，逐项报告设备结论、工具异常及剩余问题。需要设备补验时只覆盖缺失的核心项；已完成事实无新变化不重复要求用户操作。运行中既有守卫仍按原适配停止并清理，后续是否继续由证据审阅判断，不通过自动重试绕过守卫。
+
+本次应用：上一窗已证明HCPU在ROM保持2.962秒，本窗已取得正确SP原流及独立DHCSR释放／Exit；额外100ms主机期限不作为再次整窗的前置。原观测总失败保持，其他Flash使用者、擦除范围和恢复写入按它们对下一步的实际影响继续核查，详见[OTA分窗决定](OTA-PREPARATION.md#rom-release-device-20261109)。
+
 <a id="local-experiment-tools"></a>
 ## 本地实验工具复用与接续
 
@@ -29,7 +41,7 @@
 | 职责 | 正式位置与复用规则 |
 |---|---|
 | 原始收发、有限等待、短写检查及资源关闭 | `scripts/lab_serial.py`的RecordedClient／RecordedSession；PortLease／SerialTransport沿用既有实现，电量原导入名称兼容。基类默认拒绝全部命令；适配器声明白名单、冷启动标记及完成条件，设备停止由适配器负责 |
-| 协作页和阶段记录 | 原Console／Journal；`prompt(..., pump=...)`在等待人确认时持续采集，`automatic(..., pump=..., until=...)`表示程序判定的有界采样／计时；确认按钮不能完成自动阶段。无需复制页面、线程或直接写内部prompt字段 |
+| 协作页和阶段记录 | 原Console／Journal；`prompt(..., pump=...)`在等待人确认时持续采集，`automatic(..., pump=..., until=...)`表示程序判定的有界采样／计时；确认按钮不能完成自动阶段。结束时verification可逐项携带可选detail展示原因，无detail保持原格式。无需复制页面、线程或直接写内部prompt字段 |
 | 文件哈希、显式清单与JSON输出 | `scripts/lab_evidence.py`；电量原digest／write_json导出兼容，不按目录扫描所有历史文件 |
 | 构建／证据／改动文档检查 | `scripts/lab_check.py`的build／files／docs；读取既有结果，不构建、不下载、不枚举或打开设备。每次重新读输入，不把旧passed报告当缓存 |
 | 地磁已完成实验的模拟／回放 | `scripts/mmc5603_lab.py`，纯解析见mag_protocol／light_protocol；本阶段CLI只提供simulate／replay／status，不开放真实端点。五方向策略属于地磁适配，不变成通用步骤引擎 |
@@ -37,6 +49,10 @@
 | 构建／下载 | 继续使用Build.ps1／Flash.ps1；实验工具读取其结果，不复制下载包装器，不因电脑端整理重编固件 |
 | 长期记录只读导出 | `scripts/runtime_export.py simulate|capture`复用RecordedSession／Journal及serial_lab绑定，最多60秒；主机nonce固定快照，摘要／样本／manifest各自CRC，失败关口保留原UART，不发送start／stop、复位、PM、校时或Flash命令。`runtime_record_decode.py`只处理保存字节；[行为／首窗边界](BATTERY-ESTIMATE.md#runtime-recorder-20261030)，三场景离线长窗另需Console专用适配 |
 | 单次SDK重启及被动启动流 | `scripts/device_reboot.py simulate|capture`复用RecordedSession／Journal／prepare_capture；capture显式绑定构建／Flash／原源码ZIP、端点及本轮确认，`--before`必须是120秒内已关口的真实完整runtime导出，CRC重解码一致、有saved、运行中且存储未失败，开口前复核5文件／构建／端点。仅允许单次`reboot`；短写／失响应／异常不重发，发送前冷启动拒发，发送后预期启动被动采集最多30秒，默认20秒，关口后不自动重开。简单单次流程使用聊天准备／末态确认及原快照工具，先模拟命令保护，无需多场景计时页。恢复须另读后快照独立判定；无RTC／PM／save／Flash入口。详见[本轮边界](BATTERY-ESTIMATE.md#runtime-reboot-20261101) |
+| ROM双NOR只读备份 | `scripts/ota_rom_backup.py simulate|capture`复用Console／Journal／PortLease与runtime快照协议，连续独占前态→ROM→后态；固定一个sftool进程读取双16MiB，900秒超时／取消终止进程树并保留所有文件 | 真实入口需要原完整构建归档、端点及本轮显式ROM复位窗口；应用RAM尾段仅复制电脑，前态必须当场重读。退出0后人工确认程序返回才重新核身份并读取后态；应用记录／RTC、显示触摸人工确认与坏boot救援分别判断。无写擦／重试／校时，详见[适配与模拟](OTA-PREPARATION.md#rom-backup-adapter-20261108) |
+| ROM捕获／取消／退出演练 | `scripts/ota_rom_rescue_lab.py simulate|status`保留纯逻辑模型；`scripts/ota_rom_device.py simulate|capture|status`复用Console／Journal与连续PortLease，由唯一受管worker执行前态→ROM→后态，真实单调时钟、300秒总窗／30秒ROM上限 | 默认假串口，不枚举COM；capture须完整原构建／传输／端点和当次一次入口RTS、一次SYSRESETREQ及异常时最多一次退出RTS授权。首次Enter只准一行有界SFBL，旧帧／其他请求仍拒绝待收字节；ROM／恢复错误逐项显示。取消先所属退出，驱动挂起仅终止本次进程树，关闭未知保留租约；不自动重连／校时／写Flash。[首次入口修正及模拟](OTA-PREPARATION.md#rom-startup-fix-20261109)已验，现场捕获仍待准入 |
+| 原版stub状态与稳定双读 | `scripts/ota_stub_observe.py`的simulate／capture／status复用device固定stub-observe profile及原Console／Journal／连续PortLease；主机桥调用固定原库／原stub，同一次1M开口，前后LCPU／DMA快照及双16MiB读取 | 真实总窗≤900秒、stub≤600秒；须原固件／完整归档／端点及新鲜复位、RAM stub／寄存器观察、返回原程序和有条件退出授权。无Flash写擦、任意地址、重开重跑或自动校时；数据／保存记录／RTC独立，坏结果入口保持未知，阻塞child与外层Job分别回收。快照不自动放行写入；[现场合同](OTA-PREPARATION.md#stub-observer-20261110)，活动回STATUS |
+| 原版stub固定RAM配置短窗 | 同一入口显式`--geometry-only`，`src/geometry.rs`读取固定Flash句柄／UART对象、受限DMA指针及原stub内命令记录；主机独立解析并保留未知 | 总窗≤300秒、stub≤60秒，ready与RAM采样合计≤1056B，无NOR请求；复用前后态、人工返回与末态确认。需当次具体复位／装载／退出授权；RTC单项、有限绑定和物理擦除包络分开。[短窗合同与模拟](OTA-PREPARATION.md#stub-geometry-20261110)，活动回STATUS |
 | 三场景纯电池验收 | `scripts/runtime_scene_lab.py`默认模拟，真实端点显式参数及本轮确认；复用Console／Journal，先关口再拔USB，人工回连确认后重核端点。B1 RAM start900单发、保护旧trace并只停自身身份；长期记录器只读导出、持续自动运行。`--scenes`接续余组，`--protected-trace`核先前冻结导出，`--restore-cache`保全首窗偏好参考；用户选择保留测试设置时用`--keep-settings`对齐提示。场景计时程序执行，首尾电压只作辅助，OFF不新增采样；[边界](BATTERY-ESTIMATE.md#runtime-scenes-20261030) |
 | 实验前后快照／下载后启动检查 | `scripts/device_snapshot.py`的capture／startup，具体用法见[快照入口](#device-snapshot)；版本、端口、输出与查询集合用参数表达，不再逐轮复制preflash／post-status包装。startup校时权限独立于capture |
 | 板端指南针候选实验 | `scripts/compass_probe_lab.py`提供simulate／device／status及smoke／axes／calibrate有限窗；device需要精确build／flash／BIN／端点和本轮现场确认。沿用Console／Journal／RecordedSession及原始UART，`inputs/start/freeze/stop/status`独立白名单、会话／代次／起点／时长归属检查，只停本次窗口，控制单发；轴向假设、有效配对、校准参数和磁北精度分别判断，见[指南针实验](COMPASS.md#device-probe-20261027) |

@@ -1,0 +1,158 @@
+{
+  "date": "2026-11-09",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/ota-mapping-experiment",
+  "source_head": "07a96af0d5840c6378ae8f0b97b6cbb507d6ac55",
+  "scope": "SF32LB52 ROM entry source review and proposed bounded no-Flash-write rehearsal; adapter not implemented or simulated in this checkpoint",
+  "device": {
+    "enumerated": false,
+    "serial_opened": false,
+    "sftool_executed": false,
+    "reset": false,
+    "flash_write_or_erase": false,
+    "rtc_write": false,
+    "hardware_verified": false,
+    "rom_rescue_verified": false,
+    "deployment_authorized": false,
+    "last_hardware_evidence": "docs/evidence/2026-11-08/ota-rom-backup-device.json"
+  },
+  "sdk": {
+    "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "lock_changed": false,
+    "source_changed": false,
+    "firmware_built": false
+  },
+  "sftool_source": {
+    "repository": "OpenSiFli/sftool",
+    "tag": "0.2.5",
+    "commit": "be2adab37bfb0ef4eb623b7e47e7b8693918b1e1",
+    "retrieval": "GitHub connector fetch_file at the pinned tag commit",
+    "snapshot_directory": "artifacts/ota-rom-rescue-research-20261109",
+    "git_blob_verified_files_including_license": 8,
+    "executable": {
+      "path": ".tools/sifli/tools/sftool/0.2.5/sftool.exe",
+      "bytes": 7943168,
+      "sha256": "1ccc425e72048db93c410614114f8343e389988ee8aa90251aa46f05ae0b3e0f",
+      "matched_previous_backup_tool": true,
+      "build_reproducibility_from_reviewed_source_proven": false
+    },
+    "archive": {
+      "path": "artifacts/ota-rom-rescue-research-20261109.zip",
+      "members": 10,
+      "bytes": 22319,
+      "sha256": "80fea2041bfae11ed6746d8671c51aba9c6757fba3da6920565126af9550f19f",
+      "all_members_read_back": true
+    },
+    "findings": [
+      {
+        "path": "sftool-lib/src/sf32lb52/mod.rs",
+        "lines": [91, 137],
+        "fact": "Default reset pulses RTS true 100ms then false 100ms before Enter. A positive connect_attempts=N permits N+1 physical attempts; the last response is discarded. The current backup parameter 3 therefore permits up to 4 RTS attempts."
+      },
+      {
+        "path": "sftool-lib/src/sf32lb52/mod.rs",
+        "lines": [139, 246],
+        "fact": "Set reset catch, request SYSRESETREQ, Enter, explicitly halt, clear catch, load RAM stub at 0x2005A000, set RTC BKP0R and PA21 GPIO, write PC/SP and run. This source path has no call into the existing Flash boot. Explicit halt after reset does not establish that reset vector catch actually stopped the core before Flash boot."
+      },
+      {
+        "path": "sftool-lib/src/lib.rs",
+        "lines": [83, 117],
+        "fact": "no_reset still downloads a stub; no_reset_no_sync skips stub setup. These flags do not expose a standalone ROM observation CLI."
+      },
+      {
+        "path": "sftool-lib/src/sf32lb52/sifli_debug.rs",
+        "lines": [15, 101],
+        "fact": "52 uses little-endian UART debug framing and Enter/Exit/MEMRead/MEMWrite primitives."
+      },
+      {
+        "path": "sftool-lib/src/common/sifli_debug.rs",
+        "lines": [201, 321],
+        "fact": "Response framing consumes channel/trailing byte without complete validation and uses a dynamically sized payload; it is not the bounded parser/operation allowlist required by this proposed adapter."
+      },
+      {
+        "path": "sftool-lib/src/common/reset.rs",
+        "lines": [1, 16],
+        "fact": "soft_reset dispatches a RAM stub command; common/ram_command.rs maps it to burn_reset. It is not the same operation as the initial RTS pulse or an independently verified cold power reset."
+      }
+    ]
+  },
+  "primary_web_sources": [
+    {
+      "url": "https://wiki.sifli.com/hardware/SF32-auto-download.html",
+      "section": "52 series, lines 154-160 of retrieved page",
+      "supports": "External load-switch power reset and approximately 2000ms UART debug entry window for 52; not a physical V1.1 board schematic."
+    },
+    {
+      "url": "https://docs.sifli.com/projects/solution/7.FAQ/production_line/burn.html",
+      "section": "FAQ1 and FAQ4, lines 292-324 of retrieved page",
+      "supports": "52 defaults UART1 at power-on and uses the Sifli_Trace 52X_BOOT flow; BOOT_MODE pin recipes for other series must not be substituted."
+    },
+    {
+      "url": "https://arm-software.github.io/CMSIS_5/5.8.0/Pack/html/dbg_debug_sqns.html",
+      "section": "Implement reset for debug access; Support bootloader operation; Handle debug in multi-core systems",
+      "supports": "Reset catch can stop at the reset entrance before bootloader execution; device and multicore behavior still require adaptation."
+    }
+  ],
+  "sdk_source_findings": [
+    {
+      "path": "vendor/SiFli-SDK/drivers/cmsis/sf32lb52x/mem_map.h",
+      "lines": [18, 29, 163, 169, 170],
+      "fact": "HCPU ROM base 0, size 64KiB, ROM bootloader starts at 0; maskROM reset handler address not obtained from SDK application symbols."
+    },
+    {
+      "path": "vendor/SiFli-SDK/drivers/hal/bf0_hal_rcc.c",
+      "lines": [1686, 1726],
+      "fact": "LCPU reset/halt has explicit CPUWAIT and reset handling; HCPU halt is not proof of LCPU inactivity."
+    },
+    {
+      "path": "vendor/SiFli-SDK/drivers/hal/bf0_hal_pmu.c",
+      "lines": [599, 660],
+      "fact": "PMU reboot explicitly handles LCPU, peripheral LDO2 and NOR addressing state; it cannot be equated to HCPU SYSRESETREQ."
+    }
+  ],
+  "proposed_rehearsal": {
+    "execution_ready": false,
+    "shared_workflow": "Console/Journal plus continuous PortLease and existing application snapshot binding, with a dedicated UART debug adapter",
+    "entry_rts_pulses": 1,
+    "internal_sysresetreq": 1,
+    "conditional_exit_rts_pulses_max": 1,
+    "automatic_rom_seconds_max": 30,
+    "workflow_seconds_max": 300,
+    "entry_response_budget_after_rts_release_ms": 1900,
+    "hold_observation_separation_ms_min": 2500,
+    "strong_acceptance": "Clear stale debug/reset evidence before single internal reset; observe new reset and vector catch, debug-enabled S_HALT, PC matching the locally read ROM reset vector and consistent VTOR/vectors before any post-reset explicit halt; repeat at >=2500ms; separately prove application recovery.",
+    "write_allowlist_design": [
+      "DHCSR: bounded enable/halt and owned exit values",
+      "DEMCR: owned reset-catch bit only",
+      "DFSR: clear pre-existing debug status",
+      "AIRCR: one SYSRESETREQ intent, no retransmit when response is lost",
+      "DCRSR: PC/SP read selectors only, no core-register write bit"
+    ],
+    "forbidden": ["DCRDR write", "arbitrary RAM write", "any Flash write/erase/controller write", "OTP", "RTC", "BMR", "RESERVE0", "RAM stub upload", "PC/SP modification", "automatic clock recovery", "unbounded retry"],
+    "failure_policy": "Preserve raw stream, partial observations, exact control/write intents and uncertain recovery. Stop new experiment actions; execute only an explicitly authorized, owned exit branch. Closing a serial handle is not proof the CPU resumed.",
+    "firmware_restore_design": "Future separately authorized write window only: verify immutable original boot64KiB and B4KiB against both full backups; prove all Flash users controlled and erase bounds known; restore/read back boot first then B, start application only after both match. No restoration command or write entry point added here."
+  },
+  "not_closed": [
+    "Dedicated adapter protocol parser, exact values/state transitions, timeout/short-write/cancel/lost-response cleanup tests and browser simulation",
+    "Fresh physical conditions and explicit per-window reset/exit authorization",
+    "Actual ROM vector-catch and return observations on this board",
+    "LCPU/DMA/other Flash owner control and exact reset domains",
+    "Actual bad-Flash-boot recovery, physical V1.1 reset topology, transport erase extent and wired restoration writes",
+    "Real B execution, complete OTA transfer/install/automatic rollback"
+  ],
+  "validation": {
+    "type": "source and documentation only",
+    "firmware_or_device_tests": "not run; no implementation or firmware changed",
+    "upstream_snapshot_git_blobs": "8/8 matched pinned GitHub blob IDs",
+    "archive": "10/10 members read back identical",
+    "host_python": "3.14.3 (snapshot hashing and ZIP packaging only)",
+    "documents": {
+      "command": "python scripts/lab_check.py docs --path docs/STATUS.md --path docs/OTA-PREPARATION.md --path docs/evidence/2026-11-09/ota-rom-rescue-plan.json",
+      "passed": true,
+      "utf8_changed_files": 3,
+      "added_local_links": 8,
+      "diff_check": "git diff --check passed"
+    },
+    "review": "Read-only independent review found a total-budget ambiguity; documentation now clamps every phase to the remaining global 300s budget, rechecked with no remaining reported blocker. Protocol implementation and hardware behavior were outside review scope."
+  }
+}
