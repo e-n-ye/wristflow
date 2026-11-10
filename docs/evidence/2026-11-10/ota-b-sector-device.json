@@ -1,0 +1,350 @@
+{
+  "schema": 1,
+  "date": "2026-11-10",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "source_commit": "c990b9346e6d6e94a63c81c3ec3f83f9e8e36a33",
+  "branch": "codex/ota-b-sector-device",
+  "scope": "One explicitly authorized original-board B first4KiB candidate write/readback/same-window restore window; no boot write or B execution",
+  "authorization": {
+    "source_commit": "c990b9346e6d6e94a63c81c3ec3f83f9e8e36a33",
+    "host_build": "artifacts/ota-b-sector-build-20261110-004/result.json",
+    "question_id": "call_a36688bc14de45b08bb6228f3ba25e83",
+    "user_reply": "现场条件满足，授权本次B首4KiB写入与恢复",
+    "conditions": "Original board and original CycleLog firmware, fixed USB/BAT, operator present, display/touch normal, other serial tools closed, temporary always-on, ten minutes; explicitly confirmed",
+    "scope": {
+      "total_seconds": 600,
+      "stub_seconds": 180,
+      "entry_rts_max": 1,
+      "sysresetreq_max": 1,
+      "official_fixed_stub": true,
+      "official_bkp0r_pa21": true,
+      "ready_registers": true,
+      "read_address": "0x12420000",
+      "read_bytes": 65536,
+      "reads_max": 3,
+      "write_address": "0x12420000",
+      "write_bytes": 4096,
+      "candidate_writes_max": 1,
+      "same_window_original_restore_writes_max": 1,
+      "burn_reset_max": 1,
+      "conditional_exit_rts_max": 1,
+      "boot_write": false,
+      "b_execution": false,
+      "automatic_clock_write": false,
+      "unknown_protocol_blind_restore": false
+    },
+    "accepted_risk": "CRC/protocol/cancel/log failure stops further protocol and may leave B unrestored; no expanded guard-region restoration; another recovery window requires separate scope",
+    "recorded_ns": 1794315817503776200
+  },
+  "command": {
+    "path": "artifacts/ota-b-sector-device-20261110/command.json",
+    "bytes": 1956,
+    "sha256": "8029758f36a9c770a83eafaf60ea5e1a3b044a5e507b319ccf4bc74c4f6a70a8"
+  },
+  "preflight": {
+    "path": "artifacts/ota-b-sector-device-20261110/preflight.json",
+    "bytes": 154970,
+    "sha256": "fbf078db5b4094f4cb0fab9ced3ae6a5bbd36946778e7990f90afae5db231613"
+  },
+  "device_report": {
+    "path": "artifacts/ota-b-sector-device-20261110/device-001/device.json",
+    "bytes": 163625,
+    "sha256": "ee30607ac784f8f1b8b3aa759457373612ce12937bdff443ac3b47b135393969"
+  },
+  "raw_sector_report": {
+    "path": "artifacts/ota-b-sector-device-20261110/device-001/worker/b-sector/sector.json",
+    "bytes": 4367,
+    "sha256": "00124b1c5c79580ef03fd99e47a31eecff2de3da1290400a8807765c15e943a6"
+  },
+  "core_hardware_result_verified": true,
+  "result": {
+    "stub_seconds": 8.0323379,
+    "parent_window_seconds": 96.846366,
+    "candidate_verified": true,
+    "guard60k_unchanged": true,
+    "restored64k_equals_fresh_prestate": true,
+    "original_application_saved_state_not_regressed": true,
+    "original_application_return_confirmed": true,
+    "physical_final_confirmed": true,
+    "resources_closed": true,
+    "recovery_required": false
+  },
+  "raw_review": {
+    "tx": {
+      "path": "artifacts/ota-b-sector-device-20261110/device-001/worker/b-sector/tx.bin",
+      "bytes": 142545,
+      "sha256": "fcb61331463b548158157c8ddc36496ac749eed1d68f5c2d06347f70b01f88e1"
+    },
+    "tx_intents": {
+      "path": "artifacts/ota-b-sector-device-20261110/device-001/worker/b-sector/tx-intents.bin",
+      "bytes": 142545,
+      "sha256": "fcb61331463b548158157c8ddc36496ac749eed1d68f5c2d06347f70b01f88e1"
+    },
+    "rx": {
+      "path": "artifacts/ota-b-sector-device-20261110/device-001/worker/b-sector/rx.bin",
+      "bytes": 199035,
+      "sha256": "ac98c8ee6d659a821a06e6b7b9174502b80915104267c38bec8ebd833dc565f2"
+    },
+    "events": {
+      "path": "artifacts/ota-b-sector-device-20261110/device-001/worker/b-sector/wire-events.jsonl",
+      "bytes": 913068,
+      "sha256": "4d271ff7b9360eddaccca3500fc07f500c00937e630203f7f7e957dbde12f54d"
+    },
+    "tx_equals_intents": true,
+    "all_offsets_contiguous": true,
+    "reads": [
+      {
+        "name": "before-b64k.bin",
+        "tx_offset": 134168,
+        "rx_payload_offset": 1578,
+        "bytes": 65536,
+        "crc32": "e79f1a1b",
+        "sha256": "8f65b59b724a4d3c4de9b51ca1867a0448bdab678205374431dd4b05dc5ac985",
+        "raw_bytes_crc_and_ok_verified": true
+      },
+      {
+        "name": "candidate-b64k.bin",
+        "tx_offset": 138335,
+        "rx_payload_offset": 67519,
+        "bytes": 65536,
+        "crc32": "04f43682",
+        "sha256": "bf26965ce984524dbce19d5ee209fb96c27ee0e55992a3bf85f6ec75c3d5876c",
+        "raw_bytes_crc_and_ok_verified": true
+      },
+      {
+        "name": "restored-b64k.bin",
+        "tx_offset": 142502,
+        "rx_payload_offset": 133460,
+        "bytes": 65536,
+        "crc32": "e79f1a1b",
+        "sha256": "8f65b59b724a4d3c4de9b51ca1867a0448bdab678205374431dd4b05dc5ac985",
+        "raw_bytes_crc_and_ok_verified": true
+      }
+    ],
+    "writes": [
+      {
+        "role": "candidate",
+        "tx_offset": 134200,
+        "payload_offset": 134239,
+        "address": "0x12420000",
+        "bytes": 4096,
+        "sha256": "14102c47df5a8078fd934f9efaea7a271ef790eb7ffd265546abf4cf5b4440fe",
+        "rx_wait_and_ok_verified": true
+      },
+      {
+        "role": "restore",
+        "tx_offset": 138367,
+        "payload_offset": 138406,
+        "address": "0x12420000",
+        "bytes": 4096,
+        "sha256": "154ff4e9b4b26b0a5f13ce0f4ec94f32418d48cbabdb276ae48f842879713070",
+        "rx_wait_and_ok_verified": true
+      }
+    ],
+    "changed_candidate_bytes": 3921,
+    "entry_rts_high": 1,
+    "all_rts_results_ok": true,
+    "sysresetreq": 1,
+    "aircr_frame_tx_offset": 46,
+    "burn_reset": 1,
+    "burn_reset_tx_offset": 142534,
+    "fallback_rts": 0,
+    "independent_readonly_review": "probe_delivery_review: core raw protocol/CRC/bytes, saved counters, RTC and bounded-claim review; no blocker"
+  },
+  "files": [
+    {
+      "path": "artifacts/ota-b-sector-device-20261110/device-001/worker/b-sector/before-b64k.bin",
+      "bytes": 65536,
+      "sha256": "8f65b59b724a4d3c4de9b51ca1867a0448bdab678205374431dd4b05dc5ac985"
+    },
+    {
+      "path": "artifacts/ota-b-sector-device-20261110/device-001/worker/b-sector/candidate-b64k.bin",
+      "bytes": 65536,
+      "sha256": "bf26965ce984524dbce19d5ee209fb96c27ee0e55992a3bf85f6ec75c3d5876c"
+    },
+    {
+      "path": "artifacts/ota-b-sector-device-20261110/device-001/worker/b-sector/fresh-restore-b4k.bin",
+      "bytes": 4096,
+      "sha256": "154ff4e9b4b26b0a5f13ce0f4ec94f32418d48cbabdb276ae48f842879713070"
+    },
+    {
+      "path": "artifacts/ota-b-sector-device-20261110/device-001/worker/b-sector/restored-b64k.bin",
+      "bytes": 65536,
+      "sha256": "8f65b59b724a4d3c4de9b51ca1867a0448bdab678205374431dd4b05dc5ac985"
+    }
+  ],
+  "application": {
+    "snapshots": [
+      {
+        "role": "before",
+        "date_reply": [
+          "Sat Jan  1 00:00:00 2000"
+        ],
+        "saved": {
+          "generation": 178,
+          "boot": 30,
+          "total_recorded_ms": 859228314,
+          "scene_ms": {
+            "unknown": 48084,
+            "on": 15500768,
+            "flashlight": 31171149,
+            "dim": 593748,
+            "off": 811914565,
+            "aod": 0
+          },
+          "failures": 0,
+          "fault_mask": 0,
+          "faults": 3
+        },
+        "current_total_recorded_ms": 859380459,
+        "unsaved_recorded_ms": 152145,
+        "snapshot": {
+          "path": "artifacts/ota-b-sector-device-20261110/device-001/worker/before-snapshot.json",
+          "bytes": 27542,
+          "sha256": "dae33577de4dc978e8f8804c521b582fb1dfe3ac276199efbfebe4bb035b92c4"
+        },
+        "raw": {
+          "path": "artifacts/ota-b-sector-device-20261110/device-001/worker/before-uart.bin",
+          "bytes": 18005,
+          "sha256": "43e8f56381047c2888701302ab1116e6b1acbb14eaf4a635c12c1f1363330b02"
+        },
+        "runtime_prefix": {
+          "path": "artifacts/ota-b-sector-device-20261110/device-001/worker/before-runtime-prefix.json",
+          "bytes": 23492,
+          "sha256": "9ea4294f1144763f2c3c34a9a116c96b921772dec4b7331c41ad313b1f035197"
+        }
+      },
+      {
+        "role": "after",
+        "date_reply": [
+          "Sat Jan  1 00:00:00 2000"
+        ],
+        "saved": {
+          "generation": 179,
+          "boot": 31,
+          "total_recorded_ms": 859229405,
+          "scene_ms": {
+            "unknown": 49175,
+            "on": 15500768,
+            "flashlight": 31171149,
+            "dim": 593748,
+            "off": 811914565,
+            "aod": 0
+          },
+          "failures": 0,
+          "fault_mask": 0,
+          "faults": 3
+        },
+        "current_total_recorded_ms": 859254757,
+        "unsaved_recorded_ms": 25352,
+        "snapshot": {
+          "path": "artifacts/ota-b-sector-device-20261110/device-001/worker/after-snapshot.json",
+          "bytes": 13238,
+          "sha256": "1dbfb4c7b4f063625f0e8ce1d3a732ac0017b0742fc0ce67d518ea3e96f8c9cf"
+        },
+        "raw": {
+          "path": "artifacts/ota-b-sector-device-20261110/device-001/worker/after-uart.bin",
+          "bytes": 8504,
+          "sha256": "dbd7eb4616be27fbe4d333939f6c814ed9030f41875f1f97be3ac3ea5774b530"
+        },
+        "runtime_prefix": {
+          "path": "artifacts/ota-b-sector-device-20261110/device-001/worker/after-runtime-prefix.json",
+          "bytes": 10497,
+          "sha256": "a19e1506afa2c3ecb4899b36b293571f01d2802908a6af9090f05830b9724560"
+        }
+      }
+    ],
+    "recovery": {
+      "runtime_saved_not_regressed": true,
+      "expected_new_boot": true,
+      "rtc_continuity": true,
+      "unsaved_tail_preserved_on_host_ms": 152145,
+      "limits": "Runtime saved counters and UTC only; settings, all files and bad-boot rescue are not verified"
+    },
+    "manual_confirmations": [
+      {
+        "phase": "prepare",
+        "wall_ns": 1794315863162260700
+      },
+      {
+        "phase": "return",
+        "wall_ns": 1794315902076560300
+      },
+      {
+        "phase": "final",
+        "wall_ns": 1794315915575406500
+      }
+    ],
+    "host_preserved_only_tail_ms": 152145,
+    "current_total_drop_ms": 125702,
+    "current_total_drop_explanation": "Before-current includes the host-only unpersisted tail; acceptance compares saved checkpoints, not a claim that all live RAM time survived reset."
+  },
+  "rtc": {
+    "before": [
+      "Sat Jan  1 00:00:00 2000"
+    ],
+    "after": [
+      "Sat Jan  1 00:00:00 2000"
+    ],
+    "records_utc_before": 0,
+    "records_utc_after": 0,
+    "tool_tolerance_flag": true,
+    "valid_wall_clock_verified": false,
+    "retention_verified": false,
+    "interpretation": "Both replies remain at year2000 midnight. A <=60s tolerance reports true for this short run; not valid time or retention evidence. Preserve tool output unchanged, no rerun for aggregate passed and no automatic time write.",
+    "separate_from_ota_core": true,
+    "host_time_write": false
+  },
+  "report_label_limits": {
+    "hardware_verified": false,
+    "deployment_authorized": false,
+    "explanation": "Generic workflow retains these false flags and a software-flow UI label; independent raw review establishes only the bounded B-sector hardware result, not OTA deployment authorization."
+  },
+  "cleanup": {
+    "worker_exit": 0,
+    "worker_forced": false,
+    "child": {
+      "resources_closed": true,
+      "child_forced": false,
+      "child_exit": 0,
+      "application_return_needs_operator": true
+    },
+    "lease_retained": false,
+    "post_close_kernel_lease_reacquired": true,
+    "manual_final": "Operator confirmed closing temporary always-on and normal display/touch/KEY1 in the shared console"
+  },
+  "ready": {
+    "cpuwait": true,
+    "pmr": 4,
+    "rstr1": 0,
+    "enabled_channels": [
+      {
+        "address": 1342705792,
+        "ccr": 4271,
+        "count": 32362,
+        "destination": 537147756,
+        "enabled": true,
+        "source": 1342717988
+      }
+    ],
+    "continuous_quiescence_proven": false
+  },
+  "limitations": [
+    "Readback covers this 64KiB window only; no claim about bytes elsewhere in NOR.",
+    "No proof of physical erase envelope or continuous ownership of every Flash user.",
+    "No boot replacement, B execution, bad-boot rescue, A/B automatic rollback or phone DFU result.",
+    "RTC validity/retention unproven; no clock correction."
+  ],
+  "archive": {
+    "path": "artifacts/ota-b-sector-device-20261110.zip",
+    "bytes": 9606572,
+    "sha256": "37c69a3ae6c9941205028d9ebe0f0d7f6048d7fcd4b082b65d8bc86f81deb725",
+    "members": 104,
+    "all_members_read_back_identical": true
+  },
+  "screenshot": {
+    "path": "artifacts/ota-b-sector-device-20261110/return-prompt.png",
+    "bytes": 34145,
+    "sha256": "e9bce1823fc89d5a154cbf989ac2de0e73fe4595c626cbf3c40ff108e2cf36ac"
+  }
+}
