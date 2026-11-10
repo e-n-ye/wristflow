@@ -9,7 +9,7 @@
 
 **交付与保全**：[PR211](https://github.com/e-n-ye/wristflow/pull/211)规则`12c3b90`、[PR212](https://github.com/e-n-ye/wristflow/pull/212)固定探针包`9b276fd`、[PR213](https://github.com/e-n-ye/wristflow/pull/213)ROM／stub流程及证据`ae11347`、[PR214](https://github.com/e-n-ye/wristflow/pull/214)官方路径／准入合同`6a9e832`均已合入。本轮执行包从干净`6a9e832`开展，最终PR／远端及本地主线同步由本次收尾回读。原阶段`codex/ota-mapping-experiment@264945d`、外壳分支及旧证据保持。
 
-**执行包结果**：独立writer固定`0x12420000/4096B`，复用原库／原stub；同一1M会话三读64KiB、候选及同窗原字节各写一次，持久标记／CRC／独立字节比较及未知状态停止守卫已实现。写入包003及只读companion各Rust8＋8项／Release通过，最终生产源码OTA Python159/159；授权测试补强后相关13/13。成功、未知写入和取消页面模拟分别6/6、4/6、1/6，失败原因及资源末态真实保留。[源码／构建／测试／归档证据](evidence/2026-11-10/ota-b-sector-package.json)。
+**执行包结果**：独立writer固定`0x12420000/4096B`，复用原库／原stub；同一1M会话三读64KiB、候选及同窗原字节各写一次，持久标记／CRC／独立字节比较及未知状态停止守卫已实现。写入包004及只读002各Rust8＋8项／Release通过，最终Windows执行字节及授权测试补强后的OTA Python159/159；旧相关13/13日志保留。成功、未知写入和取消页面模拟分别6/6、4/6、1/6，失败原因及资源末态真实保留。[源码／构建／测试／归档证据](evidence/2026-11-10/ota-b-sector-package.json)。
 
 **已有基础与边界**：1684B固定探针、34240B可选执行RAM boot、58496B兼容候选与原boot64KiB／B首4KiB恢复输入继续复用；普通Product隔离、SDK锁／正式分区保持。软件测试和工具数量只作支撑；尚无本次B写入／恢复、B执行、自动回滚或手机OTA设备成果。
 

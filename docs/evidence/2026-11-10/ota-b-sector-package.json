@@ -21,13 +21,13 @@
     },
     {
       "path": "scripts/ota_stub_bridge/src/b_sector.rs",
-      "bytes": 8925,
-      "sha256": "cddcc20c0786c754e3afc8a10981c5de8edde1aeaf16c5185fffbff5d4225f86"
+      "bytes": 9040,
+      "sha256": "9cb5fbf1ff8beffcb6e2ecc13c0cd792c295b32eb7ea1b6f0d736376f001fc9a"
     },
     {
       "path": "scripts/ota_stub_bridge/src/common.rs",
-      "bytes": 3004,
-      "sha256": "104537d47d01fb02ce598809cf224fbf892a4c51d07f782a2c3dd42f4832dd2c"
+      "bytes": 3002,
+      "sha256": "b4c42ed4b0284bcacfeea9b2e34bed49a8b8b37393f6d0a134434ad6ef54bd6a"
     },
     {
       "path": "scripts/ota_stub_bridge/src/geometry.rs",
@@ -46,8 +46,8 @@
     },
     {
       "path": "scripts/ota_stub_bridge/src/sector.rs",
-      "bytes": 8130,
-      "sha256": "d100219be405f7305164c9069de7393853438d3de3ad82cd26cec2910668cd16"
+      "bytes": 8250,
+      "sha256": "23610a1e01d40ceb16c3ac11b4160291dba0e7f2d59638a77bb8070a19bd5227"
     },
     {
       "path": "scripts/ota_stub_bridge/src/simulated.rs",
@@ -126,8 +126,8 @@
     },
     {
       "path": "scripts/ota_b_sector.py",
-      "bytes": 12888,
-      "sha256": "4ede481a8776a268ea7f8461df1009fda0733b60b9d71fd5833b047f1c028b26"
+      "bytes": 13097,
+      "sha256": "4b633887cfab03119b505b8f3d3ae6436a0c8512aff83b7a2d663bd6159468b7"
     },
     {
       "path": "scripts/ota_backup_review.py",
@@ -201,8 +201,8 @@
     },
     {
       "path": "tests/test_ota_b_sector.py",
-      "bytes": 13261,
-      "sha256": "33529aa84985782468a59c27ca45000aa8023da25222364c96b26dbeec35252b"
+      "bytes": 13480,
+      "sha256": "118db81c61dd06e96d70216313103244882dfa73aac613e7a9a4b5c7c3d5150d"
     },
     {
       "path": "tests/test_ota_backup_review.py",
@@ -280,14 +280,14 @@
   ],
   "writer_build": {
     "result": {
-      "path": "artifacts/ota-b-sector-build-20261110-003/result.json",
+      "path": "artifacts/ota-b-sector-build-20261110-004/result.json",
       "bytes": 3588,
-      "sha256": "fb3b9d3c8a5d62f474862a35b32c9937ac2dfbd3f10c1248f3762e6f68ab491c"
+      "sha256": "2e4bc88941fb07b363dd0d5d6293b1d330a604c93f3b89636dbe0c6be54532ca"
     },
     "executable": {
-      "path": "artifacts/ota-b-sector-build-20261110-003/wristflow-ota-b-sector.exe",
-      "bytes": 20875610,
-      "sha256": "64842a43adfe87c373ff743d2ae04bda2a53de0471bdff9399bf75a6ff82a808"
+      "path": "artifacts/ota-b-sector-build-20261110-004/wristflow-ota-b-sector.exe",
+      "bytes": 20875674,
+      "sha256": "7989aac499568ad74d2ec8e8a45698ccc695e2adf58413ccbca760eff12dbb27"
     },
     "rust_tests_per_binary": 8,
     "release": true,
@@ -295,14 +295,14 @@
   },
   "observer_build": {
     "result": {
-      "path": "artifacts/ota-b-sector-observer-build-final-20261110/result.json",
-      "bytes": 3610,
-      "sha256": "0eb809216a64d9a9b66d8d6193bf3749a2d6b76aeb233fd43655c10efc3cc168"
+      "path": "artifacts/ota-b-sector-observer-build-20261110-002/result.json",
+      "bytes": 3608,
+      "sha256": "86c96a72a997fd50b7bab3ee61782e9984cfe9f22a231cc2bb9c4b56fe4fbc2c"
     },
     "executable": {
-      "path": "artifacts/ota-b-sector-observer-build-final-20261110/wristflow-ota-stub-observer.exe",
-      "bytes": 20837226,
-      "sha256": "218da05ae30a24512538c33d26339cf114342a4d49371cc8fa0f420a14a6fd59"
+      "path": "artifacts/ota-b-sector-observer-build-20261110-002/wristflow-ota-stub-observer.exe",
+      "bytes": 20837219,
+      "sha256": "f0ed7fca7ce6a11d77fad81e08fb7edeceaabb8058cefdcfbd00a56738279cc4"
     },
     "rust_tests_per_binary": 8,
     "release": true,
@@ -320,9 +320,9 @@
   },
   "inputs": [
     {
-      "path": "artifacts/ota-b-sector-build-20261110-003/result.json",
+      "path": "artifacts/ota-b-sector-build-20261110-004/result.json",
       "bytes": 3588,
-      "sha256": "fb3b9d3c8a5d62f474862a35b32c9937ac2dfbd3f10c1248f3762e6f68ab491c"
+      "sha256": "2e4bc88941fb07b363dd0d5d6293b1d330a604c93f3b89636dbe0c6be54532ca"
     },
     {
       "path": "artifacts/ota-rom-backup-20261108/device-001/nor-first.bin",
@@ -343,33 +343,23 @@
   "tests": {
     "full": {
       "log": {
-        "path": "artifacts/ota-b-sector-sealed-tests-20261110.log",
+        "path": "artifacts/ota-b-sector-checkout-tests-20261110.log",
         "bytes": 25241,
-        "sha256": "8363d977e0ded477f9da789a7f5d366d7b2fe784d077dd0e927f5f190f09ec62"
+        "sha256": "0939d7ba39e418be1a3a0c09bdf4af94c41cdc95fcf3abf8dd67507fbbbcb38a"
       },
       "tests": 159,
-      "seconds": 175.051,
+      "seconds": 177.439,
       "passed": true
     },
-    "focused": {
-      "log": {
-        "path": "artifacts/ota-b-sector-scope-tests-20261110.log",
-        "bytes": 2533,
-        "sha256": "7559515f462cf4e942a59f70a7f2c48e6484f7d23ba181142d873e293b996969"
-      },
-      "tests": 13,
-      "seconds": 40.487,
-      "passed": true
-    },
-    "version_note": "Full suite used final production sources. Thereafter only InputGuards test was strengthened to assert the exact missing-restore authorization error; final 13-test package suite passed again. No production changes."
+    "version_note": "Final CRLF execution bytes, strengthened exact authorization-scope test, final writer004 and observer002; all final production/test sources. Previous full and focused logs retained separately."
   },
   "synthetic_protocol": {
-    "source": "artifacts\\ota-b-sector-tests-kgc1rpns",
+    "source": "artifacts/ota-b-sector-tests-8n2hojnx",
     "writes": [
       {
         "address": 306315264,
         "bytes": 4096,
-        "elapsed_ns": 714292400,
+        "elapsed_ns": 731898800,
         "kind": "sector_write_intent",
         "role": "candidate",
         "sha256": "14102c47df5a8078fd934f9efaea7a271ef790eb7ffd265546abf4cf5b4440fe"
@@ -377,7 +367,7 @@
       {
         "address": 306315264,
         "bytes": 4096,
-        "elapsed_ns": 741105100,
+        "elapsed_ns": 762561700,
         "kind": "sector_write_intent",
         "role": "restore",
         "sha256": "f47a8ec3e9aff2318d896942282ad4fe37d6391c82914f54a5da8a37de1300c6"
@@ -387,21 +377,21 @@
       {
         "address": 306315264,
         "bytes": 65536,
-        "elapsed_ns": 689618400,
+        "elapsed_ns": 698836800,
         "kind": "sector_read_intent",
         "name": "before-b64k.bin"
       },
       {
         "address": 306315264,
         "bytes": 65536,
-        "elapsed_ns": 719802900,
+        "elapsed_ns": 735787900,
         "kind": "sector_read_intent",
         "name": "candidate-b64k.bin"
       },
       {
         "address": 306315264,
         "bytes": 65536,
-        "elapsed_ns": 746893300,
+        "elapsed_ns": 766687500,
         "kind": "sector_read_intent",
         "name": "restored-b64k.bin"
       }
@@ -411,14 +401,14 @@
       {
         "name": "bad-candidate",
         "request": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/bad-candidate-request.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/bad-candidate-request.json",
           "bytes": 1322,
-          "sha256": "1f1fcfa59346f50a9cd94a0a3dc3a5d376c2df0f2d36b3b1e5bd68b2e5eea5db"
+          "sha256": "4288b2c18465bb79a44429b8b3c8c1fc15788da403c2bfa25243f66942dde96a"
         },
         "report": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/bad-candidate/sector.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/bad-candidate/sector.json",
           "bytes": 4432,
-          "sha256": "00615ad16fc4eeab0be9cbbc875a7cd34b1460e6e71e42f832e0f8b0b6dcc8cb"
+          "sha256": "1fd9c4914e114c69e31845d03b1d28b37787f2fecb360b68873da225d0c53d39"
         },
         "passed": false,
         "candidate_write_attempted": true,
@@ -429,14 +419,14 @@
       {
         "name": "before-changed",
         "request": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/before-changed-request.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/before-changed-request.json",
           "bytes": 1320,
-          "sha256": "be4dcf69b240b43e6d3b46e079787106fa430fe5356332938ba15b07c179618c"
+          "sha256": "58bbeb37a39aee204546e565d8d5bc93ceca613318f1aa0fa06e7966a04f86b0"
         },
         "report": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/before-changed/sector.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/before-changed/sector.json",
           "bytes": 4247,
-          "sha256": "445ef4013276c09247d929694c2479fc1f35b04ad788b7ebc2a89407bef3cf1e"
+          "sha256": "bf31615448b68a6a02618dc0017606cd378c0cd4229efb22db6beeeb6200704a"
         },
         "passed": false,
         "candidate_write_attempted": false,
@@ -447,14 +437,14 @@
       {
         "name": "candidate-data-timeout",
         "request": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/candidate-data-timeout-request.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/candidate-data-timeout-request.json",
           "bytes": 1344,
-          "sha256": "07cce24bab7902b5c0386000764c59dd56e9af2e3f3e8b66bad507c25a065ae7"
+          "sha256": "9f90998ead90157348fd4d53963347a816940a2442cb371e8261264b7fc7e6d6"
         },
         "report": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/candidate-data-timeout/sector.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/candidate-data-timeout/sector.json",
           "bytes": 4451,
-          "sha256": "791a160cfcf490d00ceb04fa760415202b7bc4af443e2103d6aabac4f66bec3f"
+          "sha256": "7a5ae55699e4d6ec5de4ba401c69de4f036a4b47809996d555d9be3878517092"
         },
         "passed": false,
         "candidate_write_attempted": true,
@@ -465,68 +455,68 @@
       {
         "name": "denied-0",
         "request": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/denied-0-request.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/denied-0-request.json",
           "bytes": 1291,
-          "sha256": "491fffc1ed4c07e72b58a61d25ccbcc0fd851fa31ea712c4471affd132e51325"
+          "sha256": "dfc8a035d37ea5b1b49c3734f03b9ac6056be0806ef536e4b2f5e0ec2dee0c14"
         },
         "rejected_before_output": true
       },
       {
         "name": "denied-1",
         "request": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/denied-1-request.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/denied-1-request.json",
           "bytes": 1302,
-          "sha256": "e65141a365eea1c32071f2f277b3c9523a19323cf05f2423e0f9121eb36b4c01"
+          "sha256": "41d78affdaf60887221f4c7d7801bdcd487fc0f10b12e9ce91e8a14a69179acd"
         },
         "rejected_before_output": true
       },
       {
         "name": "denied-2",
         "request": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/denied-2-request.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/denied-2-request.json",
           "bytes": 1302,
-          "sha256": "ae1ff907816114e482e461ee9118e653aca69118bc410ce91f817fc997c5f732"
+          "sha256": "e04ea97492610535ba54b932462563671678460bf02bff4f4e4a3a3154c97915"
         },
         "rejected_before_output": true
       },
       {
         "name": "denied-3",
         "request": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/denied-3-request.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/denied-3-request.json",
           "bytes": 1326,
-          "sha256": "85c8b89b595da3ccd40f1d6fcf0cf11919d974ad64d7b598a5a360b612c76ccf"
+          "sha256": "0b23d3d916271060d4485aba25407104eeee5326d43b42c7baaad1b6ae2363bf"
         },
         "rejected_before_output": true
       },
       {
         "name": "denied-4",
         "request": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/denied-4-request.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/denied-4-request.json",
           "bytes": 1301,
-          "sha256": "2e82638836a54f153ba6d2e73da8fd1526712b3acf661599910eb104411a275e"
+          "sha256": "d439b834df49486b0348876b5ce3caef1372c5bb12d47fee7bdff328d360f4de"
         },
         "rejected_before_output": true
       },
       {
         "name": "denied-5",
         "request": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/denied-5-request.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/denied-5-request.json",
           "bytes": 1303,
-          "sha256": "ee0a52f7239d68b3d12cbeb9a9b8ae91f5437b64e31309a65c49c9842a4bf504"
+          "sha256": "0fe70a6c18f335d3628d9519c1a0b1086c51dac903ce824e5a1f9fa626dbc482"
         },
         "rejected_before_output": true
       },
       {
         "name": "fragmented",
         "request": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/fragmented-request.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/fragmented-request.json",
           "bytes": 1308,
-          "sha256": "95f39d74ccb5fa0a39677cddc2ab6952abf8f34875d3d3399b2b13faf2715ede"
+          "sha256": "f193acbfe0d5347198d3a35ba2e684a5fd0cbdd28668626b2247070e1058980f"
         },
         "report": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/fragmented/sector.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/fragmented/sector.json",
           "bytes": 4361,
-          "sha256": "88062fe1857f5bc945ed48a9af88b4b2c4ad9aa8d98450fe73728f9e96f78723"
+          "sha256": "555854d9994cbd5e022fea107e7f5b036040a1955fdd51881d488b6c965534e3"
         },
         "passed": true,
         "candidate_write_attempted": true,
@@ -537,14 +527,14 @@
       {
         "name": "guard-change",
         "request": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/guard-change-request.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/guard-change-request.json",
           "bytes": 1314,
-          "sha256": "5ff8ff2bf3a056a3c17edeedc42008be8e4cb53e69ab73041a9c2553910991b1"
+          "sha256": "c18e8a484815193eece3dd0b79881cc80c737a31c3b5cf560e0371bc3a8d8c8a"
         },
         "report": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/guard-change/sector.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/guard-change/sector.json",
           "bytes": 4463,
-          "sha256": "c64d6d0e86d99919eb4c6c073d6efeaf038157572b41d682d2e539b44f6d8c43"
+          "sha256": "9ffdc6f6d52641bfc4e30efdcaf916b7cae97e7fb47b6cb4050a566298aef4b8"
         },
         "passed": false,
         "candidate_write_attempted": true,
@@ -555,14 +545,14 @@
       {
         "name": "lcpu-running",
         "request": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/lcpu-running-request.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/lcpu-running-request.json",
           "bytes": 1314,
-          "sha256": "232834d3c36e12e331064991903e81b90dd8f320357bd68aed1ab9483e801c35"
+          "sha256": "a266843414fb9bc63f087a4d88090d8b4a96ccc940af8a2dc04886d62939d98a"
         },
         "report": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/lcpu-running/sector.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/lcpu-running/sector.json",
           "bytes": 4248,
-          "sha256": "b030eafaeff92da8070ae7d22862e1526353b0967d2c22bb758a86abd97cc855"
+          "sha256": "a3d49aa2dd3622aa3f5abf56385855f2993823d8f4093a711fbf79eadb827176"
         },
         "passed": false,
         "candidate_write_attempted": false,
@@ -573,14 +563,14 @@
       {
         "name": "prestate-crc-fail",
         "request": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/prestate-crc-fail-request.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/prestate-crc-fail-request.json",
           "bytes": 1329,
-          "sha256": "2aa4d9eda790ec563e160637248b08b29008f5a21ddf4c867d62df42b68a58cc"
+          "sha256": "aa4f69a7c7af72aad9e58e3f8f8cafd607d49840560b526f3eff9feedccbeb48"
         },
         "report": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/prestate-crc-fail/sector.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/prestate-crc-fail/sector.json",
           "bytes": 4246,
-          "sha256": "e48514faf883bec0c2dba64afe092f3848dc2bb1097d2d592702f9f3f69987dc"
+          "sha256": "8f82bcb78aea9d51f7988c03238d6465f43ec1964271bf276531755c6eabf34b"
         },
         "passed": false,
         "candidate_write_attempted": false,
@@ -591,14 +581,14 @@
       {
         "name": "readback-crc-fail",
         "request": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/readback-crc-fail-request.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/readback-crc-fail-request.json",
           "bytes": 1329,
-          "sha256": "ca74d8c605714dbb73a711b76fd58cf9e9855368d9368b5839f53de006bebad0"
+          "sha256": "531f6f3b1c0c960a4d69c029ef01dd0caa8059d07d3b17a92cbc34fc02c63b3d"
         },
         "report": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/readback-crc-fail/sector.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/readback-crc-fail/sector.json",
           "bytes": 4455,
-          "sha256": "5d8d3a488e12b2d45edfb370fac8c891a57bcde9024b336df8781f0f7d900d38"
+          "sha256": "fa55f3be299f94528a17428d6e0029bf8f3abef6c70712b4b58d87413831121f"
         },
         "passed": false,
         "candidate_write_attempted": true,
@@ -609,14 +599,14 @@
       {
         "name": "register-read-fail",
         "request": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/register-read-fail-request.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/register-read-fail-request.json",
           "bytes": 1332,
-          "sha256": "2af0e1bb701b62688a932cc02b95601a724eb9bf4123009fe8fd1dee62cc3b66"
+          "sha256": "8fff2300de4cd0162235d6a1004c4b6eeba1c6af886414838bad97b5c9306788"
         },
         "report": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/register-read-fail/sector.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/register-read-fail/sector.json",
           "bytes": 1079,
-          "sha256": "d5cf1e885d2a133787f2bf551e4ef6bb8158039bfb7c78fcbe7d21e7c6382594"
+          "sha256": "0b943a6cf203eac18a1fa644a6bc8d3826902300c20b159fd8b60cf41dc52df2"
         },
         "passed": false,
         "candidate_write_attempted": false,
@@ -627,14 +617,14 @@
       {
         "name": "restore-data-fail",
         "request": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/restore-data-fail-request.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/restore-data-fail-request.json",
           "bytes": 1329,
-          "sha256": "c1c8022bba11d8b77e4beaac3ffa5596ed06237a3d145a84d4ec862c5c6bb82f"
+          "sha256": "b744cdd98c47ab92bff73804c4aed188ed4f978146570565bbee11a23ad67184"
         },
         "report": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/restore-data-fail/sector.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/restore-data-fail/sector.json",
           "bytes": 4455,
-          "sha256": "6c7457cd57dd015e4e761378a6c174e4b27928f971184da45321033c359d1d95"
+          "sha256": "160958058113eb8c3727232bd1d0a128833811dc2d10f383d663355dc7e81408"
         },
         "passed": false,
         "candidate_write_attempted": true,
@@ -645,14 +635,14 @@
       {
         "name": "restore-mismatch",
         "request": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/restore-mismatch-request.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/restore-mismatch-request.json",
           "bytes": 1326,
-          "sha256": "f990f299a55272254c6c98fe384c69b6c675b93dc5945d1030ca9fe021420d8d"
+          "sha256": "46485d5170bb8bc065172a89aee5ea15d465abc28c97cf20c1045a89b24abcd8"
         },
         "report": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/restore-mismatch/sector.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/restore-mismatch/sector.json",
           "bytes": 4461,
-          "sha256": "38375b16685dd7eff93b7778acc222a3bbb532d0fe31c7b5eaa475de10e5f158"
+          "sha256": "5cc4112bf29d67e6cec7ff563176d936a10834889a5c81408eec1ef43b2053cd"
         },
         "passed": false,
         "candidate_write_attempted": true,
@@ -663,14 +653,14 @@
       {
         "name": "same-candidate",
         "request": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/same-candidate-request.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/same-candidate-request.json",
           "bytes": 1311,
-          "sha256": "7438e33b784fb91fac7c4d5df58314674e7018438d9562fe2d6a7ffcedb77cf6"
+          "sha256": "aa90fe5892e88cf478422ee3d45953ea0cb332c60190b9a3538121db3851cdd2"
         },
         "report": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/same-candidate/sector.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/same-candidate/sector.json",
           "bytes": 4243,
-          "sha256": "f1ed41b957430fb3b56e6b14dedbca3fceadf7c1e1f8691c6062e69a5c1ddb64"
+          "sha256": "d70c5059200f57476b8042dc4c8b931bd76a974ac519826aca14a8ea446bde9d"
         },
         "passed": false,
         "candidate_write_attempted": false,
@@ -681,14 +671,14 @@
       {
         "name": "success",
         "request": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/success-request.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/success-request.json",
           "bytes": 1299,
-          "sha256": "ac1b686887c8aa742db2520e44dcbe663db0ca59e064053a973bdbb1cd08f59d"
+          "sha256": "361367f459fca88aaf2ef991d9170d58b9a75c188c33ca3eb22bd09cfc342b4b"
         },
         "report": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/success/sector.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/success/sector.json",
           "bytes": 4361,
-          "sha256": "e98e8928d33d2072556ad5dbe866763394e8a957f61e4cbd373d0543b62c0ce5"
+          "sha256": "1336c25c0e65ee709b3afa5b0d5310418174b7d712e4791a72c3e91f6594f944"
         },
         "passed": true,
         "candidate_write_attempted": true,
@@ -699,14 +689,14 @@
       {
         "name": "write-start-fail",
         "request": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/write-start-fail-request.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/write-start-fail-request.json",
           "bytes": 1326,
-          "sha256": "06222572c511730aa63671ca654edee8c0269720dc2bfeee8d0b070b204319fe"
+          "sha256": "5e1871983f0c29eeab6e30a67607dcf3006ad7796eb517c61856af4211450f86"
         },
         "report": {
-          "path": "artifacts/ota-b-sector-tests-kgc1rpns/write-start-fail/sector.json",
+          "path": "artifacts/ota-b-sector-tests-8n2hojnx/write-start-fail/sector.json",
           "bytes": 4451,
-          "sha256": "6bfec0ec68710bcb8bdb1245eafb6b558d3de5fcbb54c70c905b98b2643a0e81"
+          "sha256": "2f8ba9755ec2b81904c32ac747adb562285c9dfa245c6341e5e502441d64aced"
         },
         "passed": false,
         "candidate_write_attempted": true,
@@ -1189,7 +1179,7 @@
       ]
     }
   ],
-  "ui_version_note": "success/unknown-write used writer002 and exact SHA-reconstructed executed Python/Rust snapshots; cancel used writer003. Final changes conservatively recover RTS entry intent and check the exact writer EXE filename. These do not change the two earlier page flows; final production source is covered by 159 tests, then strengthened test-only scope check by 13 tests.",
+  "ui_version_note": "success/unknown-write used writer002 and exact SHA-reconstructed executed Python/Rust snapshots; cancel used writer003. Final changes conservatively recover RTS entry intent and check the exact writer EXE filename. These do not change the two earlier page flows; final production source is covered by 159 tests, then strengthened test-only scope check by 13 tests. Writer004 additionally seals Windows checkout line endings and removes redundant empty lines, with canonical executable content unchanged; final 159-test suite validates exact current bytes. The three UI cases remain explicitly historical simulation evidence.",
   "failures_retained": [
     {
       "log": {
@@ -1225,10 +1215,47 @@
   },
   "remaining": "Fresh device authorization and actual B-sector candidate/guard/restoration/application/resources/manual result; later B boot, persistent A/B rollback, BLE/phone DFU remain separate.",
   "archive": {
+    "path": "artifacts/ota-b-sector-package-checkout-20261110.zip",
+    "bytes": 50337662,
+    "sha256": "0c56743317a8dc17f732602de9a43654444b6af9e5e39cada6d4c941f75af3e4",
+    "members": 720,
+    "all_members_read_back_identical": true
+  },
+  "prior_validation": {
+    "full": {
+      "log": {
+        "path": "artifacts/ota-b-sector-sealed-tests-20261110.log",
+        "bytes": 25241,
+        "sha256": "8363d977e0ded477f9da789a7f5d366d7b2fe784d077dd0e927f5f190f09ec62"
+      },
+      "tests": 159,
+      "seconds": 175.051,
+      "passed": true
+    },
+    "focused": {
+      "log": {
+        "path": "artifacts/ota-b-sector-scope-tests-20261110.log",
+        "bytes": 2533,
+        "sha256": "7559515f462cf4e942a59f70a7f2c48e6484f7d23ba181142d873e293b996969"
+      },
+      "tests": 13,
+      "seconds": 40.487,
+      "passed": true
+    },
+    "version_note": "Full suite used final production sources. Thereafter only InputGuards test was strengthened to assert the exact missing-restore authorization error; final 13-test package suite passed again. No production changes."
+  },
+  "prior_archive": {
     "path": "artifacts/ota-b-sector-package-20261110.zip",
     "bytes": 32942823,
     "sha256": "f0fa5fab5898cbd01a95f8fa3be9066a8e41a59847a0c530454a37f30712ed1e",
     "members": 711,
     "all_members_read_back_identical": true
+  },
+  "byte_sealing": {
+    "reference_commit": "a320588",
+    "canonical_content_unchanged": true,
+    "change": "Remove only redundant trailing empty lines in common.rs; store new Windows execution inputs with CRLF, matching ordinary Git checkout. This prevents bound-source hash mismatch after integration.",
+    "final_build": "004",
+    "device_actions": false
   }
 }

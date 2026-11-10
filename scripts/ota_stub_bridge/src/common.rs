@@ -56,4 +56,3 @@ pub fn pulse(tool: &mut SF32LB52Tool, trace: &port::Trace, role: &str) -> Result
     high?;low?;
     Ok(())
 }
-
