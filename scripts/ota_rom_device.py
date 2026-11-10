@@ -38,6 +38,7 @@ SCENARIOS = ("success", "no-catch", "exit-fail", "aircr-no-reply", "hang-before"
              "hang-rom", "hang-open", "hang-close", "identity-change", "startup-banner",
              "startup-old-frame-rtc-fail", "release-banner", "release-old-frame", "release-readback-fail")
 RETAINED = []  # Do not release a live endpoint lease when process exit is unknown.
+STUB_PROFILES = ("stub-observe", "stub-b-sector")
 
 
 def load(path):
@@ -114,15 +115,18 @@ def worker(config_path, expected_sha):
         raise ValueError("Invalid owned worker config")
     simulation = config["simulation"]
     profile = config.get("profile", "rom-capture")
-    if profile not in ("rom-capture", "stub-observe"):
+    if profile not in ("rom-capture", *STUB_PROFILES):
         raise ValueError("Unknown fixed device profile")
     if not simulation and (os.name != "nt" or config.get("rom_reset_authorized") is not True or
                            config.get("conditions_confirmed") is not True):
         raise ValueError("Fresh Windows reset window and physical conditions required")
-    if not simulation and profile == "stub-observe" and any(
+    if not simulation and profile in STUB_PROFILES and any(
             config["capture"].get(key) is not True for key in
             ("stub_observation_authorized", "original_start_authorized")):
         raise ValueError("Fresh official-stub observation and original-start authorization required")
+    if not simulation and profile == "stub-b-sector" and any(config["capture"].get(k) is not True for k in
+            ("b_sector_write_authorized", "b_sector_restore_authorized")):
+        raise ValueError("Fresh fixed B write AND restoration authorization required")
     verify_files(config["sources"] + config["inputs"])
     out = config_path.parent
     journal = Journal(out / "worker", binding=config, mode="ota-rom-owned-worker")
@@ -158,8 +162,10 @@ def worker(config_path, expected_sha):
         binding, original_identity = prepare_capture(args["result"], args["flash"], args["expected_bin"],
             args["port"], args["location"], True, build_archive=args["build_archive"], recorded_root=args["recorded_root"])
         binding.update(cycle_log=build.get("cycle_log") is True,
-                       policy=("Original stub writes BKP0R/PA21; no Flash write/erase or RTC time write"
-                               if profile == "stub-observe" else
+                       policy=("Fixed B4KiB candidate and same-window restoration; no other Flash or RTC time write"
+                               if profile == "stub-b-sector" else
+                               "Original stub writes BKP0R/PA21; no Flash write/erase or RTC time write"
+                               if profile in STUB_PROFILES else
                                "Owned ROM debug window; fixed register operations, no Flash/RTC write"))
         def identity(): integrity(); check(); return original_identity()
     check()
@@ -182,8 +188,11 @@ def worker(config_path, expected_sha):
                 raise ValueError("ROM requires this worker's fresh successful prestate")
             fixture = Path(config[phase + "_fixture"]).read_bytes() if simulation and phase != "rom" else b""
             factory = (lambda **kw: FakeSerial(phase, fixture, config["scenario"], **kw)) if simulation else None
-            if phase == "rom" and profile == "stub-observe":
-                from ota_stub_observe import probe
+            if phase == "rom" and profile in STUB_PROFILES:
+                if profile == "stub-b-sector":
+                    from ota_b_sector import probe
+                else:
+                    from ota_stub_observe import probe
                 identity()
                 phase_end = min(phase_end, config["active_end"] - 10)
                 check()
@@ -235,13 +244,19 @@ def run(output, *, capture=None, fixtures=None, scenario="success", ready=None, 
     """Parent owns all process/endpoint resources, never a UART handle."""
     output = Path(output).resolve()
     simulation = capture is None
-    if profile not in ("rom-capture", "stub-observe"):
+    if profile not in ("rom-capture", *STUB_PROFILES):
         raise ValueError("Unknown fixed device profile")
     if observer_plan not in ("dual-nor", "geometry") or profile != "stub-observe" and observer_plan != "dual-nor":
         raise ValueError("Unknown or misplaced fixed observer plan")
     maximum_limits, maximum_total = LIMITS, 300
     observer_inputs = []
-    if profile == "stub-observe":
+    if profile == "stub-b-sector":
+        from ota_b_sector import LIMITS as SECTOR_LIMITS, SCENARIOS as SECTOR_SCENARIOS, prepare
+        if scenario not in SECTOR_SCENARIOS:
+            raise ValueError("Unknown fixed B-sector simulation")
+        observer, observer_inputs = prepare(observer)
+        maximum_limits, maximum_total = SECTOR_LIMITS, 600
+    elif profile in STUB_PROFILES:
         from ota_stub_observe import LIMITS as STUB_LIMITS, GEOMETRY_LIMITS, SCENARIOS as STUB_SCENARIOS, prepare
         if scenario not in STUB_SCENARIOS:
             raise ValueError("Unknown stub simulation scenario")
@@ -258,26 +273,35 @@ def run(output, *, capture=None, fixtures=None, scenario="success", ready=None, 
                            allow_exit_reset and capture.get("exit_reset_authorized") is not True or
                            not re.fullmatch(r"COM[1-9][0-9]*", capture.get("port", ""))):
         raise ValueError("Explicit current ROM reset authorization, conditions and canonical port required")
-    if not simulation and profile == "stub-observe" and any(capture.get(key) is not True for key in
+    if not simulation and profile in STUB_PROFILES and any(capture.get(key) is not True for key in
             ("stub_observation_authorized", "original_start_authorized")):
         raise ValueError("Official-stub observation and original-start authorization required before any worker")
+    if not simulation and profile == "stub-b-sector" and any(capture.get(k) is not True for k in
+            ("b_sector_write_authorized", "b_sector_restore_authorized")):
+        raise ValueError("Explicit fixed B write AND restore authorization required before output or worker")
     token = secrets.token_hex(16)
     sources = [file_record(Path(__file__).with_name(name)) for name in SOURCES]
     sources.append(file_record(sys.executable))
-    if profile == "stub-observe":
+    if profile in STUB_PROFILES:
         sources.append(file_record(Path(__file__).with_name("ota_stub_observe.py")))
+    if profile == "stub-b-sector":
+        sources.append(file_record(Path(__file__).with_name("ota_b_sector.py")))
     capture_paths = ("result", "flash", "build_archive")
     inputs = [] if simulation else [file_record(capture[k]) for k in capture_paths]
     inputs.extend(observer_inputs)
     journal = Journal(output, binding=dict(simulation=simulation, sources=sources, inputs=inputs,
-        requested_capture=capture, observer_plan=observer_plan, run_id=token, policy=("One owned worker tree; original stub BKP0R/PA21 only; no Flash or RTC time write"
-            if profile == "stub-observe" else "One owned worker, no parent UART, no Flash/RTC write")), mode="ota-rom-device")
+        requested_capture=capture, observer_plan=observer_plan, run_id=token, policy=("One fixed B4KiB candidate/restore under original RAM stub; no other Flash or RTC time write"
+            if profile == "stub-b-sector" else "One owned worker tree; original stub BKP0R/PA21 only; no Flash or RTC time write"
+            if profile in STUB_PROFILES else "One owned worker, no parent UART, no Flash/RTC write")), mode="ota-rom-device")
+    if profile == "stub-b-sector":
+        journal.event("fixed_sector_scope", address="0x12420000", bytes=4096, restore_required=True,
+                      policy="One candidate write and one fresh-prestate restore; no other Flash write or RTC time write")
     end = time.monotonic() + total_seconds
     config = dict(schema=1, simulation=simulation, run_id=token, sources=sources, inputs=inputs,
         active_end=end-13, cleanup_end=end-5, limits=limits, scenario=scenario,
         allow_exit_reset=allow_exit_reset, conditions_confirmed=simulation or capture["conditions_confirmed"],
         rom_reset_authorized=simulation or capture["rom_reset_authorized"], capture=capture)
-    if profile == "stub-observe":
+    if profile in STUB_PROFILES:
         config.update(profile=profile, observer=observer, observer_plan=observer_plan)
     if simulation:
         if fixtures is None or set(fixtures) != {"before", "after"}: raise ValueError("Explicit simulation fixtures required")
@@ -300,6 +324,8 @@ def run(output, *, capture=None, fixtures=None, scenario="success", ready=None, 
     current_phase = "prepare"
     labels = dict(prepare="准备", bind="绑定", before="应用前态", rom="ROM观测与退出", return_="原程序返回",
                   after="应用后态", recovery="应用记录与RTC恢复", rtc="RTC连续性", final="末态确认", cleanup="资源清理", worker="工作进程", evidence="证据记录")
+    if profile == "stub-b-sector":
+        labels["rom"] = "B首4KiB写入与恢复"
     def add_error(phase, error):
         item = dict(phase=phase, error=str(error))
         if item not in report["errors"]:
@@ -330,12 +356,16 @@ def run(output, *, capture=None, fixtures=None, scenario="success", ready=None, 
         healthy(value["records"])
         return value
     stub_label = "固定RAM配置读取" if observer_plan == "geometry" else "原版stub状态与双读"
-    phases = [(key, stub_label if key == "rom" and profile == "stub-observe" else label)
+    phases = [(key, stub_label if key == "rom" and profile in STUB_PROFILES else label)
               for key, label in PHASES]
-    mode = ("原版stub观测模拟（无设备）" if simulation else "原版stub观测（零Flash写入）") if profile == "stub-observe" else (
+    mode = ("原版stub观测模拟（无设备）" if simulation else "原版stub观测（零Flash写入）") if profile in STUB_PROFILES else (
         "ROM真实时钟／假串口演练" if simulation else "ROM救援观测（零Flash写入）")
     if observer_plan == "geometry":
         mode = "固定RAM配置模拟（无设备）" if simulation else "固定RAM配置观测（零Flash写入）"
+    if profile == "stub-b-sector":
+        stub_label = "B首4KiB写入与原字节恢复"
+        phases = [(key, stub_label if key == "rom" else label) for key, label in PHASES]
+        mode = "B首4KiB写入恢复模拟（无设备）" if simulation else "B首4KiB写入与恢复"
     with Console(journal,phases,mode=mode) as console:
         print(console.url,flush=True)
         if ready: ready(console)
@@ -356,12 +386,18 @@ def run(output, *, capture=None, fixtures=None, scenario="success", ready=None, 
                 "确认本窗已授权一次主动入口RTS、一次SYSRESETREQ，装载固定官方RAM stub，"
                 "按官方流程设置BKP0R及PA21、仅观察LCPU／DMA寄存器并读取两份NOR；"
                 "最后单发burn_reset返回原程序，异常时最多一次退出RTS，零Flash写擦。"
-                if profile == "stub-observe" else
+                if profile in STUB_PROFILES else
                 "确认本轮已授权一次入口RTS、一次内部SYSRESETREQ，以及退出异常时最多一次RTS。")
             if not simulation and observer_plan == "geometry":
                 preparation = ("确认本窗已授权一次主动入口RTS、一次SYSRESETREQ，装载固定原版RAM stub及官方BKP0R／PA21设置；"
                     "读取ready寄存器和固定RAM中的Flash句柄／UART对象，以及有界指针所指的DMA结构与命令表，总计最多1056B。"
                     "没有NOR读取或Flash写擦；最后单发burn_reset，异常时最多一次退出RTS。")
+            if profile == "stub-b-sector":
+                preparation = (("【假串口／无设备】模拟以下固定流程。" if simulation else "") +
+                    "确认本窗已授权一次入口RTS／SYSRESETREQ及固定原版RAM stub（含BKP0R／PA21），"
+                    "先读B首64KiB并核旧备份；只向0x12420000写4096B候选一次，独立读回，"
+                    "再用本窗原4096B恢复一次并读回，后60KiB须不变；不换boot、不运行B。"
+                    "协议／取消／日志异常可能使B未恢复，此时停止新协议；正常单发burn_reset，异常最多一次退出RTS。")
             if not simulation:
                 preparation += ("同板同固件，USB／电池接线固定、人在旁、显示触摸正常。"
                     "开启临时常亮供前后态读取；RAM尾段仅保全到电脑，RTC可能重置，不自动校时。")
@@ -393,10 +429,15 @@ def run(output, *, capture=None, fixtures=None, scenario="success", ready=None, 
             # The worker may act as soon as this request is published. Only a
             # validated reply may establish that no physical entry was attempted.
             report["entry_attempted"]=None
+            if profile == "stub-b-sector":
+                report.update(flash_write=None, b_may_be_changed=None, restored_verified=False)
             rom=phase_request(2,"rom")
             if not rom["ok"]: add_error("rom",rom["error"])
             value=rom["value"]
             report.update(entry_attempted=value.get("entry_attempted"),rom=value)
+            if profile == "stub-b-sector":
+                report.update(flash_write=value.get("candidate_write_attempted"), b_may_be_changed=value.get("b_may_be_changed"),
+                              restored_verified=value.get("restored_verified",False))
             report["observation_passed"]=value.get("observations",{}).get("observation_passed",False)
             if not value.get("cleanup",{}).get("resources_closed"):
                 raise ValueError("ROM transport exit is uncertain; no new UART open")
@@ -412,7 +453,7 @@ def run(output, *, capture=None, fixtures=None, scenario="success", ready=None, 
             current_phase="recovery"
             try:
                 report["application_recovery"]=recovery(before,after,elapsed_seconds=elapsed,
-                    check_rtc=profile != "stub-observe")
+                    check_rtc=profile not in STUB_PROFILES)
                 report["application_recovery_passed"]=True
                 if not report["application_recovery"]["rtc_continuity"]:
                     report["clock_recovery_required"]=True
@@ -422,11 +463,11 @@ def run(output, *, capture=None, fixtures=None, scenario="success", ready=None, 
             if report["errors"]:
                 outcome="error"
                 journal.event("validation_failed",errors=report["errors"])
-            if not report["errors"] or (profile == "stub-observe" and all(item["phase"] == "rtc" for item in report["errors"])):
+            if not report["errors"] or (profile in STUB_PROFILES and all(item["phase"] == "rtc" for item in report["errors"])) or profile == "stub-b-sector":
                 current_phase="final"
                 console.prompt("final","【假串口】确认演练结束；无设备操作。" if simulation else
                     ("关闭临时常亮，回表盘，确认显示、触摸与KEY1正常。RTC变化已独立记录，校时另行确认。"
-                     if profile == "stub-observe" else "关闭临时常亮，回表盘，确认显示、触摸、KEY1与时间正常。异常请取消并在聊天说明。"),
+                     if profile in STUB_PROFILES else "关闭临时常亮，回表盘，确认显示、触摸、KEY1与时间正常。异常请取消并在聊天说明。"),
                     remaining(prompt_seconds)); console.stage("final","complete")
                 report["physical_observations_confirmed"]=not simulation
                 final_confirmed = True
@@ -468,8 +509,13 @@ def run(output, *, capture=None, fixtures=None, scenario="success", ready=None, 
                         late=late_reply["value"]
                         report.update(rom=late,entry_attempted=late.get("entry_attempted"),
                             observation_passed=late.get("observations",{}).get("observation_passed",False))
+                        if profile == "stub-b-sector":
+                            report.update(flash_write=late.get("candidate_write_attempted"),b_may_be_changed=late.get("b_may_be_changed"),
+                                          restored_verified=late.get("restored_verified",False))
                     except BaseException as exc:
                         report["entry_attempted"]=None
+                        if profile == "stub-b-sector":
+                            report.update(flash_write=None,b_may_be_changed=None,restored_verified=False)
                         detail += " Late response: "+repr(exc)
                         add_error("rom",repr(exc))
                 if report["worker_forced"] or report["worker_exit"] != 0 or not report["resources_closed"]:
@@ -483,22 +529,33 @@ def run(output, *, capture=None, fixtures=None, scenario="success", ready=None, 
                     RETAINED.append((process,lease)); report["lease_retained"]=True
             report["recovery_required"]=bool(report["worker_forced"] or not report["resources_closed"] or
                 (report["entry_attempted"] is not False and not report["application_recovery_passed"]))
+            if profile == "stub-b-sector" and report.get("flash_write") is not False and not report.get("restored_verified"):
+                report["recovery_required"]=True
         outcome=console.seal(outcome)
         detail="\n".join(labels.get(item["phase"],item["phase"])+"："+item["error"] for item in report["errors"])
         report.update(passed=outcome=="passed",outcome=outcome,detail=detail)
-        report["verification"]=[dict(title=(("固定RAM配置读取" if observer_plan == "geometry" else "原版stub观测与双份NOR") if profile == "stub-observe" else "ROM观测与退出")+("（假串口）" if simulation else ""),
+        report["verification"]=[dict(title=(("固定RAM配置读取" if observer_plan == "geometry" else "原版stub观测与双份NOR") if profile in STUB_PROFILES else "ROM观测与退出")+("（假串口）" if simulation else ""),
                 passed=report["observation_passed"] and not errors_for("rom"),detail=errors_for("rom")),
-            dict(title="应用保存记录" if profile == "stub-observe" else "应用记录与RTC后态",passed=report["application_recovery_passed"],detail=errors_for("before","after","recovery")),
+            dict(title="应用保存记录" if profile in STUB_PROFILES else "应用记录与RTC后态",passed=report["application_recovery_passed"],detail=errors_for("before","after","recovery")),
             dict(title="进程与端点租约关闭",passed=report["resources_closed"] and not report["lease_retained"],detail=errors_for("cleanup","worker")),
             dict(title="模拟末态确认" if simulation else "人工末态确认",passed=outcome=="passed",detail=errors_for("prepare","return_","final"))]
-        if profile == "stub-observe":
+        if profile in STUB_PROFILES:
             report["profile"] = profile
             report["observation_plan"] = observer_plan
             report["verification"].append(dict(title="RTC连续性", passed=report.get("application_recovery", {}).get("rtc_continuity", False), detail=errors_for("rtc")))
             report["verification"][3]["passed"] = final_confirmed
+        if profile == "stub-b-sector":
+            report["verification"][0]["title"] = "B首4KiB候选与保护区核验" + ("（模拟）" if simulation else "")
+            report["verification"].insert(1,dict(title="本窗原字节恢复及64KiB读回",passed=report.get("restored_verified") is True,
+                detail="" if report.get("restored_verified") else "原字节恢复尚未证明；保留本窗前态，禁止盲目补写"))
         write_json(output/"device.json",report)
         journal.event("finished",outcome=outcome,report_sha=digest(output/"device.json"))
-        console.finish(outcome,"窗口结束，全部证据保留。请关闭临时常亮，异常时保持接线并在聊天说明；无自动校时或Flash恢复。"+("\n"+detail if detail else ""),
+        ending = "窗口结束，全部证据保留。请关闭临时常亮，异常时保持接线并在聊天说明；无自动校时或Flash恢复。"
+        if profile == "stub-b-sector":
+            ending = ("窗口结束，全部证据保留。请关闭临时常亮；不追加复位、校时或恢复写入。" +
+                ("本窗原字节恢复和64KiB读回已核验。" if report.get("restored_verified") else
+                 "B首4KiB可能已改变，原字节恢复尚未证明；保留接线及本窗前态，在聊天说明。"))
+        console.finish(outcome,ending+("\n"+detail if detail else ""),
                        verification=report["verification"])
     return report
 

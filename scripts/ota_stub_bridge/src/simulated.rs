@@ -2,18 +2,24 @@
 use serialport::*;
 use std::{collections::{HashMap,VecDeque},io::{self,Read,Write},sync::{Arc,Mutex},time::Duration};
 const CRC_ALGORITHM:crc::Algorithm<u32>=crc::Algorithm {width:32,poly:0x04c11db7,init:0,refin:true,refout:true,xorout:0,check:0,residue:0};
+pub const B_SCENARIOS:&[&str]=&["success","fragmented","lcpu-running","register-read-fail","before-changed","prestate-crc-fail",
+    "candidate-mismatch","guard-change","restore-mismatch","write-start-fail","candidate-data-timeout","readback-crc-fail",
+    "restore-data-fail","b-hang-read"];
 
 struct State {input:Vec<u8>,output:VecDeque<u8>,nor:Vec<u8>,registers:HashMap<u32,u32>,
-    scenario:String,reads:usize,fragments:usize,ready:bool,timeout:Duration}
+    scenario:String,reads:usize,fragments:usize,ready:bool,timeout:Duration,b_sector:bool,pending:bool,sector_writes:usize}
 pub struct Peer {state:Arc<Mutex<State>>,writes:Arc<std::sync::atomic::AtomicUsize>}
 impl Peer {
     pub fn new(nor:Vec<u8>,scenario:&str)->Self {
         Self {state:Arc::new(Mutex::new(State {input:vec![],output:VecDeque::new(),nor,
-            registers:HashMap::new(),scenario:scenario.into(),reads:0,fragments:0,ready:false,timeout:Duration::from_secs(5)})),
+            registers:HashMap::new(),scenario:scenario.into(),reads:0,fragments:0,ready:false,timeout:Duration::from_secs(5),b_sector:false,pending:false,sector_writes:0})),
             writes:Arc::new(std::sync::atomic::AtomicUsize::new(0))}
     }
     #[cfg(test)]
     pub fn write_counter(&self)->Arc<std::sync::atomic::AtomicUsize> {self.writes.clone()}
+    pub fn b_sector(nor:Vec<u8>,scenario:&str)->Self {
+        let peer=Self::new(nor,scenario);peer.state.lock().unwrap().b_sector=true;peer
+    }
 }
 impl State {
     fn response(&mut self,code:u8,data:&[u8]) {
@@ -39,6 +45,17 @@ impl State {
     fn consume(&mut self)->io::Result<()> {
         loop {
             if self.input.is_empty() {return Ok(())}
+            if self.pending {
+                if self.input.len()<4096 {return Ok(())}
+                let data:Vec<_>=self.input.drain(..4096).collect();self.nor[0x420000..0x421000].copy_from_slice(&data);
+                self.pending=false;
+                if (self.scenario=="candidate-mismatch" && self.sector_writes==1) ||
+                    (self.scenario=="restore-mismatch" && self.sector_writes==2) {self.nor[0x420000]^=1}
+                if self.scenario=="guard-change" && self.sector_writes==1 {self.nor[0x421000]^=1}
+                if self.scenario=="candidate-data-timeout" && self.sector_writes==1 {return Ok(())}
+                if self.scenario=="restore-data-fail" && self.sector_writes==2 {self.output.extend(b"Fail\r\n");return Ok(())}
+                self.output.extend(b"OK\r\nmsh >");continue
+            }
             if self.input[0]==b'\n' {self.input.remove(0);continue}
             if self.input[0]==0x7e {
                 if self.input.len()<8 {return Ok(())}
@@ -88,6 +105,21 @@ impl State {
                         self.output.extend(b"start_trans\r\n");self.output.extend(data);
                         self.output.extend(format!("\r\ncrc:0x{checksum:08x}\r\nOK\r\nmsh >").bytes());
                     },
+                    ["burn_read","0x12420000","0x00010000"] if self.b_sector=>{
+                        self.reads+=1;let mut data=self.nor[0x420000..0x430000].to_vec();
+                        if self.scenario=="before-changed" && self.reads==1 {data[0]^=1}
+                        let crc=crc::Crc::<u32>::new(&CRC_ALGORITHM).checksum(&data);
+                        let crc=if (self.scenario=="prestate-crc-fail" && self.reads==1) ||
+                            (self.scenario=="readback-crc-fail" && self.reads==2) {crc^1}else{crc};
+                        self.output.extend(b"start_trans\r\n");self.output.extend(data);
+                        self.output.extend(format!("\r\ncrc:0x{crc:08x}\r\nOK\r\nmsh >").bytes());
+                    },
+                    ["burn_erase_write","0x12420000","0x00001000"] if self.b_sector=>{
+                        if self.sector_writes>=2 {return Err(io::Error::other("Synthetic third write forbidden"))}
+                        self.sector_writes+=1;self.nor[0x420000..0x421000].fill(255);
+                        if self.scenario=="write-start-fail" {self.output.extend(b"Fail\r\n");}
+                        else {self.pending=true;self.output.extend(b"RX_WAIT\r\n");}
+                    },
                     ["burn_reset"]=>{self.output.extend(b"OK\r\n");self.ready=false},
                     _=>return Err(io::Error::other("Observer tried an unknown or mutating stub command")),
                 }
@@ -98,7 +130,7 @@ impl State {
 impl Read for Peer {
     fn read(&mut self,buf:&mut [u8])->io::Result<usize> {
         let mut s=self.state.lock().unwrap();
-        if s.scenario=="hang-read" {drop(s);loop {std::thread::sleep(Duration::from_secs(1))}}
+        if s.scenario=="hang-read" || s.scenario=="b-hang-read" {drop(s);loop {std::thread::sleep(Duration::from_secs(1))}}
         if s.output.is_empty() {return Err(io::Error::new(io::ErrorKind::TimedOut,"Synthetic empty queue"))}
         let limit=if s.scenario=="fragmented" {s.fragments+=1;if s.fragments%2==1 {1}else{31}}else{4096};
         let count=buf.len().min(s.output.len()).min(limit);
