@@ -1,0 +1,254 @@
+{
+  "schema": 1,
+  "date": "2026-11-09",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/ota-mapping-experiment",
+  "executed_source_commit": "93664cf1c1a9390158381a11e5e37217f803b945",
+  "scope": "One authorized ROM entry RTS attempt; stopped before first Enter; separate authorized single RTC recovery. No firmware replacement or Flash write/erase command.",
+  "operator": {
+    "reset_authorization": "User annotation: 确认，继续吧; same board/firmware, USB/BAT fixed, nearby operator and screen/touch normal; one entry RTS, one SYSRESETREQ, at most one error-exit RTS, <=300s, no automatic RTC write",
+    "operator_final": "已关闭，显示／触摸／KEY1 正常",
+    "clock_authorization": "授权单次校时并回验",
+    "second_window_readiness": "现在可以，重新打开协作页",
+    "clock_readback_local": "2026-11-09 18:30:09 Asia/Shanghai"
+  },
+  "preflight": {
+    "build_passed": true,
+    "build": "artifacts/product/20261103-115740-843/result.json",
+    "flash": "artifacts/flash/product/20261103-120138-892/result.json",
+    "archive": "artifacts/battery-curve-20261103-candidate-build.zip",
+    "expected_main_sha256": "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d",
+    "endpoint": {
+      "device": "COM5",
+      "vid": 6790,
+      "pid": 29987,
+      "location": "1-1.1",
+      "serial_number": "",
+      "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+      "disable_modem": 1
+    },
+    "build_report": {
+      "path": "artifacts/ota-rom-rescue-device-20261109/preflight-build.json",
+      "bytes": 147586,
+      "sha256": "7120b08932dd7ae361bde72c0bf1075c67a034da35ace07eb8b03e6c6c1c070b"
+    }
+  },
+  "attempts": {
+    "prepare_timeout": {
+      "path": "artifacts/ota-rom-rescue-device-20261109/capture-001",
+      "outcome": "timeout",
+      "operator_prepare_seconds": 120,
+      "worker_started": false,
+      "serial_opened": false,
+      "reset": false
+    },
+    "device": {
+      "path": "artifacts/ota-rom-rescue-device-20261109/capture-002",
+      "report": {
+        "path": "artifacts/ota-rom-rescue-device-20261109/capture-002/device.json",
+        "bytes": 156460,
+        "sha256": "9f3f48707df52f6e9c341bc441e6a593cca2d86f3a94de70b43eaa4cb62080f5"
+      },
+      "parent_exit": 1,
+      "worker_exit": 0,
+      "elapsed_seconds": 62.7491858,
+      "operator_confirmed_phases": [
+        "prepare",
+        "return"
+      ],
+      "entry_rts_pulses": 1,
+      "first_enter_sent": false,
+      "debug_halt_sent": false,
+      "sysresetreq_sent": false,
+      "exit_rts_pulses": 0,
+      "exit_commands": 1,
+      "rom_rx": {
+        "path": "artifacts/ota-rom-rescue-device-20261109/capture-002/worker/rom-rx.bin",
+        "bytes": 5,
+        "sha256": "15e9bd3a0ce970b2b9de41aca363e0252e92f451adb550d47f29bf2ebee224a4"
+      },
+      "rom_rx_hex": "5346424c0a",
+      "rom_error": "ProtocolError('Unsolicited bytes before a new request')",
+      "rom_observations": {},
+      "rom_response": {
+        "path": "artifacts/ota-rom-rescue-device-20261109/capture-002/response-2.json",
+        "bytes": 602,
+        "sha256": "671e9afd0c0000e913d743d3e1c9e58107312cb7527b4ba2994411db22308b7f"
+      },
+      "rts_released": true,
+      "resources_closed": true,
+      "worker_forced": false,
+      "rtc_recovery_error": "RTC continuity changed; time recovery needs separate authorization",
+      "original_failure_preserved": true
+    }
+  },
+  "application": {
+    "before": {
+      "current": {
+        "boot": 24,
+        "generation": 166,
+        "total_recorded_ms": 826099503,
+        "failures": 0,
+        "faults": 3,
+        "fault_mask": 0,
+        "flags": 7
+      },
+      "saved": {
+        "generation": 166,
+        "total_recorded_ms": 826027717,
+        "scene_ms": {
+          "unknown": 39308,
+          "on": 13804716,
+          "flashlight": 31171149,
+          "dim": 520047,
+          "off": 780492497,
+          "aod": 0
+        }
+      },
+      "unsaved_recorded_ms": 71786,
+      "date": [
+        "Mon Nov  9 10:23:48 2026"
+      ],
+      "cycle": {
+        "state": 0,
+        "session": 0,
+        "accepted": 0,
+        "saved": 0,
+        "queued": 0,
+        "dropped": 0,
+        "reason": 0,
+        "inhibit": 0,
+        "low_mode": false,
+        "commit_elapsed_ms": 0,
+        "keep_remaining_ms": 1130779,
+        "low_samples": 0,
+        "off_samples": 0,
+        "low_events": 0
+      }
+    },
+    "after": {
+      "current": {
+        "boot": 25,
+        "generation": 167,
+        "total_recorded_ms": 826054656,
+        "failures": 0,
+        "faults": 3,
+        "fault_mask": 0,
+        "flags": 6
+      },
+      "saved": {
+        "generation": 167,
+        "total_recorded_ms": 826028807,
+        "scene_ms": {
+          "unknown": 40398,
+          "on": 13804716,
+          "flashlight": 31171149,
+          "dim": 520047,
+          "off": 780492497,
+          "aod": 0
+        }
+      },
+      "unsaved_recorded_ms": 25849,
+      "date": [
+        "Sat Jan  1 00:00:27 2000"
+      ],
+      "cycle": {
+        "state": 0,
+        "session": 0,
+        "accepted": 0,
+        "saved": 0,
+        "queued": 0,
+        "dropped": 0,
+        "reason": 0,
+        "inhibit": 0,
+        "low_mode": false,
+        "commit_elapsed_ms": 0,
+        "keep_remaining_ms": 1195375,
+        "low_samples": 0,
+        "off_samples": 0,
+        "low_events": 0
+      }
+    },
+    "checks": {
+      "exactly_one_application_boot": true,
+      "saved_generation_not_backwards": true,
+      "saved_recorded_ms_not_backwards": true,
+      "saved_scene_ms_not_backwards": true,
+      "storage_failures_before": 0,
+      "storage_failures_after": 0,
+      "active_fault_mask_before": 0,
+      "active_fault_mask_after": 0
+    },
+    "raw_crc_redecoded_independently": true,
+    "independent_review": {
+      "path": "artifacts/ota-rom-rescue-device-20261109/capture-002/independent-application-review.json",
+      "bytes": 5541,
+      "sha256": "8a7fb632909a2f06c228b57bbb6b04290876ea280aed85272bc0690511c71f8b"
+    },
+    "ram_tail_preserved_on_host_ms": 71786,
+    "ram_tail_written_back": false
+  },
+  "clock_recovery": {
+    "report": {
+      "path": "artifacts/ota-rom-rescue-device-20261109/time-recovery-001/snapshot.json",
+      "bytes": 2497,
+      "sha256": "c4e06e77f197bd791823df02edabedf983c1d148222d998e9e0c6ec58521a333"
+    },
+    "outcome": "passed",
+    "commands": [
+      "show_date",
+      "wf_time 1794220209",
+      "show_date",
+      "wf_steps status"
+    ],
+    "clock_write_commands": 1,
+    "utc_after": [
+      "Mon Nov  9 10:30:09 2026"
+    ],
+    "local_after": "2026-11-09 18:30:09 Asia/Shanghai",
+    "steps_valid": true,
+    "steps_restored": true,
+    "steps_day": 20766,
+    "steps_generation": 490,
+    "hours_mask": "0x07ffff",
+    "reset": false,
+    "flash_write_or_erase_command": false,
+    "resources_closed": true
+  },
+  "source_inspection": {
+    "sdk_uart_example": "vendor/SiFli-SDK/example/rt_device/uart/README_EN.md:73",
+    "official_reference": "Sealed sftool0.2.5 common/sifli_debug.rs:201-240,329-355 and sf32lb52/mod.rs:91-112",
+    "finding": "SFBL matches documented reset startup text; official receive loop scans for frames through non-frame bytes. Local pre-send guard aborts before Enter. Specific sender and successful next Enter are not proven.",
+    "read_only_review_completed": true
+  },
+  "validation": {
+    "new_firmware_build": false,
+    "new_host_tests": false,
+    "reason": "No implementation changed; device records independently redecoded and explicit TX/control timeline reviewed",
+    "sdk_lock_changed": false,
+    "vendor_source_changed": false,
+    "documents": {
+      "passed": true,
+      "changed_files": 4,
+      "checker": "scripts/lab_check.py docs; changed files only"
+    },
+    "archive_readback": true
+  },
+  "archive": {
+    "path": "artifacts/ota-rom-rescue-device-20261109.zip",
+    "bytes": 401133,
+    "sha256": "cbbfca8ddeb86de848f6d2eed9f96d2760ee4a55fd3d608fc825d42ac295dd0e",
+    "members": 77,
+    "source_files": 28,
+    "source_manifest": "artifacts/ota-rom-rescue-device-20261109/source-manifest.json"
+  },
+  "remaining_boundary": {
+    "rom_rescue_verified": false,
+    "rom_capture_verified": false,
+    "real_ack_shape_verified": false,
+    "flash_deployment_authorized": false,
+    "firmware_replaced": false,
+    "next_bounded_action": "Fix and test bounded startup-byte handling before first Enter and independent ROM/RTC error reporting using this raw fixture; then a new explicitly bounded device window. No automatic reset retry.",
+    "lcpu_dma_flash_ownership_verified": false
+  }
+}

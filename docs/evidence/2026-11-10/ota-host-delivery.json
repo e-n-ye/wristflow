@@ -1,0 +1,306 @@
+{
+  "schema": 1,
+  "date": "2026-11-10",
+  "scope": "Deliver existing bounded ROM/stub host tools and versioned device evidence; no new experiment after user delivery correction",
+  "primary_worktree": "D:/MY_Desk/project/wristflow",
+  "delivery_worktree": "D:/MY_Desk/project/wristflow-delivery",
+  "delivery_base": "9b276fd626aeede38d0ea1db8296601bc6cb3ce2",
+  "preserved_checkpoint_base": "2c5dafbbcbea90693a0822634251f14095b0b75e",
+  "sources": [
+    {
+      "path": "scripts/battery_console.py",
+      "bytes": 13914,
+      "sha256": "7590d5e5a75f8b4c277e5085af9b4fe430a144056b735173441c2edd8e982316"
+    },
+    {
+      "path": "scripts/battery_lab.py",
+      "bytes": 24502,
+      "sha256": "a666370236c173a39fb908a9a62c8c8e9b0bce7aa4b82231cae1aed165ad48eb"
+    },
+    {
+      "path": "scripts/lab_evidence.py",
+      "bytes": 1498,
+      "sha256": "618487f3802b663b347c1bbd97b081147df2ef31ae6f471a9fcf2ac692e64864"
+    },
+    {
+      "path": "scripts/lab_serial.py",
+      "bytes": 9088,
+      "sha256": "8ac5b08fc0f7d68180b1f657d91d7bc11d4b3cc349d6603bde59e90710c49703"
+    },
+    {
+      "path": "scripts/ota_rom_backup.py",
+      "bytes": 21533,
+      "sha256": "5456309b0de5bdf0c75081cb0688bd87f043ce41f2ff7ba5d49acbcd5e4c39f7"
+    },
+    {
+      "path": "scripts/ota_rom_device.py",
+      "bytes": 34948,
+      "sha256": "e610392723e138301aad9a538b09d99f0c6afdaf34c08ce73c8c63fd8e5c9d79"
+    },
+    {
+      "path": "scripts/ota_rom_process.py",
+      "bytes": 7956,
+      "sha256": "5dee3ab333b8218accb60e6b7f61382cbb6870b9497f84ac8f82af0e9c359362"
+    },
+    {
+      "path": "scripts/ota_rom_protocol.py",
+      "bytes": 6895,
+      "sha256": "0eac7d35e83f2d318467cd7a8220eff3853a961771cdbb07e63bbdae54e7705f"
+    },
+    {
+      "path": "scripts/ota_rom_rescue.py",
+      "bytes": 20860,
+      "sha256": "cea6f8f52da1fc01aae34b84963f4d9f116725714d7592d1d449768cc4a05c1e"
+    },
+    {
+      "path": "scripts/ota_rom_rescue_lab.py",
+      "bytes": 11139,
+      "sha256": "6c70594ac9e14ea22492c6cf1adb8c03c3c02c40063f6398c210a18d2f51434d"
+    },
+    {
+      "path": "scripts/ota_rom_transport.py",
+      "bytes": 2420,
+      "sha256": "215b9a0b2a9e69bbcf4e9ceddde3fe36830a684aff80912868a221ce10f3d615"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/Cargo.lock",
+      "bytes": 64750,
+      "sha256": "812a423b3ffbe4aeae606ffcdca0fde1dae3fb9b735142c76844d90639c24fde"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/Cargo.toml",
+      "bytes": 395,
+      "sha256": "b771de50a26bc45239018830d207e64f40aa3596b7e8d13118e0722cf4a78e50"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/geometry.rs",
+      "bytes": 4091,
+      "sha256": "7eb21df0d4f9db859287c2716b96f722bfcb82f6c4a240703f08523d2a8b2fc8"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/main.rs",
+      "bytes": 14965,
+      "sha256": "70bcee5a1f88887afcab7c05d6250ba962b9dfa8d2e5e4d0c25bba3f89c1b586"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/port.rs",
+      "bytes": 13834,
+      "sha256": "f3e8ef12ffd1ad8b33bd9f2b937685cc36f9ed1fb16f7bc93018068965bb19d1"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/simulated.rs",
+      "bytes": 9570,
+      "sha256": "d07dcff4714294529d473dac341d1ef671daa6e81dc7cec77b34c0e774797c8f"
+    },
+    {
+      "path": "scripts/ota_stub_build.py",
+      "bytes": 4736,
+      "sha256": "8ab3150e588015ad33a5f7eab97cf4fc94698ac71be497fe04468ee258a25ffb"
+    },
+    {
+      "path": "scripts/ota_stub_observe.py",
+      "bytes": 17884,
+      "sha256": "61c70b28cff5301e57fea2a4d4d6c351d16fd000906dcb294bc20205f28c5655"
+    },
+    {
+      "path": "scripts/runtime_export.py",
+      "bytes": 9381,
+      "sha256": "bb60c3aac7063bef8c8d6c9bb77c46563304e86e7c5957f11c80aa969d477885"
+    },
+    {
+      "path": "scripts/serial_lab.py",
+      "bytes": 13798,
+      "sha256": "7fe4ad1d5a6a2007f59c97c586cf954791c15310a881075a50db12a946d78aa6"
+    },
+    {
+      "path": "tests/fixtures/ota-rom-entry-sfbl-20261109.uart",
+      "bytes": 5,
+      "sha256": "15e9bd3a0ce970b2b9de41aca363e0252e92f451adb550d47f29bf2ebee224a4"
+    },
+    {
+      "path": "tests/fixtures/ota-rom-release-sfbl-20261109.uart",
+      "bytes": 13,
+      "sha256": "dff129d24cfcacbb8c96350876b6b56b852c8f0c6596caa64ef1980fa89d1556"
+    },
+    {
+      "path": "tests/test_ota_rom_backup.py",
+      "bytes": 15981,
+      "sha256": "577360825c212ceb48f11923a2e28111d110f40197886c633ace2d137f95d156"
+    },
+    {
+      "path": "tests/test_ota_rom_device.py",
+      "bytes": 18818,
+      "sha256": "cd2fc246cd5f16a5e0c8d4b22922886854033e251cb1c56eb77fc155785793ae"
+    },
+    {
+      "path": "tests/test_ota_rom_release.py",
+      "bytes": 11312,
+      "sha256": "8f1fe0f70f769f2b68084fbd13a0d5c0dfbe8c1ebeecd4757e8be843cfeaeef5"
+    },
+    {
+      "path": "tests/test_ota_rom_rescue.py",
+      "bytes": 24490,
+      "sha256": "22adcc825d57cbf9cfbd2f71e88204c447a3b321573f1a3e3c1805c638315440"
+    },
+    {
+      "path": "tests/test_ota_stub_observe.py",
+      "bytes": 15734,
+      "sha256": "7d33d812cdc5f42df5c76132e319421d23ac82984c1bfcff587c017a019656d9"
+    }
+  ],
+  "host_build": {
+    "record": {
+      "path": "artifacts/ota-stub-geometry-build-20261110-003/result.json",
+      "bytes": 3070,
+      "sha256": "1ca920a9ad5fba21b20af39511b863f328c6ecef35eb0f9c8e2f484ac3ccb70f"
+    },
+    "executable": {
+      "path": "artifacts/ota-stub-geometry-build-20261110-003/wristflow-ota-stub-observer.exe",
+      "bytes": 20826594,
+      "sha256": "179aa31efa176d60119495a8ad8bd81df0358618aa63ab9894ff0067d2cd4997"
+    },
+    "versions": {
+      "cargo": "cargo 1.90.0 (840b83a10 2025-07-30)",
+      "rustc": "rustc 1.90.0 (1159e78c4 2025-09-14)"
+    },
+    "commands": [
+      {
+        "command": [
+          "D:\\MY_Desk\\project\\wristflow\\.tools\\ota-stub-session\\rust-1.90.0\\bin\\cargo.exe",
+          "test",
+          "--locked",
+          "--target",
+          "x86_64-pc-windows-gnu",
+          "--manifest-path",
+          "D:\\MY_Desk\\project\\wristflow\\scripts\\ota_stub_bridge\\Cargo.toml",
+          "-j",
+          "4"
+        ],
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "D:\\MY_Desk\\project\\wristflow\\.tools\\ota-stub-session\\rust-1.90.0\\bin\\cargo.exe",
+          "build",
+          "--locked",
+          "--target",
+          "x86_64-pc-windows-gnu",
+          "--manifest-path",
+          "D:\\MY_Desk\\project\\wristflow\\scripts\\ota_stub_bridge\\Cargo.toml",
+          "-j",
+          "4",
+          "--release"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "rust_tests": 8,
+    "firmware_build": false
+  },
+  "validation": {
+    "primary_ota": {
+      "tests": 146,
+      "seconds": 136.724,
+      "passed": true
+    },
+    "independent_delivery_ota": {
+      "tests": 146,
+      "seconds": 138.831,
+      "passed": true,
+      "skipped": 0
+    },
+    "independent_runtime": {
+      "tests": 14,
+      "passed": true,
+      "skipped": 0
+    },
+    "independent_console": {
+      "tests": 14,
+      "passed": true,
+      "environment": "Existing offline uv Python3.12 requirements-battery-lab environment"
+    },
+    "logs": {
+      "ota_primary": {
+        "path": "artifacts/ota-delivery-final-tests-20261110.log",
+        "bytes": 22813,
+        "sha256": "6b2552a938fef37082c6448fbbf546de8dc711d178ead8a7b9656e064c32034c"
+      },
+      "ota_independent": {
+        "path": "artifacts/ota-host-independent-delivery-tests-20261110.log",
+        "bytes": 22813,
+        "sha256": "37a217432b0d63e355ddddaac21fc4853d084686e3754ce27aefaa11fc62649c"
+      },
+      "runtime": {
+        "path": "artifacts/ota-host-runtime-delivery-tests-20261110.log",
+        "bytes": 1512,
+        "sha256": "a9856a1ec693e409dc1181b50678e4ee701c6ad3af58d97e1d03ac6ad8c2a099"
+      },
+      "console": {
+        "path": "artifacts/ota-host-console-delivery-tests-20261110.log",
+        "bytes": 3357,
+        "sha256": "b09a4ae49debd3d471a58cf43da8ef3fb5186cc98eda760f63ecb240f9eeefd3"
+      },
+      "initial_shared_dependency_failure": {
+        "path": "artifacts/ota-host-shared-callers-delivery-tests-20261110.log",
+        "bytes": 6973,
+        "sha256": "760a723faf0a08504cae99e8fe9edc14ccbb3b112255a0d0a6e2ec1c6c79e2e1"
+      }
+    }
+  },
+  "review": {
+    "independent_readonly_findings": [
+      "Rejected ROM phase response could retain entry_attempted=false after an action",
+      "Legacy backup process cleanup uncertainty could release endpoint lease"
+    ],
+    "resolution": [
+      "Mark entry unknown before ROM request; only validated response may set known state; rejected late response stays unknown",
+      "Explicit lease lifetime; first close error marks not closed; retain owner/lease on uncertain closure"
+    ],
+    "negative_cases": [
+      "Foreign ROM response keeps recovery_required and unknown entry, does not open after UART",
+      "Both failed close paths retain process owner and exclusive PortLease"
+    ],
+    "followup_static_review": "Both concrete issues resolved; no remaining finding in bounded review",
+    "primary_review": "Final source/diff, build source/EXE binding, precise archive and current-doc scope checked"
+  },
+  "uart_correction": {
+    "original_device_build": "002",
+    "original_sample": "0x20000ad8 debug UART",
+    "rtos_object": "0x20042260",
+    "basis": "Pinned bin ISR adds0x158 to this base and RTOS configure uses distinct UART object",
+    "build": "003",
+    "new_hardware_sample": false,
+    "unchanged_sample_max": 1056,
+    "does_not_establish_continuous_dma_control": true
+  },
+  "auxiliary_failures": [
+    "Shared-caller check under SDK Python lacked openhtf and C producer; preserved failure, built existing producer and reused offline existing uv3.12 environment; final checks passed"
+  ],
+  "existing_device_evidence": {
+    "path": "docs/evidence/2026-11-10/ota-stub-geometry-device.json",
+    "bytes": 6628,
+    "sha256": "7101182a3bfaa99502906a25f3babc2aea1703b582ef16162bae33ca3ef70738"
+  },
+  "archive": {
+    "path": "artifacts/ota-host-delivery-20261110.zip",
+    "bytes": 8815415,
+    "sha256": "6fe1cba9e8ac9fdfd3f9008c9aa274d40822b6c15f5f378cba7e6e4ac617509a",
+    "members": 38,
+    "all_members_read_back_identical": true
+  },
+  "sdk_lock": {
+    "path": "sdk.lock.json",
+    "bytes": 473,
+    "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+  },
+  "original_stub": {
+    "path": "vendor/SiFli-SDK/tools/uart_download/file/ram_patch_52X.bin",
+    "bytes": 132816,
+    "sha256": "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43"
+  },
+  "device_actions_after_user_delivery_correction": false,
+  "software_delivery_requires_b_execution": false,
+  "physical_erase_envelope_verified": false,
+  "all_flash_users_controlled": false,
+  "next_device_result": "Proposed B first4KiB candidate write/readback/original restoration/readback plus following60KiB guard unchanged, only after finite control/recovery contract and fresh explicit authorization; no boot replacement"
+}

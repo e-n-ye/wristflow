@@ -1,0 +1,140 @@
+{
+  "schema": 1,
+  "date": "2026-11-09",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/ota-mapping-experiment",
+  "source_base": "bedcd1ad6c27b3e69f0ac6d8ae539e6935de879e",
+  "scope": "SF32LB52 ROM observation protocol, reset-catch state machine, owned cleanup and shared Console simulation; no real transport entry",
+  "device": {
+    "enumerated": false,
+    "serial_opened": false,
+    "reset": false,
+    "flash_write_or_erase": false,
+    "rtc_write": false,
+    "hardware_verified": false,
+    "rom_rescue_verified": false,
+    "deployment_authorized": false
+  },
+  "sdk": {
+    "commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "lock_changed": false,
+    "source_changed": false,
+    "firmware_built": false,
+    "protocol_reference": {
+      "path": "vendor/SiFli-SDK/tools/sdk_py_actions/sifli_uart_dap.py",
+      "bytes": 12425,
+      "sha256": "d70af17831d85247a6d02f0a3afd0b9f0afb9d3cf9e880fa13383a77bfcfb73f",
+      "mapping_lines": [39, 45],
+      "core_register_read_lines": [194, 204],
+      "response_lines": [265, 275],
+      "note": "Present in the locked SDK. Remote official 53c0a72 was cross-checked during research, but no SDK upgrade or new vendor runtime dependency was introduced."
+    }
+  },
+  "implementation": {
+    "protocol": "scripts/ota_rom_protocol.py",
+    "state_machine_and_wire_model": "scripts/ota_rom_rescue.py",
+    "operator_workflow": "scripts/ota_rom_rescue_lab.py",
+    "tests": "tests/test_ota_rom_rescue.py",
+    "cli_modes": ["simulate", "status"],
+    "real_capture_exposed": false,
+    "shared_components": ["Console", "Journal", "PortLease", "ota_rom_backup.application", "ota_rom_backup.recovery"],
+    "logical_rom_seconds_max": 30,
+    "logical_hold_ms_min": 2500,
+    "workflow_monotonic_budget_seconds": 300,
+    "response_bytes_max": 512,
+    "response_seconds_max": 1,
+    "core_transfer_seconds_max": 0.1,
+    "command_count_max": 128,
+    "entry_rts_pulses_max": 1,
+    "sysresetreq_intents_max": 1,
+    "conditional_exit_rts_pulses_max": 1,
+    "no_post_reset_halt": true,
+    "address_map": "Only logical ROM words 0/4 -> A0000000/A0000004 and explicit E000 debug registers -> F000 aliases; Flash addresses rejected",
+    "write_policy": "One initial DHCSR halt, one DFSR clear, owned DEMCR reset catch/clear, single AIRCR SYSRESETREQ, DCRSR selectors 13/15 with REGWnR clear, owned DHCSR release. No DCRDR or memory writes.",
+    "response_policy": "10 00 marker, expected code, conservative exact 2-byte ACK or 6-byte single-word reply, 06 terminator; this protocol has no implemented CRC. Extra frames, pending bytes, unknown shape and short control writes fail without retransmission.",
+    "exit_policy": "Exit has no required ACK. Debug release, application recovery and host closure are independent observations; closing the port is not CPU recovery.",
+    "hardware_timing_claim": false
+  },
+  "validation": {
+    "initial_new_tests": 20,
+    "final_new_tests": 22,
+    "related_ota_python": {
+      "command": "SDK-managed Python 3.13.15 -m unittest discover -s tests -p 'test_ota_*.py' -v",
+      "passed": 76,
+      "total": 76,
+      "seconds": 26.376,
+      "exit_code": 0,
+      "log": {
+        "path": "artifacts/ota-rom-rescue-20261109/ota-tests-final.log",
+        "bytes": 10950,
+        "sha256": "7df0116a004c6c578623d9a02a4af03ecac0b01ccbf94c608e3f9e7b7894015e"
+      }
+    },
+    "coverage": [
+      "Literal external-reference request bytes, UART physical mapping and every response split",
+      "Unknown marker/terminator/length, duplicate frames and response byte limits",
+      "Forbidden Flash/RAM/RTC/core-register writes, wrong phase and repeated reset",
+      "Fresh reset and vector-catch requirements, PC/SP/VTOR and ROM context, stable logical hold",
+      "Stale catch, absent reset flag, absent halt, wrong/changed PC and register-ready timeout",
+      "Short write, missing reset response without retransmission, cancellation and owned exit",
+      "One optional exit reset, RTS release failure and close failure",
+      "Shared lease, before-entry cancellation, global deadline, Link constructor failure and automatic-call argument timeout",
+      "Poststate failure preserves model proof; no CLI capture/COM entry or hardware success flags"
+    ],
+    "ui": {
+      "browser": "Edge",
+      "ui_python": "3.14.3",
+      "actual_clicks": true,
+      "final_source_bindings_verified": true,
+      "success": {
+        "outcome": "passed",
+        "checks": "4/4",
+        "path": "artifacts/ota-rom-rescue-20261109/ui-success-final/rescue.json",
+        "bytes": 4755,
+        "sha256": "dbb8591b9980334183f256bc115c587cef2affcb81764ff11c36743d20373993",
+        "screenshot": "artifacts/ota-rom-rescue-20261109/ui-success-final.png"
+      },
+      "cancel": {
+        "automatic_confirm_disabled": true,
+        "outcome": "cancelled",
+        "debug_release_confirmed": true,
+        "resources_closed": true,
+        "model_observation_complete": false,
+        "application_recovery_claimed": false,
+        "path": "artifacts/ota-rom-rescue-20261109/ui-cancel-final/rescue.json",
+        "bytes": 3275,
+        "sha256": "b5481fee3bc61e4036a0a682ee7b52d400bb85498d5a801fbcb02528a6971cd3",
+        "screenshot": "artifacts/ota-rom-rescue-20261109/ui-cancel-final.png"
+      },
+      "processes_and_browser_tabs_closed": true
+    },
+    "reviews": "Two read-only reviews found no remaining blocker in protocol/state-machine ownership or operator-workflow resource scope. No hardware behavior was reviewed as verified.",
+    "documents": {
+      "checker": "scripts/lab_check.py docs (the nine changed files only)",
+      "passed": true,
+      "utf8_files": 9,
+      "added_local_links": 11,
+      "diff_check": "git diff --check passed"
+    }
+  },
+  "corrections_and_retained_attempts": [
+    "Raw receive file now opens before constructing the owned wire peer; a Link-constructor exception also closes the peer. Two explicit regression cases were added.",
+    "Archive attempt 001 rejected the initial UI/source mismatch after the last RTS budget guard. Original runs and failure record retained; final success and cancel were repeated with matching final source hashes.",
+    "Protocol proof was found in the already locked SDK; it must not be described as requiring a newer SDK."
+  ],
+  "archive": {
+    "path": "artifacts/ota-rom-rescue-20261109.zip",
+    "bytes": 308178,
+    "sha256": "8fb99d5d2c09962f871b489b0515269e112c3fd387360a6c5a27ce960839a690",
+    "members": 84,
+    "source_files_including_references": 25,
+    "all_members_read_back_identical": true,
+    "source_manifest": "artifacts/ota-rom-rescue-20261109/source-manifest.json"
+  },
+  "remaining_boundary": [
+    "Bound real transport and wall-clock adaptation, driver I/O deadline/cancel/RTS cleanup, fake-serial tests and fresh before-state/device binding",
+    "Fresh physical conditions and explicit reset/exit window authorization",
+    "Actual response shape, ROM capture and original application recovery on this board",
+    "LCPU/DMA/other Flash ownership, exact erase/restore behavior, real B execution and full OTA automatic rollback"
+  ]
+}

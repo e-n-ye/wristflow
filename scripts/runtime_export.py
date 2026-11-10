@@ -23,6 +23,25 @@ class ExportClient(RecordedClient):
     BOOT_MARKERS = (b"[product] storage=", b"SFBL", b"RT-Thread")
 
 
+def request_snapshot(client, nonce, deadline):
+    """Read one frozen snapshot; caller owns the UART, lease and raw evidence."""
+    replies = client.request(f"wf_record snapshot {nonce}",
+        lambda line: f"[record-snapshot] schema=1 token={nonce} " in line, deadline=deadline)
+    headers = [line for line in replies if f"[record-snapshot] schema=1 token={nonce} " in line]
+    if len(headers) != 1:
+        raise ValueError("One snapshot header required")
+    fields = dict(re.findall(r"(\w+)=(\d+)", headers[0]))
+    count, saved = int(fields["samples"]), int(fields["saved"])
+    if not 0 <= count <= 64 or saved not in (0, 1):
+        raise ValueError("Snapshot bounds")
+    for label in (("current", "saved") if saved else ("current",)):
+        client.request(f"wf_record summary {nonce} {label}",
+            lambda line: f"[record-summary-end] token={nonce}" in line, deadline=deadline)
+    for page in range((count+7)//8):
+        client.request(f"wf_record samples {nonce} {page}",
+            lambda line, page=page: f"[record-samples-end] token={nonce} page={page} " in line, deadline=deadline)
+
+
 def collect(output, transport, *, binding, identity_check, locks, seconds=60, cancel=None):
     if not 0 < seconds <= 60 or output.exists():
         raise ValueError("New output directory and a 0..60s bound required")
@@ -46,21 +65,7 @@ def collect(output, transport, *, binding, identity_check, locks, seconds=60, ca
     try:
         with session as client:
             deadline = time.monotonic() + seconds
-            replies = client.request(f"wf_record snapshot {nonce}",
-                lambda line: f"[record-snapshot] schema=1 token={nonce} " in line, deadline=deadline)
-            headers = [line for line in replies if f"[record-snapshot] schema=1 token={nonce} " in line]
-            if len(headers) != 1:
-                raise ValueError("One snapshot header required")
-            fields = dict(re.findall(r"(\w+)=(\d+)", headers[0]))
-            count, saved = int(fields["samples"]), int(fields["saved"])
-            if not 0 <= count <= 64 or saved not in (0, 1):
-                raise ValueError("Snapshot bounds")
-            for label in (("current", "saved") if saved else ("current",)):
-                client.request(f"wf_record summary {nonce} {label}",
-                    lambda line: f"[record-summary-end] token={nonce}" in line, deadline=deadline)
-            for page in range((count+7)//8):
-                client.request(f"wf_record samples {nonce} {page}",
-                    lambda line, page=page: f"[record-samples-end] token={nonce} page={page} " in line, deadline=deadline)
+            request_snapshot(client, nonce, deadline)
             if cancel.is_set():
                 raise Cancelled("Export cancelled")
             if time.monotonic() >= deadline:

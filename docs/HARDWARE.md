@@ -1,5 +1,65 @@
 # 黄山派选型复评
 
+## 2026-11-10 固定RAM短窗与已关闭末态
+
+检查点`2c5dafb`、主机包`ota-stub-geometry-build-20261110-002`，用户当次确认同板原CycleLog、USB／BAT固定及人在旁后授权。2.703秒stub会话执行一次入口RTS／SYSRESETREQ及单发burn_reset，未用退出RTS；没有NOR读取或Flash写擦。原始218次读取／872B逐字回核：B地址匹配MPI2句柄`0x2004203c`，容量16MiB、NOR字段／移位均0、sector命令27为`0x20`，表字节与固定stub相同；支持4KiB条件路径，未验证物理擦除。
+
+ready仍为CPUWAIT=1、仅DMAC1通道7启用且UART RDR→RAM；本次UART对象选址错误，读取的是调试对象`0x20000ad8`，DMA指针0不能证明没有DMA。固定bin离线已区分RTOS对象`0x20042260`，软件修正／模拟单独记录，没有追加设备窗。
+
+原程序返回，boot29→30／saved176→177，已存累计时长845329941→845331030ms、各场景未倒退，保存失败0／活动fault0／累计fault仍3；206.081秒RAM尾段仅保全电脑。worker／child退出0、无强杀、串口和租约关闭；操作者在协作页确认原程序返回、关闭临时常亮及显示／触摸／KEY1正常。RTC重置，主机未校时，保持用户决定的独立分项。[现场及原始流核验](evidence/2026-11-10/ota-stub-geometry-device.json)。本窗已结束，后续纠偏／交付指令不授权任何新设备动作。
+
+## 2026-11-10 原版stub有限状态与NOR接收缺字
+
+用户新确认原板原CycleLog固件、固定USB／BAT、人在旁、显示触摸正常及临时常亮，并授权原版stub零Flash写擦观测。检查点`dce2748`预检COM5／CH340位置1-1.1、disable_modem=1及原归档通过；首准备页120秒超时，worker未启动、串口未打开。用户要求立即重开并实际确认页面后，第二目录完成应用前态、一次主动入口RTS及一次SYSRESETREQ，运行固定原版stub。
+
+ready实读PMR=4（CPUWAIT=1）／RSTR1=0；17个采样DMA仅DMAC1通道7启用，CCR=0x10AF、计数32362、源0x50084024（UART1 RDR）→0x2004396C（RAM）。这只是有限配置值，尚未绑定stub所有权或证明持续静止。唯一NOR请求在最后0x12FFC000块超时；原始流只有16777064B载荷、少152B，设备CRC=0x6B38D8A5与捕获CRC=0xCF4AD786不符，虽有完整CRC／OK尾文也不能作完整NOR。未开始第二份及after快照，未发burn_reset。
+
+196.085秒后按当次授权仅用一次退出RTS，原程序返回；boot28→29、saved174→175，已存时长及场景未倒退、保存失败0／活动fault0／累计fault仍3，CycleLog无活动。571.213秒RAM尾段只保全电脑，子进程退出1／worker0，无强杀，串口与租约关闭。RTC回2000年；用户自行在手机连接中校时，主机未发送校时，并最终确认常亮已关、时间／显示／触摸／KEY1正常。前次已记录boot27到本窗前boot28的来源未知，不能归入本次复位。
+
+用户引用“禁用modem流控”说明；本机该设置仍启用，此前已解决的开口自动复位与本窗显式RTS动作分开。已有软件reboot保时／RTS丢时证据保持，具体RTC电源轨未测；用户确认RTC本身不阻塞OTA。新主机缓冲包仅离线验证，未追加设备动作或固件更换。[实机证据](evidence/2026-11-10/ota-stub-observer-device.json)／[后续软件](evidence/2026-11-10/ota-stub-buffered-software.json)／[观测与缺件](OTA-PREPARATION.md#stub-observer-device-20261110)。
+
+## 2026-11-09 独立调试释放与SP超时窗口
+
+用户新确认原板原固件／USB与BAT接线固定／人在旁／屏触与临时常亮，并授权一次入口RTS、一次SYSRESETREQ及异常时最多一次退出RTS；主机执行`ab0a479`。本次只用一次入口RTS及一次SYSRESETREQ，取得新RESET／VCATCH／PC0x7D4、向量PC0x7D5／SP0x20001020／VTOR0。SP完整D2值也为0x20001020，但项目额外100ms共同期限在主机保存后拒收，因此首次快照与保持未完成；不是设备寄存器值错误。退出DEMCR清零读回、关闭调试ACK＋SFBL及独立DHCSR=0x05000000（HALT／DEBUG清零）、Exit单发成立，无退出RTS。主机63.601秒／父退出1／worker0，串口与租约关闭。
+
+用户在页面确认原程序返回；boot26→27、saved170→171，已存时长及分场景未倒退、保存失败0／活动fault0／累计fault仍3，CycleLog无活动。193.872秒RAM尾段只保全到电脑；RTC回到2000年使steps暂invalid，原day20766／generation493／小时mask0x3fffff仍在。随后用户确认亮屏并独立授权单次校时；仅发送一次`wf_time 1794231231`，日期回读北京时间21:33:51，steps valid1／restored1及原日记录恢复、verified1／dirty0／failed0，串口关闭，无追加复位。用户在后续接续中明确确认临时常亮已关闭、时间／显示／触摸／KEY1正常，补齐本窗末态。未更换固件或发送Flash写擦命令。[设备证据](evidence/2026-11-09/ota-rom-release-device.json)／[独立校时](evidence/2026-11-09/ota-rom-release-clock-recovery.json)／[分窗接续决定](OTA-PREPARATION.md#rom-release-device-20261109)。
+
+RTC的软件reboot保时／RTS丢时已有对照；Product启动不主动设2000，SDK初始化不写日期时间，首个11/09窗口未SYSRESETREQ已丢时。证据指向RTS关联供电复位，但具体RTC电源轨与本板开关未测；当前USB＋BAT接线固定，不能以旧USB-only无电池解释。用户接受正确原流与分窗证据继续OTA，暂不重复零Flash整窗，不把供电排障扩大为映射前置。
+
+## 2026-11-09 HCPU ROM截停与退出回包异常
+
+用户新授权同板同固件／固定USB与BAT／人在旁的零Flash写入窗口，执行源码`99a3eca`。准备首窗超时无设备动作；用户确认临时常亮后新开窗口，一次入口RTS、一次SYSRESETREQ和reset-catch后两端观测符合ROM向量：PC=`0x7D4`／向量`0x7D5`、SP=`0x20001020`、VTOR0，新RESET及VCATCH／HALT／DEBUG成立并保持2.962秒，未在内部复位后补halt。只证明本次HCPU ROM入口截停，不证明LCPU／DMA静止或真实坏boot救援。
+
+退出已清DEMCR并读回0；关闭调试DHCSR写后收到完整D3 ACK，紧跟`SFBL\n`令解析失败，没有DHCSR后读或Exit。工具按当次授权仅用一次退出RTS后关口，原程序返回；boot25→26、saved168→169，已存时长未倒退，保存失败0／活动fault0、累计fault仍3，CycleLog无活动。343.072秒RAM尾段只保全到电脑。RTC回到2000年，演练两项错误独立保留，父退出1／worker0、主机资源及租约关闭。
+
+用户另行授权单次校时；第一条只读日期无响应，未发送校时即关口。用户重新点亮并开启临时常亮后，新窗单发校时／读回通过，北京时间11/09 19:23:57、steps valid1／restored1及原日记录恢复；原应用preferences GC59ms后alarm保存成功，原日志保留。最终用户确认常亮已关、时间／显示／触摸／KEY1正常，主机会话全部关闭，无固件更换或Flash写擦命令。[现场证据](evidence/2026-11-09/ota-rom-capture-exit.json)／[捕获与退出边界](OTA-PREPARATION.md#rom-capture-exit-20261109)。
+
+## 2026-11-09 ROM入口演练与校时恢复
+
+用户当次确认同板同固件、USB／BAT接线固定、人在旁及屏触正常，授权一次入口RTS／内部SYSRESETREQ和异常时最多一次退出RTS，零Flash写入。首准备页未确认超时，无设备动作；用户确认可操作后新开窗口，绑定11/03原构建归档与COM5。一次入口RTS后取得`SFBL\n`，主机守卫在首次Enter发送前停止；未执行内部SYSRESETREQ、调试halt或ROM上下文观测，无故障boot救援通过结论。清理只发一次Exit并关口，无追加RTS或重试；程序已返回，主机资源／租约关闭。
+
+前后完整记录为boot24→25、saved代166→167，已存总时长及分场景未倒退，保存失败0／活动fault0、累计fault仍3，CycleLog无活动；复位前71.786秒RAM尾段仅保全到电脑。RTC回到2000年令原演练退出1，不能解释此前14→23未知重启来源。
+
+用户确认临时常亮已关、显示／触摸／KEY1正常，并独立授权单次校时及回验。`wf_time 1794220209`仅发送一次，UTC／步数回读通过，北京时间11/09 18:30:09、steps valid1／restored1、原day20766／generation490及小时mask恢复，串口关闭。没有更换固件或发送Flash写擦／追加复位命令；原演练失败保留。[现场证据](evidence/2026-11-09/ota-rom-rescue-device-attempt.json)／[入口阻断及后续边界](OTA-PREPARATION.md#rom-rescue-device-attempt-20261109)。
+
+## 2026-11-08 ROM双备份与校时恢复
+
+用户新确认同板同固件、USB／BAT接线固定、人在旁、屏触正常，授权一次ROM复位及双NOR备份。绑定11/03归档与COM5／CH340位置1-1.1，先保全boot23／saved代次159、保存失败0／活动fault0及20:11.105的RAM尾段。单个sftool进程读取两份完整16MiB，用时709.366秒、退出0、逐字节及SHA一致；设备boot／main／FTAB与原归档对应字节哈希一致，无Flash写擦命令。正常旧boot下ROM读取可用，不等于坏boot强制救援已验。
+
+读取期间用户报告KEY1无法唤醒，此时原应用暂停；返回程序后boot24／saved代次160，持久记录未倒退且保存失败0／活动fault0。RTC回到2000年，使原流程失败并关口，原始失败保持。用户另行授权后仅单次校时并读回北京时间21:54:12，随后只读runtime仍boot24、UTC有效、保存失败0／活动fault0。最终用户确认显示、触摸、KEY1、时间正常且临时常亮已关；主机会话全部关闭，无追加复位／烧录。此ROM窗口不定位此前未知重启根因。
+
+完整双备份、原始前后记录、独立校时及执行源码共57文件ZIP已逐成员读回；本机`artifacts/ota-rom-backup-20261108.zip`，SHA`26a8f156…`。[本轮证据](evidence/2026-11-08/ota-rom-backup-device.json)及[OTA专题](OTA-PREPARATION.md#rom-backup-device-20261108)区分备份、RTC恢复、人工末态与后续部署门槛。
+
+## 2026-11-08 长期待机后的运行记录保全
+
+用户确认11/03后未重新刷固件、设备长期待机；本轮原USB串口连接、接线固定且人在旁，显示／触摸正常并开启临时常亮后授权只读导出。主机核11/03 CycleLog构建`20261103-115740-843`的源码／产物ZIP及原三镜像传输记录，绑定main`10560604…`；COM5／CH340位置1-1.1、禁Modem握手1重核通过，不把当前已重编的Product产物冒充板上版本。
+
+runtime快照token`11473780485207420299`的原UART17345B与解码JSON／manifest及样本CRC通过；记录时间为北京时间19:19:00。boot23、generation156、累计记录744934259ms（8天14:55:34.259），比11/03末次快照新增436125887ms（5天1:08:45.887），其中OFF场景占新增99.79%；这是跨启动的软件场景记录，不是完整墙钟、物理睡眠、电流或续航证明。当前boot已记录1733372ms，最近同boot持久检查点为1092ms，未持久尾段1732280ms已复制电脑，没有发保存或记录控制命令。
+
+保存尝试／成功／失败为134／134／0，当前known0x18／mask0；累计fault3（11/03为1）不表明已知重启根因。64项变化触发环形样本跨度407462ms，56项ADC有效、8项无效均原样保留；不能重建完整五天曲线。另一次`wf_cycle status`显示state0／session0、没有活动采集；没有mount、probe、init、arm或重读旧文件，既有已归档实验文件保持原证据。
+
+用户补充确实观察到时间重置，猜测触摸或其他接触可能导致短路／掉电。事实与猜测分别保存：boot由14增至23与重启观察相容，触发条件尚未复现，供电与软件复位等原因未定位；保存失败0不能排除瞬时掉电。两次主机会话各开／关一次，共12条只读命令，无复位／校时／PM或器件控制／Flash工具。用户最终确认临时常亮关闭、显示／触摸／时间正常。原始流、摘要与工具28文件ZIP已逐项读回，[精简证据](evidence/2026-11-08/runtime-preservation.json)及本机`artifacts/runtime-preserve-20261108.zip`保全；未做ROM全片备份或OTA实验，旧低压窗口不恢复。
+
 ## 2026-11-07 原版固定方式补充（用户确认）
 
 用户根据装配视频截图确认原模型固定结构用于屏幕板，原版装配不使用主板背面外伸的金色铜柱；并允许设计由壳体替代这些外伸柱的方案。两板之间原支承及FPC继续保留。后续CAD不再把外伸柱7.34mm当必须占位，以下早期“保留金色柱／职责未知”仅为当时快照，以本段为准。未实际拆柱、改接线或操作设备；现板V1.1孔距、原盖接触Z和承力仍未实配确认。[A0 CAD研究](WEARABLE-PREPARATION.md#cad-a0-20261107)不提升任何腕戴／充电验收阶段。

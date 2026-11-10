@@ -1,0 +1,387 @@
+{
+  "schema": 1,
+  "date": "2026-11-10",
+  "started_date": "2026-11-09",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/ota-mapping-experiment",
+  "base_commit": "22f8537b9f411f1f4fce455254f68e488feb7c0c",
+  "scope": "Fixed original-library/stub host observer and reviewed minimal new hardware window; no Flash write entry",
+  "source_files": [
+    {
+      "path": "scripts/battery_collect.py",
+      "bytes": 23428,
+      "sha256": "304345942c16486a4626e49bb59bdd9a4126b3611630f81ba9b7d3081f0d2c05"
+    },
+    {
+      "path": "scripts/battery_console.py",
+      "bytes": 13914,
+      "sha256": "7590d5e5a75f8b4c277e5085af9b4fe430a144056b735173441c2edd8e982316"
+    },
+    {
+      "path": "scripts/battery_device.py",
+      "bytes": 17306,
+      "sha256": "34b07b98c1f10afcc03111d262cdadcd41699caec7cdb56a8ea865af35ad6768"
+    },
+    {
+      "path": "scripts/battery_lab.py",
+      "bytes": 24502,
+      "sha256": "a666370236c173a39fb908a9a62c8c8e9b0bce7aa4b82231cae1aed165ad48eb"
+    },
+    {
+      "path": "scripts/compass_protocol.py",
+      "bytes": 1479,
+      "sha256": "268acef47f7fc9eb7a1fd07025c688f8ff6301759e195374f603fe26976800c5"
+    },
+    {
+      "path": "scripts/cycle_log_lab.py",
+      "bytes": 11523,
+      "sha256": "f5ab5cc9d0a72e9a9f4a6c376e13a80256c936029cd58083af3fad93e84e418c"
+    },
+    {
+      "path": "scripts/cycle_protocol.py",
+      "bytes": 4402,
+      "sha256": "b182d3f92acded38db3e9a11092cd716e8de49b5e9a0a7718725021e305de9e5"
+    },
+    {
+      "path": "scripts/device_snapshot.py",
+      "bytes": 12078,
+      "sha256": "0195f5297b87bd26084887210dc42618ed169243f4248ae58a26204fed84189f"
+    },
+    {
+      "path": "scripts/fs_protocol.py",
+      "bytes": 4773,
+      "sha256": "4afc42b2c8448449d5b834de998ac4a8a89900d1980ad416fab9d6c2c94c6a3d"
+    },
+    {
+      "path": "scripts/lab_check.py",
+      "bytes": 17510,
+      "sha256": "ce9a332f6b81c552da46bbbe91a6a941271f0acbb3ab2936ee0d09bb9142678b"
+    },
+    {
+      "path": "scripts/lab_evidence.py",
+      "bytes": 1498,
+      "sha256": "618487f3802b663b347c1bbd97b081147df2ef31ae6f471a9fcf2ac692e64864"
+    },
+    {
+      "path": "scripts/lab_serial.py",
+      "bytes": 9088,
+      "sha256": "8ac5b08fc0f7d68180b1f657d91d7bc11d4b3cc349d6603bde59e90710c49703"
+    },
+    {
+      "path": "scripts/light_protocol.py",
+      "bytes": 1127,
+      "sha256": "e1cb95b7ed014e76f739f324b01bc14c86759dcef7da1ba452a968312e71ab9c"
+    },
+    {
+      "path": "scripts/ota_backup_review.py",
+      "bytes": 5143,
+      "sha256": "c2d0b10abbfaebcd2cc26394b1176ab0c1784c6c45e8a35e9b78bf5589acf3df"
+    },
+    {
+      "path": "scripts/ota_rom_backup.py",
+      "bytes": 20838,
+      "sha256": "ac855952be312ea6f4e37373305a8e3d518873a801e8476e8ea9e40a778c2156"
+    },
+    {
+      "path": "scripts/ota_rom_device.py",
+      "bytes": 33031,
+      "sha256": "b20515b823c4bd13427fb0e4040292134436d581443aebf93c308c2eb18a8b06"
+    },
+    {
+      "path": "scripts/ota_rom_process.py",
+      "bytes": 7956,
+      "sha256": "5dee3ab333b8218accb60e6b7f61382cbb6870b9497f84ac8f82af0e9c359362"
+    },
+    {
+      "path": "scripts/ota_rom_protocol.py",
+      "bytes": 6895,
+      "sha256": "0eac7d35e83f2d318467cd7a8220eff3853a961771cdbb07e63bbdae54e7705f"
+    },
+    {
+      "path": "scripts/ota_rom_rescue.py",
+      "bytes": 20860,
+      "sha256": "cea6f8f52da1fc01aae34b84963f4d9f116725714d7592d1d449768cc4a05c1e"
+    },
+    {
+      "path": "scripts/ota_rom_rescue_lab.py",
+      "bytes": 11139,
+      "sha256": "6c70594ac9e14ea22492c6cf1adb8c03c3c02c40063f6398c210a18d2f51434d"
+    },
+    {
+      "path": "scripts/ota_rom_transport.py",
+      "bytes": 2420,
+      "sha256": "215b9a0b2a9e69bbcf4e9ceddde3fe36830a684aff80912868a221ce10f3d615"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/Cargo.lock",
+      "bytes": 64750,
+      "sha256": "812a423b3ffbe4aeae606ffcdca0fde1dae3fb9b735142c76844d90639c24fde"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/Cargo.toml",
+      "bytes": 395,
+      "sha256": "b771de50a26bc45239018830d207e64f40aa3596b7e8d13118e0722cf4a78e50"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/main.rs",
+      "bytes": 14370,
+      "sha256": "f43121cd56efa8d5599bd4f92f72ed9ea262f028330a70471c2d62544be8b979"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/port.rs",
+      "bytes": 9337,
+      "sha256": "d176a6ca8adba814fea9bb09f179bf230280bef9fa970227b635a6417eedc122"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/simulated.rs",
+      "bytes": 8545,
+      "sha256": "df13c1384a36d7dafc9af75b8b95ab6896ab1bf436f5d05e6b381528be0f87e4"
+    },
+    {
+      "path": "scripts/ota_stub_build.py",
+      "bytes": 4682,
+      "sha256": "dece62bc3b62e0eee90419e21643c313036fbab90da9fa223facbbb2462a2cff"
+    },
+    {
+      "path": "scripts/ota_stub_observe.py",
+      "bytes": 11995,
+      "sha256": "cc7b9d32e08010f6a3a2c99644eea2ba37121b92abc8d43ba19b9a580b722764"
+    },
+    {
+      "path": "scripts/runtime_export.py",
+      "bytes": 9381,
+      "sha256": "bb60c3aac7063bef8c8d6c9bb77c46563304e86e7c5957f11c80aa969d477885"
+    },
+    {
+      "path": "scripts/runtime_record_decode.py",
+      "bytes": 10383,
+      "sha256": "41fc2dd141a9bb843e40f7caeefefaec1955c9189e7dcb1864ba8ae514f99a39"
+    },
+    {
+      "path": "scripts/serial_lab.py",
+      "bytes": 13798,
+      "sha256": "7fe4ad1d5a6a2007f59c97c586cf954791c15310a881075a50db12a946d78aa6"
+    },
+    {
+      "path": "scripts/storage_protocol.py",
+      "bytes": 4724,
+      "sha256": "e379b6cc494352b6cc59c481d51a558fdf1ebf144af167e46b5e9fbbcaf6b279"
+    },
+    {
+      "path": "tests/test_ota_stub_observe.py",
+      "bytes": 11322,
+      "sha256": "240db27b249c8b336893d23c3e04418f9bdf2151287f490486a4588915855646"
+    }
+  ],
+  "build_report": {
+    "path": "artifacts/ota-stub-observer-build-20261109-005/result.json",
+    "bytes": 2890,
+    "sha256": "f3d80aedd350d2f805a84c198efbd7d8b07a5ca64c373de99964e3a2619896a1"
+  },
+  "executable": {
+    "path": "artifacts/ota-stub-observer-build-20261109-005/wristflow-ota-stub-observer.exe",
+    "bytes": 20778297,
+    "sha256": "6ca5cb3b9fdc890070e9008b07a321ab973dd37bf6e6e8684b1787880f9d37f8"
+  },
+  "sdk_lock": {
+    "path": "sdk.lock.json",
+    "bytes": 473,
+    "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+  },
+  "stub": {
+    "path": "vendor/SiFli-SDK/tools/uart_download/file/ram_patch_52X.bin",
+    "bytes": 132816,
+    "sha256": "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43"
+  },
+  "validation": {
+    "rust_tests": 4,
+    "rust_failed": 0,
+    "release_exit": 0,
+    "python_tests": 138,
+    "python_failed": 0,
+    "python_seconds": 110.216,
+    "python_log": {
+      "path": "artifacts/ota-stub-observer-final-all-tests-20261109.log",
+      "bytes": 21382,
+      "sha256": "80f8dee2c21349d93d430fae140a3a67337f46899e2698528906785fae8b90c5"
+    },
+    "command": "SDK Python -B -X utf8 -m unittest discover -s tests -p 'test_ota*.py' -v; WRISTFLOW_STUB_OBSERVER_BUILD selects exact005 result",
+    "all_final_ui_bindings_verified": true,
+    "independent_review": "Read-only library/API/register investigation and implementation reviews; primary applied guard/shape/cleanup fixes and checked final source/evidence",
+    "firmware_build": false
+  },
+  "ui": {
+    "success": {
+      "outcome": "passed",
+      "verified": 5,
+      "total": 5,
+      "observation_passed": true,
+      "saved_state_passed": true,
+      "resources_closed": true,
+      "worker_exit": 0,
+      "worker_forced": false,
+      "cleanup": {
+        "resources_closed": true,
+        "child_forced": false,
+        "child_exit": 0,
+        "application_return_needs_operator": true
+      },
+      "entry_attempted": true,
+      "report": {
+        "path": "artifacts/ota-stub-observe-ui-20261109/success/device.json",
+        "bytes": 15862,
+        "sha256": "3aedb17e2a10a0b1347d0f9195cfb920fa3698a8d84eb07da44cb3bb403ff1e9"
+      }
+    },
+    "rtc-reset": {
+      "outcome": "error",
+      "verified": 4,
+      "total": 5,
+      "observation_passed": true,
+      "saved_state_passed": true,
+      "resources_closed": true,
+      "worker_exit": 0,
+      "worker_forced": false,
+      "cleanup": {
+        "resources_closed": true,
+        "child_forced": false,
+        "child_exit": 0,
+        "application_return_needs_operator": true
+      },
+      "entry_attempted": true,
+      "report": {
+        "path": "artifacts/ota-stub-observe-ui-20261109/rtc-reset/device.json",
+        "bytes": 16239,
+        "sha256": "6862045ea803720d68433837e4c2c04aeca58505242e849994e8b21e36002c80"
+      }
+    },
+    "register-fail": {
+      "outcome": "error",
+      "verified": 3,
+      "total": 5,
+      "observation_passed": false,
+      "saved_state_passed": true,
+      "resources_closed": true,
+      "worker_exit": 0,
+      "worker_forced": false,
+      "cleanup": {
+        "resources_closed": true,
+        "child_forced": false,
+        "child_exit": 1,
+        "application_return_needs_operator": true
+      },
+      "entry_attempted": true,
+      "report": {
+        "path": "artifacts/ota-stub-observe-ui-20261109/register-fail/device.json",
+        "bytes": 5096,
+        "sha256": "b0ba4ff6e2f990a30497b01161f9a492f16e89782b0e5834bf39532ea1602d79"
+      }
+    },
+    "cancel": {
+      "outcome": "cancelled",
+      "verified": 1,
+      "total": 5,
+      "observation_passed": false,
+      "saved_state_passed": false,
+      "resources_closed": true,
+      "worker_exit": 0,
+      "worker_forced": false,
+      "cleanup": {
+        "resources_closed": true,
+        "child_forced": true,
+        "child_exit": 1,
+        "application_return_needs_operator": true
+      },
+      "entry_attempted": null,
+      "report": {
+        "path": "artifacts/ota-stub-observe-ui-20261109/cancel/device.json",
+        "bytes": 3598,
+        "sha256": "ee686af51301d1f950cdc6ea8e40ed92564eadacc70b161574b8ea62016340cc"
+      }
+    }
+  },
+  "implementation": {
+    "library": "sftool-lib0.2.5",
+    "revision": "be2adab37bfb0ef4eb623b7e47e7b8693918b1e1",
+    "serialport": "4.7.0 from original lock; explicit DTR=false; no SDK/stub/dependency patch",
+    "baud": 1000000,
+    "opens": 1,
+    "handle_clones": "Original library duplicates same underlying endpoint",
+    "address_user_selectable": false,
+    "flash_write_or_erase_entry": false,
+    "snapshots": [
+      "stub-ready",
+      "after-dual-read"
+    ],
+    "register_groups": [
+      "LPSYS_AON.PMR",
+      "LPSYS_RCC.RSTR1",
+      "DMAC1x8",
+      "DMAC2x8",
+      "EXTDMA"
+    ],
+    "nor_read_bytes": 16777216,
+    "nor_read_count": 2,
+    "fixed_address": "0x12000000",
+    "rtc_time_write": false,
+    "sdk_stub_bkp0r_and_pa21_initialization": true,
+    "uart_debug_enter_initial_max": 2,
+    "sysresetreq_max": 1,
+    "active_entry_rts_max": 1,
+    "normal_burn_reset_max": 1,
+    "conditional_exit_rts_max": 1,
+    "physical_erase_envelope_verified": false,
+    "all_flash_users_controlled": false
+  },
+  "fixes_and_iterations": [
+    "Rust download TLS EOF was retained; exact official SHA256 checked components resumed inside project tools, without global profile/PATH changes.",
+    "Fresh serialport=4.7.0 resolution rejected yanked version; original upstream Cargo.lock retained exact checksummed dependencies.",
+    "Initial GNU compiler DLL search order failed; task-local compiler path precedes private Rust runtime. No global settings changed.",
+    "Synthetic peer initially rejected original library CRLF prompt wakeup; corrected before final005/full138/UI.",
+    "An initial SDK UART-header path was wrong; corrected to common cmsis/Include/usart.h before port opening.",
+    "One earlier88-test regression assertion failed during development; isolated current no-catch test and final full138 completed successfully; earlier failure log retained.",
+    "Concurrent Rust test directories collided on timestamp-only names; added process/counter names; final4/4 passed.",
+    "Review fixes cover synchronous cancel/deadline before entry, constructor/trace faults, BufWriter resend, sticky control-line guard, explicit GNU target, postbuild source hashes, unknown entry after damaged result and child-watchdog proof."
+  ],
+  "hardware": {
+    "enumerated": false,
+    "serial_opened": false,
+    "reset": false,
+    "ram_stub_loaded": false,
+    "rtc_time_written": false,
+    "flash_written_or_erased": false,
+    "new_hardware_claim": false,
+    "previous_valid_rom_evidence_reused": true
+  },
+  "next_window": {
+    "operator_required": true,
+    "fresh_authorization_required": true,
+    "conditions": [
+      "same board and original CycleLog firmware",
+      "fixed USB/BAT wiring",
+      "operator present",
+      "display/touch normal",
+      "temporary always-on"
+    ],
+    "global_seconds": 900,
+    "stub_seconds": 600,
+    "prompt_max_seconds": 120,
+    "scope": "One active entry RTS, one SYSRESETREQ, fixed original RAM stub including BKP0R/PA21 initialization, finite register snapshots, dual NOR read, one burn_reset; at most one conditional fallback RTS; no Flash write/erase or automatic time sync"
+  },
+  "stage_closed": false,
+  "pr_created": false,
+  "full_ota_completed": false,
+  "archive": {
+    "path": "artifacts/ota-stub-observer-software-20261110.zip",
+    "bytes": 28734796,
+    "sha256": "b1eee83f89e84aea1397662abe3605bcc96111ad241b3a397d1fd3a90804d950",
+    "members": 205,
+    "all_members_read_back_identical": true
+  },
+  "local_summary": {
+    "path": "artifacts/ota-stub-observer-software-20261110/summary.json",
+    "bytes": 13529,
+    "sha256": "a728200a7c16aac41c5c0ef518ad676391c2ecc65eb736a464cb670d1ddc9078"
+  },
+  "documentation_check": "Bounded changed-file lab_check docs report saved separately in artifacts before checkpoint"
+}

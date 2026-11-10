@@ -1,0 +1,171 @@
+{
+  "schema": 1,
+  "date": "2026-11-08",
+  "working_baseline": "43a18e280029ca372aaf86183ada168c56194b48",
+  "branch": "codex/ota-mapping-experiment",
+  "scope": "Read-only current runtime preservation, one CycleLog cached status and offline verification; no ROM backup, device reset or flash mutation.",
+  "firmware": {
+    "build": "artifacts/product/20261103-115740-843/result.json",
+    "flash": "artifacts/flash/product/20261103-120138-892/result.json",
+    "archive": "artifacts/battery-curve-20261103-candidate-build.zip",
+    "archive_sha256": "ead4c756ee319fffdd4e18f024cbb2c65e55f874dea86b298c62b6f8f7d41816",
+    "main_sha256": "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d",
+    "policy": "Historical complete build ZIP plus original transfer and current host endpoint checks; operator confirms no reflash. Not firmware attestation.",
+    "runtime_sources_current_match_archived_exact_bytes": true
+  },
+  "operator_confirmations": [
+    "No reflash after Nov3; device has been in long standby.",
+    "USB connected, fixed wiring, operator present, display/touch normal and temporary keep-awake enabled before export.",
+    "After export temporary keep-awake disabled; display, touch and time normal."
+  ],
+  "operator_reboot_observation": {
+    "fact": "User observed time resets.",
+    "hypothesis": "Possibly touch/mechanical contact caused short/power interruption; user speculation, not reproduced.",
+    "cause_known": false
+  },
+  "snapshot": {
+    "local_time": "2026-11-08T19:19:00+08:00",
+    "token": 11473780485207420299,
+    "export_passed": true,
+    "raw_decode_equal": true,
+    "uart": {
+      "path": "artifacts/runtime-preserve-20261108/runtime-001/uart.bin",
+      "bytes": 17345,
+      "sha256": "fca3af3636ecb3bac7631ded5e9b78dd80a6b2b20cd12bfb8d3b8a6a9dc070f4"
+    },
+    "current": {
+      "boot": 23,
+      "generation": 156,
+      "recorded_ms": 1733372,
+      "total_recorded_ms": 744934259,
+      "scene_ms": {
+        "unknown": 37740,
+        "on": 13230346,
+        "flashlight": 31171149,
+        "dim": 479246,
+        "off": 700015778,
+        "aod": 0
+      },
+      "fault_known": 24,
+      "fault_mask": 0,
+      "faults": 3,
+      "recoveries": 0,
+      "clock_errors": 0,
+      "attempts": 134,
+      "successes": 134,
+      "failures": 0,
+      "periodic_saves": 120,
+      "explicit_saves": 14,
+      "event_drops": 1734,
+      "sample_drops": 9911
+    },
+    "saved": {
+      "boot": 23,
+      "generation": 156,
+      "recorded_ms": 1092,
+      "total_recorded_ms": 743201979,
+      "utc": 0,
+      "flags": 6
+    },
+    "unsaved_recorded_ms": 1732280,
+    "sample_ring": {
+      "rows": 64,
+      "span_ms": 407462,
+      "adc_valid": 56,
+      "invalid_rows_preserved": true,
+      "continuous_long_term_voltage_curve": false
+    },
+    "delta_since_previous": {
+      "boot_counter": 9,
+      "recorded_ms": 436125887,
+      "scene_ms": {
+        "unknown": 12567,
+        "on": 784203,
+        "flashlight": 0,
+        "dim": 129641,
+        "off": 435199476,
+        "aod": 0
+      },
+      "fault_counter": 2,
+      "off_scene_fraction": 0.9978758174471767
+    },
+    "previous_snapshot": {
+      "path": "artifacts/battery-curve-device-20261103-001/bat-usb-runtime/records.json",
+      "bytes": 23983,
+      "sha256": "2305b542418ffd74d9073c6889dd4928dcdf001f82db85891feee0cacae8e714"
+    }
+  },
+  "cycle_status": {
+    "state": 0,
+    "session": 0,
+    "accepted": 0,
+    "saved": 0,
+    "queued": 0,
+    "dropped": 0,
+    "reason": 0,
+    "inhibit": 0,
+    "low_mode": false,
+    "commit_elapsed_ms": 0,
+    "keep_remaining_ms": 882979,
+    "low_samples": 0,
+    "off_samples": 0,
+    "low_events": 0
+  },
+  "sessions": {
+    "opened": 2,
+    "closed": 2,
+    "commands": [
+      "wf_record snapshot 11473780485207420299",
+      "wf_record summary 11473780485207420299 current",
+      "wf_record summary 11473780485207420299 saved",
+      "wf_record samples 11473780485207420299 0",
+      "wf_record samples 11473780485207420299 1",
+      "wf_record samples 11473780485207420299 2",
+      "wf_record samples 11473780485207420299 3",
+      "wf_record samples 11473780485207420299 4",
+      "wf_record samples 11473780485207420299 5",
+      "wf_record samples 11473780485207420299 6",
+      "wf_record samples 11473780485207420299 7",
+      "wf_cycle status"
+    ],
+    "endpoint": {
+      "port": "COM5",
+      "usb_vid": "1a86",
+      "usb_pid": "7523",
+      "location": "1-1.1",
+      "disable_modem_handshake": 1
+    }
+  },
+  "preservation_archive": {
+    "archive": {
+      "path": "artifacts/runtime-preserve-20261108.zip",
+      "bytes": 175077,
+      "sha256": "487e9380940603fc913a4b1e90bdcd51de5f5c2bb2e7d500cc6cffae864addb8"
+    },
+    "files": 28,
+    "readback_verified": true
+  },
+  "local_report": "artifacts/runtime-preserve-20261108/运行记录说明.md",
+  "local_summary": "artifacts/runtime-preserve-20261108/summary.json",
+  "scope_guards": {
+    "flash_mutation_command": false,
+    "reboot": false,
+    "clock_write": false,
+    "pm_or_sampling_control": false,
+    "cycle_mount_or_format": false,
+    "rom_backup": false
+  },
+  "limits": "Counters and software scenes across boots, ring samples and CRC transfer validity; not continuous uptime, hardware sleep/current, battery capacity/life or restart root-cause proof.",
+  "failures_and_corrections": [
+    "Initial host-only preflight used system Python without pySerial and stopped before endpoint enumeration/open. Reused already installed locked SDK Python 3.13.15/pySerial3.5; archived-build/endpoint guards passed and both device sessions completed without retry."
+  ],
+  "hardware_observations": {
+    "runtime_export_completed": true,
+    "final_display_touch_and_time_operator_confirmed": true,
+    "physical_sleep_or_current_verified": false,
+    "restart_trigger_or_root_cause_verified": false,
+    "device_rom_backup_done": false
+  },
+  "stage_closed": false,
+  "next_step": "Continue bounded ROM double-backup adapter and recovery preparation in the same stage; simulate and discuss exact operator conditions/authorization. Obtain a fresh pre-reset runtime snapshot; do not reuse this old snapshot as reset admission."
+}

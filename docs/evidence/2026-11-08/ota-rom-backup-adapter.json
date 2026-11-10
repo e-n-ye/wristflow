@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "date": "2026-11-08",
+  "working_baseline": "c967d97bd52157b94f3ef86dcf62d91851d07506",
+  "validated_source_commit": "3f4e266fc378de89c1a18b4041186c2b25de9fa1",
+  "subsequent_device_and_host_corrections": "docs/evidence/2026-11-08/ota-rom-backup-device.json",
+  "branch": "codex/ota-mapping-experiment",
+  "stage_closed": false,
+  "scope": "Host-only bounded ROM dual-read adapter, continuous endpoint lease, application pre/post preservation, cancellation and recovery checks. No device operation this iteration.",
+  "source_sha256": {
+    "scripts/ota_rom_backup.py": "ceda268bad2ff0b6b3f4f5cde7503cc049d48c24e76c311e8cab10a504ae9406",
+    "scripts/ota_rom_process.py": "5dee3ab333b8218accb60e6b7f61382cbb6870b9497f84ac8f82af0e9c359362",
+    "scripts/runtime_export.py": "bb60c3aac7063bef8c8d6c9bb77c46563304e86e7c5957f11c80aa969d477885",
+    "tests/test_ota_rom_backup.py": "0308de4af5802b49bd77c49f11d6664cbb1fff7cfe67cbd9b69363973cdcd7b1"
+  },
+  "validation": {
+    "python": {"passed": 61, "failed": 0, "skipped": 0, "rom_adapter_and_native_process_tests": 16},
+    "patterns": ["test_ota_*.py", "test_runtime_export.py", "test_runtime_record_decode.py"],
+    "command": "python unittest.TestSuite(defaultTestLoader.discover('tests', pattern=p) for p in patterns); TextTestRunner(verbosity=2)",
+    "log": {"path": "artifacts/ota-rom-regression-final.log", "bytes": 8046, "sha256": "cdb5bbec9798938f30431f653b5378d3e42db0dea8900a67e1af9c66c4ba6ccb"},
+    "native_windows_no_device": ["normal exit", "spaces and Unicode working directory", "owned descendants killed", "parent death kills reader job", "missing executable preserves log"],
+    "firmware_rebuilt": false,
+    "sdk_lock_changed": false
+  },
+  "ui_simulation": {
+    "browser": "Edge",
+    "real_ui_clicks": true,
+    "success": {"path": "artifacts/ota-rom-backup-20261108/ui-success-fixed/backup.json", "bytes": 3560, "sha256": "07b66a27193dfcd3af026bcc4582b3071a2fbf64af6daa29da5eb6a778220b1a"},
+    "cancel_during_read": {"path": "artifacts/ota-rom-backup-20261108/ui-cancel-fixed/backup.json", "bytes": 2381, "sha256": "cedb63857302d7d9b1852037c49bf4f73a61d4b118299d38f4fae7fe67206430"},
+    "log": {"path": "artifacts/ota-rom-ui-simulation-fixed.log", "bytes": 183, "sha256": "63967841463e1ea9e6c88051d96b2752ca753232f0994258f3879f1f01ce491f"},
+    "success_screenshot": {"path": "artifacts/ota-rom-backup-20261108/ui-success-fixed.png", "bytes": 48549, "sha256": "6f40e9c4effb61f266f9e01ddc8bf4328b6272ec607b87c9a3b76e217e97e749"},
+    "cancel_screenshot": {"path": "artifacts/ota-rom-backup-20261108/ui-cancel-fixed.png", "bytes": 48925, "sha256": "2f8f0e3772c712e6becf3f278d7bd5022aeff2ad55a4e281b683c8d4b9a72b91"},
+    "observed": ["six phases completed with three manual confirmation clicks", "success page 4/4 with both controls disabled", "confirm disabled during automatic read", "cancel page incomplete 1/4, resources closed, no reopen"],
+    "version_scope": "Each simulation binding.json records its exact sources. Subsequent constructor-cleanup propagation changed only an error path and is covered by the final 61-test run.",
+    "synthetic_nor_files_are_not_device_backups": true,
+    "hardware_verified": false
+  },
+  "reviewed_device_window": {
+    "executed": false,
+    "review": {"path": "artifacts/ota-rom-backup-20261108/device-window-review.json", "bytes": 1711, "sha256": "5653fef92703172383be5b340ceb8e786b1ae1152b1783d08498e82227aa28b4"},
+    "firmware_build": "artifacts/product/20261103-115740-843/result.json",
+    "firmware_flash": "artifacts/flash/product/20261103-120138-892/result.json",
+    "firmware_archive": "artifacts/battery-curve-20261103-candidate-build.zip",
+    "archive_sha256": "ead4c756ee319fffdd4e18f024cbb2c65e55f874dea86b298c62b6f8f7d41816",
+    "main_sha256": "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d",
+    "archived_build_reverified": true,
+    "source_policy": "archived_build",
+    "sftool_version": "0.2.5",
+    "sftool_sha256": "1ccc425e72048db93c410614114f8343e389988ee8aa90251aa46f05ae0b3e0f",
+    "endpoint_candidate": {"device": "COM5", "location": "1-1.1", "fresh_identity_checked": false},
+    "single_rom_argv": ["sftool.exe", "--chip", "SF32LB52", "--memory", "nor", "--port", "COM5", "--baud", "500000", "--connect-attempts", "3", "--before", "default_reset", "--after", "soft_reset", "read_flash", "nor-first.bin@0x12000000:0x1000000", "nor-second.bin@0x12000000:0x1000000"],
+    "read_seconds_max": 900,
+    "pre_and_post_snapshot_seconds_each_max": 60,
+    "manual_prompt_seconds_each_max": 120,
+    "prestate_freshness_seconds_max": 120,
+    "nominal_raw_8n1_seconds": 671.08864,
+    "fresh_operator_conditions_and_reset_authorization_required": true,
+    "no_flash_write_erase_or_time_sync": true
+  },
+  "failures_and_corrections": [
+    "Static review found wintypes.Structure instead of ctypes.Structure; fixed before native tests.",
+    "CreateProcess then AssignProcess left an abnormal-parent-exit gap. Replaced with atomic JOB_LIST creation and explicit HANDLE_LIST before execution.",
+    "Endpoint metadata uses device, not port; corrected adapter before tests.",
+    "Constructor cleanup uncertainty could lose the owner and report closed. ReaderCleanupError retains the owner; adapter cleans under the same lease and fails closed, with a regression case.",
+    "First UI result passed a mapping where Console expects a list, causing checks.every failure. Fixed adapter argument, preserved old artifacts, repeated actual success and cancel UI interactions."
+  ],
+  "limits": [
+    "No COM enumeration/open, ROM reset/read, Flash mutation or real application recovery this iteration.",
+    "Host lease coordinates participating tools, not arbitrary external serial applications.",
+    "Runtime/UTC recovery checks do not verify every setting/file or forced ROM rescue with a broken boot image.",
+    "sftool internal reset timing and behavior after failed transport still require device evidence.",
+    "The existing boot, loader and minimal slot probe remain undeployable preparation; this stage remains open."
+  ],
+  "next_bounded_experiment": "After fresh operator conditions and explicit ROM-reset window authorization, capture new application prestate under the lease, run one dual-NOR read and verify raw files, FTAB, application poststate and manual final observations. No boot/B/FTAB writes."
+}

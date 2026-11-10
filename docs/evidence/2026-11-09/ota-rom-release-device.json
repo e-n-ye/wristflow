@@ -1,0 +1,626 @@
+{
+  "schema": 1,
+  "date": "2026-11-09",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/ota-mapping-experiment",
+  "executed_source_commit": "ab0a479baf5c3ecc114adec521ed1e708aee765f",
+  "scope": "New explicitly authorized zero-Flash window; normal debug release verified; correct SP data rejected by host aggregate deadline; user accepts independent and split-window evidence",
+  "authorization": {
+    "source_commit": "ab0a479baf5c3ecc114adec521ed1e708aee765f",
+    "user": "现场条件满足，授权本次演练",
+    "scope": {
+      "entry_rts": 1,
+      "sysresetreq": 1,
+      "conditional_exit_rts_max": 1,
+      "total_seconds": 300,
+      "flash_write": false,
+      "automatic_clock_write": false
+    },
+    "conditions": "Original board/firmware, fixed USB/BAT, operator present, display/touch normal and temporary always-on enabled; current user confirmed quoted scope",
+    "recorded_ns": 1794230068891269900
+  },
+  "binding": {
+    "preflight": {
+      "path": "artifacts/ota-rom-release-device-20261109/preflight-build.json",
+      "bytes": 147586,
+      "sha256": "7120b08932dd7ae361bde72c0bf1075c67a034da35ace07eb8b03e6c6c1c070b"
+    },
+    "endpoint": {
+      "device": "COM5",
+      "vid": 6790,
+      "pid": 29987,
+      "location": "1-1.1",
+      "serial_number": "",
+      "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+      "disable_modem": 1
+    },
+    "sources_verified": true,
+    "expected_main_sha256": "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d"
+  },
+  "capture": {
+    "report": {
+      "path": "artifacts/ota-rom-release-device-20261109/device-001/device.json",
+      "bytes": 157161,
+      "sha256": "88a2f7875c4ef195c4e6ff90f1ff3dba072dd1b2dbd345ca06990f717cb07283"
+    },
+    "response": {
+      "path": "artifacts/ota-rom-release-device-20261109/device-001/response-2.json",
+      "bytes": 690,
+      "sha256": "8892986814c3e7dd91b9549d9e7fc7a1903305e7f6c34113f7a27955896925de"
+    },
+    "parent_exit": 1,
+    "worker_exit": 0,
+    "worker_forced": false,
+    "resources_closed": true,
+    "lease_retained": false,
+    "elapsed_seconds": 63.6009218,
+    "operator_confirmed_phases": [
+      "prepare",
+      "return"
+    ],
+    "counts": {
+      "enter": 2,
+      "halt": 1,
+      "sysresetreq": 1,
+      "release": 1,
+      "exit": 1
+    },
+    "entry_rts_pulses": 1,
+    "exit_rts_pulses": 0,
+    "no_post_reset_halt": true,
+    "original_observation_passed": false,
+    "original_application_recovery_passed": false,
+    "original_errors": [
+      {
+        "phase": "rom",
+        "error": "NoReply('Response arrived after the transaction deadline')"
+      },
+      {
+        "phase": "recovery",
+        "error": "ValueError('RTC continuity changed; time recovery needs separate authorization')"
+      }
+    ]
+  },
+  "independent_rom": {
+    "capture_seconds": 63.6009218,
+    "counts": {
+      "enter": 2,
+      "halt": 1,
+      "sysresetreq": 1,
+      "release": 1,
+      "exit": 1
+    },
+    "entry_rts": 1,
+    "exit_rts": 0,
+    "no_post_reset_halt": true,
+    "words": {
+      "dhcsr_reset": {
+        "span": [
+          125,
+          137
+        ],
+        "value": 33751043
+      },
+      "dfsr": {
+        "span": [
+          137,
+          149
+        ],
+        "value": 8
+      },
+      "demcr": {
+        "span": [
+          149,
+          161
+        ],
+        "value": 1
+      },
+      "vtor": {
+        "span": [
+          161,
+          173
+        ],
+        "value": 0
+      },
+      "vector_sp": {
+        "span": [
+          173,
+          185
+        ],
+        "value": 536875040
+      },
+      "vector_pc": {
+        "span": [
+          185,
+          197
+        ],
+        "value": 2005
+      },
+      "pc": {
+        "span": [
+          217,
+          229
+        ],
+        "value": 2004
+      },
+      "sp_late": {
+        "span": [
+          249,
+          261
+        ],
+        "value": 536875040
+      },
+      "demcr_clear": {
+        "span": [
+          281,
+          293
+        ],
+        "value": 0
+      },
+      "dhcsr_released": {
+        "span": [
+          306,
+          318
+        ],
+        "value": 83886080
+      }
+    },
+    "release_ack_span": [
+      293,
+      301
+    ],
+    "startup_tail_span": [
+      301,
+      306
+    ],
+    "release_readback_span": [
+      306,
+      318
+    ],
+    "operator_phases": [
+      "prepare",
+      "return"
+    ],
+    "complete_first_snapshot": false,
+    "hold_executed": false,
+    "raw_preserved": true,
+    "resources_closed": true,
+    "clock_write": false,
+    "flash_write": false,
+    "review": {
+      "path": "artifacts/ota-rom-release-device-20261109/independent-wire-review.json",
+      "bytes": 1644,
+      "sha256": "538f5340708e671b1825434ccb5e618552ffe599645ca44e2136b7390725a6ea"
+    },
+    "raw": {
+      "path": "artifacts/ota-rom-release-device-20261109/device-001/worker/rom-rx.bin",
+      "bytes": 318,
+      "sha256": "9e7c469e0068940677b11b73acf20c84029e3283a0e38e24d3993db89a3951e0"
+    },
+    "sp_value_correct": true,
+    "failure_semantics": "Ready and final DCRDR share a project-imposed 100ms deadline, unlike SDK independent final response budget. Raw saved/flushed before clock checked; exact wire arrival not logged. Complete D2 SP=0x20001020 retained, no complete first snapshot or hold in this window."
+  },
+  "cleanup": {
+    "debug_release_confirmed": true,
+    "debug_release_acknowledged": true,
+    "debug_release_readback": 83886080,
+    "exit_sent": true,
+    "exit_acknowledged": false,
+    "exit_reset_attempted": false,
+    "resources_closed": true,
+    "errors": [],
+    "rts_released": true
+  },
+  "application": {
+    "before": {
+      "current": {
+        "boot": 26,
+        "generation": 170,
+        "total_recorded_ms": 835989331,
+        "failures": 0,
+        "faults": 3,
+        "fault_mask": 0,
+        "flags": 7
+      },
+      "saved": {
+        "generation": 170,
+        "total_recorded_ms": 835795459,
+        "scene_ms": {
+          "unknown": 42384,
+          "on": 14477287,
+          "flashlight": 31171149,
+          "dim": 550045,
+          "off": 789554594,
+          "aod": 0
+        }
+      },
+      "date": [
+        "Mon Nov  9 13:15:44 2026"
+      ],
+      "cycle": {
+        "state": 0,
+        "session": 0,
+        "accepted": 0,
+        "saved": 0,
+        "queued": 0,
+        "dropped": 0,
+        "reason": 0,
+        "inhibit": 0,
+        "low_mode": false,
+        "commit_elapsed_ms": 0,
+        "keep_remaining_ms": 1010098,
+        "low_samples": 0,
+        "off_samples": 0,
+        "low_events": 0
+      },
+      "unsaved_recorded_ms": 193872,
+      "steps": [
+        "[imu-steps] phase=2 end=0 counter_valid=1 steps=0 stop_verified=0",
+        "[imu-steps] who=0x6a ths=0x10 deb=0x6e start=1585 duration=0 sample=7119066",
+        "[imu-steps] io_errors=0 incoherent=0; native counter, not daily steps",
+        "[imu-recovery] retries=0 recovered=0 last_failure=0 reg=0x00 ms=0",
+        "[imu-io] failures=0 write=0 addr=0x00 reg=0x00 requested=0 returned=0 begin=0 end=0",
+        "[steps] valid=1 total=0 day=20766 utc=1794230144 version=655 native=0 partial=1 restored=1",
+        "[steps-store] available=1 verified=1 dirty=0 failed=0 attempts=1 day=20766 total=0 generation=493",
+        "[steps-hours] valid=0x3fffff sum=0 saved_valid=0x3fffff",
+        "[steps-hour] hour=0 total=0",
+        "[steps-hour] hour=1 total=0",
+        "[steps-hour] hour=2 total=0",
+        "[steps-hour] hour=3 total=0",
+        "[steps-hour] hour=4 total=0",
+        "[steps-hour] hour=5 total=0",
+        "[steps-hour] hour=6 total=0",
+        "[steps-hour] hour=7 total=0",
+        "[steps-hour] hour=8 total=0",
+        "[steps-hour] hour=9 total=0",
+        "[steps-hour] hour=10 total=0",
+        "[steps-hour] hour=11 total=0",
+        "[steps-hour] hour=12 total=0",
+        "[steps-hour] hour=13 total=0",
+        "[steps-hour] hour=14 total=0",
+        "[steps-hour] hour=15 total=0",
+        "[steps-hour] hour=16 total=0",
+        "[steps-hour] hour=17 total=0",
+        "[steps-hour] hour=18 total=0",
+        "[steps-hour] hour=19 total=0",
+        "[steps-hour] hour=20 total=0",
+        "[steps-hour] hour=21 total=0"
+      ]
+    },
+    "after": {
+      "current": {
+        "boot": 27,
+        "generation": 171,
+        "total_recorded_ms": 835804134,
+        "failures": 0,
+        "faults": 3,
+        "fault_mask": 0,
+        "flags": 6
+      },
+      "saved": {
+        "generation": 171,
+        "total_recorded_ms": 835796550,
+        "scene_ms": {
+          "unknown": 43475,
+          "on": 14477287,
+          "flashlight": 31171149,
+          "dim": 550045,
+          "off": 789554594,
+          "aod": 0
+        }
+      },
+      "date": [
+        "Sat Jan  1 00:00:09 2000"
+      ],
+      "cycle": {
+        "state": 0,
+        "session": 0,
+        "accepted": 0,
+        "saved": 0,
+        "queued": 0,
+        "dropped": 0,
+        "reason": 0,
+        "inhibit": 0,
+        "low_mode": false,
+        "commit_elapsed_ms": 0,
+        "keep_remaining_ms": 295714,
+        "low_samples": 0,
+        "off_samples": 0,
+        "low_events": 0
+      },
+      "unsaved_recorded_ms": 7584,
+      "steps": [
+        "[imu-steps] phase=2 end=0 counter_valid=1 steps=0 stop_verified=0",
+        "[imu-steps] who=0x6a ths=0x10 deb=0x6e start=1585 duration=0 sample=8685",
+        "[imu-steps] io_errors=0 incoherent=0; native counter, not daily steps",
+        "[imu-recovery] retries=0 recovered=0 last_failure=0 reg=0x00 ms=0",
+        "[imu-io] failures=0 write=0 addr=0x00 reg=0x00 requested=0 returned=0 begin=0 end=0",
+        "[steps] valid=0 total=0 day=0 utc=0 version=8 native=0 partial=1 restored=0",
+        "[steps-store] available=1 verified=1 dirty=0 failed=0 attempts=0 day=20766 total=0 generation=493",
+        "[steps-hours] valid=0x000000 sum=0 saved_valid=0x3fffff"
+      ]
+    },
+    "checks": {
+      "exactly_one_application_boot": true,
+      "saved_generation_not_backwards": true,
+      "saved_recorded_ms_not_backwards": true,
+      "saved_scene_ms_not_backwards": true,
+      "storage_failures_before": 0,
+      "storage_failures_after": 0,
+      "active_fault_mask_before": 0,
+      "active_fault_mask_after": 0,
+      "elapsed_monotonic_seconds": 13.2152418
+    },
+    "crc_independently_redecoded": true,
+    "review": {
+      "path": "artifacts/ota-rom-release-device-20261109/device-001/independent-application-review.json",
+      "bytes": 4502,
+      "sha256": "228e93247ae3140e7a6dc342f2c97d71978c301d84f04e7cf63251cb8ca834f9"
+    },
+    "ram_tail_preserved_ms": 193872,
+    "ram_tail_written_back": false,
+    "rtc_recovered": false,
+    "clock_write": false,
+    "final_always_on_closed_confirmed": false,
+    "final_key1_confirmed": false
+  },
+  "rtc_cause": {
+    "facts": [
+      "Product startup only reads RTC, no default date write",
+      "HAL_RTC_Init configures NORMAL/SKIP but does not write TR/DR date-time",
+      "RTC init marker stored in BKP0R",
+      "Earlier 11/09 entry-only RTS without SYSRESETREQ already lost RTC",
+      "Earlier SDK software reboot retained RTC; RTS lost RTC"
+    ],
+    "inference": "RTS-associated power reset best matches evidence",
+    "unknown": "Actual board RTC supply rail/switch waveform and exact retention domain; current BAT connection does not prove independent RTC supply",
+    "references": [
+      "apps/product/src/product_services.c:90,249,318",
+      "vendor/SiFli-SDK/rtos/rtthread/bsp/sifli/drivers/drv_rtc.c:280",
+      "vendor/SiFli-SDK/drivers/hal/bf0_hal_rtc.c:74",
+      "vendor/SiFli-SDK/drivers/hal/bf0_hal_hlp.c:305",
+      "vendor/SiFli-SDK/rtos/rtthread/bsp/sifli/drivers/drv_common.c:293",
+      "docs/PRODUCT-RUNTIME.md:69",
+      "docs/HARDWARE.md prior entry-only window"
+    ],
+    "clock_write": false
+  },
+  "acceptance_decision": {
+    "user": "只是返回数据没有达到预期，但是我们要的数据是正常的，我认为就可继续实验",
+    "followup": "下次做这样的测试时，不要因为这种不影响核心验证的内容阻塞，反复了，沉淀到项目中",
+    "decision": "Preserve original failed report; accept independently verified SP and release data; combine prior ROM hold with this release window where continuity is unnecessary; continue OTA without repeating full run solely for host aggregate success",
+    "previous_hold": "docs/evidence/2026-11-09/ota-rom-capture-exit.json",
+    "new_proof": "independent-wire-review.json",
+    "hardware_write_authorized": false,
+    "rtc_recovery_authorized": false
+  },
+  "validation": {
+    "new_firmware_build": false,
+    "new_host_tests": false,
+    "software_reference": "docs/evidence/2026-11-09/ota-rom-release-fix.json 125/125",
+    "source_manifest": {
+      "path": "artifacts/ota-rom-release-device-20261109/source-manifest.json",
+      "bytes": 5523,
+      "sha256": "e256cd6fffbe0d6e6180ca01a41d13b9cdf283f8428fb96718202587457b252a"
+    },
+    "source_files": [
+      {
+        "path": "scripts/ota_rom_rescue_lab.py",
+        "bytes": 11139,
+        "sha256": "6c70594ac9e14ea22492c6cf1adb8c03c3c02c40063f6398c210a18d2f51434d"
+      },
+      {
+        "path": "scripts/ota_rom_rescue.py",
+        "bytes": 20860,
+        "sha256": "cea6f8f52da1fc01aae34b84963f4d9f116725714d7592d1d449768cc4a05c1e"
+      },
+      {
+        "path": "scripts/ota_rom_protocol.py",
+        "bytes": 6895,
+        "sha256": "0eac7d35e83f2d318467cd7a8220eff3853a961771cdbb07e63bbdae54e7705f"
+      },
+      {
+        "path": "scripts/ota_rom_backup.py",
+        "bytes": 20757,
+        "sha256": "fdc4237ed47bc6934a9d862add5998f2eb118acf7334cd5b924fa7614c66bae9"
+      },
+      {
+        "path": "scripts/runtime_export.py",
+        "bytes": 9381,
+        "sha256": "bb60c3aac7063bef8c8d6c9bb77c46563304e86e7c5957f11c80aa969d477885"
+      },
+      {
+        "path": "scripts/runtime_record_decode.py",
+        "bytes": 10383,
+        "sha256": "41fc2dd141a9bb843e40f7caeefefaec1955c9189e7dcb1864ba8ae514f99a39"
+      },
+      {
+        "path": "scripts/battery_console.py",
+        "bytes": 13914,
+        "sha256": "7590d5e5a75f8b4c277e5085af9b4fe430a144056b735173441c2edd8e982316"
+      },
+      {
+        "path": "scripts/battery_lab.py",
+        "bytes": 24502,
+        "sha256": "a666370236c173a39fb908a9a62c8c8e9b0bce7aa4b82231cae1aed165ad48eb"
+      },
+      {
+        "path": "scripts/lab_serial.py",
+        "bytes": 9088,
+        "sha256": "8ac5b08fc0f7d68180b1f657d91d7bc11d4b3cc349d6603bde59e90710c49703"
+      },
+      {
+        "path": "scripts/lab_evidence.py",
+        "bytes": 1498,
+        "sha256": "618487f3802b663b347c1bbd97b081147df2ef31ae6f471a9fcf2ac692e64864"
+      },
+      {
+        "path": "scripts/device_snapshot.py",
+        "bytes": 12078,
+        "sha256": "0195f5297b87bd26084887210dc42618ed169243f4248ae58a26204fed84189f"
+      },
+      {
+        "path": "scripts/cycle_log_lab.py",
+        "bytes": 11523,
+        "sha256": "f5ab5cc9d0a72e9a9f4a6c376e13a80256c936029cd58083af3fad93e84e418c"
+      },
+      {
+        "path": "scripts/cycle_protocol.py",
+        "bytes": 4402,
+        "sha256": "b182d3f92acded38db3e9a11092cd716e8de49b5e9a0a7718725021e305de9e5"
+      },
+      {
+        "path": "scripts/storage_protocol.py",
+        "bytes": 4724,
+        "sha256": "e379b6cc494352b6cc59c481d51a558fdf1ebf144af167e46b5e9fbbcaf6b279"
+      },
+      {
+        "path": "scripts/fs_protocol.py",
+        "bytes": 4773,
+        "sha256": "4afc42b2c8448449d5b834de998ac4a8a89900d1980ad416fab9d6c2c94c6a3d"
+      },
+      {
+        "path": "scripts/ota_rom_device.py",
+        "bytes": 28382,
+        "sha256": "621ce133cf34b413454908a546a6b408e488aeffb6ff91be7cdcdd77d94d025f"
+      },
+      {
+        "path": "scripts/ota_rom_transport.py",
+        "bytes": 2420,
+        "sha256": "215b9a0b2a9e69bbcf4e9ceddde3fe36830a684aff80912868a221ce10f3d615"
+      },
+      {
+        "path": "scripts/ota_rom_process.py",
+        "bytes": 7956,
+        "sha256": "5dee3ab333b8218accb60e6b7f61382cbb6870b9497f84ac8f82af0e9c359362"
+      },
+      {
+        "path": "scripts/serial_lab.py",
+        "bytes": 13798,
+        "sha256": "7fe4ad1d5a6a2007f59c97c586cf954791c15310a881075a50db12a946d78aa6"
+      },
+      {
+        "path": "scripts/lab_check.py",
+        "bytes": 17510,
+        "sha256": "ce9a332f6b81c552da46bbbe91a6a941271f0acbb3ab2936ee0d09bb9142678b"
+      },
+      {
+        "path": "scripts/battery_device.py",
+        "bytes": 17306,
+        "sha256": "34b07b98c1f10afcc03111d262cdadcd41699caec7cdb56a8ea865af35ad6768"
+      },
+      {
+        "path": "scripts/battery_collect.py",
+        "bytes": 23428,
+        "sha256": "304345942c16486a4626e49bb59bdd9a4126b3611630f81ba9b7d3081f0d2c05"
+      },
+      {
+        "path": "scripts/light_protocol.py",
+        "bytes": 1127,
+        "sha256": "e1cb95b7ed014e76f739f324b01bc14c86759dcef7da1ba452a968312e71ab9c"
+      },
+      {
+        "path": "scripts/compass_protocol.py",
+        "bytes": 1479,
+        "sha256": "268acef47f7fc9eb7a1fd07025c688f8ff6301759e195374f603fe26976800c5"
+      },
+      {
+        "path": "scripts/ota_backup_review.py",
+        "bytes": 5143,
+        "sha256": "c2d0b10abbfaebcd2cc26394b1176ab0c1784c6c45e8a35e9b78bf5589acf3df"
+      },
+      {
+        "path": "sdk.lock.json",
+        "bytes": 473,
+        "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+      },
+      {
+        "path": "vendor/SiFli-SDK/tools/sdk_py_actions/sifli_uart_dap.py",
+        "bytes": 12425,
+        "sha256": "d70af17831d85247a6d02f0a3afd0b9f0afb9d3cf9e880fa13383a77bfcfb73f"
+      },
+      {
+        "path": "apps/product/src/product_services.c",
+        "bytes": 17387,
+        "sha256": "54623cfef5c40c41d83d36d0c6da7c4b335f14de4b6bf7123c487b4be0359d92"
+      },
+      {
+        "path": "vendor/SiFli-SDK/rtos/rtthread/bsp/sifli/drivers/drv_rtc.c",
+        "bytes": 19916,
+        "sha256": "094e4663a85442d376b36fd53e3e6ce93ab0a0c1a1907d23fa73893835bfe416"
+      },
+      {
+        "path": "vendor/SiFli-SDK/drivers/hal/bf0_hal_rtc.c",
+        "bytes": 41524,
+        "sha256": "40fe208589506cb627cd7b39bd5fd851af72dc0c8aa025466a31b9a2de378d88"
+      },
+      {
+        "path": "vendor/SiFli-SDK/drivers/hal/bf0_hal_hlp.c",
+        "bytes": 7318,
+        "sha256": "777714872332f31af64553be7a6ea9c1f61f3ecd5275b9f0c618a7118ec891e3"
+      },
+      {
+        "path": "vendor/SiFli-SDK/rtos/rtthread/bsp/sifli/drivers/drv_common.c",
+        "bytes": 42196,
+        "sha256": "790a9aacbd2ea0cfc821e18c35e18372933ee41266e0015a96d39eff1a9b91af"
+      }
+    ],
+    "read_only_independent_reviews": [
+      "Wire/cleanup/deadline with fixed SDK comparison",
+      "RTC startup/default and RTS contrast"
+    ],
+    "sdk_lock_changed": false,
+    "vendor_changed": false,
+    "firmware_replaced": false,
+    "flash_write_or_erase": false,
+    "documents": "lab_check docs on changed files; result stored separately"
+  },
+  "archive": {
+    "path": "artifacts/ota-rom-release-device-20261109.zip",
+    "bytes": 351599,
+    "sha256": "cfb7f7eee97bbd5f3d6b263638185843c0f1b67e8d4ee08c74d866e09215e8f9",
+    "members": 70,
+    "all_members_read_back_identical": true
+  },
+  "remaining": "No new repeat solely for host pass. Continue bounded write/erase/owner/recovery preparation; OTA boot/B write still needs concrete reviewed plan and authorization. RTC one-shot recovery and final manual cleanup remain pending.",
+  "project_rule": {
+    "user_instruction": "下次做这样的测试时，不要因为这种不影响核心验证的内容阻塞，反复了，沉淀到项目中",
+    "entry": "AGENTS.md",
+    "workflow": "docs/HARDWARE-TEST-WORKFLOW.md#core-evidence-first",
+    "principles": [
+      "Core raw evidence takes precedence over auxiliary aggregate status",
+      "Preserve failed original and record independent valid facts",
+      "Reuse identified split-window evidence where continuity is unnecessary",
+      "Only smallest missing core check may require device rerun"
+    ]
+  },
+  "followup_readonly_review": {
+    "version": "0.2.5 / be2adab37bfb0ef4eb623b7e47e7b8693918b1e1",
+    "write": {
+      "source": "https://github.com/OpenSiFli/sftool/blob/be2adab37bfb0ef4eb623b7e47e7b8693918b1e1/sftool-lib/src/common/write_flash.rs#L74",
+      "git_blob": "d255d14ec611f560a50d7784a632d87dcf55c551",
+      "facts": [
+        "CRC skip if identical",
+        "WriteAndErase uses requested address/file length",
+        "CRC verify after write",
+        "No host-side neighbor preservation or cross-file rollback"
+      ]
+    },
+    "stub": {
+      "source": "https://github.com/OpenSiFli/sftool/blob/be2adab37bfb0ef4eb623b7e47e7b8693918b1e1/sftool-lib/src/ram_stub.rs#L5",
+      "git_blob": "60eb3228137c35cbca2a918c7177fec8b749d029",
+      "name": "ram_patch_52X.bin",
+      "reported_bytes": 132816,
+      "implementation_source_not_found": true
+    },
+    "readback": "https://github.com/OpenSiFli/sftool/blob/be2adab37bfb0ef4eb623b7e47e7b8693918b1e1/sftool-lib/src/common/read_flash.rs#L80",
+    "hcpu_loader": "artifacts/ota-rom-rescue-research-20261109/upstream/sftool-lib/src/sf32lb52/mod.rs:151-234",
+    "remaining_core_evidence": [
+      "Actual erase footprint relative to protected neighbors",
+      "Flash owner control and actual MPI2/NOR route"
+    ],
+    "not_required_by_itself": "Missing stub C source is not by itself evidence official tool is unusable or reason for full tool reverse engineering",
+    "new_device_action": false,
+    "new_ota_write_authorization": false
+  }
+}

@@ -1,0 +1,609 @@
+{
+  "schema": 1,
+  "date": "2026-11-10",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/ota-mapping-experiment",
+  "summary": {
+    "schema": 1,
+    "source_commit": "dce27481bab9e65aa02c609f3ed12ac082599fd3",
+    "firmware_bin_sha256": "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d",
+    "first_attempt": {
+      "outcome": "prepare timeout",
+      "worker_started": false,
+      "entry_attempted": false
+    },
+    "real_window": {
+      "elapsed_stub_seconds": 196.0845547,
+      "entry_rts": 1,
+      "sysresetreq": 1,
+      "fallback_rts": 1,
+      "normal_burn_reset": 0,
+      "flash_write": false,
+      "flash_erase": false,
+      "outer_worker_exit": 0,
+      "outer_forced": false,
+      "child_forced": false,
+      "resources_closed": true,
+      "application_recovery": {
+        "runtime_saved_not_regressed": true,
+        "expected_new_boot": true,
+        "rtc_continuity": false,
+        "unsaved_tail_preserved_on_host_ms": 571213,
+        "limits": "Runtime saved counters and UTC only; settings, all files and bad-boot rescue are not verified"
+      }
+    },
+    "raw_review": {
+      "payload_start": 1578,
+      "crc_offset": 16778642,
+      "actual_payload_bytes": 16777064,
+      "expected_payload_bytes": 16777216,
+      "missing_bytes": 152,
+      "captured_crc": "cf4ad786",
+      "device_declared_crc": "6b38d8a5",
+      "crc_matches": false,
+      "payload_sha256": "9242a0e1e5f721c84b92a53578e577616c2c51ad6655d6e4eed8ff073bf50694",
+      "tail": "CRC:0x6b38d8a5\r\nOK\r\nmsh >",
+      "complete_first_nor": false,
+      "second_read_started": false,
+      "immutable_prefix_bytes": 4329472,
+      "immutable_prefix_equal": true,
+      "first_difference_from_old": 5258592,
+      "not_reconstructable_from_old_backup": true,
+      "rx_events": 1037285,
+      "total_events": 1037683,
+      "rx_offsets_contiguous": true,
+      "tx_equals_intents": true,
+      "commands": [
+        "burn_read 0x12000000 0x01000000"
+      ],
+      "last_block_address": "0x12FFC000",
+      "last_payload_bytes": 16232,
+      "tail_consumed_as_payload": 25,
+      "remaining_payload_wait": 127,
+      "loss_layer": "unknown: device/driver/read path; trace offsets alone do not locate loss",
+      "events": [
+        {
+          "line": 3,
+          "elapsed_ns": 2618800,
+          "kind": "rts_pulse_intent",
+          "role": "entry"
+        },
+        {
+          "line": 8,
+          "elapsed_ns": 206099400,
+          "high_ok": true,
+          "kind": "rts_pulse_complete",
+          "low_ok": true,
+          "role": "entry"
+        },
+        {
+          "line": 534,
+          "elapsed_ns": 2236551700,
+          "kind": "stub_ready"
+        },
+        {
+          "line": 965,
+          "address": 301989888,
+          "bytes": 16777216,
+          "elapsed_ns": 2415484500,
+          "kind": "nor_read_intent",
+          "name": "nor-first.bin"
+        },
+        {
+          "line": 1037677,
+          "elapsed_ns": 195861330700,
+          "kind": "rts_pulse_intent",
+          "role": "fallback"
+        },
+        {
+          "line": 1037682,
+          "elapsed_ns": 196063830500,
+          "high_ok": true,
+          "kind": "rts_pulse_complete",
+          "low_ok": true,
+          "role": "fallback"
+        },
+        {
+          "line": 1037683,
+          "elapsed_ns": 196084428400,
+          "kind": "port_drop_completed"
+        }
+      ]
+    },
+    "ready_registers": {
+      "all_flash_users_controlled": false,
+      "channels": [
+        {
+          "address": 1342705672,
+          "ccr": 0,
+          "count": 0,
+          "destination": 0,
+          "enabled": false,
+          "source": 0
+        },
+        {
+          "address": 1342705692,
+          "ccr": 0,
+          "count": 0,
+          "destination": 0,
+          "enabled": false,
+          "source": 0
+        },
+        {
+          "address": 1342705712,
+          "ccr": 0,
+          "count": 0,
+          "destination": 0,
+          "enabled": false,
+          "source": 0
+        },
+        {
+          "address": 1342705732,
+          "ccr": 0,
+          "count": 0,
+          "destination": 0,
+          "enabled": false,
+          "source": 0
+        },
+        {
+          "address": 1342705752,
+          "ccr": 0,
+          "count": 0,
+          "destination": 0,
+          "enabled": false,
+          "source": 0
+        },
+        {
+          "address": 1342705772,
+          "ccr": 0,
+          "count": 0,
+          "destination": 0,
+          "enabled": false,
+          "source": 0
+        },
+        {
+          "address": 1342705792,
+          "ccr": 4271,
+          "count": 32362,
+          "destination": 537147756,
+          "enabled": true,
+          "source": 1342717988
+        },
+        {
+          "address": 1342705812,
+          "ccr": 0,
+          "count": 0,
+          "destination": 0,
+          "enabled": false,
+          "source": 0
+        },
+        {
+          "address": 1073745928,
+          "ccr": 0,
+          "count": 0,
+          "destination": 0,
+          "enabled": false,
+          "source": 0
+        },
+        {
+          "address": 1073745948,
+          "ccr": 0,
+          "count": 0,
+          "destination": 0,
+          "enabled": false,
+          "source": 0
+        },
+        {
+          "address": 1073745968,
+          "ccr": 0,
+          "count": 0,
+          "destination": 0,
+          "enabled": false,
+          "source": 0
+        },
+        {
+          "address": 1073745988,
+          "ccr": 0,
+          "count": 0,
+          "destination": 0,
+          "enabled": false,
+          "source": 0
+        },
+        {
+          "address": 1073746008,
+          "ccr": 0,
+          "count": 0,
+          "destination": 0,
+          "enabled": false,
+          "source": 0
+        },
+        {
+          "address": 1073746028,
+          "ccr": 0,
+          "count": 0,
+          "destination": 0,
+          "enabled": false,
+          "source": 0
+        },
+        {
+          "address": 1073746048,
+          "ccr": 0,
+          "count": 0,
+          "destination": 0,
+          "enabled": false,
+          "source": 0
+        },
+        {
+          "address": 1073746068,
+          "ccr": 0,
+          "count": 0,
+          "destination": 0,
+          "enabled": false,
+          "source": 0
+        },
+        {
+          "address": 1342181384,
+          "ccr": 985792,
+          "count": 0,
+          "destination": 0,
+          "enabled": false,
+          "source": 0
+        }
+      ],
+      "continuous_quiescence_proven": false,
+      "cpuwait": true,
+      "pmr": 4,
+      "rstr1": 0
+    },
+    "states": {
+      "before": {
+        "current": {
+          "boot": 28,
+          "generation": 174,
+          "utc": 1794298018,
+          "recorded_ms": 572304,
+          "total_recorded_ms": 842518734,
+          "faults": 3,
+          "fault_mask": 0,
+          "failures": 0
+        },
+        "saved": {
+          "boot": 28,
+          "generation": 174,
+          "utc": 0,
+          "recorded_ms": 1091,
+          "total_recorded_ms": 841947521,
+          "faults": 3,
+          "fault_mask": 0,
+          "failures": 0
+        }
+      },
+      "after": {
+        "current": {
+          "boot": 29,
+          "generation": 175,
+          "utc": 0,
+          "recorded_ms": 23447,
+          "total_recorded_ms": 841970968,
+          "faults": 3,
+          "fault_mask": 0,
+          "failures": 0
+        },
+        "saved": {
+          "boot": 29,
+          "generation": 175,
+          "utc": 0,
+          "recorded_ms": 1091,
+          "total_recorded_ms": 841948612,
+          "faults": 3,
+          "fault_mask": 0,
+          "failures": 0
+        }
+      }
+    },
+    "manual_closure": {
+      "phone_time_sync_by_user": true,
+      "host_clock_write_commands": 0,
+      "user_final_reply": "常亮已关，时间／显示／触摸／KEY1 正常",
+      "current_manual_state_confirmed": true,
+      "time_readback_after_phone_sync": false,
+      "rtc_is_not_ota_prerequisite": true,
+      "additional_device_actions": false
+    },
+    "retained_gates": {
+      "all_flash_users_controlled": false,
+      "physical_erase_envelope_verified": false,
+      "b_execution": false,
+      "ota_ready": false
+    }
+  },
+  "authorization": {
+    "source_commit": "dce27481bab9e65aa02c609f3ed12ac082599fd3",
+    "user_reply": "现场条件满足，授权本次观测",
+    "question_id": "call_28dd55a00493495cbc2bf0d8e23ffab9",
+    "conditions": "Same board/original CycleLog, fixed USB-BAT, operator present, display/touch normal, other serial tools closed,20min always-on; user confirmed",
+    "scope": {
+      "total_seconds": 900,
+      "stub_seconds": 600,
+      "entry_rts_max": 1,
+      "sysresetreq_max": 1,
+      "original_fixed_ram_stub": true,
+      "fixed_lcpu_dma_observation": true,
+      "dual_full_nor_read": true,
+      "burn_reset_max": 1,
+      "conditional_exit_rts_max": 1,
+      "flash_write_or_erase": false,
+      "automatic_clock_write": false
+    },
+    "recorded_ns": 1794297646453162000,
+    "serial_opened": false
+  },
+  "resumed_prepare_reply": "现在可以，重开准备页",
+  "archive": {
+    "path": "artifacts/ota-stub-observe-device-20261110.zip",
+    "bytes": 19549888,
+    "sha256": "8ef1d4aeef4c369f06f262b2e2c2266564e17e867a2654f90d61abbf8df91e54",
+    "members": 85,
+    "all_members_read_back_identical": true
+  },
+  "files": [
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/authorization.json",
+      "bytes": 788,
+      "sha256": "b802739e08071d663634cf84d79cbb6b276175d7f8d8e8f1c124fbbda5f373aa"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-001/binding.json",
+      "bytes": 11053,
+      "sha256": "c7a7cb83dc13f21c430c6d8bc202e7a6770299039f6420a37d0a820371e1174d"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-001/config.json",
+      "bytes": 11741,
+      "sha256": "2e3c6a72e50306a33ddb380ed49f076e05f65e7496fbb30ba6e3c2c335545c37"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-001/device.json",
+      "bytes": 1866,
+      "sha256": "3f47f131d6ce8b8c984811ee9a691f8b8f586fc5e423782453ff1cee9e1cabc1"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-001/events.jsonl",
+      "bytes": 1332,
+      "sha256": "927817f710c85dd3fe8d4f3fc7717bf6773b446689e76cb0aad5bae58bad85f1"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-001/progress.json",
+      "bytes": 225,
+      "sha256": "b91f9c5199811beecead0118b1dea8dbc1f707bcf8259f7567531c9dd4bfefbb"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-001.log",
+      "bytes": 1890,
+      "sha256": "2a2afcacb976fac61ab05d573e2b2bdcd93c2961b941c1ec18df28ae2d2ead36"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/binding.json",
+      "bytes": 11053,
+      "sha256": "1ee46b78a7629a54ffd4a738a95463c1990e259287bce772dc81c763585b87fb"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/cancel.json",
+      "bytes": 54,
+      "sha256": "34ef59e3813b690d149eea2d93b773a759e84f4ef5411fadcc799758d2f69287"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/config.json",
+      "bytes": 11743,
+      "sha256": "825e7f1ac5e376e37076c18047d0efbe78ffa60d7e0a5ea714e93d7fad7597c9"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/device.json",
+      "bytes": 164186,
+      "sha256": "3fa772f7908393a8535539ae71fc65b945382099c5070815938f8ed2e0735a89"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/events.jsonl",
+      "bytes": 5376,
+      "sha256": "3d1a34991430075e418b191dff6f055b354ceb53f3233c914780e6a2a3e93f24"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/process/sftool.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/progress.json",
+      "bytes": 224,
+      "sha256": "43578951bf77d9af0c7cd91acce0b88cdba1662e5a4ab0a61fa409fde4e4d20a"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/ready.json",
+      "bytes": 154804,
+      "sha256": "1115a79208ec50b4995c5556fd31ff650a8868ca666ebfac36ae2ad79ab084cf"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/request-1.json",
+      "bytes": 110,
+      "sha256": "bf1c5a2bfe7ed393bc7fbdd0e7dc6bff23380fb6f8ae60bd33cc0fa4762b3f22"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/request-2.json",
+      "bytes": 107,
+      "sha256": "0652472cf0b1576fb0cec9605e3a987f7ba21ff2f7d080af1c81796340d042d4"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/request-3.json",
+      "bytes": 109,
+      "sha256": "af17a225ea30696877a6a2eea6bfc8fcf531fe47a9af9571f113a5f738b20a59"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/response-1.json",
+      "bytes": 31616,
+      "sha256": "1b6e02d74ecba7011a7bf8407b96a945aacbe9c860d1adeb50853e90cdc21a95"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/response-2.json",
+      "bytes": 7047,
+      "sha256": "880c558ac511980bed1b84f1194916fbfedb61bc62099674c70493fbb2c5ebc0"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/response-3.json",
+      "bytes": 13165,
+      "sha256": "98cf45a70a0a55d0442af4456c03e457b0227623e275d547c4b788c9f8ac26b2"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/stop.json",
+      "bytes": 54,
+      "sha256": "34ef59e3813b690d149eea2d93b773a759e84f4ef5411fadcc799758d2f69287"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/worker/after-records.json",
+      "bytes": 9285,
+      "sha256": "c8482f413ba69d3ba95457a043919d02d98265eb2953a040e600310e621deede"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/worker/after-runtime-prefix.json",
+      "bytes": 9285,
+      "sha256": "8d16b6642df15a090c2a5011b76fa40c3d90c0ab51bda67d9f67273c1eab1986"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/worker/after-snapshot.json",
+      "bytes": 11900,
+      "sha256": "52362beba9eccecf924fad6e63807c7fc925bdf907ece32576bdb9e3784e2f58"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/worker/after-uart.bin",
+      "bytes": 7440,
+      "sha256": "a8a3b4eab6e2d3c9dbe86efdc39ec227a7f0e24719f9e2d0c5756cdbbd274741"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/worker/before-records.json",
+      "bytes": 24223,
+      "sha256": "eceb9aab13c5e308ed3ec01aacb87680a183a272cd6384d631d55b6225427a4a"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/worker/before-runtime-prefix.json",
+      "bytes": 24223,
+      "sha256": "30a4e63baf47e9ebf3525cf95a39caf0e3674dc3cdd22b493e44ce791764a01e"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/worker/before-snapshot.json",
+      "bytes": 28912,
+      "sha256": "8266aeed1122328d1d4411a6e5ccf373781285b693105b0e479a493a6f22fe85"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/worker/before-uart.bin",
+      "bytes": 18862,
+      "sha256": "eb09ee8e0716a99435bf07d8ea26360047c30f9a2aacba645618a30a2b40c8b3"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/worker/binding.json",
+      "bytes": 11743,
+      "sha256": "825e7f1ac5e376e37076c18047d0efbe78ffa60d7e0a5ea714e93d7fad7597c9"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/worker/events.jsonl",
+      "bytes": 14297,
+      "sha256": "e193ab82b21a644d5ed64a4d594a6aab6a558afd82f92443e94f9ec696aa7738"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/worker/progress.json",
+      "bytes": 197,
+      "sha256": "20256e87a40d43ba7db4e3c9cf97445e3ca00a8b19b61d00273207238990aa62"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/worker/stub-observer/observer.json",
+      "bytes": 3714,
+      "sha256": "2d36b4b830047c9729ef20e88a7ef7b9889697725e5a0f1c5d31aae7c44e3430"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/worker/stub-observer/official-stub.bin",
+      "bytes": 132816,
+      "sha256": "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/worker/stub-observer/ready-registers.json",
+      "bytes": 2589,
+      "sha256": "b45b8feceb6f0faf2f1609ccc53792531b15298a02c1b934ba1a636a567490ab"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/worker/stub-observer/rx.bin",
+      "bytes": 16778667,
+      "sha256": "50bd5ab3ea75efd853742fb6d055e3f89f139451d6b0ae3143593e11f0dd91df"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/worker/stub-observer/tx-intents.bin",
+      "bytes": 134200,
+      "sha256": "c6027f57c9159f4e70cb4ddb4a2b5823604b0eb4d303b545c7f7d73e4bed6037"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/worker/stub-observer/tx.bin",
+      "bytes": 134200,
+      "sha256": "c6027f57c9159f4e70cb4ddb4a2b5823604b0eb4d303b545c7f7d73e4bed6037"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/worker/stub-observer/wire-events.jsonl",
+      "bytes": 69805440,
+      "sha256": "9c2dbace654541f3417ab1776e3e84525615eb3d84613e9a8c899b1ecbdbcf46"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/worker/stub-process.log",
+      "bytes": 2312,
+      "sha256": "974e445d771444193579d9894161d4dbd1e7ff08e054af83c8fc8f9baed52a0b"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002/worker/stub-request.json",
+      "bytes": 1012,
+      "sha256": "adae4272f22fa0a4272627d3958a506993059d93b01cfcdfa445e013b76e965e"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/device-002.log",
+      "bytes": 164210,
+      "sha256": "de719d044acc776dd1449d386bbcf1e84c36cbb71c4cfd077039b26eb8b66f0d"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/endpoint.json",
+      "bytes": 186,
+      "sha256": "ba0381a1cb5b1709c48e43f124da77a7a022149921493ceca5691df385f9e9e1"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/manual-closure.json",
+      "bytes": 322,
+      "sha256": "5752a93d0c071dc75a35fd4aea1e8ce75381fb6c8e56d9f337c1c3d6a890d0d3"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/preflight-build.json",
+      "bytes": 147586,
+      "sha256": "7120b08932dd7ae361bde72c0bf1075c67a034da35ace07eb8b03e6c6c1c070b"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/preflight-build.log",
+      "bytes": 147586,
+      "sha256": "7120b08932dd7ae361bde72c0bf1075c67a034da35ace07eb8b03e6c6c1c070b"
+    },
+    {
+      "path": "artifacts/ota-stub-observe-device-20261110/raw-review.json",
+      "bytes": 7782,
+      "sha256": "bb2f9c278fa1711b93607cad7fb11877fcd0f0a38e0b900ad504b5c018b85dc1"
+    }
+  ],
+  "executed_sources": 33,
+  "packaging_failures": [
+    {
+      "log": "artifacts/ota-stub-observe-device-20261110-seal.log",
+      "reason": "Canonical Git LF bytes differed from the actual CRLF source hash; no device rerun",
+      "resolution": "Preserved the prior sealed execution source and required exact manifest SHA"
+    },
+    {
+      "log": "artifacts/ota-stub-observe-device-20261110-seal-002.log",
+      "reason": "Source binding also included the untracked SDK Python executable; git show could not supply it",
+      "resolution": "Copied its current bytes only after exact bound SHA verification; final seal-003 succeeded"
+    }
+  ],
+  "host_build": {
+    "path": "artifacts/ota-stub-observer-build-20261109-005/result.json",
+    "bytes": 2890,
+    "sha256": "f3d80aedd350d2f805a84c198efbd7d8b07a5ca64c373de99964e3a2619896a1"
+  }
+}

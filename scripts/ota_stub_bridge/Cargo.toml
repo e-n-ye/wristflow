@@ -1,0 +1,16 @@
+[package]
+name = "wristflow-ota-stub-observer"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+sftool-lib = { git = "https://github.com/OpenSiFli/sftool", rev = "be2adab37bfb0ef4eb623b7e47e7b8693918b1e1" }
+serialport = "=4.7.0"
+serde = { version = "=1.0.219", features = ["derive"] }
+serde_json = "=1.0.140"
+sha2 = "=0.10.8"
+crc = "=3.2.1"
+
+[profile.release]
+panic = "unwind"

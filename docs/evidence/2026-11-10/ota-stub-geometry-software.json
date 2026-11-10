@@ -1,0 +1,468 @@
+{
+  "schema": 1,
+  "date": "2026-11-10",
+  "scope": "Fixed bounded RAM geometry observation software and simulation; no device actions",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/ota-mapping-experiment",
+  "source_head_base": "bb785e32d49732e6828bb9f9a6be5b4363c08d84",
+  "sources": [
+    {
+      "path": "scripts/ota_rom_rescue_lab.py",
+      "bytes": 11139,
+      "sha256": "6c70594ac9e14ea22492c6cf1adb8c03c3c02c40063f6398c210a18d2f51434d"
+    },
+    {
+      "path": "scripts/ota_rom_rescue.py",
+      "bytes": 20860,
+      "sha256": "cea6f8f52da1fc01aae34b84963f4d9f116725714d7592d1d449768cc4a05c1e"
+    },
+    {
+      "path": "scripts/ota_rom_protocol.py",
+      "bytes": 6895,
+      "sha256": "0eac7d35e83f2d318467cd7a8220eff3853a961771cdbb07e63bbdae54e7705f"
+    },
+    {
+      "path": "scripts/ota_rom_backup.py",
+      "bytes": 20838,
+      "sha256": "ac855952be312ea6f4e37373305a8e3d518873a801e8476e8ea9e40a778c2156"
+    },
+    {
+      "path": "scripts/runtime_export.py",
+      "bytes": 9381,
+      "sha256": "bb60c3aac7063bef8c8d6c9bb77c46563304e86e7c5957f11c80aa969d477885"
+    },
+    {
+      "path": "scripts/runtime_record_decode.py",
+      "bytes": 10383,
+      "sha256": "41fc2dd141a9bb843e40f7caeefefaec1955c9189e7dcb1864ba8ae514f99a39"
+    },
+    {
+      "path": "scripts/battery_console.py",
+      "bytes": 13914,
+      "sha256": "7590d5e5a75f8b4c277e5085af9b4fe430a144056b735173441c2edd8e982316"
+    },
+    {
+      "path": "scripts/battery_lab.py",
+      "bytes": 24502,
+      "sha256": "a666370236c173a39fb908a9a62c8c8e9b0bce7aa4b82231cae1aed165ad48eb"
+    },
+    {
+      "path": "scripts/lab_serial.py",
+      "bytes": 9088,
+      "sha256": "8ac5b08fc0f7d68180b1f657d91d7bc11d4b3cc349d6603bde59e90710c49703"
+    },
+    {
+      "path": "scripts/lab_evidence.py",
+      "bytes": 1498,
+      "sha256": "618487f3802b663b347c1bbd97b081147df2ef31ae6f471a9fcf2ac692e64864"
+    },
+    {
+      "path": "scripts/device_snapshot.py",
+      "bytes": 12078,
+      "sha256": "0195f5297b87bd26084887210dc42618ed169243f4248ae58a26204fed84189f"
+    },
+    {
+      "path": "scripts/cycle_log_lab.py",
+      "bytes": 11523,
+      "sha256": "f5ab5cc9d0a72e9a9f4a6c376e13a80256c936029cd58083af3fad93e84e418c"
+    },
+    {
+      "path": "scripts/cycle_protocol.py",
+      "bytes": 4402,
+      "sha256": "b182d3f92acded38db3e9a11092cd716e8de49b5e9a0a7718725021e305de9e5"
+    },
+    {
+      "path": "scripts/storage_protocol.py",
+      "bytes": 4724,
+      "sha256": "e379b6cc494352b6cc59c481d51a558fdf1ebf144af167e46b5e9fbbcaf6b279"
+    },
+    {
+      "path": "scripts/fs_protocol.py",
+      "bytes": 4773,
+      "sha256": "4afc42b2c8448449d5b834de998ac4a8a89900d1980ad416fab9d6c2c94c6a3d"
+    },
+    {
+      "path": "scripts/ota_rom_device.py",
+      "bytes": 34702,
+      "sha256": "6727fdfec95dbad8d478e67b4fb637f47e5b73ad7e2e0f3ffe0c61ffab8e465a"
+    },
+    {
+      "path": "scripts/ota_rom_transport.py",
+      "bytes": 2420,
+      "sha256": "215b9a0b2a9e69bbcf4e9ceddde3fe36830a684aff80912868a221ce10f3d615"
+    },
+    {
+      "path": "scripts/ota_rom_process.py",
+      "bytes": 7956,
+      "sha256": "5dee3ab333b8218accb60e6b7f61382cbb6870b9497f84ac8f82af0e9c359362"
+    },
+    {
+      "path": "scripts/serial_lab.py",
+      "bytes": 13798,
+      "sha256": "7fe4ad1d5a6a2007f59c97c586cf954791c15310a881075a50db12a946d78aa6"
+    },
+    {
+      "path": "scripts/lab_check.py",
+      "bytes": 17510,
+      "sha256": "ce9a332f6b81c552da46bbbe91a6a941271f0acbb3ab2936ee0d09bb9142678b"
+    },
+    {
+      "path": "scripts/battery_device.py",
+      "bytes": 17306,
+      "sha256": "34b07b98c1f10afcc03111d262cdadcd41699caec7cdb56a8ea865af35ad6768"
+    },
+    {
+      "path": "scripts/battery_collect.py",
+      "bytes": 23428,
+      "sha256": "304345942c16486a4626e49bb59bdd9a4126b3611630f81ba9b7d3081f0d2c05"
+    },
+    {
+      "path": "scripts/light_protocol.py",
+      "bytes": 1127,
+      "sha256": "e1cb95b7ed014e76f739f324b01bc14c86759dcef7da1ba452a968312e71ab9c"
+    },
+    {
+      "path": "scripts/compass_protocol.py",
+      "bytes": 1479,
+      "sha256": "268acef47f7fc9eb7a1fd07025c688f8ff6301759e195374f603fe26976800c5"
+    },
+    {
+      "path": "scripts/ota_backup_review.py",
+      "bytes": 5143,
+      "sha256": "c2d0b10abbfaebcd2cc26394b1176ab0c1784c6c45e8a35e9b78bf5589acf3df"
+    },
+    {
+      "path": ".tools/sifli/envs/default/b1ffa931b7485f8607540b6a2f6a9a53bbefe3696b9db68845be1c3c5cff1ab9/python/Scripts/python.exe",
+      "bytes": 45568,
+      "sha256": "dd8abfafd37acde0e87808d83e5139b1599e9a8abe3b8718fa909ca66bf33084"
+    },
+    {
+      "path": "scripts/ota_stub_observe.py",
+      "bytes": 17700,
+      "sha256": "189bab9345da47d14d1cc8b1f985dc6a4a237f3b024eeae2d036b743030dc3b7"
+    },
+    {
+      "path": "scripts/ota_stub_build.py",
+      "bytes": 4736,
+      "sha256": "8ab3150e588015ad33a5f7eab97cf4fc94698ac71be497fe04468ee258a25ffb"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/Cargo.toml",
+      "bytes": 395,
+      "sha256": "b771de50a26bc45239018830d207e64f40aa3596b7e8d13118e0722cf4a78e50"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/Cargo.lock",
+      "bytes": 64750,
+      "sha256": "812a423b3ffbe4aeae606ffcdca0fde1dae3fb9b735142c76844d90639c24fde"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/main.rs",
+      "bytes": 14965,
+      "sha256": "70bcee5a1f88887afcab7c05d6250ba962b9dfa8d2e5e4d0c25bba3f89c1b586"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/port.rs",
+      "bytes": 13834,
+      "sha256": "f3e8ef12ffd1ad8b33bd9f2b937685cc36f9ed1fb16f7bc93018068965bb19d1"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/simulated.rs",
+      "bytes": 9570,
+      "sha256": "b2a1bdeb0161384f07ade901e6c7c9d72c2b01985114f73eb8a521d08efbba60"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/geometry.rs",
+      "bytes": 3917,
+      "sha256": "c0bb3effbae23f33ce3be1bd51eff4446e70cc54697881dcca9de07b148a37c6"
+    },
+    {
+      "path": "tests/test_ota_backup_review.py",
+      "bytes": 4087,
+      "sha256": "771122439d8c6626764ffada3b8c766486784c64df9670b134ff64d8bfc31609"
+    },
+    {
+      "path": "tests/test_ota_boot_check.py",
+      "bytes": 3069,
+      "sha256": "ac1fc1d32718e820b3589601ac4a387c7dcf990731a84f3bfa4e4cf361b5e466"
+    },
+    {
+      "path": "tests/test_ota_preflight.py",
+      "bytes": 8860,
+      "sha256": "9dca71852317ce962a88c304031e6dd665b642ba5f0cad2f29005b40a2211607"
+    },
+    {
+      "path": "tests/test_ota_probe_package.py",
+      "bytes": 4414,
+      "sha256": "ea3a94958405e77159e0cfa1f3eeeabddea0c36cc2475655fc40bb5642fd06aa"
+    },
+    {
+      "path": "tests/test_ota_rom_backup.py",
+      "bytes": 15243,
+      "sha256": "b8fe779798a315ff086254830b581bbf31432ac9233c67dbec1399939109de91"
+    },
+    {
+      "path": "tests/test_ota_rom_device.py",
+      "bytes": 18141,
+      "sha256": "fc92de8395c5c596a4adba847c1261365998d785989c59a3424ed08c24b312e0"
+    },
+    {
+      "path": "tests/test_ota_rom_release.py",
+      "bytes": 11312,
+      "sha256": "8f1fe0f70f769f2b68084fbd13a0d5c0dfbe8c1ebeecd4757e8be843cfeaeef5"
+    },
+    {
+      "path": "tests/test_ota_rom_rescue.py",
+      "bytes": 24490,
+      "sha256": "22adcc825d57cbf9cfbd2f71e88204c447a3b321573f1a3e3c1805c638315440"
+    },
+    {
+      "path": "tests/test_ota_slot_check.py",
+      "bytes": 837,
+      "sha256": "9c7005ccf952fb236c42cdcf464b0a7dbe6269fdc6ab31582221de86d91a71e8"
+    },
+    {
+      "path": "tests/test_ota_stub_observe.py",
+      "bytes": 15615,
+      "sha256": "baa0e9cbf937b7218b751466e2c42e721a2730a105d9fbebd624e6e47ca0ebef"
+    }
+  ],
+  "static_basis": {
+    "path": "docs/evidence/2026-11-10/ota-stub-geometry-static.json",
+    "bytes": 6445,
+    "sha256": "ddab529c48766e7cf29268ed0b39a4833d2942a68aaf291445fa59f77b756357"
+  },
+  "build": {
+    "record": {
+      "path": "artifacts/ota-stub-geometry-build-20261110-002/result.json",
+      "bytes": 3070,
+      "sha256": "f06056de22a32ee86d700ebae7bdb6e8b1162f20dbae842609d68bda17b22d66"
+    },
+    "executable": {
+      "path": "artifacts/ota-stub-geometry-build-20261110-002/wristflow-ota-stub-observer.exe",
+      "bytes": 20826626,
+      "sha256": "86cc7c373c572d923b8fa81af5b6470705ff360add1156498c4824ea6a45154f"
+    },
+    "versions": {
+      "cargo": "cargo 1.90.0 (840b83a10 2025-07-30)",
+      "rustc": "rustc 1.90.0 (1159e78c4 2025-09-14)"
+    },
+    "commands": [
+      {
+        "command": [
+          "D:\\MY_Desk\\project\\wristflow\\.tools\\ota-stub-session\\rust-1.90.0\\bin\\cargo.exe",
+          "test",
+          "--locked",
+          "--target",
+          "x86_64-pc-windows-gnu",
+          "--manifest-path",
+          "D:\\MY_Desk\\project\\wristflow\\scripts\\ota_stub_bridge\\Cargo.toml",
+          "-j",
+          "4"
+        ],
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "D:\\MY_Desk\\project\\wristflow\\.tools\\ota-stub-session\\rust-1.90.0\\bin\\cargo.exe",
+          "build",
+          "--locked",
+          "--target",
+          "x86_64-pc-windows-gnu",
+          "--manifest-path",
+          "D:\\MY_Desk\\project\\wristflow\\scripts\\ota_stub_bridge\\Cargo.toml",
+          "-j",
+          "4",
+          "--release"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "rust_tests_passed": 8,
+    "firmware_build": false
+  },
+  "validation": {
+    "python_tests": 145,
+    "seconds": 134.93,
+    "log": {
+      "path": "artifacts/ota-stub-geometry-resume-tests-20261110.log",
+      "bytes": 22639,
+      "sha256": "06a9ba60a36d8e6401ddb75f8330d46caea19e6ed5ec9a646a38f3680f5ffeda"
+    },
+    "command": [
+      "SDK Python",
+      "-B",
+      "-X",
+      "utf8",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_ota*.py",
+      "-v"
+    ],
+    "environment": {
+      "WRISTFLOW_STUB_OBSERVER_BUILD": "artifacts/ota-stub-geometry-build-20261110-002/result.json"
+    },
+    "passed": true
+  },
+  "ui": {
+    "rtc": {
+      "report": {
+        "path": "artifacts/ota-stub-geometry-ui-20261110/rtc/device.json",
+        "bytes": 16256,
+        "sha256": "c2dd4773faaa76eac7a016494b35506182d4d2967c348a2f3f228b2be6f7f81e"
+      },
+      "outcome": "error",
+      "verification": [
+        {
+          "title": "固定RAM配置读取（假串口）",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "title": "应用保存记录",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "title": "进程与端点租约关闭",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "title": "模拟末态确认",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "title": "RTC连续性",
+          "passed": false,
+          "detail": "RTC continuity changed; core data retained, time recovery needs separate authorization"
+        }
+      ],
+      "resources_closed": true,
+      "cleanup": {
+        "resources_closed": true,
+        "child_forced": false,
+        "child_exit": 0,
+        "application_return_needs_operator": true
+      },
+      "changed_after_ui": [
+        "scripts/ota_rom_device.py"
+      ],
+      "reuse_basis": "Only 250ms PermissionError read retry added after UI; page and action state machine unchanged; final 145-test suite passed"
+    },
+    "cancel": {
+      "report": {
+        "path": "artifacts/ota-stub-geometry-ui-20261110/cancel/device.json",
+        "bytes": 3629,
+        "sha256": "2fdea0affd61d632000b3870c54ddcd9c8b70a2284cdea865547cba95c098043"
+      },
+      "outcome": "cancelled",
+      "verification": [
+        {
+          "title": "固定RAM配置读取（假串口）",
+          "passed": false,
+          "detail": "Cancelled('Cancelled during automatic stage') / ValueError('Observer failed or needed termination; raw files and completed facts retained: []; exit=1')"
+        },
+        {
+          "title": "应用保存记录",
+          "passed": false,
+          "detail": ""
+        },
+        {
+          "title": "进程与端点租约关闭",
+          "passed": true,
+          "detail": ""
+        },
+        {
+          "title": "模拟末态确认",
+          "passed": false,
+          "detail": ""
+        },
+        {
+          "title": "RTC连续性",
+          "passed": false,
+          "detail": ""
+        }
+      ],
+      "resources_closed": true,
+      "cleanup": {
+        "resources_closed": true,
+        "child_forced": true,
+        "child_exit": 1,
+        "application_return_needs_operator": true
+      },
+      "changed_after_ui": [
+        "scripts/ota_rom_device.py"
+      ],
+      "reuse_basis": "Only 250ms PermissionError read retry added after UI; page and action state machine unchanged; final 145-test suite passed"
+    }
+  },
+  "limits": {
+    "total_seconds": 300,
+    "stub_seconds": 60,
+    "prompt_seconds": 60,
+    "ready_register_bytes": 280,
+    "fixed_ram_bytes": 568,
+    "derived_dma_bytes_max": 64,
+    "command_table_bytes_max": 144,
+    "total_sample_bytes_max": 1056,
+    "no_nor_request": true
+  },
+  "failures": {
+    "first_regression_tests": 142,
+    "errors": 1,
+    "report": {
+      "path": "artifacts/ota-stub-geometry-tests-20261110.log",
+      "bytes": 22838,
+      "sha256": "6fe828af8a9d4924d7930db8dd3c6a9a947d75beb3e205e2fd68aec63f5d9597"
+    },
+    "ipc_denial_log": {
+      "path": "artifacts/stub-observer-tests-a29gn61s/test_crc_error_and_immutable_change_stop_before_second_read-immutable-changed/process/sftool.log",
+      "bytes": 1818,
+      "sha256": "738f81161b9576d9a59be96d06f02449185e14916f1884ec4a1a7aa327a1906e"
+    },
+    "cause": "Windows request-1.json read PermissionError; lock holder unknown; atomic publication already existed",
+    "correction": "Only PermissionError retries same read for at most250ms; malformed data not retried; no device command resend",
+    "interrupted_regression": {
+      "path": "artifacts/ota-stub-geometry-tests-final-20261110.log",
+      "bytes": 8016,
+      "sha256": "32ed25c63d20d57ecefcf34fb67d541eb2e3288528fd185c61a9dc5efad6c80e"
+    }
+  },
+  "archive": {
+    "path": "artifacts/ota-stub-geometry-software-20261110.zip",
+    "bytes": 9621514,
+    "sha256": "03be9e6509e979fe8d13b70c6e491191c53cc4a1bee9911a193402d2ffc799c9",
+    "members": 187,
+    "all_members_read_back_identical": true
+  },
+  "device": {
+    "enumerated": false,
+    "serial_opened": false,
+    "reset": false,
+    "nor_read": false,
+    "flash_write": false,
+    "rtc_time_write": false,
+    "new_hardware_claim": false
+  },
+  "sdk_lock": {
+    "path": "sdk.lock.json",
+    "bytes": 473,
+    "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+  },
+  "original_stub": {
+    "path": "vendor/SiFli-SDK/tools/uart_download/file/ram_patch_52X.bin",
+    "bytes": 132816,
+    "sha256": "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43"
+  },
+  "all_flash_users_controlled": false,
+  "physical_erase_envelope_verified": false,
+  "stage_closed": false,
+  "pr_created": false,
+  "next_boundary": "Fresh scoped authorization for a <=300s geometry-only device window; then review runtime RAM facts and smallest remaining write-admission gap"
+}

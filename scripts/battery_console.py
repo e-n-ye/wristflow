@@ -33,7 +33,7 @@ async function update(){try{const r=await fetch('/state',{cache:'no-store'});if(
 document.querySelector('#mode').textContent=s.mode+' · 本页只记录确认，确认点击不证明物理动作。';
 const checks=s.result&&s.result.verification;
 document.querySelector('#summary').textContent=checks?(checks.every(c=>c.passed)?'本轮检查通过':'本轮检查未完成')+' · 已验证 '+checks.filter(c=>c.passed).length+' / '+checks.length+' 项 · '+s.result.label:(s.result?s.result.label:'本轮进行中')+' · 已完成 '+s.completed+' / '+s.phases.length+' 个步骤';
-const list=document.querySelector('#phases');list.replaceChildren();for(const p of checks||s.phases){const e=document.createElement('li');e.textContent=p.title+'：'+(checks?(p.passed?'通过':'未完成'):labels[p.state]);list.append(e);}
+const list=document.querySelector('#phases');list.replaceChildren();for(const p of checks||s.phases){const e=document.createElement('li');e.textContent=p.title+'：'+(checks?(p.passed?'通过':'未完成'):labels[p.state])+(p.detail?'；'+p.detail:'');list.append(e);}
 document.querySelector('#message').textContent=current?current.message:(s.result?s.result.detail:'程序正在处理，请稍候。');
 document.querySelector('#remaining').textContent=current?'确认剩余 '+Math.max(0,Math.ceil(current.remaining))+' 秒':'';
 document.querySelector('#confirm').disabled=terminal||!current||!!current.automatic;document.querySelector('#cancel').disabled=terminal;

@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "date": "2026-11-08",
+  "branch": "codex/ota-mapping-experiment",
+  "executed_source_commit": "3f4e266fc378de89c1a18b4041186c2b25de9fa1",
+  "scope": "One explicitly authorized ROM dual-NOR read, independent offline byte/FTAB review, separate authorized RTC recovery and final read-only runtime export. Mapping execution stage remains open.",
+  "operator": {
+    "rom_authorization": "现场条件均满足，授权本次 ROM 复位与双备份",
+    "conditions": "Same firmware; USB and battery wiring fixed, operator present, display/touch normal; preparation and application-return prompts confirmed in Console.",
+    "during_rom_observation": "当前按键无法唤醒设备",
+    "clock_authorization": "允许单次校时并完成恢复检查",
+    "final_confirmation": "显示、触摸、KEY1和时间正常，临时常亮已关闭"
+  },
+  "firmware": {
+    "build": "artifacts/product/20261103-115740-843/result.json",
+    "flash": "artifacts/flash/product/20261103-120138-892/result.json",
+    "archive": "artifacts/battery-curve-20261103-candidate-build.zip",
+    "archive_sha256": "ead4c756ee319fffdd4e18f024cbb2c65e55f874dea86b298c62b6f8f7d41816",
+    "source_policy": "archived_build",
+    "read_image_hashes_match_archive": {
+      "bootloader.bin": "e59d70db44367d524fbb46a8a014ce0092462e86959d101a8e2e00ad27bb5e21",
+      "main.bin": "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d",
+      "ftab.bin": "e243438a3102e9dbc3364b39d32e2abc2d6c058efe609aaca979eac37ebe48df"
+    },
+    "unique_device_identity_attested": false
+  },
+  "rom_read": {
+    "endpoint": {"device": "COM5", "vid": "1a86", "pid": "7523", "location": "1-1.1", "disable_modem_handshake": 1},
+    "sftool_version": "0.2.5",
+    "sftool_sha256": "1ccc425e72048db93c410614114f8343e389988ee8aa90251aa46f05ae0b3e0f",
+    "process_count": 1,
+    "wrapper_retries": 0,
+    "argv": ["sftool.exe", "--chip", "SF32LB52", "--memory", "nor", "--port", "COM5", "--baud", "500000", "--connect-attempts", "3", "--before", "default_reset", "--after", "soft_reset", "read_flash", "nor-first.bin@0x12000000:0x1000000", "nor-second.bin@0x12000000:0x1000000"],
+    "read_seconds": 709.3658984,
+    "exit_code": 0,
+    "bytes_each": 16777216,
+    "files_equal": true,
+    "flash_sha256": "9140bb4e1bb700c8a7b1d06f29f510c3f18b13fb6da86e34b7f453fec639ab74",
+    "flash_write_or_erase_command": false,
+    "offline_review": {"path": "artifacts/ota-rom-backup-20261108/device-001/offline-pair-review.json", "bytes": 2388, "sha256": "6b49082743650fcd741eb2a53ea7ee3ce671d0ac6cd7ef4af13828f991132c05"},
+    "ftab": {
+      "boot": {"length": 58496, "flags": 2, "base": "0x12010000", "capacity": 65536, "execution": "0x20020000", "vectors": ["0x20042000", "0x200220c9"]},
+      "main": {"length": 3055760, "flags": 2, "base": "0x12020000", "capacity": 8388608, "execution": "0x12020000", "declared_length_crosses_candidate_b": false}
+    }
+  },
+  "application": {
+    "before": {"boot": 23, "generation": 159, "flags": 7, "saved_total_ms": 752131934, "current_total_ms": 753343039, "unsaved_tail_preserved_ms": 1211105, "save_failures": 0, "fault_mask": 0, "cycle_state": 0},
+    "after_rom": {"boot": 24, "generation": 160, "flags": 6, "saved_total_ms": 752133024, "current_total_ms": 752151326, "save_failures": 0, "fault_mask": 0, "cycle_state": 0, "rtc_utc": "2000-01-01T00:00:00Z"},
+    "persisted_runtime_not_regressed": true,
+    "original_workflow": {"passed": false, "exit_code": 1, "error": "RTC continuity changed; time recovery needs separate authorization", "resources_closed": true, "original_backup_json_unchanged": true},
+    "independent_readback": {"path": "artifacts/ota-rom-backup-20261108/device-001/independent-readback.json", "bytes": 2869, "sha256": "1d483d12d79bd49e1d497eb7a78027dedd8e752947e5a3ceaf379f4b80f7a685"},
+    "clock_recovery": {
+      "entry": "device_snapshot.py startup --query date --query steps --query pm --allow-time-sync (same archived build/endpoint)",
+      "wf_time_commands": 1,
+      "utc_written": 1794146052,
+      "utc_readback": "2026-11-08T13:54:12Z",
+      "local_readback": "2026-11-08T21:54:12+08:00",
+      "passed": true,
+      "additional_reset": false,
+      "resources_closed": true,
+      "report": {"path": "artifacts/ota-rom-backup-20261108/time-recovery-001/snapshot.json", "bytes": 2900, "sha256": "169de8fb088ec103f5f8870241f56f88145d514fdf8e4334aa12e881329e3019"}
+    },
+    "final_runtime": {"boot": 24, "generation": 160, "flags": 7, "utc": 1794146077, "clock_revision": 1, "total_recorded_ms": 752348299, "failures": 0, "fault_mask": 0, "full_uart_crc_decode_equal": true},
+    "final_export": {"path": "artifacts/ota-rom-backup-20261108/final-runtime-001/export.json", "bytes": 560, "sha256": "8631a604f6a6d0c1153cb3f2720fc119997ff6efdee0c38507db54f88a87e6e6"},
+    "operator_final": {"path": "artifacts/ota-rom-backup-20261108/device-001/recovery-operator-confirmation.json", "bytes": 330, "sha256": "00ecf754f076e6250fe94a4076117a3b4530adb76b46622de053eb0b1a8b4944"}
+  },
+  "post_device_host_correction": {
+    "issue": "3f4e266 decoded runtime before cache queries appended to the same UART file, so records.capture_sha256 covered only the prefix. All record bytes remained valid.",
+    "before_prefix": {"bytes": 17044, "sha256": "0767da3347f346974b39d882f37533c6a43b5c3f9287634f2a61907847d00d28"},
+    "after_prefix": {"bytes": 6147, "sha256": "c96340aade02ea94074c1b93f6a864d78bb30630a91ace3f96afcc92ff1a43c8"},
+    "prefix_crc_decode_equals_original_json": true,
+    "full_stream_decode_record_content_equals_prefix": true,
+    "originals_preserved": true,
+    "fix": "Keep a named runtime-prefix JSON, then decode full raw bytes after closing before writing final records; persist pair review independently before poststate so RTC failure cannot hide a successful backup.",
+    "regression_red": {"path": "artifacts/ota-rom-hash-regression-red.log", "bytes": 1178, "sha256": "832199325c2b10cf03161d486ce992631bb9c7bce283fa8b90b8bb9f3ad9752f"},
+    "validation": {"passed": 62, "failed": 0, "skipped": 0, "rom_adapter_and_native_tests": 17, "firmware_rebuilt": false, "additional_device_run": false},
+    "validation_log": {"path": "artifacts/ota-rom-regression-post-device.log", "bytes": 8204, "sha256": "ca4d8b1c73894cc61a29ed232ed42a7f4f09428164ef16064165520b69b8b42d"},
+    "source_sha256": {
+      "scripts/ota_rom_backup.py": "03ce4e852492279b20d598510e045229b14678e91e3b4826a5332aae65e69e4e",
+      "scripts/ota_rom_process.py": "5dee3ab333b8218accb60e6b7f61382cbb6870b9497f84ac8f82af0e9c359362",
+      "scripts/runtime_export.py": "bb60c3aac7063bef8c8d6c9bb77c46563304e86e7c5957f11c80aa969d477885",
+      "tests/test_ota_rom_backup.py": "b8fe779798a315ff086254830b581bbf31432ac9233c67dbec1399939109de91"
+    }
+  },
+  "preservation_archive": {
+    "path": "artifacts/ota-rom-backup-20261108.zip",
+    "bytes": 4823500,
+    "sha256": "26a8f156f05fd0ee0ffe5879b05f2658c4189108ca867d5b2189fe3b4017d67d",
+    "files": 57,
+    "all_members_read_back_equal": true,
+    "includes": ["both complete NOR copies", "original failed workflow and UARTs", "independent full-stream decoding", "separate RTC recovery", "final runtime export", "operator confirmation", "exact executed adapter sources"]
+  },
+  "deployment_authorized": false,
+  "rom_rescue_verified": false,
+  "real_b_execution_verified": false,
+  "sdk_lock_and_firmware_unchanged": true,
+  "limits": [
+    "Normal old-boot ROM reads do not prove forced rescue with a damaged boot image.",
+    "RTC reset occurred within the ROM window; enter/stub/exit cause and earlier unknown resets remain unlocated.",
+    "Runtime saved counters and operator observations do not prove every setting/file, power consumption or battery life.",
+    "A58496-byte compatibility boot is only a software proposal; no such deployment image or boot/B/FTAB write was performed."
+  ],
+  "next_bounded_result": "Host-only bounded USB result reporting and fixed-whitelist executable boot review package, with exact-length compatibility and restoration scope assessed against the read FTAB; deployment remains a separate window."
+}
