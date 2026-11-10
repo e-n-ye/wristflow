@@ -1,0 +1,1234 @@
+{
+  "schema": 1,
+  "date": "2026-11-10",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/ota-b-sector-package",
+  "source_base": "6a9e832443c051fdd76c7e851a722f21fc4f9287",
+  "scope": "Separate fixed B first4KiB write/readback/same-window restore host package under the unchanged official RAM runtime; software-only delivery",
+  "device_actions": false,
+  "firmware_build": false,
+  "hardware_verified": false,
+  "sources": [
+    {
+      "path": "scripts/ota_stub_bridge/Cargo.lock",
+      "bytes": 67285,
+      "sha256": "aeaa932d2b11ab6b5963f9b453c39fcc8baa889a8a05880d76b1a55c92f1f8d5"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/Cargo.toml",
+      "bytes": 481,
+      "sha256": "c53df9297712e4189b23a48f82459540ad3b74eec9332e7334a7a921d35307f0"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/b_sector.rs",
+      "bytes": 8925,
+      "sha256": "cddcc20c0786c754e3afc8a10981c5de8edde1aeaf16c5185fffbff5d4225f86"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/common.rs",
+      "bytes": 3004,
+      "sha256": "104537d47d01fb02ce598809cf224fbf892a4c51d07f782a2c3dd42f4832dd2c"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/geometry.rs",
+      "bytes": 4178,
+      "sha256": "836445a0be49acd24c1f1d4c8e1e737fe8c473b0f8b62e89ea173dcc173b56d6"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/main.rs",
+      "bytes": 12501,
+      "sha256": "204a76ea2504ab1a515c082b3a2a31f597a935d19b28bdeda0e7f58df38e9c67"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/port.rs",
+      "bytes": 14068,
+      "sha256": "2b8645d89153a51b51c3406b517dbf81177f5ec048412bc1b28a7a8acc3b6f3e"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/sector.rs",
+      "bytes": 8130,
+      "sha256": "d100219be405f7305164c9069de7393853438d3de3ad82cd26cec2910668cd16"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/simulated.rs",
+      "bytes": 12379,
+      "sha256": "ae54eae50526139236760f12bec52a9e88dcb420b02e701e88a950d003b6f205"
+    },
+    {
+      "path": "scripts/ota_stub_build.py",
+      "bytes": 5243,
+      "sha256": "155b4304eea7e285e6f640ecf3a3d5ff317a826e3bcc89168b83539706467b44"
+    },
+    {
+      "path": "scripts/battery_collect.py",
+      "bytes": 23428,
+      "sha256": "304345942c16486a4626e49bb59bdd9a4126b3611630f81ba9b7d3081f0d2c05"
+    },
+    {
+      "path": "scripts/battery_console.py",
+      "bytes": 13914,
+      "sha256": "7590d5e5a75f8b4c277e5085af9b4fe430a144056b735173441c2edd8e982316"
+    },
+    {
+      "path": "scripts/battery_device.py",
+      "bytes": 17306,
+      "sha256": "34b07b98c1f10afcc03111d262cdadcd41699caec7cdb56a8ea865af35ad6768"
+    },
+    {
+      "path": "scripts/battery_lab.py",
+      "bytes": 24502,
+      "sha256": "a666370236c173a39fb908a9a62c8c8e9b0bce7aa4b82231cae1aed165ad48eb"
+    },
+    {
+      "path": "scripts/compass_protocol.py",
+      "bytes": 1479,
+      "sha256": "268acef47f7fc9eb7a1fd07025c688f8ff6301759e195374f603fe26976800c5"
+    },
+    {
+      "path": "scripts/cycle_log_lab.py",
+      "bytes": 11523,
+      "sha256": "f5ab5cc9d0a72e9a9f4a6c376e13a80256c936029cd58083af3fad93e84e418c"
+    },
+    {
+      "path": "scripts/cycle_protocol.py",
+      "bytes": 4402,
+      "sha256": "b182d3f92acded38db3e9a11092cd716e8de49b5e9a0a7718725021e305de9e5"
+    },
+    {
+      "path": "scripts/device_snapshot.py",
+      "bytes": 12078,
+      "sha256": "0195f5297b87bd26084887210dc42618ed169243f4248ae58a26204fed84189f"
+    },
+    {
+      "path": "scripts/fs_protocol.py",
+      "bytes": 4773,
+      "sha256": "4afc42b2c8448449d5b834de998ac4a8a89900d1980ad416fab9d6c2c94c6a3d"
+    },
+    {
+      "path": "scripts/lab_check.py",
+      "bytes": 17510,
+      "sha256": "ce9a332f6b81c552da46bbbe91a6a941271f0acbb3ab2936ee0d09bb9142678b"
+    },
+    {
+      "path": "scripts/lab_evidence.py",
+      "bytes": 1498,
+      "sha256": "618487f3802b663b347c1bbd97b081147df2ef31ae6f471a9fcf2ac692e64864"
+    },
+    {
+      "path": "scripts/lab_serial.py",
+      "bytes": 9088,
+      "sha256": "8ac5b08fc0f7d68180b1f657d91d7bc11d4b3cc349d6603bde59e90710c49703"
+    },
+    {
+      "path": "scripts/light_protocol.py",
+      "bytes": 1127,
+      "sha256": "e1cb95b7ed014e76f739f324b01bc14c86759dcef7da1ba452a968312e71ab9c"
+    },
+    {
+      "path": "scripts/ota_b_sector.py",
+      "bytes": 12888,
+      "sha256": "4ede481a8776a268ea7f8461df1009fda0733b60b9d71fd5833b047f1c028b26"
+    },
+    {
+      "path": "scripts/ota_backup_review.py",
+      "bytes": 5250,
+      "sha256": "e43a6a24e85655657152ddd129f052cb729ae681a4f1aaca7c9fc41bdc14b9df"
+    },
+    {
+      "path": "scripts/ota_rom_backup.py",
+      "bytes": 21892,
+      "sha256": "55e83684b86a7c4523f42311d905ecf66784120adf247708aea33341a2ddd0a0"
+    },
+    {
+      "path": "scripts/ota_rom_device.py",
+      "bytes": 40258,
+      "sha256": "37773a5de098a201c7ca64b7478229eabc94ba31381aac123cf8c93a304499a3"
+    },
+    {
+      "path": "scripts/ota_rom_process.py",
+      "bytes": 8115,
+      "sha256": "9116556f07d5c9364b4d70f927d675491c852619eec511175fb4949550a2ea6f"
+    },
+    {
+      "path": "scripts/ota_rom_protocol.py",
+      "bytes": 7069,
+      "sha256": "a37a667bb76525e89008efcada6a14bd0bae70b1139e3a407b6e5086e8f07627"
+    },
+    {
+      "path": "scripts/ota_rom_rescue.py",
+      "bytes": 21281,
+      "sha256": "126545aa8ecedd79b8b6aa58a5da26f864da7e8cece0e7a208cb25b7ccfb566c"
+    },
+    {
+      "path": "scripts/ota_rom_rescue_lab.py",
+      "bytes": 11327,
+      "sha256": "e88f95ac3160eb5065aff97c28d09f9e921d73cd9673914f0ad5ba88c4314e83"
+    },
+    {
+      "path": "scripts/ota_rom_transport.py",
+      "bytes": 2484,
+      "sha256": "78f5dbef66bd97ff5e6e73b9c3457380878feafba2613a6189a58ca66f9225ca"
+    },
+    {
+      "path": "scripts/ota_stub_observe.py",
+      "bytes": 18173,
+      "sha256": "2d6541a209f7ad41ba6e8e948c0bf22f71a7fffc5944d588d9c09e52d88affd1"
+    },
+    {
+      "path": "scripts/runtime_export.py",
+      "bytes": 9381,
+      "sha256": "bb60c3aac7063bef8c8d6c9bb77c46563304e86e7c5957f11c80aa969d477885"
+    },
+    {
+      "path": "scripts/runtime_record_decode.py",
+      "bytes": 10383,
+      "sha256": "41fc2dd141a9bb843e40f7caeefefaec1955c9189e7dcb1864ba8ae514f99a39"
+    },
+    {
+      "path": "scripts/serial_lab.py",
+      "bytes": 13798,
+      "sha256": "7fe4ad1d5a6a2007f59c97c586cf954791c15310a881075a50db12a946d78aa6"
+    },
+    {
+      "path": "scripts/storage_protocol.py",
+      "bytes": 4724,
+      "sha256": "e379b6cc494352b6cc59c481d51a558fdf1ebf144af167e46b5e9fbbcaf6b279"
+    },
+    {
+      "path": "sdk.lock.json",
+      "bytes": 473,
+      "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+    },
+    {
+      "path": "tests/test_ota_b_sector.py",
+      "bytes": 13261,
+      "sha256": "33529aa84985782468a59c27ca45000aa8023da25222364c96b26dbeec35252b"
+    },
+    {
+      "path": "tests/test_ota_backup_review.py",
+      "bytes": 4178,
+      "sha256": "3ac4b33f69d1c86326594b3bfe83a82b0179edbb2eded265170295b8ef9eb343"
+    },
+    {
+      "path": "tests/test_ota_boot_check.py",
+      "bytes": 3069,
+      "sha256": "ac1fc1d32718e820b3589601ac4a387c7dcf990731a84f3bfa4e4cf361b5e466"
+    },
+    {
+      "path": "tests/test_ota_preflight.py",
+      "bytes": 8860,
+      "sha256": "9dca71852317ce962a88c304031e6dd665b642ba5f0cad2f29005b40a2211607"
+    },
+    {
+      "path": "tests/test_ota_probe_package.py",
+      "bytes": 4493,
+      "sha256": "4c568c27b0e80c41a4e986e47e1d51db2006cc8b497e0cdf4cdf55ca0d09945b"
+    },
+    {
+      "path": "tests/test_ota_rom_backup.py",
+      "bytes": 16293,
+      "sha256": "c938a272674d40cefaea2c23780b425f7ea8cbe4a84afdc13012513adaee0233"
+    },
+    {
+      "path": "tests/test_ota_rom_device.py",
+      "bytes": 19165,
+      "sha256": "7669b3e9554ceb35e5e56ad141760a40ec9d7fad1c794ce46770f4f3b9c26f42"
+    },
+    {
+      "path": "tests/test_ota_rom_release.py",
+      "bytes": 11537,
+      "sha256": "df0cc97b166acaaf5e932ac9a12a254adfe22e3a4789a81fa65e4e3313453662"
+    },
+    {
+      "path": "tests/test_ota_rom_rescue.py",
+      "bytes": 24966,
+      "sha256": "7a1f2717d718f9d1ada8c17e1e929996ee22ae0dcb90ebfc87a8d8801294f260"
+    },
+    {
+      "path": "tests/test_ota_slot_check.py",
+      "bytes": 860,
+      "sha256": "d36f82b8f658472799d8cf9a2b544b219207483325439179fcaa853c16ca8ea7"
+    },
+    {
+      "path": "tests/test_ota_stub_observe.py",
+      "bytes": 16011,
+      "sha256": "29ac9572543db9ef7427a47e5d1548905d365139a3fe21b66158440f86650269"
+    }
+  ],
+  "official_library_revision": "be2adab37bfb0ef4eb623b7e47e7b8693918b1e1",
+  "upstream_blob_verified": [
+    {
+      "path": ".tools/ota-stub-session/cargo-home/git/checkouts/sftool-7024324ec9ee6d53/be2adab/sftool-lib/src/sf32lb52/mod.rs",
+      "bytes": 9336,
+      "sha256": "26dcdce5a7282243429c12017ad76907a29f28dc3a32134c0733ed41c95ee79d"
+    },
+    {
+      "path": ".tools/ota-stub-session/cargo-home/git/checkouts/sftool-7024324ec9ee6d53/be2adab/sftool-lib/src/common/read_flash.rs",
+      "bytes": 6284,
+      "sha256": "86be7907e938e27c690caf1c0092f40bf558c25ee42c0b2bad338009aaef026a"
+    },
+    {
+      "path": ".tools/ota-stub-session/cargo-home/git/checkouts/sftool-7024324ec9ee6d53/be2adab/sftool-lib/src/common/ram_command.rs",
+      "bytes": 5491,
+      "sha256": "af20c8e0f264d18c41a3180367ee5a7f84f5d6d89e9eaaed4c4d199004e78ba9"
+    },
+    {
+      "path": ".tools/ota-stub-session/cargo-home/git/checkouts/sftool-7024324ec9ee6d53/be2adab/sftool-lib/src/common/write_flash.rs",
+      "bytes": 6557,
+      "sha256": "793c77b7d5a68ac18cd42fa0f531eddab4f66f03c0223c8eee4046c6ba4cadbf"
+    }
+  ],
+  "writer_build": {
+    "result": {
+      "path": "artifacts/ota-b-sector-build-20261110-003/result.json",
+      "bytes": 3588,
+      "sha256": "fb3b9d3c8a5d62f474862a35b32c9937ac2dfbd3f10c1248f3762e6f68ab491c"
+    },
+    "executable": {
+      "path": "artifacts/ota-b-sector-build-20261110-003/wristflow-ota-b-sector.exe",
+      "bytes": 20875610,
+      "sha256": "64842a43adfe87c373ff743d2ae04bda2a53de0471bdff9399bf75a6ff82a808"
+    },
+    "rust_tests_per_binary": 8,
+    "release": true,
+    "flash_write_entry": true
+  },
+  "observer_build": {
+    "result": {
+      "path": "artifacts/ota-b-sector-observer-build-final-20261110/result.json",
+      "bytes": 3610,
+      "sha256": "0eb809216a64d9a9b66d8d6193bf3749a2d6b76aeb233fd43655c10efc3cc168"
+    },
+    "executable": {
+      "path": "artifacts/ota-b-sector-observer-build-final-20261110/wristflow-ota-stub-observer.exe",
+      "bytes": 20837226,
+      "sha256": "218da05ae30a24512538c33d26339cf114342a4d49371cc8fa0f420a14a6fd59"
+    },
+    "rust_tests_per_binary": 8,
+    "release": true,
+    "flash_write_entry": false
+  },
+  "sdk_lock": {
+    "path": "sdk.lock.json",
+    "bytes": 473,
+    "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+  },
+  "stub": {
+    "path": "vendor/SiFli-SDK/tools/uart_download/file/ram_patch_52X.bin",
+    "bytes": 132816,
+    "sha256": "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43"
+  },
+  "inputs": [
+    {
+      "path": "artifacts/ota-b-sector-build-20261110-003/result.json",
+      "bytes": 3588,
+      "sha256": "fb3b9d3c8a5d62f474862a35b32c9937ac2dfbd3f10c1248f3762e6f68ab491c"
+    },
+    {
+      "path": "artifacts/ota-rom-backup-20261108/device-001/nor-first.bin",
+      "bytes": 16777216,
+      "sha256": "9140bb4e1bb700c8a7b1d06f29f510c3f18b13fb6da86e34b7f453fec639ab74"
+    },
+    {
+      "path": "artifacts/ota-rom-backup-20261108/device-001/nor-second.bin",
+      "bytes": 16777216,
+      "sha256": "9140bb4e1bb700c8a7b1d06f29f510c3f18b13fb6da86e34b7f453fec639ab74"
+    },
+    {
+      "path": "artifacts/ota-execution-probe-20261108-006/probe-b-sector.bin",
+      "bytes": 4096,
+      "sha256": "14102c47df5a8078fd934f9efaea7a271ef790eb7ffd265546abf4cf5b4440fe"
+    }
+  ],
+  "tests": {
+    "full": {
+      "log": {
+        "path": "artifacts/ota-b-sector-sealed-tests-20261110.log",
+        "bytes": 25241,
+        "sha256": "8363d977e0ded477f9da789a7f5d366d7b2fe784d077dd0e927f5f190f09ec62"
+      },
+      "tests": 159,
+      "seconds": 175.051,
+      "passed": true
+    },
+    "focused": {
+      "log": {
+        "path": "artifacts/ota-b-sector-scope-tests-20261110.log",
+        "bytes": 2533,
+        "sha256": "7559515f462cf4e942a59f70a7f2c48e6484f7d23ba181142d873e293b996969"
+      },
+      "tests": 13,
+      "seconds": 40.487,
+      "passed": true
+    },
+    "version_note": "Full suite used final production sources. Thereafter only InputGuards test was strengthened to assert the exact missing-restore authorization error; final 13-test package suite passed again. No production changes."
+  },
+  "synthetic_protocol": {
+    "source": "artifacts\\ota-b-sector-tests-kgc1rpns",
+    "writes": [
+      {
+        "address": 306315264,
+        "bytes": 4096,
+        "elapsed_ns": 714292400,
+        "kind": "sector_write_intent",
+        "role": "candidate",
+        "sha256": "14102c47df5a8078fd934f9efaea7a271ef790eb7ffd265546abf4cf5b4440fe"
+      },
+      {
+        "address": 306315264,
+        "bytes": 4096,
+        "elapsed_ns": 741105100,
+        "kind": "sector_write_intent",
+        "role": "restore",
+        "sha256": "f47a8ec3e9aff2318d896942282ad4fe37d6391c82914f54a5da8a37de1300c6"
+      }
+    ],
+    "reads": [
+      {
+        "address": 306315264,
+        "bytes": 65536,
+        "elapsed_ns": 689618400,
+        "kind": "sector_read_intent",
+        "name": "before-b64k.bin"
+      },
+      {
+        "address": 306315264,
+        "bytes": 65536,
+        "elapsed_ns": 719802900,
+        "kind": "sector_read_intent",
+        "name": "candidate-b64k.bin"
+      },
+      {
+        "address": 306315264,
+        "bytes": 65536,
+        "elapsed_ns": 746893300,
+        "kind": "sector_read_intent",
+        "name": "restored-b64k.bin"
+      }
+    ],
+    "before_restore_and_guard_bytes_compared": true,
+    "scenario_results": [
+      {
+        "name": "bad-candidate",
+        "request": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/bad-candidate-request.json",
+          "bytes": 1322,
+          "sha256": "1f1fcfa59346f50a9cd94a0a3dc3a5d376c2df0f2d36b3b1e5bd68b2e5eea5db"
+        },
+        "report": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/bad-candidate/sector.json",
+          "bytes": 4432,
+          "sha256": "00615ad16fc4eeab0be9cbbc875a7cd34b1460e6e71e42f832e0f8b0b6dcc8cb"
+        },
+        "passed": false,
+        "candidate_write_attempted": true,
+        "restore_write_attempted": true,
+        "restored_verified": true,
+        "b_may_be_changed": false
+      },
+      {
+        "name": "before-changed",
+        "request": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/before-changed-request.json",
+          "bytes": 1320,
+          "sha256": "be4dcf69b240b43e6d3b46e079787106fa430fe5356332938ba15b07c179618c"
+        },
+        "report": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/before-changed/sector.json",
+          "bytes": 4247,
+          "sha256": "445ef4013276c09247d929694c2479fc1f35b04ad788b7ebc2a89407bef3cf1e"
+        },
+        "passed": false,
+        "candidate_write_attempted": false,
+        "restore_write_attempted": false,
+        "restored_verified": false,
+        "b_may_be_changed": false
+      },
+      {
+        "name": "candidate-data-timeout",
+        "request": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/candidate-data-timeout-request.json",
+          "bytes": 1344,
+          "sha256": "07cce24bab7902b5c0386000764c59dd56e9af2e3f3e8b66bad507c25a065ae7"
+        },
+        "report": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/candidate-data-timeout/sector.json",
+          "bytes": 4451,
+          "sha256": "791a160cfcf490d00ceb04fa760415202b7bc4af443e2103d6aabac4f66bec3f"
+        },
+        "passed": false,
+        "candidate_write_attempted": true,
+        "restore_write_attempted": false,
+        "restored_verified": false,
+        "b_may_be_changed": true
+      },
+      {
+        "name": "denied-0",
+        "request": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/denied-0-request.json",
+          "bytes": 1291,
+          "sha256": "491fffc1ed4c07e72b58a61d25ccbcc0fd851fa31ea712c4471affd132e51325"
+        },
+        "rejected_before_output": true
+      },
+      {
+        "name": "denied-1",
+        "request": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/denied-1-request.json",
+          "bytes": 1302,
+          "sha256": "e65141a365eea1c32071f2f277b3c9523a19323cf05f2423e0f9121eb36b4c01"
+        },
+        "rejected_before_output": true
+      },
+      {
+        "name": "denied-2",
+        "request": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/denied-2-request.json",
+          "bytes": 1302,
+          "sha256": "ae1ff907816114e482e461ee9118e653aca69118bc410ce91f817fc997c5f732"
+        },
+        "rejected_before_output": true
+      },
+      {
+        "name": "denied-3",
+        "request": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/denied-3-request.json",
+          "bytes": 1326,
+          "sha256": "85c8b89b595da3ccd40f1d6fcf0cf11919d974ad64d7b598a5a360b612c76ccf"
+        },
+        "rejected_before_output": true
+      },
+      {
+        "name": "denied-4",
+        "request": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/denied-4-request.json",
+          "bytes": 1301,
+          "sha256": "2e82638836a54f153ba6d2e73da8fd1526712b3acf661599910eb104411a275e"
+        },
+        "rejected_before_output": true
+      },
+      {
+        "name": "denied-5",
+        "request": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/denied-5-request.json",
+          "bytes": 1303,
+          "sha256": "ee0a52f7239d68b3d12cbeb9a9b8ae91f5437b64e31309a65c49c9842a4bf504"
+        },
+        "rejected_before_output": true
+      },
+      {
+        "name": "fragmented",
+        "request": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/fragmented-request.json",
+          "bytes": 1308,
+          "sha256": "95f39d74ccb5fa0a39677cddc2ab6952abf8f34875d3d3399b2b13faf2715ede"
+        },
+        "report": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/fragmented/sector.json",
+          "bytes": 4361,
+          "sha256": "88062fe1857f5bc945ed48a9af88b4b2c4ad9aa8d98450fe73728f9e96f78723"
+        },
+        "passed": true,
+        "candidate_write_attempted": true,
+        "restore_write_attempted": true,
+        "restored_verified": true,
+        "b_may_be_changed": false
+      },
+      {
+        "name": "guard-change",
+        "request": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/guard-change-request.json",
+          "bytes": 1314,
+          "sha256": "5ff8ff2bf3a056a3c17edeedc42008be8e4cb53e69ab73041a9c2553910991b1"
+        },
+        "report": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/guard-change/sector.json",
+          "bytes": 4463,
+          "sha256": "c64d6d0e86d99919eb4c6c073d6efeaf038157572b41d682d2e539b44f6d8c43"
+        },
+        "passed": false,
+        "candidate_write_attempted": true,
+        "restore_write_attempted": true,
+        "restored_verified": false,
+        "b_may_be_changed": true
+      },
+      {
+        "name": "lcpu-running",
+        "request": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/lcpu-running-request.json",
+          "bytes": 1314,
+          "sha256": "232834d3c36e12e331064991903e81b90dd8f320357bd68aed1ab9483e801c35"
+        },
+        "report": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/lcpu-running/sector.json",
+          "bytes": 4248,
+          "sha256": "b030eafaeff92da8070ae7d22862e1526353b0967d2c22bb758a86abd97cc855"
+        },
+        "passed": false,
+        "candidate_write_attempted": false,
+        "restore_write_attempted": false,
+        "restored_verified": false,
+        "b_may_be_changed": false
+      },
+      {
+        "name": "prestate-crc-fail",
+        "request": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/prestate-crc-fail-request.json",
+          "bytes": 1329,
+          "sha256": "2aa4d9eda790ec563e160637248b08b29008f5a21ddf4c867d62df42b68a58cc"
+        },
+        "report": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/prestate-crc-fail/sector.json",
+          "bytes": 4246,
+          "sha256": "e48514faf883bec0c2dba64afe092f3848dc2bb1097d2d592702f9f3f69987dc"
+        },
+        "passed": false,
+        "candidate_write_attempted": false,
+        "restore_write_attempted": false,
+        "restored_verified": false,
+        "b_may_be_changed": false
+      },
+      {
+        "name": "readback-crc-fail",
+        "request": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/readback-crc-fail-request.json",
+          "bytes": 1329,
+          "sha256": "ca74d8c605714dbb73a711b76fd58cf9e9855368d9368b5839f53de006bebad0"
+        },
+        "report": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/readback-crc-fail/sector.json",
+          "bytes": 4455,
+          "sha256": "5d8d3a488e12b2d45edfb370fac8c891a57bcde9024b336df8781f0f7d900d38"
+        },
+        "passed": false,
+        "candidate_write_attempted": true,
+        "restore_write_attempted": false,
+        "restored_verified": false,
+        "b_may_be_changed": true
+      },
+      {
+        "name": "register-read-fail",
+        "request": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/register-read-fail-request.json",
+          "bytes": 1332,
+          "sha256": "2af0e1bb701b62688a932cc02b95601a724eb9bf4123009fe8fd1dee62cc3b66"
+        },
+        "report": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/register-read-fail/sector.json",
+          "bytes": 1079,
+          "sha256": "d5cf1e885d2a133787f2bf551e4ef6bb8158039bfb7c78fcbe7d21e7c6382594"
+        },
+        "passed": false,
+        "candidate_write_attempted": false,
+        "restore_write_attempted": false,
+        "restored_verified": false,
+        "b_may_be_changed": false
+      },
+      {
+        "name": "restore-data-fail",
+        "request": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/restore-data-fail-request.json",
+          "bytes": 1329,
+          "sha256": "c1c8022bba11d8b77e4beaac3ffa5596ed06237a3d145a84d4ec862c5c6bb82f"
+        },
+        "report": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/restore-data-fail/sector.json",
+          "bytes": 4455,
+          "sha256": "6c7457cd57dd015e4e761378a6c174e4b27928f971184da45321033c359d1d95"
+        },
+        "passed": false,
+        "candidate_write_attempted": true,
+        "restore_write_attempted": true,
+        "restored_verified": false,
+        "b_may_be_changed": true
+      },
+      {
+        "name": "restore-mismatch",
+        "request": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/restore-mismatch-request.json",
+          "bytes": 1326,
+          "sha256": "f990f299a55272254c6c98fe384c69b6c675b93dc5945d1030ca9fe021420d8d"
+        },
+        "report": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/restore-mismatch/sector.json",
+          "bytes": 4461,
+          "sha256": "38375b16685dd7eff93b7778acc222a3bbb532d0fe31c7b5eaa475de10e5f158"
+        },
+        "passed": false,
+        "candidate_write_attempted": true,
+        "restore_write_attempted": true,
+        "restored_verified": false,
+        "b_may_be_changed": true
+      },
+      {
+        "name": "same-candidate",
+        "request": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/same-candidate-request.json",
+          "bytes": 1311,
+          "sha256": "7438e33b784fb91fac7c4d5df58314674e7018438d9562fe2d6a7ffcedb77cf6"
+        },
+        "report": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/same-candidate/sector.json",
+          "bytes": 4243,
+          "sha256": "f1ed41b957430fb3b56e6b14dedbca3fceadf7c1e1f8691c6062e69a5c1ddb64"
+        },
+        "passed": false,
+        "candidate_write_attempted": false,
+        "restore_write_attempted": false,
+        "restored_verified": false,
+        "b_may_be_changed": false
+      },
+      {
+        "name": "success",
+        "request": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/success-request.json",
+          "bytes": 1299,
+          "sha256": "ac1b686887c8aa742db2520e44dcbe663db0ca59e064053a973bdbb1cd08f59d"
+        },
+        "report": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/success/sector.json",
+          "bytes": 4361,
+          "sha256": "e98e8928d33d2072556ad5dbe866763394e8a957f61e4cbd373d0543b62c0ce5"
+        },
+        "passed": true,
+        "candidate_write_attempted": true,
+        "restore_write_attempted": true,
+        "restored_verified": true,
+        "b_may_be_changed": false
+      },
+      {
+        "name": "write-start-fail",
+        "request": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/write-start-fail-request.json",
+          "bytes": 1326,
+          "sha256": "06222572c511730aa63671ca654edee8c0269720dc2bfeee8d0b070b204319fe"
+        },
+        "report": {
+          "path": "artifacts/ota-b-sector-tests-kgc1rpns/write-start-fail/sector.json",
+          "bytes": 4451,
+          "sha256": "6bfec0ec68710bcb8bdb1245eafb6b558d3de5fcbb54c70c905b98b2643a0e81"
+        },
+        "passed": false,
+        "candidate_write_attempted": true,
+        "restore_write_attempted": false,
+        "restored_verified": false,
+        "b_may_be_changed": true
+      }
+    ]
+  },
+  "browser_simulations": [
+    {
+      "case": "success",
+      "config": {
+        "path": "artifacts/ota-b-sector-ui-20261110/success/config.json",
+        "bytes": 12260,
+        "sha256": "a57b39ffd0b7b1ab67496ef04267cd66f18fb137157ccaa9f77cf14002e6dc98"
+      },
+      "report": {
+        "path": "artifacts/ota-b-sector-ui-20261110/success/device.json",
+        "bytes": 9078,
+        "sha256": "68605d9c925dee412ab5f0238e91ae493de9e140c6426679fb1e10a579676b4d"
+      },
+      "checks_passed": 6,
+      "checks": 6,
+      "resources_closed": true,
+      "flash_write": true,
+      "b_may_be_changed": false,
+      "restored_verified": true,
+      "recovery_required": false,
+      "executed_sources": [
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/ota_rom_rescue_lab.py",
+          "bytes": 11327,
+          "sha256": "e88f95ac3160eb5065aff97c28d09f9e921d73cd9673914f0ad5ba88c4314e83"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/ota_rom_rescue.py",
+          "bytes": 21281,
+          "sha256": "126545aa8ecedd79b8b6aa58a5da26f864da7e8cece0e7a208cb25b7ccfb566c"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/ota_rom_protocol.py",
+          "bytes": 7069,
+          "sha256": "a37a667bb76525e89008efcada6a14bd0bae70b1139e3a407b6e5086e8f07627"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/ota_rom_backup.py",
+          "bytes": 21892,
+          "sha256": "55e83684b86a7c4523f42311d905ecf66784120adf247708aea33341a2ddd0a0"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/runtime_export.py",
+          "bytes": 9381,
+          "sha256": "bb60c3aac7063bef8c8d6c9bb77c46563304e86e7c5957f11c80aa969d477885"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/runtime_record_decode.py",
+          "bytes": 10383,
+          "sha256": "41fc2dd141a9bb843e40f7caeefefaec1955c9189e7dcb1864ba8ae514f99a39"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/battery_console.py",
+          "bytes": 13914,
+          "sha256": "7590d5e5a75f8b4c277e5085af9b4fe430a144056b735173441c2edd8e982316"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/battery_lab.py",
+          "bytes": 24502,
+          "sha256": "a666370236c173a39fb908a9a62c8c8e9b0bce7aa4b82231cae1aed165ad48eb"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/lab_serial.py",
+          "bytes": 9088,
+          "sha256": "8ac5b08fc0f7d68180b1f657d91d7bc11d4b3cc349d6603bde59e90710c49703"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/lab_evidence.py",
+          "bytes": 1498,
+          "sha256": "618487f3802b663b347c1bbd97b081147df2ef31ae6f471a9fcf2ac692e64864"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/device_snapshot.py",
+          "bytes": 12078,
+          "sha256": "0195f5297b87bd26084887210dc42618ed169243f4248ae58a26204fed84189f"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/cycle_log_lab.py",
+          "bytes": 11523,
+          "sha256": "f5ab5cc9d0a72e9a9f4a6c376e13a80256c936029cd58083af3fad93e84e418c"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/cycle_protocol.py",
+          "bytes": 4402,
+          "sha256": "b182d3f92acded38db3e9a11092cd716e8de49b5e9a0a7718725021e305de9e5"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/storage_protocol.py",
+          "bytes": 4724,
+          "sha256": "e379b6cc494352b6cc59c481d51a558fdf1ebf144af167e46b5e9fbbcaf6b279"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/fs_protocol.py",
+          "bytes": 4773,
+          "sha256": "4afc42b2c8448449d5b834de998ac4a8a89900d1980ad416fab9d6c2c94c6a3d"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/ota_rom_device.py",
+          "bytes": 40258,
+          "sha256": "37773a5de098a201c7ca64b7478229eabc94ba31381aac123cf8c93a304499a3"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/ota_rom_transport.py",
+          "bytes": 2484,
+          "sha256": "78f5dbef66bd97ff5e6e73b9c3457380878feafba2613a6189a58ca66f9225ca"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/ota_rom_process.py",
+          "bytes": 8115,
+          "sha256": "9116556f07d5c9364b4d70f927d675491c852619eec511175fb4949550a2ea6f"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/serial_lab.py",
+          "bytes": 13798,
+          "sha256": "7fe4ad1d5a6a2007f59c97c586cf954791c15310a881075a50db12a946d78aa6"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/lab_check.py",
+          "bytes": 17510,
+          "sha256": "ce9a332f6b81c552da46bbbe91a6a941271f0acbb3ab2936ee0d09bb9142678b"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/battery_device.py",
+          "bytes": 17306,
+          "sha256": "34b07b98c1f10afcc03111d262cdadcd41699caec7cdb56a8ea865af35ad6768"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/battery_collect.py",
+          "bytes": 23428,
+          "sha256": "304345942c16486a4626e49bb59bdd9a4126b3611630f81ba9b7d3081f0d2c05"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/light_protocol.py",
+          "bytes": 1127,
+          "sha256": "e1cb95b7ed014e76f739f324b01bc14c86759dcef7da1ba452a968312e71ab9c"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/compass_protocol.py",
+          "bytes": 1479,
+          "sha256": "268acef47f7fc9eb7a1fd07025c688f8ff6301759e195374f603fe26976800c5"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/ota_backup_review.py",
+          "bytes": 5250,
+          "sha256": "e43a6a24e85655657152ddd129f052cb729ae681a4f1aaca7c9fc41bdc14b9df"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/ota_stub_observe.py",
+          "bytes": 18173,
+          "sha256": "2d6541a209f7ad41ba6e8e948c0bf22f71a7fffc5944d588d9c09e52d88affd1"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/success/scripts/ota_b_sector.py",
+          "bytes": 12763,
+          "sha256": "b2fb26235f39c83cac7a3caee256f89819435255622687ba4f09d8e94041ece1"
+        }
+      ]
+    },
+    {
+      "case": "unknown-write",
+      "config": {
+        "path": "artifacts/ota-b-sector-ui-20261110/unknown-write/config.json",
+        "bytes": 12293,
+        "sha256": "817b7001c71ecfc5578265150c3280fda8fcbecea63e77bff2ca5aab03365d9a"
+      },
+      "report": {
+        "path": "artifacts/ota-b-sector-ui-20261110/unknown-write/device.json",
+        "bytes": 9778,
+        "sha256": "c68eec3d86a8741ac6eb86bb43bc9e6fd0aac0e9359833044f76b349051bd234"
+      },
+      "checks_passed": 4,
+      "checks": 6,
+      "resources_closed": true,
+      "flash_write": true,
+      "b_may_be_changed": true,
+      "restored_verified": false,
+      "recovery_required": true,
+      "executed_sources": [
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/ota_rom_rescue_lab.py",
+          "bytes": 11327,
+          "sha256": "e88f95ac3160eb5065aff97c28d09f9e921d73cd9673914f0ad5ba88c4314e83"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/ota_rom_rescue.py",
+          "bytes": 21281,
+          "sha256": "126545aa8ecedd79b8b6aa58a5da26f864da7e8cece0e7a208cb25b7ccfb566c"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/ota_rom_protocol.py",
+          "bytes": 7069,
+          "sha256": "a37a667bb76525e89008efcada6a14bd0bae70b1139e3a407b6e5086e8f07627"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/ota_rom_backup.py",
+          "bytes": 21892,
+          "sha256": "55e83684b86a7c4523f42311d905ecf66784120adf247708aea33341a2ddd0a0"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/runtime_export.py",
+          "bytes": 9381,
+          "sha256": "bb60c3aac7063bef8c8d6c9bb77c46563304e86e7c5957f11c80aa969d477885"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/runtime_record_decode.py",
+          "bytes": 10383,
+          "sha256": "41fc2dd141a9bb843e40f7caeefefaec1955c9189e7dcb1864ba8ae514f99a39"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/battery_console.py",
+          "bytes": 13914,
+          "sha256": "7590d5e5a75f8b4c277e5085af9b4fe430a144056b735173441c2edd8e982316"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/battery_lab.py",
+          "bytes": 24502,
+          "sha256": "a666370236c173a39fb908a9a62c8c8e9b0bce7aa4b82231cae1aed165ad48eb"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/lab_serial.py",
+          "bytes": 9088,
+          "sha256": "8ac5b08fc0f7d68180b1f657d91d7bc11d4b3cc349d6603bde59e90710c49703"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/lab_evidence.py",
+          "bytes": 1498,
+          "sha256": "618487f3802b663b347c1bbd97b081147df2ef31ae6f471a9fcf2ac692e64864"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/device_snapshot.py",
+          "bytes": 12078,
+          "sha256": "0195f5297b87bd26084887210dc42618ed169243f4248ae58a26204fed84189f"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/cycle_log_lab.py",
+          "bytes": 11523,
+          "sha256": "f5ab5cc9d0a72e9a9f4a6c376e13a80256c936029cd58083af3fad93e84e418c"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/cycle_protocol.py",
+          "bytes": 4402,
+          "sha256": "b182d3f92acded38db3e9a11092cd716e8de49b5e9a0a7718725021e305de9e5"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/storage_protocol.py",
+          "bytes": 4724,
+          "sha256": "e379b6cc494352b6cc59c481d51a558fdf1ebf144af167e46b5e9fbbcaf6b279"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/fs_protocol.py",
+          "bytes": 4773,
+          "sha256": "4afc42b2c8448449d5b834de998ac4a8a89900d1980ad416fab9d6c2c94c6a3d"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/ota_rom_device.py",
+          "bytes": 40258,
+          "sha256": "37773a5de098a201c7ca64b7478229eabc94ba31381aac123cf8c93a304499a3"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/ota_rom_transport.py",
+          "bytes": 2484,
+          "sha256": "78f5dbef66bd97ff5e6e73b9c3457380878feafba2613a6189a58ca66f9225ca"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/ota_rom_process.py",
+          "bytes": 8115,
+          "sha256": "9116556f07d5c9364b4d70f927d675491c852619eec511175fb4949550a2ea6f"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/serial_lab.py",
+          "bytes": 13798,
+          "sha256": "7fe4ad1d5a6a2007f59c97c586cf954791c15310a881075a50db12a946d78aa6"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/lab_check.py",
+          "bytes": 17510,
+          "sha256": "ce9a332f6b81c552da46bbbe91a6a941271f0acbb3ab2936ee0d09bb9142678b"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/battery_device.py",
+          "bytes": 17306,
+          "sha256": "34b07b98c1f10afcc03111d262cdadcd41699caec7cdb56a8ea865af35ad6768"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/battery_collect.py",
+          "bytes": 23428,
+          "sha256": "304345942c16486a4626e49bb59bdd9a4126b3611630f81ba9b7d3081f0d2c05"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/light_protocol.py",
+          "bytes": 1127,
+          "sha256": "e1cb95b7ed014e76f739f324b01bc14c86759dcef7da1ba452a968312e71ab9c"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/compass_protocol.py",
+          "bytes": 1479,
+          "sha256": "268acef47f7fc9eb7a1fd07025c688f8ff6301759e195374f603fe26976800c5"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/ota_backup_review.py",
+          "bytes": 5250,
+          "sha256": "e43a6a24e85655657152ddd129f052cb729ae681a4f1aaca7c9fc41bdc14b9df"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/ota_stub_observe.py",
+          "bytes": 18173,
+          "sha256": "2d6541a209f7ad41ba6e8e948c0bf22f71a7fffc5944d588d9c09e52d88affd1"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/unknown-write/scripts/ota_b_sector.py",
+          "bytes": 12763,
+          "sha256": "b2fb26235f39c83cac7a3caee256f89819435255622687ba4f09d8e94041ece1"
+        }
+      ]
+    },
+    {
+      "case": "cancel",
+      "config": {
+        "path": "artifacts/ota-b-sector-ui-20261110/cancel/config.json",
+        "bytes": 12260,
+        "sha256": "82c09d80b1800da57f9d60feb3692210f591878e3ff57b3a347cf085bd61cb8f"
+      },
+      "report": {
+        "path": "artifacts/ota-b-sector-ui-20261110/cancel/device.json",
+        "bytes": 4023,
+        "sha256": "f8d2c90272e857aa7f0db324c87d2c690afa44c2c611883f930a43baab10e2ee"
+      },
+      "checks_passed": 1,
+      "checks": 6,
+      "resources_closed": true,
+      "flash_write": null,
+      "b_may_be_changed": null,
+      "restored_verified": false,
+      "recovery_required": true,
+      "executed_sources": [
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/ota_rom_rescue_lab.py",
+          "bytes": 11327,
+          "sha256": "e88f95ac3160eb5065aff97c28d09f9e921d73cd9673914f0ad5ba88c4314e83"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/ota_rom_rescue.py",
+          "bytes": 21281,
+          "sha256": "126545aa8ecedd79b8b6aa58a5da26f864da7e8cece0e7a208cb25b7ccfb566c"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/ota_rom_protocol.py",
+          "bytes": 7069,
+          "sha256": "a37a667bb76525e89008efcada6a14bd0bae70b1139e3a407b6e5086e8f07627"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/ota_rom_backup.py",
+          "bytes": 21892,
+          "sha256": "55e83684b86a7c4523f42311d905ecf66784120adf247708aea33341a2ddd0a0"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/runtime_export.py",
+          "bytes": 9381,
+          "sha256": "bb60c3aac7063bef8c8d6c9bb77c46563304e86e7c5957f11c80aa969d477885"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/runtime_record_decode.py",
+          "bytes": 10383,
+          "sha256": "41fc2dd141a9bb843e40f7caeefefaec1955c9189e7dcb1864ba8ae514f99a39"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/battery_console.py",
+          "bytes": 13914,
+          "sha256": "7590d5e5a75f8b4c277e5085af9b4fe430a144056b735173441c2edd8e982316"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/battery_lab.py",
+          "bytes": 24502,
+          "sha256": "a666370236c173a39fb908a9a62c8c8e9b0bce7aa4b82231cae1aed165ad48eb"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/lab_serial.py",
+          "bytes": 9088,
+          "sha256": "8ac5b08fc0f7d68180b1f657d91d7bc11d4b3cc349d6603bde59e90710c49703"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/lab_evidence.py",
+          "bytes": 1498,
+          "sha256": "618487f3802b663b347c1bbd97b081147df2ef31ae6f471a9fcf2ac692e64864"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/device_snapshot.py",
+          "bytes": 12078,
+          "sha256": "0195f5297b87bd26084887210dc42618ed169243f4248ae58a26204fed84189f"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/cycle_log_lab.py",
+          "bytes": 11523,
+          "sha256": "f5ab5cc9d0a72e9a9f4a6c376e13a80256c936029cd58083af3fad93e84e418c"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/cycle_protocol.py",
+          "bytes": 4402,
+          "sha256": "b182d3f92acded38db3e9a11092cd716e8de49b5e9a0a7718725021e305de9e5"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/storage_protocol.py",
+          "bytes": 4724,
+          "sha256": "e379b6cc494352b6cc59c481d51a558fdf1ebf144af167e46b5e9fbbcaf6b279"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/fs_protocol.py",
+          "bytes": 4773,
+          "sha256": "4afc42b2c8448449d5b834de998ac4a8a89900d1980ad416fab9d6c2c94c6a3d"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/ota_rom_device.py",
+          "bytes": 40258,
+          "sha256": "37773a5de098a201c7ca64b7478229eabc94ba31381aac123cf8c93a304499a3"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/ota_rom_transport.py",
+          "bytes": 2484,
+          "sha256": "78f5dbef66bd97ff5e6e73b9c3457380878feafba2613a6189a58ca66f9225ca"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/ota_rom_process.py",
+          "bytes": 8115,
+          "sha256": "9116556f07d5c9364b4d70f927d675491c852619eec511175fb4949550a2ea6f"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/serial_lab.py",
+          "bytes": 13798,
+          "sha256": "7fe4ad1d5a6a2007f59c97c586cf954791c15310a881075a50db12a946d78aa6"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/lab_check.py",
+          "bytes": 17510,
+          "sha256": "ce9a332f6b81c552da46bbbe91a6a941271f0acbb3ab2936ee0d09bb9142678b"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/battery_device.py",
+          "bytes": 17306,
+          "sha256": "34b07b98c1f10afcc03111d262cdadcd41699caec7cdb56a8ea865af35ad6768"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/battery_collect.py",
+          "bytes": 23428,
+          "sha256": "304345942c16486a4626e49bb59bdd9a4126b3611630f81ba9b7d3081f0d2c05"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/light_protocol.py",
+          "bytes": 1127,
+          "sha256": "e1cb95b7ed014e76f739f324b01bc14c86759dcef7da1ba452a968312e71ab9c"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/compass_protocol.py",
+          "bytes": 1479,
+          "sha256": "268acef47f7fc9eb7a1fd07025c688f8ff6301759e195374f603fe26976800c5"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/ota_backup_review.py",
+          "bytes": 5250,
+          "sha256": "e43a6a24e85655657152ddd129f052cb729ae681a4f1aaca7c9fc41bdc14b9df"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/ota_stub_observe.py",
+          "bytes": 18173,
+          "sha256": "2d6541a209f7ad41ba6e8e948c0bf22f71a7fffc5944d588d9c09e52d88affd1"
+        },
+        {
+          "path": "artifacts/ota-b-sector-executed-sources-20261110/cancel/scripts/ota_b_sector.py",
+          "bytes": 12888,
+          "sha256": "4ede481a8776a268ea7f8461df1009fda0733b60b9d71fd5833b047f1c028b26"
+        }
+      ]
+    }
+  ],
+  "ui_version_note": "success/unknown-write used writer002 and exact SHA-reconstructed executed Python/Rust snapshots; cancel used writer003. Final changes conservatively recover RTS entry intent and check the exact writer EXE filename. These do not change the two earlier page flows; final production source is covered by 159 tests, then strengthened test-only scope check by 13 tests.",
+  "failures_retained": [
+    {
+      "log": {
+        "path": "artifacts/ota-b-sector-tests-20261110-002.log",
+        "bytes": 3010,
+        "sha256": "529df693e5eeeebfd30ce71a29e40f1cdfcf2004203cfe979e4be3dc19bab82d"
+      },
+      "reason": "Test cancelled when TX file merely existed; valid pre-entry false contradicted expected unknown. Wait now requires an actual TX event; production guards unchanged."
+    },
+    {
+      "reason": "Readonly review found final checkpoint failure could allow burn_reset. Fixed with explicit protocol-clean outcome and injected Rust regression, followed by final builds and OTA regression."
+    },
+    {
+      "reason": "A browser wait used a nonexistent completion phrase. Actual final page was inspected and saved; no device run or synthetic evidence was discarded."
+    }
+  ],
+  "review": {
+    "readonly_agent": "host_delivery_review",
+    "result": "No remaining concrete integration/safety blocker; static final diff review. STATUS/evidence checked by primary."
+  },
+  "limits": {
+    "total_seconds": 600,
+    "stub_seconds": 180,
+    "human_prompt_seconds": 120,
+    "candidate_writes": 1,
+    "restore_writes": 1,
+    "reads64k": 3,
+    "write_address": "0x12420000",
+    "write_bytes": 4096,
+    "guard_bytes": 61440,
+    "unknown_protocol_blind_restore": false,
+    "rtc_blocks_core_result": false
+  },
+  "remaining": "Fresh device authorization and actual B-sector candidate/guard/restoration/application/resources/manual result; later B boot, persistent A/B rollback, BLE/phone DFU remain separate.",
+  "archive": {
+    "path": "artifacts/ota-b-sector-package-20261110.zip",
+    "bytes": 32942823,
+    "sha256": "f0fa5fab5898cbd01a95f8fa3be9066a8e41a59847a0c530454a37f30712ed1e",
+    "members": 711,
+    "all_members_read_back_identical": true
+  }
+}

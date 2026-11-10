@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-11-10 固定B首4KiB主机执行包
+
+沿用`ota_stub_build.py`的同一锁定Rust1.90／GNU命令，显式加`--b-sector`时仅冻结独立`wristflow-ota-b-sector.exe`及`kind=ota-b-sector/flash_write_entry=true`结果；不加时仍冻结只读observer并标`flash_write_entry=false`。两个Cargo bin共用同一原库／锁／原stub，构建都执行两套Rust测试及Release，不打开串口或构建目标固件。只读入口不会因为写入程序同时被编译而获得写入参数。
+
+最终本机写入包`artifacts/ota-b-sector-build-20261110-003`及只读包`ota-b-sector-observer-build-final-20261110`均已构建。设置`WRISTFLOW_B_SECTOR_BUILD=<写入包result.json>`、`WRISTFLOW_STUB_OBSERVER_BUILD=<只读包result.json>`后运行SDK Python `-B -X utf8 -m unittest discover -s tests -p 'test_ota*.py' -v`。输入、精确EXE／源码、测试日志和旧失败保留在[执行包证据](evidence/2026-11-10/ota-b-sector-package.json)，结果及设备准入见[专题](OTA-PREPARATION.md#b-sector-package-20261110)。SDK／Product／boot／UI Demo固件未改、无设备动作。
+
 ## 2026-11-10 原版stub主机观测入口
 
 `python scripts/ota_stub_build.py --out <全新归档目录> --cargo <cargo.exe> --cargo-home <项目工具缓存> --target-dir <主机构建目录> --cc <GNU主机gcc.exe>`只构建主机EXE：固定原`sftool-lib`提交及Cargo.lock、显式`x86_64-pc-windows-gnu`，Rust测试／Release成功后重核源码并冻结产物。不打开串口，不构建／刷写固件，不改变SDK锁或系统PATH。
