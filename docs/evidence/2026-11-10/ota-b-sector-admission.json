@@ -1,0 +1,364 @@
+{
+  "schema": 1,
+  "date": "2026-11-10",
+  "scope": "Bounded offline B first4KiB write/restore admission contract; user selected existing official RAM download runtime; next change is bounded host execution package",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/ota-write-admission-contract",
+  "source_base": "ae113470ad54244e5c07c75cbb643802104745be",
+  "validation": {
+    "stub_identity_verified": true,
+    "upstream_git_blobs_verified": true,
+    "candidate_restore_exact": true,
+    "existing_device_evidence_reused": true,
+    "firmware_build": false,
+    "new_host_unit_tests": false,
+    "device_actions": false,
+    "prior_official_flash_result_checked": true
+  },
+  "static_inspection": {
+    "stub": {
+      "path": "vendor/SiFli-SDK/tools/uart_download/file/ram_patch_52X.bin",
+      "bytes": 132816,
+      "sha256": "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43"
+    },
+    "objdump_version": "GNU objdump (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 2.43.1.20241119",
+    "windows": [
+      {
+        "path": "artifacts/ota-write-admission-20261110/lcpu-control.txt",
+        "bytes": 1391,
+        "sha256": "012ecc8498337d9bd81482380c755e50c0d369afb05579bc53fd49ba8fb97984",
+        "command": [
+          "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\arm-none-eabi-gcc\\14.2.1\\bin\\arm-none-eabi-objdump.exe",
+          "-D",
+          "-b",
+          "binary",
+          "-m",
+          "arm",
+          "-M",
+          "force-thumb",
+          "--adjust-vma=537239552",
+          "--start-address=537267528",
+          "--stop-address=537267600",
+          "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\tools\\uart_download\\file\\ram_patch_52X.bin"
+        ],
+        "start": "0x20060d48",
+        "end": "0x20060d90"
+      },
+      {
+        "path": "artifacts/ota-write-admission-20261110/flash-lock.txt",
+        "bytes": 5197,
+        "sha256": "244635f19eb889404fff1224acba1288ce6392e9247067d311c69101fdbd8710",
+        "command": [
+          "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\arm-none-eabi-gcc\\14.2.1\\bin\\arm-none-eabi-objdump.exe",
+          "-D",
+          "-b",
+          "binary",
+          "-m",
+          "arm",
+          "-M",
+          "force-thumb",
+          "--adjust-vma=537239552",
+          "--start-address=537322316",
+          "--stop-address=537322648",
+          "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\tools\\uart_download\\file\\ram_patch_52X.bin"
+        ],
+        "start": "0x2006e34c",
+        "end": "0x2006e498"
+      },
+      {
+        "path": "artifacts/ota-write-admission-20261110/flash-unlock.txt",
+        "bytes": 2918,
+        "sha256": "d565dea8891e0ea5f7748cafd37103be3fb912c753e39f04a6f47a45f9e08a36",
+        "command": [
+          "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\arm-none-eabi-gcc\\14.2.1\\bin\\arm-none-eabi-objdump.exe",
+          "-D",
+          "-b",
+          "binary",
+          "-m",
+          "arm",
+          "-M",
+          "force-thumb",
+          "--adjust-vma=537239552",
+          "--start-address=537322648",
+          "--stop-address=537322816",
+          "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\tools\\uart_download\\file\\ram_patch_52X.bin"
+        ],
+        "start": "0x2006e498",
+        "end": "0x2006e540"
+      },
+      {
+        "path": "artifacts/ota-write-admission-20261110/rtos-lock.txt",
+        "bytes": 1931,
+        "sha256": "510550078f1c92db9e6c62bdfaa144101cef797535517019d92bfc1ec989cda4",
+        "command": [
+          "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\arm-none-eabi-gcc\\14.2.1\\bin\\arm-none-eabi-objdump.exe",
+          "-D",
+          "-b",
+          "binary",
+          "-m",
+          "arm",
+          "-M",
+          "force-thumb",
+          "--adjust-vma=537239552",
+          "--start-address=537329988",
+          "--stop-address=537330096",
+          "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\tools\\uart_download\\file\\ram_patch_52X.bin"
+        ],
+        "start": "0x20070144",
+        "end": "0x200701b0"
+      }
+    ],
+    "device_actions": false,
+    "additional_control_functions_expanded": 4
+  },
+  "irq_leaf": {
+    "command": [
+      "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\arm-none-eabi-gcc\\14.2.1\\bin\\arm-none-eabi-objdump.exe",
+      "-D",
+      "-b",
+      "binary",
+      "-m",
+      "arm",
+      "-M",
+      "force-thumb",
+      "--adjust-vma=537239552",
+      "--start-address=537241064",
+      "--stop-address=537241080",
+      "D:\\MY_Desk\\project\\wristflow\\vendor\\SiFli-SDK\\tools\\uart_download\\file\\ram_patch_52X.bin"
+    ],
+    "exit_code": 0,
+    "output": {
+      "path": "artifacts/ota-write-admission-20261110/irq-save-restore.txt",
+      "bytes": 366,
+      "sha256": "24c9e197012116016bcb4e4d5317744208b4314fd1611271e42a0bb31286f681"
+    }
+  },
+  "source_records": [
+    {
+      "path": ".tools/ota-stub-session/cargo-home/git/checkouts/sftool-7024324ec9ee6d53/be2adab/sftool-lib/src/sf32lb52/mod.rs",
+      "bytes": 9336,
+      "sha256": "26dcdce5a7282243429c12017ad76907a29f28dc3a32134c0733ed41c95ee79d",
+      "git_blob": "9ce8eed6b706e5ba8b40d09b9d73c7bc6699d53e",
+      "source_revision": "be2adab37bfb0ef4eb623b7e47e7b8693918b1e1"
+    },
+    {
+      "path": ".tools/ota-stub-session/cargo-home/git/checkouts/sftool-7024324ec9ee6d53/be2adab/sftool-lib/src/common/write_flash.rs",
+      "bytes": 6557,
+      "sha256": "793c77b7d5a68ac18cd42fa0f531eddab4f66f03c0223c8eee4046c6ba4cadbf",
+      "git_blob": "d255d14ec611f560a50d7784a632d87dcf55c551",
+      "source_revision": "be2adab37bfb0ef4eb623b7e47e7b8693918b1e1"
+    },
+    {
+      "path": ".tools/ota-stub-session/cargo-home/git/checkouts/sftool-7024324ec9ee6d53/be2adab/sftool-lib/src/common/read_flash.rs",
+      "bytes": 6284,
+      "sha256": "86be7907e938e27c690caf1c0092f40bf558c25ee42c0b2bad338009aaef026a",
+      "git_blob": "4b3c8b8856b9f0ddd1bead3379dd216e156b9d08",
+      "source_revision": "be2adab37bfb0ef4eb623b7e47e7b8693918b1e1"
+    },
+    {
+      "path": "sdk.lock.json",
+      "bytes": 473,
+      "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+    },
+    {
+      "path": "vendor/SiFli-SDK/drivers/hal/bf0_hal_rcc.c",
+      "bytes": 81979,
+      "sha256": "da28e16942c282c8040c40a92bc58040d4d2cde1ae8257571551bab37fe0fec7"
+    },
+    {
+      "path": "apps/ota_boot/src/entry.c",
+      "bytes": 8176,
+      "sha256": "8aa33fd5872f35cdd38909ed3445618a1d34345d3f4b7f49681092321c31afbf"
+    },
+    {
+      "path": "apps/ota_loader/src/main.c",
+      "bytes": 1685,
+      "sha256": "ed25b272eee668700404a10446e5303c6d3e6cfe9f84d21a43de1859e2966a36"
+    },
+    {
+      "path": "apps/ota_loader/project/proj.conf",
+      "bytes": 701,
+      "sha256": "cf1a8d1277353a9e6a2d2b41fa61a5ddf874c41e3cc6f9d7149e10aa07c8b96c"
+    },
+    {
+      "path": "vendor/SiFli-SDK/example/ble/peripheral_with_ota/README.md",
+      "bytes": 11663,
+      "sha256": "05148c6f4484d35871cfdcb45e3bffb01a833062b5fd1a76d3da03aeb8fd959c"
+    }
+  ],
+  "findings": {
+    "lcpu": {
+      "helper": "0x20060d54",
+      "cpuwait_or": "0x20060d64",
+      "pmr_write": "0x20060d68",
+      "pmr_literal": "0x40040000",
+      "bounded_call_sites": [
+        "0x2005ff14",
+        "0x2006a3f2",
+        "0x2006a3f8"
+      ],
+      "entry_mandatory_path_established": false,
+      "finite_ready_cpuwait_already_observed": true
+    },
+    "flash_control": {
+      "sector_outer_before": "0x2006ad06",
+      "sector": "0x20060110",
+      "sector_outer_after": "0x2006ae44",
+      "lock": "0x2006e34c",
+      "unlock": "0x2006e498",
+      "bin_identifiers": [
+        "rt_flash_lock",
+        "rt_flash_unlock"
+      ],
+      "conditional_enable_ram": [
+        "0x20000470",
+        "0x2004168c"
+      ],
+      "irq_save": "0x2005a5e8",
+      "irq_restore": "0x2005a5f0",
+      "irq_mask_held_throughout_flash_operation": false,
+      "all_bus_master_exclusion_established": false
+    },
+    "dma": {
+      "observed_endpoints": "UART1 RDR to RAM; no direct NOR endpoint in finite snapshot",
+      "enabled_dma_alone_proves_conflict": false,
+      "continuous_ownership_established": false,
+      "another_pointer_snapshot_sufficient": false
+    }
+  },
+  "decision": {
+    "official_path_selected_by_user": true,
+    "user_quote": "沿用已经工作的官方 RAM 下载程序，我感觉会更好",
+    "selected": "Fixed official RAM download runtime and flash algorithm, with only bounded host write/readback/restore guards",
+    "original_stub_write_admitted": false,
+    "current_blocker": "Existing project capture has no write entry; bounded official-path host execution package and fresh device authorization still required",
+    "source_control_proof": "Finite inspection did not establish all-master sustained exclusion; preserve this limitation without claiming vendor malfunction or using complete source reconstruction as an endless prerequisite",
+    "stop": "No more whole-bin reverse engineering, similar snapshots or new target-side writer in this change",
+    "recommendation_correction": "Earlier recommendation for project-owned RAM writer overweighted auditability and omitted additional implementation/first-use risks; withdrawn as the current recommendation",
+    "backup_only": "Consider a project-owned SDK-HAL RAM writer only if a concrete official-flow limitation affecting the bounded experiment is established and discussed"
+  },
+  "experiment_contract": {
+    "write_address": "0x12420000",
+    "write_bytes": 4096,
+    "protected_address": "0x12421000",
+    "protected_bytes": 61440,
+    "read_range": [
+      "0x12420000",
+      "0x12430000"
+    ],
+    "candidate": {
+      "path": "artifacts/ota-execution-probe-20261108-006/probe-b-sector.bin",
+      "bytes": 4096,
+      "sha256": "14102c47df5a8078fd934f9efaea7a271ef790eb7ffd265546abf4cf5b4440fe"
+    },
+    "historic_restore": {
+      "path": "artifacts/ota-execution-probe-20261108-006/restore-b-first4k.bin",
+      "bytes": 4096,
+      "sha256": "154ff4e9b4b26b0a5f13ce0f4ec94f32418d48cbabdb276ae48f842879713070"
+    },
+    "historic_restore_non_ff": 3895,
+    "protected_60k_non_ff": 53547,
+    "fresh_restore_required": true,
+    "fresh64k_must_match_bound_prior_B": true,
+    "max_candidate_writes": 1,
+    "max_restore_writes": 1,
+    "independent_readbacks_required": true,
+    "normal_full_range_reads_max": 3,
+    "read_bytes_each": 65536,
+    "boot_write": false,
+    "b_execution": false,
+    "flash_erase_all": false,
+    "arbitrary_address": false,
+    "automatic_reconnect": false,
+    "unknown_protocol_state_blind_restore": false,
+    "rtc_blocks_core_result": false,
+    "device_execution_authorized": false,
+    "executable_adapter_exists": false,
+    "success": "Candidate first4KiB matches, guard60KiB unchanged; after restore entire64KiB equals same-window prestate, original application and saved records recover, owned resources close, physical final confirmation",
+    "entry_control_basis": "Pinned official SF52/NOR ROM/RAM download path under owned host session; keep finite ready guards and explicit unknowns, no DMA-all-zero requirement or claim of complete continuous control",
+    "arbitrary_custom_target_writer": false,
+    "future_host_package_required": true
+  },
+  "existing_evidence": [
+    {
+      "path": "docs/evidence/2026-11-08/ota-rom-backup-device.json",
+      "bytes": 8240,
+      "sha256": "6514a2b2a38ee6aa16cfda23c95ecf641c63e82df44387f5be3df05fe146f839"
+    },
+    {
+      "path": "docs/evidence/2026-11-09/ota-rom-capture-exit.json",
+      "bytes": 10730,
+      "sha256": "fae18a3fcdab438916088f3ac8d96e0d2c3a2f0ee8e04eb90978559402a0eff6"
+    },
+    {
+      "path": "docs/evidence/2026-11-09/ota-rom-release-device.json",
+      "bytes": 22134,
+      "sha256": "4a180d77815ab41a2bbf3d790162b439cd2785a41480b0769d3881dc6d104498"
+    },
+    {
+      "path": "docs/evidence/2026-11-10/ota-stub-geometry-device.json",
+      "bytes": 6628,
+      "sha256": "7101182a3bfaa99502906a25f3babc2aea1703b582ef16162bae33ca3ef70738"
+    }
+  ],
+  "phone": {
+    "priority": "Reuse official phone DFU protocol/tools before writing a phone app",
+    "android_example": "https://github.com/OpenSiFli/SiFli_OTA_APP",
+    "ios_example": "https://github.com/OpenSiFli/SiFli_OTA_APP_IOS",
+    "android_install_entry_in_locked_sdk": true,
+    "ios_installable_app_verified": false,
+    "current_product_ota_service": false,
+    "ab_loader_phone_compatibility_verified": false
+  },
+  "prior_official_flash": {
+    "result": {
+      "path": "artifacts/flash/product/20261103-120138-892/result.json",
+      "bytes": 1767,
+      "sha256": "c2e577ff973b4f7618f4eb75297502b0ac69cc395da848027c65d1470daad8bc"
+    },
+    "log": {
+      "path": "artifacts/flash/product/20261103-120138-892/sftool.log",
+      "bytes": 203,
+      "sha256": "c1b18ce6a4b46a949c8f3089e2d0226b9ca03c7c4dab7656f671571e4244c817"
+    },
+    "command": "D:\\MY_Desk\\project\\wristflow\\.tools\\sifli\\tools\\sftool\\0.2.5\\sftool.exe -p COM5 -c SF32LB52 -m nor -b 500000 --connect-attempts 3 --after soft_reset write_flash --verify D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\bootloader\\bootloader.bin@0x12010000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\main.bin@0x12020000 D:\\MY_Desk\\project\\wristflow\\apps\\product\\project\\build_sf32lb52-lchspi-ulp_hcpu\\ftab\\ftab.bin@0x12000000",
+    "exit_code": 0,
+    "normal_cli_baud": 500000,
+    "owned_bridge_baud": 1000000,
+    "exact_historical_exe_stub_identity_established": false,
+    "comparison": {
+      "executable": {
+        "path": ".tools/sifli/tools/sftool/0.2.5/sftool.exe",
+        "bytes": 7943168,
+        "sha256": "1ccc425e72048db93c410614114f8343e389988ee8aa90251aa46f05ae0b3e0f"
+      },
+      "stub": {
+        "path": "vendor/SiFli-SDK/tools/uart_download/file/ram_patch_52X.bin",
+        "bytes": 132816,
+        "sha256": "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43"
+      },
+      "exact_stub_occurrences": 0,
+      "first_offset": -1,
+      "prior_flash_result": {
+        "path": "artifacts/flash/product/20261103-120138-892/result.json",
+        "bytes": 1767,
+        "sha256": "c2e577ff973b4f7618f4eb75297502b0ac69cc395da848027c65d1470daad8bc"
+      },
+      "prior_flash_log": {
+        "path": "artifacts/flash/product/20261103-120138-892/sftool.log",
+        "bytes": 203,
+        "sha256": "c1b18ce6a4b46a949c8f3089e2d0226b9ca03c7c4dab7656f671571e4244c817"
+      },
+      "interpretation": "Full fixed stub bytes were not found as one contiguous sequence in the historical official EXE. This bounded scan does not establish embedded-stub equivalence or absence; no further EXE investigation. Prior official write/verify experience is not claimed as this B-sector experiment.",
+      "device_actions": false
+    },
+    "scope": "Supports reusing official tool experience; does not establish B first4KiB restore/guard experiment or unchanged host session conditions"
+  },
+  "archive": {
+    "path": "artifacts/ota-write-admission-20261110-selected-official.zip",
+    "bytes": 16449,
+    "sha256": "38e7806c1aac4832b1d2a9bc2c6858ab7372adb5c400888a79c7488c1a0a6939",
+    "members": 10,
+    "all_members_read_back_identical": true
+  }
+}
