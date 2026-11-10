@@ -8,6 +8,10 @@ publish = false
 name = "wristflow-ota-b-sector"
 path = "src/b_sector.rs"
 
+[[bin]]
+name = "wristflow-ota-b-execute"
+path = "src/b_execute.rs"
+
 [dependencies]
 sftool-lib = { git = "https://github.com/OpenSiFli/sftool", rev = "be2adab37bfb0ef4eb623b7e47e7b8693918b1e1" }
 serialport = "=4.7.0"

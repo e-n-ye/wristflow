@@ -5,23 +5,25 @@
 
 本区是活动任务和下一步的唯一权威来源；历史命令和计划不构成执行授权。
 
-**目标与本轮**：继续首版A/B自动回滚OTA，按用户当次明确授权完成[B首4KiB候选写入／独立读回／原字节恢复实机闭环](OTA-PREPARATION.md#b-sector-device-20261110)，收尾并交付证据。没有改boot、运行B、构建新固件或校时；该设备窗已关闭。
+**目标与本轮**：继续首版A/B自动回滚OTA，完成[固定B启动及原boot／B恢复执行包](OTA-PREPARATION.md#b-execution-package-20261110)的软件闭环和交付。复用006目标镜像及官方RAM程序，没有新目标固件、设备打开／复位／写擦或校时；原设备窗保持关闭。
 
-**交付与保全**：规则PR211`12c3b90`、探针PR212`9b276fd`、ROM／stub及证据PR213`ae11347`、准入合同PR214`6a9e832`和[执行包PR215](https://github.com/e-n-ye/wristflow/pull/215)`c990b93`已集成，后者远端回读及干净main同步已核实。本轮从`c990b93`开展`codex/ota-b-sector-device`，本次证据PR收尾再回读。原阶段`codex/ota-mapping-experiment@264945d`、外壳分支及旧证据保持。
+**交付与保全**：规则PR211、探针PR212、ROM／stub及证据PR213、准入合同PR214、B扇区包PR215均已集成；[实机证据PR216](https://github.com/e-n-ye/wristflow/pull/216)`dd3ce1e`已回读MERGED并同步干净main。本轮从该版本开展`codex/ota-probe-execution-package`，本次软件PR收尾再回读。原阶段`codex/ota-mapping-experiment@264945d`、外壳分支及旧证据保持。
+
+**本轮软件成果**：独立writer冻结006 B4KiB／兼容boot58496B，新鲜FTAB／原区域绑定；B先装、boot后装，同1M端口接固定三阶段帧，第二计划入口零alias筛查后原boot先恢复、B后恢复。协议／取消／日志错误停止新命令，无额外退出RTS；显式先前窗恢复模式不读取停住的应用前态。最终writer006及只读／扇区companion三binary Rust测试／Release通过，OTA Python175/175，243.657秒；页面正常、映射受阻、恢复及取消均实际模拟点击。[版本／证据](evidence/2026-11-10/ota-b-execution-package.json)。
 
 **本次设备结果**：固定执行包004／原库及原stub，父窗96.846秒、stub8.032秒；一次入口RTS／SYSRESETREQ，候选和本窗原4096B各擦写一次，三次64KiB完整CRC／OK及原流逐字节复核。候选首4KiB匹配并实际改变3921B、后60KiB不变；恢复后全64KiB等于新鲜前态，SHA`8f65b59b…`。正常单发burn_reset，无退出RTS。结论限本次64KiB窗口，不证明整片／物理擦除包络／全程参与者排他。[精简证据](evidence/2026-11-10/ota-b-sector-device.json)。
 
-**软件及复用基础**：1684B固定探针、34240B可选执行RAM boot、58496B兼容候选和恢复输入继续复用；writer004／observer002各Rust8＋8及Release、最终OTA Python159/159的[软件证据](evidence/2026-11-10/ota-b-sector-package.json)保持。普通Product隔离、SDK锁／分区未改。11/08完整双NOR与11/09 ROM进入／保持／退出证据按版本复用，不补跑工具总passed。
+**复用基础**：1684B固定探针、34240B可选执行RAM boot、58496B兼容候选和恢复输入继续复用，原[扇区包软件证据](evidence/2026-11-10/ota-b-sector-package.json)保留对应版本。普通Product隔离、SDK锁／分区未改。11/08完整双NOR与11/09 ROM进入／保持／退出证据按版本复用，不补跑工具总passed。
 
 **应用与清理末态**：原程序boot30→31／saved178→179，总已存时长859228314→859229405ms及场景不倒退，保存失败0／活动fault0／累计fault仍3。152.145秒RAM尾段只保全电脑，不宣称全部实时记录无损；worker／child退出0、无强杀，串口／租约关闭且内核租约复取通过。操作者确认原程序返回、常亮关闭及显示／触摸／KEY1正常。
 
-**真实缺口**：B首扇区写入／恢复已取得实证；B启动、boot映射与原boot恢复、持久启动确认／自动回滚、BLE手机DFU仍未完成。首NOR少152B／CRC不符仍为无效完整备份；本次64KiB成功不补成全片备份。ready仍CPUWAIT=1／已知DMA7 UART→RAM，有限快照不证明持续排他；不再为这种声明追加相似采样。
+**真实缺口**：B启动／映射及原boot恢复尚无设备结果；探针映射后第二次入口是否清alias仍未知，任一三字非零即禁止Flash访问，不自写清alias，可能需另选恢复方案。先前正常原boot下ROM证据不冒充该条件已验。持久启动确认／自动回滚、BLE手机DFU仍待后续。少152B／CRC不符的完整NOR仍无效；本次64KiB证据不补成全片或全程排他，不追加类似快照。
 
 **RTC与授权**：前后日期同为2000年零点／记录UTC0，工具60秒容差的true及页面6/6不证明有效时钟或保时；RTC独立记录、不阻塞核心成果，未校时。所有原报告保留，不为标签重做设备窗。本次具体写入／恢复授权已用完，后续boot／B执行或其他设备实验需新授权。
 
 **控制路径**：沿用用户所选官方RAM程序／Flash算法，项目只加固定主机守卫；本次局部写入／恢复已验，继续保留厂商内部全程控制的具体未知，不扩成全bin逆向或自有目标端写入器。工具数量和检查点不计作OTA设备进展。
 
-**唯一下一步**：本次证据交付后，复用既有固定探针／兼容RAM boot包，准备“B真正启动并恢复原boot／B”的有限执行合同和对应软件验证；以固定tag／CRC的PREPARED→MAPPED→EXECUTED及原字节读回／应用恢复界定验收。先离线收敛，不从旧命令直接写boot；实际动作与范围另取当次授权，不扩到手机传输或自动回滚。
+**唯一下一步**：软件交付后核精确执行包／原板现场及两次计划入口、固定B／boot安装与原字节恢复的具体风险，取得当次授权才运行一次B执行／恢复窗口。验收只为固定tag／CRC的PREPARED→MAPPED→EXECUTED、恢复后boot及B64KiB完全等于本窗前态、原应用／资源／人工末态；第二入口alias非零或未知协议则停止并保留未恢复状态，恢复窗另授权。不扩到手机传输或自动回滚。
 
 <a id="history-usable-curve-20261103"></a>
 ## 2026-11-03 新曲线接入结束快照（原current，已由可佩戴准备接续）

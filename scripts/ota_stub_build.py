@@ -17,10 +17,13 @@ SOURCES = ("scripts/ota_stub_build.py", "scripts/ota_stub_bridge/Cargo.toml",
            "scripts/ota_stub_bridge/Cargo.lock", "scripts/ota_stub_bridge/src/main.rs",
            "scripts/ota_stub_bridge/src/port.rs", "scripts/ota_stub_bridge/src/simulated.rs",
            "scripts/ota_stub_bridge/src/geometry.rs", "scripts/ota_stub_bridge/src/common.rs",
-           "scripts/ota_stub_bridge/src/b_sector.rs", "scripts/ota_stub_bridge/src/sector.rs")
+           "scripts/ota_stub_bridge/src/b_sector.rs", "scripts/ota_stub_bridge/src/sector.rs",
+           "scripts/ota_stub_bridge/src/b_execute.rs")
 
 
-def build(output, cargo, cargo_home, target_dir, cc, *, runner=subprocess.run, b_sector=False):
+def build(output, cargo, cargo_home, target_dir, cc, *, runner=subprocess.run, b_sector=False, b_execute=False):
+    if b_sector and b_execute:
+        raise ValueError("Select one independent host binary")
     output = Path(output).resolve()
     if output.exists():
         raise ValueError("New build archive directory required")
@@ -54,7 +57,7 @@ def build(output, cargo, cargo_home, target_dir, cc, *, runner=subprocess.run, b
             write_json(output / "failed.json", dict(commands=results, sources=source_records, device_actions=False))
             raise RuntimeError("Host observer " + mode + " failed; archive retained")
     verify_files(source_records, ROOT)
-    binary = "wristflow-ota-b-sector.exe" if b_sector else "wristflow-ota-stub-observer.exe"
+    binary = "wristflow-ota-b-execute.exe" if b_execute else "wristflow-ota-b-sector.exe" if b_sector else "wristflow-ota-stub-observer.exe"
     source = Path(target_dir).resolve() / "x86_64-pc-windows-gnu/release" / binary
     target = output / source.name
     shutil.copyfile(source, target)
@@ -67,11 +70,11 @@ def build(output, cargo, cargo_home, target_dir, cc, *, runner=subprocess.run, b
         if result.returncode:
             raise RuntimeError("Tool version read failed")
         versions[name] = result.stdout.strip()
-    result = dict(schema=1, kind="ota-b-sector" if b_sector else "ota-stub-observer", created_utc=dt.datetime.now(dt.timezone.utc).isoformat(),
+    result = dict(schema=1, kind="ota-b-execute" if b_execute else "ota-b-sector" if b_sector else "ota-stub-observer", created_utc=dt.datetime.now(dt.timezone.utc).isoformat(),
                   source_revision=REVISION, sources=source_records, commands=results, versions=versions,
                   executable=file_record(target, ROOT), sdk_lock=file_record(ROOT / "sdk.lock.json", ROOT),
                   stub=file_record(ROOT / "vendor/SiFli-SDK/tools/uart_download/file/ram_patch_52X.bin", ROOT),
-                  device_actions=False, flash_write_entry=b_sector, firmware_build=False, passed=True)
+                  device_actions=False, flash_write_entry=b_sector or b_execute, firmware_build=False, passed=True)
     write_json(output / "result.json", result)
     return result
 
@@ -81,8 +84,9 @@ def main():
     for name in ("out", "cargo", "cargo-home", "target-dir", "cc"):
         parser.add_argument("--" + name, type=Path, required=True)
     parser.add_argument("--b-sector", action="store_true", help="Freeze the separate fixed-sector writer, not the read-only observer")
+    parser.add_argument("--b-execute", action="store_true", help="Freeze the separate fixed boot/probe execution and restoration binary")
     args = parser.parse_args()
-    result = build(args.out, args.cargo, args.cargo_home, args.target_dir, args.cc, b_sector=args.b_sector)
+    result = build(args.out, args.cargo, args.cargo_home, args.target_dir, args.cc, b_sector=args.b_sector, b_execute=args.b_execute)
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 

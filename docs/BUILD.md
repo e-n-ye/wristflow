@@ -1,6 +1,14 @@
 # 可复现构建基线
 
+## 2026-11-10 固定B启动与顺序恢复主机包
+
+`ota_stub_build.py`沿用下方Rust1.90／GNU命令，加`--b-execute`冻结独立`wristflow-ota-b-execute.exe`／`kind=ota-b-execute`。不加仍冻结只读observer，`--b-sector`仍只冻结原B扇区writer；两个写入选项互斥。三套Rust测试及Release都在同一锁定工程完成，原库／Cargo.lock／SDK锁／原stub不变，构建不打开串口或构建固件。最终包、两个回归companion及所有测试版本见[执行包证据](evidence/2026-11-10/ota-b-execution-package.json)。
+
+设置`WRISTFLOW_B_EXECUTE_BUILD`、`WRISTFLOW_B_SECTOR_BUILD`和`WRISTFLOW_STUB_OBSERVER_BUILD`为该证据中的冻结`result.json`，执行SDK Python `-B -X utf8 -m unittest discover -s tests -p 'test_ota*.py' -v`。复用006目标固件的冻结ELF／BIN与源码快照；工作树仅LF／CRLF差异按完整UTF-8正文比对并分别记录原字节与当前输入，不重新构建或覆盖原固件。实际准入、恢复范围和硬件未知见[专题](OTA-PREPARATION.md#b-execution-package-20261110)。
+
 ## 2026-11-10 固定B首4KiB主机执行包
+
+以下保留PR215交付时两binary的版本快照；新三binary构建及当前冻结来源以上节为准。
 
 沿用`ota_stub_build.py`的同一锁定Rust1.90／GNU命令，显式加`--b-sector`时仅冻结独立`wristflow-ota-b-sector.exe`及`kind=ota-b-sector/flash_write_entry=true`结果；不加时仍冻结只读observer并标`flash_write_entry=false`。两个Cargo bin共用同一原库／锁／原stub，构建都执行两套Rust测试及Release，不打开串口或构建目标固件。只读入口不会因为写入程序同时被编译而获得写入参数。
 
