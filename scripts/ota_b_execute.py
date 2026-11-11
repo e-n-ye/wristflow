@@ -22,7 +22,8 @@ TAG = [2306271408, 2453024267, 2305287774, 1289714410]
 SCENARIOS = ("success", "fragmented", "before-changed", "b-compare", "boot-compare", "write-fail",
     "restore-boot-fail", "restore-b-fail", "restore-read-fail", "alias-retained", "no-frames",
     "bad-tag", "bad-crc", "short-frames", "duplicate-frames", "execute-hang", "rtc-reset",
-    "initial-register-fail", "restore-register-fail", "restore-alias-fail", "probe-start-fail", "original-start-fail")
+    "initial-register-fail", "restore-register-fail", "restore-alias-fail", "probe-start-fail", "original-start-fail",
+    "boot-header-changed", "boot-route-changed")
 AUTHORIZATIONS = ("b_sector_write_authorized", "boot_write_authorized", "probe_start_authorized",
                   "restore_entry_authorized", "restore_writes_authorized")
 
@@ -161,12 +162,15 @@ def verified_result(value, directory, request, path, review):
             raise ValueError("Incomplete raw execution evidence")
         return raw
     if value["fresh_prestate_verified"]:
-        if (data("before-ftab4k.bin", 4096) != baseline[:4096] or data("before-boot64k.bin", 65536) != boot
+        if (data("before-ftab12k.bin", 12288) != baseline[:12288] or data("before-boot64k.bin", 65536) != boot
                 or data("before-b64k.bin", 65536) != b or data("boot-restore64k.bin", 65536) != boot
                 or data("b-restore4k.bin", 4096) != b[:4096]):
             raise ValueError("Fresh originals differ")
     if not request["recovery_only"] and (value["b_install_attempted"] or value["boot_install_attempted"]) and not value["fresh_prestate_verified"]:
         raise ValueError("Mutation without fresh originals")
+    if request["recovery_only"] and (value["boot_restore_attempted"] or value["b_restore_attempted"]):
+        if data("before-ftab12k.bin", 12288) != baseline[:12288]:
+            raise ValueError("Recovery FTAB metadata differs from original")
     for prefix, name, expected, tail in (("b", "installed-b64k.bin", Path(request["candidate"]["path"]).read_bytes(), b[4096:]),
                                         ("boot", "installed-boot64k.bin", Path(request["boot"]["path"]).read_bytes(), boot[58496:])):
         file = directory / name

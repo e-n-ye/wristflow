@@ -101,6 +101,7 @@ class ExecutionBinary(unittest.TestCase):
             ("b_install", 0x12420000, 4096), ("boot_install", 0x12010000, 58496),
             ("boot_restore", 0x12010000, 65536), ("b_restore", 0x12420000, 4096)])
         self.assertEqual(len([v for v in events if v["kind"] == "execution_read_intent"]), 9)
+        self.assertEqual([(v["address"], v["bytes"]) for v in events if v["kind"] == "execution_read_intent"][0], (0x12000000, 12288))
         self.assertEqual(len([v for v in events if v["kind"] == "rts_intent" and v["value"]]), 2)
         self.assertEqual((out / "restored-boot64k.bin").read_bytes(), (out / "before-boot64k.bin").read_bytes())
         self.assertEqual((out / "restored-b64k.bin").read_bytes(), (out / "before-b64k.bin").read_bytes())
@@ -119,6 +120,30 @@ class ExecutionBinary(unittest.TestCase):
         _, _, _, process, report = self.binary("ftab-change", "before-changed")
         self.assertEqual(process.returncode, 1)
         self.assertFalse(report["b_install_attempted"] or report["boot_install_attempted"] or report["probe_start_attempted"])
+
+    def test_boot_length_or_running_pointer_change_outside_first4k_stops_before_writes(self):
+        baseline = Path(self.options["first"]).read_bytes()
+        boot_path, b_path = self.root / "metadata-original-boot64k.bin", self.root / "metadata-original-b4k.bin"
+        boot_path.write_bytes(baseline[0x10000:0x20000])
+        b_path.write_bytes(baseline[0x420000:0x421000])
+        for scenario, offset in (("boot-header-changed", 0x1200), ("boot-route-changed", 0x2c04)):
+            for recovering in (False, True):
+                with self.subTest(scenario=scenario, recovering=recovering):
+                    changes = dict(recovery_only=True, restore_boot=file_record(boot_path), restore_b=file_record(b_path)) if recovering else None
+                    out, _, _, process, report = self.binary(scenario + str(recovering), scenario, changes)
+                    self.assertEqual(process.returncode, 1)
+                    self.assertFalse(report["fresh_prestate_verified"] or report["b_install_attempted"] or
+                                     report["boot_install_attempted"] or report["probe_start_attempted"] or report["original_start_completed"] or
+                                     report["boot_restore_attempted"] or report["b_restore_attempted"])
+                    current = (out / "before-ftab12k.bin").read_bytes()
+                    self.assertEqual(len(current), 12288)
+                    self.assertEqual(current[:4096], baseline[:4096])
+                    self.assertNotEqual(current[offset], baseline[offset])
+                    self.assertFalse((out / "before-boot64k.bin").exists())
+                    events = [json.loads(x) for x in (out / "wire-events.jsonl").read_text().splitlines()]
+                    self.assertEqual(sum(e["kind"] == "execution_read_intent" for e in events), 1)
+                    self.assertFalse(any(e["kind"] == "execution_write_intent" for e in events))
+                    self.assertEqual(sum(e["kind"] == "rts_intent" and e["value"] for e in events), 1)
 
     def test_complete_install_comparison_failure_restores_without_starting_probe(self):
         for scenario in ("b-compare", "boot-compare"):
