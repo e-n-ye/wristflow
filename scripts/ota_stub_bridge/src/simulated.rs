@@ -34,6 +34,7 @@ impl State {
         self.output.extend([0x10,0,code]);self.output.extend(data);self.output.push_back(6);
     }
     fn value(&self,address:u32)->u32 {
+        if self.scenario=="ftab-alias-nonzero" && address==0x50042070 {return 0x400000}
         if self.execution && self.scenario=="alias-retained" && self.entries==2 && (0x5004206c..=0x50042074).contains(&address) {return 0x400000}
         if address==0x40040000 {return if self.scenario=="lcpu-running" {0}else{4}}
         if address==0x50081080 {return 0x10af} // A deliberately active synthetic UART RX DMA.
@@ -88,6 +89,9 @@ impl State {
                     if self.execution && ((self.scenario=="initial-register-fail" && self.entries==1 && address==0x40040000) ||
                         (self.scenario=="restore-register-fail" && self.entries==2 && address==0x40040000) ||
                         (self.scenario=="restore-alias-fail" && self.entries==2 && address==0x5004206c)) {
+                        self.response(0xdf,&[]);continue;
+                    }
+                    if self.scenario=="ftab-alias-fail" && address==0x5004206c {
                         self.response(0xdf,&[]);continue;
                     }
                     if self.scenario=="register-read-fail" && address==0x40040000 {
@@ -148,6 +152,18 @@ impl State {
                             if self.scenario=="duplicate-frames" {frames.extend(self.frames[..80].iter());}
                             self.output.extend(frames);
                         }
+                    },
+                    ["burn_read","0x12000000","0x00001000"]=>{
+                        self.reads+=1;
+                        if self.reads!=1 {return Err(io::Error::other("FTAB read cannot retry"))}
+                        let mut data=self.nor[..4096].to_vec();
+                        if self.scenario=="ftab-changed" {data[0]^=1;}
+                        let checksum=crc::Crc::<u32>::new(&CRC_ALGORITHM).checksum(&data);
+                        let checksum=if self.scenario=="ftab-crc-fail" {checksum^1}else{checksum};
+                        if self.scenario=="ftab-short18" {data.truncate(4078);}
+                        self.output.extend(b"start_trans\r\n");self.output.extend(data);
+                        // The real fixed stub places CRC immediately after payload.
+                        self.output.extend(format!("CRC:0x{checksum:08x}\r\nOK\r\nmsh >").bytes());
                     },
                     ["burn_read","0x12000000","0x01000000"]=>{
                         self.reads+=1;

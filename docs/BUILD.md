@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-11-11 FTAB单次接收完整性主机包
+
+沿用`ota_stub_build.py`的Rust1.90／GNU入口，冻结只读observer的`002`及同一次Release链接的扇区／执行companion。新增`src/ftab.rs`及其源绑定；Cargo.lock只把已锁定的`winapi0.3.9`列为直接依赖，供Windows原生错误位查询，不升级包版本、原sftool库或SDK。Rust三binary9／8／9项及Release、OTA Python183/183通过；完整命令、哈希和验证版本见[证据](evidence/2026-11-11/ota-ftab-receive-software.json)。没有目标固件构建或设备操作。
+
+`ota_stub_observe.py simulate|capture --ftab-only`与`--geometry-only`互斥；总窗300秒、stub≤60秒、人工关口各≤60秒，仍由原Console／Journal、PortLease和Windows Job持有。只读FTAB4096B一次，原库长度／CRC、原字节及独立原流复核共同准入。新计划的实际设备范围、驱动状态含义与失败返回见[有限合同](OTA-PREPARATION.md#ftab-receive-check-20261111)；capture仍须当次授权，不由构建或模拟启动。
+
 ## 2026-11-10 固定B启动与顺序恢复主机包
 
 `ota_stub_build.py`沿用下方Rust1.90／GNU命令，加`--b-execute`冻结独立`wristflow-ota-b-execute.exe`／`kind=ota-b-execute`。不加仍冻结只读observer，`--b-sector`仍只冻结原B扇区writer；两个写入选项互斥。三套Rust测试及Release都在同一锁定工程完成，原库／Cargo.lock／SDK锁／原stub不变，构建不打开串口或构建固件。最终包、两个回归companion及所有测试版本见[执行包证据](evidence/2026-11-10/ota-b-execution-package.json)。

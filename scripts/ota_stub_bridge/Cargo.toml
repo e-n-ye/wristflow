@@ -20,5 +20,8 @@ serde_json = "=1.0.140"
 sha2 = "=0.10.8"
 crc = "=3.2.1"
 
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "=0.3.9", features = ["commapi", "winbase"] }
+
 [profile.release]
 panic = "unwind"

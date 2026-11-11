@@ -18,7 +18,7 @@ SOURCES = ("scripts/ota_stub_build.py", "scripts/ota_stub_bridge/Cargo.toml",
            "scripts/ota_stub_bridge/src/port.rs", "scripts/ota_stub_bridge/src/simulated.rs",
            "scripts/ota_stub_bridge/src/geometry.rs", "scripts/ota_stub_bridge/src/common.rs",
            "scripts/ota_stub_bridge/src/b_sector.rs", "scripts/ota_stub_bridge/src/sector.rs",
-           "scripts/ota_stub_bridge/src/b_execute.rs")
+           "scripts/ota_stub_bridge/src/b_execute.rs", "scripts/ota_stub_bridge/src/ftab.rs")
 
 
 def build(output, cargo, cargo_home, target_dir, cc, *, runner=subprocess.run, b_sector=False, b_execute=False):

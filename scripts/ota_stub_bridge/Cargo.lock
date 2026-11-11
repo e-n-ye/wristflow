@@ -2389,6 +2389,7 @@ dependencies = [
  "serialport",
  "sftool-lib",
  "sha2",
+ "winapi",
 ]
 
 [[package]]
