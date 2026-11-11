@@ -1,0 +1,276 @@
+{
+  "schema": 1,
+  "date": "2026-11-11",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "source_commit": "7897429145a4b06f5ab910dc4f106e98cb79006b",
+  "branch": "codex/ota-b-execution-device",
+  "scope": "Fixed006 B execution attempt stopped on first FTAB read, before all Flash writes; separately authorized one-RTS return and read-only application verification",
+  "authorization": {
+    "initial_reply": "已授权",
+    "preparation_confirmed_in_console": true,
+    "separate_return_reply": "授权这一次复位及返回后只读核验",
+    "operator_after_return": "原程序已返回，显示／触摸／KEY1正常，临时常亮已开",
+    "final_operator": "临时常亮已关闭，显示／触摸／KEY1正常",
+    "windows_closed": true
+  },
+  "native_path": {
+    "library_revision": "be2adab37bfb0ef4eb623b7e47e7b8693918b1e1",
+    "stub_sha256": "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43",
+    "sdk_lock": {
+      "path": "sdk.lock.json",
+      "bytes": 473,
+      "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+    },
+    "unchanged": true,
+    "custom_target_flash_algorithm": false
+  },
+  "execution_build": {
+    "result": {
+      "path": "artifacts/ota-b-execute-build-20261110-006/result.json",
+      "bytes": 3772,
+      "sha256": "af678f0dff0b4787d6f451a9c7c7e06c6067e74248515d891518b1422a091d96"
+    },
+    "executable": {
+      "path": "artifacts/ota-b-execute-build-20261110-006/wristflow-ota-b-execute.exe",
+      "bytes": 20907674,
+      "sha256": "3b1eb88d8e194f279234789462ac0c400e1b549560160086230a3bd1cb908205"
+    },
+    "rust_tests_by_binary": [
+      9,
+      8,
+      8
+    ],
+    "release": true,
+    "flash_write_entry": true
+  },
+  "preflight": {
+    "bound_inputs": 110,
+    "source_hashes": 55,
+    "original_archived_sources": 625,
+    "original_archived_artifacts": 29,
+    "endpoint": {
+      "device": "COM5",
+      "vid": 6790,
+      "pid": 29987,
+      "location": "1-1.1",
+      "serial_number": "",
+      "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+      "disable_modem": 1
+    },
+    "no_new_build_or_test_run": true,
+    "existing_software_evidence": "docs/evidence/2026-11-10/ota-b-execution-package.json"
+  },
+  "device": {
+    "stub_seconds": 13.553364,
+    "entry_rts_pulses": 1,
+    "planned_second_entry": false,
+    "first_aliases": [
+      0,
+      0,
+      0
+    ],
+    "cpuwait": true,
+    "active_dma": [
+      {
+        "address": 1342705792,
+        "ccr": 4271,
+        "count": 32362,
+        "destination": 537147756,
+        "enabled": true,
+        "source": 1342717988
+      }
+    ],
+    "flash_writes": 0,
+    "probe_started": false,
+    "burn_reset_commands": 0,
+    "fallback_rts_pulses": 0,
+    "parent_cancelled_at": "return",
+    "user_observation": "当前屏幕已无法点亮",
+    "error": [
+      "timeout while waiting for CRC response"
+    ],
+    "resources_closed": true,
+    "worker_exit": 0,
+    "child_exit": 1
+  },
+  "raw_review": {
+    "tx_bytes": 134270,
+    "rx_bytes": 5733,
+    "contiguous_event_offsets": true,
+    "tx_equals_intents": true,
+    "final_tx_offset": 134238,
+    "final_tx_ascii": "burn_read 0x12000000 0x00001000\\r",
+    "no_tx_after_read": true,
+    "marker_range": [
+      1617,
+      1630
+    ],
+    "payload_range": [
+      1630,
+      5708
+    ],
+    "payload_bytes": 4078,
+    "requested_bytes": 4096,
+    "missing_bytes": 18,
+    "tail_range": [
+      5708,
+      5733
+    ],
+    "tail_ascii": "CRC:0xb65a4fec\\r\\nOK\\r\\nmsh >",
+    "reported_crc": "b65a4fec",
+    "expected_4096_crc": "b65a4fec",
+    "received_4078_crc": "45faaba3",
+    "crc_parameters": "reflected 0xedb88320; init=0; xorout=0",
+    "payload_matches_original_prefix": true,
+    "reliable_ftab_file_created": false,
+    "interpretation": "18 bytes of CRC/OK were consumed while filling the requested payload; remaining CRLF/msh prompt caused the CRC-line timeout. The original zero tail does not locate the lost bytes and cannot justify padding or success.",
+    "loss_location": "Unknown: device TX, UART/USB/driver or host receive; similar 1/31B returns also occurred in successful B64KiB reads"
+  },
+  "independent_return": {
+    "rts_pulses": 1,
+    "high_ms": 100,
+    "serial_data_commands": 0,
+    "result": {
+      "child_exit": 0,
+      "forced": false,
+      "resources_closed": true,
+      "lease_reacquired": true,
+      "serial_data_commands": 0
+    },
+    "before_boot": 31,
+    "after_boot": 32,
+    "before_saved_generation": 195,
+    "after_saved_generation": 196,
+    "before_saved_total_ms": 937033810,
+    "after_saved_total_ms": 937034900,
+    "recovery": {
+      "runtime_saved_not_regressed": true,
+      "expected_new_boot": true,
+      "rtc_continuity": false,
+      "unsaved_tail_preserved_on_host_ms": 320828,
+      "limits": "Runtime saved counters and UTC only; settings, all files and bad-boot rescue are not verified"
+    },
+    "after_failures": 0,
+    "before_date": [
+      "Wed Nov 11 10:46:40 2026"
+    ],
+    "after_date": [
+      "Sat Jan  1 00:01:38 2000"
+    ],
+    "rtc_time_write": false,
+    "auxiliary_failure": "Initial offline comparison used absent closed_monotonic_ns; reused completed raw snapshot with existing closed_ns fields, no repeated device read"
+  },
+  "limits": [
+    "No B execution, mapped second-entry or original boot Flash restoration evidence was obtained",
+    "No serial Flash mutation command was sent; this is not a new full-NOR readback claim",
+    "Generic restoration/recovery-required labels are retained; explicit no-write facts and independent app return govern this window",
+    "Application RAM tail is preserved on host only; RTC invalidity is separate",
+    "No additional device window is authorized"
+  ],
+  "next_bounded_work": "Establish the smallest receive-integrity check from the preserved short stream and pinned path; do not accept/pad short data, extend timeout as a fix, or repeat boot/B installation without addressing this input-integrity gate",
+  "files": [
+    {
+      "path": "artifacts/ota-b-execution-device-20261111/authorization.json",
+      "bytes": 934,
+      "sha256": "8309f40cc4ec5f43ebb3a2d9dd29c713187b78d94feeeabb146723fb6637d7ae"
+    },
+    {
+      "path": "artifacts/ota-b-execution-device-20261111/command.json",
+      "bytes": 1901,
+      "sha256": "fdd2f384b5569a552c027b687aee313b36e9ba1c3dcb3009b701dd46f26f0866"
+    },
+    {
+      "path": "artifacts/ota-b-execution-device-20261111/preflight.json",
+      "bytes": 180447,
+      "sha256": "4f3ce75c38847c6774114a11fd093b110973259293b034e51a908693fdd6b95d"
+    },
+    {
+      "path": "artifacts/ota-b-execution-device-20261111/device-001/device.json",
+      "bytes": 164705,
+      "sha256": "171e4ec4e42fecec98ade9ecb0ed9d1c0d751efc577e7394de41a9a7aaa5b5a4"
+    },
+    {
+      "path": "artifacts/ota-b-execution-device-20261111/device-001/config.json",
+      "bytes": 33491,
+      "sha256": "a86823b0e0e3a2358883d9a64ac5c9ff58e6e46719c21d407ff6a07a130d79f9"
+    },
+    {
+      "path": "artifacts/ota-b-execution-device-20261111/device-001/worker/b-execute/execution.json",
+      "bytes": 4805,
+      "sha256": "f99404a8cb73d95d27ca53465d0e1b8cad88142d185710b05099fd6e5ce77455"
+    },
+    {
+      "path": "artifacts/ota-b-execution-device-20261111/device-001/worker/b-execute/wire-events.jsonl",
+      "bytes": 90541,
+      "sha256": "b9f295a69cd4c01717cb4a69d4130d67bffd0c4c8928a684ba9e920f328f7291"
+    },
+    {
+      "path": "artifacts/ota-b-execution-device-20261111/device-001/worker/b-execute/tx.bin",
+      "bytes": 134270,
+      "sha256": "72134ab3cba1b05a5d67273b453304179b3e8dab0ba31db90899aed062d1aad0"
+    },
+    {
+      "path": "artifacts/ota-b-execution-device-20261111/device-001/worker/b-execute/tx-intents.bin",
+      "bytes": 134270,
+      "sha256": "72134ab3cba1b05a5d67273b453304179b3e8dab0ba31db90899aed062d1aad0"
+    },
+    {
+      "path": "artifacts/ota-b-execution-device-20261111/device-001/worker/b-execute/rx.bin",
+      "bytes": 5733,
+      "sha256": "b943432c951b1c92f405cab33510af586031af38238d048d689ec41275146baf"
+    },
+    {
+      "path": "artifacts/ota-b-execution-device-20261111/device-001/worker/before-snapshot.json",
+      "bytes": 29435,
+      "sha256": "a0da94098e8a9123d69c7ae4c4ff2317c4dcb4052d61269b3dfaff4d12f234ca"
+    },
+    {
+      "path": "artifacts/ota-b-execution-device-20261111/device-001/worker/before-uart.bin",
+      "bytes": 18989,
+      "sha256": "394068bd720dfaae84ded1633b6bc744b2cd6e53fae46cd66a069f6f1daad5ed"
+    },
+    {
+      "path": "artifacts/ota-b-execution-device-20261111/reset-once.py",
+      "bytes": 3047,
+      "sha256": "78d8664491c4e4c9f781e3c70027678f5b191274be9f8fbb997c3e460d9e3def"
+    },
+    {
+      "path": "artifacts/ota-b-execution-device-20261111/reset-return-001/authorization.json",
+      "bytes": 534,
+      "sha256": "e8fefd6037079651c78d55d370caf1d30e85f3505b0747d48f6239993a560572"
+    },
+    {
+      "path": "artifacts/ota-b-execution-device-20261111/reset-return-001/events.jsonl",
+      "bytes": 940,
+      "sha256": "234f992ff9a17078ad0f92189ba90e6bcd779c71a16f816a03be9481cc0d0099"
+    },
+    {
+      "path": "artifacts/ota-b-execution-device-20261111/reset-return-001/result.json",
+      "bytes": 133,
+      "sha256": "f46704e984af2cc2187d5270451ea94ddafded374877f8750143691ecfda87dd"
+    },
+    {
+      "path": "artifacts/ota-b-execution-device-20261111/after-reset-readonly-001/after-snapshot.json",
+      "bytes": 17343,
+      "sha256": "c478c46978a16c4f5336b7bd5eb39701bccf42f9b8e4ddb4d7cd59a0e2f72714"
+    },
+    {
+      "path": "artifacts/ota-b-execution-device-20261111/after-reset-readonly-001/after-uart.bin",
+      "bytes": 11346,
+      "sha256": "728673a5749a053beead9a580db2fa661210ffb70a63cfc784bf43de4425aaa9"
+    },
+    {
+      "path": "artifacts/ota-b-execution-device-20261111/after-reset-readonly-001/recovery.json",
+      "bytes": 545,
+      "sha256": "287d13c88c4227dff52b151b28c8d0bb93fd3b4fef1ff382fb244d302181da3d"
+    }
+  ],
+  "archive": {
+    "path": "artifacts/ota-b-execution-device-20261111.zip",
+    "bytes": 710339,
+    "sha256": "99d4af95beb0c83d5c018835193e5b22220d45355520dc2ff591dd0ee802477e",
+    "members": 101,
+    "every_member_readback_equal": true
+  },
+  "evidence_export_note": "Offline raw review and ZIP verification succeeded; first shared JSON export lacked its new date directory. Created that directory and exported the preserved result without any device action or repeated acquisition."
+}
