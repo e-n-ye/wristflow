@@ -1,0 +1,330 @@
+{
+  "schema": 1,
+  "date": "2026-11-11",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "source_commit": "8c7b1020a933b1412ac5897854ba99290065a1e9",
+  "branch": "codex/ota-ftab-receive-device",
+  "scope": "One explicitly authorized fixed FTAB4KiB read with native host receive status; normal original-program return and separately completed read-only poststate",
+  "authorization": {
+    "authorization": "已授权",
+    "readiness": {
+      "question_id": "call_35bbc38e2cbe41ca87bf4cb66a35e4c7",
+      "reply": "设备已准备，可以重开协作页",
+      "submission": "chat confirmation submitted only to preparation by recorded launcher"
+    },
+    "returned": {
+      "question_id": "call_5a140b0075b949fb91dffc9ee2b6f5fa",
+      "reply": "原程序已返回，显示／触摸／KEY1正常，临时常亮已开"
+    },
+    "final": {
+      "question_id": "call_e9561d42eb034075b80954b6736f07b2",
+      "reply": "临时常亮已关闭，显示／触摸／KEY1正常"
+    }
+  },
+  "windows_closed": true,
+  "software_evidence": "docs/evidence/2026-11-11/ota-ftab-receive-software.json",
+  "observer_build": {
+    "result": {
+      "path": "artifacts/ota-ftab-receive-build-20261111-002/result.json",
+      "bytes": 3959,
+      "sha256": "84a4b5f868692060fd464eee03818f9d187c3a3f6a4eae8627f4244099211f16"
+    },
+    "executable": {
+      "path": "artifacts/ota-ftab-receive-build-20261111-002/wristflow-ota-stub-observer.exe",
+      "bytes": 20899303,
+      "sha256": "f5e67ddfbef7a223ea8bbae62c53f909d6a39bffffcf07f2c85b65cf2df96366"
+    }
+  },
+  "sdk_lock": {
+    "path": "sdk.lock.json",
+    "bytes": 473,
+    "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+  },
+  "official_library_revision": "be2adab37bfb0ef4eb623b7e47e7b8693918b1e1",
+  "stub_sha256": "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43",
+  "preflight": {
+    "endpoint": {
+      "device": "COM5",
+      "vid": 6790,
+      "pid": 29987,
+      "location": "1-1.1",
+      "serial_number": "",
+      "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+      "disable_modem": 1
+    },
+    "bound_inputs": 24,
+    "source_hashes": 39,
+    "original_archived_sources": 625,
+    "original_archived_artifacts": 29
+  },
+  "device": {
+    "stub_seconds": 3.5427788,
+    "entry_rts": 1,
+    "sysresetreq": 1,
+    "ftab_read_requests": 1,
+    "flash_writes": 0,
+    "boot_or_b_install": false,
+    "normal_burn_reset": 1,
+    "normal_start_ok": true,
+    "fallback_rts": 0,
+    "ready_cpuwait": true,
+    "active_dma": [
+      {
+        "address": 1342705792,
+        "ccr": 4271,
+        "count": 32362,
+        "destination": 537147756,
+        "enabled": true,
+        "source": 1342717988
+      }
+    ],
+    "aliases": [
+      0,
+      0,
+      0
+    ],
+    "host_before": {
+      "acknowledges_error_bits": true,
+      "errors": 0,
+      "flags": [],
+      "input_queued": 0,
+      "output_queued": 0,
+      "purges_input": false,
+      "source": "Windows ClearCommError"
+    },
+    "host_after": {
+      "acknowledges_error_bits": true,
+      "errors": 0,
+      "flags": [],
+      "input_queued": 5,
+      "output_queued": 0,
+      "purges_input": false,
+      "source": "Windows ClearCommError"
+    },
+    "read_passed": true,
+    "independent_raw_passed": true,
+    "sha256": "2d32df11790d85c9a06a5af060351f80aa42038459053cd2e7e4c824e96626d9"
+  },
+  "raw_review": {
+    "tx_bytes": 134281,
+    "rx_bytes": 5765,
+    "tx_equals_intents": true,
+    "contiguous_event_offsets": true,
+    "marker_range": [
+      1617,
+      1630
+    ],
+    "payload_range": [
+      1630,
+      5726
+    ],
+    "payload_bytes": 4096,
+    "crc_ok_tail_range": [
+      5726,
+      5746
+    ],
+    "reported_crc": "b65a4fec",
+    "computed_crc": "b65a4fec",
+    "all_bytes_equal_original_ftab": true,
+    "original_return_tail": "msh >burn_reset\\r\\nOK",
+    "independent_review": {
+      "passed": true,
+      "received_bytes": 4096,
+      "requested_bytes": 4096,
+      "reported_crc": "b65a4fec",
+      "received_crc": "b65a4fec",
+      "complete_length": true,
+      "crc_matches": true,
+      "original_bytes_match": true,
+      "early_tail_diagnostic_only": false,
+      "reason": ""
+    }
+  },
+  "workflow": {
+    "preparation_timeouts": [
+      {
+        "directory": "device-001",
+        "worker_started": false,
+        "device_actions": false
+      },
+      {
+        "directory": "device-002",
+        "worker_started": false,
+        "device_actions": false
+      }
+    ],
+    "original_report_outcome": "timeout",
+    "original_report_errors": [
+      {
+        "phase": "return_",
+        "error": "TimeoutError('Operator confirmation expired')"
+      }
+    ],
+    "core_data_reused": true,
+    "repeated_ftab": false,
+    "auxiliary_launcher_error": "One Bash-heredoc invocation under PowerShell failed to parse before Python or any device action; the explicit recorded Python launcher was then used",
+    "prepare_confirmation": "Operator manually confirmed physical readiness in chat; launcher submitted only that prior confirmation. Return/final physical observations were not automated.",
+    "poststate": "Return UI expired after successful read and normal return; operator confirmed app in chat, then the originally authorized missing poststate was captured once without reset or FTAB re-read"
+  },
+  "application": {
+    "before_boot": 32,
+    "after_boot": 33,
+    "before_saved_generation": 198,
+    "after_saved_generation": 199,
+    "before_total_ms": 941391105,
+    "after_total_ms": 941392195,
+    "recovery": {
+      "runtime_saved_not_regressed": true,
+      "expected_new_boot": true,
+      "rtc_continuity": false,
+      "unsaved_tail_preserved_on_host_ms": 1088267,
+      "limits": "Runtime saved counters and UTC only; settings, all files and bad-boot rescue are not verified"
+    },
+    "after_failures": 0,
+    "cycle": {
+      "state": 0,
+      "session": 0,
+      "accepted": 0,
+      "saved": 0,
+      "queued": 0,
+      "dropped": 0,
+      "reason": 0,
+      "inhibit": 0,
+      "low_mode": false,
+      "commit_elapsed_ms": 0,
+      "keep_remaining_ms": 1106399,
+      "low_samples": 0,
+      "off_samples": 0,
+      "low_events": 0
+    },
+    "before_date": [
+      "Sat Jan  1 01:30:44 2000"
+    ],
+    "after_date": [
+      "Sat Jan  1 00:00:00 2000"
+    ],
+    "before_utc": 0,
+    "after_utc": 0,
+    "clock_write": false
+  },
+  "cleanup": {
+    "worker_exit": 0,
+    "worker_forced": false,
+    "child_exit": 0,
+    "child_forced": false,
+    "resources_closed": true,
+    "lease_reacquired": true,
+    "operator_final": "临时常亮已关闭，显示／触摸／KEY1正常"
+  },
+  "firmware_build": false,
+  "new_host_build_or_tests": false,
+  "device_core_verified": true,
+  "limits": [
+    "One complete4KiB read, CRC and exact-byte equality; not a permanent short-read fix or whole-NOR invariant",
+    "Windows reported no receive error in this window; does not locate the prior18B loss or exclude other unreported layers",
+    "Application saved counters did not regress;1088.267s RAM tail was preserved on host only",
+    "Both clocks were already year2000/UTC0; observed reset to midnight is not valid-clock continuity",
+    "No B execution, mapped second-entry, boot restoration or automatic rollback result",
+    "All device actions in this authorization are complete; another window requires new scope"
+  ],
+  "files": [
+    {
+      "path": "artifacts/ota-ftab-receive-device-20261111/authorization.json",
+      "bytes": 1221,
+      "sha256": "6b161a693b60d235480ad9dd2c04ea81cfc176605cb47ecf73fa55b17899cfda"
+    },
+    {
+      "path": "artifacts/ota-ftab-receive-device-20261111/command.json",
+      "bytes": 1805,
+      "sha256": "97fcaf81dfd31a8231284f8fe9c008ef10e4731f9f181ad06354a293bf32398a"
+    },
+    {
+      "path": "artifacts/ota-ftab-receive-device-20261111/preflight.json",
+      "bytes": 160016,
+      "sha256": "2ac96caa0913bcd58d4008a5de1f8a3b4b148bafcdeaf2d8a30a3a3ee5e333ee"
+    },
+    {
+      "path": "artifacts/ota-ftab-receive-device-20261111/chat-readiness-003.json",
+      "bytes": 781,
+      "sha256": "55a5cbf0441fdac9dc3823d716a63c009cf58344448d9cba72cb2b275530ab3e"
+    },
+    {
+      "path": "artifacts/ota-ftab-receive-device-20261111/launch-device-003.py",
+      "bytes": 2500,
+      "sha256": "9bd868442d6f09cde4e4b264be76df826ed5a699850593881aeee744597a8e24"
+    },
+    {
+      "path": "artifacts/ota-ftab-receive-device-20261111/operator-confirmations.json",
+      "bytes": 591,
+      "sha256": "365b40de37b0ef047e3f6dc58f8ec870cc8585913cb329d76888d90c6c787c5d"
+    },
+    {
+      "path": "artifacts/ota-ftab-receive-device-20261111/device-003/device.json",
+      "bytes": 165762,
+      "sha256": "6a3fbe6127c31155981eee42f2c2f7aabf6c06d3d21eb3e1116ec87d4ac9491b"
+    },
+    {
+      "path": "artifacts/ota-ftab-receive-device-20261111/device-003/worker/stub-observer/observer.json",
+      "bytes": 4721,
+      "sha256": "5ae8d23adcaaa00556c14f574c9ecd39c87e76fca1a1c8384408813a1ab7eacc"
+    },
+    {
+      "path": "artifacts/ota-ftab-receive-device-20261111/device-003/worker/stub-observer/wire-events.jsonl",
+      "bytes": 93818,
+      "sha256": "32b1ab27e03d902551fbbb0cc97615a8bbdde24919cb6834c136cb73bd6431a7"
+    },
+    {
+      "path": "artifacts/ota-ftab-receive-device-20261111/device-003/worker/stub-observer/tx.bin",
+      "bytes": 134281,
+      "sha256": "0ad26e28004e6774238938f9cc8c1e0ca8d5a94f6bc23764fdc44a92ab76189e"
+    },
+    {
+      "path": "artifacts/ota-ftab-receive-device-20261111/device-003/worker/stub-observer/tx-intents.bin",
+      "bytes": 134281,
+      "sha256": "0ad26e28004e6774238938f9cc8c1e0ca8d5a94f6bc23764fdc44a92ab76189e"
+    },
+    {
+      "path": "artifacts/ota-ftab-receive-device-20261111/device-003/worker/stub-observer/rx.bin",
+      "bytes": 5765,
+      "sha256": "08a1856fc79060f6dfa93acf99548ab577684a458d1f3bb05414940fca22e3f5"
+    },
+    {
+      "path": "artifacts/ota-ftab-receive-device-20261111/device-003/worker/stub-observer/ftab4k.bin",
+      "bytes": 4096,
+      "sha256": "2d32df11790d85c9a06a5af060351f80aa42038459053cd2e7e4c824e96626d9"
+    },
+    {
+      "path": "artifacts/ota-ftab-receive-device-20261111/device-003/worker/before-snapshot.json",
+      "bytes": 27850,
+      "sha256": "b9223dddbe39a236b573c8782eee273072c5039508deec440eecc3e0a3731497"
+    },
+    {
+      "path": "artifacts/ota-ftab-receive-device-20261111/device-003/worker/before-uart.bin",
+      "bytes": 18345,
+      "sha256": "5530e44940d968d29db47b30f1cbd0ad6d49009469dfaf9e79e14c21b9073461"
+    },
+    {
+      "path": "artifacts/ota-ftab-receive-device-20261111/after-readonly-001/after-snapshot.json",
+      "bytes": 18216,
+      "sha256": "fa7ea6ed36324cd06648a7baeff07aeec8832e3ae43437e368bdd820d352371f"
+    },
+    {
+      "path": "artifacts/ota-ftab-receive-device-20261111/after-readonly-001/after-uart.bin",
+      "bytes": 11928,
+      "sha256": "bdcd8bd9ebeb1a1f979f5d8b7f426ff345eb10365138a4eed69933c4b0ebcee6"
+    },
+    {
+      "path": "artifacts/ota-ftab-receive-device-20261111/after-readonly-001/recovery.json",
+      "bytes": 373,
+      "sha256": "c5e9a220b559a1dfa54538b7c5654c259c69a115294eb8cbf3ee088bac42c6ee"
+    }
+  ],
+  "next_bounded_window": "Review the frozen fixed006 B execution/boot-first restoration package against this complete-read evidence, then request a new explicit B/boot install/start/reentry/restore authorization; preserve zero-alias and unknown-protocol fail-stop",
+  "archive": {
+    "path": "artifacts/ota-ftab-receive-device-20261111.zip",
+    "bytes": 667539,
+    "sha256": "ae38621868174ae1013fb3a0c85563aa04d66472ef931d37dbcd9dc5d5f4ab08",
+    "members": 96,
+    "every_member_readback_equal": true
+  }
+}

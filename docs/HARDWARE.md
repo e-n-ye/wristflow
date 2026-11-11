@@ -1,5 +1,15 @@
 # 黄山派选型复评
 
+## 2026-11-11 FTAB单次4KiB完整读回与原程序返回
+
+用户对`8c7b102`／只读observer002的新窗口明确授权。两次准备页超时均未启动worker或打开串口；随后用户在聊天确认设备准备，记录launcher只代为提交该准备事实，实际返回／末态由用户另行观察确认。原板原CycleLog、USB／BAT固定、COM5／CH340位置1-1.1及禁Modem握手1复核通过；只执行一次入口RTS／SYSRESETREQ及原stub，ready为CPUWAIT=1、已知UART→RAM DMA7，MPI2 alias三字全0。
+
+stub阶段3.543秒，唯一FTAB读取为`0x12000000/4096B`；全部4096B等于原备份，SHA`2d32df11…`、原库与独立原流CRC均`b65a4fec`。Windows原生错误位前后均0，队列前RX0／TX0、后RX5／TX0；5B未读提示符随后在同口返回应答中保留。正常单发burn_reset／OK，无退出RTS、Flash写擦、boot／B安装或校时。[原流、窗口与独立核验](evidence/2026-11-11/ota-ftab-receive-device.json)。
+
+返回确认页超时后按程序关口，没有重跑FTAB或复位。用户在聊天确认原应用返回、显示／触摸／KEY1正常并保持临时常亮后，补齐原授权内尚未执行的一次只读后态：boot32→33、saved198→199，已存时长941391105→941392195ms及各场景未倒退、保存失败0、CycleLog无活动；1088.267秒RAM尾段仅保全电脑。worker／child均退出0、无强杀，串口／租约关闭且复取通过。最终用户确认临时常亮关闭、显示／触摸／KEY1正常，本窗结束。
+
+前态已为2000年01:30:44，后态同日零点、两份记录UTC均0；不是有效时间或保时证据，未校时。本次只证明同一4KiB的一次完整读取及驱动未报错，不能据此定位前窗少18B的原因或保证后续永不短收；B执行／映射后重入／原boot恢复仍没有设备结果。
+
 ## 2026-11-11 固定B执行在首次FTAB读取前置失败，独立复位返回
 
 用户对`7897429`／writer006的固定B执行和原boot／B恢复窗口明确授权，并在协作页确认原板原CycleLog、USB／BAT固定、人在旁及临时常亮；COM5／CH340位置1-1.1、禁Modem握手1和原固件归档匹配。第一次入口RTS／SYSRESETREQ及原stub完成，初始MPI2 alias三字均0、CPUWAIT=1，仅已知UART→RAM DMA7启用。随后唯一FTAB4KiB读取在13.553秒stub阶段内报CRC等待超时；原流仅4078B载荷，完整CRC／OK尾段不能补足缺少的18B。TX截止于该读取命令，没有任何Flash擦写、B启动、第二入口或burn_reset。[原流、CRC和版本证据](evidence/2026-11-11/ota-b-execution-device.json)。
