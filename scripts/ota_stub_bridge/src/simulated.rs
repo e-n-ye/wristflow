@@ -25,6 +25,8 @@ impl Peer {
     pub fn execution(nor:Vec<u8>,boot:Vec<u8>,frames:Vec<u8>,scenario:&str)->Self {
         let peer=Self::new(nor,scenario);{
             let mut s=peer.state.lock().unwrap();s.execution=true;s.boot=boot;s.frames=frames;
+            if scenario=="boot-header-changed" {s.nor[0x1200]^=1;}
+            if scenario=="boot-route-changed" {s.nor[0x2c04]^=1;}
         }peer
     }
 }
@@ -119,7 +121,7 @@ impl State {
                     ["burn_read",address,size] if self.execution=>{
                         let address=usize::from_str_radix(address.trim_start_matches("0x"),16).map_err(io::Error::other)?;
                         let size=usize::from_str_radix(size.trim_start_matches("0x"),16).map_err(io::Error::other)?;
-                        if !((address==0x12000000 && size==4096) || ([0x12010000,0x12420000].contains(&address) && size==65536)) {return Err(io::Error::other("Synthetic unapproved read"))}
+                        if !((address==0x12000000 && size==12288) || ([0x12010000,0x12420000].contains(&address) && size==65536)) {return Err(io::Error::other("Synthetic unapproved read"))}
                         let offset=address-0x12000000;self.reads+=1;let mut data=self.nor[offset..offset+size].to_vec();
                         if self.scenario=="before-changed" && self.reads==1 {data[0]^=1}
                         if self.scenario=="b-compare" && address==0x12420000 && self.exec_writes[1]==1 && self.entries==1 {data[0]^=1}

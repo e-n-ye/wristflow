@@ -5,25 +5,25 @@
 
 本区是活动任务和下一步的唯一权威来源；历史命令和计划不构成执行授权。
 
-**目标与本轮**：投板前完成完整OTA，保持首版A/B自动回滚目标；整机原型／硬件规划另聊并行，预算和旧日期暂不作排序约束。本轮闭合[FTAB单次完整读取及返回实证](OTA-PREPARATION.md#ftab-receive-device-20261111)，完整范围见[共识](BASELINE.md#ota-parallel-20261111)。
+**目标与本轮**：投板前完成完整OTA，保持首版A/B自动回滚目标；整机原型／硬件规划另聊并行，预算和旧日期暂不作排序约束。本轮补齐[B执行包完整启动元数据守卫](OTA-PREPARATION.md#b-ftab-metadata-guard-20261111)，完整范围见[共识](BASELINE.md#ota-parallel-20261111)。
 
-**交付与保全**：PR217／218及[FTAB软件PR219](https://github.com/e-n-ye/wristflow/pull/219)`8c7b102`已集成并同步。本轮从干净main开展`codex/ota-ftab-receive-device`；原映射／外壳分支和旧证据保持，本次PR收尾按CONTRIBUTING回读和同步。
+**交付与保全**：PR217–219及[FTAB实证PR220](https://github.com/e-n-ye/wristflow/pull/220)`13fe7da`已集成并同步。本轮从干净main开展`codex/ota-ftab-boot-metadata-guard`；旧分支和证据保持，本次PR收尾按CONTRIBUTING回读和同步。
 
-**软件与输入**：复用只读observer002、原库／stub和原CycleLog，24项输入／39项源及625项源／29项产物归档复核通过。沿用PR219的Rust9／8／9项／Release、OTA Python183/183及模拟证据；本轮没有源码改动、主机测试重跑或目标固件构建。正式分区、Product和SDK锁未改。
+**准入缺口与修正**：原B包前4KiB比较未覆盖偏移4608的boot长度、11268／11272的running指针；原FTAB11288B。新metadata-guard001固定读12KiB并逐字节核原备份，普通安装／显式恢复共用，Python按同范围独立复核；首个读取之外的镜像、四写九读、两次计划入口／启动、零alias和无fallback RTS合同保持。
 
-**本次设备核心结果**：用户新授权并在聊天确认现场准备；COM5／位置1-1.1／禁Modem握手1匹配。3.543秒stub阶段，一次入口RTS／SYSRESETREQ、ready／零alias后只读FTAB4096B一次；原库及独立原流CRC均`b65a4fec`，全部字节等于原备份、SHA`2d32df11…`。Windows前后错误位均0、队列RX0→5／TX0；正常单发burn_reset／OK，无退出RTS、写擦或B启动。
+**最近设备结果（PR220）**：用户新授权并在聊天确认现场准备；COM5／位置1-1.1／禁Modem握手1匹配。3.543秒stub阶段，一次入口RTS／SYSRESETREQ、ready／零alias后只读FTAB4096B一次；原库及独立原流CRC均`b65a4fec`，全部字节等于原备份、SHA`2d32df11…`。Windows前后错误位均0、队列RX0→5／TX0；正常单发burn_reset／OK，无退出RTS、写擦或B启动。
 
 **结论边界**：本次同一4KiB完整读取成立；驱动全零仅说明本窗未报告接收错误，不能定位此前少18B的根因或保证永久不短收。前窗4078B／CRC不符仍无效，不补零或覆盖失败；后续执行包继续每次新鲜长度／CRC／原字节守卫，不以本次成功跳过。
 
 **返回与末态**：返回页超时后用户在聊天确认原程序返回、显示／触摸／KEY1正常；补齐原授权内尚缺的一次只读后态，没有新复位或重读FTAB。boot32→33／saved198→199，已存时长941391105→941392195ms及场景未倒退、保存失败0；1088.267秒RAM尾段只保全电脑。worker／child退出0、无强杀，串口／状态handle／租约关闭且复取通过；最终用户确认临时常亮已关闭、显示／触摸／KEY1正常。
 
-**证据与复用**：[本次原流／独立核验](evidence/2026-11-11/ota-ftab-receive-device.json)及96文件ZIP逐成员一致。两次准备超时均未启动worker或设备；聊天准备由launcher代提交并记录来源，返回／末态人工确认不自动化。原返回超时2/5报告保留，以有效原流和只缺后态补验闭环，不补跑工具标签。PR218短流、11/10 B4KiB写入／恢复、原双备份及ROM证据均保持。
+**验证与证据**：新001及同次Release的observer／sector companion，Rust9／8／9项及Release、OTA Python184/184（291.715秒）通过；后部boot长度／指针变化、前4KiB相同的安装／恢复四组合均在任何写入前停止。无新设备动作或目标固件构建；[新软件证据](evidence/2026-11-11/ota-b-ftab-metadata-guard.json)与[PR220实证／96文件ZIP](evidence/2026-11-11/ota-ftab-receive-device.json)分别记录，旧失败保持。
 
 **RTC与授权**：前后均2000年／记录UTC0，时刻由01:30:44归零，不能算有效时钟或保时；未校时。本次一次FTAB读取及返回／只读核验授权已用完，现场末态已关闭；后续设备操作需新的具体范围。
 
 **真实缺口与路径**：沿用官方RAM程序／Flash算法，本次完整读取是继续有界实验的证据，不是丢字根因修复。B执行／映射、映射后第二入口清alias和原boot恢复仍未知；任一alias非零即禁止Flash访问、不自写清。持久确认、自动回滚及手机BLE DFU分别待后续。
 
-**唯一下一步**：交付本窗证据后，复核PR219同次Release的执行companion002／目标006／原备份和现场，另取得固定B安装／boot安装／三阶段启动／第二入口／原boot先恢复再B的具体授权才执行。仍只验PREPARED→MAPPED→EXECUTED、boot及B64KiB等于新鲜前态、原应用记录／资源／人工末态；任一读失步或第二入口alias非零即停，不盲写、不追加退出RTS，可能需另授权恢复。范围和有限风险见原执行合同，不追加相似FTAB快照。
+**唯一下一步**：先完成metadata-guard001最终回归及交付；再复核新001／目标006／原备份与现场，另取得B／boot安装、三阶段启动、第二入口及原boot→B恢复的具体授权才执行。首次FTAB核完整12KiB，仍只验PREPARED→MAPPED→EXECUTED、boot及B64KiB等于新鲜前态、原应用／资源／人工末态；任一读失步或第二入口alias非零即停，不盲写、不追加退出RTS，可能需另授权恢复。此前4KiB只读证据不替代新元数据关口，不追加相似快照。
 
 <a id="history-usable-curve-20261103"></a>
 ## 2026-11-03 新曲线接入结束快照（原current，已由可佩戴准备接续）

@@ -1,5 +1,9 @@
 # 可复现构建基线
 
+## 2026-11-11 B执行FTAB启动元数据守卫
+
+沿用`ota_stub_build.py --b-execute`及Rust1.90／GNU入口，冻结`ota-b-metadata-guard-build-20261111-001`和同次Release的observer／sector companion。首个FTAB只读比较覆盖原11288B表，固定请求改为12288B；安装／显式恢复、boot／B镜像及所有写入范围不变。新增后部boot长度／running指针变更的四组合故障验证；Rust测试／Release及全量OTA结果、源码和EXE哈希见[软件证据](evidence/2026-11-11/ota-b-ftab-metadata-guard.json)。无Cargo.lock、SDK锁、公共Build.ps1或目标固件改动；[准入修正依据](OTA-PREPARATION.md#b-ftab-metadata-guard-20261111)不属于串口短收根因修复。
+
 ## 2026-11-11 FTAB单次接收完整性主机包
 
 沿用`ota_stub_build.py`的Rust1.90／GNU入口，冻结只读observer的`002`及同一次Release链接的扇区／执行companion。新增`src/ftab.rs`及其源绑定；Cargo.lock只把已锁定的`winapi0.3.9`列为直接依赖，供Windows原生错误位查询，不升级包版本、原sftool库或SDK。Rust三binary9／8／9项及Release、OTA Python183/183通过；完整命令、哈希和验证版本见[证据](evidence/2026-11-11/ota-ftab-receive-software.json)。没有目标固件构建或设备操作。

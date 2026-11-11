@@ -1,0 +1,367 @@
+{
+  "schema": 1,
+  "date": "2026-11-11",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/ota-ftab-boot-metadata-guard",
+  "source_base": "13fe7da54ac8ee3e2e464237443dbb3132372b35",
+  "scope": "Fix B execution/recovery fresh-FTAB comparison to cover original boot image length and running pointers outside first4KiB",
+  "device_actions": false,
+  "port_enumeration": false,
+  "firmware_build": false,
+  "hardware_verified": false,
+  "discovery": {
+    "prior_compare_bytes": 4096,
+    "original_ftab_artifact_bytes": 11288,
+    "boot_header_offset": 4608,
+    "boot_header": {
+      "header_pointer": "0x12001200",
+      "partition_index": 3,
+      "length": 58496,
+      "block_bytes": 512,
+      "flags": 2,
+      "base": 302055424,
+      "capacity": 65536,
+      "execution": 537001984
+    },
+    "boot_running_pointer_offset": 11268,
+    "main_running_pointer_offset": 11272,
+    "source_contract": "ota_backup_review.py IMAGE_OFFSET=4096, RUN_OFFSET=11264; image_header reads length at pointed image header and running pointer by core",
+    "impact": "Old first4KiB equality did not freshly bind boot image length or running route before boot mutation; prior4KiB device-read evidence remains valid within its range"
+  },
+  "fixed_behavior": {
+    "first_read_address": "0x12000000",
+    "first_read_bytes": 12288,
+    "raw_file": "before-ftab12k.bin",
+    "all_bytes_equal_original_required": true,
+    "ordinary_and_recovery_share_gate": true,
+    "independent_python_recheck": true,
+    "ftab_writes": 0,
+    "normal_flash_reads": 9,
+    "normal_flash_writes": 4,
+    "write_ranges_unchanged": true,
+    "normal_entries": 2,
+    "normal_burn_resets": 2,
+    "no_fallback_rts": true,
+    "zero_alias_guard_unchanged": true,
+    "limits": "Read extent changes only for metadata coverage; not a short-receive root-cause fix. Original CRC and fail-stop remain mandatory."
+  },
+  "native_path": {
+    "library_revision": "be2adab37bfb0ef4eb623b7e47e7b8693918b1e1",
+    "stub": {
+      "path": "vendor/SiFli-SDK/tools/uart_download/file/ram_patch_52X.bin",
+      "bytes": 132816,
+      "sha256": "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43"
+    },
+    "sdk_lock": {
+      "path": "sdk.lock.json",
+      "bytes": 473,
+      "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+    },
+    "cargo_lock": {
+      "path": "scripts/ota_stub_bridge/Cargo.lock",
+      "bytes": 64761,
+      "sha256": "70d9b528da0418761a76985ba5ad7cdf02afe5703f3aea1a1f7196c5c7bbee8d"
+    },
+    "unchanged": true
+  },
+  "sources": [
+    {
+      "path": "scripts/lab_evidence.py",
+      "bytes": 1498,
+      "sha256": "618487f3802b663b347c1bbd97b081147df2ef31ae6f471a9fcf2ac692e64864"
+    },
+    {
+      "path": "scripts/ota_b_execute.py",
+      "bytes": 20849,
+      "sha256": "4a8a5733adfaa2cc2607ee9537e347d100019cb9bf013df7bcc69315ad602959"
+    },
+    {
+      "path": "scripts/ota_backup_review.py",
+      "bytes": 5250,
+      "sha256": "e43a6a24e85655657152ddd129f052cb729ae681a4f1aaca7c9fc41bdc14b9df"
+    },
+    {
+      "path": "scripts/ota_rom_device.py",
+      "bytes": 48422,
+      "sha256": "62e3312581a4fb931da23001b9afb48b4fc08b3d5deaa190ebba3739ae167909"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/Cargo.lock",
+      "bytes": 64761,
+      "sha256": "70d9b528da0418761a76985ba5ad7cdf02afe5703f3aea1a1f7196c5c7bbee8d"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/Cargo.toml",
+      "bytes": 661,
+      "sha256": "13a40db419fdc04beea6a5270e2e559665db8ce3dd94e995c8e58a39efdbc72c"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/b_execute.rs",
+      "bytes": 22109,
+      "sha256": "52bce0a3386a0976449f8ac428f1773abdb12061a293447db1e7d194ab8ecc13"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/b_sector.rs",
+      "bytes": 9040,
+      "sha256": "9cb5fbf1ff8beffcb6e2ecc13c0cd792c295b32eb7ea1b6f0d736376f001fc9a"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/common.rs",
+      "bytes": 3268,
+      "sha256": "e830e1106ee679aab74061a3f266c329895364af8a1c4dc894a0849937858331"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/ftab.rs",
+      "bytes": 6270,
+      "sha256": "d4fdec18fb0d3bc31e1628f22cfaa34820a51c43d99c3c072fe6fc9c684e9137"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/geometry.rs",
+      "bytes": 4178,
+      "sha256": "836445a0be49acd24c1f1d4c8e1e737fe8c473b0f8b62e89ea173dcc173b56d6"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/main.rs",
+      "bytes": 13877,
+      "sha256": "39c1f42c5e52bb125d843dee1f3e0ceee8ec0f3d30495bb24407dbd5a675f702"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/port.rs",
+      "bytes": 14068,
+      "sha256": "2b8645d89153a51b51c3406b517dbf81177f5ec048412bc1b28a7a8acc3b6f3e"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/sector.rs",
+      "bytes": 8250,
+      "sha256": "23610a1e01d40ceb16c3ac11b4160291dba0e7f2d59638a77bb8070a19bd5227"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/simulated.rs",
+      "bytes": 18788,
+      "sha256": "a0f9def3513140d0004fa87ca132cbd3e5bcbc2f41aa28809450f727e9e59781"
+    },
+    {
+      "path": "scripts/ota_stub_build.py",
+      "bytes": 5711,
+      "sha256": "67d0a1fb3586fef3ac4d7ea12ca42a1961d41e9621a698adcd3a9090a011bc11"
+    },
+    {
+      "path": "scripts/ota_stub_observe.py",
+      "bytes": 22475,
+      "sha256": "c98d8fb5dc4ba51a1f95384deb14506f9be529a111a4320650c0db5fa5e7ca06"
+    },
+    {
+      "path": "sdk.lock.json",
+      "bytes": 473,
+      "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+    },
+    {
+      "path": "tests/test_ota_b_execute.py",
+      "bytes": 17410,
+      "sha256": "e740e6141032eed474aae86c42cb9aa7ce672445bf53dbffd781423e9a7a4d3a"
+    },
+    {
+      "path": "tests/test_ota_b_sector.py",
+      "bytes": 13480,
+      "sha256": "118db81c61dd06e96d70216313103244882dfa73aac613e7a9a4b5c7c3d5150d"
+    },
+    {
+      "path": "tests/test_ota_backup_review.py",
+      "bytes": 4178,
+      "sha256": "3ac4b33f69d1c86326594b3bfe83a82b0179edbb2eded265170295b8ef9eb343"
+    },
+    {
+      "path": "tests/test_ota_boot_check.py",
+      "bytes": 3069,
+      "sha256": "ac1fc1d32718e820b3589601ac4a387c7dcf990731a84f3bfa4e4cf361b5e466"
+    },
+    {
+      "path": "tests/test_ota_preflight.py",
+      "bytes": 8860,
+      "sha256": "9dca71852317ce962a88c304031e6dd665b642ba5f0cad2f29005b40a2211607"
+    },
+    {
+      "path": "tests/test_ota_probe_package.py",
+      "bytes": 4493,
+      "sha256": "4c568c27b0e80c41a4e986e47e1d51db2006cc8b497e0cdf4cdf55ca0d09945b"
+    },
+    {
+      "path": "tests/test_ota_rom_backup.py",
+      "bytes": 16293,
+      "sha256": "c938a272674d40cefaea2c23780b425f7ea8cbe4a84afdc13012513adaee0233"
+    },
+    {
+      "path": "tests/test_ota_rom_device.py",
+      "bytes": 19165,
+      "sha256": "7669b3e9554ceb35e5e56ad141760a40ec9d7fad1c794ce46770f4f3b9c26f42"
+    },
+    {
+      "path": "tests/test_ota_rom_release.py",
+      "bytes": 11537,
+      "sha256": "df0cc97b166acaaf5e932ac9a12a254adfe22e3a4789a81fa65e4e3313453662"
+    },
+    {
+      "path": "tests/test_ota_rom_rescue.py",
+      "bytes": 24966,
+      "sha256": "7a1f2717d718f9d1ada8c17e1e929996ee22ae0dcb90ebfc87a8d8801294f260"
+    },
+    {
+      "path": "tests/test_ota_slot_check.py",
+      "bytes": 860,
+      "sha256": "d36f82b8f658472799d8cf9a2b544b219207483325439179fcaa853c16ca8ea7"
+    },
+    {
+      "path": "tests/test_ota_stub_observe.py",
+      "bytes": 22384,
+      "sha256": "5e83b6d149466b70a2716c3975a126a1e9a6b48a3f03139e2f08b7629977e8fc"
+    }
+  ],
+  "builds": [
+    {
+      "result": {
+        "path": "artifacts/ota-b-metadata-guard-build-20261111-001/result.json",
+        "bytes": 3954,
+        "sha256": "1fbd9090d327935be56beb305225620d8d069ddcdf9dd6949f9ef65dc086879b"
+      },
+      "executable": {
+        "path": "artifacts/ota-b-metadata-guard-build-20261111-001/wristflow-ota-b-execute.exe",
+        "bytes": 20909164,
+        "sha256": "bfbf9425d3fea92a6820a9a1676e194b07d15d9959c2715bb10fa20e5511e2a9"
+      }
+    },
+    {
+      "result": {
+        "path": "artifacts/ota-b-metadata-guard-observer-companion-20261111-001/result.json",
+        "bytes": 4195,
+        "sha256": "a93b3cd04e453877114699516d22a82bb8fa36b33dc32e5d3ccdd16d28e6b398"
+      },
+      "executable": {
+        "path": "artifacts/ota-b-metadata-guard-observer-companion-20261111-001/wristflow-ota-stub-observer.exe",
+        "bytes": 20899291,
+        "sha256": "a30bf9040fe9632b533c86d17682cea136e1c5ecb8b4e21cd96415ff5cb5f1ff"
+      }
+    },
+    {
+      "result": {
+        "path": "artifacts/ota-b-metadata-guard-sector-companion-20261111-001/result.json",
+        "bytes": 4182,
+        "sha256": "c39a074003982484a80df3839a114643d4bd3a4519ab982668d9b873f75c9851"
+      },
+      "executable": {
+        "path": "artifacts/ota-b-metadata-guard-sector-companion-20261111-001/wristflow-ota-b-sector.exe",
+        "bytes": 20885398,
+        "sha256": "cb244291664be07bba4f983913ed07f34203feaf2259df99de40257f77f5701c"
+      }
+    }
+  ],
+  "tests": {
+    "rust_by_binary": {
+      "b_execute": 9,
+      "b_sector": 8,
+      "observer": 9
+    },
+    "release": true,
+    "count": 184,
+    "seconds": 291.715,
+    "passed": true,
+    "full_log": {
+      "path": "artifacts/ota-b-metadata-guard-full-tests-20261111.log",
+      "bytes": 30110,
+      "sha256": "30dcd3ad4759002a0f3d0a4247cfb6f99f86e382bea450578734cfdc65a4ee9b"
+    },
+    "focused_log": {
+      "path": "artifacts/ota-b-metadata-guard-focused-tests-20261111.log",
+      "bytes": 305,
+      "sha256": "206a6d10f698d09a4edae4ca61c2642a2887df655665cfce7e1b8e1b55bedfd6"
+    },
+    "cases": [
+      {
+        "scenario": "boot-header-changed",
+        "recovery_only": false,
+        "changed_offset": 4608,
+        "first4k_unchanged": true,
+        "refused_before_boot_b_read_or_write": true,
+        "report": {
+          "path": "artifacts/ota-b-execute-tests-ryubokbw/boot-header-changedFalse/execution.json",
+          "bytes": 4813,
+          "sha256": "721865b2c0e68a25ad06c4db0feb9cb0728796b46db20429dc0e3a80952ec4f4"
+        }
+      },
+      {
+        "scenario": "boot-header-changed",
+        "recovery_only": true,
+        "changed_offset": 4608,
+        "first4k_unchanged": true,
+        "refused_before_boot_b_read_or_write": true,
+        "report": {
+          "path": "artifacts/ota-b-execute-tests-ryubokbw/boot-header-changedTrue/execution.json",
+          "bytes": 4810,
+          "sha256": "8446ff79cb0aa9984f7c3d750985ab0e4aa06cb26f658f5c5ac77783a79ae6c2"
+        }
+      },
+      {
+        "scenario": "boot-route-changed",
+        "recovery_only": false,
+        "changed_offset": 11268,
+        "first4k_unchanged": true,
+        "refused_before_boot_b_read_or_write": true,
+        "report": {
+          "path": "artifacts/ota-b-execute-tests-ryubokbw/boot-route-changedFalse/execution.json",
+          "bytes": 4812,
+          "sha256": "3e4715250ddf100256382c096d3e021e92dc1b38f517fa0292b9612ec175d8f9"
+        }
+      },
+      {
+        "scenario": "boot-route-changed",
+        "recovery_only": true,
+        "changed_offset": 11268,
+        "first4k_unchanged": true,
+        "refused_before_boot_b_read_or_write": true,
+        "report": {
+          "path": "artifacts/ota-b-execute-tests-ryubokbw/boot-route-changedTrue/execution.json",
+          "bytes": 4810,
+          "sha256": "ec4287ceb14ccafc664a5fa4db27c861ea34785229cdcd02b45ca8bbdbc2c399"
+        }
+      }
+    ],
+    "normal": {
+      "path": "artifacts/ota-b-execute-tests-ryubokbw/success/execution.json",
+      "bytes": 8935,
+      "sha256": "bbc4a8451e57a3f863eeda5e513828fad0796225895a05f11e256a0d4a32c84b"
+    },
+    "normal_first_read": {
+      "address": 301989888,
+      "bytes": 12288,
+      "elapsed_ns": 694027300,
+      "kind": "execution_read_intent",
+      "name": "before-ftab12k.bin"
+    }
+  },
+  "input_binding": {
+    "files": 111,
+    "target_package": "artifacts/ota-execution-probe-20261108-006",
+    "target_tag": [
+      2306271408,
+      2453024267,
+      2305287774,
+      1289714410
+    ],
+    "b4096_sha256": "14102c47df5a8078fd934f9efaea7a271ef790eb7ffd265546abf4cf5b4440fe",
+    "boot58496_sha256": "db747d9070aeb3642a64e765045a0b6671b922d16f72d5860e6e3bbb334c2303"
+  },
+  "supersedes": "PR217 host package and PR219 execution companion002 first4KiB metadata gate for new B install/recovery; old files and historical reports retained",
+  "reuse_device_evidence": "docs/evidence/2026-11-11/ota-ftab-receive-device.json: one complete4KiB and original return, not12KiB or B execution",
+  "next_bounded_window": "After delivery and fresh explicit authorization, fixed006 B installation/execution with first12KiB gate and boot-first/B restoration; any CRC/protocol fault or nonzero alias stops, no extra RTS",
+  "limitations": [
+    "No12KiB FTAB or B execution hardware result in this software change",
+    "No target Flash algorithm, boot image, partition, SDK or dependency changes",
+    "The prior short18B loss remains unexplained; larger read is for metadata coverage only"
+  ],
+  "archive": {
+    "path": "artifacts/ota-b-ftab-metadata-guard-20261111.zip",
+    "bytes": 45328975,
+    "sha256": "227b637b600d83f1430a8032dc50978c883c0bc1e54e9bbdd7bde34cd94abe0a",
+    "members": 992,
+    "every_member_readback_equal": true
+  }
+}

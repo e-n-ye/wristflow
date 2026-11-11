@@ -23,9 +23,13 @@ const TAG:[u32;4]=[2306271408,2453024267,2305287774,1289714410];
 const BOOT:u32=0x12010000;
 const B:u32=0x12420000;
 const K64:usize=65536;
+// The11288B original FTAB includes image headers at0x1000 and running
+// pointers at0x2c00. Its first4KiB alone cannot bind boot length/routing.
+const FTAB_BYTES:usize=12288;
 pub const SCENARIOS:&[&str]=&["success","fragmented","before-changed","b-compare","boot-compare","write-fail",
     "restore-boot-fail","restore-b-fail","restore-read-fail","alias-retained","no-frames","bad-tag","bad-crc","short-frames","duplicate-frames","execute-hang",
-    "initial-register-fail","restore-register-fail","restore-alias-fail","probe-start-fail","original-start-fail"];
+    "initial-register-fail","restore-register-fail","restore-alias-fail","probe-start-fail","original-start-fail",
+    "boot-header-changed","boot-route-changed"];
 fn require(ok:bool,message:&str)->Result<()> {if ok {Ok(())}else{Err(io::Error::other(message).into())}}
 fn hash(data:&[u8])->String {format!("{:x}",Sha256::digest(data))}
 fn can_start_original(clean:bool,r:&Value,t:&port::Trace)->bool {clean && r["restored_verified"]==true && t.fault().is_none()}
@@ -65,7 +69,7 @@ fn validate(c:&Config)->Result<(Vec<u8>,Vec<u8>,Vec<u8>,Vec<u8>)> {
 fn save(path:&Path,data:&[u8])->Result<()> {let mut f=fs::File::create_new(path)?;f.write_all(data)?;f.sync_all()?;Ok(())}
 fn checkpoint(c:&Config,r:&Value)->Result<()> {sector::checkpoint(&c.out,r)}
 fn read(tool:&mut SF32LB52Tool,t:&port::Trace,c:&Config,name:&str,address:u32,bytes:usize)->Result<Vec<u8>> {
-    require((address==0x12000000 && bytes==4096) || ([BOOT,B].contains(&address) && bytes==K64),"Fixed read range only")?;
+    require((address==0x12000000 && bytes==FTAB_BYTES) || ([BOOT,B].contains(&address) && bytes==K64),"Fixed read range only")?;
     t.event(json!({"kind":"execution_read_intent","name":name,"address":address,"bytes":bytes}))?;
     let path=c.out.join(name);require(!path.exists(),"No reused readback")?;
     tool.read_flash(&ReadFlashParams {files:vec![ReadFlashFile {file_path:path.to_string_lossy().into_owned(),address,size:bytes as u32}]})?;
@@ -163,8 +167,8 @@ fn restore(tool:&mut SF32LB52Tool,t:&port::Trace,c:&Config,r:&mut Value,original
 }
 fn execute(tool:&mut SF32LB52Tool,t:&port::Trace,c:&Config,r:&mut Value,baseline:&[u8],candidate:&[u8],boot:&[u8])->Result<()> {
     ready(tool,t,c,r,"initial")?;
-    let ftab=read(tool,t,c,"before-ftab4k.bin",0x12000000,4096)?;
-    require(ftab==baseline[..4096],"Fresh FTAB differs; boot length/routing not admitted")?;
+    let ftab=read(tool,t,c,"before-ftab12k.bin",0x12000000,FTAB_BYTES)?;
+    require(ftab==baseline[..FTAB_BYTES],"Fresh FTAB differs; boot length/routing not admitted")?;
     let before_boot=read(tool,t,c,"before-boot64k.bin",BOOT,K64)?;
     let before_b=read(tool,t,c,"before-b64k.bin",B,K64)?;
     if c.recovery_only {
