@@ -88,7 +88,9 @@ impl State {
                 if self.input.len()<6+payload {return Ok(())}
                 let frame:Vec<_>=self.input.drain(..6+payload).collect();let p=&frame[6..];
                 if p==[0x41,0x54,0x53,0x46,0x33,0x32,5,0x21] {self.response(0xd1,&[])}
-                else if p==[0x41,0x54,0x53,0x46,0x33,0x32,0x18,0x21] {if self.ready {self.output.extend(b"msh >")}}
+                else if p==[0x41,0x54,0x53,0x46,0x33,0x32,0x18,0x21] {
+                    if self.ready {if self.receive_diag {self.response(0xd0,&[])}else{self.output.extend(b"msh >")}}
+                }
                 else if p.starts_with(&[0x40,0x72]) {
                     let address=u32::from_le_bytes(p[2..6].try_into().unwrap());
                     let words=u16::from_le_bytes(p[6..8].try_into().unwrap());
