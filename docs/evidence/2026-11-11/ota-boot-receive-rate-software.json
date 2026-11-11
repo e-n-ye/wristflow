@@ -1,0 +1,357 @@
+{
+  "schema": 1,
+  "date": "2026-11-11",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/ota-boot-receive-rate-diagnostic",
+  "source_base": "ff720e6196bbee9b28db32ce2842a49bd4200417",
+  "scope": "Fixed read-only boot64KiB rate diagnostic and offline loss evidence; not a proven root-cause repair",
+  "device_actions": false,
+  "port_enumeration": false,
+  "firmware_build": false,
+  "hardware_verified": false,
+  "sources": [
+    {
+      "path": "scripts/ota_rom_device.py",
+      "bytes": 50336,
+      "sha256": "539315a5d8001673fbf410198394a830bdf33966600a40ecc57a3ba1bbf7c78d"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/Cargo.lock",
+      "bytes": 64761,
+      "sha256": "70d9b528da0418761a76985ba5ad7cdf02afe5703f3aea1a1f7196c5c7bbee8d"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/Cargo.toml",
+      "bytes": 661,
+      "sha256": "13a40db419fdc04beea6a5270e2e559665db8ce3dd94e995c8e58a39efdbc72c"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/b_execute.rs",
+      "bytes": 22109,
+      "sha256": "52bce0a3386a0976449f8ac428f1773abdb12061a293447db1e7d194ab8ecc13"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/b_sector.rs",
+      "bytes": 9040,
+      "sha256": "9cb5fbf1ff8beffcb6e2ecc13c0cd792c295b32eb7ea1b6f0d736376f001fc9a"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/common.rs",
+      "bytes": 3268,
+      "sha256": "e830e1106ee679aab74061a3f266c329895364af8a1c4dc894a0849937858331"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/ftab.rs",
+      "bytes": 10300,
+      "sha256": "7b605be6c8d0036d2d5c6ad33b03100e9843000385262ab5bd725295d3b14344"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/geometry.rs",
+      "bytes": 4178,
+      "sha256": "836445a0be49acd24c1f1d4c8e1e737fe8c473b0f8b62e89ea173dcc173b56d6"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/main.rs",
+      "bytes": 15268,
+      "sha256": "8932fdd0b498fdce6cb8563e6a292343dc60764196df94f72e491f92ee383b7e"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/port.rs",
+      "bytes": 14068,
+      "sha256": "2b8645d89153a51b51c3406b517dbf81177f5ec048412bc1b28a7a8acc3b6f3e"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/sector.rs",
+      "bytes": 8250,
+      "sha256": "23610a1e01d40ceb16c3ac11b4160291dba0e7f2d59638a77bb8070a19bd5227"
+    },
+    {
+      "path": "scripts/ota_stub_bridge/src/simulated.rs",
+      "bytes": 20447,
+      "sha256": "245c0e0b181e70617c6ddbe7122312ace5d32a8360ac51cf18a9fd74056db136"
+    },
+    {
+      "path": "scripts/ota_stub_build.py",
+      "bytes": 5711,
+      "sha256": "67d0a1fb3586fef3ac4d7ea12ca42a1961d41e9621a698adcd3a9090a011bc11"
+    },
+    {
+      "path": "scripts/ota_stub_observe.py",
+      "bytes": 26508,
+      "sha256": "d94764782a726160ada9d1174181bff054c0dc59afbd35d562614346de4ba8ec"
+    },
+    {
+      "path": "tests/test_ota_boot_receive.py",
+      "bytes": 8010,
+      "sha256": "3962b90440cd268e0c6d1dd170f311151066a885cac0bee36cb3761af8254cfb"
+    },
+    {
+      "path": "tests/test_ota_stub_observe.py",
+      "bytes": 22397,
+      "sha256": "2902d45599235ab9be38616e9f473145dfb33db2b865511e830297a009603964"
+    }
+  ],
+  "builds": [
+    {
+      "path": "artifacts/ota-boot-receive-rate-build-20261111-002/result.json",
+      "bytes": 3965,
+      "sha256": "fff6b9239cb5a7d654a4658c94b7486d9e1a323e5455815554391b0924e2adcd"
+    },
+    {
+      "path": "artifacts/ota-boot-receive-rate-b-sector-build-20261111-002/result.json",
+      "bytes": 4178,
+      "sha256": "347c58956bd29c4f21952919c1507194dd7a90313775f14845de4d8c6cd97733"
+    },
+    {
+      "path": "artifacts/ota-boot-receive-rate-b-execute-build-20261111-002/result.json",
+      "bytes": 4181,
+      "sha256": "b3452a23902511aa30cdd7ea67548e826951832e7e47f03f5b185f8919f2c729"
+    }
+  ],
+  "offline_review": {
+    "path": "artifacts/ota-receive-rate-investigation-20261111/offline-review.json",
+    "bytes": 2382,
+    "sha256": "47dda715f24cc666a3982765dde04335475a7d0cf7f42835a427d521cbb7730f"
+  },
+  "diagnosis": {
+    "schema": 1,
+    "kind": "offline-receive-evidence",
+    "device_actions": false,
+    "boot": {
+      "raw": "artifacts\\ota-b-metadata-execution-device-20261111\\device-002\\worker\\b-execute\\rx.bin",
+      "payload_start": 14090,
+      "payload_end": 79600,
+      "requested": 65536,
+      "received": 65510,
+      "missing_ranges": [
+        [
+          19648,
+          19662
+        ],
+        [
+          29934,
+          29946
+        ]
+      ],
+      "received_gap_offsets": [
+        19648,
+        29920
+      ],
+      "both_receive_offsets_multiple_of_32": true,
+      "crc_received": "3df927a3",
+      "crc_original": "db7cf2d9",
+      "raw_sha256": "ee025cb885bc1e1ad7827bef949ba6923286bdb85d193fe670c03eabaabaea2f",
+      "max_post_read_event_gap_ms": 1.3982,
+      "gap_events": [
+        {
+          "event": {
+            "bytes": 1,
+            "elapsed_ns": 4883712600,
+            "kind": "rx",
+            "offset": 33738
+          },
+          "next_event": {
+            "bytes": 31,
+            "elapsed_ns": 4883727600,
+            "kind": "rx",
+            "offset": 33739
+          }
+        },
+        {
+          "event": {
+            "bytes": 1,
+            "elapsed_ns": 4995650500,
+            "kind": "rx",
+            "offset": 44010
+          },
+          "next_event": {
+            "bytes": 31,
+            "elapsed_ns": 4995658500,
+            "kind": "rx",
+            "offset": 44011
+          }
+        }
+      ]
+    },
+    "app": {
+      "raw": "artifacts\\ota-b-metadata-execution-device-20261111\\device-001\\worker\\before-uart.bin",
+      "expected_token": "15844385246650118352",
+      "received_token": "158650118352",
+      "raw_gap_offset": 12084,
+      "response_offset": 10708,
+      "relative_gap": 1376,
+      "relative_gap_multiple_of_32": true,
+      "raw_sha256": "ddfaf2aa692920b8f91234ada63b182aeae548f8b2323e9f658f5503e52dc20e"
+    },
+    "manufacturer": {
+      "url": "https://docs.sparkfun.com/SparkFun_RTK_Facet_mosaic/assets/component_documentation/CH340DS1.PDF",
+      "sha256": "f4b76c52222358bec25f328517d9801036e606d57648e62e2ac59e3027a6c050",
+      "page": 7,
+      "section": "5.4",
+      "quote": "For one-directional 1Mbps and above, or bi-directional 500Kbps and above, recommended to use CH343, enable automatic hardware flow control."
+    },
+    "conclusion": "Observed deletions; 32-byte alignment and rate recommendation are clues, not proof of loss layer or a repair"
+  },
+  "fixed_behavior": {
+    "plans": [
+      "boot64k-1m",
+      "boot64k-500k"
+    ],
+    "initial_baud": 1000000,
+    "receive_bauds": [
+      1000000,
+      500000
+    ],
+    "official_speed_transition_only_before_payload": true,
+    "address": "0x12010000",
+    "bytes": 65536,
+    "max_planned_samples": 3,
+    "stop_on_first_failure": true,
+    "no_retry_or_rate_fallback": true,
+    "native_error_status_before_and_after_each_read": true,
+    "independent_stream_review": true,
+    "flash_writes": 0,
+    "normal_burn_reset": 1,
+    "fallback_rts_max": 1,
+    "fallback_requires_fresh_authorization": true,
+    "total_seconds_max": 300,
+    "stub_seconds_max": 60,
+    "prompt_seconds_max": 60,
+    "b_execution_rate_unchanged": true
+  },
+  "validation": {
+    "rust_tests": [
+      9,
+      8,
+      9
+    ],
+    "release_passed": true,
+    "python": {
+      "tests": 190,
+      "seconds": 422.035,
+      "passed": true,
+      "log": {
+        "path": "artifacts/ota-boot-receive-all-20261111-003.log",
+        "bytes": 31816,
+        "sha256": "9502b4fc1376b939d2ba80126f3fdb5c7aa754ab443ea10b39646cd2b8737382"
+      },
+      "build": "002"
+    },
+    "prior_runs": [
+      {
+        "log": {
+          "path": "artifacts/ota-boot-receive-all-20261111-001.log",
+          "bytes": 32940,
+          "sha256": "eaa12ee7230e2ef386790138d8a6e09d25256d99cc7b94f3278cc4d233b5a002"
+        },
+        "passed": false,
+        "reason": "Primary edited one error message during a bound simulation; source-change guard rejected after-state. Retained original failure."
+      },
+      {
+        "log": {
+          "path": "artifacts/ota-boot-receive-all-20261111-002.log",
+          "bytes": 31816,
+          "sha256": "bce311762a634d3c370c5e863f0a1e4e807858a68c8f587843abb0b1e7cbabcc"
+        },
+        "passed": true,
+        "tests": 190,
+        "build": "001"
+      }
+    ],
+    "packaging": "FTAB Rust source normalized LF to local Git CRLF before final build002; semantic text unchanged, observer rebuilt and full regression repeated. Sector/execute executable hashes unchanged. New test file also normalized to Git CRLF after final regression; decoded Python text is identical.",
+    "browser": [
+      {
+        "case": "success-500k",
+        "report": {
+          "path": "artifacts/ota-boot-receive-browser-20261111/success-500k/device.json",
+          "bytes": 16447,
+          "sha256": "42c43e0daf84e4151413d77df8e62fb467438359503a4e39895060fc0e4f8f7b"
+        },
+        "passed": true,
+        "resources_closed": true,
+        "application_recovery_passed": true,
+        "build": "001 before newline-only normalization",
+        "verification": [
+          {
+            "title": "原boot64KiB接收对照（500K）（模拟）",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "title": "应用保存记录",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "title": "进程与端点租约关闭",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "title": "模拟末态确认",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "title": "RTC连续性",
+            "passed": true,
+            "detail": ""
+          }
+        ]
+      },
+      {
+        "case": "short26-1m",
+        "report": {
+          "path": "artifacts/ota-boot-receive-browser-20261111/short26-1m/device.json",
+          "bytes": 12874,
+          "sha256": "8c2ebd749e6e7b3f251348f653da8e69d871cf395c4ddfcdd2d485a1ac6b0a7d"
+        },
+        "passed": false,
+        "resources_closed": true,
+        "application_recovery_passed": true,
+        "build": "001 before newline-only normalization",
+        "verification": [
+          {
+            "title": "原boot64KiB接收对照（1M）（模拟）",
+            "passed": false,
+            "detail": "ValueError(\"Observer failed or needed termination; raw files and completed facts retained: ['timeout while waiting for reading flash at 0x1201C000']; exit=1\")"
+          },
+          {
+            "title": "应用保存记录",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "title": "进程与端点租约关闭",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "title": "模拟末态确认",
+            "passed": true,
+            "detail": ""
+          },
+          {
+            "title": "RTC连续性",
+            "passed": true,
+            "detail": ""
+          }
+        ]
+      }
+    ]
+  },
+  "archive": {
+    "path": "artifacts/ota-boot-receive-rate-software-20261111.zip",
+    "bytes": 27273933,
+    "sha256": "e465f5f4aa17d50b53df5889dc245dd3d8af5149288309cf4f089dc7c674bdef",
+    "members": 92,
+    "all_members_readback_equal": true
+  },
+  "limits": [
+    "Loss layer remains unknown",
+    "32-byte alignment is a clue, not USB packet or FIFO proof",
+    "CH340 recommendation and old500k CLI successes do not establish rate causality",
+    "No current device authorization; compare two newly authorized independent same-path windows before deciding repair",
+    "Both rates passing does not prove an intermittent fault fixed"
+  ]
+}
