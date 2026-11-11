@@ -340,16 +340,6 @@
         "sha256": "e379b6cc494352b6cc59c481d51a558fdf1ebf144af167e46b5e9fbbcaf6b279"
       },
       {
-        "path": "scripts/ota_rom_device.py",
-        "bytes": 50336,
-        "sha256": "539315a5d8001673fbf410198394a830bdf33966600a40ecc57a3ba1bbf7c78d"
-      },
-      {
-        "path": "scripts/ota_stub_observe.py",
-        "bytes": 26508,
-        "sha256": "d94764782a726160ada9d1174181bff054c0dc59afbd35d562614346de4ba8ec"
-      },
-      {
         "path": "scripts/ota_stub_bridge/Cargo.lock",
         "bytes": 64761,
         "sha256": "70d9b528da0418761a76985ba5ad7cdf02afe5703f3aea1a1f7196c5c7bbee8d"
