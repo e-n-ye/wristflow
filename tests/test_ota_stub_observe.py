@@ -9,6 +9,7 @@ import tempfile
 import threading
 import time
 import unittest
+import zlib
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -51,6 +52,54 @@ class RegisterTests(unittest.TestCase):
             change(value)
             with self.assertRaises(ValueError):
                 observer.sample_summary(value)
+
+
+class FtabStreamTests(unittest.TestCase):
+    def setUp(self):
+        self.original = bytes(range(256)) * 16
+
+    def stream(self, payload, *, checksum=None):
+        checksum = (zlib.crc32(payload, 0xffffffff) ^ 0xffffffff) & 0xffffffff if checksum is None else checksum
+        return b"msh >start_trans\r\n" + payload + f"CRC:0x{checksum:08x}\r\nOK\r\nmsh >".encode()
+
+    def test_full_payload_exact_boundary_crc_and_original_bytes_are_all_required(self):
+        self.assertTrue(observer.ftab_stream_review(self.stream(self.original), self.original)["passed"])
+        changed = bytes([self.original[0] ^ 1]) + self.original[1:]
+        review = observer.ftab_stream_review(self.stream(changed), self.original)
+        self.assertTrue(review["complete_length"] and review["crc_matches"])
+        self.assertFalse(review["passed"] or review["original_bytes_match"])
+        self.assertFalse(observer.ftab_stream_review(self.stream(self.original, checksum=0), self.original)["passed"])
+
+    def test_short18_with_original_crc_and_ok_cannot_be_padded_or_accepted(self):
+        crc = (zlib.crc32(self.original, 0xffffffff) ^ 0xffffffff) & 0xffffffff
+        review = observer.ftab_stream_review(self.stream(self.original[:-18], checksum=crc), self.original)
+        self.assertEqual(review["received_bytes"], 4078)
+        self.assertTrue(review["early_tail_diagnostic_only"])
+        self.assertFalse(review["passed"] or review["complete_length"] or review["crc_matches"])
+
+    def test_payload_can_contain_marker_and_crc_text_without_changing_its_boundary(self):
+        misleading = b"start_trans\r\nCRC:0x00000000\r\nOK\r\nmsh >"
+        original = misleading + self.original[len(misleading):]
+        self.assertTrue(observer.ftab_stream_review(self.stream(original), original)["passed"])
+
+    def test_missing_truncated_tail_extra_bytes_and_oversized_stream_reject(self):
+        full = self.stream(self.original)
+        for wire in (b"", full[:-8], full + b"unexpected", full.replace(b"OK\r\n", b"Fail\r\n")):
+            with self.subTest(length=len(wire)):
+                self.assertFalse(observer.ftab_stream_review(wire, self.original)["passed"])
+        with self.assertRaises(ValueError):
+            observer.ftab_stream_review(b"x" * 65537, self.original)
+
+
+class FtabPlanGuards(unittest.TestCase):
+    def test_ftab_faults_and_unrelated_plans_are_rejected_before_output_or_worker(self):
+        root = Path(tempfile.mkdtemp(prefix="ftab-plan-guard-", dir=ROOT / "artifacts"))
+        for index, (plan, scenario) in enumerate((("geometry", "ftab-short18"), ("dual-nor", "host-error-after"),
+                                                ("ftab", "short-read"), ("ftab", "pair-changed"))):
+            with patch.object(observer, "prepare", return_value=({}, [])):
+                with self.assertRaises(ValueError):
+                    device.run(root / str(index), profile="stub-observe", observer={}, observer_plan=plan, scenario=scenario)
+            self.assertFalse((root / str(index)).exists())
 
 
 @unittest.skipUnless(os.environ.get("WRISTFLOW_STUB_OBSERVER_BUILD"),
@@ -182,6 +231,52 @@ class OwnedObserverTests(unittest.TestCase):
         self.assertFalse(summary["selected_flash"]["commands"])
         events = [json.loads(line) for line in (output / "worker/stub-observer/wire-events.jsonl").read_text().splitlines()]
         self.assertTrue(all(0x20000000 <= e["address"] < 0x20080000 for e in events if e["kind"] == "geometry_read_intent"))
+
+    def test_ftab_only_reads_same4k_once_and_independently_verifies_stream(self):
+        for scenario in ("success", "fragmented"):
+            output, result = self.exercise(scenario, plan="ftab")
+            self.assertTrue(result["observation_passed"] and result["passed"], result)
+            summary = result["rom"]["observations"]["summaries"]["ftab"]
+            self.assertTrue(summary["independent_stream_passed"])
+            self.assertEqual(summary["stream"]["received_bytes"], 4096)
+            self.assertEqual(summary["host_after"]["errors"], 0)
+            directory = output / "worker/stub-observer"
+            events = [json.loads(line) for line in (directory / "wire-events.jsonl").read_text().splitlines()]
+            wire = (directory / "tx.bin").read_bytes()
+            commands = [wire[e["offset"]:e["offset"]+e["bytes"]] for e in events if e["kind"] == "tx"]
+            self.assertEqual(commands.count(b"burn_read 0x12000000 0x00001000\r"), 1)
+            self.assertEqual(commands.count(b"burn_reset\r"), 1)
+            self.assertEqual(len([e for e in events if e["kind"] == "ftab_read_intent"]), 1)
+            self.assertFalse(any(e["kind"] == "nor_read_intent" for e in events))
+            self.assertFalse((directory / "nor-first.bin").exists())
+            changed = copy.deepcopy(summary)
+            changed["host_after"]["errors"] = True
+            with self.assertRaises(ValueError):
+                observer.ftab_summary(changed, directory, Path(self.options["first"]).read_bytes())
+
+    def test_ftab_short_crc_or_changed_bytes_stop_and_keep_original_return_separate(self):
+        for scenario in ("ftab-short18", "ftab-crc-fail", "ftab-changed", "host-error-after"):
+            output, result = self.exercise(scenario, plan="ftab")
+            self.assertFalse(result["passed"] or result["observation_passed"])
+            self.assertTrue(result["application_recovery_passed"] and result["resources_closed"])
+            report = result["rom"]["observations"]["report"]
+            self.assertTrue(report["fallback_completed"])
+            self.assertFalse(report["normal_start_attempted"])
+            summary = result["rom"]["observations"]["summaries"]["ftab"]
+            if scenario == "ftab-short18":
+                self.assertEqual(summary["stream"]["received_bytes"], 4078)
+                self.assertFalse((output / "worker/stub-observer/ftab4k.bin").exists())
+            if scenario == "host-error-after":
+                self.assertEqual(summary["host_after"]["errors"], 2)
+                self.assertTrue(summary["independent_stream_passed"])
+
+    def test_ftab_alias_and_host_status_gates_prevent_flash_read(self):
+        for scenario in ("ftab-alias-nonzero", "ftab-alias-fail", "host-error-before", "host-status-fail", "lcpu-running"):
+            output, result = self.exercise(scenario, plan="ftab")
+            self.assertFalse(result["observation_passed"])
+            events = [json.loads(line) for line in (output / "worker/stub-observer/wire-events.jsonl").read_text().splitlines()]
+            self.assertFalse(any(e["kind"] in ("ftab_read_intent", "nor_read_intent", "original_start_intent") for e in events))
+            self.assertTrue(result["resources_closed"])
 
     def test_crc_error_and_immutable_change_stop_before_second_read(self):
         for scenario in ("crc-fail", "immutable-changed"):

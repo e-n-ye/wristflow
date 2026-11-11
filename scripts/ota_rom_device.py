@@ -261,7 +261,7 @@ def run(output, *, capture=None, fixtures=None, scenario="success", ready=None, 
     simulation = capture is None
     if profile not in ("rom-capture", *STUB_PROFILES):
         raise ValueError("Unknown fixed device profile")
-    if observer_plan not in ("dual-nor", "geometry") or profile != "stub-observe" and observer_plan != "dual-nor":
+    if observer_plan not in ("dual-nor", "geometry", "ftab") or profile != "stub-observe" and observer_plan != "dual-nor":
         raise ValueError("Unknown or misplaced fixed observer plan")
     maximum_limits, maximum_total = LIMITS, 300
     observer_inputs = []
@@ -278,16 +278,20 @@ def run(output, *, capture=None, fixtures=None, scenario="success", ready=None, 
         observer, observer_inputs = prepare(observer)
         maximum_limits, maximum_total = SECTOR_LIMITS, 600
     elif profile in STUB_PROFILES:
-        from ota_stub_observe import LIMITS as STUB_LIMITS, GEOMETRY_LIMITS, SCENARIOS as STUB_SCENARIOS, prepare
+        from ota_stub_observe import LIMITS as STUB_LIMITS, GEOMETRY_LIMITS, SCENARIOS as STUB_SCENARIOS, FTAB_SCENARIOS, prepare
         if scenario not in STUB_SCENARIOS:
             raise ValueError("Unknown stub simulation scenario")
         observer, observer_inputs = prepare(observer)
-        maximum_limits, maximum_total = (GEOMETRY_LIMITS, 300) if observer_plan == "geometry" else (STUB_LIMITS, 900)
+        maximum_limits, maximum_total = (GEOMETRY_LIMITS, 300) if observer_plan in ("geometry", "ftab") else (STUB_LIMITS, 900)
+        if observer_plan != "ftab" and (scenario.startswith("ftab-") or scenario.startswith("host-")):
+            raise ValueError("FTAB fault scenario belongs only to FTAB plan")
+        if observer_plan == "ftab" and scenario not in FTAB_SCENARIOS:
+            raise ValueError("Scenario does not exercise FTAB plan")
     elif observer is not None:
         raise ValueError("Observer inputs belong only to the fixed stub profile")
     limits = dict(maximum_limits if limits is None else limits)
     if (output.exists() or set(limits) != set(maximum_limits) or any(not 0 < v <= maximum_limits[k] for k,v in limits.items()) or
-            not 13 < total_seconds <= maximum_total or not 0 < prompt_seconds <= (60 if observer_plan == "geometry" else 120)):
+            not 13 < total_seconds <= maximum_total or not 0 < prompt_seconds <= (60 if observer_plan in ("geometry", "ftab") else 120)):
         raise ValueError("New output and bounded phase/global limits required")
     if not simulation and (os.name != "nt" or capture.get("conditions_confirmed") is not True or
                            capture.get("rom_reset_authorized") is not True or
@@ -389,13 +393,15 @@ def run(output, *, capture=None, fixtures=None, scenario="success", ready=None, 
             raise ValueError("Worker application evidence does not match its raw bytes")
         healthy(value["records"])
         return value
-    stub_label = "固定RAM配置读取" if observer_plan == "geometry" else "原版stub状态与双读"
+    stub_label = "固定RAM配置读取" if observer_plan == "geometry" else "FTAB单次读取与接收完整性" if observer_plan == "ftab" else "原版stub状态与双读"
     phases = [(key, stub_label if key == "rom" and profile in STUB_PROFILES else label)
               for key, label in PHASES]
     mode = ("原版stub观测模拟（无设备）" if simulation else "原版stub观测（零Flash写入）") if profile in STUB_PROFILES else (
         "ROM真实时钟／假串口演练" if simulation else "ROM救援观测（零Flash写入）")
     if observer_plan == "geometry":
         mode = "固定RAM配置模拟（无设备）" if simulation else "固定RAM配置观测（零Flash写入）"
+    if observer_plan == "ftab":
+        mode = "FTAB接收完整性模拟（无设备）" if simulation else "FTAB接收完整性（只读4KiB）"
     if profile == "stub-b-sector":
         stub_label = "B首4KiB写入与原字节恢复"
         phases = [(key, stub_label if key == "rom" else label) for key, label in PHASES]
@@ -431,6 +437,13 @@ def run(output, *, capture=None, fixtures=None, scenario="success", ready=None, 
                 preparation = ("确认本窗已授权一次主动入口RTS、一次SYSRESETREQ，装载固定原版RAM stub及官方BKP0R／PA21设置；"
                     "读取ready寄存器和固定RAM中的Flash句柄／UART对象，以及有界指针所指的DMA结构与命令表，总计最多1056B。"
                     "没有NOR读取或Flash写擦；最后单发burn_reset，异常时最多一次退出RTS。")
+            if observer_plan == "ftab":
+                preparation = (("【假串口／无设备】" if simulation else "") +
+                    "本窗仅一次入口RTS／SYSRESETREQ和固定原版RAM stub（含BKP0R／PA21）；"
+                    "ready及MPI2 alias三字全零后，只读0x12000000的4096B FTAB一次。"
+                    "读取前后记录Windows接收错误位；该查询会确认清除错误位，不丢弃接收字节。"
+                    "长度、CRC及与原备份逐字节匹配才通过；不补零、不重读、不安装boot／B、不校时。"
+                    "正常单发burn_reset返回原程序；失败停止协议，仅按本窗授权最多一次退出RTS。")
             if profile == "stub-b-sector":
                 preparation = (("【假串口／无设备】模拟以下固定流程。" if simulation else "") +
                     "确认本窗已授权一次入口RTS／SYSRESETREQ及固定原版RAM stub（含BKP0R／PA21），"
@@ -519,7 +532,7 @@ def run(output, *, capture=None, fixtures=None, scenario="success", ready=None, 
             if report["errors"]:
                 outcome="error"
                 journal.event("validation_failed",errors=report["errors"])
-            if not report["errors"] or (profile in STUB_PROFILES and all(item["phase"] == "rtc" for item in report["errors"])) or profile in ("stub-b-sector", "stub-b-execute"):
+            if not report["errors"] or (profile in STUB_PROFILES and all(item["phase"] == "rtc" for item in report["errors"])) or profile in ("stub-b-sector", "stub-b-execute") or observer_plan == "ftab":
                 current_phase="final"
                 console.prompt("final","【假串口】确认演练结束；无设备操作。" if simulation else
                     ("关闭临时常亮，回表盘，确认显示、触摸与KEY1正常。RTC变化已独立记录，校时另行确认。"
@@ -595,7 +608,7 @@ def run(output, *, capture=None, fixtures=None, scenario="success", ready=None, 
         outcome=console.seal(outcome)
         detail="\n".join(labels.get(item["phase"],item["phase"])+"："+item["error"] for item in report["errors"])
         report.update(passed=outcome=="passed",outcome=outcome,detail=detail)
-        report["verification"]=[dict(title=(("固定RAM配置读取" if observer_plan == "geometry" else "原版stub观测与双份NOR") if profile in STUB_PROFILES else "ROM观测与退出")+("（假串口）" if simulation else ""),
+        report["verification"]=[dict(title=(("固定RAM配置读取" if observer_plan == "geometry" else "FTAB单次读取与接收完整性" if observer_plan == "ftab" else "原版stub观测与双份NOR") if profile in STUB_PROFILES else "ROM观测与退出")+("（假串口）" if simulation else ""),
                 passed=report["observation_passed"] and not errors_for("rom"),detail=errors_for("rom")),
             dict(title="应用保存记录" if profile in STUB_PROFILES else "应用记录与RTC后态",passed=report["application_recovery_passed"],detail=errors_for("before","after","recovery")),
             dict(title="进程与端点租约关闭",passed=report["resources_closed"] and not report["lease_retained"],detail=errors_for("cleanup","worker")),

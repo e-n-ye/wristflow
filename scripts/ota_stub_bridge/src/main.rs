@@ -4,12 +4,14 @@ mod port;
 mod simulated;
 mod geometry;
 mod common;
+mod ftab;
 use common::{snapshot,pulse};
 
 use serde::Deserialize;
 use serde_json::{Value, json};
 use sftool_lib::{BeforeOperation, CancelToken, ReadFlashFile, ReadFlashParams, SifliToolBase, SifliToolTrait};
 use sftool_lib::common::ram_command::DownloadStub;
+use sftool_lib::common::ram_command::{RamCommand,Command,Response};
 use sftool_lib::read_flash::ReadFlashTrait;
 use sftool_lib::sf32lb52::SF32LB52Tool;
 use sha2::{Digest, Sha256};
@@ -45,11 +47,16 @@ fn input(value: &Input) -> Result<Vec<u8>> {
 }
 fn validate(config: &Config) -> Result<(Vec<u8>, Vec<u8>)> {
     require(config.schema==1 && (1..=600).contains(&config.seconds),"Invalid bounded config")?;
-    require(["dual-nor","geometry"].contains(&config.plan.as_str()),"Unknown fixed observation plan")?;
+    require(["dual-nor","geometry","ftab"].contains(&config.plan.as_str()),"Unknown fixed observation plan")?;
     require(config.entry_reset_authorized && config.ram_stub_authorized &&
         config.register_observation_authorized && config.original_start_authorized,
         "Explicit reset, official RAM stub, register observation and original-start scope required")?;
-    require(["success","fragmented","short-read","geometry-bad-pointer","lcpu-running","register-read-fail","immutable-changed","pair-changed","crc-fail","hang-read"].contains(&config.scenario.as_str()),"Unknown scenario")?;
+    require(["success","fragmented","short-read","geometry-bad-pointer","lcpu-running","register-read-fail","immutable-changed","pair-changed","crc-fail","hang-read",
+        "ftab-short18","ftab-crc-fail","ftab-changed","ftab-alias-nonzero","ftab-alias-fail","host-error-before","host-error-after","host-status-fail"].contains(&config.scenario.as_str()),"Unknown scenario")?;
+    require(config.plan=="ftab" || !(config.scenario.starts_with("ftab-") || config.scenario.starts_with("host-")),"FTAB fault belongs only to fixed FTAB plan")?;
+    require(config.plan!="ftab" || ["success","fragmented","lcpu-running","register-read-fail","hang-read"].contains(&config.scenario.as_str()) ||
+        config.scenario.starts_with("ftab-") || config.scenario.starts_with("host-"),"Scenario does not exercise FTAB plan")?;
+    require(config.plan!="ftab" || config.seconds<=60,"FTAB check exceeds60 seconds")?;
     require(config.scenario=="success" || config.simulation,"Fault injection is simulation-only")?;
     if config.simulation {
         require(config.port=="SIMULATED-STUB","Simulation cannot name a device")?;
@@ -94,12 +101,15 @@ fn session(config: &Config, stub:Vec<u8>, baseline: Vec<u8>, request_sha:&str) -
             thread::sleep(Duration::from_millis(20));
         }
     });
+    let mut receive_monitor=ftab::Monitor::simulated(&config.scenario);
     let opened=(|| -> Result<Box<dyn serialport::SerialPort>> {
         require(!config.cancel.exists(),"Cancelled before port open")?;
         require(started.elapsed()<Duration::from_secs(seconds),"Budget expired before port open")?;
         token.check_cancelled()?;
         if config.simulation { Ok(Box::new(simulated::Peer::new(baseline.clone(),&config.scenario))) }
-        else { Ok(serialport::new(&config.port,1_000_000).dtr_on_open(false).timeout(Duration::from_secs(5)).open()?) }
+        else if config.plan=="ftab" {
+            let (port,monitor)=ftab::Monitor::open(&config.port)?;receive_monitor=monitor;Ok(port)
+        } else { Ok(serialport::new(&config.port,1_000_000).dtr_on_open(false).timeout(Duration::from_secs(5)).open()?) }
     })();
     let opened=match opened { Ok(value)=>value,Err(error)=>{
         monitor.store(false,std::sync::atomic::Ordering::Relaxed);let _=watch.join();return Err(error);
@@ -127,12 +137,14 @@ fn session(config: &Config, stub:Vec<u8>, baseline: Vec<u8>, request_sha:&str) -
         // Its at-most-two Enter requests and one SYSRESETREQ remain original source behavior.
         tool.download_stub()?;
         trace.event(json!({"kind":"stub_ready"}))?;
-        let ready=snapshot(&mut tool)?;
+        let ready=if config.plan=="ftab" {common::snapshot_strict(&mut tool)?} else {snapshot(&mut tool)?};
         fs::write(config.out.join("ready-registers.json"),serde_json::to_vec_pretty(&ready)?)?;
         report["ready_registers"]=ready;
         if config.plan=="geometry" {
             report["geometry"]=geometry::observe(&mut tool,&trace,&config.out)?;
             report["geometry_snapshot_complete"]=json!(true);
+        } else if config.plan=="ftab" {
+            ftab::observe(&mut tool,&trace,&config.out,&baseline,&receive_monitor,&mut report)?;
         } else {
         for name in ["nor-first.bin","nor-second.bin"] {
             require(!config.cancel.exists(),"Cancelled before NOR request")?;
@@ -160,7 +172,9 @@ fn session(config: &Config, stub:Vec<u8>, baseline: Vec<u8>, request_sha:&str) -
         tool.base.cancel_token.check_cancelled()?;
         report["normal_start_attempted"]=json!(true);
         trace.event(json!({"kind":"original_start_intent","command":"burn_reset"}))?;
-        tool.soft_reset()?;
+        if config.plan=="ftab" {
+            require(tool.command(Command::SoftReset)?==Response::Ok,"Original start response not OK; no retry")?;
+        } else {tool.soft_reset()?;}
         report["normal_start_command_completed"]=json!(true);
         Ok(())
     })).unwrap_or_else(|_|Err(io::Error::other("Official-library operation panicked; session is not reusable").into()));
@@ -176,6 +190,7 @@ fn session(config: &Config, stub:Vec<u8>, baseline: Vec<u8>, request_sha:&str) -
         }
     }
     drop(tool);
+    drop(receive_monitor);
     monitor.store(false,std::sync::atomic::Ordering::Relaxed);let _=watch.join();
     let _=trace.event(json!({"kind":"port_drop_completed"}));
     match trace.finish() {
