@@ -14,8 +14,11 @@ ROOT = Path(__file__).resolve().parents[1]
 LIMITS = dict(bind=30, before=60, rom=600, after=60, grace=10)
 GEOMETRY_LIMITS = dict(bind=30, before=60, rom=60, after=60, grace=10)
 SCENARIOS = ("success", "fragmented", "short-read", "geometry-bad-pointer", "lcpu-running", "register-read-fail", "immutable-changed", "pair-changed", "crc-fail", "hang-read", "rtc-reset",
-             "ftab-short18", "ftab-crc-fail", "ftab-changed", "ftab-alias-nonzero", "ftab-alias-fail", "host-error-before", "host-error-after", "host-status-fail")
-FTAB_SCENARIOS = tuple(s for s in SCENARIOS if s in ("success", "fragmented", "lcpu-running", "register-read-fail", "hang-read", "rtc-reset") or s.startswith(("ftab-", "host-")))
+             "ftab-short18", "ftab-crc-fail", "ftab-changed", "ftab-alias-nonzero", "ftab-alias-fail", "host-error-before", "host-error-after", "host-status-fail",
+             "boot-short26", "boot-crc-fail", "boot-changed", "speed-fail", "host-after-fail")
+FTAB_SCENARIOS = tuple(s for s in SCENARIOS if s in ("success", "fragmented", "lcpu-running", "register-read-fail", "hang-read", "rtc-reset", "host-error-before", "host-error-after", "host-status-fail") or s.startswith("ftab-"))
+BOOT_RECEIVE_SCENARIOS = ("success", "fragmented", "lcpu-running", "register-read-fail", "hang-read", "rtc-reset", "boot-short26", "boot-crc-fail", "boot-changed", "speed-fail",
+                          "host-error-before", "host-error-after", "host-status-fail", "host-after-fail", "ftab-alias-nonzero", "ftab-alias-fail")
 REVISION = "be2adab37bfb0ef4eb623b7e47e7b8693918b1e1"
 STUB_SHA = "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43"
 HEADERS = ("register.h", "lpsys_aon.h", "lpsys_rcc.h", "dmac.h", "extdma.h")
@@ -79,28 +82,35 @@ def ftab_stream_review(wire, expected):
     """Offline diagnosis; a textual CRC found early can only reject, never admit."""
     if len(expected) != 4096 or len(wire) > 65536:
         raise ValueError("Fixed FTAB stream bounds")
+    return fixed_stream_review(wire, expected)
+
+
+def fixed_stream_review(wire, expected):
+    if len(expected) not in (4096, 65536) or len(wire) > 131072:
+        raise ValueError("Fixed receive stream bounds")
+    size = len(expected)
     marker = b"start_trans\r\n"
     start = wire.find(marker)
     if start < 0:
-        return dict(passed=False, reason="Missing FTAB transfer marker", received_bytes=None)
+        return dict(passed=False, reason="Missing fixed receive transfer marker", received_bytes=None)
     data = wire[start + len(marker):]
     tail = re.compile(rb"CRC:0x([0-9a-fA-F]{8})\r\nOK\r\n(?:msh >)?\Z")
-    # Only the exact4096B boundary can admit a complete stream. Looking for an
+    # Only the exact requested boundary can admit a complete stream. Looking for an
     # early textual tail is diagnostic: payload bytes can themselves look like it.
-    match = tail.fullmatch(data[4096:]) if len(data) >= 4096 else None
-    payload = data[:4096]
+    match = tail.fullmatch(data[size:]) if len(data) >= size else None
+    payload = data[:size]
     if match is None:
         match = tail.search(data)
         payload = data[:match.start()] if match else data
     crc = (zlib.crc32(payload, 0xffffffff) ^ 0xffffffff) & 0xffffffff
-    complete = len(payload) == 4096 and match is not None
+    complete = len(payload) == size and match is not None
     crc_ok = bool(match and crc == int(match[1], 16))
     matches = complete and payload == expected
-    return dict(passed=complete and crc_ok and matches, received_bytes=len(payload), requested_bytes=4096,
+    return dict(passed=complete and crc_ok and matches, received_bytes=len(payload), requested_bytes=size,
                 reported_crc=match[1].decode("ascii").lower() if match else None, received_crc=f"{crc:08x}",
                 complete_length=complete, crc_matches=crc_ok, original_bytes_match=matches,
                 early_tail_diagnostic_only=bool(match and not complete),
-                reason="" if complete and crc_ok and matches else "Incomplete, corrupt or changed FTAB stream; no retry or padding")
+                reason="" if complete and crc_ok and matches else "Incomplete, corrupt or changed fixed stream; no retry or padding")
 
 
 def ftab_summary(value, directory, baseline):
@@ -127,6 +137,44 @@ def ftab_summary(value, directory, baseline):
             status = value.get(phase, {})
             if type(status.get("errors")) is not int or status["errors"] != 0:
                 raise ValueError("FTAB success lacks clean host status")
+    return summary
+
+
+def boot_receive_summary(value, directory, baseline, plan):
+    if (not isinstance(value, dict) or type(value.get("read_passed")) is not bool
+            or value.get("address") != 0x12010000 or value.get("bytes") != 65536
+            or not isinstance(value.get("aliases"), list) or len(value["aliases"]) != 3
+            or any(type(v) is not int or not 0 <= v <= 0xffffffff for v in value["aliases"])):
+        raise ValueError("Foreign boot receive facts")
+    summary = dict(value, independent_streams=[])
+    samples = value.get("reads", [])
+    if not isinstance(samples, list) or len(samples) > 3:
+        raise ValueError("Boot receive sample bound")
+    expected = baseline[0x10000:0x20000]
+    raw = (directory / "rx.bin").read_bytes()
+    for index, sample in enumerate(samples):
+        if not isinstance(sample, dict) or sample.get("index") != index or type(sample.get("read_passed")) is not bool:
+            raise ValueError("Malformed boot receive sample")
+        checked = dict(passed=False, reason="No complete raw range")
+        if "rx_start" in sample and "rx_end" in sample:
+            start, end = sample["rx_start"], sample["rx_end"]
+            if type(start) is not int or type(end) is not int or not 0 <= start <= end <= len(raw):
+                raise ValueError("Boot receive raw range")
+            checked = fixed_stream_review(raw[start:end], expected)
+        summary["independent_streams"].append(checked)
+        if sample["read_passed"]:
+            if not checked["passed"] or (directory / f"boot-receive-{index}.bin").read_bytes() != expected:
+                raise ValueError("Boot receive claim differs from bytes")
+            for phase in ("host_before", "host_after"):
+                if type(sample.get(phase, {}).get("errors")) is not int or sample[phase]["errors"] != 0:
+                    raise ValueError("Boot receive lacks clean native status")
+    if value["read_passed"]:
+        baud = 500000 if plan == "boot64k-500k" else 1000000
+        if (value.get("receive_baud") != baud or value.get("initial_baud") != 1000000
+                or value.get("speed_change_attempted") is not (baud == 500000)
+                or value.get("speed_change_completed") is not (baud == 500000)
+                or value["aliases"] != [0, 0, 0] or len(samples) != 3 or any(s["read_passed"] is not True for s in samples)):
+            raise ValueError("Incomplete fixed boot receive success")
     return summary
 
 
@@ -273,6 +321,10 @@ def probe(config, directory, port, phase_end):
             if request["plan"] != "ftab":
                 raise ValueError("FTAB evidence belongs to another plan")
             summaries["ftab"] = ftab_summary(result["ftab"], directory / "stub-observer", Path(options["first"]).read_bytes())
+        if "boot_receive" in result:
+            if request["plan"] not in ("boot64k-1m", "boot64k-500k"):
+                raise ValueError("Boot receive evidence belongs to another plan")
+            summaries["boot_receive"] = boot_receive_summary(result["boot_receive"], directory / "stub-observer", Path(options["first"]).read_bytes(), request["plan"])
         if result.get("read_pair_passed") is True:
             pair = review_pair(directory / "stub-observer/nor-first.bin", directory / "stub-observer/nor-second.bin")
             if not pair["passed"] or pair["flash_sha256"] != result.get("nor_sha256"):
@@ -289,6 +341,7 @@ def probe(config, directory, port, phase_end):
         error = evidence_error
     observed = dict(observation_passed=(result.get("geometry_snapshot_complete") is True if request["plan"] == "geometry"
                     else summaries.get("ftab", {}).get("read_passed") is True if request["plan"] == "ftab"
+                    else summaries.get("boot_receive", {}).get("read_passed") is True if request["plan"].startswith("boot64k-")
                     else result.get("snapshots_complete") is True and result.get("read_pair_passed") is True),
                     read_pair_passed=result.get("read_pair_passed") is True,
                     summaries=summaries, pair_review=pair, all_flash_users_controlled=False,
@@ -312,6 +365,7 @@ def main():
         plan = cmd.add_mutually_exclusive_group()
         plan.add_argument("--geometry-only", action="store_true", help="Fixed bounded RAM structures only; no NOR request")
         plan.add_argument("--ftab-only", action="store_true", help="One fixed4KiB FTAB read and Windows RX error status; no write or retry")
+        plan.add_argument("--boot-receive-baud", type=int, choices=(1000000, 500000), help="Diagnostic only: up to three fixed boot64KiB reads at one rate; always enter stub at1M, official pre-read speed change for500k")
         if mode == "simulate":
             cmd.add_argument("--before-fixture", type=Path, required=True)
             cmd.add_argument("--after-fixture", type=Path, required=True)
@@ -331,7 +385,7 @@ def main():
         print((args.run / "device.json").read_text(encoding="utf-8"))
         return 0
     options = dict(build=args.observer_build, first=args.baseline_first, second=args.baseline_second)
-    plan = "geometry" if args.geometry_only else "ftab" if args.ftab_only else "dual-nor"
+    plan = ("boot64k-500k" if args.boot_receive_baud == 500000 else "boot64k-1m") if args.boot_receive_baud else "geometry" if args.geometry_only else "ftab" if args.ftab_only else "dual-nor"
     timing = dict(limits=GEOMETRY_LIMITS, total_seconds=300, prompt_seconds=60) if plan != "dual-nor" else dict(limits=LIMITS, total_seconds=900)
     if args.mode == "simulate":
         result = run(args.out, profile="stub-observe", observer=options,

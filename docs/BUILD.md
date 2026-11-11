@@ -1,5 +1,9 @@
 # 可复现构建基线
 
+## 2026-11-11 原boot64KiB接收速率诊断包
+
+沿用`ota_stub_build.py`的Rust1.90／GNU入口，冻结`ota-boot-receive-rate-build-20261111-002`及同次Release的sector／execute companion。只读observer显式增加`--boot-receive-baud 1000000|500000`，与`--ftab-only`／`--geometry-only`互斥；每窗先1M原stub，500K仅经原官方载荷前握手切换。固定64KiB最多三份、首错即停和原生状态／独立原流验证见[合同](OTA-PREPARATION.md#boot-receive-rate-20261111)。该参数不适用于B安装入口，构建及模拟不授权设备；命令、源码、EXE与测试见[软件证据](evidence/2026-11-11/ota-boot-receive-rate-software.json)。原库、Cargo.lock、SDK锁及目标固件保持。
+
 ## 2026-11-11 B执行FTAB启动元数据守卫
 
 沿用`ota_stub_build.py --b-execute`及Rust1.90／GNU入口，冻结`ota-b-metadata-guard-build-20261111-001`和同次Release的observer／sector companion。首个FTAB只读比较覆盖原11288B表，固定请求改为12288B；安装／显式恢复、boot／B镜像及所有写入范围不变。新增后部boot长度／running指针变更的四组合故障验证；Rust测试／Release及全量OTA结果、源码和EXE哈希见[软件证据](evidence/2026-11-11/ota-b-ftab-metadata-guard.json)。无Cargo.lock、SDK锁、公共Build.ps1或目标固件改动；[准入修正依据](OTA-PREPARATION.md#b-ftab-metadata-guard-20261111)不属于串口短收根因修复。

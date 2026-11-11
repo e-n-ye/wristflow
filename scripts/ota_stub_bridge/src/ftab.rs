@@ -2,7 +2,7 @@
 use crate::{Result,hash,require,port};
 use serde_json::{Value,json};
 use sftool_lib::{ReadFlashFile,ReadFlashParams,read_flash::ReadFlashTrait,sf32lb52::SF32LB52Tool,
-    common::sifli_debug::{SifliDebug,SifliUartCommand}};
+    speed::SpeedTrait,common::sifli_debug::{SifliDebug,SifliUartCommand}};
 use std::{fs,io,path::Path,time::Duration};
 
 pub struct Monitor {
@@ -28,7 +28,7 @@ impl Monitor {
     }
     fn sample(&self,phase:&str)->Result<Value> {
         if !self.scenario.is_empty() {
-            require(self.scenario!="host-status-fail","Synthetic host receive status unavailable")?;
+            require(self.scenario!="host-status-fail" && !(self.scenario=="host-after-fail" && phase=="after"),"Synthetic host receive status unavailable")?;
             let errors=if (self.scenario=="host-error-before" && phase=="before") ||
                 (self.scenario=="host-error-after" && phase=="after") {2}else{0};
             return Ok(status(errors,0,0,"synthetic"));
@@ -55,14 +55,14 @@ fn status(errors:u32,input:u32,output:u32,source:&str)->Value {
         "acknowledges_error_bits":true,"purges_input":false})
 }
 
-pub fn observe(tool:&mut SF32LB52Tool,trace:&port::Trace,out:&Path,baseline:&[u8],monitor:&Monitor,report:&mut Value)->Result<()> {
+fn physical_gate(tool:&mut SF32LB52Tool,trace:&port::Trace,report:&mut Value,key:&str,address:u32,bytes:usize)->Result<()> {
     // Match the execution package's physical-address gate. Failed debug reads
     // return immediately, with no Exit or Flash command on an unknown protocol.
     tool.debug_command(SifliUartCommand::Enter)?;
     let aliases=[tool.debug_read_word32(0x5004206c)?,tool.debug_read_word32(0x50042070)?,tool.debug_read_word32(0x50042074)?];
     tool.debug_command(SifliUartCommand::Exit)?;
-    report["ftab"]=json!({"aliases":aliases,"address":0x12000000u32,"bytes":4096,"read_passed":false});
-    trace.event(json!({"kind":"ftab_aliases","aliases":aliases}))?;
+    report[key]=json!({"aliases":aliases,"address":address,"bytes":bytes,"read_passed":false});
+    trace.event(json!({"kind":"physical_read_aliases","role":key,"aliases":aliases}))?;
     require(aliases==[0,0,0],"FTAB alias not zero; no Flash read")?;
     let ready=&report["ready_registers"];
     require(ready["cpuwait"]==true,"LCPU not waiting; no FTAB read")?;
@@ -70,6 +70,11 @@ pub fn observe(tool:&mut SF32LB52Tool,trace:&port::Trace,out:&Path,baseline:&[u8
     require(channels.iter().all(|c|c["enabled"]==false || (c["address"]==0x50081080u32 &&
         c["source"]==0x50084024u32 && c["destination"].as_u64().is_some_and(|v|(0x20000000..0x20080000).contains(&v)))),
         "Unexpected enabled DMA; no FTAB read")?;
+    Ok(())
+}
+
+pub fn observe(tool:&mut SF32LB52Tool,trace:&port::Trace,out:&Path,baseline:&[u8],monitor:&Monitor,report:&mut Value)->Result<()> {
+    physical_gate(tool,trace,report,"ftab",0x12000000,4096)?;
     let before=monitor.sample("before")?;
     report["ftab"]["host_before"]=before.clone();
     trace.event(json!({"kind":"host_receive_status","phase":"before","status":before}))?;
@@ -96,6 +101,58 @@ pub fn observe(tool:&mut SF32LB52Tool,trace:&port::Trace,out:&Path,baseline:&[u8
     report["ftab"]["sha256"]=json!(hash(&data));
     report["ftab"]["read_passed"]=json!(true);
     trace.event(json!({"kind":"ftab_read_verified","bytes":4096,"sha256":hash(&data)}))?;
+    Ok(())
+}
+
+pub fn observe_boot(tool:&mut SF32LB52Tool,trace:&port::Trace,out:&Path,baseline:&[u8],monitor:&Monitor,report:&mut Value,baud:u32)->Result<()> {
+    require([1_000_000,500_000].contains(&baud),"Fixed receive comparison rates only")?;
+    physical_gate(tool,trace,report,"boot_receive",0x12010000,65536)?;
+    report["boot_receive"]["receive_baud"]=json!(baud);
+    report["boot_receive"]["initial_baud"]=json!(1_000_000);
+    report["boot_receive"]["reads"]=json!([]);
+    report["boot_receive"]["speed_change_attempted"]=json!(false);
+    report["boot_receive"]["speed_change_completed"]=json!(false);
+    if baud==500_000 {
+        report["boot_receive"]["speed_change_attempted"]=json!(true);
+        trace.event(json!({"kind":"receive_speed_intent","from":1_000_000,"to":baud,"before_payload":true}))?;
+        // The pinned vendor handshake sends burn_speed, waits50ms, changes the
+        // already-open host port and clears before obtaining a fresh prompt.
+        // Never enter it after a read error or use it to rescue a short payload.
+        tool.set_speed(baud)?;
+        report["boot_receive"]["speed_change_completed"]=json!(true);
+        trace.event(json!({"kind":"receive_speed_complete","baud":baud}))?;
+    }
+    require(tool.port.baud_rate()?==baud,"Host receive rate does not match plan")?;
+    // Three planned samples of the exact same64KiB at one rate. A failed sample
+    // immediately returns; it never grants a retry or rate switch.
+    for index in 0..3 {
+        let mut sample=json!({"index":index,"read_passed":false});
+        let before=monitor.sample("before")?;
+        sample["host_before"]=before.clone();
+        report["boot_receive"]["reads"].as_array_mut().unwrap().push(sample);
+        trace.event(json!({"kind":"host_receive_status","role":"boot_receive","index":index,"phase":"before","status":before}))?;
+        require(before["errors"]==0,"Host receive errors before boot read")?;
+        let start=fs::metadata(out.join("rx.bin"))?.len();
+        report["boot_receive"]["reads"][index]["rx_start"]=json!(start);
+        trace.event(json!({"kind":"boot_receive_read_intent","index":index,"address":0x12010000u32,"bytes":65536,"baud":baud,"rx_offset":start}))?;
+        let path=out.join(format!("boot-receive-{index}.bin"));
+        let read=tool.read_flash(&ReadFlashParams {files:vec![ReadFlashFile {file_path:path.to_string_lossy().into_owned(),address:0x12010000,size:65536}]});
+        if let Err(error)=&read {report["boot_receive"]["reads"][index]["library_error"]=json!(error.to_string());}
+        let after=monitor.sample("after");
+        match &after {
+            Ok(value)=>report["boot_receive"]["reads"][index]["host_after"]=value.clone(),
+            Err(error)=>report["boot_receive"]["reads"][index]["host_after_error"]=json!(error.to_string()),
+        }
+        trace.event(json!({"kind":"boot_receive_read_finished","index":index,"library_ok":read.is_ok(),"host_after":report["boot_receive"]["reads"][index]["host_after"]}))?;
+        report["boot_receive"]["reads"][index]["rx_end"]=json!(fs::metadata(out.join("rx.bin"))?.len());
+        read?;
+        require(after?["errors"]==0,"Host receive errors during boot read")?;
+        let data=fs::read(path)?;
+        require(data.len()==65536 && data==baseline[0x10000..0x20000],"Boot read differs from original bytes")?;
+        report["boot_receive"]["reads"][index]["read_passed"]=json!(true);
+        report["boot_receive"]["reads"][index]["sha256"]=json!(hash(&data));
+    }
+    report["boot_receive"]["read_passed"]=json!(true);
     Ok(())
 }
 

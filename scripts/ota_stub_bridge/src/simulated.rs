@@ -8,19 +8,23 @@ pub const B_SCENARIOS:&[&str]=&["success","fragmented","lcpu-running","register-
 
 struct State {input:Vec<u8>,output:VecDeque<u8>,nor:Vec<u8>,registers:HashMap<u32,u32>,
     scenario:String,reads:usize,fragments:usize,ready:bool,timeout:Duration,b_sector:bool,pending:bool,sector_writes:usize,
-    execution:bool,exec_pending:Option<(usize,usize)>,exec_writes:[usize;2],entries:usize,boot:Vec<u8>,frames:Vec<u8>}
+    execution:bool,exec_pending:Option<(usize,usize)>,exec_writes:[usize;2],entries:usize,boot:Vec<u8>,frames:Vec<u8>,
+    receive_diag:bool,requested_baud:Option<u32>,host_baud:u32}
 pub struct Peer {state:Arc<Mutex<State>>,writes:Arc<std::sync::atomic::AtomicUsize>}
 impl Peer {
     pub fn new(nor:Vec<u8>,scenario:&str)->Self {
         Self {state:Arc::new(Mutex::new(State {input:vec![],output:VecDeque::new(),nor,
             registers:HashMap::new(),scenario:scenario.into(),reads:0,fragments:0,ready:false,timeout:Duration::from_secs(5),b_sector:false,pending:false,sector_writes:0,
-            execution:false,exec_pending:None,exec_writes:[0;2],entries:0,boot:vec![],frames:vec![]})),
+            execution:false,exec_pending:None,exec_writes:[0;2],entries:0,boot:vec![],frames:vec![],receive_diag:false,requested_baud:None,host_baud:1_000_000})),
             writes:Arc::new(std::sync::atomic::AtomicUsize::new(0))}
     }
     #[cfg(test)]
     pub fn write_counter(&self)->Arc<std::sync::atomic::AtomicUsize> {self.writes.clone()}
     pub fn b_sector(nor:Vec<u8>,scenario:&str)->Self {
         let peer=Self::new(nor,scenario);peer.state.lock().unwrap().b_sector=true;peer
+    }
+    pub fn receive_diagnostic(nor:Vec<u8>,scenario:&str)->Self {
+        let peer=Self::new(nor,scenario);peer.state.lock().unwrap().receive_diag=true;peer
     }
     pub fn execution(nor:Vec<u8>,boot:Vec<u8>,frames:Vec<u8>,scenario:&str)->Self {
         let peer=Self::new(nor,scenario);{
@@ -167,6 +171,19 @@ impl State {
                         // The real fixed stub places CRC immediately after payload.
                         self.output.extend(format!("CRC:0x{checksum:08x}\r\nOK\r\nmsh >").bytes());
                     },
+                    ["burn_speed","500000","10"] if self.receive_diag && self.reads==0 && self.requested_baud.is_none()=>{
+                        self.requested_baud=Some(500_000);
+                    },
+                    ["burn_read","0x12010000","0x00010000"] if self.receive_diag=>{
+                        if self.reads>=3 {return Err(io::Error::other("Only three planned boot reads"))}
+                        self.reads+=1;let mut data=self.nor[0x10000..0x20000].to_vec();
+                        if self.scenario=="boot-changed" {data[0]^=1;}
+                        let sum=crc::Crc::<u32>::new(&CRC_ALGORITHM).checksum(&data);
+                        let sum=if self.scenario=="boot-crc-fail" {sum^1}else{sum};
+                        if self.scenario=="boot-short26" {data.drain(29934..29946);data.drain(19648..19662);}
+                        self.output.extend(b"start_trans\r\n");self.output.extend(data);
+                        self.output.extend(format!("CRC:0x{sum:08x}\r\nOK\r\nmsh >").bytes());
+                    },
                     ["burn_read","0x12000000","0x01000000"]=>{
                         self.reads+=1;
                         let mut data=self.nor.clone();
@@ -217,13 +234,20 @@ impl Write for Peer {
 }
 macro_rules! constant {($($name:ident -> $kind:ty = $value:expr);* $(;)?)=>{$(fn $name(&self)->$kind {$value})*};}
 impl SerialPort for Peer {
-    constant! {name->Option<String>=Some("SIMULATED-STUB".into());baud_rate->serialport::Result<u32>=Ok(1_000_000);
+    constant! {name->Option<String>=Some("SIMULATED-STUB".into());
         data_bits->serialport::Result<DataBits>=Ok(DataBits::Eight);flow_control->serialport::Result<FlowControl>=Ok(FlowControl::None);
         parity->serialport::Result<Parity>=Ok(Parity::None);stop_bits->serialport::Result<StopBits>=Ok(StopBits::One);
         bytes_to_write->serialport::Result<u32>=Ok(0)}
     fn timeout(&self)->Duration {self.state.lock().unwrap().timeout}
     fn set_timeout(&mut self,value:Duration)->serialport::Result<()> {self.state.lock().unwrap().timeout=value;Ok(())}
-    fn set_baud_rate(&mut self,_:u32)->serialport::Result<()> {Err(serialport::Error::new(ErrorKind::InvalidInput,"Observer must retain1M"))}
+    fn baud_rate(&self)->serialport::Result<u32> {Ok(self.state.lock().unwrap().host_baud)}
+    fn set_baud_rate(&mut self,value:u32)->serialport::Result<()> {
+        let mut s=self.state.lock().unwrap();
+        if !s.receive_diag || s.reads!=0 || s.requested_baud!=Some(value) || value!=500_000 || s.scenario=="speed-fail" {
+            return Err(serialport::Error::new(ErrorKind::InvalidInput,"Only planned pre-payload500k handshake permitted"));
+        }
+        s.host_baud=value;Ok(())
+    }
     fn set_data_bits(&mut self,_:DataBits)->serialport::Result<()> {Ok(())}
     fn set_flow_control(&mut self,_:FlowControl)->serialport::Result<()> {Ok(())}
     fn set_parity(&mut self,_:Parity)->serialport::Result<()> {Ok(())}

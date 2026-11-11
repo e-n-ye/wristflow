@@ -47,16 +47,21 @@ fn input(value: &Input) -> Result<Vec<u8>> {
 }
 fn validate(config: &Config) -> Result<(Vec<u8>, Vec<u8>)> {
     require(config.schema==1 && (1..=600).contains(&config.seconds),"Invalid bounded config")?;
-    require(["dual-nor","geometry","ftab"].contains(&config.plan.as_str()),"Unknown fixed observation plan")?;
+    require(["dual-nor","geometry","ftab","boot64k-1m","boot64k-500k"].contains(&config.plan.as_str()),"Unknown fixed observation plan")?;
     require(config.entry_reset_authorized && config.ram_stub_authorized &&
         config.register_observation_authorized && config.original_start_authorized,
         "Explicit reset, official RAM stub, register observation and original-start scope required")?;
     require(["success","fragmented","short-read","geometry-bad-pointer","lcpu-running","register-read-fail","immutable-changed","pair-changed","crc-fail","hang-read",
-        "ftab-short18","ftab-crc-fail","ftab-changed","ftab-alias-nonzero","ftab-alias-fail","host-error-before","host-error-after","host-status-fail"].contains(&config.scenario.as_str()),"Unknown scenario")?;
-    require(config.plan=="ftab" || !(config.scenario.starts_with("ftab-") || config.scenario.starts_with("host-")),"FTAB fault belongs only to fixed FTAB plan")?;
+        "ftab-short18","ftab-crc-fail","ftab-changed","ftab-alias-nonzero","ftab-alias-fail","host-error-before","host-error-after","host-status-fail",
+        "boot-short26","boot-crc-fail","boot-changed","speed-fail","host-after-fail"].contains(&config.scenario.as_str()),"Unknown scenario")?;
+    let boot_receive=config.plan.starts_with("boot64k-");
+    require(config.plan=="ftab" || boot_receive || !(config.scenario.starts_with("ftab-") || config.scenario.starts_with("host-")),"Receive fault belongs only to fixed receive plan")?;
     require(config.plan!="ftab" || ["success","fragmented","lcpu-running","register-read-fail","hang-read"].contains(&config.scenario.as_str()) ||
         config.scenario.starts_with("ftab-") || config.scenario.starts_with("host-"),"Scenario does not exercise FTAB plan")?;
     require(config.plan!="ftab" || config.seconds<=60,"FTAB check exceeds60 seconds")?;
+    require(boot_receive || !(config.scenario.starts_with("boot-") || config.scenario=="speed-fail" || config.scenario=="host-after-fail"),"Boot receive fault belongs only to boot receive plan")?;
+    require(!boot_receive || (config.seconds<=60 && ["success","fragmented","lcpu-running","register-read-fail","hang-read","boot-short26","boot-crc-fail","boot-changed","speed-fail","host-error-before","host-error-after","host-status-fail","host-after-fail","ftab-alias-nonzero","ftab-alias-fail"].contains(&config.scenario.as_str())),"Invalid boot receive plan scenario or bound")?;
+    require(config.scenario!="speed-fail" || config.plan=="boot64k-500k","Speed failure needs500k plan")?;
     require(config.scenario=="success" || config.simulation,"Fault injection is simulation-only")?;
     if config.simulation {
         require(config.port=="SIMULATED-STUB","Simulation cannot name a device")?;
@@ -106,8 +111,9 @@ fn session(config: &Config, stub:Vec<u8>, baseline: Vec<u8>, request_sha:&str) -
         require(!config.cancel.exists(),"Cancelled before port open")?;
         require(started.elapsed()<Duration::from_secs(seconds),"Budget expired before port open")?;
         token.check_cancelled()?;
-        if config.simulation { Ok(Box::new(simulated::Peer::new(baseline.clone(),&config.scenario))) }
-        else if config.plan=="ftab" {
+        if config.simulation { Ok(if config.plan.starts_with("boot64k-") {Box::new(simulated::Peer::receive_diagnostic(baseline.clone(),&config.scenario))}
+            else {Box::new(simulated::Peer::new(baseline.clone(),&config.scenario))}) }
+        else if config.plan=="ftab" || config.plan.starts_with("boot64k-") {
             let (port,monitor)=ftab::Monitor::open(&config.port)?;receive_monitor=monitor;Ok(port)
         } else { Ok(serialport::new(&config.port,1_000_000).dtr_on_open(false).timeout(Duration::from_secs(5)).open()?) }
     })();
@@ -137,7 +143,7 @@ fn session(config: &Config, stub:Vec<u8>, baseline: Vec<u8>, request_sha:&str) -
         // Its at-most-two Enter requests and one SYSRESETREQ remain original source behavior.
         tool.download_stub()?;
         trace.event(json!({"kind":"stub_ready"}))?;
-        let ready=if config.plan=="ftab" {common::snapshot_strict(&mut tool)?} else {snapshot(&mut tool)?};
+        let ready=if config.plan=="ftab" || config.plan.starts_with("boot64k-") {common::snapshot_strict(&mut tool)?} else {snapshot(&mut tool)?};
         fs::write(config.out.join("ready-registers.json"),serde_json::to_vec_pretty(&ready)?)?;
         report["ready_registers"]=ready;
         if config.plan=="geometry" {
@@ -145,6 +151,9 @@ fn session(config: &Config, stub:Vec<u8>, baseline: Vec<u8>, request_sha:&str) -
             report["geometry_snapshot_complete"]=json!(true);
         } else if config.plan=="ftab" {
             ftab::observe(&mut tool,&trace,&config.out,&baseline,&receive_monitor,&mut report)?;
+        } else if config.plan.starts_with("boot64k-") {
+            let baud=if config.plan=="boot64k-500k" {500_000}else{1_000_000};
+            ftab::observe_boot(&mut tool,&trace,&config.out,&baseline,&receive_monitor,&mut report,baud)?;
         } else {
         for name in ["nor-first.bin","nor-second.bin"] {
             require(!config.cancel.exists(),"Cancelled before NOR request")?;
@@ -172,7 +181,7 @@ fn session(config: &Config, stub:Vec<u8>, baseline: Vec<u8>, request_sha:&str) -
         tool.base.cancel_token.check_cancelled()?;
         report["normal_start_attempted"]=json!(true);
         trace.event(json!({"kind":"original_start_intent","command":"burn_reset"}))?;
-        if config.plan=="ftab" {
+        if config.plan=="ftab" || config.plan.starts_with("boot64k-") {
             require(tool.command(Command::SoftReset)?==Response::Ok,"Original start response not OK; no retry")?;
         } else {tool.soft_reset()?;}
         report["normal_start_command_completed"]=json!(true);

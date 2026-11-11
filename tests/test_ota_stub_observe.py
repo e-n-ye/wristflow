@@ -117,7 +117,7 @@ class OwnedObserverTests(unittest.TestCase):
         observer.prepare(cls.options)
 
     def exercise(self, scenario="success", *, cancel_phase=None, rom_seconds=45, plan="dual-nor"):
-        output = self.root / (self._testMethodName + "-" + scenario)
+        output = self.root / (self._testMethodName + "-" + scenario + "-" + plan)
         threads = []
         def ready(console):
             def operator():
