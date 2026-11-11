@@ -1,0 +1,361 @@
+{
+  "schema": 1,
+  "date": "2026-11-11",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "source_commit": "3f989a5e8c65ab490cdb1a164d383c3ce82ce12b",
+  "branch": "codex/ota-b-execution-metadata-device",
+  "scope": "Fixed006 B execution attempt stopped before Flash mutation: first application prestate token damaged, then full12KiB FTAB and short64KiB original boot; independently authorized single-RTS return",
+  "authorization": {
+    "authorization": "已授权",
+    "readiness": {
+      "question_id": "call_9d37d874c08546bb8203baeede1aed88",
+      "reply": "现场条件满足，临时常亮已开，可以开始"
+    },
+    "separate_return": {
+      "question_id": "call_74fc3e29a289468d8469f3816175da01",
+      "reply": "授权单次RTS返回及只读核验"
+    },
+    "app_return": {
+      "question_id": "call_fbd71adc673d41e4a64e38b6cf5bc735",
+      "reply": "原程序已返回，显示／触摸／KEY1正常，临时常亮已开"
+    },
+    "final": {
+      "question_id": "call_392fc3b3dc7c46e0a8bf65c447ce4b44",
+      "reply": "临时常亮已关闭，显示／触摸／KEY1正常"
+    }
+  },
+  "windows_closed": true,
+  "software_evidence": "docs/evidence/2026-11-11/ota-b-ftab-metadata-guard.json",
+  "execution_build": {
+    "result": {
+      "path": "artifacts/ota-b-metadata-guard-build-20261111-001/result.json",
+      "bytes": 3954,
+      "sha256": "1fbd9090d327935be56beb305225620d8d069ddcdf9dd6949f9ef65dc086879b"
+    },
+    "executable": {
+      "path": "artifacts/ota-b-metadata-guard-build-20261111-001/wristflow-ota-b-execute.exe",
+      "bytes": 20909164,
+      "sha256": "bfbf9425d3fea92a6820a9a1676e194b07d15d9959c2715bb10fa20e5511e2a9"
+    }
+  },
+  "native_path": {
+    "library_revision": "be2adab37bfb0ef4eb623b7e47e7b8693918b1e1",
+    "stub_sha256": "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43",
+    "sdk_lock": {
+      "path": "sdk.lock.json",
+      "bytes": 473,
+      "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+    },
+    "unchanged": true
+  },
+  "preflight": {
+    "bound_inputs": 111,
+    "source_hashes": 30,
+    "original_archived_sources": 625,
+    "original_archived_artifacts": 29,
+    "endpoint": {
+      "device": "COM5",
+      "vid": 6790,
+      "pid": 29987,
+      "location": "1-1.1",
+      "serial_number": "",
+      "hwid": "USB VID:PID=1A86:7523 SER= LOCATION=1-1.1",
+      "disable_modem": 1
+    }
+  },
+  "prestate_failure": {
+    "directory": "device-001",
+    "entry_attempted": false,
+    "rom_phase_request_created": false,
+    "error": "export session changed",
+    "expected_token": "15844385246650118352",
+    "sample39_token": "158650118352",
+    "missing_token_digits": 8,
+    "boot_markers_present": false,
+    "read_only_commands_only": true,
+    "resources_closed": true,
+    "worker_exit": 1,
+    "handling": "Invalid capture preserved; reacquired complete application prestate once under same still-unused B/ROM authorization; no inferred/padded token"
+  },
+  "actual_window": {
+    "directory": "device-002",
+    "stub_seconds": 15.5129849,
+    "entry_rts": 1,
+    "sysresetreq": 1,
+    "initial_aliases": [
+      0,
+      0,
+      0
+    ],
+    "flash_read_requests": 2,
+    "flash_writes": 0,
+    "boot_or_b_install": false,
+    "probe_start": false,
+    "burn_reset": 0,
+    "second_entry": false,
+    "fallback_rts": 0,
+    "error": [
+      "timeout while waiting for reading flash at 0x1201C000"
+    ],
+    "final_tx": "burn_read 0x12010000 0x00010000\\r",
+    "no_tx_after_failed_read": true,
+    "cancel_origin": "Primary agent clicked cancel on failed ROM return prompt; raw generic Operator cancelled label retained. No physical return was falsely confirmed."
+  },
+  "raw_review": {
+    "tx_bytes": 134302,
+    "rx_bytes": 79625,
+    "event_offsets_contiguous": true,
+    "tx_equals_intents": true,
+    "ftab": {
+      "marker_range": [
+        1617,
+        1630
+      ],
+      "payload_range": [
+        1630,
+        13918
+      ],
+      "bytes": 12288,
+      "reported_crc": "d31e1907",
+      "computed_crc": "d31e1907",
+      "all_bytes_equal_original": true
+    },
+    "boot": {
+      "marker_range": [
+        14077,
+        14090
+      ],
+      "payload_range": [
+        14090,
+        79600
+      ],
+      "requested_bytes": 65536,
+      "received_bytes": 65510,
+      "missing_bytes": 26,
+      "reported_crc": "db7cf2d9",
+      "original_crc": "db7cf2d9",
+      "received_crc": "3df927a3",
+      "complete_crc_ok_tail": true,
+      "deletion_alignment": [
+        {
+          "original_range": [
+            19648,
+            19662
+          ],
+          "bytes": 14,
+          "hex": "18b94ff0ff30bde8f0873a28cdbf"
+        },
+        {
+          "original_range": [
+            29934,
+            29946
+          ],
+          "bytes": 12,
+          "hex": "0c9b42eb0502e4180d9b0899"
+        }
+      ],
+      "alignment_reconstructs_captured_bytes": true,
+      "limits": "Byte alignment is a representation of missing data, not proof of the physical loss location or timing",
+      "reliable_boot_file_created": false
+    },
+    "windows_receive_errors": "Not sampled by this B execution profile; the prior clean4KiB observer sample is not evidence of clean status here"
+  },
+  "independent_return": {
+    "rts_pulses": 1,
+    "high_ms": 100,
+    "serial_data_commands": 0,
+    "result": {
+      "child_exit": 0,
+      "forced": false,
+      "resources_closed": true,
+      "lease_reacquired": true,
+      "serial_data_commands": 0
+    },
+    "before_boot": 33,
+    "after_boot": 34,
+    "before_generation": 200,
+    "after_generation": 201,
+    "before_total_ms": 944685333,
+    "after_total_ms": 944686425,
+    "recovery": {
+      "runtime_saved_not_regressed": true,
+      "expected_new_boot": true,
+      "rtc_continuity": false,
+      "unsaved_tail_preserved_on_host_ms": 356684,
+      "limits": "Runtime saved counters and UTC only; settings, all files and bad-boot rescue are not verified"
+    },
+    "after_failures": 0,
+    "cycle": {
+      "state": 0,
+      "session": 0,
+      "accepted": 0,
+      "saved": 0,
+      "queued": 0,
+      "dropped": 0,
+      "reason": 0,
+      "inhibit": 0,
+      "low_mode": false,
+      "commit_elapsed_ms": 0,
+      "keep_remaining_ms": 1125179,
+      "low_samples": 0,
+      "off_samples": 0,
+      "low_events": 0
+    },
+    "before_date": [
+      "Sat Jan  1 00:00:00 2000"
+    ],
+    "after_date": [
+      "Sat Jan  1 00:01:51 2000"
+    ],
+    "rtc_time_write": false
+  },
+  "cleanup": {
+    "worker_exit": 0,
+    "worker_forced": false,
+    "child_exit": 1,
+    "child_forced": false,
+    "resources_closed": true,
+    "lease_reacquired": true,
+    "operator_final": "临时常亮已关闭，显示／触摸／KEY1正常"
+  },
+  "firmware_build": false,
+  "new_host_build_or_tests": false,
+  "limitations": [
+    "This attempt did not reach any B/boot Flash write or probe start; B mapping and rollback were not tested",
+    "12KiB metadata read is complete in this window, but boot64KiB is short26B and invalid despite complete CRC/OK text",
+    "No host error-bit sample exists for the failed64KiB; previous4KiB zero flags do not locate this failure",
+    "Simulator tests prove fail-stop behavior for bad data, not physical chip/CH340/USB/Windows receive reliability",
+    "Application saved counters did not regress;356.684s RAM tail is host-only preservation, RTC remains invalid and reset",
+    "Generic recovery labels and original failures retained; no-write wire facts and separately authorized app return define final state"
+  ],
+  "files": [
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/authorization.json",
+      "bytes": 809,
+      "sha256": "c04edb76fa1811cbbafc151e48da6f9fa30183be1ee6b7d8eaa426c18d1c2dc6"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/preflight.json",
+      "bytes": 180679,
+      "sha256": "39662085f3ddc750d158f3beaf76ae4459964758a62fe2438bbfa1c08d40c131"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/command.json",
+      "bytes": 1926,
+      "sha256": "223419f9edc79145b8c51b00b81e80d75ed8295a1dc5380bf3c68bc7b9a65652"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/operator-confirmations.json",
+      "bytes": 661,
+      "sha256": "dc05ecc9cb6739156876a22e425d7fb02211669af9fddcb00f48fc4e2f035e4e"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/launch-device-001.py",
+      "bytes": 2300,
+      "sha256": "1f345ffdefde41ebad4a37eec42a2efab04cbd8bb1b111bab5137bd1027ad764"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/launch-device-002.py",
+      "bytes": 2341,
+      "sha256": "20666e88c7d5960f35c0a1aa3d03f45ca3e8013072acf96b171f47d7d09bf1d3"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/device-001/response-1.json",
+      "bytes": 280,
+      "sha256": "7a51688f271a781b987afa31e1970fac91a5fc9ae3492da685fb767c4264649d"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/device-001/worker/before-uart.bin",
+      "bytes": 17180,
+      "sha256": "ddfaf2aa692920b8f91234ada63b182aeae548f8b2323e9f658f5503e52dc20e"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/device-002/device.json",
+      "bytes": 164815,
+      "sha256": "eee2433163aa9f7687dadaf9a5bd7dbfae9d9d310da207fb56bdad9e95a52b2c"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/device-002/worker/b-execute/execution.json",
+      "bytes": 4821,
+      "sha256": "55201b3c973ae0343e4ffb11c0da08cf7046fb3df2bbb4ebc66cab2276f87d53"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/device-002/worker/b-execute/wire-events.jsonl",
+      "bytes": 393324,
+      "sha256": "b2ac04ccc0a03b292668de322cdbe013b9892efa41ab3f18ee3bde9159b0f144"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/device-002/worker/b-execute/tx.bin",
+      "bytes": 134302,
+      "sha256": "caa90719b3f3da5a94003df08b3f05ef70fdb6926867a72af3d41ae8791b0942"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/device-002/worker/b-execute/tx-intents.bin",
+      "bytes": 134302,
+      "sha256": "caa90719b3f3da5a94003df08b3f05ef70fdb6926867a72af3d41ae8791b0942"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/device-002/worker/b-execute/rx.bin",
+      "bytes": 79625,
+      "sha256": "ee025cb885bc1e1ad7827bef949ba6923286bdb85d193fe670c03eabaabaea2f"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/device-002/worker/b-execute/before-ftab12k.bin",
+      "bytes": 12288,
+      "sha256": "e46d9f470763558719a948b50aed936eebaf276b237fbb6f514941a0368aaef3"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/device-002/worker/before-snapshot.json",
+      "bytes": 27831,
+      "sha256": "cb0d75a2d9b8cfd70c1906294bc9d6505e5227eb2eddd6f781f400c7ef73fb5a"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/device-002/worker/before-uart.bin",
+      "bytes": 18171,
+      "sha256": "0d6238957f69933e8a573ebeed2e02ade9cfd291989573acaf3c9f566b00ffb7"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/reset-once.py",
+      "bytes": 3115,
+      "sha256": "7c5895d4ace6e3191c78df3ee44955694a53f2fa37025b1b8991c8ecd31f5922"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/reset-return-001/authorization.json",
+      "bytes": 525,
+      "sha256": "875eac03552cffc9915841b073db9ad1e7aa9736d7bc7389c5f978054021c33d"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/reset-return-001/events.jsonl",
+      "bytes": 940,
+      "sha256": "9c92ccfb2ce2c9f04de398d3dbe55caffd21f1e58989d2426294ef279cd404d6"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/reset-return-001/result.json",
+      "bytes": 133,
+      "sha256": "f46704e984af2cc2187d5270451ea94ddafded374877f8750143691ecfda87dd"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/after-reset-readonly-001/after-snapshot.json",
+      "bytes": 16989,
+      "sha256": "a11f1b58eddbf89c0e9e0e575fb85e4c75dae873f6927e295cbfb8245ade37d9"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/after-reset-readonly-001/after-uart.bin",
+      "bytes": 11029,
+      "sha256": "55eef7f9c5ff3b2cd6356b3c79cc396d3c9e5bc01fa13216af27b973a2137a61"
+    },
+    {
+      "path": "artifacts/ota-b-metadata-execution-device-20261111/after-reset-readonly-001/recovery.json",
+      "bytes": 372,
+      "sha256": "607170f217c4079c8ae5fb7ae0b4096b229f754e4d2146d1510daaaa82d5fdc3"
+    }
+  ],
+  "next_bounded_work": "Do not repeat full B install attempts. Analyze real receive path and design minimal64KiB receive-integrity evidence including same-transfer native status; separate protocol fail-stop tests from physical receive reliability before requesting another device window.",
+  "archive": {
+    "path": "artifacts/ota-b-metadata-execution-device-20261111.zip",
+    "bytes": 807416,
+    "sha256": "aab13e8ad9b87a52dddc1754b2b9fcc7a862c60dca09da89f1313e39ed6439b3",
+    "members": 101,
+    "every_member_readback_equal": true
+  }
+}
