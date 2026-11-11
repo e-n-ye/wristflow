@@ -55,6 +55,20 @@ fn status(errors:u32,input:u32,output:u32,source:&str)->Value {
         "acknowledges_error_bits":true,"purges_input":false})
 }
 
+fn require_exit_frame(frame:&[u8])->Result<()> {
+    require(frame==[0x7e,0x79,2,0,0x10,0,0xd0,6],"Missing or foreign debug Exit response; stop before next command")
+}
+
+fn receive_exit(tool:&mut SF32LB52Tool,trace:&port::Trace,phase:&str)->Result<()> {
+    // The pinned library sends Exit without receiving D0. Consume exactly that
+    // frame before another Enter or shell command; never clear or skip bytes.
+    let mut frame=[0;8];
+    sftool_lib::common::serial_io::for_tool(tool).read_exact_with_timeout(&mut frame,Duration::from_secs(1),"fixed debug Exit response")?;
+    require_exit_frame(&frame)?;
+    trace.event(json!({"kind":"debug_exit_response","phase":phase,"frame_hex":"7e7902001000d006"}))?;
+    Ok(())
+}
+
 fn physical_gate(tool:&mut SF32LB52Tool,trace:&port::Trace,report:&mut Value,key:&str,address:u32,bytes:usize)->Result<()> {
     // Match the execution package's physical-address gate. Failed debug reads
     // return immediately, with no Exit or Flash command on an unknown protocol.
@@ -106,7 +120,9 @@ pub fn observe(tool:&mut SF32LB52Tool,trace:&port::Trace,out:&Path,baseline:&[u8
 
 pub fn observe_boot(tool:&mut SF32LB52Tool,trace:&port::Trace,out:&Path,baseline:&[u8],monitor:&Monitor,report:&mut Value,baud:u32)->Result<()> {
     require([1_000_000,500_000].contains(&baud),"Fixed receive comparison rates only")?;
+    receive_exit(tool,trace,"ready_snapshot")?;
     physical_gate(tool,trace,report,"boot_receive",0x12010000,65536)?;
+    receive_exit(tool,trace,"physical_aliases")?;
     report["boot_receive"]["receive_baud"]=json!(baud);
     report["boot_receive"]["initial_baud"]=json!(1_000_000);
     report["boot_receive"]["reads"]=json!([]);
@@ -165,5 +181,16 @@ mod tests {
         assert_eq!(value["errors"],0x8000000fu32);
         assert_eq!(value["flags"],json!(["rx_overflow","overrun","parity","framing"]));
         assert_eq!(value["input_queued"],7);assert_eq!(value["purges_input"],false);
+    }
+    #[test]
+    fn exact_captured_exit_response_is_required_without_skipping_or_inference() {
+        let captured=[0x7e,0x79,2,0,0x10,0,0xd0,6];
+        assert!(require_exit_frame(&captured).is_ok());
+        for i in 0..captured.len() {
+            let mut changed=captured;changed[i]^=1;
+            assert!(require_exit_frame(&changed).is_err());
+            assert!(require_exit_frame(&captured[..i]).is_err());
+        }
+        let mut extra=captured.to_vec();extra.push(0);assert!(require_exit_frame(&extra).is_err());
     }
 }

@@ -63,6 +63,9 @@ class BootReceiveBinary(unittest.TestCase):
                     directory,events,commands=self.wire(out)
                     self.assertEqual(commands.count(b"burn_read 0x12010000 0x00010000\r"),3)
                     self.assertEqual(commands.count(b"burn_reset\r"),1)
+                    exits=[e for e in events if e["kind"]=="debug_exit_response"]
+                    self.assertEqual([e["phase"] for e in exits],["ready_snapshot","physical_aliases"])
+                    self.assertTrue(all(e["frame_hex"]=="7e7902001000d006" for e in exits))
                     self.assertFalse(any(c.startswith(b"burn_erase") for c in commands))
                     intents=[e for e in events if e["kind"]=="boot_receive_read_intent"]
                     self.assertEqual([e["index"] for e in intents],[0,1,2])

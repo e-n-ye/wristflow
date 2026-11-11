@@ -1,5 +1,9 @@
 # 可复现构建基线
 
+## 2026-11-11 接收诊断D0边界修正包
+
+冻结`ota-boot-receive-exit-build-20261111-001`及同次Release的sector／execute companion；原Rust1.90／GNU、库／SDK锁／stub不变。仅boot接收诊断在两次DAP Exit后精确消费8B D0，再发送下一命令，修复真实D0／D1／D2错配的载荷前停止；receive-diagnostic模拟器补真实Exit回包。原缺字根因与速率因果仍未知，本轮500K入口被应用前态坏流阻断。源码、构建及回归版本见[本轮证据](evidence/2026-11-11/ota-boot-receive-rate-device.json)，原因及范围见[专题](OTA-PREPARATION.md#boot-receive-exit-boundary-20261111)。旧rate002原件保留，不再用于新诊断；未改B执行接收路径或目标固件。
+
 ## 2026-11-11 原boot64KiB接收速率诊断包
 
 沿用`ota_stub_build.py`的Rust1.90／GNU入口，冻结`ota-boot-receive-rate-build-20261111-002`及同次Release的sector／execute companion。只读observer显式增加`--boot-receive-baud 1000000|500000`，与`--ftab-only`／`--geometry-only`互斥；每窗先1M原stub，500K仅经原官方载荷前握手切换。固定64KiB最多三份、首错即停和原生状态／独立原流验证见[合同](OTA-PREPARATION.md#boot-receive-rate-20261111)。该参数不适用于B安装入口，构建及模拟不授权设备；命令、源码、EXE与测试见[软件证据](evidence/2026-11-11/ota-boot-receive-rate-software.json)。原库、Cargo.lock、SDK锁及目标固件保持。

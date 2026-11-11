@@ -1,0 +1,468 @@
+{
+  "schema": 1,
+  "date": "2026-11-11",
+  "worktree": "D:/MY_Desk/project/wristflow",
+  "branch": "codex/ota-boot-receive-rate-device",
+  "source_base": "63a6982c1bbda4db5cae21e35b37e43e92053ecb",
+  "scope": "Authorized rate comparison blocked before payload; diagnose and fix exact D0 Exit reception in read-only boot observer, preserve application corruption",
+  "operator": {
+    "authorization": "授权继续",
+    "initial_preparation": "现场条件满足，临时常亮已开",
+    "first_return": "原程序已返回，显示／触摸／KEY1正常，临时常亮已开",
+    "second_preparation": "原程序正常，临时常亮已重新开启，可以继续500 kbps",
+    "final": "临时常亮已关闭，显示／触摸／KEY1正常",
+    "device_window_closed": true,
+    "unused500k_entry_not_carried_forward": true
+  },
+  "device_windows_closed": true,
+  "flash_writes": 0,
+  "clock_writes": 0,
+  "valid_rate_samples": {
+    "rate_1m": 0,
+    "rate_500k": 0
+  },
+  "rate_causality_established": false,
+  "previous_payload_loss_root_cause": "unknown",
+  "windows": [
+    {
+      "directory": "rate-1m",
+      "report": {
+        "path": "artifacts/ota-boot-receive-rate-device-20261111/rate-1m/device.json",
+        "bytes": 164353,
+        "sha256": "269c7114ef6c36fceb47aa449dadd94045ac5948fcf1677129f4d3d6d7969ac9"
+      },
+      "entry_attempted": true,
+      "errors": [
+        {
+          "phase": "rom",
+          "error": "ValueError(\"Observer failed or needed termination; raw files and completed facts retained: ['invalid input: invalid response']; exit=1\")"
+        },
+        {
+          "phase": "return_",
+          "error": "TimeoutError('Operator confirmation expired')"
+        },
+        {
+          "phase": "worker",
+          "error": "Owned worker required termination or exited abnormally; exit=1"
+        }
+      ],
+      "worker_exit": 1,
+      "forced": false,
+      "resources_closed": true
+    },
+    {
+      "directory": "rate-500k",
+      "report": {
+        "path": "artifacts/ota-boot-receive-rate-device-20261111/rate-500k/device.json",
+        "bytes": 156631,
+        "sha256": "f708b7c59654924ec50ba87e78f1b0ccb0c90c7b1886163b7322bc07d6dac462"
+      },
+      "entry_attempted": false,
+      "errors": [
+        {
+          "phase": "before",
+          "error": "ValueError(\"TimeoutError('No complete response before deadline')\")"
+        }
+      ],
+      "worker_exit": 0,
+      "forced": false,
+      "resources_closed": true
+    },
+    {
+      "directory": "rate-500k-ready002",
+      "report": {
+        "path": "artifacts/ota-boot-receive-rate-device-20261111/rate-500k-ready002/device.json",
+        "bytes": 156816,
+        "sha256": "e2f68e3ba674dc768936f887f09d15d8c66bb83566a489f49f8f9b7b83f81c04"
+      },
+      "entry_attempted": false,
+      "errors": [
+        {
+          "phase": "before",
+          "error": "ValueError(\"ValueError('chunk hex')\")"
+        },
+        {
+          "phase": "worker",
+          "error": "Owned worker required termination or exited abnormally; exit=1"
+        }
+      ],
+      "worker_exit": 1,
+      "forced": false,
+      "resources_closed": true
+    },
+    {
+      "directory": "rate-500k-ready003",
+      "report": {
+        "path": "artifacts/ota-boot-receive-rate-device-20261111/rate-500k-ready003/device.json",
+        "bytes": 156837,
+        "sha256": "c870abc48e64b7924ee31f9d78c0712150c40b63841478da83e483bdddc777e0"
+      },
+      "entry_attempted": false,
+      "errors": [
+        {
+          "phase": "before",
+          "error": "ValueError(\"ValueError('sample wire data')\")"
+        },
+        {
+          "phase": "worker",
+          "error": "Owned worker required termination or exited abnormally; exit=1"
+        }
+      ],
+      "worker_exit": 1,
+      "forced": false,
+      "resources_closed": true
+    }
+  ],
+  "first_window": {
+    "protocol_review": {
+      "scope": "First1M window protocol stop, not payload loss",
+      "rx_bytes": 1451,
+      "tx_bytes": 134196,
+      "tail_hex": "7e7902001000d0067e7902001000d1067e7906001000d20000000006",
+      "late_exit": "7e7902001000d006",
+      "enter_reply": "7e7902001000d106",
+      "register_reply": "7e7906001000d20000000006",
+      "last_commands": [
+        "7e79080010004154534633321821",
+        "7e79080010004154534633320521",
+        "7e790800100040726c2004500100"
+      ],
+      "flash_read_commands": 0,
+      "fallback_pulses": 1,
+      "library_behavior": "debug_command_impl Exit returns without receiving; next Enter accepts D0 because caller does not inspect variant; next MEMRead receives D1 and rejects invalid response",
+      "limits": "Explains this pre-payload stop only; not previous missing18/26/152 payload root cause"
+    },
+    "stub_seconds": 2.5793726,
+    "entry_rts": 1,
+    "exit_rts": 1,
+    "boot_read_requests": 0,
+    "normal_burn_reset": 0,
+    "original_report_return_timeout_preserved": true,
+    "return_confirmation_source": "original chat user reply",
+    "poststate": {
+      "path": "artifacts/ota-boot-receive-rate-device-20261111/rate-1m-after-readonly/capture/after-snapshot.json",
+      "bytes": 27488,
+      "sha256": "cc9e31d85fe8c7e0fcba929354e8b4e85ecd711f27945f7abbd08bc4a1863466"
+    },
+    "recovery": {
+      "runtime_saved_not_regressed": true,
+      "expected_new_boot": true,
+      "rtc_continuity": false,
+      "unsaved_tail_preserved_on_host_ms": 415412,
+      "limits": "Runtime saved counters and UTC only; settings, all files and bad-boot rescue are not verified"
+    },
+    "before_boot": 34,
+    "after_boot": 35,
+    "before_saved_generation": 202,
+    "after_saved_generation": 203,
+    "before_saved_total_ms": 950212580,
+    "after_saved_total_ms": 950213670,
+    "after_failures": 0,
+    "poststate_process": {
+      "child_exit": 0,
+      "forced": false,
+      "resources_closed": true,
+      "lease_reacquired": true
+    }
+  },
+  "application_failures": {
+    "device_actions": false,
+    "corrupt_lines": [
+      {
+        "window": "rate-500k-ready002",
+        "line_start": 1127,
+        "hex_characters": 58,
+        "expected_characters": 64,
+        "line": "[record-data] token=690199775682162882 offset=256 hex=ccfa020000000000000000003f00000002000000230000000000000100"
+      },
+      {
+        "window": "rate-500k-ready003",
+        "line_start": 14786,
+        "hex_characters": 50,
+        "expected_characters": 64,
+        "line": "[record-sample-data] token=14131997206112138350 index=52 hex=f6b61700000000000501000013b6103f006432320301000000"
+      }
+    ],
+    "limits": "Malformed textual hex fields; no reconstruction of missing bytes and no loss-layer localization. All preceded500k rate transition."
+  },
+  "software": {
+    "builds": [
+      {
+        "path": "artifacts/ota-boot-receive-exit-build-20261111-001/result.json",
+        "bytes": 3965,
+        "sha256": "eb85f90edb1a0415c3d239f3bca9936f805ab0570e1a4b77822dd40c522a9304"
+      },
+      {
+        "path": "artifacts/ota-boot-receive-exit-b-sector-build-20261111-001/result.json",
+        "bytes": 4178,
+        "sha256": "7679bdb492a4cc997001263b0985db3d6a4d791f03bc1d9887da909b0fedab9c"
+      },
+      {
+        "path": "artifacts/ota-boot-receive-exit-b-execute-build-20261111-001/result.json",
+        "bytes": 4181,
+        "sha256": "c3d208945583ba9327dac738f9282c30fda745654c51940f052493b2c51b18a8"
+      }
+    ],
+    "sources": [
+      {
+        "path": ".tools/sifli/envs/default/b1ffa931b7485f8607540b6a2f6a9a53bbefe3696b9db68845be1c3c5cff1ab9/python/Scripts/python.exe",
+        "bytes": 45568,
+        "sha256": "dd8abfafd37acde0e87808d83e5139b1599e9a8abe3b8718fa909ca66bf33084"
+      },
+      {
+        "path": "scripts/battery_collect.py",
+        "bytes": 23428,
+        "sha256": "304345942c16486a4626e49bb59bdd9a4126b3611630f81ba9b7d3081f0d2c05"
+      },
+      {
+        "path": "scripts/battery_console.py",
+        "bytes": 13914,
+        "sha256": "7590d5e5a75f8b4c277e5085af9b4fe430a144056b735173441c2edd8e982316"
+      },
+      {
+        "path": "scripts/battery_device.py",
+        "bytes": 17306,
+        "sha256": "34b07b98c1f10afcc03111d262cdadcd41699caec7cdb56a8ea865af35ad6768"
+      },
+      {
+        "path": "scripts/battery_lab.py",
+        "bytes": 24502,
+        "sha256": "a666370236c173a39fb908a9a62c8c8e9b0bce7aa4b82231cae1aed165ad48eb"
+      },
+      {
+        "path": "scripts/compass_protocol.py",
+        "bytes": 1479,
+        "sha256": "268acef47f7fc9eb7a1fd07025c688f8ff6301759e195374f603fe26976800c5"
+      },
+      {
+        "path": "scripts/cycle_log_lab.py",
+        "bytes": 11523,
+        "sha256": "f5ab5cc9d0a72e9a9f4a6c376e13a80256c936029cd58083af3fad93e84e418c"
+      },
+      {
+        "path": "scripts/cycle_protocol.py",
+        "bytes": 4402,
+        "sha256": "b182d3f92acded38db3e9a11092cd716e8de49b5e9a0a7718725021e305de9e5"
+      },
+      {
+        "path": "scripts/device_snapshot.py",
+        "bytes": 12078,
+        "sha256": "0195f5297b87bd26084887210dc42618ed169243f4248ae58a26204fed84189f"
+      },
+      {
+        "path": "scripts/fs_protocol.py",
+        "bytes": 4773,
+        "sha256": "4afc42b2c8448449d5b834de998ac4a8a89900d1980ad416fab9d6c2c94c6a3d"
+      },
+      {
+        "path": "scripts/lab_check.py",
+        "bytes": 17510,
+        "sha256": "ce9a332f6b81c552da46bbbe91a6a941271f0acbb3ab2936ee0d09bb9142678b"
+      },
+      {
+        "path": "scripts/lab_evidence.py",
+        "bytes": 1498,
+        "sha256": "618487f3802b663b347c1bbd97b081147df2ef31ae6f471a9fcf2ac692e64864"
+      },
+      {
+        "path": "scripts/lab_serial.py",
+        "bytes": 9088,
+        "sha256": "8ac5b08fc0f7d68180b1f657d91d7bc11d4b3cc349d6603bde59e90710c49703"
+      },
+      {
+        "path": "scripts/light_protocol.py",
+        "bytes": 1127,
+        "sha256": "e1cb95b7ed014e76f739f324b01bc14c86759dcef7da1ba452a968312e71ab9c"
+      },
+      {
+        "path": "scripts/ota_backup_review.py",
+        "bytes": 5250,
+        "sha256": "e43a6a24e85655657152ddd129f052cb729ae681a4f1aaca7c9fc41bdc14b9df"
+      },
+      {
+        "path": "scripts/ota_rom_backup.py",
+        "bytes": 21892,
+        "sha256": "55e83684b86a7c4523f42311d905ecf66784120adf247708aea33341a2ddd0a0"
+      },
+      {
+        "path": "scripts/ota_rom_device.py",
+        "bytes": 50336,
+        "sha256": "539315a5d8001673fbf410198394a830bdf33966600a40ecc57a3ba1bbf7c78d"
+      },
+      {
+        "path": "scripts/ota_rom_process.py",
+        "bytes": 8115,
+        "sha256": "9116556f07d5c9364b4d70f927d675491c852619eec511175fb4949550a2ea6f"
+      },
+      {
+        "path": "scripts/ota_rom_protocol.py",
+        "bytes": 7069,
+        "sha256": "a37a667bb76525e89008efcada6a14bd0bae70b1139e3a407b6e5086e8f07627"
+      },
+      {
+        "path": "scripts/ota_rom_rescue.py",
+        "bytes": 21281,
+        "sha256": "126545aa8ecedd79b8b6aa58a5da26f864da7e8cece0e7a208cb25b7ccfb566c"
+      },
+      {
+        "path": "scripts/ota_rom_rescue_lab.py",
+        "bytes": 11327,
+        "sha256": "e88f95ac3160eb5065aff97c28d09f9e921d73cd9673914f0ad5ba88c4314e83"
+      },
+      {
+        "path": "scripts/ota_rom_transport.py",
+        "bytes": 2484,
+        "sha256": "78f5dbef66bd97ff5e6e73b9c3457380878feafba2613a6189a58ca66f9225ca"
+      },
+      {
+        "path": "scripts/ota_stub_observe.py",
+        "bytes": 26508,
+        "sha256": "d94764782a726160ada9d1174181bff054c0dc59afbd35d562614346de4ba8ec"
+      },
+      {
+        "path": "scripts/runtime_export.py",
+        "bytes": 9381,
+        "sha256": "bb60c3aac7063bef8c8d6c9bb77c46563304e86e7c5957f11c80aa969d477885"
+      },
+      {
+        "path": "scripts/runtime_record_decode.py",
+        "bytes": 10383,
+        "sha256": "41fc2dd141a9bb843e40f7caeefefaec1955c9189e7dcb1864ba8ae514f99a39"
+      },
+      {
+        "path": "scripts/serial_lab.py",
+        "bytes": 13798,
+        "sha256": "7fe4ad1d5a6a2007f59c97c586cf954791c15310a881075a50db12a946d78aa6"
+      },
+      {
+        "path": "scripts/storage_protocol.py",
+        "bytes": 4724,
+        "sha256": "e379b6cc494352b6cc59c481d51a558fdf1ebf144af167e46b5e9fbbcaf6b279"
+      },
+      {
+        "path": "scripts/ota_rom_device.py",
+        "bytes": 50336,
+        "sha256": "539315a5d8001673fbf410198394a830bdf33966600a40ecc57a3ba1bbf7c78d"
+      },
+      {
+        "path": "scripts/ota_stub_observe.py",
+        "bytes": 26508,
+        "sha256": "d94764782a726160ada9d1174181bff054c0dc59afbd35d562614346de4ba8ec"
+      },
+      {
+        "path": "scripts/ota_stub_bridge/Cargo.lock",
+        "bytes": 64761,
+        "sha256": "70d9b528da0418761a76985ba5ad7cdf02afe5703f3aea1a1f7196c5c7bbee8d"
+      },
+      {
+        "path": "scripts/ota_stub_bridge/Cargo.toml",
+        "bytes": 661,
+        "sha256": "13a40db419fdc04beea6a5270e2e559665db8ce3dd94e995c8e58a39efdbc72c"
+      },
+      {
+        "path": "scripts/ota_stub_bridge/src/b_execute.rs",
+        "bytes": 22109,
+        "sha256": "52bce0a3386a0976449f8ac428f1773abdb12061a293447db1e7d194ab8ecc13"
+      },
+      {
+        "path": "scripts/ota_stub_bridge/src/b_sector.rs",
+        "bytes": 9040,
+        "sha256": "9cb5fbf1ff8beffcb6e2ecc13c0cd792c295b32eb7ea1b6f0d736376f001fc9a"
+      },
+      {
+        "path": "scripts/ota_stub_bridge/src/common.rs",
+        "bytes": 3268,
+        "sha256": "e830e1106ee679aab74061a3f266c329895364af8a1c4dc894a0849937858331"
+      },
+      {
+        "path": "scripts/ota_stub_bridge/src/ftab.rs",
+        "bytes": 11683,
+        "sha256": "ed77a69e389696e476bda1c80a9ebceb5f9dc03b3d84df4c2877070609adec0e"
+      },
+      {
+        "path": "scripts/ota_stub_bridge/src/geometry.rs",
+        "bytes": 4178,
+        "sha256": "836445a0be49acd24c1f1d4c8e1e737fe8c473b0f8b62e89ea173dcc173b56d6"
+      },
+      {
+        "path": "scripts/ota_stub_bridge/src/main.rs",
+        "bytes": 15268,
+        "sha256": "8932fdd0b498fdce6cb8563e6a292343dc60764196df94f72e491f92ee383b7e"
+      },
+      {
+        "path": "scripts/ota_stub_bridge/src/port.rs",
+        "bytes": 14068,
+        "sha256": "2b8645d89153a51b51c3406b517dbf81177f5ec048412bc1b28a7a8acc3b6f3e"
+      },
+      {
+        "path": "scripts/ota_stub_bridge/src/sector.rs",
+        "bytes": 8250,
+        "sha256": "23610a1e01d40ceb16c3ac11b4160291dba0e7f2d59638a77bb8070a19bd5227"
+      },
+      {
+        "path": "scripts/ota_stub_bridge/src/simulated.rs",
+        "bytes": 20539,
+        "sha256": "9554a3adbf20b1d20e50fa86755ff176ccc174def32b824061cccf4c81622d5c"
+      },
+      {
+        "path": "scripts/ota_stub_build.py",
+        "bytes": 5711,
+        "sha256": "67d0a1fb3586fef3ac4d7ea12ca42a1961d41e9621a698adcd3a9090a011bc11"
+      },
+      {
+        "path": "sdk.lock.json",
+        "bytes": 473,
+        "sha256": "82246a462248d9a0d5739fef65a9a82cdc9dce400b651d2941989a76eb4563af"
+      },
+      {
+        "path": "tests/test_ota_boot_receive.py",
+        "bytes": 8291,
+        "sha256": "d8dfa153f2056f23384ed05682fcef58cf79746714db9f0b6220beb9327c8145"
+      }
+    ],
+    "fix": "Consume exact8B D0 via pinned SerialIo after ready snapshot and alias Exit, before next command, boot receive diagnostic only",
+    "no_clear_skip_or_protocol_retry": true,
+    "read_inactivity_policy_seconds": 1,
+    "overall_process_deadlines_unchanged": true,
+    "simulation": "Receive diagnostic now emits real D0 Exit response; normal/fragmented both rates assert both exact receptions",
+    "rust_tests": [
+      9,
+      8,
+      10
+    ],
+    "release_passed": true,
+    "targeted": {
+      "tests": 6,
+      "seconds": 95.587,
+      "passed": true
+    },
+    "all_ota": {
+      "tests": 190,
+      "seconds": 420.894,
+      "passed": true,
+      "log": {
+        "path": "artifacts/ota-boot-receive-exit-all-20261111-001.log",
+        "bytes": 31816,
+        "sha256": "6f40686aebf388dccc81f50e0862cbe240a0898e8468ebd4b91bf94d1f5f016f"
+      }
+    },
+    "hardware_verified": false,
+    "b_execution_unchanged": true,
+    "library_sdk_stub_unchanged": true,
+    "original_source_snapshot": "executed-rate002 snapshot files are canonical git-show text at63a6982 with LF; exact executed CRLF source hashes remain in original config/build002. Snapshot is not represented as byte-identical original checkout."
+  },
+  "archive": {
+    "path": "artifacts/ota-boot-receive-rate-device-20261111.zip",
+    "bytes": 27211549,
+    "sha256": "6727026b2e3687c252caf4b08406fab0be2c6fb3c9bf59e35018fe6d4606db27",
+    "members": 149,
+    "all_members_readback_equal": true
+  },
+  "limits": [
+    "D0 explains first pre-payload stop only; old18/26/152B loss remains unexplained",
+    "No device sample at500k and no64KiB sample at1M; no rate comparison conclusion",
+    "Software Exit fix has no new ROM hardware result",
+    "Malformed application fields are not reconstructed or attributed to a physical layer",
+    "Final user confirmed always-on OFF and display/touch/KEY1 normal; no further device actions authorized by this closed window"
+  ]
+}
