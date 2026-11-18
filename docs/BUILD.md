@@ -1,5 +1,9 @@
 # 可复现构建基线
 
+## 2026-11-18 B 执行及有线救援的固定串口速率
+
+从 `550ce0c` 构建主机工具 `3db1878`，复用 `ota_stub_build.py --b-execute`、Rust 1.90.0／GNU 和锁定的官方 RAM stub。执行包为本机 `artifacts/ota-b-usb-20261118-b-execute-001/result.json`，同次冻结 observer 与 sector。三个 Rust 测试目标分别 9、8、10 项通过，Release 成功，三份构建绑定下全部 OTA Python 回归 191 项通过（442.483 秒）。目标沿用原 006 已验证的 boot／探针和原 CycleLog 固件。故障模拟覆盖初始切速、候选启动前切回 1M、二次入口 D0 及切速失败时保留已发生的写入。实际构建指纹和设备结果见[证据](evidence/2026-11-18/ota-b-usb-execution.json)。
+
 ## 2026-11-11 接收诊断D0边界修正包
 
 冻结`ota-boot-receive-exit-build-20261111-001`及同次Release的sector／execute companion；原Rust1.90／GNU、库／SDK锁／stub不变。仅boot接收诊断在两次DAP Exit后精确消费8B D0，再发送下一命令，修复真实D0／D1／D2错配的载荷前停止；receive-diagnostic模拟器补真实Exit回包。原缺字根因与速率因果仍未知，本轮500K入口被应用前态坏流阻断。源码、构建及回归版本见[本轮证据](evidence/2026-11-11/ota-boot-receive-rate-device.json)，原因及范围见[专题](OTA-PREPARATION.md#boot-receive-exit-boundary-20261111)。旧rate002原件保留，不再用于新诊断；未改B执行接收路径或目标固件。
