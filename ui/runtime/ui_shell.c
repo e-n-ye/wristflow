@@ -62,6 +62,7 @@ struct wristflow_ui_shell {
     uint32_t settings_request;
     wristflow_save_state_t settings_save_state;
     bool settings_retry;
+    wristflow_firmware_port_t firmware;
     wristflow_vibration_preview_cb_t vibration_preview;
     wristflow_vibration_cancel_cb_t vibration_cancel;
     void *vibration_context;
@@ -1093,6 +1094,19 @@ void wristflow_ui_shell_retry_settings_save(wristflow_ui_shell_t *shell)
 
 const wristflow_layout_t *wristflow_ui_shell_layout(const wristflow_ui_shell_t *shell)
 { return shell ? wristflow_components_layout(shell->components) : NULL; }
+
+void wristflow_ui_shell_bind_firmware(wristflow_ui_shell_t *shell, uint32_t version, bool (*request)(void))
+{
+    if (shell) shell->firmware = (wristflow_firmware_port_t){version, request};
+}
+const wristflow_firmware_port_t *wristflow_ui_shell_firmware(const wristflow_ui_shell_t *shell)
+{ return shell ? &shell->firmware : NULL; }
+void wristflow_ui_shell_firmware_failed(wristflow_ui_shell_t *shell)
+{
+    if (!shell || shell->navigation.surface != WRISTFLOW_SURFACE_SYSTEM_SETTINGS) return;
+    lv_obj_t *row = lv_obj_find_by_name(lv_screen_active(), "system_update");
+    if (row) lv_label_set_text(lv_obj_find_by_name(row, "row_detail"), "未进入，可重试");
+}
 
 const wristflow_watch_snapshot_t *wristflow_ui_shell_snapshot(const wristflow_ui_shell_t *shell)
 { return &shell->snapshot; }

@@ -17,6 +17,7 @@
 #include "product_compass.h"
 #include "product_charger.h"
 #include "product_power.h"
+#include "product_ota.h"
 #include "battery_estimate.h"
 #include "product_battery_trace.h"
 #include "product_cycle.h"
@@ -773,8 +774,10 @@ int main(void)
     int32_t key_id = button_init(&key);
     RT_ASSERT(key_id >= 0);
     RT_ASSERT(button_enable(key_id) == SF_EOK);
-    if (!wristflow_product_power_start()) rt_kprintf("[power] service unavailable; display unknown\n");
-    if (!wristflow_product_steps_start()) rt_kprintf("[steps] native daily service unavailable\n");
+    bool power_started = wristflow_product_power_start();
+    bool steps_started = wristflow_product_steps_start();
+    if (!power_started) rt_kprintf("[power] service unavailable; display unknown\n");
+    if (!steps_started) rt_kprintf("[steps] native daily service unavailable\n");
     else {
         const wristflow_brightness_mode_port_t light_port = {automatic_brightness, request_automatic_brightness, shell};
         (void)wristflow_product_light_enable(settings.auto_brightness);
@@ -782,7 +785,9 @@ int main(void)
     }
     sync_wrist_setting();
     sync_endurance_services();
-    if (!wristflow_product_charger_service_start()) rt_kprintf("[charger] control service unavailable; no manual start\n");
+    bool charger_started = wristflow_product_charger_service_start();
+    if (!charger_started) rt_kprintf("[charger] control service unavailable; no manual start\n");
+    wf_product_ota_start(shell, power_started && steps_started && charger_started);
     rt_kprintf("[product] RTC=%s, %s, voltage_valid=%u VBAT=%umV, BLE active, PM auto when off\n",
                snapshot.time_unavailable ? "not synchronized" : "in range",
                wristflow_power_input_text(&snapshot.power), snapshot.power.voltage_valid,
@@ -805,11 +810,12 @@ int main(void)
         sync_compass();
         wf_product_storage_notice_poll();
         uint32_t wait_ms = lv_timer_handler();
+        wf_product_ota_poll(shell);
         wf_product_resource_poll();
         sync_compass();
         uint32_t now = lv_tick_get();
         capture_battery();
-        if (wristflow_ui_shell_display_phase(shell) == WRISTFLOW_DISPLAY_OFF) {
+        if (wristflow_ui_shell_display_phase(shell) == WRISTFLOW_DISPLAY_OFF && !wf_product_ota_trial_pending()) {
             capture_carousel();
             wristflow_ui_shell_sync_settings_save(shell);
             sync_wrist_setting();

@@ -181,6 +181,14 @@ static void storage_thread(void *context)
 }
 static uint64_t now64(void *context)
 { (void)context; return wristflow_product_services_monotonic(); }
+bool wristflow_product_alarm_hold_saved(void)
+{
+    if (!worker_ready || rt_mutex_take(&lock, 0) != RT_EOK) return false;
+    if (!pending_request && !storage_failed && saved_version == state.version) return true;
+    rt_mutex_release(&lock);
+    return false;
+}
+void wristflow_product_alarm_release(void) { rt_mutex_release(&lock); }
 const wristflow_alarm_port_t *wristflow_product_alarm_start(void)
 {
     static const wristflow_alarm_port_t port = {.request=request,.status=status,.read=read_state,.ack=ack,.sync=reconcile,.now64=now64};

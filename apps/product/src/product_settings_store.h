@@ -27,5 +27,9 @@ uint32_t wristflow_product_layout_request(const wristflow_layout_t *, void *);
 wristflow_save_state_t wristflow_product_layout_status(uint32_t, void *);
 /* Wake the existing worker for an already-due RAM record; adds no deadline. */
 bool wristflow_product_settings_store_notify(void);
+/* UI owner submits its last edits first. Existing jobs finish on the worker. */
+bool wristflow_product_settings_hold(void);
+wristflow_save_state_t wristflow_product_settings_drain(void);
+void wristflow_product_settings_resume(void);
 
 #endif

@@ -12,4 +12,8 @@ void wf_product_runtime_process(void *unused);
 bool wf_product_runtime_failed(void);
 void wf_product_runtime_disable_storage(void);
 bool wf_product_runtime_status(wf_runtime_summary_t *current,wf_runtime_summary_t *saved,bool *saved_valid,bool *pending);
+/* Freeze observations for a controlled reboot and queue a fresh checkpoint.
+ * If a write is in flight its generation cannot satisfy this request. */
+bool wf_product_runtime_hold(uint32_t *generation);
+void wf_product_runtime_resume(void);
 #endif

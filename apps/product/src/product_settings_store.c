@@ -11,7 +11,7 @@ typedef struct {
 } save_job_t;
 static struct rt_mutex lock;
 static struct rt_event changed;
-static bool ready, writing_settings, saved_valid;
+static bool ready, writing_settings, saved_valid, held;
 static wristflow_settings_t requested, saved;
 static wristflow_layout_t requested_layout;
 static wristflow_layout_store_t layout_store;
@@ -131,11 +131,41 @@ static void worker(void *context)
 bool wristflow_product_settings_store_notify(void)
 { return ready && rt_event_send(&changed,1)==RT_EOK; }
 
+bool wristflow_product_settings_hold(void)
+{
+    if (!ready) return false;
+    rt_mutex_take(&lock, RT_WAITING_FOREVER);
+    if (held) { rt_mutex_release(&lock); return false; }
+    held = true;
+    rt_mutex_release(&lock);
+    return true;
+}
+wristflow_save_state_t wristflow_product_settings_drain(void)
+{
+    if (!ready) return WRISTFLOW_SAVE_FAILED;
+    rt_mutex_take(&lock, RT_WAITING_FOREVER);
+    wristflow_save_state_t state = WRISTFLOW_SAVE_DONE;
+    if (!held || preferences.state == WRISTFLOW_SAVE_FAILED || layout.state == WRISTFLOW_SAVE_FAILED)
+        state = WRISTFLOW_SAVE_FAILED;
+    else if (writing_settings || preferences.state == WRISTFLOW_SAVE_PENDING || layout.state == WRISTFLOW_SAVE_PENDING)
+        state = WRISTFLOW_SAVE_PENDING;
+    rt_mutex_release(&lock);
+    return state;
+}
+void wristflow_product_settings_resume(void)
+{
+    if (!ready) return;
+    rt_mutex_take(&lock, RT_WAITING_FOREVER);
+    held = false;
+    rt_mutex_release(&lock);
+}
+
 uint32_t wristflow_product_settings_request(const wristflow_settings_t *value, void *context)
 {
     (void)context;
     if (!ready || !wristflow_settings_valid(value)) return 0;
     rt_mutex_take(&lock, RT_WAITING_FOREVER);
+    if (held) { rt_mutex_release(&lock); return 0; }
     bool same = wristflow_settings_equal(value, &requested);
     if (preferences.id && same && preferences.state != WRISTFLOW_SAVE_FAILED) {
         uint32_t id = preferences.id;
@@ -157,6 +187,7 @@ uint32_t wristflow_product_layout_request(const wristflow_layout_t *value, void 
     (void)context;
     if (!ready || !wristflow_layout_valid(value)) return 0;
     rt_mutex_take(&lock, RT_WAITING_FOREVER);
+    if (held) { rt_mutex_release(&lock); return 0; }
     requested_layout = *value;
     new_job(&layout, 0); /* Editor commits and explicit retries are immediate. */
     uint32_t id = layout.id;

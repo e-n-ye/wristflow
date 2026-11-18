@@ -1,4 +1,4 @@
-#ifdef WF_CYCLE_LOG
+#if defined(WF_CYCLE_LOG) || defined(WF_OTA_PRODUCT)
 #include "product_flash_gate.h"
 #include <rtthread.h>
 #include <rtdevice.h>

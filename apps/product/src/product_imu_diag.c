@@ -31,7 +31,8 @@
 enum { EV_COMMAND = 1, EV_STOP = 2, EV_DAILY_START = 4, EV_SCREEN = 8, EV_SAVE = 16,
     EV_WRIST = 32, EV_WRIST_STOP = 64, EV_WRIST_POLICY = 128, EV_WRIST_IRQ = 256,
     EV_LIGHT = 512, EV_LIGHT_STOP = 1024, EV_AUTO_LIGHT = 2048,
-    EV_MAG = 4096, EV_MAG_STOP = 8192, EV_COMPASS = 16384, EV_CPROBE = 32768 };
+    EV_MAG = 4096, EV_MAG_STOP = 8192, EV_COMPASS = 16384, EV_CPROBE = 32768,
+    EV_OTA_HOLD = 65536, EV_OTA_RESUME = 131072 };
 enum command { CMD_NONE, CMD_PROBE, CMD_STEPS };
 static struct rt_event work;
 static struct rt_i2c_bus_device *bus;
@@ -54,6 +55,7 @@ static wristflow_daily_steps_t daily;
 static wristflow_steps_snapshot_t daily_cached;
 static wristflow_steps_store_t checkpoint, checkpoint_cached;
 static bool checkpoint_initialized, checkpoint_enabled;
+static uint32_t handoff_sequence, handoff_requested, handoff_saved;
 static wf_imu_wrist_tilt_t wrist;
 static wf_imu_wrist_snapshot_t wrist_cached;
 static bool wrist_pending, wrist_busy;
@@ -1155,6 +1157,49 @@ static void report(void)
         (unsigned long)f.failures, f.write, f.address, f.reg, (unsigned long)f.requested,
         (unsigned long)f.returned, (unsigned long)f.started_ms, (unsigned long)f.completed_ms);
 }
+bool wf_product_steps_hold(void)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    if (!ready || !daily_mode || handoff_requested) { rt_hw_interrupt_enable(level); return false; }
+    if (!++handoff_sequence) ++handoff_sequence;
+    handoff_requested = handoff_sequence;
+    handoff_saved = 0;
+    bool ok = rt_event_send(&work, EV_OTA_HOLD) == RT_EOK;
+    if (!ok) handoff_requested = 0;
+    rt_hw_interrupt_enable(level);
+    return ok;
+}
+bool wf_product_steps_held(void)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    bool held = handoff_requested && handoff_saved == handoff_requested;
+    rt_hw_interrupt_enable(level);
+    return held;
+}
+void wf_product_steps_resume(void)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    handoff_requested = handoff_saved = 0;
+    rt_event_send(&work, EV_OTA_RESUME);
+    rt_hw_interrupt_enable(level);
+}
+static void hold_checkpoint(uint32_t id)
+{
+    if (!id || !checkpoint_enabled || checkpoint.dirty || checkpoint.failed ||
+        device.snapshot.phase != WF_IMU_RUNNING || !device.snapshot.counter_valid) return;
+    rt_tick_t start = rt_tick_get(), limit = rt_tick_from_millisecond(16000);
+    for (;;) {
+        rt_base_t level = rt_hw_interrupt_disable();
+        bool active = handoff_requested == id;
+        rt_tick_t elapsed = rt_tick_get() - start;
+        if (active) handoff_saved = elapsed < limit ? id : 0;
+        rt_hw_interrupt_enable(level);
+        if (!active || elapsed >= limit) return;
+        rt_uint32_t events;
+        /* All ordinary sensor requests stay on the event object until release. */
+        rt_event_recv(&work, EV_OTA_RESUME, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, limit - elapsed, &events);
+    }
+}
 static void worker(void *context)
 {
     (void)context;
@@ -1214,11 +1259,15 @@ static void worker(void *context)
         }
         rt_uint32_t events = 0;
         rt_event_recv(&work, EV_COMMAND | EV_STOP | EV_DAILY_START | EV_SCREEN | EV_SAVE | EV_WRIST | EV_WRIST_STOP |
-            EV_WRIST_POLICY | EV_WRIST_IRQ | EV_LIGHT | EV_LIGHT_STOP | EV_AUTO_LIGHT | EV_MAG | EV_MAG_STOP | EV_COMPASS | EV_CPROBE,
+            EV_WRIST_POLICY | EV_WRIST_IRQ | EV_LIGHT | EV_LIGHT_STOP | EV_AUTO_LIGHT | EV_MAG | EV_MAG_STOP | EV_COMPASS | EV_CPROBE | EV_OTA_HOLD,
             RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, wait, &events);
         io_failure_in_cycle = false;
         if (daily_mode) {
-            daily_work(events);
+            rt_base_t level = rt_hw_interrupt_disable();
+            uint32_t id = (events & EV_OTA_HOLD) ? handoff_requested : 0;
+            rt_hw_interrupt_enable(level);
+            daily_work(id ? events | EV_SAVE : events);
+            if (id) hold_checkpoint(id);
             continue;
         }
         rt_base_t level = rt_hw_interrupt_disable();
