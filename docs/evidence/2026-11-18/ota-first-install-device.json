@@ -1,0 +1,106 @@
+{
+  "baseline": "68db6ca2f2c85b149f2313074b61e0541c38213f",
+  "local_artifacts": "artifacts/ota-first-install-20261118",
+  "source": {
+    "bundle": "bundle-001/bundle.json",
+    "bridge": "host-005/result.json",
+    "bridge_exe_sha256": "5c48b7e96cc1b92b6f07cc804f87a4a66d3cab30c716c88db9bc8471fa373be3",
+    "media_request": "device-005/media-request.json",
+    "media_request_sha256": "153931523b5c7aadff35478978b799555122be2028725436a3b9eb14a326ff67"
+  },
+  "preflight": {
+    "endpoint": "COM5, CH340, 1-1.1, DisableModemOutHandShake=1",
+    "first_queries": "device-002 and device-003 received zero bytes. After the operator confirmed the awake display and working touch, device-004 received a malformed command name and a shell prompt. Those three workers closed before charge inhibit, reset or Flash access.",
+    "snapshot": "device-005/app-before/before-snapshot.json",
+    "snapshot_sha256": "65bd0b4f835b1892433dc8bdd8f180eeff89885db81615f794a050b38241bf3f",
+    "boot": 39,
+    "saved_generation": 216,
+    "unsaved_ms_preserved_on_host": 773807,
+    "voltage_mv": 4166,
+    "sample_age_ms": 5602,
+    "charge_inhibit_reg01": "ac",
+    "keep_awake_remaining_ms": 1103592
+  },
+  "original_media": {
+    "whole_bytes": 16777216,
+    "whole_sha256": "b728af0d745784c4596fd48e9ba8b52514428fb717fb5208545f9206143a9998",
+    "separate_4MiB_b_archive": "device-005/media/original-b-4MiB.bin",
+    "original_a_sha256": "6ebed703bad44f8715b75ec6aecf59f00ba13ce2076464b8667300c95cb0345d",
+    "original_b_sha256": "4205c2f63f4417b614d34edf9422e9f3adb3d9899cd5d9db379c7fce3ccda0a0"
+  },
+  "programmed": [
+    ["receiver", "0x12820000", 360448, 6],
+    ["journal", "0x12da0000", 4096, 1],
+    ["boot", "0x12010000", 61440, 1]
+  ],
+  "installed_readback": {
+    "whole_sha256": "9572efe0cedce99c5a71f4f0de1a2b4d815d805fd25742f8be7eb355922ffbf5",
+    "same_as_before_outside_three_ranges": true,
+    "program_command_count": 8,
+    "program_bytes": 425984,
+    "independent_reads": 520,
+    "read_retries": 0,
+    "raw_tx_sha256": "b0980d4cf551a2b1e68bea3c44064c4e7f3f138c0436250a6c01b5eada5ff3c2",
+    "raw_rx_sha256": "fa337feb7cfc3fb0150ee392441f42b1dfb9658d521dee6bf3a743c407c238ad",
+    "wire_review": "device-005/wire-review.json"
+  },
+  "startup": {
+    "rtc_backup_register": "0x500cb044",
+    "prior_value": 0,
+    "request_readback": "0x57464f54",
+    "soft_reset_ack": true,
+    "passive_seconds": 155,
+    "passive_uart": "\r\nSFBL\n",
+    "receiver_advertising_observed": false,
+    "idle_return_observed": false,
+    "product_return_observed": false,
+    "phone_transfers": 0,
+    "operator": "Screen remained black after one KEY1 press. The operator-return prompt was cancelled to prevent an application query.",
+    "capture_limits": "The RTC word was verified before reset. The stage reached after reset and the reason for the black screen are unknown."
+  },
+  "ordinary_reset": {
+    "separately_authorized": true,
+    "rts_pulses": 1,
+    "serial_payload_bytes_sent": 0,
+    "passive_seconds": 16,
+    "passive_uart": "SFBL\n",
+    "operator": "Screen still black; authorized restoration confirmed"
+  },
+  "local_rescue_rehearsal": "rescue-model-device005/result.json",
+  "independent_wired_rescue": {
+    "window": "restore-device-005/window.json",
+    "window_sha256": "fce5437a637e836410ec0b7fc0e4e7b807b4daca90ad09bf8b65cdb06a4a9bfb",
+    "before_equal_to_installed_16MiB": true,
+    "order": [["boot", 61440], ["receiver", 360448], ["journal", 16384]],
+    "program_bytes": 438272,
+    "program_commands": 8,
+    "independent_reads": 520,
+    "read_retries": 0,
+    "after_equal_to_original_16MiB": true,
+    "after_sha256": "b728af0d745784c4596fd48e9ba8b52514428fb717fb5208545f9206143a9998",
+    "raw_tx_sha256": "a2a20bfbb681142cfcd7001609feba13c97e5b9a4a19c6af104e03364685a5be",
+    "raw_rx_sha256": "7864e89365334c79f1d130cd2d453fc62921a635d1c29f31222891d38b891a1c",
+    "after_app_snapshot_sha256": "05aef664f8e58d7bb73b22a79b7b869354f99e6837ea12ab8ce478b81780e9c8",
+    "boot_counter": [39, 40],
+    "saved_generation": [216, 217],
+    "saved_runtime_ms": [1543739355, 1543740444],
+    "saved_scenes_regressed": false,
+    "storage_failure": false,
+    "rtc_year": 2000,
+    "operator": "Original face, display, touch and KEY1 normal; temporary keep-awake off"
+  },
+  "optional_startup_trace": {
+    "build": "traced-boot-003/result.json",
+    "result_sha256": "522861c39c8d24b4962bce743a6076efb5304234e8f3eb8b588a5a3ad6eaf47a",
+    "bin_sha256": "cc096754e91992ee06c9d83d47be3223042756413d4a59e69dacb514fee40c4e",
+    "bin_bytes": 58008,
+    "actual_ftab_remaining": 488,
+    "control": "normal-boot-control-003/result.json",
+    "control_bin_equals_programmed_boot": true,
+    "command": "pwsh -File scripts/Build-Ota-Boot.ps1 -TraceStartup -ReceiverResult artifacts/ota_loader/20261118-191009-852/result.json -EvidenceDir <new-directory>",
+    "parser": "python -B scripts/ota_probe_package.py parse-startup --manifest <elf-check.json> --uart <capture> --output <new-json>",
+    "parser_checks": "Historical fixed B still decodes; foreign tags and bad or truncated frames are rejected; intact prefix is retained; SFBL alone yields no frames; matching synthetic progress/error frames decode.",
+    "hardware_verified": false,
+    "ota_python_regression": {"cases":195,"passed":178,"skipped_historical_fixed006_binding":17}
+  }
+}

@@ -10,6 +10,7 @@
 #include "ptab.h"
 #include "boot_plan.h"
 #include "ram_transition.h"
+#include "startup_trace.h"
 #ifdef WF_OTA_BOOT_EXECUTE_PROBE
 #include "uart.h"
 #include "probe_binding.h"
@@ -98,6 +99,7 @@ __attribute__((noreturn)) void boot_error(unsigned char code)
 {
     wf_ota_boot_probe_result.phase = 0xE0000000u | code;
     __disable_irq();
+    wf_boot_trace('!', code);
 #ifdef WF_OTA_BOOT_EXECUTE_PROBE
     if (probe_uart_ready) report(WF_OTA_PROBE_ERROR,code);
 #endif
@@ -120,6 +122,7 @@ void hw_preinit0(void)
 int entry(void)
 {
     wf_ota_boot_probe_result.phase = 1;
+    wf_boot_trace_start();
     if (__get_IPSR() || __get_CONTROL() ||
         SCB->VTOR < FLASH_BOOT_LOADER_START_ADDR ||
         SCB->VTOR >= FLASH_BOOT_LOADER_START_ADDR + FLASH_BOOT_LOADER_SIZE ||
@@ -132,6 +135,7 @@ int entry(void)
     }
     if (board_boot_src != BOOT_FROM_NOR) boot_error('N');
     __HAL_SYSCFG_CLEAR_SECURITY();
+    wf_boot_trace('F', 0);
     dfu_flash_init(); /* Official helper still requires a valid existing FTAB. */
     if (!boot_handle || !boot_handle->Instance || boot_handle->isNand || boot_handle->dualFlash ||
         boot_handle->base != 0x12000000u || boot_handle->size != 0x1000000u || !g_flash_read ||

@@ -10,7 +10,7 @@ import zlib
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'scripts'))
-from ota_probe_package import parse_capture,pad,prepare,freeze
+from ota_probe_package import parse_capture,parse_startup,pad,prepare,freeze
 from test_ota_backup_review import backup
 
 TAG=[1,2,3,4]
@@ -27,6 +27,20 @@ def mutate(raw,index,value):
     data=struct.pack('<19I',*words[:19]);return data+struct.pack('<I',zlib.crc32(data))
 
 class ProbePackage(unittest.TestCase):
+    def test_startup_trace_retains_only_complete_tagged_frames(self):
+        manifest={'passed':True,'startup_trace_tag':TAG}
+        first=mutate(frame(1),6,ord('E'))
+        error=mutate(mutate(frame(4),6,ord('!')),7,ord('L'))
+        report=parse_startup(b'SFBL\n'+first+error,manifest)
+        self.assertIsNone(report['decode_error'])
+        self.assertEqual([(r['point'],r['detail']) for r in report['frames']],[('E',1),('!',ord('L'))])
+        bad_crc=bytearray(error);bad_crc[-1]^=1
+        for bad in (error[:-1],bad_crc,mutate(error,2,5),mutate(error,1,0x10001),mutate(error,6,ord('?'))):
+            partial=parse_startup(first+bad,manifest)
+            self.assertIsNotNone(partial['decode_error'])
+            self.assertEqual([r['point'] for r in partial['frames']],['E'])
+        self.assertEqual(parse_startup(b'SFBL\n',manifest)['frames'],[])
+        with self.assertRaises(ValueError):parse_capture(first+error,REVIEW)
     def test_tagged_three_phase_capture(self):
         report=parse_capture(b'boot noise\r\n'+b''.join(frame(i) for i in (1,2,3)),REVIEW)
         self.assertTrue(report['passed']);self.assertFalse(report['hardware_verified'])

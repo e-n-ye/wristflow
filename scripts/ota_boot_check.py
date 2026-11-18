@@ -54,11 +54,15 @@ def jump_unreferenced(disassembly, start, size):
         require(start <= int(match[1], 16) < start + size, "Diagnostic code references jump")
 
 
-def check(elf, binary=None, binding=None, receiver_result=None):
+def check(elf, binary=None, binding=None, receiver_result=None, startup_trace=False):
     require(not (binding and receiver_result), "Two boot bindings")
+    require(not startup_trace or receiver_result is not None, "Startup trace requires an authenticated boot")
     def output(tool, *args):
         return subprocess.check_output([tool, *args, str(elf)], text=True, encoding="utf-8")
     symbols = output("arm-none-eabi-nm", "-S")
+    for symbol in ("wf_boot_trace_start", "wf_boot_trace"):
+        found = re.search(r"(?m)^[0-9a-f]+ [0-9a-f]+ [Tt] "+symbol+r"$", symbols)
+        require(bool(found) == startup_trace, "Startup trace symbol binding differs: "+symbol)
     disassembly = output("arm-none-eabi-objdump", "-d", "-z", "--no-show-raw-insn")
     sizes = {}
     for name in ("entry", "hw_preinit0", "wf_ota_ram_apply", "wf_ota_ram_jump", "wf_ota_boot_plan"):
@@ -146,6 +150,10 @@ def check(elf, binary=None, binding=None, receiver_result=None):
         require(len(callers) == 1 and callers[0].split(".")[0] == "launch", "Unexpected production handoff callers")
         extra.update(receiver_sha256=image["sha256"], receiver_bytes=image["bytes"], actual_ftab_limit=58496,
                      remaining_ftab_bytes=58496-len(data), original_a_enrollment_address=hex(addr))
+        if startup_trace:
+            tag = list(struct.unpack("<4I", bytes.fromhex(image["sha256"])[:16]))
+            tag[0] ^= 0x31544257
+            extra["startup_trace_tag"] = tag
     return {"elf_sha256": hashlib.sha256(elf.read_bytes()).hexdigest(), "ram_placement_passed": True,
             "apply": leaf_block(disassembly, "wf_ota_ram_apply", byte_size=sizes["wf_ota_ram_apply"]),
             "jump": leaf_block(disassembly, "wf_ota_ram_jump", final_jump=True, byte_size=sizes["wf_ota_ram_jump"]),
@@ -159,9 +167,10 @@ def main():
     parser.add_argument("--bin", type=Path)
     parser.add_argument("--probe-binding", type=Path)
     parser.add_argument("--receiver-result", type=Path)
+    parser.add_argument("--startup-trace", action="store_true")
     args = parser.parse_args()
     try:
-        report = dict(passed=True, **check(args.elf,args.bin,args.probe_binding,args.receiver_result))
+        report = dict(passed=True, **check(args.elf,args.bin,args.probe_binding,args.receiver_result,args.startup_trace))
     except (ValueError, OSError, subprocess.SubprocessError) as exc:
         report = {"passed": False, "error": str(exc)}
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
