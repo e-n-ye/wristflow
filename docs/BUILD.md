@@ -1,5 +1,9 @@
 # 可复现构建基线
 
+## 2026-11-18 原黄山派有线首装工具
+
+用仓库的 Windows Python 运行 `scripts/ota_first_install.py prepare --first <第一份原机 NOR> --second <第二份原机 NOR> --out <新目录>`。该步骤核对已登记的接收器和 boot，生成三个对齐至 4 KiB 的初装文件。主机执行程序另用 `scripts/ota_first_install.py build` 构建，参数指定 Rust 1.90.0 的 cargo、GNU 编译器及现有离线 cargo 缓存和目标目录。构建使用锁定的 sftool-lib，先运行主机测试，再冻结 Release 程序、源码和 SDK lock。两步均可离线执行。现场操作台会复核构建和包的摘要。[命令、产物及设备验收](evidence/2026-11-18/ota-first-install.json)
+
 ## 2026-11-18 Android 接收 loader
 
 `pwsh -File scripts/Build-Ota-Loader.ps1 -AndroidReceiver` 显式构建有线初装使用的 receiver，使用 SDK AddLCPU、板载 BLE Serial、片上 CRC／SHA 和已登记公钥。检查 384 KiB 链接上限、PSRAM 缓冲、独立安装和 journal 符号，排除旧安装器、自动充电和持久 BLE 数据库初始化。省略参数继续构建只读 probe。构建不连接设备。[容量与回归](evidence/2026-11-18/ota-android-receiver.json)

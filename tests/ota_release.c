@@ -54,7 +54,7 @@ static int read_enrolled(void *context, uint32_t address, void *out, size_t byte
     return (int)bytes;
 }
 
-static void check_original(const char *backup)
+static void check_original(const char *backup, const char *journal)
 {
     FILE *f = fopen(backup, "rb");
     assert(f && !fseek(f, 0x20000, SEEK_SET) && fread(slot, 1, sizeof slot, f) == sizeof slot);
@@ -67,6 +67,18 @@ static void check_original(const char *backup)
     wf_ota_ab_image_t image;
     assert(wf_ota_release_verify_slot(&reader, WF_OTA_READ_A, &image));
     assert(image.release == 2026110301 && image.bytes == 3055760);
+    if (journal) {
+        wf_ota_ab_state_t initial;
+        uint8_t encoded[WF_OTA_AB_BYTES], sector[4096];
+        assert(wf_ota_ab_provision(&initial, WF_OTA_AB_SLOT_A, &image));
+        assert(wf_ota_ab_encode(&initial, encoded));
+        f = fopen(journal, "rb");
+        assert(f && fread(sector, 1, sizeof sector, f) == sizeof sector && fgetc(f) == EOF);
+        fclose(f);
+        assert(!memcmp(sector, encoded, sizeof encoded));
+        for (size_t i = sizeof encoded; i < sizeof sector; ++i) assert(sector[i] == 0xff);
+        puts("Initial wired journal matches firmware provision/encode from verified original A");
+    }
     assert(!wf_ota_release_verify_slot(&reader, WF_OTA_READ_B, &image));
     slot[3055759] ^= 1;
     assert(!wf_ota_release_verify_slot(&reader, WF_OTA_READ_A, &image));
@@ -165,8 +177,8 @@ int main(int argc, char **argv)
 {
     wf_ota_ab_image_t image;
     assert(!wf_ota_release_open(original_enrollment, sizeof original_enrollment, sizeof slot, &image));
-    if (argc == 3 && !strcmp(argv[1], "--original-a")) {
-        check_original(argv[2]);
+    if ((argc == 3 || argc == 4) && !strcmp(argv[1], "--original-a")) {
+        check_original(argv[2], argc == 4 ? argv[3] : NULL);
         return 0;
     }
     assert(wf_ota_release_open(signed_header, sizeof signed_header, sizeof slot, &image));
