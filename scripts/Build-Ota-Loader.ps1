@@ -32,7 +32,7 @@ if ($candidateExit -eq 0) {
         if ($LASTEXITCODE -ne 0) { throw 'nm failed' }
         $symbols | Set-Content -LiteralPath (Join-Path $candidateRun 'symbols.txt') -Encoding utf8
         if ($symbols -notmatch '(?m)^[0-9a-f]+ T BSP_PowerUpCustom$') { throw 'Strong startup override missing' }
-        foreach ($name in 'wf_ota_loader_read_probe','wf_ota_physical_read','wf_ota_journal_load','wristflow_aw32001_inhibit') {
+        foreach ($name in 'wf_ota_loader_read_probe','wf_ota_physical_read','wf_ota_journal_load','wristflow_aw32001_inhibit','wf_ota_release_verify_slot','mbedtls_pk_verify') {
             if ($symbols -notmatch "(?m)^[0-9a-f]+ T $name`$") { throw "Missing probe implementation: $name" }
         }
         if ($symbols -match '(?m)\b(aw32001_init|aw32001_charge_enable|dfu_engine_erase|dfu_engine_write|wf_ota_journal_commit|wf_ota_journal_provision|__fsym___cmd_fal|HAL_FLASH_ALIAS_CFG|HAL_FLASH_SET_ALIAS_RANGE|HAL_FLASH_SET_ALIAS_OFFSET)\s*$') {

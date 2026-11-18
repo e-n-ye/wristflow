@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "date": "2026-11-18",
+  "base": "a76c10f9f9a37875091b6c8f146bcb90f9b64ab1",
+  "board": "sf32lb52-lchspi-ulp",
+  "publisher": "Current-user Windows CNG, Microsoft Software Key Storage Provider, project-specific RSA-2048 signing key; public SPKI only in repository",
+  "public_spki_sha256": "919b16d940e5ac7c505b963f6ff7c37a45f05dda441cb843ba196787d8b250eb",
+  "source_product_build": "artifacts/product/20261108-171533-204/result.json",
+  "product_sha256": "5907909de105963a01cad8c62056cfcfc4c09d8fdfcad0d9c928a232b5ce90c9",
+  "release": 2026111801,
+  "inner_bytes": 3029224,
+  "payload_bytes": 3028888,
+  "inner_sha256": "a23bc3ba41d8bf698e0a0680b7251fa41a3cbcc2c2859756f1cbe6d31667fafa",
+  "manifest_sha256": "ae7c7830e22a573e184711a4a48f54cb6aa5d98542d9cb2f363049935cdb4ffb",
+  "signature_sha256": "8c56351e405a4845f829890bbbbab2307ce50fa6cca5a94844254d5d233f9a7f",
+  "android_file": "artifacts/ota-signed-release-20261118/android-001/offline_install.bin",
+  "android_bytes": 3029242,
+  "android_sha256": "e0dab39f912eec9d4a39f5182181a70b4825444e2707b2495c830b135581121d",
+  "wrapper": {
+    "magic": "FCES",
+    "version": 1,
+    "state": 255,
+    "count": 1,
+    "crc_mpeg2": "b3f95ec9",
+    "image_id": 0,
+    "flags": 0,
+    "extent": 3029224
+  },
+  "packer": "locked tools/secureboot/imgtoolv37.exe gen_dfu --img_para hcpu 0 0 --offline_img=2 --dst_dir=.",
+  "loader_result": "artifacts/ota_loader/20261118-165501-788/result.json",
+  "loader_result_sha256": "48ea8b640ef0b951fc84e04cd0745466572db05d8c3f5c4bbd660aa085600a24",
+  "loader_main": {
+    "bytes": 155432,
+    "sha256": "b9a53e8abb7fbdb114d38a749bfc1cc9dbcea497116fb4404ec3f4e04e82e5fc"
+  },
+  "software_validation": [
+    "Provision called twice, same SPKI. Windows CNG signs manifest, no private material written to project.",
+    "Native host test links pinned SDK mbedTLS RSA code, uses software SHA in place of the device peripheral. Accepted original header; 336 single-byte mutations, bad extent/capacity, blank slot and invalid region rejected.",
+    "Full signed Product in simulated physical slot B accepted; flipping last payload byte rejected. Official wire wrapper compared in full with expected fields, exact signed payload and independent MPEG-2 CRC.",
+    "SCons loader link and symbol checks passed. Crypto source and public key pinned in loader result."
+  ],
+  "hardware_verified": false,
+  "limits": "No device, phone, Flash installation or rollback in this release check. The prior B probe used a different binary."
+}
