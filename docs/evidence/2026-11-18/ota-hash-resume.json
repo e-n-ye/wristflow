@@ -1,0 +1,62 @@
+{
+  "base": "91851a20096b8efd0225e07f9cc38d9b5fe53e95",
+  "device_window": "artifacts/ota-hash-resume-device-001",
+  "endpoint": "Original Huangshan board, CH340 COM5 USB 1-1.1, original battery, 4165 mV, phone disconnected",
+  "trace_build": "artifacts/ota-hash-resume-trace-003",
+  "trace_bytes": 54092,
+  "trace_sha256": "c47e5232fe7d2cc6645ed19e912cb708764906ea03aa6ef8e2be5c6fa74f9e27",
+  "trace_host": "artifacts/ota-hash-resume-host-001/result.json",
+  "capture_sha256": "288e0eeb2d20a1927f26d1291271d0339e5d811c9b0572cec66b1e647951d3c7",
+  "crc_and_tag_verified_frames": 275,
+  "short_fixture": {
+    "source": "first 656 bytes of physical original A at 0x12020000",
+    "blocks": [256, 256, 144],
+    "expected_sha256": "c083a4928d78f5743a30d431daf6c669b3f079a0e4033c805471789bdf8d41b0",
+    "expected_state_256": "1be23caa1f1152fe4a8191ce01fbddd2e4e0e07930c4735b9a5d022b102b6989",
+    "expected_state_512": "9a046489de96098589cd906c1aefa774a9349a58e8cf79496b0f3077ebef461d",
+    "hal_iv_readback_after_256": "9fe202aa9f1102fe9f8102ce9ffb02d29fe002799fc4025b9f5d022b9f2b0289",
+    "hal_final_digest_both_length_schedules": "b9d160bf16079dd36004527abdcb88ed2cfd906456c0ce9d31671fae58d0e6bd",
+    "cases_in_order": ["one-shot", "HAL IV, length every block", "HAL IV, length final only", "word IV, length every block", "word IV, length final only", "retain peripheral state", "byte-reversed word IV, length final only"],
+    "short_pass_mask": 57,
+    "selected": 4
+  },
+  "original_a": {
+    "bytes": 3055760,
+    "peripheral_cpu_and_signed_sha256": "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d",
+    "rsa_status": 0, "stack": "0x20002000", "reset": "0x1202baa1", "verified_target": 0,
+    "handoff": "V(0), O(0x12020000), M/T(0x1202baa1), then Product storage ready",
+    "operator_before_restore": "已看到原表盘，触摸正常，临时常亮已开",
+    "app_before": {"boot": 42, "generation": 220, "host_tail_ms": 1433393},
+    "trial_app": {"boot": 43, "generation": 221, "host_tail_ms": 76601}
+  },
+  "restoration": {
+    "writes_per_leg": 3, "reads_per_leg": 8, "bytes_written_per_leg": 69632,
+    "order": ["original boot", "detached enrollment sector", "first stable journal sector"],
+    "raw_rx_sha256": ["eba3f27c34ed2165d76544a87e3a12fc1edb4686e66f76863b8f93dba7396d8d", "36a073d82a74b989be9f49405084efffbd6ef2016445cc823724f709279c9199"],
+    "restored_startup_sha256": "c280d2433d5c8390db0639bf91b4abde50c6bd74bb5b2c2e7cb421a6c363ea43",
+    "seconds_through_both_operator_observations": 194.023,
+    "controller_exit": 0, "ordinary_a_verified": true, "restored": true, "window_complete": true,
+    "final_operator": "原表盘、触摸和 KEY1 正常，临时常亮已关"
+  },
+  "first_install": {
+    "receiver_build": "artifacts/ota_loader/20261118-233214-587/result.json",
+    "receiver_result_sha256": "ce4a5fa43b06b015b8b0943b6c0bd82ce31bbbe425cf8319ba92dfb7b1b308cb",
+    "receiver_bin_bytes": 359788,
+    "receiver_bin_sha256": "b7640a8b6ed983502a7ee5e07109f354499af9709ed10bb2a6c51e3eb5c7e0ec",
+    "boot_build": "artifacts/ota-hash-resume-fixed-boot/result.json",
+    "boot_result_sha256": "b9ad4e216675e1ade477d0a9be197298021f3c39e3a85925a633a3b2c3046332",
+    "boot_bin_bytes": 57308,
+    "boot_bin_sha256": "cfd0457bd15175d99a3f12564621ac73ffd66fadc6ef1bf84171b252db378305",
+    "enrollment_address": "0x1286c44c"
+  },
+  "host_validation": {
+    "diagnostic_rebuild": "artifacts/ota-hash-resume-probe-repro/frozen/main.bin matches the device BIN byte for byte after factoring the register writes into the shared header",
+    "fixed_pair_disassembly": "In each ordinary ELF the resume loop uses STR.W with a 4-byte increment from 0x5000d05c up to 0x5000d07c; HAL_HASH_init is called only with a null IV on stream start.",
+    "first_install_bundle": "artifacts/ota-hash-resume-first-bundle/bundle.json",
+    "corrected_bridge": "artifacts/ota-hash-resume-first-host/result.json",
+    "native_model": "artifacts/ota-hash-resume-first-tests-final.log: corrected pair install, recovery, new records preserved, superseded and mixed pairs rejected for installation",
+    "firmware_tests": "artifacts/ota-hash-resume-c-tests.log: eight CTest targets, including production register transfer and final-only length. Both ordinary-A C replays accepted the relocated detached header.",
+    "python_regression": "artifacts/ota-hash-resume-regression.log: 199 discovered, 182 passed, 17 unbound fixed-B execution cases skipped; updated first-install pair separately tested."
+  },
+  "limits": "The trace boot and its word transfers were tested on the device. The corrected full receiver and its paired ordinary boot are built artifacts. BLE reception, trial B, rollback and interruptions have separate pending device acceptance."
+}

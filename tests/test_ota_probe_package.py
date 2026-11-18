@@ -27,6 +27,29 @@ def mutate(raw,index,value):
     data=struct.pack('<19I',*words[:19]);return data+struct.pack('<I',zlib.crc32(data))
 
 class ProbePackage(unittest.TestCase):
+    def test_hash_resume_qualification_checks_observed_trial_results(self):
+        from ota_trace_a_window import BODY_SHA, SHORT_SHA, hash_qualification
+        def result_words(point, value):
+            return [(point, w) for w in struct.unpack("<8I", bytes.fromhex(value))]
+
+        stream = []
+        for method in range(7):
+            stream.append(("K", method))
+            for off in ([0] if method == 0 else [0, 256, 512]):
+                if off and method != 5:
+                    stream.extend([("Y", 0), ("L", off)])
+                stream.append(("G", 656 if method == 0 or off == 512 else off+256))
+                value = SHORT_SHA if method == 0 or off == 512 and method in (2, 4) else "00"*32
+                stream.extend(result_words("W", value))
+        stream.extend([("U", 21), ("I", 2)])
+        stream.extend(result_words("Z", "00"*32))
+        stream.extend([("I", 4)] + result_words("Z", BODY_SHA) + [("C", 4)])
+        def decode(items):
+            return hash_qualification([{"point": p, "detail": v} for p,v in items])
+        self.assertEqual(decode(stream)["selected"], 4)
+        for bad in (stream[:-1], stream[:-1]+[("C", 2)], stream[:2]+stream[3:]):
+            self.assertFalse(decode(bad)["complete"])
+
     def test_slot_verification_trace_requires_ordered_matching_digests_and_vectors(self):
         from ota_trace_a_window import BODY_SHA, MANIFEST_SHA, frames
         manifest = {"passed": True, "startup_trace_tag": TAG, "slot_verification_trace": 2}

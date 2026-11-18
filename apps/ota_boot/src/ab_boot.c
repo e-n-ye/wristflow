@@ -12,6 +12,9 @@
 #include "release.h"
 #include "receiver_binding.h"
 #include "startup_trace.h"
+#ifdef WF_OTA_HASH_RESUME_PROBE
+#include "hash_resume_probe.h"
+#endif
 
 extern void boot_error(unsigned char code) __attribute__((noreturn));
 enum { UNIT = 8192 };
@@ -180,6 +183,10 @@ void wf_ota_boot_select(void)
     unsigned unit;
     if (wf_ota_journal_load(&journal, &s, &unit) ||
         (s.phase == WF_OTA_AB_STABLE && word == WF_OTA_ENTER_RECEIVER)) receiver();
+#ifdef WF_OTA_HASH_RESUME_PROBE
+    if (s.phase != WF_OTA_AB_STABLE || s.stable != WF_OTA_AB_SLOT_A || word ||
+        !wf_boot_hash_qualify(&reader)) boot_error('Q');
+#endif
     wf_ota_ab_image_t checked[2] = {0};
     wf_ota_boot_plan_t plans[2];
     for (unsigned slot = 0; slot < 2; ++slot) {

@@ -106,7 +106,7 @@ fn apply(c: &Config) -> Result<()> {
     let receiver = if c.action.traced() { "certificate.bin" } else { "receiver.bin" };
     let images = Inputs { receiver: fs::read(c.bundle.join(receiver))?,
         journal: fs::read(c.bundle.join("journal.bin"))?, boot: fs::read(c.bundle.join("boot.bin"))? };
-    if c.action.traced() { trace_media::verify_inputs(&images)?; } else { images.verify()?; }
+    if c.action.traced() { trace_media::verify_inputs(&images)?; } else { images.verify(c.action)?; }
     let source = c.before.as_ref().map(fs::read).transpose()?;
     if let Some(d) = &source {
         require(Some(hash(d)) == c.before_sha256, "Previous window original changed")?;

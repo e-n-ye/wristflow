@@ -14,6 +14,7 @@ from ota_backup_review import REGIONS, require, review_pair
 
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "docs/evidence/2026-11-18/ota-original-a-enrollment.json"
+HASH_FIX = ROOT / "docs/evidence/2026-11-18/ota-hash-resume.json"
 BASE_SHA = "9140bb4e1bb700c8a7b1d06f29f510c3f18b13fb6da86e34b7f453fec639ab74"
 ORIGINAL_B_SHA = "4205c2f63f4417b614d34edf9422e9f3adb3d9899cd5d9db379c7fce3ccda0a0"
 META = 0xda0000
@@ -59,15 +60,16 @@ def save(path, data):
     require(path.read_bytes() == data, "Archive readback mismatch")
 
 
-def prepare(directory, first, second):
+def prepare(directory, first, second, *, historical_pair=False):
     evidence = read_json(EVIDENCE)
+    build_pair = evidence if historical_pair else read_json(HASH_FIX)["first_install"]
     baseline = review_pair(first, second)
     require(baseline["flash_sha256"] == BASE_SHA and baseline["boot"]["length"] == 58496 and
             baseline["regions"]["a"]["sha256"] == evidence["entire_original_a_sha256"] and
             baseline["regions"]["b"]["sha256"] == ORIGINAL_B_SHA, "Original board backup mismatch")
     original = first.read_bytes()
-    boot, receiver = frozen(evidence, "boot"), frozen(evidence, "receiver")
-    addr = int(evidence["enrollment_address"], 0)
+    boot, receiver = frozen(build_pair, "boot"), frozen(build_pair, "receiver")
+    addr = int(build_pair["enrollment_address"], 0)
     off = addr - (0x12000000 + REGIONS["loader"][0])
     require(0 <= off <= len(receiver) - 336, "Enrollment outside receiver")
     enrollment = receiver[off:off + 336]
@@ -91,6 +93,7 @@ def prepare(directory, first, second):
         save(output, data.ljust(size, b"\xff"))
         entries.append(dict(role=name, offset=start, **file_record(output)))
     report = dict(schema=1, scope="original-cyclelog-first-install", baseline_sha256=BASE_SHA,
+                  enrollment_address=hex(addr),
                   entries=entries, original_a_sha256=evidence["entire_original_a_sha256"],
                   original_b_sha256=ORIGINAL_B_SHA, hardware_verified=False)
     write_json(directory / "bundle.json", report)

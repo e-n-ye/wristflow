@@ -1,12 +1,13 @@
 #requires -Version 7.0
 param([ValidateRange(1,32)][int]$Jobs = 4, [string]$ProbeBinding, [string]$EvidenceDir, [string]$ReceiverResult,
-      [switch]$TraceStartup)
+      [switch]$TraceStartup, [switch]$HashResumeProbe)
 . "$PSScriptRoot/Set-LocalEnvironment.ps1"
 Enable-SdkEnvironment
 $bootProject = Join-Path $ProjectRoot 'apps/ota_boot/project'
 $bootBoard = $SdkLock.board
 $bootRun = if ($EvidenceDir) {[IO.Path]::GetFullPath($EvidenceDir)} else {Join-Path $ProjectRoot ("artifacts/ota_boot/{0}" -f (Get-Date -Format 'yyyyMMdd-HHmmss-fff'))}
 if (Test-Path -LiteralPath $bootRun) {throw 'Evidence directory must be new'}
+if ($HashResumeProbe) { $TraceStartup = $true }
 if ($TraceStartup -and -not $ReceiverResult) { throw 'Startup trace requires a receiver-bound boot' }
 if ($ProbeBinding) {$ProbeBinding=(Resolve-Path -LiteralPath $ProbeBinding).Path}
 if ($ReceiverResult) {
@@ -21,7 +22,8 @@ try {
         $bootArgs+="wf_probe_binding=$ProbeBinding"
     }
     if ($ReceiverResult) { $bootArgs+="wf_receiver_result=$ReceiverResult" }
-    if ($TraceStartup) { $bootArgs+='wf_boot_trace=1' }
+    if ($HashResumeProbe) { $bootArgs+='wf_boot_trace=hash-resume' }
+    elseif ($TraceStartup) { $bootArgs+='wf_boot_trace=1' }
     & scons @bootArgs *>&1 | Tee-Object -FilePath (Join-Path $bootRun 'build.log')
     $bootExit = $LASTEXITCODE
 } finally { Pop-Location }
@@ -45,6 +47,7 @@ if ($bootExit -eq 0) {
         if ($ProbeBinding) {$checkArgs+=@('--probe-binding',$ProbeBinding)}
         if ($ReceiverResult) {$checkArgs+=@('--receiver-result',$ReceiverResult)}
         if ($TraceStartup) {$checkArgs+='--startup-trace'}
+        if ($HashResumeProbe) {$checkArgs+='--hash-resume-probe'}
         & python @checkArgs
         if ($LASTEXITCODE -ne 0) { throw 'RAM boot ELF validation failed' }
         if ($ReceiverResult) { $frozen = New-Item -ItemType Directory -Path (Join-Path $bootRun 'frozen') }
@@ -73,7 +76,7 @@ if ($ReceiverResult) {
     if ($bootExit -eq 0 -and (Test-Path -LiteralPath $generatedBinding)) { $bootSources += Get-Item -LiteralPath $generatedBinding }
     foreach ($name in 'core/ota_ab.c','core/ota_ab.h','core/ota_journal.c','core/ota_journal.h','core/ota_trial.h','core/ota_trial.c',
         'apps/ota_loader/src/physical_read.c','apps/ota_loader/src/physical_read.h','apps/ota_loader/src/release.c',
-        'apps/ota_loader/src/release.h','apps/ota_loader/src/release_hash.c','apps/ota_loader/src/release_public_key.inc',
+        'apps/ota_loader/src/release.h','apps/ota_loader/src/release_hash.c','apps/ota_loader/src/release_hash_registers.h','apps/ota_loader/src/release_public_key.inc',
         'apps/ota_loader/src/original_a.inc') {
         $bootSources += Get-Item -LiteralPath (Join-Path $ProjectRoot $name)
     }

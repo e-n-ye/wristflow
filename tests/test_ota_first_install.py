@@ -45,7 +45,16 @@ class FirstInstall(unittest.TestCase):
     def test_trace_only_three_ranges_and_independent_torn_restore(self):
         from ota_trace_a_window import prepare as trace_bundle, REGIONS as trace_regions
         bundle=self.directory/"trace-bundle"
-        trace_bundle(bundle,Path(os.environ["WRISTFLOW_TRACE_A_BUILD"]),self.bundle)
+        historical=self.directory/"historical-enrollment"
+        prepare(historical,self.old,self.old.with_name("nor-second.bin"),historical_pair=True)
+        self.invoke("superseded-fresh-install","install",self.old,False,bundle=historical)
+        mixed = self.directory/"mixed-boot-receiver"
+        mixed.mkdir()
+        for name in ("boot.bin", "journal.bin", "receiver.bin"):
+            parent = historical if name == "receiver.bin" else self.bundle
+            (mixed/name).write_bytes((parent/name).read_bytes())
+        self.invoke("mixed-fresh-install","install",self.old,False,bundle=mixed)
+        trace_bundle(bundle,Path(os.environ["WRISTFLOW_TRACE_A_BUILD"]),historical)
         out=self.invoke("trace","trace-original-a",self.old,bundle=bundle)
         previous=self.old.read_bytes()
         expected=bytearray(previous)
