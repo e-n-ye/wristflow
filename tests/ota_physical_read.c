@@ -15,7 +15,8 @@ static int read_bytes(void *context, uint32_t address, void *out, size_t size)
 static wf_ota_physical_reader_t reader(fake_t *f)
 {
     return (wf_ota_physical_reader_t){.context=f,.ready=ready,.read=read_bytes,
-        .region={{0x12020000,0x400000},{0x12420000,0x400000},{0x12da0000,8192},{0x12da2000,8192}}};
+        .region={{0x12020000,0x400000},{0x12420000,0x400000},{0x12da0000,8192},{0x12da2000,8192},
+                 {0x12826024,336}}};
 }
 static void cleared(const uint8_t *bytes, size_t size)
 { for (size_t i = 0; i < size; ++i) assert(bytes[i] == 0); }
@@ -26,7 +27,8 @@ int main(void)
     uint8_t bytes[256];
     for (unsigned region = 0; region < WF_OTA_READ_REGIONS; ++region) {
         assert(wf_ota_physical_read(&r, region, r.region[region].bytes - sizeof bytes, bytes, sizeof bytes) == sizeof bytes);
-        for (unsigned i = 0; i < sizeof bytes; ++i) assert(bytes[i] == (uint8_t)i);
+        uint32_t address = r.region[region].address + r.region[region].bytes - sizeof bytes;
+        for (unsigned i = 0; i < sizeof bytes; ++i) assert(bytes[i] == (uint8_t)(address + i));
         ++checks;
         unsigned reads = f.reads;
         const uint32_t offsets[] = {r.region[region].bytes - 255, r.region[region].bytes, UINT32_MAX};

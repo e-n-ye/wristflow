@@ -128,6 +128,9 @@ def check(elf, binary=None, binding=None, receiver_result=None):
         image, = [a for a in record["artifacts"] if Path(a["path"]).name == "main.bin"]
         require(binary is not None and len(data) <= 58496, "Exceeds actual original FTAB copy extent")
         require(bytes.fromhex(image["sha256"]) in data, "Boot does not contain the bound receiver digest")
+        addr = record["original_a_enrollment_address"]
+        require(addr % 4 == 0 and 0x12820000 <= addr <= 0x12820000 + image["bytes"] - 336 and
+                struct.pack("<II", addr, 336) in data, "Boot does not bind the receiver's detached enrollment span")
         for name in ("wf_ota_boot_select", "wf_ota_trial_select", "wf_ota_journal_commit", "wf_ota_release_verify_slot", "mbedtls_pk_verify",
                      "HAL_WDT_Init", "_sbrk"):
             require(re.search(r"(?m)^[0-9a-f]+ [0-9a-f]+ [Tt] " + name + r"$", symbols), "Missing " + name)
@@ -142,7 +145,7 @@ def check(elf, binary=None, binding=None, receiver_result=None):
                 callers.append(caller)
         require(len(callers) == 1 and callers[0].split(".")[0] == "launch", "Unexpected production handoff callers")
         extra.update(receiver_sha256=image["sha256"], receiver_bytes=image["bytes"], actual_ftab_limit=58496,
-                     remaining_ftab_bytes=58496-len(data))
+                     remaining_ftab_bytes=58496-len(data), original_a_enrollment_address=hex(addr))
     return {"elf_sha256": hashlib.sha256(elf.read_bytes()).hexdigest(), "ram_placement_passed": True,
             "apply": leaf_block(disassembly, "wf_ota_ram_apply", byte_size=sizes["wf_ota_ram_apply"]),
             "jump": leaf_block(disassembly, "wf_ota_ram_jump", final_jump=True, byte_size=sizes["wf_ota_ram_jump"]),

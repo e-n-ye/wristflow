@@ -1,4 +1,4 @@
-import os, json, hashlib
+import os, json, hashlib, re
 from building import *
 from SCons.Script import VariantDir, Dir, ARGUMENTS
 Import('SIFLI_SDK')
@@ -36,9 +36,18 @@ if receiver:
     digest = hashlib.sha256(image).digest()
     if len(image) != item['bytes'] or not 8 <= len(image) <= 0x60000 or digest.hex() != item['sha256']:
         raise ValueError('Receiver differs from bound build')
+    with open(os.path.join(root, 'apps/ota_loader/src/original_a.inc'), encoding='ascii') as stream:
+        enrollment = bytes(int(v, 16) for v in re.findall(r'0x([0-9a-f]{2}),', stream.read()))
+    address = 0x12820000 + image.find(enrollment)
+    if len(enrollment) != 336 or image.count(enrollment) != 1 or record.get('original_a_enrollment_address') != address:
+        raise ValueError('Missing unique original CycleLog enrollment in the bound receiver')
+    # The SDK small SHA-256 implementation preserves its public API and digest.
+    # Bulk Product and receiver hashing still uses the native SHA peripheral.
+    defines.append('MBEDTLS_SHA256_SMALLER')
     generated = Dir('.').abspath
     with open(os.path.join(generated,'receiver_binding.h'),'w',encoding='ascii') as out:
         out.write('#define WF_RECEIVER_BYTES %du\n' % len(image))
+        out.write('#define WF_ORIGINAL_A_ADDRESS 0x%xu\n' % address)
         out.write('static const uint8_t receiver_sha256[32] = {' + ','.join(map(str,digest)) + '};\n')
     includes += [generated, os.path.join(root,'core'), os.path.join(root,'apps/ota_loader/src')]
     for location, files in [('core', ['ota_ab.c','ota_journal.c','ota_trial.c']),

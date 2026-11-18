@@ -16,6 +16,7 @@ try {
 } finally { Pop-Location }
 $candidateBuild = Join-Path $candidateProject "build_${candidateBoard}_hcpu"
 $candidateError = $null
+$enrollAddress = $null
 if ($candidateExit -ne 0) { $candidateError = "SCons exited $candidateExit" }
 $candidateFiles = @()
 if ($candidateExit -eq 0) {
@@ -36,6 +37,14 @@ if ($candidateExit -eq 0) {
         if ($symbols -notmatch '(?m)^[0-9a-f]+ T BSP_PowerUpCustom$') { throw 'Strong startup override missing' }
         $required = @('wf_ota_physical_read','wf_ota_journal_load','wristflow_aw32001_inhibit','wf_ota_release_verify_slot','mbedtls_pk_verify')
         if ($AndroidReceiver) {
+            $enrolled = [regex]::Match($symbols, '(?m)^([0-9a-f]+) [RrTt] wf_ota_original_a\r?$')
+            if (!$enrolled.Success) { throw 'Detached enrollment is missing from receiver ELF' }
+            $enrollAddress = [Convert]::ToUInt32($enrolled.Groups[1].Value,16)
+            $bin = [IO.File]::ReadAllBytes((Join-Path $candidateBuild 'main.bin'))
+            $offset = [long]$enrollAddress - 0x12820000
+            if ($offset -lt 0 -or $offset+336 -gt $bin.Length) { throw 'Detached enrollment outside receiver binary' }
+            $digest = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([byte[]]$bin[$offset..($offset+335)])).ToLowerInvariant()
+            if ($digest -cne 'fdda8fed5e37c097a0a9fa7d9a8b590b7025d0451c81d35af4c78c93af7dad85') { throw 'Detached CycleLog enrollment changed' }
             $required += @('wf_ota_android_start','wf_dfu_request','wf_ota_loader_install','wf_ota_journal_commit','ble_serial_tran_init',
                            'sifli_nvds_flash_adaptor_init','sifli_nvds_flash_adaptor_read','sifli_nvds_flash_adaptor_write')
             # Bond removal can be garbage-collected in this profile. If linked,
@@ -58,8 +67,13 @@ if ($candidateExit -eq 0) {
         if (!$AndroidReceiver -and $config -match '(?m)^#define (BLUETOOTH|PKG_USING_FLASHDB|WF_OTA_ANDROID_RECEIVER)\b') { throw 'Radio in read-only probe' }
         if ($AndroidReceiver -and $config -notmatch '(?m)^#define BLE_CM_BOND_DISABLE\b') { throw 'Bonding must be disabled in the upgrade environment' }
         if ($config -notmatch '(?m)^#define CUSTOM_MEM_MAP\b') { throw 'Project memory map not selected' }
+        if ($AndroidReceiver) { $frozen = New-Item -ItemType Directory -Path (Join-Path $candidateRun 'frozen') }
         foreach ($name in 'main.elf','main.bin','main.map','.config','rtconfig.h','ptab.h','custom_mem_map.h') {
             $path = Join-Path $candidateBuild $name
+            if ($AndroidReceiver) {
+                Copy-Item -LiteralPath $path -Destination $frozen.FullName -ErrorAction Stop
+                $path = Join-Path $frozen.FullName $name
+            }
             $candidateFiles += [ordered]@{path=$path;bytes=(Get-Item -LiteralPath $path).Length;sha256=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()}
         }
     } catch { $candidateError = $_.Exception.Message }
@@ -78,6 +92,7 @@ foreach ($name in 'apps/product/src/aw32001_inhibit.c','apps/product/src/aw32001
 $record = [ordered]@{
     kind=$(if ($AndroidReceiver) {'standalone-ota-android-receiver'} else {'standalone-ota-loader-probe'}); command="scons $($argsForScons -join ' ')"
     exit_code=$candidateExit; artifact_validation_passed=($candidateExit -eq 0 -and $null -eq $candidateError)
+    original_a_enrollment_address=$enrollAddress
     artifact_validation_error=$candidateError; deployable=$false; hardware_verified=$false
     sdk_commit=(Get-CheckedOutput git @('-C',$SdkRoot,'rev-parse','HEAD'))
     sdk_changes=@(Get-CheckedOutput git @('-C',$SdkRoot,'status','--short'))

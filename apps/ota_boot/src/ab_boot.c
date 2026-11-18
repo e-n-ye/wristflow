@@ -48,7 +48,8 @@ static int read_bytes(void *ctx, uint32_t address, void *out, size_t bytes)
 }
 static wf_ota_physical_reader_t reader = {.ready=physical,.read=read_bytes,
     .region={{WF_OTA_SLOT_A_START_ADDR,WF_OTA_SLOT_A_SIZE},{WF_OTA_SLOT_B_START_ADDR,WF_OTA_SLOT_B_SIZE},
-             {WF_OTA_METADATA_REGION_START_ADDR,UNIT},{WF_OTA_METADATA_REGION_START_ADDR + UNIT,UNIT}}};
+             {WF_OTA_METADATA_REGION_START_ADDR,UNIT},{WF_OTA_METADATA_REGION_START_ADDR + UNIT,UNIT},
+             [WF_OTA_READ_ORIGINAL_A]={WF_ORIGINAL_A_ADDRESS,WF_RELEASE_HEADER_BYTES}}};
 static int read_unit(void *ctx, unsigned unit, uint32_t offset, void *out, size_t size)
 {
     (void)ctx;
@@ -139,7 +140,6 @@ static bool trial_watchdog(void)
 void wf_ota_boot_select(void)
 {
     __disable_irq();
-    HAL_RCC_EnableModule(RCC_MOD_AES);
     HAL_GTIMER_ENABLE();
     origin = HAL_GTIMER_READ();
     uint32_t word = HAL_Get_backup(RTC_BAKCUP_OTA_FORCE_MODE);
