@@ -1,0 +1,61 @@
+{
+  "baseline": "0f841d5179b5cd1b9b6cc00880b4bfec3b53b55d",
+  "local_worktree_artifacts": "artifacts/ota-a-check-device-001",
+  "build": {
+    "trace": "artifacts/ota-a-check-trace-004",
+    "elf_sha256": "4f2d503b1691e74170ec13afccebf0b004b3a7a04ba1b2406fdc3b3044b8cedc",
+    "bytes": 58360, "ftab_bytes": 58496,
+    "bin_sha256": "bfd32ba5557a6e4c762b30a9bc768093cccbe583c2eb56140c17ff67c134b2e7",
+    "padded_boot_sha256": "7143e8d49904b86c7fb952faf27ee78c9b6e0e4f4571229ea1658e198ab0b41a",
+    "control": "artifacts/ota-a-check-control-004",
+    "normal_boot_unchanged_sha256": "52d02260fb2642f6327aab97368994e836f2c3b7682d39f074355c681155a8d9",
+    "bridge_manifest": "artifacts/ota-a-check-host-001/result.json",
+    "bridge_manifest_sha256": "c0bfbbe8675aa3c8982fb786617ec46ac58fbcd39a9f987bc8fd8af00cfe48f2"
+  },
+  "host": {
+    "c_replay": "artifacts/ota-a-check-host-crypto.log: ota_release_trace --ordinary-a, valid original A; injected manifest result error, body result error, and short read rejected. 7 OTA CTest targets passed.",
+    "rehearsal": "artifacts/ota-a-check-rehearsal-001/window.json",
+    "python": "artifacts/ota-a-check-regression.log: 198 discovered, 181 passed, 17 unbound fixed-B execution cases skipped."
+  },
+  "preflight": {
+    "original_board": "CH340 COM5, USB 1-1.1, battery attached, phone disconnected",
+    "snapshot_sha256": "53247667ffc298ac871dee147d4c47daf36cae7fc9ab86ceafe0091409cab094",
+    "boot": 41, "saved_generation": 219, "unsaved_ms_preserved_on_host": 5324, "vbat_mv": 4165,
+    "ordinary_rtc_word": 0, "same_window_originals_sha256": "bd6573264067ad33693ed21f2432d3607641709fadb66d8c897784a267b6ed01"
+  },
+  "ordinary_a": {
+    "uart": "trace-original-a/startup-uart.bin", "bytes": 3927,
+    "uart_sha256": "869f7b376c0197cd69cd8434c44ff1b99950cd46923d594bdf53cc3eee5d5dec",
+    "uart_tag": [2398833105, 3026351082, 1403325149, 2071047169],
+    "frames_crc_and_tag_verified": 49,
+    "path": "PEFNJSrrimmmmmmmmnnnnnnnnkwbbbbbbbbccccccccxVRDB!",
+    "header_addresses": ["0x1241feb0", "0x1286c404"],
+    "public_key_parse_rc": 0, "rsa_verify_rc": 0,
+    "manifest_bytes": 80,
+    "manifest_hw": "25f046b0fca4bc43888d0d2f32fd061c2b0284cc1056b7f1a539130b791dd004",
+    "manifest_cpu": "25f046b0fca4bc43888d0d2f32fd061c2b0284cc1056b7f1a539130b791dd004",
+    "image_bytes": 3055760, "nonfinal_block_bytes": 256, "last_offset": 3055616, "last_bytes": 144,
+    "body_hw": "f166f475b76bb2f0642106429742df1443cf6e395ccfe0aa00419806442d54f5",
+    "body_cpu": "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d",
+    "body_signed_sha256": "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d",
+    "first_reject": "x=6, release.c final body digest comparison",
+    "target": "V=0xffffffff, recovery",
+    "subsequent_receiver_result": "!H for the intentionally incomplete receiver image",
+    "ordinary_a_verified": false, "android_transfer_attempted": false
+  },
+  "restore": {
+    "writes_and_reads_each_leg": [3, 8],
+    "writes_in_order": ["boot 60 KiB", "certificate 4 KiB", "journal 4 KiB"],
+    "read_sha256": {
+      "boot_64k": "f59f948f987362f1270b1da541405e82bd887c1a16c306364c04913c9c07f667",
+      "certificate_4k": "f47a8ec3e9aff2318d896942282ad4fe37d6391c82914f54a5da8a37de1300c6",
+      "journal_16k": "0fbba07a833d4dcfc7024eaf313661a0ba8f80a05c6d29b8801c612e10e60dee"
+    },
+    "uart": "restore-trace-a/startup-uart.bin", "bytes": 4802,
+    "uart_sha256": "6397ec97c4936efabc1fd4e942093c885774754e7b477771a897b4a818d71be5",
+    "device_seconds_to_restore_complete": 83.133, "seconds_including_operator": 131.807,
+    "workers_exited_zero_and_ports_closed": true, "controller_exit": 0,
+    "product_storage_ready": true, "window_complete": true,
+    "operator_confirmation": "原表盘、触摸和 KEY1 正常，临时常亮已关"
+  }
+}

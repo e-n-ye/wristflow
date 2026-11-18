@@ -95,12 +95,23 @@ static uint32_t now_ms(void *ctx)
 static wf_ota_journal_t journal = {.read=read_unit,.program=program_unit,.erase=erase_unit,.sync=sync_unit,
     .acquire=acquire,.release=release_lock,.now_ms=now_ms,.erase_bytes=UNIT,.budget_ms=2000,.writable=true};
 
+#ifdef WF_OTA_BOOT_TRACE
+static bool trace_vector_plan(wf_ota_boot_plan_t *plan, const wf_ota_boot_layout_t *limits,
+                              unsigned target, uint32_t bytes, const uint32_t vectors[2])
+{
+    wf_boot_trace('u', vectors[0]);
+    wf_boot_trace('t', vectors[1]);
+    return wf_boot_trace_rc('q', wf_ota_boot_plan(plan, limits, target, bytes, vectors));
+}
+#else
+#define trace_vector_plan wf_ota_boot_plan
+#endif
 static bool prepare(wf_ota_boot_plan_t *plan, unsigned target, uint32_t bytes)
 {
     uint32_t addr = target == WF_OTA_BOOT_LOADER ? layout.loader : layout.slot[target];
     uint32_t vectors[2];
     return physical(NULL) && g_flash_read(addr, (const int8_t *)vectors, sizeof vectors) == sizeof vectors &&
-           wf_ota_boot_plan(plan, &layout, target, bytes, vectors);
+           trace_vector_plan(plan, &layout, target, bytes, vectors);
 }
 static void launch(const wf_ota_boot_plan_t *plan) __attribute__((noreturn));
 static void launch(const wf_ota_boot_plan_t *plan)
@@ -175,11 +186,17 @@ void wf_ota_boot_select(void)
         if (slot != s.stable && slot != s.pending) continue;
         wf_boot_trace('S', slot);
         if (wf_ota_release_verify_slot(&reader, slot, &checked[slot]) &&
-            !prepare(&plans[slot], slot, checked[slot].bytes))
+            !prepare(&plans[slot], slot, checked[slot].bytes)) {
+            wf_boot_trace('v', slot);
             checked[slot].bytes = 0;
+        }
     }
     uint32_t trial;
     wf_ota_ab_target_t target = wf_ota_trial_select(&journal, &s, checked, word, &trial);
+#ifdef WF_OTA_BOOT_TRACE
+    if (target == WF_OTA_AB_RECOVERY && s.phase == WF_OTA_AB_STABLE && checked[s.stable].bytes)
+        wf_boot_trace('z', s.stable);
+#endif
     wf_boot_trace('V', target);
     if (target == WF_OTA_AB_RECOVERY) receiver();
     if (trial) {

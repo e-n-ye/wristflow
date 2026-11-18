@@ -8,6 +8,8 @@
 
 普通 A 诊断在 `hw_preinit0` 的第一处项目操作发出 `P`。冻结追踪镜像 58,048 字节，原 FTAB 余 448 字节。用 `scripts/ota_trace_a_window.py simulate --authorize simulation --build <主机构建 result.json> --trace-build <追踪构建目录> --ordinary-bundle <首装包目录> --fixture <原机备份> --before-fixture <存有同名快照的目录>/before-uart.bin --out <新目录>` 离线演练三处写入和独立恢复。用主机 C 测试 `ota_release --ordinary-a <模拟 NOR>` 重放同地址的登记、完整 A 正文、启动记录和向量计划。实机运行另需现场许可。[产物、回放与真机差异](evidence/2026-11-18/ota-ordinary-a-trace.json)
 
+新版 `-TraceStartup` 使用第二版串口标签，在完整摘要的 8 个小端字收齐后才解码该摘要。构建后用 `ota_release_trace --ordinary-a <模拟 NOR>` 回放实际登记、完整原 A 和分块故障，普通版沿用 `ota_release`。新的诊断 boot 为 58,360 字节，原 FTAB 余 136 字节。[构建与真机结果](evidence/2026-11-18/ota-a-hash-diagnosis.json)
+
 ## 2026-11-18 Android 接收 loader
 
 `pwsh -File scripts/Build-Ota-Loader.ps1 -AndroidReceiver` 显式构建有线初装使用的 receiver，使用 SDK AddLCPU、板载 BLE Serial、片上 CRC／SHA 和已登记公钥。检查 384 KiB 链接上限、PSRAM 缓冲、独立安装和 journal 符号，排除旧安装器、自动充电和持久 BLE 数据库初始化。省略参数继续构建只读 probe。构建不连接设备。[容量与回归](evidence/2026-11-18/ota-android-receiver.json)

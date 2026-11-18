@@ -170,6 +170,16 @@ def parse_startup(raw, manifest):
               'B':'hashed first receiver block', 'H':'receiver hash matched', 'S':'checking slot',
               'V':'selected boot target', 'O':'before ownership check', 'M':'before applying mapping',
               'T':'verified target vectors before jump', '!':'boot error'}
+    if manifest.get('slot_verification_trace') == 2:
+        stages.update({
+            'r': 'read slot or detached header at physical address', 'i': 'accepted manifest fields and image length',
+            'm': 'manifest peripheral SHA-256 word', 'n': 'manifest CPU SHA-256 word',
+            'k': 'public-key parse result', 'w': 'RSA verification result',
+            'b': 'body peripheral SHA-256 word', 'c': 'body CPU SHA-256 word',
+            'd': 'body read failed at offset', 'g': 'peripheral hash failed at offset',
+            'x': 'release verification rejection', 'u': 'vector SP read by boot', 't': 'vector Reset read by boot',
+            'q': 'vector plan result', 'v': 'vector preparation rejected slot', 'z': 'stable identity rejected slot'
+        })
     records=[]
     error=None
     try:

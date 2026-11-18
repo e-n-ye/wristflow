@@ -12,7 +12,7 @@ static bool emit_frame(char phase, uint32_t detail)
 {
     uint32_t tag[4];
     memcpy(tag, receiver_sha256, sizeof tag);
-    tag[0] ^= 0x31544257u; /* Domain-separate these frames from fixed B probes. */
+    tag[0] ^= 0x32544257u; /* Distinguish verification traces from the first boot trace. */
     wf_ota_probe_frame_t frame;
     wf_ota_probe_frame_init(&frame, phase == '!' ? WF_OTA_PROBE_ERROR : WF_OTA_PROBE_PREPARED, tag);
     frame.phase = (uint8_t)phase;

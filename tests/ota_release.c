@@ -17,6 +17,24 @@ static const uint8_t original_enrollment[WF_RELEASE_HEADER_BYTES] = {
 #include "original_a.inc"
 };
 
+#ifdef WF_OTA_BOOT_TRACE
+enum { NO_FAULT, MANIFEST_RESULT, BODY_RESULT, BLOCK_IO };
+static unsigned fault;
+static bool collect;
+static char points[64];
+static uint32_t details[64];
+static size_t emitted;
+
+void wf_boot_trace(char point, uint32_t value)
+{
+    if (!collect) return;
+    assert(emitted + 1 < sizeof points);
+    points[emitted] = point;
+    details[emitted++] = value;
+    points[emitted] = 0;
+}
+#endif
+
 bool wf_ota_release_hash(uint32_t state[8], uint32_t previous, uint8_t *block,
                          unsigned bytes, bool final)
 {
@@ -30,6 +48,10 @@ bool wf_ota_release_hash(uint32_t state[8], uint32_t previous, uint8_t *block,
     if (final) {
         mbedtls_sha256_finish(&sha, (uint8_t *)state);
         mbedtls_sha256_free(&sha);
+#ifdef WF_OTA_BOOT_TRACE
+        if ((fault == MANIFEST_RESULT && !previous) || (fault == BODY_RESULT && previous))
+            state[0] ^= 1;
+#endif
     }
     return true;
 }
@@ -95,6 +117,9 @@ static uint8_t staging[WF_DFU_ENVELOPE + WF_DFU_SLOT_BYTES];
 static int read_nor_file(void *context, uint32_t addr, void *out, size_t n)
 {
     FILE *f = context;
+#ifdef WF_OTA_BOOT_TRACE
+    if (fault == BLOCK_IO && addr == 0x12020100) return -1;
+#endif
     if (addr < 0x12000000 || n > 0x1000000 || addr - 0x12000000 > 0x1000000 - n ||
         fseek(f, (long)(addr - 0x12000000), SEEK_SET)) return -1;
     return (int)fread(out, 1, n, f);
@@ -127,6 +152,32 @@ static void check_ordinary_a(const char *path)
     assert(read_nor_file(f,layout.slot[0],vectors,sizeof vectors)==sizeof vectors);
     assert(wf_ota_boot_plan(&boot,&layout,WF_OTA_BOOT_A,checked[0].bytes,vectors));
     assert(boot.stack==0x20002000 && boot.reset==0x1202baa1 && boot.vector==layout.slot[0]);
+#ifdef WF_OTA_BOOT_TRACE
+    const char *prefix = "rrimmmmmmmmnnnnnnnnkw";
+    collect = true;
+    for (fault = NO_FAULT; fault <= BLOCK_IO; ++fault) {
+        emitted = 0;
+        bool ok = wf_ota_release_verify_slot(&reader, WF_OTA_READ_A, &checked[0]);
+        assert(ok == (fault == NO_FAULT));
+        assert(!strncmp(points, prefix, strlen(prefix)) && details[0] == 0x1241feb0 && details[1] == 0x1286c404);
+        assert(details[2] == 3055760 && details[19] == 0);
+        if (fault == MANIFEST_RESULT) {
+            assert(details[3] != details[11] && (int32_t)details[20] < 0 && !strcmp(points+21, "x") && details[21] == 5);
+        } else if (fault == BLOCK_IO) {
+            assert(!strcmp(points+21, "d") && details[21] == 256);
+        } else {
+            assert(!memcmp(details+3, details+11, 32) && !details[20]);
+            assert(!strncmp(points+21, "bbbbbbbbcccccccc", 16));
+            assert(!memcmp(details+29, original_enrollment+48, 32));
+            assert((memcmp(details+21, details+29, 32) != 0) == (fault == BODY_RESULT));
+            if (ok) assert(emitted == 37);
+            else assert(!strcmp(points+37, "x") && details[37] == 6);
+        }
+    }
+    collect = false;
+    fault = NO_FAULT;
+    puts("Traced original A: signed input accepted; manifest and body peripheral discrepancies and short read rejected");
+#endif
     fclose(f);
     puts("Ordinary A authenticated, selected and admitted by its vector plan on host");
 }

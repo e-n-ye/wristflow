@@ -60,7 +60,7 @@ def check(elf, binary=None, binding=None, receiver_result=None, startup_trace=Fa
     def output(tool, *args):
         return subprocess.check_output([tool, *args, str(elf)], text=True, encoding="utf-8")
     symbols = output("arm-none-eabi-nm", "-S")
-    for symbol in ("wf_boot_trace_preinit", "wf_boot_trace_start", "wf_boot_trace"):
+    for symbol in ("wf_boot_trace_preinit", "wf_boot_trace_start", "wf_boot_trace", "wf_boot_trace_hash"):
         found = re.search(r"(?m)^[0-9a-f]+ [0-9a-f]+ [Tt] "+symbol+r"$", symbols)
         require(bool(found) == startup_trace, "Startup trace symbol binding differs: "+symbol)
     disassembly = output("arm-none-eabi-objdump", "-d", "-z", "--no-show-raw-insn")
@@ -152,8 +152,9 @@ def check(elf, binary=None, binding=None, receiver_result=None, startup_trace=Fa
                      remaining_ftab_bytes=58496-len(data), original_a_enrollment_address=hex(addr))
         if startup_trace:
             tag = list(struct.unpack("<4I", bytes.fromhex(image["sha256"])[:16]))
-            tag[0] ^= 0x31544257
+            tag[0] ^= 0x32544257
             extra["startup_trace_tag"] = tag
+            extra["slot_verification_trace"] = 2
     return {"elf_sha256": hashlib.sha256(elf.read_bytes()).hexdigest(), "ram_placement_passed": True,
             "apply": leaf_block(disassembly, "wf_ota_ram_apply", byte_size=sizes["wf_ota_ram_apply"]),
             "jump": leaf_block(disassembly, "wf_ota_ram_jump", final_jump=True, byte_size=sizes["wf_ota_ram_jump"]),
