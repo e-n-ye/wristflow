@@ -68,7 +68,8 @@ if ($ReceiverResult) {
     if ($bootExit -eq 0 -and (Test-Path -LiteralPath $generatedBinding)) { $bootSources += Get-Item -LiteralPath $generatedBinding }
     foreach ($name in 'core/ota_ab.c','core/ota_ab.h','core/ota_journal.c','core/ota_journal.h','core/ota_trial.h','core/ota_trial.c',
         'apps/ota_loader/src/physical_read.c','apps/ota_loader/src/physical_read.h','apps/ota_loader/src/release.c',
-        'apps/ota_loader/src/release.h','apps/ota_loader/src/release_hash.c','apps/ota_loader/src/release_public_key.inc') {
+        'apps/ota_loader/src/release.h','apps/ota_loader/src/release_hash.c','apps/ota_loader/src/release_public_key.inc',
+        'apps/ota_loader/src/original_a.inc') {
         $bootSources += Get-Item -LiteralPath (Join-Path $ProjectRoot $name)
     }
 }

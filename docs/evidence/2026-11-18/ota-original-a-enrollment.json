@@ -1,0 +1,23 @@
+{
+  "base": "4dd67949786131a9fe4755b5844c4f1c3386ba22",
+  "enrollment_command": "python -B scripts/ota_release.py --enroll-original-a --out-dir artifacts/ota-enrolled-cyclelog-20261118-001",
+  "source_archive_sha256": "ead4c756ee319fffdd4e18f024cbb2c65e55f874dea86b298c62b6f8f7d41816",
+  "entire_original_a_sha256": "6ebed703bad44f8715b75ec6aecf59f00ba13ce2076464b8667300c95cb0345d",
+  "signed_body_sha256": "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d",
+  "signed_body_bytes": 3055760,
+  "signed_enrollment_sha256": "fdda8fed5e37c097a0a9fa7d9a8b590b7025d0451c81d35af4c78c93af7dad85",
+  "enrollment_bytes": 336,
+  "enrollment_address": "0x1286c404",
+  "receiver_build": "artifacts/ota_loader/20261118-191009-852/result.json",
+  "receiver_result_sha256": "363b74f171d287ecf29adfb6e96c098a0a65be3139c25f3f5ecb13ae1f21b882",
+  "receiver_bin_bytes": 359716,
+  "receiver_bin_sha256": "860bafbcea7362b4dd0aa55301ac717b93f7d54ea2a8bb6ed6e67cd8701d3cfc",
+  "boot_build": "artifacts/ota-enrolled-boot-20261118-002/result.json",
+  "boot_result_sha256": "2bdeb0734f76327c73e837fd74e5bcd4d81e2f1a31a995d6ade228f5b9d9ff18",
+  "boot_bin_bytes": 57228,
+  "boot_bin_sha256": "52d02260fb2642f6327aab97368994e836f2c3b7682d39f074355c681155a8d9",
+  "ftab_free_bytes": 1268,
+  "host_validation": "All six OTA CTest targets, full original A verification from nor-first.bin, invalid body, invalid detached signature, wrong role, wrong slot, and the original Android file and packet sequence.",
+  "host_log": "C:/Users/13984/.fastctx/jobs/j-5p54wz/output.log",
+  "hardware_verified": false
+}

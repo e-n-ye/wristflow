@@ -12,6 +12,9 @@ static const uint8_t signed_header[] = {
 };
 static uint8_t slot[0x400000];
 static const uint32_t physical_b = 0x12420000;
+static const uint8_t original_enrollment[WF_RELEASE_HEADER_BYTES] = {
+#include "original_a.inc"
+};
 
 bool wf_ota_release_hash(uint32_t state[8], uint32_t previous, uint8_t *block,
                          unsigned bytes, bool final)
@@ -36,6 +39,43 @@ static int read_bytes(void *context, uint32_t address, void *out, size_t bytes)
     assert(address >= physical_b && address - physical_b <= sizeof slot - bytes);
     memcpy(out, slot + (address - physical_b), bytes);
     return (int)bytes;
+}
+
+static int read_enrolled(void *context, uint32_t address, void *out, size_t bytes)
+{
+    if (address >= 0x12821000) {
+        assert(address - 0x12821000 <= sizeof original_enrollment - bytes);
+        memcpy(out, (const uint8_t *)context + (address - 0x12821000), bytes);
+    } else {
+        uint32_t base = address < physical_b ? 0x12020000 : physical_b;
+        assert(address >= base && address - base <= sizeof slot - bytes);
+        memcpy(out, slot + (address - base), bytes);
+    }
+    return (int)bytes;
+}
+
+static void check_original(const char *backup)
+{
+    FILE *f = fopen(backup, "rb");
+    assert(f && !fseek(f, 0x20000, SEEK_SET) && fread(slot, 1, sizeof slot, f) == sizeof slot);
+    fclose(f);
+    uint8_t cert[sizeof original_enrollment];
+    memcpy(cert, original_enrollment, sizeof cert);
+    wf_ota_physical_reader_t reader = {.context=cert,.ready=ready,.read=read_enrolled,
+        .region={[WF_OTA_READ_A]={0x12020000,sizeof slot},[WF_OTA_READ_B]={physical_b,sizeof slot},
+                 [WF_OTA_READ_ORIGINAL_A]={0x12821000,sizeof cert}}};
+    wf_ota_ab_image_t image;
+    assert(wf_ota_release_verify_slot(&reader, WF_OTA_READ_A, &image));
+    assert(image.release == 2026110301 && image.bytes == 3055760);
+    assert(!wf_ota_release_verify_slot(&reader, WF_OTA_READ_B, &image));
+    slot[3055759] ^= 1;
+    assert(!wf_ota_release_verify_slot(&reader, WF_OTA_READ_A, &image));
+    slot[3055759] ^= 1;
+    cert[335] ^= 1;
+    assert(!wf_ota_release_verify_slot(&reader, WF_OTA_READ_A, &image));
+    memcpy(cert, signed_header, sizeof cert);
+    assert(!wf_ota_release_verify_slot(&reader, WF_OTA_READ_A, &image));
+    puts("Original A verified from its complete physical slot; wrong slot, body, signature and role refused");
 }
 
 static uint8_t staging[WF_DFU_ENVELOPE + WF_DFU_SLOT_BYTES];
@@ -124,6 +164,11 @@ static void android_file(const char *path, wf_ota_physical_reader_t *reader)
 int main(int argc, char **argv)
 {
     wf_ota_ab_image_t image;
+    assert(!wf_ota_release_open(original_enrollment, sizeof original_enrollment, sizeof slot, &image));
+    if (argc == 3 && !strcmp(argv[1], "--original-a")) {
+        check_original(argv[2]);
+        return 0;
+    }
     assert(wf_ota_release_open(signed_header, sizeof signed_header, sizeof slot, &image));
     assert(image.bytes == 3028888 && image.release == 2026111801);
     assert(!wf_ota_release_open(signed_header, sizeof signed_header - 1, sizeof slot, &image));

@@ -4,7 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-enum { WF_OTA_READ_A, WF_OTA_READ_B, WF_OTA_READ_META0, WF_OTA_READ_META1, WF_OTA_READ_REGIONS };
+enum { WF_OTA_READ_A, WF_OTA_READ_B, WF_OTA_READ_META0, WF_OTA_READ_META1,
+       WF_OTA_READ_ORIGINAL_A, WF_OTA_READ_REGIONS };
 typedef struct { uint32_t address, bytes; } wf_ota_read_region_t;
 typedef struct {
     void *context;

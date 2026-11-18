@@ -61,13 +61,23 @@ static bool ready(void *context)
 }
 static int read_bytes(void *context, uint32_t address, void *out, size_t size)
 { (void)context; return rt_flash_read(address, out, (int)size); }
+#ifdef WF_OTA_ANDROID_RECEIVER
+/* This detached enrollment lives in the receiver's own authenticated XIP
+ * image. Factory installation leaves the complete original A slot intact. */
+_Alignas(uint32_t) const uint8_t wf_ota_original_a[WF_RELEASE_HEADER_BYTES] = {
+#include "original_a.inc"
+};
+#endif
 static wf_ota_physical_reader_t reader = {
     .ready = ready, .read = read_bytes,
     .region = {
         {WF_OTA_SLOT_A_START_ADDR, WF_OTA_SLOT_A_SIZE},
         {WF_OTA_SLOT_B_START_ADDR, WF_OTA_SLOT_B_SIZE},
         {WF_OTA_METADATA_REGION_START_ADDR, ERASE_BYTES},
-        {WF_OTA_METADATA_REGION_START_ADDR + ERASE_BYTES, ERASE_BYTES}
+        {WF_OTA_METADATA_REGION_START_ADDR + ERASE_BYTES, ERASE_BYTES},
+#ifdef WF_OTA_ANDROID_RECEIVER
+        [WF_OTA_READ_ORIGINAL_A] = {(uint32_t)wf_ota_original_a, sizeof wf_ota_original_a}
+#endif
     }
 };
 static int journal_read(void *context, unsigned unit, uint32_t offset, void *out, size_t size)
