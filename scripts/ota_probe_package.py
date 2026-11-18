@@ -170,7 +170,7 @@ def parse_startup(raw, manifest):
               'B':'hashed first receiver block', 'H':'receiver hash matched', 'S':'checking slot',
               'V':'selected boot target', 'O':'before ownership check', 'M':'before applying mapping',
               'T':'verified target vectors before jump', '!':'boot error'}
-    if manifest.get('slot_verification_trace') == 2:
+    if manifest.get('slot_verification_trace') in (2, 3):
         stages.update({
             'r': 'read slot or detached header at physical address', 'i': 'accepted manifest fields and image length',
             'm': 'manifest peripheral SHA-256 word', 'n': 'manifest CPU SHA-256 word',
@@ -180,6 +180,12 @@ def parse_startup(raw, manifest):
             'x': 'release verification rejection', 'u': 'vector SP read by boot', 't': 'vector Reset read by boot',
             'q': 'vector plan result', 'v': 'vector preparation rejected slot', 'z': 'stable identity rejected slot'
         })
+    if manifest.get('slot_verification_trace') == 3:
+        stages.update({'K':'short-vector method', 'Y':'IV readback mismatch bitmask', 'L':'loaded length register',
+                       'a':'observed IV register word', 'G':'result length register', 'W':'short-vector state word',
+                       'e':'short-vector engine failure offset', 'U':'short-vector matches', 'I':'full A method',
+                       'Z':'full A result word', 'f':'full A qualification failure offset', 'C':'qualified method',
+                       'X':'CPU/peripheral discrepancy in signed verification'})
     records=[]
     error=None
     try:

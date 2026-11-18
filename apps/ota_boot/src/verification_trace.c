@@ -3,6 +3,9 @@
 #include "startup_trace.h"
 #include "release.h"
 #include "mbedtls/sha256.h"
+#ifdef WF_OTA_HASH_RESUME_PROBE
+#include <string.h>
+#endif
 
 int wf_boot_trace_rc(char phase, int rc)
 {
@@ -27,6 +30,12 @@ bool wf_boot_trace_hash(char phase, uint32_t state[8], uint32_t offset,
         mbedtls_sha256_finish(&reference, (uint8_t *)software);
         for (unsigned i = 0; i < 8; ++i) wf_boot_trace(phase, state[i]);
         for (unsigned i = 0; i < 8; ++i) wf_boot_trace(phase + 1, software[i]);
+#ifdef WF_OTA_HASH_RESUME_PROBE
+        if (memcmp(software, state, sizeof software)) {
+            wf_boot_trace('X', (uint8_t)phase);
+            return false;
+        }
+#endif
     }
     return true;
 }

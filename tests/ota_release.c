@@ -125,13 +125,13 @@ static int read_nor_file(void *context, uint32_t addr, void *out, size_t n)
     return (int)fread(out, 1, n, f);
 }
 
-static void check_ordinary_a(const char *path)
+static void check_ordinary_a(const char *path, uint32_t enrollment)
 {
     FILE *f = fopen(path, "rb");
     assert(f);
     wf_ota_physical_reader_t reader = {.context=f,.ready=ready,.read=read_nor_file,
         .region={[WF_OTA_READ_A]={0x12020000,sizeof slot},[WF_OTA_READ_B]={physical_b,sizeof slot},
-                 [WF_OTA_READ_ORIGINAL_A]={0x1286c404,sizeof original_enrollment}}};
+                 [WF_OTA_READ_ORIGINAL_A]={enrollment,sizeof original_enrollment}}};
     uint8_t records[2][WF_OTA_AB_BYTES];
     for (unsigned i=0; i<2; ++i)
         assert(read_nor_file(f,0x12da0000+i*8192,records[i],sizeof records[i])==(int)sizeof records[i]);
@@ -159,7 +159,7 @@ static void check_ordinary_a(const char *path)
         emitted = 0;
         bool ok = wf_ota_release_verify_slot(&reader, WF_OTA_READ_A, &checked[0]);
         assert(ok == (fault == NO_FAULT));
-        assert(!strncmp(points, prefix, strlen(prefix)) && details[0] == 0x1241feb0 && details[1] == 0x1286c404);
+        assert(!strncmp(points, prefix, strlen(prefix)) && details[0] == 0x1241feb0 && details[1] == enrollment);
         assert(details[2] == 3055760 && details[19] == 0);
         if (fault == MANIFEST_RESULT) {
             assert(details[3] != details[11] && (int32_t)details[20] < 0 && !strcmp(points+21, "x") && details[21] == 5);
@@ -266,8 +266,16 @@ static void android_file(const char *path, wf_ota_physical_reader_t *reader)
 
 int main(int argc, char **argv)
 {
-    if (argc==3 && !strcmp(argv[1],"--ordinary-a")) {
-        check_ordinary_a(argv[2]);
+    if ((argc==3 || argc==4) && !strcmp(argv[1],"--ordinary-a")) {
+        uint32_t enrollment = 0x1286c404;
+        if (argc==4) {
+            char *end;
+            unsigned long address = strtoul(argv[3], &end, 0);
+            assert(!*end && address >= 0x12820000ul && address <= 0x12880000ul - sizeof original_enrollment &&
+                   !(address & 3));
+            enrollment = (uint32_t)address;
+        }
+        check_ordinary_a(argv[2], enrollment);
         return 0;
     }
     wf_ota_ab_image_t image;

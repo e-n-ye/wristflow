@@ -10,6 +10,8 @@
 
 新版 `-TraceStartup` 使用第二版串口标签，在完整摘要的 8 个小端字收齐后才解码该摘要。构建后用 `ota_release_trace --ordinary-a <模拟 NOR>` 回放实际登记、完整原 A 和分块故障，普通版沿用 `ota_release`。新的诊断 boot 为 58,360 字节，原 FTAB 余 136 字节。[构建与真机结果](evidence/2026-11-18/ota-a-hash-diagnosis.json)
 
+用 `Build-Ota-Boot.ps1 -HashResumeProbe -ReceiverResult <原登记接收器 result.json> -EvidenceDir <新目录>` 构建第三版有界 HASH 对照。它比较七组短输入，在完整原 A 通过后仍独立验签并核对 CPU 摘要。诊断编译配置省去未使用的 SHA-512 分派。正式镜像使用固定的 32 位状态写入方式。新版首装 `prepare` 自动选择已冻结的修正镜像；主机回放可用 `ota_release_trace --ordinary-a <模拟 NOR> 0x1286c44c` 核实新版登记地址。[版本及实测边界](evidence/2026-11-18/ota-hash-resume.json)
+
 ## 2026-11-18 Android 接收 loader
 
 `pwsh -File scripts/Build-Ota-Loader.ps1 -AndroidReceiver` 显式构建有线初装使用的 receiver，使用 SDK AddLCPU、板载 BLE Serial、片上 CRC／SHA 和已登记公钥。检查 384 KiB 链接上限、PSRAM 缓冲、独立安装和 journal 符号，排除旧安装器、自动充电和持久 BLE 数据库初始化。省略参数继续构建只读 probe。构建不连接设备。[容量与回归](evidence/2026-11-18/ota-android-receiver.json)

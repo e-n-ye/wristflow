@@ -34,13 +34,18 @@ pub struct Inputs {
     pub boot: Vec<u8>,
 }
 impl Inputs {
-    pub fn verify(&self) -> Result<()> {
-        require(self.receiver.len() == RX.len() && hash(&self.receiver) ==
-            "8c446afb99e98c644019beb157859cfdfa17596390cb232a83c31bc67d4e80eb", "Receiver input changed")?;
+    pub fn verify(&self, action: Action) -> Result<()> {
+        require(self.receiver.len() == RX.len() && self.boot.len() == BOOT.len(), "Wrong boot/receiver span")?;
         require(self.journal.len() == PAGE && hash(&self.journal) ==
             "0cec98cc451a579cc237715a1c259637a633b07dc9b9ad44cba901a6a3914c52", "Journal input changed")?;
-        require(self.boot.len() == BOOT.len() && hash(&self.boot) ==
-            "5f6e8aca810ae7397c988ca14728075b9715f9d801c195650f83350df5d20939", "Boot input changed")
+        let boot = hash(&self.boot);
+        let receiver = hash(&self.receiver);
+        let corrected = boot == "20e2b126a64945a883e440cb966d41f607efd00fd9875eb35b9f4f533436004f" &&
+                       receiver == "6c5865b8b114b9eae51dec7239760918f57fe097d5889a39906b63c082815603";
+        let historical = matches!(action, Action::Restore | Action::RestoreWithB | Action::VerifyOriginal) &&
+                         boot == "5f6e8aca810ae7397c988ca14728075b9715f9d801c195650f83350df5d20939" &&
+                         receiver == "8c446afb99e98c644019beb157859cfdfa17596390cb232a83c31bc67d4e80eb";
+        require(corrected || historical, "Unbound or superseded boot/receiver pair")
     }
 }
 
@@ -125,7 +130,7 @@ fn replace(io: &mut impl Nor, action: Action, expected: &mut [u8], role: &str,
 
 pub fn run(io: &mut impl Nor, action: Action, images: &Inputs, rescue: Option<&[u8]>) -> Result<()> {
     require(!action.traced(), "Use the bounded original-A transaction")?;
-    images.verify()?;
+    images.verify(action)?;
     let mut expected = io.read("before", 0, SIZE)?;
     same_board(&expected)?;
     let before_hash = hash(&expected);

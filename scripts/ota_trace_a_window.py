@@ -40,6 +40,7 @@ def prepare(bundle, traced, ordinary):
     trusted = {
         1: ("0bfe18ab80ad7274a49506601f5a3401ced2a1b9a9eff4e1521e970f75200442", 0x31544257),
         2: ("bfd32ba5557a6e4c762b30a9bc768093cccbe583c2eb56140c17ff67c134b2e7", 0x32544257),
+        3: ("c47e5232fe7d2cc6645ed19e912cb708764906ea03aa6ef8e2be5c6fa74f9e27", 0x33544257),
     }
     version = elf.get("slot_verification_trace", 1)
     require(version in trusted, "Unknown diagnostic boot")
@@ -63,6 +64,7 @@ def prepare(bundle, traced, ordinary):
 
 MANIFEST_SHA = "25f046b0fca4bc43888d0d2f32fd061c2b0284cc1056b7f1a539130b791dd004"
 BODY_SHA = "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d"
+SHORT_SHA = "c083a4928d78f5743a30d431daf6c669b3f079a0e4033c805471789bdf8d41b0"
 CHECK_PATH = "rri" + "m"*8 + "n"*8 + "kw" + "b"*8 + "c"*8 + "utq"
 REJECTIONS = {
     1: "slot header read", 2: "detached enrollment read", 3: "detached manifest fields",
@@ -104,6 +106,69 @@ def verification_details(records):
     return result
 
 
+def hash_qualification(records):
+    """Check the short results and the full A digest independently of the device's U/C flags."""
+    result = {"short": [], "full": [], "complete": False, "selected": None}
+    cursor = 0
+
+    def next_point():
+        return records[cursor]["point"] if cursor < len(records) else None
+
+    def take(point):
+        nonlocal cursor
+        require(next_point() == point, "Expected HASH probe frame " + point)
+        value = records[cursor]["detail"]
+        cursor += 1
+        return value
+
+    def digest_words(point):
+        return struct.pack("<8I", *(take(point) for _ in range(8))).hex()
+
+    try:
+        mask = 0
+        for method in range(7):
+            require(take("K") == method, "Wrong short-vector method")
+            case = {"method": method, "blocks": []}
+            result["short"].append(case)
+            for off in ([0] if method == 0 else [0, 256, 512]):
+                block = {"offset": off}
+                case["blocks"].append(block)
+                if off and method != 5 and next_point() == "Y":
+                    block["iv_mismatch"] = take("Y")
+                    block["loaded_length"] = take("L")
+                    if off == 256 and block["iv_mismatch"]:
+                        block["iv_readback"] = digest_words("a")
+                if next_point() == "e":
+                    require(take("e") == off, "Short-vector failure offset differs")
+                    break
+                require(not off or method == 5 or "iv_mismatch" in block, "Missing IV observation")
+                block["result_length"] = take("G")
+                block["digest"] = digest_words("W")
+            if case["blocks"][-1].get("digest") == SHORT_SHA:
+                mask |= 1 << method
+        require(take("U") == mask, "Short-vector decision differs from the observed digests")
+        result["mask"] = mask
+        chosen = 7
+        for method in (2, 4, 6, 3, 5):
+            if not mask & 1 or not mask & (1 << method):
+                continue
+            require(take("I") == method, "Wrong full-image method")
+            attempt = {"method": method}
+            result["full"].append(attempt)
+            if next_point() == "f":
+                attempt["failure_offset"] = take("f")
+                break
+            attempt["digest"] = digest_words("Z")
+            if attempt["digest"] == BODY_SHA:
+                chosen = method
+                break
+        require(take("C") == chosen and cursor == len(records), "Full-image selection differs")
+        result.update(complete=True, selected=chosen)
+    except ValueError as exc:
+        result["error"] = str(exc)
+    return result
+
+
 def frames(raw, check):
     result = parse_startup(raw, check)
     records = result["frames"]
@@ -113,12 +178,22 @@ def frames(raw, check):
     ordinary_a = False
     checked_path = "PEFNJSVOMT"
     checks_passed = True
-    if check.get("slot_verification_trace") == 2:
+    version = check.get("slot_verification_trace")
+    if version in (2, 3):
         start = path.find("S")
         verification = verification_details(records[start:] if start >= 0 else [])
         result["slot_verification"] = verification
         checked_path = "PEFNJS" + CHECK_PATH + "VOMT"
         checks_passed = verification["checks_passed"]
+    if version == 3:
+        start = path.find("K")
+        end = path.find("C", max(0, start))
+        selection = hash_qualification(records[start:end+1] if 0 <= start <= end else
+                                       records[start:] if start >= 0 else [])
+        result["hash_qualification"] = selection
+        checks_passed = checks_passed and selection["complete"] and selection["selected"] != 7
+        if start >= 0 and end >= start:
+            checked_path = "PEFNJ" + path[start:end+1] + "S" + CHECK_PATH + "VOMT"
     if path == checked_path and checks_passed and result["decode_error"] is None:
         header = struct.pack("<6I", MAGIC, 0x10001, *check["startup_trace_tag"])
         after_jump_frame = raw.rindex(header) + 80
@@ -297,6 +372,9 @@ def run(args):
                     if live_product or not real:
                         middle=root/"trial-app"
                         middle.mkdir()
+                        if live_product and read_json(bundle/"trace-check.json").get("slot_verification_trace") == 3:
+                            print("Signed trial Product started; waiting for awake display before the return snapshot.", flush=True)
+                            console.prompt("trace", "请确认诊断启动的原表盘和触摸，并开启临时常亮，以便读记录和停充后恢复。",120)
                         app_phase(middle,"before",app_args,console,worker_seconds=35)
                     if not real: fixture=root/"trace-original-a/simulated-nor.bin"
                 originals(source)
