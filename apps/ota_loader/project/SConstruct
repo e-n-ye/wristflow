@@ -1,8 +1,15 @@
 import os
 import rtconfig
 from building import *
+from SCons.Script import ARGUMENTS
 
+receiver = ARGUMENTS.get('wf_android_receiver', '0')
+if receiver not in ('0', '1'):
+    raise ValueError('wf_android_receiver must be 0 or 1')
+os.environ['WRISTFLOW_OTA_RECEIVER'] = receiver
 PrepareEnv()
+if receiver == '1':
+    AddLCPU(os.environ['SIFLI_SDK'], rtconfig.CHIP)
 SifliEnv()
 TARGET = rtconfig.OUTPUT_DIR + rtconfig.TARGET_NAME + '.' + rtconfig.TARGET_EXT
 objs = PrepareBuilding(None)

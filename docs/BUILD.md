@@ -1,5 +1,9 @@
 # 可复现构建基线
 
+## 2026-11-18 Android 接收 loader
+
+`pwsh -File scripts/Build-Ota-Loader.ps1 -AndroidReceiver` 显式构建有线初装使用的 receiver，使用 SDK AddLCPU、板载 BLE Serial、片上 CRC／SHA 和已登记公钥。检查 384 KiB 链接上限、PSRAM 缓冲、独立安装和 journal 符号，排除旧安装器、自动充电和持久 BLE 数据库初始化。省略参数继续构建只读 probe。构建不连接设备。[容量与回归](evidence/2026-11-18/ota-android-receiver.json)
+
 ## 2026-11-18 发布签名和只读 loader
 
 首次授权建钥使用 `pwsh -File scripts/Ota-ReleaseKey.ps1 -Mode Provision`；有公钥而本机缺对应私钥时会拒绝重新生成。日常发布运行项目 Python 的 `scripts/ota_release.py --build-result <普通 Product 的 result.json> --release <正整数> --out-dir <新目录>`，生成可供 Android 选取的 `offline_install.bin`。私钥由 Windows CNG 签名接口使用，打包采用锁定 SDK 的 `imgtoolv37.exe`。

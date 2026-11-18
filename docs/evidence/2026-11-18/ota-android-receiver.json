@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "date": "2026-11-18",
+  "base": "89087fef2d387bab0eea6228ab502d5f3efe7d23",
+  "command": "pwsh -File scripts/Build-Ota-Loader.ps1 -AndroidReceiver",
+  "receiver_build": "artifacts/ota_loader/20261118-175654-905/result.json",
+  "receiver_result_sha256": "b3dbb05f3ee7e256d1c6d5cf77c804eb7aa1a956024cc61bec41740aa5549c93",
+  "receiver_bin_bytes": 359188,
+  "receiver_bin_sha256": "f390d9c9485441274d5cd6380a63487f57a7b7d7b8db29255bcf6778225c7aab",
+  "free_to_384KiB": 34028,
+  "psram_buffer_bytes": 4194324,
+  "default_diagnostic_build": "artifacts/ota_loader/20261118-175718-851/result.json",
+  "default_size": 155432,
+  "source_files": 35,
+  "official_transport": "GATT Serial category 1; NOR Offline START 38 / DATA 40 / END 42, 2048-byte slices, ACK interval 1",
+  "host_test_log": "C:/Users/13984/.fastctx/jobs/j-tmzlcg/output.log",
+  "host_validation": "Four OTA CTests plus full signed Android package through 1480 DATA requests. Interrupted first packet, out-of-sequence / CRC retry, wrong body despite consistent transport CRCs, valid commit once.",
+  "build_attempts": [
+    "001: Kconfig select on a choice symbol",
+    "002: Auto FlashDB mode lacks MTD",
+    "003: Bond-disabled SDK also references CTKD and service changed helpers",
+    "004: Serial transport also compiles GATT client",
+    "005: Unused volatile delete hook was garbage-collected, original symbol check too strict",
+    "006: first complete build; 007: final receiver and subsequent default diagnostic build passed"
+  ],
+  "bench": "Native CRC/SHA, PSRAM, supply and flash timing and Bluetooth interactions still require device confirmation.",
+  "hardware_verified": false,
+  "phone": "User confirmed SIFLI BLE installed on Android; screenshot shows Engineering Mode on.",
+  "archive": {
+    "path": "artifacts/ota-android-receiver-20261118.zip",
+    "sha256": "9d494e1f051703fc37ada1a2b42e3987cd623dfaec4b080060c163a2a1d745ac",
+    "members_compared": 47
+  }
+}

@@ -36,7 +36,8 @@ list(TRANSFORM OTA_CRYPTO_SOURCES PREPEND "${OTA_MBEDTLS}/library/")
 list(TRANSFORM OTA_CRYPTO_SOURCES APPEND ".c")
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/ota_crypto_config")
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/ota_crypto_config/rtconfig.h" "/* Host mbedTLS uses the C runtime allocator. */\n")
-add_executable(ota_release ota_release.c "${OTA_LOADER}/release.c" "${OTA_LOADER}/physical_read.c" ${OTA_CRYPTO_SOURCES})
+add_executable(ota_release ota_release.c "${OTA_LOADER}/release.c" "${OTA_LOADER}/physical_read.c"
+    "${OTA_LOADER}/offline_receiver.c" ${OTA_CRYPTO_SOURCES})
 target_include_directories(ota_release PRIVATE "${OTA_LOADER}" "${CORE}" "${OTA_MBEDTLS}/include"
     "${CMAKE_CURRENT_BINARY_DIR}/ota_crypto_config")
 if(MSVC)

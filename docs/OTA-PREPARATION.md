@@ -952,3 +952,12 @@ WCH CH340数据手册§5.4第7页建议：单向1Mbps及以上、双向500Kbps�
 | 实现边界 | 板上哈希使用 SF32LB52 原生 SHA 接口，RSA 使用锁定 SDK 的 mbedTLS。主机测试链接相同 RSA/解析源码和物理读取入口，用软件 SHA 代替片上引擎。只读 loader 启动探测已有接入，BLE 服务、持久写入、初装和启动决策另验 |
 
 首个软件样本来自 11/08 的 3,028,888 字节普通 Product，发布号 2026111801；Android 文件 3,029,242 字节。主机正例完整通过，336 处逐字节变更、错误容量、空槽及末尾正文单字节损坏均拒收。板上 loader 编译为 155,432 字节。用户已在 Android 打开 SIFLI BLE；尚无手机传输和设备验签结果。现版官方客户端公开示例调用单文件 NOR Offline，此类文件只交给 WristFlow 升级接收端解析，旧例程的默认整包暂存及原位覆盖流程不用于 A/B。[本轮证据](evidence/2026-11-18/ota-signed-release.json) · [Android 示例入口](https://github.com/OpenSiFli/SiFli_OTA_APP/blob/3e3a89533502e25550b18bcf9756c7836fed1538/app/src/main/java/com/sifli/sifliapp/modules/debug/pushsdkfile/PushSDKFileV2Activity.java#L132-L167)
+
+<a id="android-receiver-20261118"></a>
+## 2026-11-18 Android 单文件接收、非活动槽写入与试启动提交
+
+单独构建的 receiver 使用原生 SiFli GATT Serial 类别 1，按 NOR Offline 消息 38/40/42 处理 START/DATA/END；回执 39/41/43。每包 2,048 字节，末包精确取余，检查消息长度、连续包号、包数、逐包 CRC-32/MPEG-2 及外头的完整载荷 CRC。首包需含完整签名清单。本适配在 START 协商逐包确认（间隔 1），每次重连从首包重传。断开、取消或接收超时使未完成进度失效。新会话由独立 worker 拥有，蓝牙回调仅复制有界消息。
+
+整份文件暂存在板载 PSRAM。END 完成外层及正文的完整性和签名验证后，先回答手机“文件收到”，再在本地安装；此后手机正常断开不影响完整文件的安装。全量验证前不会擦候选槽。确认初始 STABLE 和已签稳定槽后仅擦写另一槽，先使旧候选尾签名无效，最后写入新尾签名，按物理读回重新验签并核正文后才提交 READY。每 64 KiB 随写、写前和提交前读取现有 Product ADC，用本版保守入口 3,600 < mV ≤ 4,350；这是写入策略，尚无本版真机电压验收。RTC、FS 及用户设置均不参与写入。loader 以易失 NVDS 后端运行，正常 Product 的配对库不作为升级会话存储。用户选定保留原 CycleLog A 正文，初装及实际回滚待验。
+
+主机使用实际 Android 文件逐包回放，验证中途断开、索引／单包 CRC 错、传输 CRC 均正确但正文已变，以及正确文件在回执后仅安装一次。目标链接验证 radio、物理写入、双记录提交、336 字节槽尾签名及 PSRAM 区域对应源码与配置。默认只读 loader 另行重建。手机已安装 SIFLI BLE，硬件仍在原 CycleLog。[构建、失败记录与回放证据](evidence/2026-11-18/ota-android-receiver.json)
