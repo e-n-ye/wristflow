@@ -1,0 +1,177 @@
+{
+  "date": "2026-11-18",
+  "base": "9a31cf0136abd11e234c47d58b8b6f0415ce9199",
+  "command": "scripts/ota_stub_observe.py capture --boot-receive-baud 500000",
+  "bound_inputs": "window-002/config.json",
+  "observer_build": "artifacts/ota-boot-receive-exit-build-20261111-001/result.json",
+  "build_result_sha256": "eb85f90edb1a0415c3d239f3bca9936f805ab0570e1a4b77822dd40c522a9304",
+  "main_sha256": "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d",
+  "stub_sha256": "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43",
+  "release_rebuilt": false,
+  "baseline_pair_sha256": "9140bb4e1bb700c8a7b1d06f29f510c3f18b13fb6da86e34b7f453fec639ab74",
+  "application_replay": {
+    "script": "artifacts/ota-application-receive-replay-20261118.py",
+    "sha256": "fa53e9887f184bfdc4369b995e3f9e3d6e60630f2c0c248049c0ba64c78700c7",
+    "classification": "Host replay of 1M application captures: 11 exact response spans each with two fragmentations. Both original captures rejected, positive control accepted. Attribution still open."
+  },
+  "window001": {
+    "report_sha256": "39abb1b66c23bc74670817d1637b5f90708a0e9df125ca5bccd197209d83fee2",
+    "error": "COM5 absent, CH340 enumerated as COM7 at 1-1.4 with disable-handshake flag missing. Worker stopped at bind before opening a UART."
+  },
+  "window002": {
+    "endpoint": "COM5 / 1-1.1 / 1A86:7523 / DisableModemOutHandShake=1",
+    "report_sha256": "a7efa13b8ef21dbdc6690f5b04a6d7921a957451971ad5acf17378ce2ffce577",
+    "observer_sha256": "f9c4b2b3f8782608399ed8db4f0524afd11b81e0472e3751bafa50dead17c832",
+    "rx_sha256": "4b30cabab0af558fb7495f4e70af2d33d6ec7c811512fe1784a05844fdccdc74",
+    "tx_sha256": "04eab1862b9c79205411b88763a09b510c71b4062285c4287a50c73a11aa08f4",
+    "source_rev": "be2adab37bfb0ef4eb623b7e47e7b8693918b1e1",
+    "plan": "boot64k-500k",
+    "d0": [
+      {
+        "elapsed_ns": 2372476200,
+        "frame_hex": "7e7902001000d006",
+        "kind": "debug_exit_response",
+        "phase": "ready_snapshot"
+      },
+      {
+        "elapsed_ns": 2381571200,
+        "frame_hex": "7e7902001000d006",
+        "kind": "debug_exit_response",
+        "phase": "physical_aliases"
+      }
+    ],
+    "aliases": [
+      0,
+      0,
+      0
+    ],
+    "address": "0x12010000",
+    "receive_baud": 500000,
+    "reads": [
+      {
+        "index": 0,
+        "raw_rx_span": [
+          1490,
+          67200
+        ],
+        "sha256": "f59f948f987362f1270b1da541405e82bd887c1a16c306364c04913c9c07f667",
+        "host_error_bits": [
+          0,
+          0
+        ],
+        "passed": true,
+        "received_bytes": 65536,
+        "requested_bytes": 65536,
+        "reported_crc": "db7cf2d9",
+        "received_crc": "db7cf2d9",
+        "complete_length": true,
+        "crc_matches": true,
+        "original_bytes_match": true,
+        "early_tail_diagnostic_only": false,
+        "reason": ""
+      },
+      {
+        "index": 1,
+        "raw_rx_span": [
+          67200,
+          132908
+        ],
+        "sha256": "f59f948f987362f1270b1da541405e82bd887c1a16c306364c04913c9c07f667",
+        "host_error_bits": [
+          0,
+          0
+        ],
+        "passed": true,
+        "received_bytes": 65536,
+        "requested_bytes": 65536,
+        "reported_crc": "db7cf2d9",
+        "received_crc": "db7cf2d9",
+        "complete_length": true,
+        "crc_matches": true,
+        "original_bytes_match": true,
+        "early_tail_diagnostic_only": false,
+        "reason": ""
+      },
+      {
+        "index": 2,
+        "raw_rx_span": [
+          132908,
+          198616
+        ],
+        "sha256": "f59f948f987362f1270b1da541405e82bd887c1a16c306364c04913c9c07f667",
+        "host_error_bits": [
+          0,
+          0
+        ],
+        "passed": true,
+        "received_bytes": 65536,
+        "requested_bytes": 65536,
+        "reported_crc": "db7cf2d9",
+        "received_crc": "db7cf2d9",
+        "complete_length": true,
+        "crc_matches": true,
+        "original_bytes_match": true,
+        "early_tail_diagnostic_only": false,
+        "reason": ""
+      }
+    ],
+    "stub_seconds": 9.9365858,
+    "normal_start_command_completed": true,
+    "fallback_attempted": false,
+    "flash_write": false,
+    "erase": false,
+    "application": {
+      "before": {
+        "raw_sha256": "489abb814ca2f789cceeeee4a93213e9e2569335620bd3ce21eec56237d4b811",
+        "raw_bytes": 18314,
+        "boot": 35,
+        "saved_generation": 209,
+        "saved_total_ms": 1529990734,
+        "failures": 0,
+        "date": [
+          "Fri Jan  7 17:09:17 2000"
+        ],
+        "cycle_state": 0
+      },
+      "after": {
+        "raw_sha256": "8d161fbe53c7fb79ee676b55356afb8e8bacac545f5230e6c29f20820fd7a82f",
+        "raw_bytes": 8896,
+        "boot": 36,
+        "saved_generation": 210,
+        "saved_total_ms": 1529991823,
+        "failures": 0,
+        "date": [
+          "Sat Jan  1 00:00:00 2000"
+        ],
+        "cycle_state": 0
+      }
+    },
+    "recovery": {
+      "runtime_saved_not_regressed": true,
+      "expected_new_boot": true,
+      "rtc_continuity": false,
+      "unsaved_tail_preserved_on_host_ms": 383744,
+      "limits": "Runtime saved counters and UTC only; settings, all files and bad-boot rescue are not verified"
+    },
+    "resources_closed": true,
+    "worker_exit": 0,
+    "lease_reacquired_after_close": true,
+    "workflow_outcome": "timeout",
+    "errors": [
+      {
+        "phase": "rtc",
+        "error": "RTC continuity changed; core data retained, time recovery needs separate authorization"
+      },
+      {
+        "phase": "final",
+        "error": "TimeoutError('Operator confirmation expired')"
+      }
+    ],
+    "operator": "Preparation and return confirmed in chat and relayed to console. Final confirmation in chat: keep-awake off, display, touch and KEY1 normal."
+  },
+  "archive": {
+    "path": "artifacts/ota-usb-boot-readback-20261118.zip",
+    "sha256": "471570d55a1e7c5b4d3f0ec668297524b7161ae09eef3afbeaa33ec07557b59b",
+    "members_compared": 49
+  }
+}
