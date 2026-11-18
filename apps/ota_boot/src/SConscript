@@ -16,6 +16,9 @@ defines=[]
 includes=[cwd,vendor_board]
 binding=ARGUMENTS.get('wf_probe_binding')
 receiver=ARGUMENTS.get('wf_receiver_result')
+trace = ARGUMENTS.get('wf_boot_trace')
+if trace and (trace != '1' or not receiver):
+    raise ValueError('Startup trace requires a receiver-bound boot')
 if binding and receiver:
     raise ValueError('Probe and production bindings are mutually exclusive')
 if not receiver:
@@ -55,6 +58,12 @@ if receiver:
         shared = os.path.join(generated, 'ab_' + os.path.basename(location))
         VariantDir(shared,os.path.join(root,location),duplicate=0)
         sources += [File(os.path.join(shared, name)) for name in files]
+    if trace:
+        includes.append(os.path.join(root,'apps/ota_probe_support'))
+        shared = os.path.join(generated,'startup_probe_uart')
+        VariantDir(shared, os.path.join(root,'apps/ota_probe_support'),duplicate=0)
+        sources += [File(os.path.join(shared,name)) for name in ('uart.c','ota_probe.c')]
+        defines += ['WF_OTA_BOOT_TRACE','WF_OTA_PROBE_UART_INIT']
 if binding:
     with open(binding,encoding='utf-8') as stream: item=json.load(stream)
     if item.get('schema')!=1 or item.get('mode')!='literal-probe-only':

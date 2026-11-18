@@ -130,17 +130,21 @@ def finish(out):
     save(out/'archive.json',dict(file=file_record(archive),members=len(members),readback_equal=True))
     return review
 
-def parse_capture(raw,review):
-    require(len(raw)<=1048576,'UART capture exceeds1MiB')
-    frames=[];offset=0;magic=struct.pack('<I',MAGIC)
+def tagged_frames(raw,tag):
+    offset=0;magic=struct.pack('<I',MAGIC)
     while True:
         start=raw.find(magic,offset)
         if start<0:break
         require(start+80<=len(raw),'Truncated result frame')
         blob=raw[start:start+80];words=struct.unpack('<20I',blob)
         require(words[19]==zlib.crc32(blob[:76]),'Result CRC mismatch')
-        require(words[1]>>16==1 and list(words[2:6])==review['tag'],'Result version/tag mismatch')
-        frames.append(words);offset=start+80
+        require(words[1]>>16==1 and list(words[2:6])==tag,'Result version/tag mismatch')
+        yield words
+        offset=start+80
+
+def parse_capture(raw,review):
+    require(len(raw)<=1048576,'UART capture exceeds1MiB')
+    frames=list(tagged_frames(raw,review['tag']))
     require([f[1]&0xffff for f in frames]==[1,2,3],'Missing, duplicate, error or reordered stages')
     for kind,f in enumerate(frames,1):
         require(f[6]==kind and f[7]==1 and f[18]==review['probe']['bytes'],'Result phase/status/length mismatch')
@@ -157,6 +161,28 @@ def parse_capture(raw,review):
     return dict(passed=True,frame_count=3,frames=[list(f) for f in frames],hardware_verified=False,
                 deployment_authorized=False,limits='Tagged recorded bytes only; device admission and identity are separate.')
 
+def parse_startup(raw, manifest):
+    require(len(raw)<=8*1024*1024, 'Startup capture exceeds 8 MiB')
+    require(manifest.get('passed') and len(manifest.get('startup_trace_tag',[]))==4,
+            'Use the ELF check from the startup trace build')
+    stages = {'E':'entered C', 'F':'before flash initialization', 'N':'entered boot selection',
+              'J':'read RTC request', 'R':'starting receiver hash', 'D':'read first receiver block',
+              'B':'hashed first receiver block', 'H':'receiver hash matched', 'S':'checking slot',
+              'V':'selected boot target', 'O':'before ownership check', 'M':'before applying mapping',
+              'T':'verified target vectors before jump', '!':'boot error'}
+    records=[]
+    error=None
+    try:
+        for f in tagged_frames(raw,manifest['startup_trace_tag']):
+            require(f[6] <= 127 and chr(f[6]) in stages, 'Unknown boot trace point')
+            point=chr(f[6])
+            require(f[1]&0xffff == (4 if point=='!' else 1), 'Boot trace kind differs from point')
+            records.append(dict(point=point,stage=stages[point],detail=f[7],pc=hex(f[8]),
+                                sp=hex(f[9]),vtor=hex(f[10]),ccr=hex(f[11]),primask=f[12]))
+    except ValueError as exc:
+        error=str(exc)
+    return dict(frames=records,decode_error=error,uart_sha256=hashlib.sha256(raw).hexdigest())
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__);commands=parser.add_subparsers(dest='action',required=True)
     for action in ('prepare','bind','finish'):
@@ -164,8 +190,15 @@ def main():
         if action=='prepare':
             sub.add_argument('--first',type=Path,required=True);sub.add_argument('--second',type=Path,required=True)
     sub=commands.add_parser('parse');sub.add_argument('--manifest',type=Path,required=True);sub.add_argument('--uart',type=Path,required=True);sub.add_argument('--output',type=Path,required=True)
+    traces=commands.add_parser('parse-startup')
+    for name in ('manifest','uart','output'):
+        traces.add_argument('--'+name,type=Path,required=True)
     args=parser.parse_args()
     if args.action=='parse':save(args.output,parse_capture(args.uart.read_bytes(),load(args.manifest)))
+    elif args.action=='parse-startup':
+        result=parse_startup(args.uart.read_bytes(),load(args.manifest))
+        save(args.output,result)
+        return 0 if result['frames'] and result['decode_error'] is None else 1
     elif args.action=='prepare':prepare(args.out.resolve(),args.first.resolve(),args.second.resolve())
     elif args.action=='bind':bind(args.out.resolve())
     else:finish(args.out.resolve())

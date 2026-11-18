@@ -11,6 +11,7 @@
 #include "ota_trial.h"
 #include "release.h"
 #include "receiver_binding.h"
+#include "startup_trace.h"
 
 extern void boot_error(unsigned char code) __attribute__((noreturn));
 enum { UNIT = 8192 };
@@ -104,23 +105,40 @@ static bool prepare(wf_ota_boot_plan_t *plan, unsigned target, uint32_t bytes)
 static void launch(const wf_ota_boot_plan_t *plan) __attribute__((noreturn));
 static void launch(const wf_ota_boot_plan_t *plan)
 {
-    if (!flash_owner() || !wf_ota_ram_apply(hwp_mpi2, &plan->alias)) boot_error('A');
+    wf_boot_trace('O', plan->vector);
+    if (!flash_owner()) boot_error('A');
+    wf_boot_trace('M', plan->reset);
+    if (!wf_ota_ram_apply(hwp_mpi2, &plan->alias)) boot_error('A');
     volatile const uint32_t *vectors = (volatile const uint32_t *)plan->vector;
     if (vectors[0] != plan->stack || vectors[1] != plan->reset) boot_error('M');
+    wf_boot_trace('T', plan->reset);
     wf_ota_ram_jump(plan);
 }
 static void receiver(void) __attribute__((noreturn));
+#ifdef WF_OTA_BOOT_TRACE
+static bool hash_receiver_block(uint32_t state[8], uint32_t offset, uint8_t *block, unsigned bytes, bool final)
+{
+    if (!offset) wf_boot_trace('D', bytes);
+    bool ok = wf_ota_release_hash(state, offset, block, bytes, final);
+    if (ok && !offset) wf_boot_trace('B', bytes);
+    return ok;
+}
+#else
+#define hash_receiver_block wf_ota_release_hash
+#endif
 static void receiver(void)
 {
     uint32_t block[64], hash[8];
+    wf_boot_trace('R', WF_RECEIVER_BYTES);
     for (uint32_t off = 0; off < WF_RECEIVER_BYTES;) {
         unsigned n = WF_RECEIVER_BYTES - off;
         if (n > sizeof block) n = sizeof block;
         if (!physical(NULL) || g_flash_read(layout.loader + off, (const int8_t *)block, n) != (int)n ||
-            !wf_ota_release_hash(hash, off, (uint8_t *)block, n, off+n == WF_RECEIVER_BYTES)) boot_error('L');
+            !hash_receiver_block(hash, off, (uint8_t *)block, n, off+n == WF_RECEIVER_BYTES)) boot_error('L');
         off += n;
     }
     if (memcmp(hash, receiver_sha256, sizeof hash)) boot_error('H');
+    wf_boot_trace('H', WF_RECEIVER_BYTES);
     wf_ota_boot_plan_t plan;
     if (!prepare(&plan, WF_OTA_BOOT_LOADER, WF_RECEIVER_BYTES)) boot_error('V');
     launch(&plan);
@@ -140,9 +158,11 @@ static bool trial_watchdog(void)
 void wf_ota_boot_select(void)
 {
     __disable_irq();
+    wf_boot_trace('N', 0);
     HAL_GTIMER_ENABLE();
     origin = HAL_GTIMER_READ();
     uint32_t word = HAL_Get_backup(RTC_BAKCUP_OTA_FORCE_MODE);
+    wf_boot_trace('J', word);
     HAL_Set_backup(RTC_BAKCUP_OTA_FORCE_MODE, 0);
     if (HAL_Get_backup(RTC_BAKCUP_OTA_FORCE_MODE) != 0) boot_error('K');
     wf_ota_ab_state_t s;
@@ -153,12 +173,14 @@ void wf_ota_boot_select(void)
     wf_ota_boot_plan_t plans[2];
     for (unsigned slot = 0; slot < 2; ++slot) {
         if (slot != s.stable && slot != s.pending) continue;
+        wf_boot_trace('S', slot);
         if (wf_ota_release_verify_slot(&reader, slot, &checked[slot]) &&
             !prepare(&plans[slot], slot, checked[slot].bytes))
             checked[slot].bytes = 0;
     }
     uint32_t trial;
     wf_ota_ab_target_t target = wf_ota_trial_select(&journal, &s, checked, word, &trial);
+    wf_boot_trace('V', target);
     if (target == WF_OTA_AB_RECOVERY) receiver();
     if (trial) {
         HAL_Set_backup(RTC_BAKCUP_OTA_FORCE_MODE, trial);
