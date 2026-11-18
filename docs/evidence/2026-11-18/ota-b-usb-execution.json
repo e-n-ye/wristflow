@@ -1,0 +1,308 @@
+{
+  "schema": 1,
+  "date": "2026-11-18",
+  "software_commit": "3db1878d6c17413f6094892618a53b03e7cb644c",
+  "command": "scripts/ota_b_execute.py capture --allow-fixed-execution-and-restoration",
+  "build": {
+    "path": "artifacts/ota-b-usb-20261118-b-execute-001/wristflow-ota-b-execute.exe",
+    "bytes": 20919747,
+    "sha256": "f8103fbd52c5cfdbb76e8f7e8647f0ec430b5bc27b78051b93d565c0d4ee2e2a"
+  },
+  "toolchain": {
+    "cargo": "cargo 1.90.0 (840b83a10 2025-07-30)",
+    "rustc": "rustc 1.90.0 (1159e78c4 2025-09-14)"
+  },
+  "official_library": "be2adab37bfb0ef4eb623b7e47e7b8693918b1e1",
+  "stub": "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43",
+  "main": "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d",
+  "original_flash_sha256": "9140bb4e1bb700c8a7b1d06f29f510c3f18b13fb6da86e34b7f453fec639ab74",
+  "device_endpoint": "COM5 at 1-1.1 / CH340 disable modem handshake 1",
+  "window": "window-001/config.json",
+  "original_report_sha256": "5102d8596abdf195d0f2460fe2a6530ced6c0922fb75c8262904a7624dfa7b73",
+  "reads": [
+    {
+      "name": "before-ftab12k.bin",
+      "address": "0x12000000",
+      "rx_offset": 1644,
+      "bytes": 12288,
+      "crc": "d31e1907",
+      "sha256": "e46d9f470763558719a948b50aed936eebaf276b237fbb6f514941a0368aaef3"
+    },
+    {
+      "name": "before-boot64k.bin",
+      "address": "0x12010000",
+      "rx_offset": 14104,
+      "bytes": 65536,
+      "crc": "db7cf2d9",
+      "sha256": "f59f948f987362f1270b1da541405e82bd887c1a16c306364c04913c9c07f667"
+    },
+    {
+      "name": "before-b64k.bin",
+      "address": "0x12420000",
+      "rx_offset": 79812,
+      "bytes": 65536,
+      "crc": "e79f1a1b",
+      "sha256": "8f65b59b724a4d3c4de9b51ca1867a0448bdab678205374431dd4b05dc5ac985"
+    },
+    {
+      "name": "installed-b64k.bin",
+      "address": "0x12420000",
+      "rx_offset": 145753,
+      "bytes": 65536,
+      "crc": "04f43682",
+      "sha256": "bf26965ce984524dbce19d5ee209fb96c27ee0e55992a3bf85f6ec75c3d5876c"
+    },
+    {
+      "name": "installed-boot64k.bin",
+      "address": "0x12010000",
+      "rx_offset": 211694,
+      "bytes": 65536,
+      "crc": "2fcf084a",
+      "sha256": "16c04a9822c49bb825f4725b62b4986cf70c5147f11089e058e1be72fefb61b8"
+    },
+    {
+      "name": "reentry-boot64k.bin",
+      "address": "0x12010000",
+      "rx_offset": 279169,
+      "bytes": 65536,
+      "crc": "2fcf084a",
+      "sha256": "16c04a9822c49bb825f4725b62b4986cf70c5147f11089e058e1be72fefb61b8"
+    },
+    {
+      "name": "reentry-b64k.bin",
+      "address": "0x12420000",
+      "rx_offset": 344877,
+      "bytes": 65536,
+      "crc": "04f43682",
+      "sha256": "bf26965ce984524dbce19d5ee209fb96c27ee0e55992a3bf85f6ec75c3d5876c"
+    },
+    {
+      "name": "restored-boot64k.bin",
+      "address": "0x12010000",
+      "rx_offset": 410819,
+      "bytes": 65536,
+      "crc": "db7cf2d9",
+      "sha256": "f59f948f987362f1270b1da541405e82bd887c1a16c306364c04913c9c07f667"
+    },
+    {
+      "name": "restored-b64k.bin",
+      "address": "0x12420000",
+      "rx_offset": 476760,
+      "bytes": 65536,
+      "crc": "e79f1a1b",
+      "sha256": "8f65b59b724a4d3c4de9b51ca1867a0448bdab678205374431dd4b05dc5ac985"
+    }
+  ],
+  "writes": [
+    {
+      "role": "b_install",
+      "command": "burn_erase_write 0x12420000 0x00001000",
+      "bytes": 4096,
+      "sha256": "14102c47df5a8078fd934f9efaea7a271ef790eb7ffd265546abf4cf5b4440fe"
+    },
+    {
+      "role": "boot_install",
+      "command": "burn_erase_write 0x12010000 0x0000e480",
+      "bytes": 58496,
+      "sha256": "db747d9070aeb3642a64e765045a0b6671b922d16f72d5860e6e3bbb334c2303"
+    },
+    {
+      "role": "boot_restore",
+      "command": "burn_erase_write 0x12010000 0x00010000",
+      "bytes": 65536,
+      "sha256": "f59f948f987362f1270b1da541405e82bd887c1a16c306364c04913c9c07f667"
+    },
+    {
+      "role": "b_restore",
+      "command": "burn_erase_write 0x12420000 0x00001000",
+      "bytes": 4096,
+      "sha256": "154ff4e9b4b26b0a5f13ce0f4ec94f32418d48cbabdb276ae48f842879713070"
+    }
+  ],
+  "wire_sha256": {
+    "rx": "c22e0aaf1486a17528a16e802c9392f472aa9e63031eede36ee4a763ac4c996e",
+    "tx": "8505b8a303155e707e0411eadee38eae3aa590333ad62d3a4d643bbd30dfa482"
+  },
+  "initial_aliases": [
+    0,
+    0,
+    0
+  ],
+  "reentry_aliases": [
+    0,
+    0,
+    0
+  ],
+  "exit_frames": [
+    "7e7902001000d006",
+    "7e7902001000d006",
+    "7e7902001000d006",
+    "7e7902001000d006"
+  ],
+  "speed_changes": [
+    {
+      "role": "initial",
+      "baud": 500000
+    },
+    {
+      "role": "probe",
+      "baud": 1000000
+    },
+    {
+      "role": "restore",
+      "baud": 500000
+    }
+  ],
+  "probe_uart_sha256": "70dfb5b56eb45633eeba28d2ac137a21adf28f698801970ad64f0d8c85976444",
+  "probe_frames": [
+    [
+      1347372631,
+      65537,
+      2306271408,
+      2453024267,
+      2305287774,
+      1289714410,
+      1,
+      1,
+      537016326,
+      537141032,
+      537001984,
+      513,
+      1,
+      0,
+      0,
+      0,
+      0,
+      302122612,
+      1684,
+      2645921418
+    ],
+    [
+      1347372631,
+      65538,
+      2306271408,
+      2453024267,
+      2305287774,
+      1289714410,
+      2,
+      1,
+      537016326,
+      537141032,
+      537001984,
+      513,
+      1,
+      131072,
+      4325376,
+      4194304,
+      1113082192,
+      302122612,
+      1684,
+      367381929
+    ],
+    [
+      1347372631,
+      65539,
+      2306271408,
+      2453024267,
+      2305287774,
+      1289714410,
+      3,
+      1,
+      302121988,
+      536879016,
+      302120960,
+      513,
+      1,
+      131072,
+      4325376,
+      4194304,
+      1113082192,
+      302122612,
+      1684,
+      2563919292
+    ]
+  ],
+  "stub_seconds": 30.948939,
+  "original_start_completed": true,
+  "fallback": false,
+  "application": {
+    "before": {
+      "boot": 36,
+      "saved_generation": 210,
+      "saved_total_ms": 1529991823,
+      "failures": 0,
+      "raw_sha256": "b282feb94b2b7a0723753ea6390e6248aca45332f8d915ce96a6a97347c0c584",
+      "date": [
+        "Sat Jan  1 00:00:00 2000"
+      ]
+    },
+    "after": {
+      "boot": 37,
+      "saved_generation": 211,
+      "saved_total_ms": 1529992914,
+      "failures": 0,
+      "raw_sha256": "1d6eabf58c38f52a8d16fca2a90ab49fbb04feee7985b93e4bb4ef9cae7ed602",
+      "date": [
+        "Sat Jan  1 00:00:00 2000"
+      ]
+    }
+  },
+  "recovery": {
+    "runtime_saved_not_regressed": true,
+    "expected_new_boot": true,
+    "rtc_continuity": false,
+    "unsaved_tail_preserved_on_host_ms": 110544,
+    "limits": "Runtime saved counters and UTC only; settings, all files and bad-boot rescue are not verified",
+    "rtc_valid": false
+  },
+  "physical_confirmation": "Operator verified return, display, touch, KEY1 and temporary keep-awake off in chat. Console received those confirmations.",
+  "passed": true,
+  "worker_exit": 0,
+  "resources_closed": true,
+  "lease_verified_after_close": true,
+  "limits": "Fixed B probe and planned wired reentry verified. Signed Product updates, autonomous rollback, power loss, damaged boot and cross-version user data still pending.",
+  "archive": {
+    "path": "artifacts/ota-b-usb-recovery-device-20261118.zip",
+    "sha256": "cee9ee7a077b37458fdbb6ce5f390a3d2a2079927708868dff87225a01c234cf",
+    "members_verified": 72
+  },
+  "host_validation": {
+    "test_command": "python -B -m unittest discover -s tests -p 'test_ota*.py' -v",
+    "ota_tests": 191,
+    "elapsed_seconds": 442.483,
+    "log": "artifacts/ota-b-usb-20261118-full-test-001.log",
+    "log_sha256": "55c2ffbce9a689a272bca7f33e2bc17eeb64b5f9bea80b757a033757d03a56e4",
+    "build_results": [
+      {
+        "target": "b-execute",
+        "path": "artifacts/ota-b-usb-20261118-b-execute-001/result.json",
+        "sha256": "0d499389a9b1c8ca17ad22d475c72a546b0d85416b6c2e9772917e455a719d0e",
+        "rust_tests": [
+          "9",
+          "8",
+          "10"
+        ]
+      },
+      {
+        "target": "observer",
+        "path": "artifacts/ota-b-usb-20261118-observer-001/result.json",
+        "sha256": "5ecb3bd6c65287722e903f053b65be8730222fdd4657ec8d5876dedf7de4fb5b",
+        "rust_tests": [
+          "9",
+          "8",
+          "10"
+        ]
+      },
+      {
+        "target": "b-sector",
+        "path": "artifacts/ota-b-usb-20261118-b-sector-001/result.json",
+        "sha256": "e07bafa7ac97c89c4a168e5164d73eeca00c7e207e60d6aefdd570ae1d308831",
+        "rust_tests": [
+          "9",
+          "8",
+          "10"
+        ]
+      }
+    ]
+  }
+}
