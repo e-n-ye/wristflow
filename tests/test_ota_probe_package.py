@@ -27,6 +27,34 @@ def mutate(raw,index,value):
     data=struct.pack('<19I',*words[:19]);return data+struct.pack('<I',zlib.crc32(data))
 
 class ProbePackage(unittest.TestCase):
+    def test_slot_verification_trace_requires_ordered_matching_digests_and_vectors(self):
+        from ota_trace_a_window import BODY_SHA, MANIFEST_SHA, frames
+        manifest = {"passed": True, "startup_trace_tag": TAG, "slot_verification_trace": 2}
+        def wire(items):
+            return b"".join(mutate(mutate(frame(1), 6, ord(p)), 7, v) for p, v in items)
+
+        prefix = [(p, 0) for p in "PEFNJS"]
+        checks = [("r", 0x1241feb0), ("r", 0x1286c404), ("i", 3055760)]
+        for p in "mn":
+            checks.extend((p, w) for w in struct.unpack("<8I", bytes.fromhex(MANIFEST_SHA)))
+        checks.extend([("k", 0), ("w", 0)])
+        for p in "bc":
+            checks.extend((p, w) for w in struct.unpack("<8I", bytes.fromhex(BODY_SHA)))
+        checks.extend([("u", 0x20002000), ("t", 0x1202baa1), ("q", 1)])
+        jump = [("V", 0), ("O", 0x12020000), ("M", 0x1202baa1), ("T", 0x1202baa1)]
+        def run(values):
+            return frames(wire(prefix + values + jump) + b"[product] storage=ready", manifest)
+        self.assertTrue(run(checks)["ordinary_a"])
+        for changed in (checks[1:], checks[:3] + checks[4:], checks[:-1] + [("q", 0)],
+                        checks[:3] + [("m", 0)] + checks[4:]):
+            self.assertFalse(run(changed)["ordinary_a"])
+        refused = checks[:20] + [("w", (-17280) & 0xffffffff), ("x", 5), ("V", 0xffffffff)]
+        decoded = frames(wire(prefix + refused + [("R", 359716)]), manifest)["slot_verification"]
+        self.assertEqual(decoded["rejection"], "manifest public key or signature")
+        self.assertEqual(decoded["rsa_status"], -17280)
+        self.assertEqual(decoded["digest"], {"manifest_hw": MANIFEST_SHA, "manifest_cpu": MANIFEST_SHA})
+        self.assertFalse(decoded["checks_passed"])
+
     def test_ordinary_a_requires_its_jump_and_a_later_product_start(self):
         from ota_trace_a_window import frames
         manifest = {"passed": True, "startup_trace_tag": TAG}

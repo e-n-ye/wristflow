@@ -37,7 +37,16 @@ def prepare(bundle, traced, ordinary):
             elf["original_a_enrollment_address"]=="0x1286c404" and len(elf["startup_trace_tag"])==4,
             "Verified original-A trace build required")
     boot=(traced/"frozen/main.bin").read_bytes()
-    require(sha(boot)==elf["bin_sha256"]=="0bfe18ab80ad7274a49506601f5a3401ced2a1b9a9eff4e1521e970f75200442" and
+    trusted = {
+        1: ("0bfe18ab80ad7274a49506601f5a3401ced2a1b9a9eff4e1521e970f75200442", 0x31544257),
+        2: ("bfd32ba5557a6e4c762b30a9bc768093cccbe583c2eb56140c17ff67c134b2e7", 0x32544257),
+    }
+    version = elf.get("slot_verification_trace", 1)
+    require(version in trusted, "Unknown diagnostic boot")
+    expected_hash, domain = trusted[version]
+    tag = list(struct.unpack("<4I", bytes.fromhex(elf["receiver_sha256"])[:16]))
+    tag[0] ^= domain
+    require(sha(boot)==elf["bin_sha256"]==expected_hash and elf["startup_trace_tag"]==tag and
             len(boot)==elf["bin_bytes"]<=58496, "Wrong early-marker boot")
     receiver=(ordinary/"receiver.bin").read_bytes()
     require(sha(receiver[:elf["receiver_bytes"]])==elf["receiver_sha256"], "Wrong enrollment receiver")
@@ -52,6 +61,49 @@ def prepare(bundle, traced, ordinary):
     write_json(bundle/"trace-check.json",elf)
 
 
+MANIFEST_SHA = "25f046b0fca4bc43888d0d2f32fd061c2b0284cc1056b7f1a539130b791dd004"
+BODY_SHA = "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d"
+CHECK_PATH = "rri" + "m"*8 + "n"*8 + "kw" + "b"*8 + "c"*8 + "utq"
+REJECTIONS = {
+    1: "slot header read", 2: "detached enrollment read", 3: "detached manifest fields",
+    4: "manifest hardware hash", 5: "manifest public key or signature", 6: "body digest comparison",
+}
+
+
+def verification_details(records):
+    """Interpret only the ordinary A check, before any receiver activity."""
+    result = {"digest": {}, "rejection": None, "checks_passed": False}
+    if not records or records[0]["point"] != "S" or records[0]["detail"] != 0:
+        return result
+    words = {}
+    for record in records[1:]:
+        point, value = record["point"], record["detail"]
+        if point in ("S", "V", "!"):
+            break
+        words.setdefault(point, []).append(value)
+        if point == "x":
+            result["rejection"] = REJECTIONS.get(value, "unknown release rejection")
+        elif point in ("d", "g"):
+            result["offset"] = value
+            result["rejection"] = "body read" if point == "d" else "hardware hash"
+        elif point in ("v", "z"):
+            result["rejection"] = "vector preparation" if point == "v" else "stable identity comparison"
+    for key, name in (("m", "manifest_hw"), ("n", "manifest_cpu"), ("b", "body_hw"), ("c", "body_cpu")):
+        if len(words.get(key, [])) == 8:
+            result["digest"][name] = struct.pack("<8I", *words[key]).hex()
+    for key, name in (("k", "public_key_status"), ("w", "rsa_status")):
+        if words.get(key):
+            result[name] = struct.unpack("<i", struct.pack("<I", words[key][-1]))[0]
+    result["checks_passed"] = (
+        result["rejection"] is None and words.get("r") == [0x1241feb0, 0x1286c404]
+        and words.get("i") == [3055760] and words.get("k") == words.get("w") == [0]
+        and result["digest"] == {"manifest_hw": MANIFEST_SHA, "manifest_cpu": MANIFEST_SHA,
+                                 "body_hw": BODY_SHA, "body_cpu": BODY_SHA}
+        and words.get("u") == [0x20002000] and words.get("t") == [0x1202baa1] and words.get("q") == [1]
+    )
+    return result
+
+
 def frames(raw, check):
     result = parse_startup(raw, check)
     records = result["frames"]
@@ -59,7 +111,15 @@ def frames(raw, check):
     details = {record["point"]: record["detail"] for record in records}
     product = b"[product] storage=ready"
     ordinary_a = False
-    if path == "PEFNJSVOMT" and result["decode_error"] is None:
+    checked_path = "PEFNJSVOMT"
+    checks_passed = True
+    if check.get("slot_verification_trace") == 2:
+        start = path.find("S")
+        verification = verification_details(records[start:] if start >= 0 else [])
+        result["slot_verification"] = verification
+        checked_path = "PEFNJS" + CHECK_PATH + "VOMT"
+        checks_passed = verification["checks_passed"]
+    if path == checked_path and checks_passed and result["decode_error"] is None:
         header = struct.pack("<6I", MAGIC, 0x10001, *check["startup_trace_tag"])
         after_jump_frame = raw.rindex(header) + 80
         ordinary_a = (

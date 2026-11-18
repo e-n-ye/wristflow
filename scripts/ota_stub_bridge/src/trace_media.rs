@@ -9,8 +9,10 @@ pub const ORIGINALS_SHA: &str = "bd6573264067ad33693ed21f2432d3607641709fadb66d8
 const A_VECTOR_SHA: &str = "82bfd68325cb7a98b1add0f1dd627269d38b61308927e1447c2ab1a903d27015";
 
 pub fn verify_inputs(images: &Inputs) -> Result<()> {
-    require(images.boot.len() == BOOT.len() && hash(&images.boot) ==
-        "dac5728228e1a53b929c292d13ab4120bb92bdf48e4988e33188bf220b17df27", "Traced boot differs")?;
+    let boot_hash = hash(&images.boot);
+    require(images.boot.len() == BOOT.len() && matches!(boot_hash.as_str(),
+        "dac5728228e1a53b929c292d13ab4120bb92bdf48e4988e33188bf220b17df27" |
+        "7143e8d49904b86c7fb952faf27ee78c9b6e0e4f4571229ea1658e198ab0b41a"), "Traced boot differs")?;
     require(images.receiver.len() == PAGE && hash(&images.receiver) ==
         "f1236ac70baaa7a327d6872d62e1c1aae6e2c1f810359f1ac6fe9abb05691d76", "Certificate sector differs")?;
     require(images.journal.len() == PAGE && hash(&images.journal) ==
