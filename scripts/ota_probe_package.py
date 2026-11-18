@@ -165,7 +165,7 @@ def parse_startup(raw, manifest):
     require(len(raw)<=8*1024*1024, 'Startup capture exceeds 8 MiB')
     require(manifest.get('passed') and len(manifest.get('startup_trace_tag',[]))==4,
             'Use the ELF check from the startup trace build')
-    stages = {'E':'entered C', 'F':'before flash initialization', 'N':'entered boot selection',
+    stages = {'P':'entered hw_preinit0 before C data initialization', 'E':'entered C', 'F':'before flash initialization', 'N':'entered boot selection',
               'J':'read RTC request', 'R':'starting receiver hash', 'D':'read first receiver block',
               'B':'hashed first receiver block', 'H':'receiver hash matched', 'S':'checking slot',
               'V':'selected boot target', 'O':'before ownership check', 'M':'before applying mapping',

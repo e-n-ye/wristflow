@@ -1,0 +1,81 @@
+{
+  "baseline": "97aa19bad279d71f63a5ca19af9427961e5b8ba2",
+  "local_worktree_artifacts": "artifacts/ota-ordinary-a-device-001",
+  "build": {
+    "manifest": "artifacts/ota-ordinary-a-trace-001/elf-check.json",
+    "boot_bytes": 58048,
+    "ftab_available_bytes": 58496,
+    "bin_sha256": "0bfe18ab80ad7274a49506601f5a3401ced2a1b9a9eff4e1521e970f75200442",
+    "control_bin_sha256": "52d02260fb2642f6327aab97368994e836f2c3b7682d39f074355c681155a8d9",
+    "control_byte_identical_to_first_install": true,
+    "bridge_manifest": "artifacts/ota-ordinary-a-host-001/result.json",
+    "bridge_manifest_sha256": "24535d8bb9cc9f7a17d5a1e679dce7b636e0702e75ed8cad0e0c038187c6516d",
+    "bridge_exe_sha256": "587e1b6732e7e1bc45007583c19f46942129f5ae3363a0201226fc41a44d79a8"
+  },
+  "preflight": {
+    "endpoint": "Original Huangshan board, CH340 COM5, USB location 1-1.1, battery attached",
+    "snapshot_sha256": "2015eeb4bf523900c290019d5c5665961f8be49249cc6b0af512f74310b7f7dc",
+    "boot_count": 40,
+    "saved_generation": 217,
+    "unsaved_ms_captured_on_host": 1386584,
+    "battery_mv": 4165,
+    "charger_reg01_after_inhibit": "ac",
+    "ordinary_rtc_word": 0,
+    "same_window_originals_bytes": 86016,
+    "same_window_originals_sha256": "bd6573264067ad33693ed21f2432d3607641709fadb66d8c897784a267b6ed01"
+  },
+  "flash": {
+    "write_bytes_per_leg": 69632,
+    "trace_write_order": ["certificate", "journal", "boot"],
+    "restore_write_order": ["boot", "certificate", "journal"],
+    "ranges": [
+      {"name": "boot", "address": "0x12010000", "written": 61440, "read": 65536, "restored_read_sha256": "f59f948f987362f1270b1da541405e82bd887c1a16c306364c04913c9c07f667"},
+      {"name": "certificate", "address": "0x1286c000", "written": 4096, "read": 4096, "restored_read_sha256": "f47a8ec3e9aff2318d896942282ad4fe37d6391c82914f54a5da8a37de1300c6"},
+      {"name": "journal", "address": "0x12da0000", "written": 4096, "read": 16384, "restored_read_sha256": "0fbba07a833d4dcfc7024eaf313661a0ba8f80a05c6d29b8801c612e10e60dee"}
+    ],
+    "other_reads_per_leg": ["FTAB 64 KiB", "original A vector page 4 KiB"],
+    "reads_per_leg": 8,
+    "trace_raw_wire_sha256": {"tx.bin": "cf09f7e1c00b0e6c4303d4f282d886d8271686f3192cac12964cff95e84fcf9f", "rx.bin": "cb5c868fa88439b13a62aea57c77b795a2834554271a4d0d22a9e9d6f39019ca"},
+    "restore_raw_wire_sha256": {"tx.bin": "9448b992b8de6ed0b01a3638c8ac7e1c6ffef4d781166375adb3686703a3757e", "rx.bin": "4013a41f316ddaf5e110a62e24fe7fab4f2ce814b41cf20a9acfd67bfcae9543"},
+    "trial_and_restore_worker_exits": [0, 0],
+    "readback_and_soft_reset_ack_both_legs": true,
+    "serial_closed_both_legs": true
+  },
+  "ordinary_boot": {
+    "uart": "trace-original-a/startup-uart.bin",
+    "bytes": 887,
+    "sha256": "5a3017ea4ba79eaccc2e4afee6945c113792b90f3069a6674e0bad38a8d3a7bf",
+    "tag": [2382055889, 3026351082, 1403325149, 2071047169],
+    "crc_and_tag_verified": 11,
+    "points": "PEFNJSVRDB!",
+    "details_u32": [0, 0, 0, 0, 0, 0, 4294967295, 359716, 256, 256, 72],
+    "rx_s_to_v_ms": 1105.556,
+    "product_present": false,
+    "stable_a_jump_verified": false,
+    "interpretation": "The boot checked A and selected recovery before the mapping or jump. H is the secondary mismatch for the intentionally incomplete receiver. The first A rejection reason is unresolved."
+  },
+  "host": {
+    "full_regression": "artifacts/ota-ordinary-a-regression.log: 196 discovered, 179 passed, 17 skipped (fixed-B executable was not bound)",
+    "final_decode_regression": "8 passed, including the new positive jump and out-of-order Product cases",
+    "c_replay": "artifacts/ota-ordinary-a-host-vectors.log: original A signature, complete body digest, stable identity and vector plan accepted. 6 OTA CTest targets passed.",
+    "replay_input": "Previous 16 MiB original (device-005/media/before.bin) overlaid with this trial's FTAB, A vector page and three verified readbacks. No new complete A read.",
+    "layout_words_in_verified_boot_offset": "0xdf64",
+    "original_a_sp": "0x20002000",
+    "original_a_reset": "0x1202baa1",
+    "limits": "Host file reads and software SHA differ from the target's boot-time NOR and hardware HASH."
+  },
+  "closure": {
+    "device_seconds_journal_created_to_restore_complete": 82.799,
+    "trace_seconds_including_30s_listen": 48.994,
+    "restore_seconds_including_12s_listen": 30.927,
+    "uart": "restore-trace-a/startup-uart.bin",
+    "bytes": 4732,
+    "sha256": "8d10d62e3e79b86fd08f827997b80d6751c1f236134d5f183f35ea1f39081690",
+    "product_storage_ready": true,
+    "restored_settings": "layout generation 56, brightness 50, diffusion face",
+    "controller_report": "restored=true, ordinary_a_verified=false, window_complete=false, exit 1. Local console expired after restoration while waiting for operator confirmation.",
+    "independent_operator_confirmation": "原表盘、触摸和 KEY1 正常，临时常亮已关",
+    "diagnostic_window_closed": true,
+    "android_transfer_attempted": false
+  }
+}

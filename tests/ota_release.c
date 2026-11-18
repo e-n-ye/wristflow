@@ -1,4 +1,5 @@
 #include "release.h"
+#include "boot_plan.h"
 #include "offline_receiver.h"
 #include "mbedtls/sha256.h"
 #include <assert.h>
@@ -91,6 +92,45 @@ static void check_original(const char *backup, const char *journal)
 }
 
 static uint8_t staging[WF_DFU_ENVELOPE + WF_DFU_SLOT_BYTES];
+static int read_nor_file(void *context, uint32_t addr, void *out, size_t n)
+{
+    FILE *f = context;
+    if (addr < 0x12000000 || n > 0x1000000 || addr - 0x12000000 > 0x1000000 - n ||
+        fseek(f, (long)(addr - 0x12000000), SEEK_SET)) return -1;
+    return (int)fread(out, 1, n, f);
+}
+
+static void check_ordinary_a(const char *path)
+{
+    FILE *f = fopen(path, "rb");
+    assert(f);
+    wf_ota_physical_reader_t reader = {.context=f,.ready=ready,.read=read_nor_file,
+        .region={[WF_OTA_READ_A]={0x12020000,sizeof slot},[WF_OTA_READ_B]={physical_b,sizeof slot},
+                 [WF_OTA_READ_ORIGINAL_A]={0x1286c404,sizeof original_enrollment}}};
+    uint8_t records[2][WF_OTA_AB_BYTES];
+    for (unsigned i=0; i<2; ++i)
+        assert(read_nor_file(f,0x12da0000+i*8192,records[i],sizeof records[i])==(int)sizeof records[i]);
+    wf_ota_ab_state_t state;
+    assert(wf_ota_ab_select(&state,records[0],sizeof records[0],records[1],sizeof records[1])==0);
+    wf_ota_ab_image_t checked[2] = {0};
+    assert(wf_ota_release_verify_slot(&reader,WF_OTA_READ_A,&checked[0]));
+    wf_ota_ab_plan_t plan;
+    assert(wf_ota_ab_plan(&plan,&state,checked) && !plan.persist && plan.target==WF_OTA_AB_SLOT_A);
+    assert(checked[0].release==2026110301 && checked[0].bytes==3055760);
+    const wf_ota_boot_layout_t layout = {
+        .flash=0x12000000, .flash_bytes=0x1000000, .slot={0x12020000,0x12420000},
+        .slot_bytes=0x400000, .loader=0x12820000, .loader_bytes=0x60000,
+        .ram=0x20000000, .ram_bytes=0x7fc00
+    };
+    uint32_t vectors[2];
+    wf_ota_boot_plan_t boot;
+    assert(read_nor_file(f,layout.slot[0],vectors,sizeof vectors)==sizeof vectors);
+    assert(wf_ota_boot_plan(&boot,&layout,WF_OTA_BOOT_A,checked[0].bytes,vectors));
+    assert(boot.stack==0x20002000 && boot.reset==0x1202baa1 && boot.vector==layout.slot[0]);
+    fclose(f);
+    puts("Ordinary A authenticated, selected and admitted by its vector plan on host");
+}
+
 static unsigned installs;
 static uint32_t mpeg(void *context, const uint8_t *buf, size_t size)
 {
@@ -175,6 +215,10 @@ static void android_file(const char *path, wf_ota_physical_reader_t *reader)
 
 int main(int argc, char **argv)
 {
+    if (argc==3 && !strcmp(argv[1],"--ordinary-a")) {
+        check_ordinary_a(argv[2]);
+        return 0;
+    }
     wf_ota_ab_image_t image;
     assert(!wf_ota_release_open(original_enrollment, sizeof original_enrollment, sizeof slot, &image));
     if ((argc == 3 || argc == 4) && !strcmp(argv[1], "--original-a")) {

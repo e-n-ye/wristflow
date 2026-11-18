@@ -18,12 +18,15 @@ const B_BODY_END: usize = 0x420000 + 3035136;
 const B_TAIL: usize = 0x820000 - PAGE;
 const A_SHA: &str = "6ebed703bad44f8715b75ec6aecf59f00ba13ce2076464b8667300c95cb0345d";
 const B_SHA: &str = "4205c2f63f4417b614d34edf9422e9f3adb3d9899cd5d9db379c7fce3ccda0a0";
-const FTAB_SHA: &str = "1b1bfcd48a69bcef2da5fd314f2aef0a2fd5953934c504c75c3fce83dab8d905";
+pub const FTAB_SHA: &str = "1b1bfcd48a69bcef2da5fd314f2aef0a2fd5953934c504c75c3fce83dab8d905";
 const BOOT_ORIGINAL_SHA: &str = "f59f948f987362f1270b1da541405e82bd887c1a16c306364c04913c9c07f667";
 
 #[derive(Clone, Copy, Deserialize, Serialize, Debug, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-pub enum Action { Install, VerifyOriginal, EnterReceiver, Restore, RestoreWithB }
+pub enum Action { Install, VerifyOriginal, EnterReceiver, Restore, RestoreWithB, TraceOriginalA, RestoreTraceA }
+impl Action {
+    pub fn traced(self) -> bool { matches!(self, Self::TraceOriginalA | Self::RestoreTraceA) }
+}
 
 pub struct Inputs {
     pub receiver: Vec<u8>,
@@ -87,6 +90,10 @@ fn permit_entry(d: &[u8], images: &Inputs) -> Result<()> {
 }
 
 pub fn writable(action: Action, role: &str, offset: usize, n: usize) -> bool {
+    if action.traced() {
+        return matches!((role, offset, n), ("boot", 0x10000, 61440) |
+            ("certificate", 0x86c000, 4096) | ("journal", 0xda0000, 4096));
+    }
     let range = match (action, role) {
         (Action::Install | Action::Restore | Action::RestoreWithB, "boot") => BOOT,
         (Action::Install | Action::Restore | Action::RestoreWithB, "receiver") => RX,
@@ -117,11 +124,13 @@ fn replace(io: &mut impl Nor, action: Action, expected: &mut [u8], role: &str,
 }
 
 pub fn run(io: &mut impl Nor, action: Action, images: &Inputs, rescue: Option<&[u8]>) -> Result<()> {
+    require(!action.traced(), "Use the bounded original-A transaction")?;
     images.verify()?;
     let mut expected = io.read("before", 0, SIZE)?;
     same_board(&expected)?;
     let before_hash = hash(&expected);
     match action {
+        Action::TraceOriginalA | Action::RestoreTraceA => return Err("Unexpected trace action".into()),
         Action::Install | Action::VerifyOriginal => {
             original(&expected)?;
             io.preserve_b(&expected[B])?;

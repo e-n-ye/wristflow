@@ -1,6 +1,8 @@
 //! Fixed original-board provisioning and independent recovery. No arbitrary addresses.
 #[path = "../first_media.rs"]
 mod media;
+#[path = "../trace_media.rs"]
+mod trace_media;
 #[path = "../first_reads.rs"]
 mod reads;
 #[path = "../port.rs"]
@@ -53,7 +55,10 @@ impl Config {
     fn validate(&self) -> Result<()> {
         require(!self.out.exists() && !self.cancel.exists() && (30..=1800).contains(&self.seconds) &&
                 self.listen_seconds <= 900 && self.listen_seconds < self.seconds, "Invalid window or reused output")?;
-        let restore = matches!(self.action, Action::Restore | Action::RestoreWithB);
+        let restore = matches!(self.action, Action::Restore | Action::RestoreWithB | Action::RestoreTraceA);
+        if self.action.traced() {
+            require(self.seconds <= 90 && self.listen_seconds <= 35,"Trace time limit exceeded")?;
+        }
         require(self.before.is_some() == restore && self.before_sha256.is_some() == restore, "Prior original is required only for recovery")?;
         let scope = match self.action {
             Action::Install => "first-install-receiver-journal-boot-and-enter",
@@ -61,6 +66,8 @@ impl Config {
             Action::EnterReceiver => "enter-pinned-receiver-without-flash-write",
             Action::Restore => "restore-first-install-and-start-original",
             Action::RestoreWithB => "restore-first-install-and-owned-b-extents-and-start-original",
+            Action::TraceOriginalA => "ordinary-a-three-range-trace",
+            Action::RestoreTraceA => "restore-three-trace-ranges",
         };
         if self.simulation {
             require(self.fixture.is_some() && self.port == "SIMULATED" && self.authorization == "simulation", "Simulation cannot address a serial port")
@@ -90,15 +97,21 @@ impl Nor for Memory<'_> {
     }
     fn checkpoint(&mut self, e: Value) -> Result<()> { checkpoint(self.out,e) }
 }
+fn transact(io: &mut impl Nor,c: &Config, images: &Inputs, source: Option<&[u8]>) -> Result<()> {
+    if c.action.traced() { trace_media::run(io,c.action,images,source,&c.out) }
+    else { media::run(io,c.action,images,source) }
+}
 fn apply(c: &Config) -> Result<()> {
     c.validate()?;
-    let images = Inputs { receiver: fs::read(c.bundle.join("receiver.bin"))?,
+    let receiver = if c.action.traced() { "certificate.bin" } else { "receiver.bin" };
+    let images = Inputs { receiver: fs::read(c.bundle.join(receiver))?,
         journal: fs::read(c.bundle.join("journal.bin"))?, boot: fs::read(c.bundle.join("boot.bin"))? };
-    images.verify()?;
+    if c.action.traced() { trace_media::verify_inputs(&images)?; } else { images.verify()?; }
     let source = c.before.as_ref().map(fs::read).transpose()?;
     if let Some(d) = &source {
         require(Some(hash(d)) == c.before_sha256, "Previous window original changed")?;
-        media::original(d)?;
+        if c.action.traced() { require(hash(d)==trace_media::ORIGINALS_SHA,"Invalid compact originals")?; }
+        else { media::original(d)?; }
     }
     let stub = fs::read(&c.stub)?;
     require(stub.len() == 132816 && hash(&stub) == "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43",
@@ -106,7 +119,10 @@ fn apply(c: &Config) -> Result<()> {
     fs::create_dir(&c.out)?;
     let result = if c.simulation {
         let mut mem = Memory {bytes:fs::read(c.fixture.as_ref().unwrap())?,out:&c.out,action:c.action};
-        media::run(&mut mem,c.action,&images,source.as_deref())
+        transact(&mut mem,c,&images,source.as_deref()).and_then(|()| {
+            if c.action.traced() { save(&c.out.join("simulated-nor.bin"),&mem.bytes)?; }
+            Ok(())
+        })
     } else {
         #[cfg(not(test))]
         { wire::execute(c,&stub,&images,source.as_deref()) }

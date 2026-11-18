@@ -8,9 +8,8 @@
 
 static bool active;
 
-void wf_boot_trace(char phase, uint32_t detail)
+static bool emit_frame(char phase, uint32_t detail)
 {
-    if (!active) return;
     uint32_t tag[4];
     memcpy(tag, receiver_sha256, sizeof tag);
     tag[0] ^= 0x31544257u; /* Domain-separate these frames from fixed B probes. */
@@ -23,8 +22,19 @@ void wf_boot_trace(char phase, uint32_t detail)
     frame.vtor = SCB->VTOR;
     frame.ccr = SCB->CCR;
     frame.primask = __get_PRIMASK();
-    /* Keep an unavailable UART from becoming a new boot failure. */
-    active = wf_ota_probe_uart_frame(&frame);
+    return wf_ota_probe_uart_frame(&frame);
+}
+
+void wf_boot_trace_preinit(void)
+{
+    /* SystemInit has established SP/MSPLIM and VTOR. Writable C globals are
+     * still uninitialized here; this call uses registers, stack and constants. */
+    if (wf_ota_probe_uart_init()) (void)emit_frame('P', 0);
+}
+
+void wf_boot_trace(char phase, uint32_t detail)
+{
+    if (active) active = emit_frame(phase, detail);
 }
 
 void wf_boot_trace_start(void)

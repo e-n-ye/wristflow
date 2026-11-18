@@ -107,6 +107,7 @@ __attribute__((noreturn)) void boot_error(unsigned char code)
 }
 void hw_preinit0(void)
 {
+    wf_boot_trace_preinit();
     /* Runs before C initialization: no initialized global state is used. */
     if (__HAL_SYSCFG_GET_REVID() < HAL_CHIP_REV_ID_A4) {
         MODIFY_REG(hwp_pmuc->AON_LDO, PMUC_AON_LDO_VBAT_POR_TH_Msk | PMUC_AON_LDO_VBAT_LDO_SET_VOUT_Msk,

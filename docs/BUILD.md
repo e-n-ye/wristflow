@@ -6,6 +6,8 @@
 
 认证 boot 的早期启动诊断可通过 `pwsh -File scripts/Build-Ota-Boot.ps1 -ReceiverResult <接收器 result.json> -TraceStartup -EvidenceDir <新目录>` 单独构建。产物的 `elf-check.json` 记录与接收器摘要绑定的四字标签和 FTAB 余量。使用 `python -B scripts/ota_probe_package.py parse-startup --manifest <elf-check.json> --uart <原始捕获> --output <新 JSON>` 解码 PA19／1 Mbaud 的发射帧。没有匹配帧或遇到坏帧时退出码非零，已验证的前缀保存在输出中。普通 boot 原样重建与首装二进制逐字节相同。[软件构建及现场证据](evidence/2026-11-18/ota-first-install-device.json)
 
+普通 A 诊断在 `hw_preinit0` 的第一处项目操作发出 `P`。冻结追踪镜像 58,048 字节，原 FTAB 余 448 字节。用 `scripts/ota_trace_a_window.py simulate --authorize simulation --build <主机构建 result.json> --trace-build <追踪构建目录> --ordinary-bundle <首装包目录> --fixture <原机备份> --before-fixture <存有同名快照的目录>/before-uart.bin --out <新目录>` 离线演练三处写入和独立恢复。用主机 C 测试 `ota_release --ordinary-a <模拟 NOR>` 重放同地址的登记、完整 A 正文、启动记录和向量计划。实机运行另需现场许可。[产物、回放与真机差异](evidence/2026-11-18/ota-ordinary-a-trace.json)
+
 ## 2026-11-18 Android 接收 loader
 
 `pwsh -File scripts/Build-Ota-Loader.ps1 -AndroidReceiver` 显式构建有线初装使用的 receiver，使用 SDK AddLCPU、板载 BLE Serial、片上 CRC／SHA 和已登记公钥。检查 384 KiB 链接上限、PSRAM 缓冲、独立安装和 journal 符号，排除旧安装器、自动充电和持久 BLE 数据库初始化。省略参数继续构建只读 probe。构建不连接设备。[容量与回归](evidence/2026-11-18/ota-android-receiver.json)
