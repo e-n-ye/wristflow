@@ -52,7 +52,7 @@ def healthy(records):
         raise ValueError("A running recorder with verified saved state and no storage failure is required")
 
 
-def application(phase, transport, journal, console, identity, *, cycle):
+def application(phase, transport, journal, console, identity, *, cycle, before_close=None):
     """One UART open/close under the caller's continuous outer PortLease."""
     if console.cancelled.is_set():
         raise Cancelled("Cancelled before application snapshot")
@@ -89,6 +89,8 @@ def application(phase, transport, journal, console, identity, *, cycle):
                 raise TimeoutError("Application snapshot exceeded 60 seconds")
             if console.cancelled.is_set():
                 raise Cancelled("Cancelled while preserving application state")
+            if before_close is not None:
+                before_close(client, records, replies, deadline)
         finally:
             # Also close a partially acquired handle when open() raises.
             try:

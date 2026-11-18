@@ -1,0 +1,120 @@
+{
+  "baseline": "a3ce810eb3cd180598ff9c859d51d8af75c1b872",
+  "local_artifacts": "artifacts/ota-first-install-20261118",
+  "build": {
+    "result": "host-003/result.json",
+    "result_sha256": "97d1a57d970937a3d2425b5a7fb4a5c1945eba80afd0c9e61206dfdcf66e83fc",
+    "executable_sha256": "37b1e0144cf9fb51aa9b94f04611710380e789be3377e4d37ddb712b718ed67e",
+    "sdk_stub_sha256": "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43",
+    "sftool_lib_rev": "be2adab37bfb0ef4eb623b7e47e7b8693918b1e1",
+    "rust_tests_passed": 8
+  },
+  "bundle": {
+    "manifest": "bundle-001/bundle.json",
+    "manifest_sha256": "2e970b8571094287564e8f0940d6e531101bdb325e31161fdf14000c57bd568e",
+    "program_order": [
+      ["receiver", "0x12820000", 360448, "8c446afb99e98c644019beb157859cfdfa17596390cb232a83c31bc67d4e80eb"],
+      ["journal", "0x12da0000", 4096, "0cec98cc451a579cc237715a1c259637a633b07dc9b9ad44cba901a6a3914c52"],
+      ["boot", "0x12010000", 61440, "5f6e8aca810ae7397c988ca14728075b9715f9d801c195650f83350df5d20939"]
+    ]
+  },
+  "host_model": {
+    "install": "console-sim-002/window.json",
+    "restore": "restore-sim-001/window.json",
+    "install_then_restore_sha256": "9140bb4e1bb700c8a7b1d06f29f510c3f18b13fb6da86e34b7f453fec639ab74",
+    "interrupted_boot_with_new_user_data": "Recovered original firmware and kept modified FS and settings bytes",
+    "wrong_original_a": "Refused before the first programming intent",
+    "changed_b": "Routine recovery refused before any programming intent; separate B scope accepted only known extents",
+    "first_rehearsal": "A captured shell prompt prefixed a record line. The replay adapter now strips that prompt before the simulated device emits the record.",
+    "scope": "Archived NOR, recorded application frames, simulated PM tick, charging reply and operator confirmations"
+  },
+  "device_initial_read": {
+    "window": "device-001/window.json",
+    "port": "COM5 / CH340 / 1-1.1 / DisableModemOutHandShake=1",
+    "before_snapshot_sha256": "34d926c828a44aa8817b3dc6e75579c107180f9f1ebf8453e0a2882d0aabc5ab",
+    "boot_before": 37,
+    "saved_generation_before": 214,
+    "unsaved_ms_archived": 32108,
+    "adc_millivolts": 4161,
+    "adc_age_ms": 2835,
+    "charge_inhibit_reg01": "ac",
+    "stub_flash_baud": 500000,
+    "read_requested": 16777216,
+    "payload_observed": 16775972,
+    "payload_missing": 1244,
+    "stub_trailer": "CRC:0xc1921911\r\nOK\r\nmsh >",
+    "rx_sha256": "0990b69103aef8109aa3fff4045ec3bc7dd57cd88a6f33e2ae15592a14f59f50",
+    "tx_sha256": "fab377b485431f2de4cfd5b3c3ef3cd1064151bca8d71c144f778e938e2c581f",
+    "last_tx": "burn_read 0x12000000 0x01000000\r",
+    "terminal_error": "timeout while waiting for reading flash at 0x12FFC000",
+    "flash_programming_commands": 0,
+    "uart_closed": true,
+    "fresh_full_backup_available": false,
+    "new_receiver_installed": false,
+    "ble_phone_transfers": 0
+  },
+  "original_app_return": {
+    "single_soft_reset": "return-001/reset/rx.bin",
+    "ack_sha256": "3c65034f3d322ec15d96bd5725e9729c8efad91d23a655d81518c4863e4f97bb",
+    "read_only_followup": "return-002/window.json",
+    "after_snapshot_sha256": "dbf044460d4a10f8791778841c54f556325539d8d568ac3f7bdeff15fd581e15",
+    "boot_after": 38,
+    "saved_generation_after": 215,
+    "saved_counters_preserved": true,
+    "rtc_year": 2000,
+    "display_touch_key1_observed_normal": true,
+    "temporary_keep_awake_off": true,
+    "return_console_note": "The first operator prompt expired after the single reset was acknowledged. A separate read-only continuation used the actual operator observation and sent no second reset."
+  },
+  "segmented_reader": {
+    "result": "host-004/result.json",
+    "result_sha256": "e239a47454df7439a0215e67da6ce77e96bc445ff534ce948ecf0459f572cd90",
+    "executable_sha256": "9c5312c41d817019fd43c89ea8291772b0da834db32f70de05a072866dd4a359",
+    "blocks": 256,
+    "block_bytes": 65536,
+    "retry_bound": "Only once per block after a complete CRC/OK/shell trailer, up to four per whole image",
+    "rehearsal": "qualified-sim-002/window.json",
+    "tests": "Fragment with 92 missing bytes and complete stub trailer followed by a verified repeat, full archive, protected B backup, altered read address rejected",
+    "hardware_verified": true,
+    "first_session": "verify-device-001",
+    "continuation": "verify-continuation-001",
+    "blocks_per_handle": [221, 35],
+    "first_session_limit_seconds": 560,
+    "typical_block_seconds": 2.52,
+    "continuation_adapter": "continue-read.py",
+    "continuation_adapter_sha256": "a7b1e049f574007608f0084d0a7a5f83e4adf5c4079a79da0a5eb01cbd5167a8",
+    "fresh_nor_sha256": "c394f46da88abe5bc87cef997a8c11d55d93e996744a527f981bdaeb11682cb5",
+    "full_b_separately_archived": true,
+    "original_a_authentication": "C verifier accepted the full fresh A and the initial journal",
+    "differences_from_november_8": {"bytes": 3353, "first_offset": "0xda848b", "last_offset": "0xda9c23"},
+    "continuation_scope": "The first host process reached its time bound. A separately authorized second handle reopened COM5 on the same RAM stub, reread the incomplete block, finished the remaining blocks, and issued one normal reset after archiving.",
+    "new_host_bounds_seconds": {"read_only": 800, "install_or_restore": 1750},
+    "installed_hardware_verified": false
+  },
+  "segmented_return": {
+    "boot": [38, 39],
+    "saved_generation": [215, 216],
+    "buffered_tail_saved_to_computer_ms": 911992,
+    "saved_runtime_regressed": false,
+    "storage_failure": false,
+    "rtc_year": 2000,
+    "display_touch_key1_observed_normal": true,
+    "temporary_keep_awake_off": true
+  },
+  "regression": {
+    "latest_first_install_native_tests": 10,
+    "first_install_python_with_native_build": 3,
+    "ota_python_cases": 194,
+    "passed": 177,
+    "skipped": 17,
+    "skipped_reason": "Historical fixed006 execution tests bind their target source to the old probe. Seven boot sources had already changed on the incoming baseline a3ce810. The fixed006 source guard was preserved."
+  },
+  "validation_commands": [
+    "scripts/ota_first_install.py prepare --out <new-bundle> --first <archived-nor-first> --second <archived-nor-second>",
+    "scripts/ota_first_install.py build --out <new-build> --cargo <locked-native-cargo> --cc <native-gcc> --cargo-home <cached-vendor-checkout> --target-dir <cargo-target>",
+    "ota_release.exe --original-a <archived-nor-first> <bundle>/journal.bin",
+    "python -B -m unittest discover -s tests -p test_ota_first_install.py",
+    "scripts/ota_first_window.py simulate --action install --authorize simulation --out <new-window> --bundle <bundle> --build <build>/result.json --nor-fixture <original-nor> --before-fixture <before-uart> --after-fixture <after-uart>",
+    "scripts/ota_first_window.py simulate --action restore --authorize simulation --out <new-window> --bundle <bundle> --build <build>/result.json --prior <original-window> --nor-fixture <installed-nor> --after-fixture <after-uart>"
+  ]
+}
