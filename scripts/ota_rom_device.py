@@ -471,7 +471,8 @@ def run(output, *, capture=None, fixtures=None, scenario="success", ready=None, 
                     ("本窗仅恢复先前窗封存的原boot64KiB及原B首4KiB；一次入口RTS／SYSRESETREQ及原stub，不再次安装候选或启动B。应用前态复用先前原流，不读取当前停住的程序。"
                      if recovering else
                      "本窗仅安装固定006的B首4096B及兼容boot58496B，各一次；独立读回后单发burn_reset，接收固定tag的PREPARED→MAPPED→EXECUTED，再按计划第二次入口RTS／SYSRESETREQ及原stub恢复。") +
-                    "每次原stub沿用BKP0R／PA21，ready及MPI2映射三字须为零才读取Flash。恢复顺序为原boot64KiB写一次／读回，再原B首4KiB写一次／64KiB读回；全部匹配才单发burn_reset返回原程序。"
+                    "每次以1M进入原stub，沿用BKP0R／PA21，核ready、完整D0和零映射后切500K读写Flash。启动探针前在stub内切回1M接收结果。"
+                    "恢复顺序为原boot64KiB写一次／读回，再原B首4KiB写一次／64KiB读回；全部匹配才单发burn_reset返回原程序。"
                     "仅固定范围、FTAB不写；不自动校时。协议／CRC／取消／日志错误停止新命令，无额外退出RTS；可能留下boot／B未恢复，保留接线及原文件，另开明确恢复窗。")
             if not simulation:
                 preparation += ("同板同固件，USB／电池接线固定、人在旁、显示触摸正常。"

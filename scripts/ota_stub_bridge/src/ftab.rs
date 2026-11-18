@@ -1,5 +1,6 @@
 //! One physical FTAB read using the pinned library, with host RX error evidence.
 use crate::{Result,hash,require,port};
+use crate::common::receive_exit;
 use serde_json::{Value,json};
 use sftool_lib::{ReadFlashFile,ReadFlashParams,read_flash::ReadFlashTrait,sf32lb52::SF32LB52Tool,
     speed::SpeedTrait,common::sifli_debug::{SifliDebug,SifliUartCommand}};
@@ -53,20 +54,6 @@ fn status(errors:u32,input:u32,output:u32,source:&str)->Value {
         .into_iter().filter_map(|(bit,name)|if errors&bit!=0 {Some(name)}else{None}).collect();
     json!({"source":source,"errors":errors,"flags":names,"input_queued":input,"output_queued":output,
         "acknowledges_error_bits":true,"purges_input":false})
-}
-
-fn require_exit_frame(frame:&[u8])->Result<()> {
-    require(frame==[0x7e,0x79,2,0,0x10,0,0xd0,6],"Missing or foreign debug Exit response; stop before next command")
-}
-
-fn receive_exit(tool:&mut SF32LB52Tool,trace:&port::Trace,phase:&str)->Result<()> {
-    // The pinned library sends Exit without receiving D0. Consume exactly that
-    // frame before another Enter or shell command; never clear or skip bytes.
-    let mut frame=[0;8];
-    sftool_lib::common::serial_io::for_tool(tool).read_exact_with_timeout(&mut frame,Duration::from_secs(1),"fixed debug Exit response")?;
-    require_exit_frame(&frame)?;
-    trace.event(json!({"kind":"debug_exit_response","phase":phase,"frame_hex":"7e7902001000d006"}))?;
-    Ok(())
 }
 
 fn physical_gate(tool:&mut SF32LB52Tool,trace:&port::Trace,report:&mut Value,key:&str,address:u32,bytes:usize)->Result<()> {
@@ -184,6 +171,7 @@ mod tests {
     }
     #[test]
     fn exact_captured_exit_response_is_required_without_skipping_or_inference() {
+        use crate::common::require_exit_frame;
         let captured=[0x7e,0x79,2,0,0x10,0,0xd0,6];
         assert!(require_exit_frame(&captured).is_ok());
         for i in 0..captured.len() {

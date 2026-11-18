@@ -103,6 +103,13 @@ class ExecutionBinary(unittest.TestCase):
         self.assertEqual(len([v for v in events if v["kind"] == "execution_read_intent"]), 9)
         self.assertEqual([(v["address"], v["bytes"]) for v in events if v["kind"] == "execution_read_intent"][0], (0x12000000, 12288))
         self.assertEqual(len([v for v in events if v["kind"] == "rts_intent" and v["value"]]), 2)
+        speeds = [(v["role"], v["baud"]) for v in events if v["kind"] == "execution_speed_complete"]
+        self.assertEqual(speeds, [("initial", 500000), ("probe", 1000000), ("restore", 500000)])
+        self.assertEqual([v["phase"] for v in events if v["kind"] == "debug_exit_response"],
+                         ["ready_snapshot", "physical_aliases"] * 2)
+        begin = next(i for i, v in enumerate(events) if v["kind"] == "probe_start_intent")
+        end = next(i for i, v in enumerate(events) if v["kind"] == "probe_receive_complete")
+        self.assertFalse(any(v["kind"] == "clear_buffers" for v in events[begin:end]))
         self.assertEqual((out / "restored-boot64k.bin").read_bytes(), (out / "before-boot64k.bin").read_bytes())
         self.assertEqual((out / "restored-b64k.bin").read_bytes(), (out / "before-b64k.bin").read_bytes())
         for changes in (dict(probe_verified=True, probe_frames=[]), dict(restored_verified=False), dict(boot_restored=False)):
@@ -120,6 +127,19 @@ class ExecutionBinary(unittest.TestCase):
         _, _, _, process, report = self.binary("ftab-change", "before-changed")
         self.assertEqual(process.returncode, 1)
         self.assertFalse(report["b_install_attempted"] or report["boot_install_attempted"] or report["probe_start_attempted"])
+
+    def test_speed_or_exit_fault_stops_at_its_mutation_boundary(self):
+        for scenario, installed, started in (
+                ("initial-speed-fail", False, False), ("probe-speed-fail", True, False),
+                ("restore-speed-fail", True, True), ("restore-exit-corrupt", True, True)):
+            with self.subTest(scenario=scenario):
+                out, _, _, process, report = self.binary(scenario, scenario)
+                self.assertEqual(process.returncode, 1)
+                self.assertEqual(report["b_may_be_changed"], installed)
+                self.assertEqual(report["boot_may_be_changed"], installed)
+                self.assertEqual(report["probe_start_attempted"], started)
+                self.assertFalse(report["boot_restore_attempted"] or report["original_start_completed"])
+                self.assertFalse((out / "reentry-boot64k.bin").exists())
 
     def test_boot_length_or_running_pointer_change_outside_first4k_stops_before_writes(self):
         baseline = Path(self.options["first"]).read_bytes()
