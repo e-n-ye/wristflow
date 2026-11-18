@@ -6,3 +6,12 @@ config CUSTOM_MEM_MAP
     bool
     select custom_mem_map
     default y
+
+config WF_OTA_ANDROID_RECEIVER
+    bool
+    default y if "$(WRISTFLOW_OTA_RECEIVER)" = "1"
+    select BLUETOOTH
+    select BSP_USING_ADC1
+    select BSP_BLE_SERIAL_TRANSMISSION
+    select BLE_CM_BOND_DISABLE
+    select PKG_USING_FLASHDB

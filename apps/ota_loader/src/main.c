@@ -6,9 +6,13 @@
 #include "ptab.h"
 #include "probe_port.h"
 
-#if defined(BLUETOOTH) || defined(BSP_USING_DFU) || defined(USING_DFU_V2) || defined(PKG_USING_FLASHDB) || defined(RT_USING_FINSH)
+#if defined(BSP_USING_DFU) || defined(USING_DFU_V2) || defined(RT_USING_FINSH)
+#error "The WristFlow loader owns installation and exposes no shell"
+#endif
+#if !defined(WF_OTA_ANDROID_RECEIVER) && (defined(BLUETOOTH) || defined(PKG_USING_FLASHDB))
 #error "Read-only loader probe must not enable radio DFU, persistent services or shell"
 #endif
+#ifndef WF_OTA_ANDROID_RECEIVER
 static void wf_ota_probe(int argc, char **argv)
 {
     (void)argv;
@@ -28,9 +32,15 @@ static void wf_ota_probe(int argc, char **argv)
         WF_OTA_SLOT_B_START_ADDR - WF_OTA_SLOT_A_START_ADDR);
     wf_ota_loader_read_probe();
 }
+#endif
 int main(void)
 {
+#ifdef WF_OTA_ANDROID_RECEIVER
+    extern void wf_ota_android_start(void);
+    wf_ota_android_start();
+#else
     rt_kprintf("WristFlow standalone OTA loader PROBE; not a deployable updater\n");
     wf_ota_probe(1, RT_NULL);
+#endif
     return 0;
 }

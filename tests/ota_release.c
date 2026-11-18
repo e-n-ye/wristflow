@@ -1,4 +1,5 @@
 #include "release.h"
+#include "offline_receiver.h"
 #include "mbedtls/sha256.h"
 #include <assert.h>
 #include <stdio.h>
@@ -37,6 +38,89 @@ static int read_bytes(void *context, uint32_t address, void *out, size_t bytes)
     return (int)bytes;
 }
 
+static uint8_t staging[WF_DFU_ENVELOPE + WF_DFU_SLOT_BYTES];
+static unsigned installs;
+static uint32_t mpeg(void *context, const uint8_t *buf, size_t size)
+{
+    (void)context;
+    uint32_t crc = UINT32_MAX;
+    for (size_t i = 0; i < size; i++) {
+        crc ^= (uint32_t)buf[i] << 24;
+        for (unsigned bit = 0; bit < 8; bit++)
+            crc = (crc << 1) ^ ((crc >> 31) ? 0x04c11db7u : 0);
+    }
+    return crc;
+}
+static bool install(void *context, const uint8_t *header, const uint8_t *body, const wf_ota_ab_image_t *image)
+{
+    wf_ota_ab_image_t readback;
+    ++installs;
+    memcpy(slot, body, image->bytes);
+    memcpy(slot + sizeof slot - WF_RELEASE_HEADER_BYTES, header, WF_RELEASE_HEADER_BYTES);
+    return wf_ota_release_verify_slot(context, WF_OTA_READ_B, &readback) &&
+           readback.release == image->release && !memcmp(readback.sha256, image->sha256, 32);
+}
+static void put32(uint8_t *out, uint32_t value)
+{
+    for (unsigned i = 0; i < 4; ++i) out[i] = (uint8_t)(value >> (i * 8));
+}
+static void android_file(const char *path, wf_ota_physical_reader_t *reader)
+{
+    FILE *f = fopen(path, "rb");
+    assert(f && !fseek(f, 0, SEEK_END));
+    long size = ftell(f);
+    assert(size >= 354 && (size_t)size <= sizeof staging && !fseek(f, 0, SEEK_SET));
+    uint8_t *file = malloc(size);
+    assert(file && fread(file, 1, size, f) == (size_t)size);
+    fclose(f);
+    uint32_t count = ((uint32_t)size + WF_DFU_BLOCK - 1) / WF_DFU_BLOCK;
+    uint8_t begin[20] = {38,0,16,0}, reply[12], end[6] = {42,0,2,0};
+    put32(begin + 4, size); put32(begin + 8, count); memcpy(begin + 12, file + 8, 4); begin[16] = 1;
+    wf_dfu_receiver_t r = {.file=staging, .capacity=sizeof staging, .context=reader, .can_start=ready, .crc32_mpeg2=mpeg, .install=install};
+    for (unsigned pass = 0; pass < 3; ++pass) {
+        if (pass) {
+            /* On pass 1, even self-consistent transport CRCs cannot admit a
+             * modified image. Pass 2 restores the actual signed payload. */
+            file[size - 1] ^= 1;
+            put32(file + 8, mpeg(NULL, file + WF_DFU_ENVELOPE, size - WF_DFU_ENVELOPE));
+            memcpy(begin + 12, file + 8, 4);
+        }
+        assert(wf_dfu_request(&r, begin, sizeof begin, reply) == 12 && reply[0] == 39 && !reply[4] && reply[6] == 1);
+        for (uint32_t index = 1; index <= count; ++index) {
+            size_t offset = (index - 1) * WF_DFU_BLOCK;
+            size_t n = (size_t)size - offset;
+            if (n > WF_DFU_BLOCK) n = WF_DFU_BLOCK;
+            uint8_t data[16 + WF_DFU_BLOCK] = {40,0};
+            data[2] = (uint8_t)(12 + n); data[3] = (uint8_t)((12 + n) >> 8);
+            put32(data + 4, index); put32(data + 8, n); put32(data + 12, mpeg(NULL, file + offset, n));
+            memcpy(data + 16, file + offset, n);
+            if (index == 1) {
+                put32(data + 4, 2);
+                assert(wf_dfu_request(&r, data, 16+n, reply) == 12 && reply[4] == 13 && reply[6] && !r.accepted);
+                put32(data + 4, 1);
+                data[12] ^= 1;
+                assert(wf_dfu_request(&r, data, 16+n, reply) == 12 && reply[4] && reply[6] && !r.accepted);
+                data[12] ^= 1;
+            }
+            assert(wf_dfu_request(&r, data, 16+n, reply) == 12 && !reply[4] && r.accepted == index);
+            if (!pass && index == 1) {
+                wf_dfu_disconnect(&r);
+                assert(wf_dfu_request(&r, end, sizeof end, reply) == 6 && reply[4] && !installs);
+                break;
+            }
+        }
+        if (pass == 1) {
+            assert(wf_dfu_request(&r, end, sizeof end, reply) == 6 && reply[4] && !installs);
+            assert(!wf_dfu_install_received(&r));
+        }
+    }
+    assert(wf_dfu_request(&r, end, sizeof end, reply) == 6 && !reply[4] && !installs);
+    assert(wf_dfu_install_received(&r) && installs == 1);
+    assert(!wf_dfu_install_received(&r) && installs == 1);
+    assert(wf_dfu_request(&r, end, sizeof end, reply) == 6 && reply[4] && installs == 1);
+    free(file);
+}
+
 int main(int argc, char **argv)
 {
     wf_ota_ab_image_t image;
@@ -55,7 +139,7 @@ int main(int argc, char **argv)
         .region = {[WF_OTA_READ_B] = {physical_b, sizeof slot}}};
     assert(!wf_ota_release_verify_slot(&reader, WF_OTA_READ_B, &image));
     assert(!wf_ota_release_verify_slot(&reader, WF_OTA_READ_META0, &image));
-    if (argc == 2) {
+    if (argc >= 2) {
         FILE *release = fopen(argv[1], "rb");
         assert(release);
         uint8_t *tail = slot + sizeof slot - WF_RELEASE_HEADER_BYTES;
@@ -69,5 +153,6 @@ int main(int argc, char **argv)
         assert(!wf_ota_release_verify_slot(&reader, WF_OTA_READ_B, &image));
         assert(!image.bytes && !image.release);
     }
+    if (argc == 3) android_file(argv[2], &reader);
     return 0;
 }
