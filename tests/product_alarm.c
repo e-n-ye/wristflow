@@ -55,7 +55,10 @@ int main(void)
     port=wristflow_product_alarm_start();while(storage_work.count)work();
     unsigned before=reads;for(unsigned i=0;i<100;++i)snapshot();assert(reads==before); /* getter is pure */
     uint32_t id=add(0);assert(id&&snapshot().alarms.count==0&&port->status(NULL,id)==WRISTFLOW_SAVE_PENDING);
+    assert(!wristflow_product_alarm_hold_saved() && !lock.held);
     assert(!add(1));work();assert(snapshot().alarms.count==1&&port->status(NULL,id)==WRISTFLOW_SAVE_DONE);
+    assert(wristflow_product_alarm_hold_saved() && lock.held);
+    wristflow_product_alarm_release();
     wristflow_alarm_data_t old=state.data;
     fail_read=true;id=add(1);work();assert(port->status(NULL,id)==WRISTFLOW_SAVE_FAILED&&snapshot().alarms.count==1);
     fail_read=false;wristflow_alarm_store_t restored;wristflow_alarm_data_t data;

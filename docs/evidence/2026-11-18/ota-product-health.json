@@ -1,0 +1,23 @@
+{
+  "base": "566ff146bfed067c9b8fa1480c5d539d21d0b9ff",
+  "command": "pwsh -File scripts/Build.ps1 -Example product -Jobs 6",
+  "build": "artifacts/product/20261118-194250-750/result.json",
+  "build_result_sha256": "02bca49f56ae406525626355155bbc18eca07a9106d0ec813126dd8a54a0399c",
+  "project_sources": 633,
+  "artifacts": 29,
+  "build_archive": "artifacts/ota-product-2026111802.zip",
+  "archive_sha256": "68ae3c3401602cf042b288a520d0053197ac5ef519173cc760c5aabf3355d014",
+  "archive_members_verified": 663,
+  "main_bytes": 3033572,
+  "main_sha256": "c96509ea7ceab2f68eb6a82f2ada06ac902cede42e3aaeee45564f841d2edd0d",
+  "release": 2026111802,
+  "android_package": "artifacts/ota-android-health-20261118-001/offline_install.bin",
+  "package_bytes": 3033926,
+  "package_sha256": "8a9306b8b2d627c4a198c05102488b8e818543c3c1b12081b743c689019f5ee3",
+  "phone_kit": "artifacts/WristFlow-Android-OTA-20261118.zip",
+  "phone_kit_sha256": "ca83136e150feec7c9dc7832506be818a8d7b75b0b6dec6b7d95ec556eac8409",
+  "host": "Eight CTest targets passed, including a settings confirmation and cancel, blocked alarm publication, fresh inflight record checkpoint, IMU save and hold, charger inhibition and flash gate. Real signed package verified by the shared receiver in the host process.",
+  "validation_logs": ["C:/Users/13984/.fastctx/jobs/j-zj49cv/output.log", "C:/Users/13984/.fastctx/jobs/j-u4h5v0/output.log"],
+  "corrections": "Added SDK interrupt declarations after a target compile failure. An initial positive IMU fixture had disabled storage. Both the available and unavailable storage cases are now exercised.",
+  "hardware_verified": false
+}

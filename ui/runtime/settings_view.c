@@ -177,6 +177,28 @@ static void unavailable(lv_obj_t *list, const char *name, const char *title, con
 
 static void enable_endurance(lv_event_t *event)
 { wristflow_ui_shell_endurance_prompt(lv_event_get_user_data(event)); }
+static void accept_update(lv_event_t *event)
+{
+    wristflow_ui_shell_t *shell = lv_event_get_user_data(event);
+    const wristflow_firmware_port_t *firmware = wristflow_ui_shell_firmware(shell);
+    lv_obj_t *root = lv_screen_active();
+    wristflow_settings_dismiss(root);
+    if (firmware->request && firmware->request())
+        label(named(named(root, "system_update"), "row_detail"), "正在保存记录");
+    else wristflow_ui_shell_firmware_failed(shell);
+}
+static void confirm_update(lv_event_t *event)
+{
+    lv_obj_t *root = lv_screen_active();
+    if (lv_obj_find_by_name(root, "settings_confirm")) return;
+    lv_obj_t *dialog = component_confirm_create(root);
+    lv_obj_set_name(dialog, "settings_confirm");
+    lv_label_set_text(named(dialog, "confirm_text"), "暂停充电，保存记录并重启？手机可连接 WristFlow OTA 发送固件。");
+    lv_obj_set_style_text_font(named(dialog, "confirm_text"), notification_22, 0);
+    lv_obj_remove_flag(dialog, LV_OBJ_FLAG_EVENT_BUBBLE | LV_OBJ_FLAG_GESTURE_BUBBLE);
+    lv_obj_add_event_cb(named(dialog, "confirm_cancel"), cancel, LV_EVENT_SHORT_CLICKED, NULL);
+    lv_obj_add_event_cb(named(dialog, "confirm_accept"), accept_update, LV_EVENT_SHORT_CLICKED, lv_event_get_user_data(event));
+}
 static void optimize_wrist(lv_event_t *event)
 {
     wristflow_ui_shell_t *shell = lv_event_get_user_data(event);
@@ -410,7 +432,12 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
         unavailable(list, "assistant_disabled", "长按唤出助手", "暂未开放"); break;
     case WRISTFLOW_SURFACE_SYSTEM_SETTINGS:
         title = "系统操作";
-        settings_note_create(list, "以下系统操作暂未开放。");
+        if (wristflow_ui_shell_firmware(shell)->request) {
+            obj = row(list, "system_update", "固件升级", "从手机发送");
+            lv_obj_set_style_text_font(named(obj, "row_title"), notification_22, 0);
+            lv_obj_set_style_text_font(named(obj, "row_detail"), notification_22, 0);
+            lv_obj_add_event_cb(obj, confirm_update, LV_EVENT_SHORT_CLICKED, shell);
+        } else settings_note_create(list, "以下系统操作暂未开放。");
         unavailable(list, "restart_disabled", "重启", "暂未开放");
         unavailable(list, "shutdown_disabled", "关机", "暂未开放");
         unavailable(list, "phone_disabled", "连接新手机", "暂未开放");
@@ -418,7 +445,11 @@ lv_obj_t *wristflow_settings_screen(wristflow_ui_shell_t *shell, wristflow_surfa
     case WRISTFLOW_SURFACE_ABOUT:
         title = "关于";
         row(list, "about_product", "WristFlow", "Product / 消息通知");
-        row(list, "about_firmware", "固件版本", "2026.09.27-notify-b1");
+        if (wristflow_ui_shell_firmware(shell)->version) {
+            char release[16];
+            snprintf(release, sizeof release, "%lu", (unsigned long)wristflow_ui_shell_firmware(shell)->version);
+            row(list, "about_firmware", "固件版本", release);
+        } else row(list, "about_firmware", "固件版本", "2026.09.27-notify-b1");
         row(list, "about_board", "目标设备", "黄山派 / SF32LB52");
         row(list, "about_sdk", "SDK", "2.5.1 / 421126d9");
         row(list, "about_display", "屏幕", "390 x 450");

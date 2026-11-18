@@ -118,6 +118,10 @@ bool wristflow_ui_shell_has_settings_store(const wristflow_ui_shell_t *);
 wristflow_save_state_t wristflow_ui_shell_settings_save_state(const wristflow_ui_shell_t *);
 void wristflow_ui_shell_retry_settings_save(wristflow_ui_shell_t *);
 const wristflow_layout_t *wristflow_ui_shell_layout(const wristflow_ui_shell_t *shell);
+typedef struct { uint32_t version; bool (*request)(void); } wristflow_firmware_port_t;
+void wristflow_ui_shell_bind_firmware(wristflow_ui_shell_t *, uint32_t version, bool (*request)(void));
+const wristflow_firmware_port_t *wristflow_ui_shell_firmware(const wristflow_ui_shell_t *);
+void wristflow_ui_shell_firmware_failed(wristflow_ui_shell_t *);
 /* Editor commits rebuild the ring outside pointer dispatch on its old cards. */
 void wristflow_ui_shell_rebuild_components(wristflow_ui_shell_t *shell, unsigned selected);
 bool wristflow_ui_shell_finish_edit(wristflow_ui_shell_t *shell, unsigned selected);

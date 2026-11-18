@@ -376,6 +376,14 @@ int main(void)
     before=transfers; wristflow_product_charger_display(&display);
     assert(!display.charge_cycle && transfers==before); background(); assert(!pm);
     input_observation_tests();
+    assert(wf_product_charger_hold() && !wf_product_charger_inhibited());
+    background();
+    assert(wf_product_charger_inhibited() && (regs[1] & 8));
+    assert(!request_start(1) && !wf_product_charger_hold());
+    before=enables; regs[8]=0x40;input_changed();background();
+    regs[8]=0x42;input_changed();background();assert(enables==before);
+    wf_product_charger_release();
+    assert(!wf_product_charger_inhibited());
     puts("charger worker: asynchronous commands, stop precedence, initialization, PM, recursive lock and fault cleanup passed");
     return 0;
 }

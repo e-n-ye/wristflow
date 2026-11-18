@@ -12,7 +12,7 @@ static wf_runtime_summary_t durable;
 static wf_runtime_read_t read_slot;
 static wf_runtime_write_t write_slot;
 static void *backend;
-static bool enabled,ready,saved_valid,pending,writing,failed,periodic;
+static bool enabled,ready,saved_valid,pending,writing,failed,periodic,held;
 static int active=-1;
 static uint64_t next_due;
 /* Fixed export snapshot; only snapshot explicitly replaces it. No Flash I/O. */
@@ -56,6 +56,7 @@ void wf_product_runtime_observe(const wf_runtime_observation_t *o)
     if(!ready || !o)return;
     bool storage_fault=wristflow_product_services_storage_failed();
     rt_mutex_take(&record_lock,RT_WAITING_FOREVER);
+    if(held) { rt_mutex_release(&record_lock);return; }
     if(storage_fault) { failed=true;pending=false; }
     bool was=pending;
     if(wf_runtime_observe(&record,o) && record.running)offer(o->ms,false);
@@ -119,6 +120,26 @@ bool wf_product_runtime_status(wf_runtime_summary_t *current,wf_runtime_summary_
     if(queued)*queued=pending||writing;
     rt_mutex_release(&record_lock);return true;
 }
+bool wf_product_runtime_hold(uint32_t *generation)
+{
+    if (!ready || !generation) return false;
+    rt_mutex_take(&record_lock, RT_WAITING_FOREVER);
+    if (failed || held) { rt_mutex_release(&record_lock); return false; }
+    held = true;
+    *generation = record.summary.generation + (writing ? 2u : 1u);
+    offer(record.summary.uptime_ms, true);
+    rt_mutex_release(&record_lock);
+    if (wristflow_product_settings_store_notify()) return true;
+    wf_product_runtime_resume();
+    return false;
+}
+void wf_product_runtime_resume(void)
+{
+    if (!ready) return;
+    rt_mutex_take(&record_lock, RT_WAITING_FOREVER);
+    held = false;
+    rt_mutex_release(&record_lock);
+}
 static bool number(const char *text,uint32_t *value)
 {
     if(!text || !*text || *text=='-' || *text=='+')return false;
@@ -161,6 +182,7 @@ static int wf_record(int argc,char **argv)
     if(argc==2 && (!strcmp(argv[1],"stop") || !strcmp(argv[1],"start"))) {
         bool start=!strcmp(argv[1],"start");uint64_t now=wristflow_product_services_monotonic();
         rt_mutex_take(&record_lock,RT_WAITING_FOREVER);
+        if(held) { rt_mutex_release(&record_lock);return -RT_ERROR; }
         bool changed=record.running!=start;
         wf_runtime_control(&record,now,start);if(changed)offer(now,true);
         bool queued=pending,fault=failed;

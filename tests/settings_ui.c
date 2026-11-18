@@ -21,6 +21,8 @@ static wristflow_vibration_mode_t preview_mode;
 static bool reject_preview;
 static bool automatic_mode, reject_automatic, defer_automatic;
 static unsigned automatic_requests;
+static unsigned firmware_requests;
+static bool request_firmware(void) { ++firmware_requests; return true; }
 static bool automatic(void *context)
 { assert(context == &automatic_mode); return automatic_mode; }
 static bool request_automatic(bool enabled, void *context)
@@ -161,6 +163,15 @@ int main(int argc,char **argv)
     for(unsigned i=0;i<2;++i) {
         press(entries[i]); assert(lv_obj_has_state(named(lv_screen_active(),disabled[i]),LV_STATE_DISABLED)); snapshot(entries[i]); back();
     }
+    wristflow_ui_shell_bind_firmware(shell,2026111802,request_firmware);
+    press("settings_system");press("system_update");snapshot("update_confirm");
+    press("confirm_cancel");assert(!firmware_requests);
+    press("system_update");press("confirm_accept");assert(firmware_requests==1);
+    wristflow_ui_shell_firmware_failed(shell);
+    assert(!strcmp(lv_label_get_text(named(named(lv_screen_active(),"system_update"),"row_detail")),"未进入，可重试"));
+    back();press("settings_about");
+    assert(!strcmp(lv_label_get_text(named(named(lv_screen_active(),"about_firmware"),"row_detail")),"2026111802"));
+    back();
     press("settings_sound"); snapshot("sound");
     assert(lv_obj_has_state(named(lv_screen_active(),"sound_disabled"),LV_STATE_DISABLED));
     press("vibration_mode"); surface(WRISTFLOW_SURFACE_VIBRATION_SETTINGS); snapshot("vibration_standard");

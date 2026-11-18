@@ -612,6 +612,11 @@ int main(void)
     assert(!daily_cached.metric.total_valid && daily.seed_pending);
     service_clock.valid=true; wristflow_product_steps_clock_changed(); cycle();
     assert(daily_cached.metric.total==113 && daily_cached.observation.restored && !daily.seed_pending);
+    native_count+=3;
+    assert(wf_product_steps_hold() && !wf_product_steps_hold() && !wf_product_steps_held());
+    cycle(); /* Host scheduler yields when the owner waits for release. */
+    assert(wf_product_steps_held() && !checkpoint.dirty && !checkpoint.failed && checkpoint.saved.total==116);
+    wf_product_steps_resume();assert(!wf_product_steps_held());
     /* Storage unavailable leaves native counting operational and uncheckpointed. */
     ready=false; cancel_requested=false; storage_available=false;
     assert(wristflow_product_steps_start()); cycle(); native_count=2; cycle();
@@ -1121,6 +1126,11 @@ int main(void)
     assert(compass_cached.valid && auto_generation==light_generation && auto_requested && wrist_runtime);
     assert(wristflow_product_compass_active(false)); cycle();
     assert(!compass_owner && mag_cached.stopped && auto_requested && wrist_runtime);
+    assert(wf_product_steps_hold() && !wf_product_steps_hold() && !wf_product_steps_held());
+    cycle();
+    assert(!checkpoint_enabled && !wf_product_steps_held());
+    wf_product_steps_resume();
+    assert(!wf_product_steps_held());
     cprobe_integration();
     recovery_integration();
     return 0;

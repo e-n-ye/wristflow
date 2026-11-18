@@ -9,6 +9,8 @@ static size_t lengths[2];
 static unsigned writes,notifications,pm;
 static bool bad_write,bad_read,corrupt,inject_stop,storage_fault;
 static bool fail_boot_read,fail_notify;
+static bool hold_during_write;
+static uint32_t handoff_generation;
 static char output[8192];static size_t used;
 static FILE *capture_file;
 int rt_mutex_init(struct rt_mutex *m,const char *name,unsigned flags)
@@ -35,12 +37,16 @@ static bool write(unsigned key,const uint8_t *bytes,void *context)
 {
     assert(!record_lock.held && pm==1 && key<2 && context==slots);++writes;
     if(inject_stop) { inject_stop=false;char *args[]={"wf_record","stop"};assert(!wf_record(2,args)); }
+    if(hold_during_write) {
+        hold_during_write=false;
+        assert(wf_product_runtime_hold(&handoff_generation));
+    }
     if(bad_write)return false;
     memcpy(slots[key],bytes,512);lengths[key]=512;return true;
 }
 static void reboot(bool erase)
 {
-    ready=saved_valid=pending=writing=failed=periodic=false;active=-1;next_due=0;
+    ready=saved_valid=pending=writing=failed=periodic=held=false;active=-1;next_due=0;
     record=(wf_runtime_record_t){0};durable=(wf_runtime_summary_t){0};memset(&exported,0,sizeof exported);
     if(erase)memset(lengths,0,sizeof lengths);
     writes=notifications=pm=0;bad_read=bad_write=corrupt=inject_stop=storage_fault=false;used=0;now=0;
@@ -94,6 +100,11 @@ int main(int argc,char **argv)
     fail_boot_read=false;reboot(false);assert(saved_valid && !failed);
     wf_product_runtime_process(NULL);fail_notify=true;observe(WF_RUNTIME_PERIOD_MS);assert(failed && !pending);fail_notify=false;
     assert(sizeof record+sizeof durable+sizeof exported<8192);
+    reboot(true);hold_during_write=true;wf_product_runtime_process(NULL);
+    assert(held && pending && durable.generation != handoff_generation);
+    observe(1000);assert(record.summary.uptime_ms == 0 && command(2,start) < 0);
+    wf_product_runtime_process(NULL);assert(!pending && durable.generation == handoff_generation);
+    wf_product_runtime_resume();observe(2000);assert(!held && record.summary.uptime_ms == 2000);
     if(argc==2) {
         reboot(true);wf_product_runtime_process(NULL);observe(1000);
         bad_write=true;observe(WF_RUNTIME_PERIOD_MS);wf_product_runtime_process(NULL);observe(WF_RUNTIME_PERIOD_MS+1000);

@@ -26,6 +26,7 @@ static bool insertion_armed;
 static uint32_t input_insertions, cached_input_insertions;
 static uint32_t detect_after_ms;
 static bool auto_preparing;
+static volatile bool handoff_hold;
 static uint32_t auto_cycle, presentation_cycle, cached_presentation_cycle;
 static wristflow_charge_display_t published_charge;
 #define INPUT_SETTLE_MS 150u
@@ -47,7 +48,7 @@ static bool cancelled(void *context)
 {
     (void)context;
     rt_base_t level = rt_hw_interrupt_disable();
-    bool value = stop_pending || (auto_preparing && input_epoch != session_input_epoch);
+    bool value = stop_pending || handoff_hold || (auto_preparing && input_epoch != session_input_epoch);
     rt_hw_interrupt_enable(level);
     return value;
 }
@@ -249,7 +250,7 @@ static void detect_input(uint32_t generation)
         wristflow_charge_poll(&session, &port);
         return;
     }
-    if (auto_blocked) return;
+    if (auto_blocked || handoff_hold) return;
     auto_blocked = true; /* One attempt per confirmed input cycle. */
     if (!++auto_cycle) ++auto_cycle; /* Zero means no presentation. */
     session_input_epoch = generation;
@@ -360,7 +361,7 @@ static bool request_start(unsigned seconds)
 {
     if (!ready || !seconds || seconds > WF_CHARGE_MAX_SECONDS) return false;
     rt_base_t level = rt_hw_interrupt_disable();
-    if (busy || detect_pending) { rt_hw_interrupt_enable(level); return false; }
+    if (busy || detect_pending || handoff_hold) { rt_hw_interrupt_enable(level); return false; }
     busy = start_pending = true;
     start_seconds = seconds;
     accepted_ms = clock_ms(RT_NULL);
@@ -380,6 +381,34 @@ static bool request_stop(void)
     start_pending = false;
     rt_hw_interrupt_enable(level);
     return rt_event_send(&commands, 1) == RT_EOK;
+}
+
+bool wf_product_charger_hold(void)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    if (!ready || handoff_hold || start_pending || (cached.state == WF_CHARGE_ENABLED && !cached.automatic)) {
+        rt_hw_interrupt_enable(level);
+        return false;
+    }
+    handoff_hold = true;
+    rt_hw_interrupt_enable(level);
+    if (request_stop()) return true;
+    wf_product_charger_release();
+    return false;
+}
+bool wf_product_charger_inhibited(void)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    bool ok = handoff_hold && !busy && !stop_pending && cached.state == WF_CHARGE_STOPPED;
+    rt_hw_interrupt_enable(level);
+    return ok;
+}
+void wf_product_charger_release(void)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    handoff_hold = false;
+    rt_hw_interrupt_enable(level);
+    /* A stopped input cycle retains its normal no-automatic-restart policy. */
 }
 
 static int wf_charger(int argc, char **argv)

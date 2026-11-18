@@ -6,4 +6,7 @@ bool wristflow_product_steps_start(void);
 wristflow_steps_snapshot_t wristflow_product_steps_snapshot(void);
 void wristflow_product_steps_screen(bool visible);
 void wristflow_product_steps_clock_changed(void);
+bool wf_product_steps_hold(void);
+bool wf_product_steps_held(void);
+void wf_product_steps_resume(void);
 #endif

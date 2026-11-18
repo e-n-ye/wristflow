@@ -31,8 +31,11 @@ if cycle == '1':
     if storage == '1' or probe == '1' or fs == '1':
         raise ValueError('CycleLog cannot mix diagnostic builds')
     local_defines += ['WF_CYCLE_LOG','LFS_NO_MALLOC']
+ordinary = not any(flag == '1' for flag in (cycle, fs, storage, probe))
+if ordinary:
+    local_defines.append('WF_OTA_PRODUCT')
 lfs = os.path.join(SIFLI_SDK, 'rtos/rtthread/components/dfs/filesystems/littlefs')
-extra_link = ['-Wl,--wrap=rt_flash_read', '-Wl,--wrap=rt_flash_write', '-Wl,--wrap=rt_flash_erase'] if cycle == '1' else []
+extra_link = ['-Wl,--wrap=rt_flash_read', '-Wl,--wrap=rt_flash_write', '-Wl,--wrap=rt_flash_erase'] if ordinary or cycle == '1' else []
 objs = DefineGroup('WristFlowProduct', Glob('*.c'), depend=[''],
                    CPPPATH=[cwd, lfs, os.path.join(base64, 'include'), os.path.join(cwd, '../../../ui/xml'),
                             os.path.join(cwd, '../../../ui/runtime'), os.path.join(cwd, '../../../core'), memsic],

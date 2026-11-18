@@ -160,6 +160,14 @@ int main(void)
     id=submit(41);process_record();assert(record_calls==1 && wait_ticks()==1500);
     assert(wristflow_product_settings_store_notify() && changed.bits==1 && wait_ticks()==1500);
     ticks+=1500;background();process_record();assert(record_calls==2 && wait_ticks()==-1);
+    id=submit(42);
+    assert(wristflow_product_settings_hold() && !wristflow_product_settings_hold());
+    assert(!submit(43) && !wristflow_product_layout_request(&value,NULL));
+    assert(wristflow_product_settings_drain() == WRISTFLOW_SAVE_PENDING);
+    ticks+=1500;background();
+    assert(state(id)==WRISTFLOW_SAVE_DONE && wristflow_product_settings_drain() == WRISTFLOW_SAVE_DONE);
+    wristflow_product_settings_resume();
+    assert(submit(43));
     puts("settings store: idle event wait, debounce, bounded retry, readback, stale completion, partial failure, wrap and cleanup passed");
     return 0;
 }

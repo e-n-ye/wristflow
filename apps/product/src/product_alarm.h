@@ -5,4 +5,7 @@
  * soft deadline and one background storage worker. Port outlives all views. */
 const wristflow_alarm_port_t *wristflow_product_alarm_start(void);
 void wristflow_product_alarm_clock_changed(void);
+/* On success the caller owns the alarm model lock until reboot or release. */
+bool wristflow_product_alarm_hold_saved(void);
+void wristflow_product_alarm_release(void);
 #endif
