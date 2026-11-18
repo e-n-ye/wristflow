@@ -23,7 +23,8 @@ SCENARIOS = ("success", "fragmented", "before-changed", "b-compare", "boot-compa
     "restore-boot-fail", "restore-b-fail", "restore-read-fail", "alias-retained", "no-frames",
     "bad-tag", "bad-crc", "short-frames", "duplicate-frames", "execute-hang", "rtc-reset",
     "initial-register-fail", "restore-register-fail", "restore-alias-fail", "probe-start-fail", "original-start-fail",
-    "boot-header-changed", "boot-route-changed")
+    "boot-header-changed", "boot-route-changed", "initial-speed-fail", "probe-speed-fail",
+    "restore-speed-fail", "restore-exit-corrupt")
 AUTHORIZATIONS = ("b_sector_write_authorized", "boot_write_authorized", "probe_start_authorized",
                   "restore_entry_authorized", "restore_writes_authorized")
 
@@ -146,7 +147,8 @@ def verified_result(value, directory, request, path, review):
     if (value.get("schema") != 1 or value.get("kind") != "ota-b-execute" or value.get("source_rev") != REVISION
             or value.get("config_sha") != digest(path) or value.get("stub_sha256") != STUB_SHA
             or value.get("simulation") is not request["simulation"] or value.get("recovery_only") is not request["recovery_only"]
-            or value.get("rtc_time_write") is not False or value.get("same_port_object") is not True or value.get("baud") != 1000000):
+            or value.get("rtc_time_write") is not False or value.get("same_port_object") is not True
+            or value.get("baud") != 1000000 or value.get("flash_baud") != 500000):
         raise ValueError("Foreign execution report")
     flags = ("entry_attempted", "boot_may_be_changed", "b_may_be_changed", "b_install_attempted", "b_install_completed",
         "boot_install_attempted", "boot_install_completed", "boot_restore_attempted", "boot_restore_completed", "b_restore_attempted", "b_restore_completed",

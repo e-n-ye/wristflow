@@ -17,6 +17,22 @@ pub fn snapshot(tool: &mut SF32LB52Tool) -> Result<Value> {
 pub fn snapshot_strict(tool: &mut SF32LB52Tool) -> Result<Value> {
     snapshot_impl(tool,true)
 }
+
+pub(crate) fn require_exit_frame(frame: &[u8]) -> Result<()> {
+    crate::require(frame == [0x7e, 0x79, 2, 0, 0x10, 0, 0xd0, 6],
+        "Missing or foreign debug Exit response; stop before next command")
+}
+
+pub fn receive_exit(tool: &mut SF32LB52Tool, trace: &port::Trace, phase: &str) -> Result<()> {
+    // The pinned library sends Exit without receiving its D0 response.
+    let mut frame = [0; 8];
+    sftool_lib::common::serial_io::for_tool(tool).read_exact_with_timeout(
+        &mut frame, Duration::from_secs(1), "fixed debug Exit response")?;
+    require_exit_frame(&frame)?;
+    trace.event(json!({"kind":"debug_exit_response","phase":phase,"frame_hex":"7e7902001000d006"}))?;
+    Ok(())
+}
+
 fn snapshot_impl(tool: &mut SF32LB52Tool,fail_stop:bool) -> Result<Value> {
     tool.debug_command(SifliUartCommand::Enter)?;
     let result=(|| -> Result<Value> {

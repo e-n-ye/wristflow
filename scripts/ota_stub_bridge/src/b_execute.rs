@@ -10,6 +10,7 @@ use sftool_lib::{BeforeOperation,CancelToken,SifliToolBase,ReadFlashFile,ReadFla
 use sftool_lib::common::ram_command::{DownloadStub,RamCommand,Command,Response};
 use sftool_lib::common::sifli_debug::{SifliDebug,SifliUartCommand};
 use sftool_lib::read_flash::ReadFlashTrait;
+use sftool_lib::speed::SpeedTrait;
 use sftool_lib::sf32lb52::SF32LB52Tool;
 use std::{fs,io::{self,Write},path::{Path,PathBuf},thread,time::{Duration,Instant}};
 type Result<T>=std::result::Result<T,Box<dyn std::error::Error>>;
@@ -29,7 +30,7 @@ const FTAB_BYTES:usize=12288;
 pub const SCENARIOS:&[&str]=&["success","fragmented","before-changed","b-compare","boot-compare","write-fail",
     "restore-boot-fail","restore-b-fail","restore-read-fail","alias-retained","no-frames","bad-tag","bad-crc","short-frames","duplicate-frames","execute-hang",
     "initial-register-fail","restore-register-fail","restore-alias-fail","probe-start-fail","original-start-fail",
-    "boot-header-changed","boot-route-changed"];
+    "boot-header-changed","boot-route-changed","initial-speed-fail","probe-speed-fail","restore-speed-fail","restore-exit-corrupt"];
 fn require(ok:bool,message:&str)->Result<()> {if ok {Ok(())}else{Err(io::Error::other(message).into())}}
 fn hash(data:&[u8])->String {format!("{:x}",Sha256::digest(data))}
 fn can_start_original(clean:bool,r:&Value,t:&port::Trace)->bool {clean && r["restored_verified"]==true && t.fault().is_none()}
@@ -68,6 +69,16 @@ fn validate(c:&Config)->Result<(Vec<u8>,Vec<u8>,Vec<u8>,Vec<u8>)> {
 }
 fn save(path:&Path,data:&[u8])->Result<()> {let mut f=fs::File::create_new(path)?;f.write_all(data)?;f.sync_all()?;Ok(())}
 fn checkpoint(c:&Config,r:&Value)->Result<()> {sector::checkpoint(&c.out,r)}
+
+fn switch_stub_speed(tool: &mut SF32LB52Tool, trace: &port::Trace, role: &str, from: u32, to: u32) -> Result<()> {
+    require(tool.port.baud_rate()? == from, "Unexpected host rate before stub handshake")?;
+    trace.event(json!({"kind":"execution_speed_intent","role":role,"from":from,"to":to}))?;
+    tool.set_speed(to)?;
+    require(tool.port.baud_rate()? == to, "Host rate differs after official stub handshake")?;
+    trace.event(json!({"kind":"execution_speed_complete","role":role,"baud":to}))?;
+    Ok(())
+}
+
 fn read(tool:&mut SF32LB52Tool,t:&port::Trace,c:&Config,name:&str,address:u32,bytes:usize)->Result<Vec<u8>> {
     require((address==0x12000000 && bytes==FTAB_BYTES) || ([BOOT,B].contains(&address) && bytes==K64),"Fixed read range only")?;
     t.event(json!({"kind":"execution_read_intent","name":name,"address":address,"bytes":bytes}))?;
@@ -97,12 +108,15 @@ fn ready(tool:&mut SF32LB52Tool,t:&port::Trace,c:&Config,r:&mut Value,role:&str)
     let low=tool.port.write_request_to_send(false);thread::sleep(Duration::from_millis(100));high?;low?;
     tool.download_stub()?;
     let snapshot=common::snapshot_strict(tool)?;
+    common::receive_exit(tool,t,"ready_snapshot")?;
     tool.debug_command(SifliUartCommand::Enter)?;
     let aliases=vec![tool.debug_read_word32(0x5004206c)?,tool.debug_read_word32(0x50042070)?,tool.debug_read_word32(0x50042074)?];
     tool.debug_command(SifliUartCommand::Exit)?;
+    common::receive_exit(tool,t,"physical_aliases")?;
     r[format!("{role}_ready")]=json!({"registers":snapshot,"aliases":aliases});checkpoint(c,r)?;
     sector::ready_guard(&snapshot)?;require(aliases==[0,0,0],"MPI2 alias not zero after entry; no Flash read or write")?;
-    t.event(json!({"kind":"execution_ready","role":role}))?;Ok(())
+    t.event(json!({"kind":"execution_ready","role":role}))?;
+    switch_stub_speed(tool,t,role,1_000_000,500_000)
 }
 fn crc(data:&[u8])->u32 {const A:crc::Algorithm<u32>=crc::Algorithm {width:32,poly:0x04c11db7,init:0xffffffff,refin:true,refout:true,xorout:0xffffffff,check:0,residue:0};crc::Crc::<u32>::new(&A).checksum(data)}
 fn frames(raw:&[u8])->Result<Value> {
@@ -191,6 +205,8 @@ fn execute(tool:&mut SF32LB52Tool,t:&port::Trace,c:&Config,r:&mut Value,baseline
     r["boot_candidate_verified"]=json!(installed[..58496]==*boot && installed[58496..]==before_boot[58496..]);checkpoint(c,r)?;
     if r["boot_candidate_verified"]!=true {r["errors"].as_array_mut().unwrap().push(json!("Boot comparison failed; restore without starting probe"));restore(tool,t,c,r,&before_boot,&before_b)?;return Ok(());}
     tool.base.cancel_token.check_cancelled()?;
+    // The vendor handshake clears input. Finish it before any probe byte exists.
+    switch_stub_speed(tool,t,"probe",500_000,1_000_000)?;
     r["probe_start_attempted"]=json!(true);checkpoint(c,r)?;t.event(json!({"kind":"probe_start_intent"}))?;
     let start=fs::metadata(c.out.join("rx.bin"))?.len();
     require(tool.command(Command::SoftReset)?==Response::Ok,"Probe start response not OK; stop without second entry")?;
@@ -210,7 +226,7 @@ fn session(c:&Config,stub:Vec<u8>,baseline:Vec<u8>,candidate:Vec<u8>,boot:Vec<u8
     let active=std::sync::Arc::new(std::sync::atomic::AtomicBool::new(true));let running=active.clone();let watched=token.clone();let cancel=c.cancel.clone();let seconds=c.seconds;
     let watcher=thread::spawn(move||while running.load(std::sync::atomic::Ordering::Relaxed) {if cancel.exists() || start.elapsed()>=Duration::from_secs(seconds) {watched.cancel();break;}thread::sleep(Duration::from_millis(20));});
     let mut r=json!({"schema":1,"kind":"ota-b-execute","config_sha":sha,"simulation":c.simulation,"recovery_only":c.recovery_only,"source_rev":REV,"stub_sha256":STUB_SHA,
-        "same_port_object":true,"baud":1000000,"rtc_time_write":false,"entry_attempted":false,"boot_may_be_changed":c.recovery_only,"b_may_be_changed":c.recovery_only,
+        "same_port_object":true,"baud":1000000,"flash_baud":500000,"rtc_time_write":false,"entry_attempted":false,"boot_may_be_changed":c.recovery_only,"b_may_be_changed":c.recovery_only,
         "b_install_attempted":false,"b_install_completed":false,"boot_install_attempted":false,"boot_install_completed":false,
         "boot_restore_attempted":false,"boot_restore_completed":false,"b_restore_attempted":false,"b_restore_completed":false,
         "fresh_prestate_verified":false,"b_candidate_verified":false,"boot_candidate_verified":false,"probe_start_attempted":false,"probe_start_completed":false,

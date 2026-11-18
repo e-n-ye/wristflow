@@ -89,7 +89,13 @@ impl State {
                 let frame:Vec<_>=self.input.drain(..6+payload).collect();let p=&frame[6..];
                 if p==[0x41,0x54,0x53,0x46,0x33,0x32,5,0x21] {self.response(0xd1,&[])}
                 else if p==[0x41,0x54,0x53,0x46,0x33,0x32,0x18,0x21] {
-                    if self.ready {if self.receive_diag {self.response(0xd0,&[])}else{self.output.extend(b"msh >")}}
+                    if self.ready {
+                        if self.execution && self.entries==2 && self.scenario=="restore-exit-corrupt" {
+                            self.response(0xdf,&[]);
+                        } else if self.receive_diag || self.execution {
+                            self.response(0xd0,&[]);
+                        } else {self.output.extend(b"msh >")}
+                    }
                 }
                 else if p.starts_with(&[0x40,0x72]) {
                     let address=u32::from_le_bytes(p[2..6].try_into().unwrap());
@@ -125,6 +131,7 @@ impl State {
                 match parts.as_slice() {
                     []=>{if self.ready {self.output.extend(b"msh >")}},
                     ["burn_read",address,size] if self.execution=>{
+                        if self.host_baud!=500_000 {return Err(io::Error::other("Flash read requires 500K"))}
                         let address=usize::from_str_radix(address.trim_start_matches("0x"),16).map_err(io::Error::other)?;
                         let size=usize::from_str_radix(size.trim_start_matches("0x"),16).map_err(io::Error::other)?;
                         if !((address==0x12000000 && size==12288) || ([0x12010000,0x12420000].contains(&address) && size==65536)) {return Err(io::Error::other("Synthetic unapproved read"))}
@@ -137,6 +144,7 @@ impl State {
                         self.output.extend(b"start_trans\r\n");self.output.extend(data);self.output.extend(format!("\r\ncrc:0x{checksum:08x}\r\nOK\r\nmsh >").bytes());
                     },
                     ["burn_erase_write",address,size] if self.execution=>{
+                        if self.host_baud!=500_000 {return Err(io::Error::other("Flash write requires 500K"))}
                         let address=usize::from_str_radix(address.trim_start_matches("0x"),16).map_err(io::Error::other)?;
                         let size=usize::from_str_radix(size.trim_start_matches("0x"),16).map_err(io::Error::other)?;
                         let index=if address==0x12010000 && [58496,65536].contains(&size) {0}else if address==0x12420000 && size==4096 {1}else{return Err(io::Error::other("Synthetic unapproved mutation"))};
@@ -152,6 +160,7 @@ impl State {
                             (self.scenario=="original-start-fail" && self.exec_writes==[2,2]) {self.output.extend(b"Fail\r\n");continue;}
                         self.output.extend(b"OK\r\n");self.ready=false;
                         if self.nor[0x10000..0x10000+self.boot.len()]==self.boot {
+                            if self.host_baud!=1_000_000 {return Err(io::Error::other("Probe starts at 1M"))}
                             let mut frames=self.frames.clone();
                             if self.scenario=="no-frames" {frames.clear();}
                             if self.scenario=="bad-tag" {frames[12]^=1;}
@@ -175,6 +184,14 @@ impl State {
                     },
                     ["burn_speed","500000","10"] if self.receive_diag && self.reads==0 && self.requested_baud.is_none()=>{
                         self.requested_baud=Some(500_000);
+                    },
+                    ["burn_speed",baud,"10"] if self.execution && self.ready && self.requested_baud.is_none()=>{
+                        let next = match (*baud, self.host_baud) {
+                            ("500000", 1_000_000) => 500_000,
+                            ("1000000", 500_000) => 1_000_000,
+                            _ => return Err(io::Error::other("Unexpected execution speed transition")),
+                        };
+                        self.requested_baud = Some(next);
                     },
                     ["burn_read","0x12010000","0x00010000"] if self.receive_diag=>{
                         if self.reads>=3 {return Err(io::Error::other("Only three planned boot reads"))}
@@ -245,6 +262,19 @@ impl SerialPort for Peer {
     fn baud_rate(&self)->serialport::Result<u32> {Ok(self.state.lock().unwrap().host_baud)}
     fn set_baud_rate(&mut self,value:u32)->serialport::Result<()> {
         let mut s=self.state.lock().unwrap();
+        if s.execution {
+            let failure = match (s.entries, value) {
+                (1, 500_000) => "initial-speed-fail",
+                (1, 1_000_000) => "probe-speed-fail",
+                (2, 500_000) => "restore-speed-fail",
+                _ => return Err(serialport::Error::new(ErrorKind::InvalidInput,"Unexpected phase for speed change")),
+            };
+            if s.requested_baud.take()!=Some(value) || s.scenario==failure {
+                return Err(serialport::Error::new(ErrorKind::InvalidInput,"Execution speed handshake failed"));
+            }
+            s.host_baud = value;
+            return Ok(());
+        }
         if !s.receive_diag || s.reads!=0 || s.requested_baud!=Some(value) || value!=500_000 || s.scenario=="speed-fail" {
             return Err(serialport::Error::new(ErrorKind::InvalidInput,"Only planned pre-payload500k handshake permitted"));
         }
@@ -255,7 +285,9 @@ impl SerialPort for Peer {
     fn set_parity(&mut self,_:Parity)->serialport::Result<()> {Ok(())}
     fn set_stop_bits(&mut self,_:StopBits)->serialport::Result<()> {Ok(())}
     fn write_request_to_send(&mut self,value:bool)->serialport::Result<()> {
-        if value {let mut s=self.state.lock().unwrap();s.output.clear();s.input.clear();s.ready=false;s.entries+=1;}
+        if value {let mut s=self.state.lock().unwrap();
+            if s.execution && s.host_baud!=1_000_000 {return Err(serialport::Error::new(ErrorKind::InvalidInput,"ROM entry requires 1M"))}
+            s.output.clear();s.input.clear();s.ready=false;s.entries+=1;}
         Ok(())
     }
     fn write_data_terminal_ready(&mut self,_:bool)->serialport::Result<()> {Ok(())}
