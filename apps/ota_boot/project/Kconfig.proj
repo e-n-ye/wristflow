@@ -8,3 +8,8 @@ config CUSTOM_MEM_MAP
     bool
     select custom_mem_map
     default y
+
+config WF_OTA_PRODUCTION_BOOT
+    bool
+    default y if "$(WRISTFLOW_AB_BOOT)" = "1"
+    select PKG_SIFLI_MBEDTLS_BOOT

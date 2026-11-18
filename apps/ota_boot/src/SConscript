@@ -12,9 +12,40 @@ names = ['board.c', 'boot_flash.c', 'efuse.c', 'board_psram.c',
          'sd_emmc_ops.c', 'sd_nand_drv.c', 'sd_nand_ops.c']
 sources = Glob('*.c') + [File(os.path.join(variant, name)) for name in names]
 root=os.path.normpath(os.path.join(cwd,'../../..'))
-defines=['WF_OTA_BOOT_DIAGNOSTIC']
+defines=[]
 includes=[cwd,vendor_board]
 binding=ARGUMENTS.get('wf_probe_binding')
+receiver=ARGUMENTS.get('wf_receiver_result')
+if binding and receiver:
+    raise ValueError('Probe and production bindings are mutually exclusive')
+if not receiver:
+    defines.append('WF_OTA_BOOT_DIAGNOSTIC')
+if receiver:
+    with open(receiver, encoding='utf-8-sig') as stream:
+        record=json.load(stream)
+    with open(os.path.join(root, 'sdk.lock.json'), encoding='utf-8') as stream:
+        lock = json.load(stream)
+    if (record.get('kind') != 'standalone-ota-android-receiver' or record.get('artifact_validation_passed') is not True
+            or record.get('board') != lock['board'] or record.get('sdk_commit') != lock['sdk']['commit']
+            or record.get('sdk_changes') != []):
+        raise ValueError('Verified Android receiver build required')
+    [item] = [a for a in record['artifacts'] if os.path.basename(a['path']) == 'main.bin']
+    path = os.path.join(os.path.dirname(receiver), 'frozen', 'main.bin')
+    with open(path if os.path.isfile(path) else item['path'], 'rb') as stream:
+        image = stream.read()
+    digest = hashlib.sha256(image).digest()
+    if len(image) != item['bytes'] or not 8 <= len(image) <= 0x60000 or digest.hex() != item['sha256']:
+        raise ValueError('Receiver differs from bound build')
+    generated = Dir('.').abspath
+    with open(os.path.join(generated,'receiver_binding.h'),'w',encoding='ascii') as out:
+        out.write('#define WF_RECEIVER_BYTES %du\n' % len(image))
+        out.write('static const uint8_t receiver_sha256[32] = {' + ','.join(map(str,digest)) + '};\n')
+    includes += [generated, os.path.join(root,'core'), os.path.join(root,'apps/ota_loader/src')]
+    for location, files in [('core', ['ota_ab.c','ota_journal.c','ota_trial.c']),
+            ('apps/ota_loader/src', ['physical_read.c','release.c','release_hash.c'])]:
+        shared = os.path.join(generated, 'ab_' + os.path.basename(location))
+        VariantDir(shared,os.path.join(root,location),duplicate=0)
+        sources += [File(os.path.join(shared, name)) for name in files]
 if binding:
     with open(binding,encoding='utf-8') as stream: item=json.load(stream)
     if item.get('schema')!=1 or item.get('mode')!='literal-probe-only':

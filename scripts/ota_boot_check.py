@@ -1,4 +1,4 @@
-"""Validate the diagnostic RAM boot ELF, never access or deploy a device."""
+"""Validate the RAM boot ELF and its selected image binding offline."""
 import argparse
 import hashlib
 import json
@@ -54,7 +54,8 @@ def jump_unreferenced(disassembly, start, size):
         require(start <= int(match[1], 16) < start + size, "Diagnostic code references jump")
 
 
-def check(elf, binary=None, binding=None):
+def check(elf, binary=None, binding=None, receiver_result=None):
+    require(not (binding and receiver_result), "Two boot bindings")
     def output(tool, *args):
         return subprocess.check_output([tool, *args, str(elf)], text=True, encoding="utf-8")
     symbols = output("arm-none-eabi-nm", "-S")
@@ -82,10 +83,10 @@ def check(elf, binary=None, binding=None):
             if "LOAD" in flags:
                 require(RAM_CODE[0] <= lma < lma + size <= RAM_CODE[1], "Section load address: " + name)
                 load_ends.append(lma+size)
-    # Entry never references the retained jump function: structural vector
-    # plausibility alone must not become permission to boot an image.
+    # A diagnostic build retains but never calls the application handoff.
     jump = re.search(r"(?m)^([0-9a-f]+) [0-9a-f]+ [Tt] wf_ota_ram_jump$", symbols)
-    jump_unreferenced(disassembly, int(jump[1], 16), sizes["wf_ota_ram_jump"])
+    if receiver_result is None:
+        jump_unreferenced(disassembly, int(jump[1], 16), sizes["wf_ota_ram_jump"])
     extra={"probe_execution_bound":False}
     if binary is not None:
         data=binary.read_bytes()
@@ -120,10 +121,32 @@ def check(elf, binary=None, binding=None):
         extra['probe_execution_bound']=True
     else:
         require(not re.search(r'\bwf_ota_ram_jump_probe$',symbols,re.M),"Unexpected execution code in diagnostic build")
+    if receiver_result is not None:
+        record = json.loads(receiver_result.read_text(encoding="utf-8-sig"))
+        require(record["kind"] == "standalone-ota-android-receiver" and record["artifact_validation_passed"] is True,
+                "Receiver build rejected")
+        image, = [a for a in record["artifacts"] if Path(a["path"]).name == "main.bin"]
+        require(binary is not None and len(data) <= 58496, "Exceeds actual original FTAB copy extent")
+        require(bytes.fromhex(image["sha256"]) in data, "Boot does not contain the bound receiver digest")
+        for name in ("wf_ota_boot_select", "wf_ota_trial_select", "wf_ota_journal_commit", "wf_ota_release_verify_slot", "mbedtls_pk_verify",
+                     "HAL_WDT_Init", "_sbrk"):
+            require(re.search(r"(?m)^[0-9a-f]+ [0-9a-f]+ [Tt] " + name + r"$", symbols), "Missing " + name)
+        require(re.search(r"(?m)^([0-9a-f]+) 00004000 [Bb] rsa_heap$", symbols), "Missing bounded RSA heap")
+        caller = ""
+        callers = []
+        for line in disassembly.splitlines():
+            label = re.match(r"^[0-9a-f]+ <([^>]+)>:", line)
+            if label:
+                caller = label[1]
+            elif re.search(r"\b(?:bl?|bl?\.w)\s+[0-9a-f]+ <wf_ota_ram_jump>", line):
+                callers.append(caller)
+        require(len(callers) == 1 and callers[0].split(".")[0] == "launch", "Unexpected production handoff callers")
+        extra.update(receiver_sha256=image["sha256"], receiver_bytes=image["bytes"], actual_ftab_limit=58496,
+                     remaining_ftab_bytes=58496-len(data))
     return {"elf_sha256": hashlib.sha256(elf.read_bytes()).hexdigest(), "ram_placement_passed": True,
             "apply": leaf_block(disassembly, "wf_ota_ram_apply", byte_size=sizes["wf_ota_ram_apply"]),
             "jump": leaf_block(disassembly, "wf_ota_ram_jump", final_jump=True, byte_size=sizes["wf_ota_ram_jump"]),
-            "jump_admission_bound": False, "hardware_verified": False, **extra}
+            "jump_admission_bound": receiver_result is not None, "hardware_verified": False, **extra}
 
 
 def main():
@@ -132,9 +155,10 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--bin", type=Path)
     parser.add_argument("--probe-binding", type=Path)
+    parser.add_argument("--receiver-result", type=Path)
     args = parser.parse_args()
     try:
-        report = dict(passed=True, **check(args.elf,args.bin,args.probe_binding))
+        report = dict(passed=True, **check(args.elf,args.bin,args.probe_binding,args.receiver_result))
     except (ValueError, OSError, subprocess.SubprocessError) as exc:
         report = {"passed": False, "error": str(exc)}
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
