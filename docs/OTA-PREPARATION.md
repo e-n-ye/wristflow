@@ -938,3 +938,17 @@ WCH CH340数据手册§5.4第7页建议：单向1Mbps及以上、双向500Kbps�
 用户在新窗口授权两次计划入口和四次固定写入。真实 TX 逐段拼接与两份安装镜像、两份同窗原件匹配。九次读取从原始 RX 的定长边界重算协议 CRC，逐份与对应文件及预期字节比较。FTAB 完整 12 KiB 通过；B 首 4 KiB 安装后后方 60 KiB 相同，随后安装兼容 boot 58,496 字节且末 7,040 字节相同。收到三帧固定 tag 和 CRC，第三帧执行 PC `0x12020404`，VTOR `0x12020000`。重入 ROM 后 alias 三字均为零，boot 和 B 仍与安装读回一致。原 boot 先恢复并读回完整 64 KiB，随后恢复原 B 首 4 KiB 并核完整 64 KiB；两块均与窗前逐字节相同。
 
 主机执行／恢复子进程 30.949 秒，原应用返回。保存代 210→211，保存总时长 1,529,991,823→1,529,992,914 ms，失败 0。110.544 秒未落盘尾段保全于电脑；RTC 无效且未校时。操作者实看确认关闭临时常亮及显示、触摸、KEY1 正常。这次验证了运行固定 B 后能通过原板载 USB 有线恢复；损坏 boot、任意断电点、签名 Product 试启动、自动回滚和手机传输仍有各自的验收窗口。[原流范围、已写字节、三帧与原始归档](evidence/2026-11-18/ota-b-usb-execution.json)
+
+<a id="signed-release-20261118"></a>
+## 2026-11-18 签名发布包与 loader 只读验签
+
+项目公钥在首次有线部署时随 loader 安装。发布者在当前 Windows 用户的 Microsoft Software Key Storage Provider 中以 RSA-2048／PKCS#1 v1.5／SHA-256 签发，编译公钥 SPKI 指纹为 `919b16d940e5ac7c505b963f6ff7c37a45f05dda441cb843ba196787d8b250eb`。主机按完整构建清单重新核实普通 Product 的 main、分区与 SDK 锁，签入的板型、版本和镜像身份见下表。丢失私钥时需恢复该密钥或通过有线流程换公钥。
+
+| 位置 | 格式与放行依据 |
+|---|---|
+| 手机文件 | 原版 `imgtoolv37 gen_dfu --img_para hcpu 0 0 --offline_img=2` 生成 `offline_install.bin`。只取 v1、单 HCPU、无压缩的 18 字节 FCES 外头。发布工具逐字节检查外头、实际长度、CRC32/MPEG-2 和内层载荷 |
+| 内层清单 | 前 80 字节依次为 `WFR1`、LE32 格式 1、24 字节零填充板型、LE32 镜像种类 1、固定链接地址、精确长度、非零版本、32 字节镜像 SHA-256。其后为清单签名 256 字节和原始 main.bin。包中不能选择物理写地址 |
+| 目标槽 | 原始向量位于槽首，固定槽尾 336 字节保存清单与签名，两者间禁止重叠。独立 loader 复用受守卫的物理读取，核清单字段及签名后按声明长度重算镜像 SHA-256，全部匹配才返回 A/B 模型需要的身份。空槽、短读或验证失败均不给出身份 |
+| 实现边界 | 板上哈希使用 SF32LB52 原生 SHA 接口，RSA 使用锁定 SDK 的 mbedTLS。主机测试链接相同 RSA/解析源码和物理读取入口，用软件 SHA 代替片上引擎。只读 loader 启动探测已有接入，BLE 服务、持久写入、初装和启动决策另验 |
+
+首个软件样本来自 11/08 的 3,028,888 字节普通 Product，发布号 2026111801；Android 文件 3,029,242 字节。主机正例完整通过，336 处逐字节变更、错误容量、空槽及末尾正文单字节损坏均拒收。板上 loader 编译为 155,432 字节。用户已在 Android 打开 SIFLI BLE；尚无手机传输和设备验签结果。现版官方客户端公开示例调用单文件 NOR Offline，此类文件只交给 WristFlow 升级接收端解析，旧例程的默认整包暂存及原位覆盖流程不用于 A/B。[本轮证据](evidence/2026-11-18/ota-signed-release.json) · [Android 示例入口](https://github.com/OpenSiFli/SiFli_OTA_APP/blob/3e3a89533502e25550b18bcf9756c7836fed1538/app/src/main/java/com/sifli/sifliapp/modules/debug/pushsdkfile/PushSDKFileV2Activity.java#L132-L167)

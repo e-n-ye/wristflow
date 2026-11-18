@@ -8,6 +8,7 @@
 #include "physical_read.h"
 #include "ota_journal.h"
 #include "probe_port.h"
+#include "release.h"
 
 #define FLASH_BASE (WF_OTA_SLOT_A_START_ADDR - WF_OTA_SLOT_A_OFFSET)
 #define ERASE_BYTES 8192u
@@ -83,6 +84,11 @@ void wf_ota_loader_read_probe(void)
         rt_kprintf("[ota-read] slot=%u result=%d prefix=", slot, result);
         for (unsigned i = 0; i < sizeof bytes; ++i) rt_kprintf("%02x", bytes[i]);
         rt_kprintf("; prefix only, not image verification\n");
+        wf_ota_ab_image_t image;
+        if (wf_ota_release_verify_slot(&reader, slot, &image))
+            rt_kprintf("[ota-release] slot=%u verified=1 release=%u bytes=%u\n", slot, image.release, image.bytes);
+        else
+            rt_kprintf("[ota-release] slot=%u verified=0\n", slot);
     }
     give(NULL);
     wf_ota_ab_state_t state; unsigned unit = 0;

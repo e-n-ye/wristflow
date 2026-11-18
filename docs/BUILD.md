@@ -1,5 +1,11 @@
 # 可复现构建基线
 
+## 2026-11-18 发布签名和只读 loader
+
+首次授权建钥使用 `pwsh -File scripts/Ota-ReleaseKey.ps1 -Mode Provision`；有公钥而本机缺对应私钥时会拒绝重新生成。日常发布运行项目 Python 的 `scripts/ota_release.py --build-result <普通 Product 的 result.json> --release <正整数> --out-dir <新目录>`，生成可供 Android 选取的 `offline_install.bin`。私钥由 Windows CNG 签名接口使用，打包采用锁定 SDK 的 `imgtoolv37.exe`。
+
+目标构建沿用 `pwsh -File scripts/Build-Ota-Loader.ps1`，核对签名验证符号及候选区域。主机 `ota_release` CTest 校验同一 loader 代码及 SDK RSA 实现，另可向该测试程序传入打包目录的 `packer/hcpu.bin` 验证实际签名正文。本轮未部署此 loader。[构建与包指纹](evidence/2026-11-18/ota-signed-release.json)
+
 ## 2026-11-18 B 执行及有线救援的固定串口速率
 
 从 `550ce0c` 构建主机工具 `3db1878`，复用 `ota_stub_build.py --b-execute`、Rust 1.90.0／GNU 和锁定的官方 RAM stub。执行包为本机 `artifacts/ota-b-usb-20261118-b-execute-001/result.json`，同次冻结 observer 与 sector。三个 Rust 测试目标分别 9、8、10 项通过，Release 成功，三份构建绑定下全部 OTA Python 回归 191 项通过（442.483 秒）。目标沿用原 006 已验证的 boot／探针和原 CycleLog 固件。故障模拟覆盖初始切速、候选启动前切回 1M、二次入口 D0 及切速失败时保留已发生的写入。实际构建指纹和设备结果见[证据](evidence/2026-11-18/ota-b-usb-execution.json)。
