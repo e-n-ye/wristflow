@@ -1,4 +1,5 @@
 #include "ota_journal.h"
+#include "ota_trial.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -210,9 +211,51 @@ static void illegal_transitions_and_peer_damage(void)
     for (unsigned i = 0; i < sizeof readback; ++i) assert(readback[i] == 0);
     guards(&n); ++checks;
 }
+static void trial_resets(void)
+{
+    wf_ota_ab_image_t checked[2] = {image(1), image(2)};
+    nor_t before;
+    wf_ota_ab_state_t stable = seed(&before), ready;
+    wf_ota_journal_t j = port(&before);
+    uint8_t back[WF_OTA_AB_BYTES];
+    assert(wf_ota_ab_stage(&ready, &stable, &checked[1]));
+    assert(wf_ota_journal_commit(&j, &stable, &ready, back) == 0);
+    uint32_t trial;
+    nor_t original = before;
+    before.lie_program = true;
+    assert(wf_ota_trial_select(&j, &ready, checked, 0, &trial) == WF_OTA_AB_SLOT_A && !trial);
+    before = original;
+    j = port(&before);
+    assert(wf_ota_trial_select(&j, &ready, checked, 0, &trial) == WF_OTA_AB_SLOT_B);
+    unsigned unit;
+    wf_ota_ab_state_t tried;
+    assert(wf_ota_journal_load(&j, &tried, &unit) == 0 && tried.phase == WF_OTA_AB_TRIED);
+    assert(trial == (WF_OTA_TRIAL_PENDING | wf_ota_trial_cookie(&tried)));
+    uint32_t healthy = WF_OTA_TRIAL_HEALTHY | (trial & WF_OTA_TRIAL_PAYLOAD);
+    uint32_t words[] = {0, trial, healthy ^ 1u, healthy ^ (1u << 23), WF_OTA_ENTER_RECEIVER, healthy};
+    for (unsigned i = 0; i < sizeof words / sizeof words[0]; i++) {
+        nor_t n = before;
+        j = port(&n);
+        wf_ota_ab_target_t want = words[i] == healthy ? WF_OTA_AB_SLOT_B : WF_OTA_AB_SLOT_A;
+        assert(wf_ota_trial_select(&j, &tried, checked, words[i], &trial) == want && !trial);
+        wf_ota_ab_state_t saved;
+        assert(wf_ota_journal_load(&j, &saved, &unit) == 0 && saved.phase == WF_OTA_AB_STABLE);
+        assert(saved.stable == (unsigned)want && saved.generation == tried.generation + 1);
+        unsigned erases = n.erases;
+        assert(wf_ota_trial_select(&j, &saved, checked, healthy, &trial) == want && !trial);
+        assert(erases == n.erases);
+        guards(&n);
+        ++checks;
+    }
+    j = port(&before);
+    checked[1].bytes = 0; /* Slot hash or application vector check failed. */
+    assert(wf_ota_trial_select(&j, &tried, checked, healthy, &trial) == WF_OTA_AB_SLOT_A && !trial);
+    checked[0].bytes = 0;
+    assert(wf_ota_trial_select(&j, &tried, checked, healthy, &trial) == WF_OTA_AB_RECOVERY && !trial);
+}
 int main(void)
 {
-    lifecycle(); errors_and_cuts(); refusal(); illegal_transitions_and_peer_damage();
+    lifecycle(); errors_and_cuts(); refusal(); illegal_transitions_and_peer_damage(); trial_resets();
     printf("OTA journal: %u checks passed; in-memory NOR only\n", checks);
     return 0;
 }

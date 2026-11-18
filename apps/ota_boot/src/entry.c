@@ -1,7 +1,7 @@
 /* SPDX-FileCopyrightText: 2026 SiFli Technologies(Nanjing) Co., Ltd
  * SPDX-License-Identifier: Apache-2.0
  *
- * Project-owned diagnostic entry, derived from the locked official RAM boot
+ * Project-owned entry, derived from the locked official RAM boot
  * initialization order. No legacy image selection or configuration writes. */
 #include "../../../vendor/SiFli-SDK/example/boot_loader/project/butterflmicro/board/board.h"
 #include <bf0_hal.h>
@@ -15,8 +15,8 @@
 #include "probe_binding.h"
 #endif
 
-#ifndef WF_OTA_BOOT_DIAGNOSTIC
-#error "This unqualified boot prototype must remain diagnostic-only"
+#if defined(WF_OTA_BOOT_DIAGNOSTIC) == defined(WF_OTA_PRODUCTION_BOOT)
+#error "Select exactly one RAM boot mode"
 #endif
 #if defined(BSP_USING_RTTHREAD) || defined(BSP_USING_CHARGER) || defined(RT_USING_FINSH)
 #error "RAM boot prototype is pre-RTOS and has no charger or shell"
@@ -145,6 +145,10 @@ int entry(void)
     wf_ota_boot_probe_result.alias_after[0] = mpi->AASAR;
     wf_ota_boot_probe_result.alias_after[1] = mpi->AAEAR;
     wf_ota_boot_probe_result.alias_after[2] = mpi->AAOAR;
+#ifdef WF_OTA_PRODUCTION_BOOT
+    extern void wf_ota_boot_select(void) __attribute__((noreturn));
+    wf_ota_boot_select();
+#else
 #ifdef WF_OTA_BOOT_EXECUTE_PROBE
     execute_probe(); /* Only the exact embedded B probe; no production route. */
 #endif
@@ -166,4 +170,5 @@ int entry(void)
      * is bound here. Never call wf_ota_ram_jump from this diagnostic entry. */
     __disable_irq();
     for (;;) __NOP();
+#endif
 }

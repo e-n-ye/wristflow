@@ -1,0 +1,33 @@
+{
+  "base": "4d9a5f56950c7c297f4c1817c662da4c0b7c8ef4",
+  "command": "pwsh -File scripts/Build-Ota-Boot.ps1 -ReceiverResult artifacts/ota_loader/20261118-175654-905/result.json -EvidenceDir artifacts/ota-trial-boot-20261118-004",
+  "result_sha256": "ad4da9e309dcdeafc677ac09ca3606b2a23c70c67bb5a03ebdf2ecc3382eeb66",
+  "bin_sha256": "aed5cdf3279c05961c0a97910d16f3db5adb9f44fd31ac8a365b4d2fc270b860",
+  "elf_sha256": "2b0a5efdb4815a5d624c5416048e555eed248266047d0818b873daa70bbb5f51",
+  "receiver_sha256": "f390d9c9485441274d5cd6380a63487f57a7b7d7b8db29255bcf6778225c7aab",
+  "bin_bytes": 58420,
+  "ftab_copy_bytes": 58496,
+  "free_bytes": 76,
+  "diagnostic_bytes": 31436,
+  "fixed_probe_bytes": 34240,
+  "host": {
+    "ctest": "ctest --test-dir artifacts/ota-signed-release-20261118/host -R ^ota_ --output-on-failure",
+    "passed_targets": 6,
+    "journal_checks": 17077,
+    "trial_reset_words": ["missing", "pending", "wrong generation", "wrong slot", "receiver request", "healthy"],
+    "python_regression": "191 discovered, 141 passed, 50 skipped by the local optional bridge environment",
+    "python_log": "artifacts/ota-trial-boot-20261118-tests.log"
+  },
+  "original_nor": {
+    "source": "artifacts/ota-rom-backup-20261108/device-001/nor-{first,second}.bin",
+    "sha256_each": "9140bb4e1bb700c8a7b1d06f29f510c3f18b13fb6da86e34b7f453fec639ab74",
+    "a_image_end_exclusive": "0x1230a090",
+    "a_last_336_non_ff": 330,
+    "a_last_4096_sha256": "b566afc43b445f467e9ff341bcdf63b1c0ad75cfb50165a0e681bad5d8961497",
+    "b_non_ff": 3801333,
+    "b_sha256": "4205c2f63f4417b614d34edf9422e9f3adb3d9899cd5d9db379c7fce3ccda0a0",
+    "first_install_decision": "Preserve all 4 MiB of A. Store the signed identification for the exact original CycleLog in the separate loader reservation. Capture and verify all of B before its first use."
+  },
+  "hardware_verified": false,
+  "pending": "Actual receiver entry, native SHA and RSA on boot RAM, WDT1 reset awake and asleep, confirmed and unconfirmed trial, first-install enrollment and user data continuity."
+}

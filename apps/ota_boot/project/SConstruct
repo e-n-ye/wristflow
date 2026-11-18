@@ -1,5 +1,8 @@
 import rtconfig
+import os
 from building import *
+from SCons.Script import ARGUMENTS
+os.environ['WRISTFLOW_AB_BOOT'] = '1' if ARGUMENTS.get('wf_receiver_result') else '0'
 PrepareEnv()
 SifliEnv()
 TARGET = rtconfig.OUTPUT_DIR + rtconfig.TARGET_NAME + '.' + rtconfig.TARGET_EXT

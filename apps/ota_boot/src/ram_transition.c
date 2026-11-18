@@ -71,9 +71,8 @@ __attribute__((naked,noreturn)) void wf_ota_ram_jump_probe(const wf_ota_boot_pla
 }
 #endif
 
-/* Retained for static inspection only. Prototype entry never calls this:
- * verified image authentication / durable trial admission is not bound yet.
- * All field offsets are asserted against the assembly below. */
+/* Only the authenticated production path calls this handoff. The diagnostic
+ * build retains it for ELF inspection. */
 _Static_assert(__builtin_offsetof(wf_ota_boot_plan_t, vector) == 16, "vector offset");
 _Static_assert(__builtin_offsetof(wf_ota_boot_plan_t, stack) == 20, "stack offset");
 _Static_assert(__builtin_offsetof(wf_ota_boot_plan_t, reset) == 24, "reset offset");

@@ -1,5 +1,5 @@
 #requires -Version 7.0
-param([ValidateRange(1,32)][int]$Jobs = 4, [string]$ProbeBinding, [string]$EvidenceDir)
+param([ValidateRange(1,32)][int]$Jobs = 4, [string]$ProbeBinding, [string]$EvidenceDir, [string]$ReceiverResult)
 . "$PSScriptRoot/Set-LocalEnvironment.ps1"
 Enable-SdkEnvironment
 $bootProject = Join-Path $ProjectRoot 'apps/ota_boot/project'
@@ -7,6 +7,10 @@ $bootBoard = $SdkLock.board
 $bootRun = if ($EvidenceDir) {[IO.Path]::GetFullPath($EvidenceDir)} else {Join-Path $ProjectRoot ("artifacts/ota_boot/{0}" -f (Get-Date -Format 'yyyyMMdd-HHmmss-fff'))}
 if (Test-Path -LiteralPath $bootRun) {throw 'Evidence directory must be new'}
 if ($ProbeBinding) {$ProbeBinding=(Resolve-Path -LiteralPath $ProbeBinding).Path}
+if ($ReceiverResult) {
+    if ($ProbeBinding) { throw 'Choose one boot binding' }
+    $ReceiverResult=(Resolve-Path -LiteralPath $ReceiverResult).Path
+}
 New-Item -ItemType Directory -Path $bootRun -Force | Out-Null
 Push-Location $bootProject
 try {
@@ -14,6 +18,7 @@ try {
     if ($ProbeBinding) {
         $bootArgs+="wf_probe_binding=$ProbeBinding"
     }
+    if ($ReceiverResult) { $bootArgs+="wf_receiver_result=$ReceiverResult" }
     & scons @bootArgs *>&1 | Tee-Object -FilePath (Join-Path $bootRun 'build.log')
     $bootExit = $LASTEXITCODE
 } finally { Pop-Location }
@@ -35,10 +40,16 @@ if ($bootExit -eq 0) {
         if ((Get-Item -LiteralPath (Join-Path $bootBuild 'main.bin')).Length -gt 0x10000) { throw 'Boot exceeds 64 KiB storage budget' }
         $checkArgs=@((Join-Path $PSScriptRoot 'ota_boot_check.py'),'--elf',(Join-Path $bootBuild 'main.elf'),'--bin',(Join-Path $bootBuild 'main.bin'),'--output',(Join-Path $bootRun 'elf-check.json'))
         if ($ProbeBinding) {$checkArgs+=@('--probe-binding',$ProbeBinding)}
+        if ($ReceiverResult) {$checkArgs+=@('--receiver-result',$ReceiverResult)}
         & python @checkArgs
         if ($LASTEXITCODE -ne 0) { throw 'RAM boot ELF validation failed' }
+        if ($ReceiverResult) { $frozen = New-Item -ItemType Directory -Path (Join-Path $bootRun 'frozen') }
         foreach ($name in 'main.elf','main.bin','main.map','.config','rtconfig.h','ptab.h','link_copy.lds') {
             $path = Join-Path $bootBuild $name
+            if ($ReceiverResult) {
+                Copy-Item -LiteralPath $path -Destination $frozen.FullName -ErrorAction Stop
+                $path = Join-Path $frozen.FullName $name
+            }
             $bootArtifacts += [ordered]@{path=$path;bytes=(Get-Item -LiteralPath $path).Length;sha256=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant()}
         }
     } catch { $bootError = $_.Exception.Message }
@@ -51,11 +62,21 @@ if ($ProbeBinding) {
     $bootSources+=Get-Item -LiteralPath $ProbeBinding
     if (Test-Path -LiteralPath (Join-Path $bootBuild 'src/probe_binding.h')) {$bootSources+=Get-Item -LiteralPath (Join-Path $bootBuild 'src/probe_binding.h')}
 }
+if ($ReceiverResult) {
+    $bootSources += Get-Item -LiteralPath $ReceiverResult
+    $generatedBinding = Join-Path $bootBuild 'src/receiver_binding.h'
+    if ($bootExit -eq 0 -and (Test-Path -LiteralPath $generatedBinding)) { $bootSources += Get-Item -LiteralPath $generatedBinding }
+    foreach ($name in 'core/ota_ab.c','core/ota_ab.h','core/ota_journal.c','core/ota_journal.h','core/ota_trial.h','core/ota_trial.c',
+        'apps/ota_loader/src/physical_read.c','apps/ota_loader/src/physical_read.h','apps/ota_loader/src/release.c',
+        'apps/ota_loader/src/release.h','apps/ota_loader/src/release_hash.c','apps/ota_loader/src/release_public_key.inc') {
+        $bootSources += Get-Item -LiteralPath (Join-Path $ProjectRoot $name)
+    }
+}
 foreach ($name in 'scripts/Build-Ota-Boot.ps1','scripts/ota_boot_check.py','scripts/Set-LocalEnvironment.ps1','sdk.lock.json') {
     $bootSources += Get-Item -LiteralPath (Join-Path $ProjectRoot $name)
 }
 $record = [ordered]@{
-    kind='ram-ota-boot-prototype'; command=($bootArgs -join ' '); probe_execution_enabled=[bool]$ProbeBinding
+    kind=$(if ($ReceiverResult) {'ota-ab-boot'} else {'ram-ota-boot-prototype'}); command=($bootArgs -join ' '); probe_execution_enabled=[bool]$ProbeBinding
     exit_code=$bootExit; artifact_validation_passed=($bootExit -eq 0 -and $null -eq $bootError)
     artifact_validation_error=$bootError; deployable=$false; hardware_verified=$false
     sdk_commit=(Get-CheckedOutput git @('-C',$SdkRoot,'rev-parse','HEAD'))
