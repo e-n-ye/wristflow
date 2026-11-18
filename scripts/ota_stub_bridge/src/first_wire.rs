@@ -29,6 +29,11 @@ impl Session<'_> {
         self.tool.debug_command(SifliUartCommand::Enter)?;
         let aliases=[self.tool.debug_read_word32(0x5004206c)?,self.tool.debug_read_word32(0x50042070)?,
                      self.tool.debug_read_word32(0x50042074)?];
+        if self.cfg.action==Action::TraceOriginalA {
+            let prior=self.tool.debug_read_word32(0x500cb044)?;
+            self.checkpoint(json!({"ordinary_rtc_word":prior}))?;
+            require(prior==0,"Ordinary A requires a clear OTA word")?;
+        }
         self.tool.debug_command(SifliUartCommand::Exit)?;
         common::receive_exit(&mut self.tool,&self.trace,"physical")?;
         self.checkpoint(json!({"registers":state,"aliases":aliases}))?;
@@ -163,7 +168,7 @@ pub fn execute(c:&Config, stub:&[u8], images:&Inputs, rescue:Option<&[u8]>) -> R
     });
     let result=std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         session.enter()?;
-        media::run(&mut session,c.action,images,rescue)?;
+        crate::transact(&mut session,c,images,rescue)?;
         session.start()?;
         session.listen()
     })).unwrap_or_else(|_|Err("Vendor library stopped; no further protocol".into()));

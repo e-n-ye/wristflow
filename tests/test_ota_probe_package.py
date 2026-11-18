@@ -27,6 +27,23 @@ def mutate(raw,index,value):
     data=struct.pack('<19I',*words[:19]);return data+struct.pack('<I',zlib.crc32(data))
 
 class ProbePackage(unittest.TestCase):
+    def test_ordinary_a_requires_its_jump_and_a_later_product_start(self):
+        from ota_trace_a_window import frames
+        manifest = {"passed": True, "startup_trace_tag": TAG}
+        product = b"[product] storage=ready"
+
+        def point(name, value):
+            raw = frame(4 if name == "!" else 1)
+            return mutate(mutate(raw, 6, ord(name)), 7, value)
+
+        prefix = b"".join(point(name, 0) for name in "PEFNJS")
+        jump = point("O", 0x12020000) + point("M", 0x1202baa1) + point("T", 0x1202baa1)
+        selected = prefix + point("V", 0) + jump
+        self.assertTrue(frames(selected + product, manifest)["ordinary_a"])
+        for raw in (product + selected, prefix + point("V", 1) + jump + product,
+                    prefix + point("V", 0xffffffff) + point("R", 359716) + point("!", ord("H")) + product):
+            self.assertFalse(frames(raw, manifest)["ordinary_a"])
+
     def test_startup_trace_retains_only_complete_tagged_frames(self):
         manifest={'passed':True,'startup_trace_tag':TAG}
         first=mutate(frame(1),6,ord('E'))

@@ -28,8 +28,8 @@ class FirstInstall(unittest.TestCase):
         cls.bundle=cls.directory/"bundle"
         prepare(cls.bundle,cls.old,cls.old.with_name("nor-second.bin"))
 
-    def invoke(self, label, action, fixture, expected=True, source=None):
-        request=dict(action=action,simulation=True,port="SIMULATED",out=str(self.directory/label),bundle=str(self.bundle),
+    def invoke(self, label, action, fixture, expected=True, source=None, bundle=None):
+        request=dict(action=action,simulation=True,port="SIMULATED",out=str(self.directory/label),bundle=str(bundle or self.bundle),
                      fixture=str(fixture),before=str(source) if source else None,
                      before_sha256=sha(source.read_bytes()) if source else None,
                      cancel=str(self.directory/(label+"-cancel")), seconds=60,listen_seconds=0,authorization="simulation",
@@ -40,6 +40,37 @@ class FirstInstall(unittest.TestCase):
         run=subprocess.run(command,capture_output=True,timeout=60)
         self.assertEqual(run.returncode==0,expected,run.stderr)
         return self.directory/label
+
+    @unittest.skipUnless(os.environ.get("WRISTFLOW_TRACE_A_BUILD"), "Requires the frozen early-marker boot")
+    def test_trace_only_three_ranges_and_independent_torn_restore(self):
+        from ota_trace_a_window import prepare as trace_bundle, REGIONS as trace_regions
+        bundle=self.directory/"trace-bundle"
+        trace_bundle(bundle,Path(os.environ["WRISTFLOW_TRACE_A_BUILD"]),self.bundle)
+        out=self.invoke("trace","trace-original-a",self.old,bundle=bundle)
+        previous=self.old.read_bytes()
+        expected=bytearray(previous)
+        for name,(off,n,_) in trace_regions.items():
+            expected[off:off+n]=(bundle/(name+".bin")).read_bytes()
+        self.assertEqual(expected,(out/"simulated-nor.bin").read_bytes())
+        source=out/"originals.bin"
+        self.assertEqual(len(source.read_bytes()),86016)
+        self.assertFalse((out/"before.bin").exists())
+        # Preserve newly written user records even if the first boot programming was interrupted.
+        expected[0x10020:0x10080]=b"\xff"*96
+        expected[0xda8720]^=1
+        expected[0x9a1800]^=1
+        desired=bytearray(previous)
+        desired[0xda8720]^=1
+        desired[0x9a1800]^=1
+        fixture=self.directory/"incomplete-trace.bin"
+        fixture.write_bytes(expected)
+        restored=self.invoke("restore-trace","restore-trace-a",fixture,source=source,bundle=bundle)
+        self.assertEqual((restored/"simulated-nor.bin").read_bytes(),desired)
+        expected[0xda2200]^=1
+        fixture.write_bytes(expected)
+        denied=self.invoke("trace-out-of-range","restore-trace-a",fixture,False,source,bundle)
+        self.assertNotIn('"intent"',(denied/"media-events.jsonl").read_text())
+        self.invoke("trace-normal-package-mix","install",self.old,False,bundle=bundle)
 
     def test_install_reentry_and_independent_restore(self):
         before=self.old.read_bytes()

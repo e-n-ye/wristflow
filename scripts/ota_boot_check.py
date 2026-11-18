@@ -60,7 +60,7 @@ def check(elf, binary=None, binding=None, receiver_result=None, startup_trace=Fa
     def output(tool, *args):
         return subprocess.check_output([tool, *args, str(elf)], text=True, encoding="utf-8")
     symbols = output("arm-none-eabi-nm", "-S")
-    for symbol in ("wf_boot_trace_start", "wf_boot_trace"):
+    for symbol in ("wf_boot_trace_preinit", "wf_boot_trace_start", "wf_boot_trace"):
         found = re.search(r"(?m)^[0-9a-f]+ [0-9a-f]+ [Tt] "+symbol+r"$", symbols)
         require(bool(found) == startup_trace, "Startup trace symbol binding differs: "+symbol)
     disassembly = output("arm-none-eabi-objdump", "-d", "-z", "--no-show-raw-insn")

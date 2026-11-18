@@ -100,7 +100,7 @@ def prepare(directory, first, second):
 def build_host(args):
     crate = ROOT / "scripts/ota_stub_bridge"
     src = [crate / p for p in ("Cargo.toml", "Cargo.lock", "src/bin/wristflow-ota-first-install.rs",
-           "src/first_media.rs", "src/first_wire.rs", "src/first_reads.rs", "src/common.rs", "src/port.rs",
+           "src/first_media.rs", "src/trace_media.rs", "src/first_wire.rs", "src/first_reads.rs", "src/common.rs", "src/port.rs",
            "src/sector.rs", "src/simulated.rs")]
     records = [file_record(p, ROOT) for p in src]
     cargo, cc = args.cargo.resolve(), args.cc.resolve()

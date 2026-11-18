@@ -90,7 +90,9 @@ def app_worker(cfg):
     else:
         allowed = ((cfg["action"] == "return-original" and phase == "after" and
                     cfg["authorization"] == "return-original-after-incomplete-backup") or
-                   (cfg["action"] in SCOPE and cfg["authorization"]==SCOPE[cfg["action"]]))
+                   (cfg["action"] in SCOPE and cfg["authorization"]==SCOPE[cfg["action"]]) or
+                   (cfg["action"]=="ordinary-a-window" and phase=="before" and
+                    cfg["authorization"]=="trace-ordinary-a-68k-and-restore"))
         require(os.name=="nt" and allowed, "Explicit device window required")
         f=read_json(APP_EVIDENCE)["firmware"]
         _, identity=prepare_capture(ROOT/f["result"],ROOT/f["flash"],APP,"COM5","1-1.1",True,
@@ -138,13 +140,13 @@ def owned_endpoint(endpoint, report):
             lease.__exit__(None, None, None)
 
 
-def app_phase(root, phase, args, console):
+def app_phase(root, phase, args, console, *, worker_seconds=95):
     directory=root/("job-"+phase);directory.mkdir()
     req=dict(root=str(root),phase=phase,action=args.action,simulation=args.mode=="simulate",
              authorization=args.authorize,fixture=str(getattr(args,phase+"_fixture","")))
     cfg=directory/"request.json";write_json(cfg,req)
     code=run_owned([sys.executable,"-B",str(Path(__file__).resolve()),"app-worker",str(cfg),digest(cfg)],
-                   directory,console,root/"cancel",95)
+                   directory,console,root/"cancel",worker_seconds)
     require(code==0, "Application "+phase+" failed; inspect "+str(directory/"sftool.log"))
     return read_json(root/("app-"+phase)/(phase+"-snapshot.json"))
 
