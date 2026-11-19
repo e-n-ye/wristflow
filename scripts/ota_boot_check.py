@@ -54,20 +54,25 @@ def jump_unreferenced(disassembly, start, size):
         require(start <= int(match[1], 16) < start + size, "Diagnostic code references jump")
 
 
-def check(elf, binary=None, binding=None, receiver_result=None, startup_trace=False, hash_resume_probe=False):
+def check(elf, binary=None, binding=None, receiver_result=None, startup_trace=False, hash_resume_probe=False,
+          handoff_trace=False):
     require(not (binding and receiver_result), "Two boot bindings")
     require(not startup_trace or receiver_result is not None, "Startup trace requires an authenticated boot")
     def output(tool, *args):
         return subprocess.check_output([tool, *args, str(elf)], text=True, encoding="utf-8")
     symbols = output("arm-none-eabi-nm", "-S")
     require(not hash_resume_probe or startup_trace, "HASH qualification requires startup trace")
+    require(not handoff_trace or (startup_trace and not hash_resume_probe), "Unexpected handoff trace mode")
+    handoff_symbol = re.search(r"(?m)^[0-9a-f]+ [0-9a-f]+ [Tt] sample_handoff$", symbols)
+    require(bool(handoff_symbol) == handoff_trace, "Unexpected handoff register sampler")
     probe_symbol = re.search(r"(?m)^[0-9a-f]+ [0-9a-f]+ [Tt] wf_boot_hash_qualify$", symbols)
     require(bool(probe_symbol) == hash_resume_probe, "Unexpected HASH qualification build")
     if hash_resume_probe:
         require(not re.search(r"\bmbedtls_sha512_process$", symbols, re.M), "Diagnostic SHA-512 configuration differs")
     for symbol in ("wf_boot_trace_preinit", "wf_boot_trace_start", "wf_boot_trace", "wf_boot_trace_hash"):
         found = re.search(r"(?m)^[0-9a-f]+ [0-9a-f]+ [Tt] "+symbol+r"$", symbols)
-        require(bool(found) == startup_trace, "Startup trace symbol binding differs: "+symbol)
+        expected = startup_trace and (symbol != "wf_boot_trace_hash" or not handoff_trace)
+        require(bool(found) == expected, "Startup trace symbol binding differs: "+symbol)
     disassembly = output("arm-none-eabi-objdump", "-d", "-z", "--no-show-raw-insn")
     sizes = {}
     for name in ("entry", "hw_preinit0", "wf_ota_ram_apply", "wf_ota_ram_jump", "wf_ota_boot_plan"):
@@ -157,9 +162,13 @@ def check(elf, binary=None, binding=None, receiver_result=None, startup_trace=Fa
                      remaining_ftab_bytes=58496-len(data), original_a_enrollment_address=hex(addr))
         if startup_trace:
             tag = list(struct.unpack("<4I", bytes.fromhex(image["sha256"])[:16]))
-            tag[0] ^= 0x33544257 if hash_resume_probe else 0x32544257
+            if handoff_trace:
+                tag[0] ^= 0x34544257
+                extra["handoff_trace"] = 4
+            else:
+                tag[0] ^= 0x33544257 if hash_resume_probe else 0x32544257
+                extra["slot_verification_trace"] = 3 if hash_resume_probe else 2
             extra["startup_trace_tag"] = tag
-            extra["slot_verification_trace"] = 3 if hash_resume_probe else 2
     return {"elf_sha256": hashlib.sha256(elf.read_bytes()).hexdigest(), "ram_placement_passed": True,
             "apply": leaf_block(disassembly, "wf_ota_ram_apply", byte_size=sizes["wf_ota_ram_apply"]),
             "jump": leaf_block(disassembly, "wf_ota_ram_jump", final_jump=True, byte_size=sizes["wf_ota_ram_jump"]),
@@ -175,9 +184,11 @@ def main():
     parser.add_argument("--receiver-result", type=Path)
     parser.add_argument("--startup-trace", action="store_true")
     parser.add_argument("--hash-resume-probe", action="store_true")
+    parser.add_argument("--handoff-trace", action="store_true")
     args = parser.parse_args()
     try:
-        report = dict(passed=True, **check(args.elf,args.bin,args.probe_binding,args.receiver_result,args.startup_trace,args.hash_resume_probe))
+        report = dict(passed=True, **check(args.elf,args.bin,args.probe_binding,args.receiver_result,
+                                          args.startup_trace,args.hash_resume_probe,args.handoff_trace))
     except (ValueError, OSError, subprocess.SubprocessError) as exc:
         report = {"passed": False, "error": str(exc)}
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

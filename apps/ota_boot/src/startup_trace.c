@@ -1,5 +1,5 @@
 /* Optional, transmit-only instrumentation for the authenticated boot path. */
-#ifdef WF_OTA_BOOT_TRACE
+#if defined(WF_OTA_BOOT_TRACE) || defined(WF_OTA_HANDOFF_TRACE)
 #include <bf0_hal.h>
 #include <string.h>
 #include "receiver_binding.h"
@@ -8,11 +8,36 @@
 
 static bool active;
 
+#ifdef WF_OTA_HANDOFF_TRACE
+/* These peripherals are initialized when launch() is reached. Never sample
+ * them in the pre-C frame or across the RAM mapping update itself. */
+static __attribute__((noinline)) void sample_handoff(wf_ota_probe_frame_t *frame)
+{
+    frame->alias[0] = hwp_mpi2->AASAR;
+    frame->alias[1] = hwp_mpi2->AAEAR;
+    frame->alias[2] = hwp_mpi2->AAOAR;
+    frame->marker = hwp_lpsys_aon->PMR;
+    frame->marker_address = hwp_extdma->CCR;
+    uint32_t enabled = 0;
+    size_t stride = offsetof(DMAC_TypeDef, CCR2) - offsetof(DMAC_TypeDef, CCR1);
+    for (unsigned i = 0; i < 8; ++i) {
+        uintptr_t delta = i * stride;
+        if (*(volatile uint32_t *)((uintptr_t)&hwp_dmac1->CCR1 + delta) & DMAC_CCR1_EN)
+            enabled |= 1u << i;
+        if (*(volatile uint32_t *)((uintptr_t)&hwp_dmac2->CCR1 + delta) & DMAC_CCR1_EN)
+            enabled |= 1u << (8 + i);
+    }
+    frame->image_bytes = enabled;
+}
+#endif
+
 static bool emit_frame(char phase, uint32_t detail)
 {
     uint32_t tag[4];
     memcpy(tag, receiver_sha256, sizeof tag);
-#ifdef WF_OTA_HASH_RESUME_PROBE
+#ifdef WF_OTA_HANDOFF_TRACE
+    tag[0] ^= 0x34544257u;
+#elif defined(WF_OTA_HASH_RESUME_PROBE)
     tag[0] ^= 0x33544257u;
 #else
     tag[0] ^= 0x32544257u;
@@ -26,6 +51,10 @@ static bool emit_frame(char phase, uint32_t detail)
     frame.vtor = SCB->VTOR;
     frame.ccr = SCB->CCR;
     frame.primask = __get_PRIMASK();
+#ifdef WF_OTA_HANDOFF_TRACE
+    if (phase == 'O' || phase == 'M' || phase == 'm' || phase == 'T')
+        sample_handoff(&frame);
+#endif
     return wf_ota_probe_uart_frame(&frame);
 }
 

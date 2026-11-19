@@ -1,13 +1,14 @@
 #requires -Version 7.0
 param([ValidateRange(1,32)][int]$Jobs = 4, [string]$ProbeBinding, [string]$EvidenceDir, [string]$ReceiverResult,
-      [switch]$TraceStartup, [switch]$HashResumeProbe)
+      [switch]$TraceStartup, [switch]$HashResumeProbe, [switch]$TraceHandoff)
 . "$PSScriptRoot/Set-LocalEnvironment.ps1"
 Enable-SdkEnvironment
 $bootProject = Join-Path $ProjectRoot 'apps/ota_boot/project'
 $bootBoard = $SdkLock.board
 $bootRun = if ($EvidenceDir) {[IO.Path]::GetFullPath($EvidenceDir)} else {Join-Path $ProjectRoot ("artifacts/ota_boot/{0}" -f (Get-Date -Format 'yyyyMMdd-HHmmss-fff'))}
 if (Test-Path -LiteralPath $bootRun) {throw 'Evidence directory must be new'}
-if ($HashResumeProbe) { $TraceStartup = $true }
+if ($TraceHandoff -and $HashResumeProbe) { throw 'Select one diagnostic trace mode' }
+if ($HashResumeProbe -or $TraceHandoff) { $TraceStartup = $true }
 if ($TraceStartup -and -not $ReceiverResult) { throw 'Startup trace requires a receiver-bound boot' }
 if ($ProbeBinding) {$ProbeBinding=(Resolve-Path -LiteralPath $ProbeBinding).Path}
 if ($ReceiverResult) {
@@ -23,6 +24,7 @@ try {
     }
     if ($ReceiverResult) { $bootArgs+="wf_receiver_result=$ReceiverResult" }
     if ($HashResumeProbe) { $bootArgs+='wf_boot_trace=hash-resume' }
+    elseif ($TraceHandoff) { $bootArgs+='wf_boot_trace=handoff' }
     elseif ($TraceStartup) { $bootArgs+='wf_boot_trace=1' }
     & scons @bootArgs *>&1 | Tee-Object -FilePath (Join-Path $bootRun 'build.log')
     $bootExit = $LASTEXITCODE
@@ -48,6 +50,7 @@ if ($bootExit -eq 0) {
         if ($ReceiverResult) {$checkArgs+=@('--receiver-result',$ReceiverResult)}
         if ($TraceStartup) {$checkArgs+='--startup-trace'}
         if ($HashResumeProbe) {$checkArgs+='--hash-resume-probe'}
+        if ($TraceHandoff) {$checkArgs+='--handoff-trace'}
         & python @checkArgs
         if ($LASTEXITCODE -ne 0) { throw 'RAM boot ELF validation failed' }
         if ($ReceiverResult) { $frozen = New-Item -ItemType Directory -Path (Join-Path $bootRun 'frozen') }

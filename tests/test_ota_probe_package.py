@@ -27,6 +27,26 @@ def mutate(raw,index,value):
     data=struct.pack('<19I',*words[:19]);return data+struct.pack('<I',zlib.crc32(data))
 
 class ProbePackage(unittest.TestCase):
+    def test_handoff_stages_keep_register_samples_separate_from_old_hash_words(self):
+        manifest = {'passed': True, 'startup_trace_tag': TAG, 'handoff_trace': 4}
+        def point(name, detail):
+            return mutate(mutate(frame(4 if name == '!' else 1), 6, ord(name)), 7, detail)
+        before = point('O', 0x12020000)
+        mapped = point('m', 0x1202ba49)
+        for index, value in enumerate((0x20000, 0x420000, 0x400000, 4, 0, 0x1080), 13):
+            mapped = mutate(mapped, index, value)
+        result = parse_startup(point('G', 2) + before + mapped + point('!', ord('M')), manifest)
+        self.assertIsNone(result['decode_error'])
+        generation, owner, vectors, error = result['frames']
+        self.assertNotIn('handoff', generation)
+        self.assertEqual(owner['handoff']['alias'], [0, 0, 0])
+        self.assertEqual(vectors['handoff'], dict(alias=[0x20000,0x420000,0x400000],
+                         lcpu_pmr=4, extdma_ccr=0, dmac1_enabled_mask=128, dmac2_enabled_mask=16))
+        self.assertEqual(vectors['detail'], 0x1202ba49)
+        self.assertEqual(error['detail'], ord('M'))
+        legacy = parse_startup(mapped, {'passed':True, 'startup_trace_tag':TAG, 'slot_verification_trace':2})
+        self.assertNotIn('handoff', legacy['frames'][0])
+
     def test_hash_resume_qualification_checks_observed_trial_results(self):
         from ota_trace_a_window import BODY_SHA, SHORT_SHA, hash_qualification
         def result_words(point, value):

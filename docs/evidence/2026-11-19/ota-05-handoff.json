@@ -1,0 +1,27 @@
+{
+  "source_device_record": "ota-05-device.json",
+  "fault_media": "artifacts/ota-05-rescue-device-001/media/before.bin",
+  "fault_media_sha256": "ccf1241c3e2f57c148224d7e2976bc02a85c8b5877b4a6a3f0e2e2054a17d435",
+  "offline_review": {
+    "method": "Decoded both 128-byte CRC32 records. Verified identical image identities in both records and SHA-256 of each recorded physical body. Passed its body length and first two words to the host-compiled apps/ota_boot/src/boot_plan.c using the installed ptab geometry.",
+    "B": {"generation_tried":3,"release":2026111801,"bytes":3028888,"physical_vector":"0x12420000","vtor":"0x12020000","sp":"0x20002000","reset":"0x1202ba49","entry_nor_offset":"0x42ba48","alias":["0x20000","0x420000","0x400000"]},
+    "A": {"generation_stable":4,"release":2026110301,"bytes":3055760,"physical_vector":"0x12020000","vtor":"0x12020000","sp":"0x20002000","reset":"0x1202baa1","entry_nor_offset":"0x2baa0","alias":[0,0,0]},
+    "installed_elf": "artifacts/ota-identity-boot-20261119-001/frozen/main.elf",
+    "installed_launch": "0x200279a8 calls flash_owner before applying the mapping, compares both mapped vector words, then calls wf_ota_ram_jump. Both journal transitions program NOR before this check. The captured production boot emitted no phase frames identifying which instruction was reached."
+  },
+  "build": {
+    "command": "scripts/Build-Ota-Boot.ps1 -TraceHandoff -ReceiverResult artifacts/ota_loader/20261119-151705-132/result.json -EvidenceDir artifacts/ota-05-handoff-v4-final",
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "receiver_sha256": "54e9a8520716df71886a5913e0f9de96860d6eb6edd0830d07193ad100a122a8",
+    "trace_bin_sha256": "ba2bce4faa2b51455131b9f584e33542cdb08c7b22485c3a8f1e09d64a827424",
+    "trace_elf_sha256": "3645657c0a833792ca9265b9ac02e8daed3845681dedb329ddfff8beb86451dd",
+    "trace_bytes": 58264,
+    "original_ftab_copy_bytes": 58496,
+    "ordinary_binary_equals_installed": true,
+    "ordinary_bin_sha256": "d810c9cd049c273f9279c39a67065d386876dca2b9952e64f673666a5c476408",
+    "control": "artifacts/ota-05-handoff-control-002",
+    "legacy_trace_control": "artifacts/ota-05-handoff-legacy-001/frozen/main.bin equals the pre-change v2 trace for the same receiver",
+    "python_regression": {"command":"python -B -m unittest discover -v -s tests -p test_ota*.py","run":217,"skipped":57,"failed":0,"log":"artifacts/ota-05-handoff-v4-002/ota-python-regression.log"},
+    "hardware_verified": false
+  }
+}
