@@ -24,6 +24,8 @@
 
 从已装组合切换到独立地址版本，用 `ota_first_install.py prepare --identity-pair` 准备配对镜像，其余准备参数沿用首装。控制台 `ota_first_window.py simulate --action install-identity --authorize simulation` 使用该包、同版主机、现有 NOR 与应用快照及已发手机的 `--phone-zip`。它先核 11 段关键区，再按接收器、boot 顺序写入，分块立即读回并重读整对。恢复演练使用 `--action restore-identity --prior <切换窗口>`，由旧 boot、旧接收器及同窗扩展页重建原组合。已换好后的只读入口为 `--action enter-identity`。三个动作仅接受各自的镜像、前态和授权范围。[候选镜像与地址契约](OTA-PREPARATION.md#receiver-identity-20261119)
 
+独立地址接收器已装好后，使用 `--action enter-identity --phone-file 02-bad-address.bin` 验收固定链接地址。控制台核对已分发 ZIP 中该成员的长度和 SHA-256，重启后对照首次接收器启动的地址，匹配后才提示手机选包。用 `ota_release --android-wrong-address <解压的 02 文件>` 可在主机回放同一文件，核实首份 DATA 在清单哈希之前被拒绝。01 与 02 的串口应答相同，现场结果需绑定操作者实际选择的文件。
+
 ## 2026-11-18 发布签名和只读 loader
 
 首次授权建钥使用 `pwsh -File scripts/Ota-ReleaseKey.ps1 -Mode Provision`；有公钥而本机缺对应私钥时会拒绝重新生成。日常发布运行项目 Python 的 `scripts/ota_release.py --build-result <普通 Product 的 result.json> --release <正整数> --out-dir <新目录>`，生成可供 Android 选取的 `offline_install.bin`。私钥由 Windows CNG 签名接口使用，打包采用锁定 SDK 的 `imgtoolv37.exe`。

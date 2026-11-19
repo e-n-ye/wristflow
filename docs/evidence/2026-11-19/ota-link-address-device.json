@@ -1,0 +1,63 @@
+{
+  "base": "be47bb7087877486fa9304efb93b72669cf222d3",
+  "capture": "artifacts/ota-address-device-20261119-001",
+  "installed_pair_and_first_address": "ota-identity-device.json",
+  "fixture": {
+    "archive": "artifacts/WristFlow-Android-OTA-20261118.zip",
+    "archive_sha256": "ca83136e150feec7c9dc7832506be818a8d7b75b0b6dec6b7d95ec556eac8409",
+    "filename": "02-bad-address.bin",
+    "sha256": "6e385fe79191328bbc0780859bffd6bead4f2a0e4a6303fc25a007e82e8db474",
+    "bytes": 3033926,
+    "differing_offsets_from_06": [8, 9, 10, 11, 54],
+    "transport_crc32_mpeg2": "c8bcda95",
+    "expected_link_address": "0x12020000",
+    "declared_link_address": "0x12020001",
+    "operator_selected": "只选了一次 02-bad-address.bin，我发结果截图",
+    "attribution": "The operator confirmed the file independently in chat. The phone screenshot shows a different media URI from 01. UART records the protocol result without a filename."
+  },
+  "entry": {"action":"enter-identity","verified_read_bytes":503808,"reads":11,"writes":0,"read_retries":0,"pre_reset_mV":4167,"charge_inhibited":true},
+  "radio": {"address_equal_across_two_receiver_boots":true,"android_and_windows_match_this_boot_UART":true,"windows_name_packets":68,"windows_service_packets":68,"android_DFU_library":"1.1.38"},
+  "phone": {
+    "screenshot_file_selected_at": "16:08:32",
+    "log_interval_local": "[16:08:30,16:08:45)",
+    "log_rows": 32,
+    "start_response_0": "16:08:39.425",
+    "first_data_response": {"time":"16:08:39.465","result":1,"retrans":0,"completed":0},
+    "end_with_0": "16:08:39.466",
+    "uart_replies": ["[ota-radio] request=38 result=0 accepted=0 sent=16","[ota-radio] request=40 result=1 accepted=0 sent=16"],
+    "install_started": false
+  },
+  "return": {
+    "seconds_from_rejection_to_idle_reset": 120.457,
+    "seconds_from_first_advertising_to_storage_ready": 205.633,
+    "boot": [49,50],
+    "generation": [230,231],
+    "saved_total_ms": [1598038553,1598039643],
+    "saved_scenes_nondecreasing": true,
+    "save_failures": [0,0],
+    "unsaved_tail_on_host_ms": 1223982,
+    "rtc_valid": false,
+    "operator_final": "常亮已关，显示、触摸和 KEY1 正常"
+  },
+  "host": {
+    "fixture_replay": "ota_release --android-wrong-address <02 from distributed ZIP>",
+    "receiver_result": "First DATA refused before manifest hashing. The receiver returned to idle with zero accepted blocks and zero install calls.",
+    "simulation": "artifacts/ota-address-sim-20261119-001",
+    "selection_replays": "artifacts/ota-address-selection-replay-20261119-001",
+    "selection_check": "After the device run, replay of the recorded exchange through the explicit file selector accepted an operator answer of 02 and refused 01 and unknown. All three completed the return and cleanup prompts.",
+    "tests": "Rebuilt ota_release and ota_release_trace. Eight OTA CTest targets and 36 focused Python tests passed, including six run with the frozen bridge."
+  },
+  "sha256": {
+    "window.json": "b0899c52a4ddf36f392389f0dd3cd2425415987f5cdfd41ed85d04d28d760543",
+    "wire-review.json": "e36220102359ee20e6c9e503ad19a6ed1a15da3e812f5207d7571f3a6cb22ffc",
+    "windows-air.jsonl": "8b07ee222b2ad1605385ae0f1b98afa2fb276c99c3b2773b60271722069232bd",
+    "media/tx.bin": "f7400958f2a05578c360361300144e044c5e43ea300120a34cdd1349990324cb",
+    "media/rx.bin": "67e0fd17ddd9dd0bbdce884074398e3d7efd36a4e2ddea1281e3c608294f030c",
+    "media/startup-uart.bin": "f2d789b5690d2b297720ed304cb9137a833329c97254143a618cde431c4032ac",
+    "media/wire-events.jsonl": "5e70b989bfe24905f0adf3c727ae202582a5cbbd515f0527610d7d7298e2b555",
+    "android-1608-dfu.log": "edc0d64334c77a2985de571937948bfab6555c205219b40ac2a83b872e26bb22",
+    "operator-android-02.jpg": "99c0cbcffc8dc629dd615492c6b4d5e979db7ce8e1ee6e8c9730f7bf9a4f903a",
+    "app-before/before-snapshot.json": "e0ee260a40ea2994606b118f58fc8f176f6806922100685a59d844cf1f2e0152",
+    "app-after/after-snapshot.json": "609cdca8a514a6a39109c81369f0398f6f2f857e56b289cf5970e5f6f052f60f"
+  }
+}

@@ -24,6 +24,7 @@ li{padding:8px 0}button{padding:12px 24px;border:0;border-radius:8px;font:inheri
 </style><main><h1>WristFlow 测试协作</h1><small id="mode"></small>
 <section class="card"><strong id="summary">正在连接</strong><ol id="phases"></ol></section>
 <section class="card"><div id="message"></div><small id="remaining"></small><div>
+<select id="choice" aria-label="本步实测结果" hidden></select>
 <button id="confirm" disabled>确认并继续</button><button id="cancel">取消本轮</button></div></section>
 <small id="error"></small></main><script>
 const token=__TOKEN__;let current=null,terminal=false;
@@ -36,10 +37,24 @@ document.querySelector('#summary').textContent=checks?(checks.every(c=>c.passed)
 const list=document.querySelector('#phases');list.replaceChildren();for(const p of checks||s.phases){const e=document.createElement('li');e.textContent=p.title+'：'+(checks?(p.passed?'通过':'未完成'):labels[p.state])+(p.detail?'；'+p.detail:'');list.append(e);}
 document.querySelector('#message').textContent=current?current.message:(s.result?s.result.detail:'程序正在处理，请稍候。');
 document.querySelector('#remaining').textContent=current?'确认剩余 '+Math.max(0,Math.ceil(current.remaining))+' 秒':'';
-document.querySelector('#confirm').disabled=terminal||!current||!!current.automatic;document.querySelector('#cancel').disabled=terminal;
+const choice=document.querySelector('#choice');
+choice.hidden=!current?.choices;
+if(current?.choices && choice.dataset.prompt!==current.id){
+  choice.replaceChildren(new Option('请选择实际结果',''),...current.choices.map(value=>new Option(value,value)));
+  choice.dataset.prompt=current.id;
+}
+const needsChoice=current?.choices && !choice.value;
+document.querySelector('#confirm').disabled=terminal||!current||current.automatic||needsChoice;
+document.querySelector('#cancel').disabled=terminal;
 if(terminal){await post('/seen',{});return;}setTimeout(update,250);
 }catch(e){document.querySelector('#error').textContent=e.message+'；请用 status 命令读取保存的进度。';}}
-document.querySelector('#confirm').onclick=async()=>{if(!current)return;document.querySelector('#confirm').disabled=true;try{await post('/reply',{id:current.id,answer:'continue'});}catch(e){document.querySelector('#error').textContent=e.message;}};
+document.querySelector('#confirm').onclick=async()=>{
+  if(!current)return;
+  document.querySelector('#confirm').disabled=true;
+  const answer=current.choices?document.querySelector('#choice').value:'continue';
+  try{await post('/reply',{id:current.id,answer});}
+  catch(e){document.querySelector('#error').textContent=e.message;}
+};
 document.querySelector('#cancel').onclick=async()=>{try{await post('/cancel',{});}catch(e){document.querySelector('#error').textContent=e.message;}};update();
 </script></html>"""
 
@@ -153,9 +168,9 @@ class Console:
                     self.answer is not None or self.prompt_value.get("automatic") or
                     time.monotonic() >= self.prompt_value["deadline"]):
                 raise ValueError("Prompt expired, already answered or replaced")
-            if answer != "continue":
+            if answer not in self.prompt_value.get("choices", ("continue",)):
                 raise ValueError("Unsupported answer")
-            self.journal.event("operator_reply", phase=self.prompt_value["phase"], prompt_id=prompt_id)
+            self.journal.event("operator_reply", phase=self.prompt_value["phase"], prompt_id=prompt_id, answer=answer)
             self.answer = answer
             self.condition.notify_all()
 
@@ -167,7 +182,7 @@ class Console:
             self.cancelled.set()
             self.condition.notify_all()
 
-    def prompt(self, key, message, timeout, *, pump=None):
+    def prompt(self, key, message, timeout, *, pump=None, choices=None):
         if not 0 < timeout <= 900:
             raise ValueError("Prompt timeout must be 0..900 seconds")
         with self.condition:
@@ -175,6 +190,8 @@ class Console:
             self.answer = None
             self.prompt_value = {"id": secrets.token_hex(16), "phase": key,
                                  "message": message, "deadline": time.monotonic() + timeout}
+            if choices:
+                self.prompt_value["choices"] = list(choices)
             self.journal.event("prompt", phase=key, prompt_id=self.prompt_value["id"])
             try:
                 while self.answer is None:
@@ -195,6 +212,8 @@ class Console:
                 if self.cancelled.is_set():
                     raise Cancelled("Operator cancelled")
                 self.journal.event("confirmed", phase=key)
+                if choices:
+                    return self.answer
             finally:
                 self.prompt_value = None
 
