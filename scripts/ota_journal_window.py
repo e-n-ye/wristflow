@@ -3,6 +3,11 @@ from ota_first_install import ROOT, read_json, require, sha
 
 ENTRY = "trace-journal-dma"
 RESTORE = "restore-journal-dma"
+FIXED = "test-fixed-rollback"
+INSPECT = "inspect-fixed-rollback"
+SHORT_ACTIONS = (ENTRY,RESTORE,FIXED,INSPECT)
+FIXED_SHA = "8b79182e22b0c7189bb7d26ea9fd6d94d4376573f41e214387e6553889c68383"
+FIXED_PADDED_SHA = "4fd4f8a35a72aa05f4e3c498a0564aad13413812950eb683f47526843992e83e"
 BASELINE_SHA = "acad8c5aee3d81f1f9defed9923274a7b6982e12b688cf834313a27420f521ac"
 BIN_SHA = "2c746b23817444558183117cf02d846a3e2c9acfe24877332f529574d220b93c"
 CHECK = dict(passed=True, startup_trace_tag=[1744612099,1910445575,324627080,2531195360], handoff_trace=5)
@@ -18,9 +23,10 @@ def baseline():
     return p
 
 
-def diagnostic_boot(path):
+def diagnostic_boot(path, action=ENTRY):
     data = path.read_bytes()
-    require(len(data)==58272 and sha(data)==BIN_SHA, "Wrong journal DMA boot")
+    expected = (57508,FIXED_SHA) if action==FIXED else (58272,BIN_SHA)
+    require((len(data),sha(data))==expected, "Wrong journal DMA boot")
     return data.ljust(61440,b"\xff")
 
 
@@ -31,19 +37,23 @@ def chunks(ranges):
 
 
 def transfers(directory, action, source, trace_path):
-    require(action in (ENTRY,RESTORE) and sha(source)==BASELINE_SHA, "Unknown short window")
+    require(action in SHORT_ACTIONS and sha(source)==BASELINE_SHA, "Unknown short window")
+    candidate = diagnostic_boot(trace_path,action) if action in (ENTRY,FIXED) else None
     reads, writes, current = [], [], {}
     for role,off,end in chunks(PROTECTED+OWNED):
         name = f"key-{off:08x}"
         data = (directory/(name+".bin")).read_bytes()
         require(len(data)==end-off, "Missing key range")
-        installed_trace = role == "boot" and action == ENTRY and data == diagnostic_boot(trace_path)
-        if not installed_trace and (action == ENTRY or role in ("ftab","a-vectors","receiver")):
+        installed_trace = role == "boot" and data == candidate
+        if not installed_trace and (candidate is not None or role in ("ftab","a-vectors","receiver")):
             require(data==source[off:end], "Unexpected initial key bytes")
         reads.append((name,off,data))
         current[off] = data
-    if action == ENTRY:
-        spans = [("boot",0x10000,diagnostic_boot(trace_path))]
+    if action == INSPECT:
+        require(sha(current[0x10000])==FIXED_PADDED_SHA, "Corrected production boot not installed")
+        return reads,[]
+    if candidate is not None:
+        spans = [("boot",0x10000,candidate)]
     else:
         spans = [(role,off,source[off:end]) for role,off,end in chunks(OWNED)]
     for role,off,data in spans:

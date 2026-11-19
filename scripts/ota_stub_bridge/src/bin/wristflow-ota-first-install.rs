@@ -71,7 +71,7 @@ impl Config {
         if self.action.traced() {
             require(self.seconds <= 90 && self.listen_seconds <= 35,"Trace time limit exceeded")?;
         }
-        require(self.trace_boot.is_some() == matches!(self.action, Action::TraceTrialB | Action::TraceJournalDma), "Unexpected trace boot argument")?;
+        require(self.trace_boot.is_some() == (self.action.short_entry() || self.action == Action::TraceTrialB), "Unexpected boot image argument")?;
         let has_reference = restore || self.action.key_regions() || self.action.trial_read() || self.action.handoff() || self.action.journal_dma();
         require(self.before.is_some() == has_reference && self.before_sha256.is_some() == has_reference, "Missing or unexpected NOR reference")?;
         if self.action == Action::InspectReceiver {
@@ -101,6 +101,8 @@ impl Config {
             Action::RestoreHandoffB => "restore-pretrace-boot-stable-a-and-original-b",
             Action::TraceJournalDma => "trace-05-journal-dma-with-key-readback",
             Action::RestoreJournalDma => "restore-05-journal-dma-key-regions",
+            Action::TestFixedRollback => "install-corrected-boot-and-try-05-once",
+            Action::InspectFixedRollback => "inspect-corrected-05-return-keys-and-restart-a",
             Action::TraceOriginalA => "ordinary-a-three-range-trace",
             Action::RestoreTraceA => "restore-three-trace-ranges",
         };
@@ -141,7 +143,11 @@ fn apply(c: &Config) -> Result<()> {
     let receiver = if c.action.traced() { "certificate.bin" } else { "receiver.bin" };
     let trace_boot = if let Some(path) = &c.trace_boot {
         let mut bytes = fs::read(path)?;
-        let size = if c.action == Action::TraceJournalDma { 58272 } else { 58264 };
+        let size = match c.action {
+            Action::TraceJournalDma => 58272,
+            Action::TestFixedRollback => 57508,
+            _ => 58264,
+        };
         require(bytes.len() == size, "Wrong diagnostic BIN length")?;
         bytes.resize(media::BOOT.len(), 255);
         Some(bytes)

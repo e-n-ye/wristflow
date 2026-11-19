@@ -36,6 +36,8 @@
 
 ## 2026-11-18 发布签名和只读 loader
 
+普通 boot 的启动记录 DMA 收尾使用上述板型对应的官方 MPI2 DMA 句柄。构建时传入已装接收器的 `-ReceiverResult`；历史阶段追踪构建保留原诊断行为。用 `ota_first_window.py simulate --action test-fixed-rollback` 指定 `--candidate-boot`、手机 ZIP、关键区基线的模拟 NOR、模拟启动串口和应用快照。自动回滚的运行证据齐全后，用 `inspect-fixed-rollback --trial-window <同次入口目录>` 只读核对启动记录及 B 的实际擦写页，并再次启动原 A。独立恢复仍用 `restore-journal-dma --prior <同次入口目录>`。[候选构建和演练](evidence/2026-11-19/ota-05-dma-finished.json)
+
 用 `scripts/Build-Ota-Boot.ps1 -TraceJournalDma -ReceiverResult <已装接收器的result.json> -EvidenceDir <新目录>` 构建第 5 版诊断 boot。串口 w、y 两帧分别保存同一次 128 字节启动记录写入前、返回后的 DMA1 CCR2、CNDTR2、CSELR1 以及 MPI2 CR、SR。w 的 detail 为物理地址，y 的 detail 为写入返回值。两次采样均在发送 w 之前完成。
 
 关键区演练用 `ota_first_window.py simulate --action trace-journal-dma` 指定第 5 版 BIN、模拟串口、手机 ZIP 和正常表盘前态；恢复用 `--action restore-journal-dma --prior <同次诊断目录>`。两段均复用上轮恢复后的 16 MiB 基线。实机串口日志、两份启动记录和逐块读回保存在各自窗口目录。恢复结果只涵盖实际读回的关键区。[范围与模拟证据](evidence/2026-11-19/ota-05-journal-dma.json)
