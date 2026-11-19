@@ -30,6 +30,10 @@
 
 用 `ota_release_trace --android-signature-then-body <解压的 03 文件> <解压的 04 文件>` 测试同一接收器实例的下一次 START。回放验证 03 清除会话、04 逐块回执及完整正文校验，最后统计安装调用。[原包对照与回放结果](evidence/2026-11-19/ota-signature-window.json)
 
+合窗控制台用 `ota_first_window.py simulate --action enter-identity --signature-then-body --authorize simulation` 演练。传入支持合窗的主机构建、已装接收器的配套镜像、手机 ZIP、模拟 NOR 和原表盘前后 UART。真机只读进入一次接收器，操作者授权后传入 `--phone-adb <adb.exe>`，只采集这部 USB 手机上的 SIFLI BLE 连接和 DFU 回执行。手机可提前停在扫描列表。03 的两端回执对齐后，协作页才显示 04 的选包提示。有效传输窗口为 24 分钟，04 须在前 6 分钟内开始，之后另有 3 分钟等空闲返回。回到原 A 后分别登记两次选包，统一核一次运行记录。
+
+04 的两端证据按同一传输会话核对。有累计 DATA 应答时，核最后完成数 1,482。实测 Android DFU 1.1.38 会省略成功 DATA 行，此时记录实际看到的 `pro100`、手机发出 END 并收到 END 应答，以及表端 END 返回的错误码。SDK 的通用退出码不能单独判定安装结果。[原始回执及验收边界](evidence/2026-11-19/ota-paired-device.json)
+
 ## 2026-11-18 发布签名和只读 loader
 
 首次授权建钥使用 `pwsh -File scripts/Ota-ReleaseKey.ps1 -Mode Provision`；有公钥而本机缺对应私钥时会拒绝重新生成。日常发布运行项目 Python 的 `scripts/ota_release.py --build-result <普通 Product 的 result.json> --release <正整数> --out-dir <新目录>`，生成可供 Android 选取的 `offline_install.bin`。私钥由 Windows CNG 签名接口使用，打包采用锁定 SDK 的 `imgtoolv37.exe`。

@@ -50,11 +50,21 @@ struct Config {
     action: Action, simulation: bool, port: String, out: PathBuf, bundle: PathBuf,
     before: Option<PathBuf>, before_sha256: Option<String>, fixture: Option<PathBuf>,
     cancel: PathBuf, stub: PathBuf, seconds: u64, listen_seconds: u64, authorization: String,
+    #[serde(default)]
+    signature_then_body: bool,
 }
 impl Config {
     fn validate(&self) -> Result<()> {
-        require(!self.out.exists() && !self.cancel.exists() && (30..=1800).contains(&self.seconds) &&
-                self.listen_seconds <= 900 && self.listen_seconds < self.seconds, "Invalid window or reused output")?;
+        let (max_window, max_listen) = if self.signature_then_body {
+            require(self.action == Action::EnterIdentity, "Paired phone window requires read-only entry")?;
+            (1740, 1620)
+        } else if self.action.identity() {
+            (480, 320)
+        } else {
+            (1800, 900)
+        };
+        require(!self.out.exists() && !self.cancel.exists() && (30..=max_window).contains(&self.seconds) &&
+                self.listen_seconds <= max_listen && self.listen_seconds < self.seconds, "Invalid window or reused output")?;
         let restore = matches!(self.action, Action::Restore | Action::RestoreWithB | Action::RestoreTraceA);
         if self.action.traced() {
             require(self.seconds <= 90 && self.listen_seconds <= 35,"Trace time limit exceeded")?;
@@ -66,9 +76,6 @@ impl Config {
         }
         if self.action.key_regions() {
             require(self.before_sha256.as_deref() == Some(media::INSTALLED_SHA), "Wrong installed reference binding")?;
-        }
-        if self.action.identity() {
-            require(self.seconds <= 480 && self.listen_seconds <= 320, "Identity window time limit exceeded")?;
         }
         let scope = match self.action {
             Action::Install => "first-install-receiver-journal-boot-and-enter",
