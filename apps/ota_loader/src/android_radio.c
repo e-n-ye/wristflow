@@ -8,6 +8,8 @@
 #include "bf0_sibles_internal.h"
 #include "bf0_sibles_advertising.h"
 #include "bf0_sibles_serial_trans_service.h"
+#include "bf0_sibles_nvds.h"
+#include "receiver_identity.h"
 #include "probe_port.h"
 #include "startup.h"
 #include "product_power.h"
@@ -18,6 +20,10 @@ static uint8_t package[2 + WF_DFU_ENVELOPE + WF_DFU_SLOT_BYTES]
     __attribute__((section(".bss.l2_non_ret_bss_ota"), aligned(32)));
 static CRC_HandleTypeDef crc;
 static struct rt_semaphore power;
+static struct rt_semaphore address_ready;
+static bd_addr_t receiver_address;
+static volatile bool address_requested;
+static volatile bool address_matched;
 static rt_mq_t requests;
 static volatile uint32_t connection_epoch;
 static volatile uint8_t peer = 0xff;
@@ -74,11 +80,56 @@ BLE_SERIAL_TRAN_EXPORT(BLE_DFU_CATEID, serial_event);
 
 static int gap_event(uint16_t event, uint8_t *data, uint16_t len, uint32_t ctx)
 {
-    (void)data; (void)len; (void)ctx;
+    (void)ctx;
     if (event == BLE_POWER_ON_IND && requests) rt_sem_release(&power);
+    if (event == BLE_GAP_LOCAL_BD_ADDR_IND && address_requested && data &&
+        len >= sizeof(ble_gap_dev_bdaddr_ind_t)) {
+        const ble_gap_dev_bdaddr_ind_t *ind = (const ble_gap_dev_bdaddr_ind_t *)data;
+        address_matched = ind->addr.addr_type == 1 &&
+            !memcmp(ind->addr.addr.addr, receiver_address.addr, sizeof receiver_address.addr);
+        address_requested = false;
+        rt_sem_release(&address_ready);
+    }
     return 0;
 }
 BLE_EVENT_REGISTER(gap_event, NULL);
+
+static bool prepare_address(void)
+{
+    /* SF32LB52 UID field used by the SDK's bt_mac_addr_generate_via_uid_v2. */
+    _Alignas(4) uint8_t uid[16];
+    if (HAL_EFUSE_Read(0, uid, sizeof uid) != sizeof uid ||
+        !wf_ota_receiver_address(uid, receiver_address.addr)) return false;
+    uint8_t tag[2 + NVDS_APP_LEN_BD_ADDRESS] = {NVDS_APP_TAG_BD_ADDRESS, NVDS_APP_LEN_BD_ADDRESS};
+    memcpy(tag + 2, receiver_address.addr, sizeof receiver_address.addr);
+    /* The SDK reads the APP TLV while configuring GAP, before POWER_ON_IND.
+     * Its persistent-tag API is not initialized yet; this backend is RAM only. */
+    return sifli_nvds_flash_adaptor_write("SIF_APP", tag, sizeof tag) == NVDS_OK;
+}
+
+static bool confirm_address(void)
+{
+    bd_addr_t public_address;
+    if (ble_get_public_address(&public_address) != 0 ||
+        !memcmp(public_address.addr, receiver_address.addr, sizeof receiver_address.addr)) return false;
+    address_requested = true;
+    bool ok = ble_gap_get_local_bdaddr() == 0 &&
+              rt_sem_take(&address_ready, rt_tick_from_millisecond(3000)) == RT_EOK && address_matched;
+    address_requested = false;
+    if (ok) {
+        const uint8_t *a = receiver_address.addr;
+        rt_kprintf("[ota-radio] receiver address=%02X:%02X:%02X:%02X:%02X:%02X type=1\n",
+                   a[5], a[4], a[3], a[2], a[1], a[0]);
+    }
+    return ok;
+}
+
+static void address_failure(void)
+{
+    rt_kprintf("[ota-radio] receiver address unconfirmed\n");
+    rt_thread_mdelay(120000);
+    if (wf_ota_loader_has_stable()) HAL_PMU_Reboot();
+}
 
 uint8_t sibles_advertising_disc_mode_get(void) { return GAPM_ADV_MODE_GEN_DISC; }
 static uint8_t advertising_event(uint8_t event, void *context, void *data)
@@ -125,6 +176,7 @@ static void worker(void *unused)
     if (rt_sem_take(&power, rt_tick_from_millisecond(15000)) != RT_EOK) {
         rt_kprintf("[ota-radio] power-on timeout\n"); return;
     }
+    if (!confirm_address()) { address_failure(); return; }
     ble_serial_tran_init();
     if (!advertise()) { rt_kprintf("[ota-radio] advertising setup failed\n"); return; }
     wf_dfu_receiver_t r = {.file=package + 2, .capacity=sizeof package - 2,
@@ -182,7 +234,9 @@ void wf_ota_android_start(void)
         checksum(NULL, (const uint8_t *)"123456789", 9) != 0x0376e6e7u) {
         rt_kprintf("[ota-radio] startup guard rejected\n"); return;
     }
+    if (!prepare_address()) { address_failure(); return; }
     rt_sem_init(&power, "ota_pwr", 0, RT_IPC_FLAG_FIFO);
+    rt_sem_init(&address_ready, "ota_addr", 0, RT_IPC_FLAG_FIFO);
     requests = rt_mq_create("ota_wire", sizeof(message_t *), 4, RT_IPC_FLAG_FIFO);
     if (!requests) return;
     rt_thread_t th = rt_thread_create("ota_rx", worker, NULL, 16384, 22, 10);

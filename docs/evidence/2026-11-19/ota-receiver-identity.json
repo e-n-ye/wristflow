@@ -1,0 +1,30 @@
+{
+  "base": "60e0ca7b3e822541bf6fab29185e2daf68bb428e",
+  "hardware_verified": false,
+  "receiver_build": "artifacts/ota_loader/20261119-151705-132/result.json",
+  "receiver_result_sha256": "3e75cb386bfcabb495f54e97540809162bb8455446ac960a3d72edffe75b74c2",
+  "receiver_bin_bytes": 360572,
+  "receiver_bin_sha256": "54e9a8520716df71886a5913e0f9de96860d6eb6edd0830d07193ad100a122a8",
+  "receiver_padded_bytes": 364544,
+  "receiver_padded_sha256": "7f52f7482b5e4ae2fe81bf354ede5ad58c71c4a47fca8e94057071f29af755d4",
+  "boot_build": "artifacts/ota-identity-boot-20261119-001/result.json",
+  "boot_result_sha256": "2a2f6ea1ca3e890d85e18e54a5baa93abd7b955d57a1ece3232a8e7b7becb819",
+  "boot_bin_bytes": 57308,
+  "boot_bin_sha256": "d810c9cd049c273f9279c39a67065d386876dca2b9952e64f673666a5c476408",
+  "boot_padded_bytes": 61440,
+  "boot_padded_sha256": "a7452af386289216c3357d61e329cf83e709cd76c2866c2940a4dcfbecbb520c",
+  "enrollment_address": "0x1286c72c",
+  "enrollment_sha256": "fdda8fed5e37c097a0a9fa7d9a8b590b7025d0451c81d35af4c78c93af7dad85",
+  "boot_ftab_free_bytes": 1188,
+  "offline": {
+    "model": "artifacts/ota-identity-host-model-20261119-001/model.json",
+    "baseline_nor_sha256": "e79fd123440e102be2c667789a2b194db786ff8f99dc32d06c5ff6201597d8d7",
+    "projected_nor_sha256": "facea2436db731218be973357fd6eae4e155e9d3bd594595949e0aede648291b",
+    "additional_receiver_sector_offset": "0x00878000",
+    "additional_sector_original": "4096 bytes of FF in the archived baseline",
+    "checks": "Eight host OTA CTest targets passed. Two synthetic UIDs yielded expected distinct static addresses. Blank UID inputs rejected. Exact Android wrong-board fixture rejected; original A authenticated and selected on projected NOR. Restoring both extents reconstructed the complete baseline.",
+    "linked_call_review": "artifacts/ota-identity-host-model-20261119-001/linked-calls.json",
+    "default_probe_build": "artifacts/ota_loader/20261119-152014-037/result.json",
+    "initial_build_issue": "The SDK defines EFUSE_OFFSET_UID privately in bf0_bt_common.c. The candidate uses that same UID field at offset zero, 16 bytes. The subsequent build passed."
+  }
+}
