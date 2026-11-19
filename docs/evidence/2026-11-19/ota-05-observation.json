@@ -1,0 +1,19 @@
+{
+  "base": "a3add560bbff0d0c00d9dc645b7bc7b30962c1b0",
+  "rescue": "ota-05-rescue.json",
+  "fixture": "05-rollback-2026111801.bin",
+  "trial_build_map": "artifacts/ota-ordinary-product-20261108-before-health.zip",
+  "trial_main_map_sha256": "a4e53d2533d484394285799f59f5a43e8cd36cfa691df4e34b304face913ef40",
+  "trial_code_marker": "ft6146.o .text.probe at 0x12027edc; the Thumb function pointer logged by rt_touch_drivers_register is 12027edd",
+  "original_code_marker": "12027f35 in actual original A boot UART from ota-paired-device-20261119-002",
+  "criteria": "After the signed 05 install commit, require two distinct SFBL boots with B then A probe addresses, subsequent original storage ready, and no intervening host command or RTS. The separate 16 MiB read must show generation 3 TRIED B and generation 4 STABLE A preserving both release identities. These observations distinguish automatic return from an operator reset, without attributing a specific reset cause solely from elapsed time.",
+  "expected_b_sha256": "e2d5bfe2b0d8d17b9f3b58949899a133c9e58925652d8e0a756e3a518899ce90",
+  "expected_journal_16k_sha256": "4c9eb1c6e30e14f9b24ae5959641342cb3b44469170c51bc294b2f8585031c73",
+  "host_manifest": "artifacts/ota-05-trial-host-001/result.json",
+  "host_manifest_sha256": "4e5a5e422068cda8a7b764d6db099438b3f9a4aaf27630808a7964ad2d63d275",
+  "host_executable_sha256": "aa5fdf6748f6dc6e3fee5df89fad4baf063ba889a7777a4b652a76459d4bbf2b",
+  "simulation": "artifacts/ota-05-evidence-rehearsal-001",
+  "simulated_before_sha256": "38d693fb320f2170e24abead3777fe6733588a26113c8e789582efd2ff388b51",
+  "simulated_after_sha256": "5a54debd3b6c36a0863463c2d7df0ce8dce4ff6753a2980870b159c3298dad3e",
+  "validation": "The host C A/B model generated the two expected records from the real 05 manifest. Both native read actions and controller simulations completed with no wired writes. Ten Rust tests and eighteen focused Python tests passed."
+}

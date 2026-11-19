@@ -111,12 +111,12 @@ def application(phase, transport, journal, console, identity, *, cycle, before_c
     return result
 
 
-def recovery(before, after, *, elapsed_seconds=None, check_rtc=True):
+def recovery(before, after, *, elapsed_seconds=None, check_rtc=True, boot_deltas=(1,)):
     old, new = before["records"], after["records"]
     healthy(new)
-    expected_boot = (old["current"]["boot"] + 1) & 0xffffffff
-    if new["current"]["boot"] != expected_boot:
-        raise ValueError("Expected exactly one new application boot; preserve both snapshots")
+    boot_delta = (new["current"]["boot"] - old["current"]["boot"]) & 0xffffffff
+    if boot_delta not in boot_deltas:
+        raise ValueError(f"Unexpected application boot delta {boot_delta}; expected {boot_deltas}")
     a, b = old["saved"], new["saved"]
     if ((b["generation"] - a["generation"]) & 0xffffffff) >= 0x80000000 or any(
             b[key] < a[key] for key in ("total_recorded_ms",)) or any(
