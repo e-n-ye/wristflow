@@ -14,6 +14,7 @@ pub const RX: Range<usize> = 0x820000..0x878000;
 const IDENTITY_RX: Range<usize> = 0x820000..0x879000;
 pub const INSTALLED_SHA: &str = "d862c6aab38f33490519c70be2583fc56cc5d2bc9c465543efe6aa41ab8d2258";
 pub const RESTORED_SHA: &str = "acad8c5aee3d81f1f9defed9923274a7b6982e12b688cf834313a27420f521ac";
+const FIXED_BOOT_SHA: &str = "4fd4f8a35a72aa05f4e3c498a0564aad13413812950eb683f47526843992e83e";
 pub const META: Range<usize> = 0xda0000..0xda4000;
 const A: Range<usize> = 0x20000..0x420000;
 const B: Range<usize> = 0x420000..0x820000;
@@ -29,14 +30,15 @@ const BOOT_ORIGINAL_SHA: &str = "f59f948f987362f1270b1da541405e82bd887c1a16c3063
 #[serde(rename_all = "kebab-case")]
 pub enum Action { Install, VerifyOriginal, EnterReceiver, InspectReceiver, InstallIdentity, EnterIdentity, RestoreIdentity,
                   Restore, RestoreWithB, RestoreTrialB, EnterTrialB, InspectTrialB, TraceTrialB, RestoreHandoffB,
-                  TraceOriginalA, RestoreTraceA, TraceJournalDma, RestoreJournalDma }
+                  TraceOriginalA, RestoreTraceA, TraceJournalDma, RestoreJournalDma, TestFixedRollback, InspectFixedRollback }
 impl Action {
     pub fn traced(self) -> bool { matches!(self, Self::TraceOriginalA | Self::RestoreTraceA) }
     pub fn identity(self) -> bool { matches!(self, Self::InstallIdentity | Self::EnterIdentity | Self::RestoreIdentity) }
     pub fn key_regions(self) -> bool { self.identity() || self == Self::InspectReceiver }
     pub fn trial_read(self) -> bool { matches!(self, Self::EnterTrialB | Self::InspectTrialB) }
     pub fn handoff(self) -> bool { matches!(self, Self::TraceTrialB | Self::RestoreHandoffB) }
-    pub fn journal_dma(self) -> bool { matches!(self, Self::TraceJournalDma | Self::RestoreJournalDma) }
+    pub fn short_entry(self) -> bool { matches!(self, Self::TraceJournalDma | Self::TestFixedRollback) }
+    pub fn journal_dma(self) -> bool { self.short_entry() || matches!(self, Self::RestoreJournalDma | Self::InspectFixedRollback) }
 }
 
 pub struct Inputs {
@@ -47,10 +49,13 @@ pub struct Inputs {
 }
 impl Inputs {
     pub fn verify(&self, action: Action) -> Result<()> {
-        require(matches!(action, Action::TraceTrialB | Action::TraceJournalDma) == self.trace_boot.is_some(), "Unexpected or missing trace image")?;
+        require((action.short_entry() || action == Action::TraceTrialB) == self.trace_boot.is_some(), "Unexpected or missing boot image")?;
         if let Some(bytes) = &self.trace_boot {
-            let digest = if action == Action::TraceJournalDma { "1555afe8831bd486f4b7b0c054542772ea68e5a9187283d10ecea3e0884f2ae2" }
-                         else { "340d5aab6097e892216b0129a7d377cd3ffb748ba5bdc736f175e9c7cdfd8ed8" };
+            let digest = match action {
+                Action::TestFixedRollback => FIXED_BOOT_SHA,
+                Action::TraceJournalDma => "1555afe8831bd486f4b7b0c054542772ea68e5a9187283d10ecea3e0884f2ae2",
+                _ => "340d5aab6097e892216b0129a7d377cd3ffb748ba5bdc736f175e9c7cdfd8ed8",
+            };
             require(bytes.len() == BOOT.len() && hash(bytes) == digest, "Wrong padded diagnostic boot")?;
         }
         let identity_images = action.identity() || action.trial_read() || action.handoff() || action.journal_dma() || action == Action::RestoreTrialB;
@@ -126,7 +131,7 @@ pub fn writable(action: Action, role: &str, offset: usize, n: usize) -> bool {
     }
     let range = match (action, role) {
         (Action::InstallIdentity | Action::RestoreIdentity | Action::TraceTrialB | Action::RestoreHandoffB |
-         Action::TraceJournalDma | Action::RestoreJournalDma, "boot") => BOOT,
+         Action::TraceJournalDma | Action::RestoreJournalDma | Action::TestFixedRollback, "boot") => BOOT,
         (Action::InstallIdentity | Action::RestoreIdentity, "receiver") => IDENTITY_RX,
         (Action::Install | Action::Restore | Action::RestoreWithB, "boot") => BOOT,
         (Action::Install | Action::Restore | Action::RestoreWithB, "receiver") => RX,
@@ -218,16 +223,23 @@ fn journal_dma_window(io: &mut impl Nor, action: Action, images: &Inputs, baseli
             let end = (off + CHUNK).min(range.end);
             let bytes = io.read(&format!("key-{off:08x}"),off,end-off)?;
             require(bytes.len()==end-off, "Incomplete diagnostic region")?;
-            let installed_trace = role == "boot" && action == Action::TraceJournalDma &&
+            let installed_trace = role == "boot" && action.short_entry() &&
                 images.trace_boot.as_deref() == Some(bytes.as_slice());
-            if !installed_trace && (action == Action::TraceJournalDma || !writable(action,role,off,end-off)) {
+            let protected = matches!(role, "ftab" | "a-vectors" | "receiver");
+            if protected || (action.short_entry() && !installed_trace) {
                 require(bytes == baseline[off..end], "Key region differs from restored baseline")?;
             }
             current[off..end].copy_from_slice(&bytes);
         }
     }
     io.checkpoint(json!({"journal_keys_archived":true,"reference":RESTORED_SHA}))?;
-    if action == Action::TraceJournalDma {
+    if action == Action::InspectFixedRollback {
+        require(hash(&current[BOOT]) == FIXED_BOOT_SHA &&
+                hash(&current[META]) == "4c9eb1c6e30e14f9b24ae5959641342cb3b44469170c51bc294b2f8585031c73",
+                "Corrected boot and stable A rollback record required before restart")?;
+        return io.checkpoint(json!({"fixed_rollback_read":true,"flash_writes":0}));
+    }
+    if action.short_entry() {
         replace(io,action,&mut current,"boot",BOOT.start,images.trace_boot.as_ref().ok_or("Missing trace boot")?)?;
         return io.checkpoint(json!({"trace_boot_verified":true}));
     }
@@ -258,7 +270,7 @@ pub fn run(io: &mut impl Nor, action: Action, images: &Inputs, rescue: Option<&[
     let before_hash = hash(&expected);
     match action {
         Action::TraceOriginalA | Action::RestoreTraceA | Action::InspectReceiver | Action::TraceJournalDma | Action::RestoreJournalDma |
-        Action::InstallIdentity | Action::EnterIdentity | Action::RestoreIdentity => return Err("Unexpected storage action".into()),
+        Action::TestFixedRollback | Action::InspectFixedRollback | Action::InstallIdentity | Action::EnterIdentity | Action::RestoreIdentity => return Err("Unexpected storage action".into()),
         Action::Install | Action::VerifyOriginal => {
             original(&expected)?;
             io.preserve_b(&expected[B])?;

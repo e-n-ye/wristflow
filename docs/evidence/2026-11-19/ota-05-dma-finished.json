@@ -1,0 +1,54 @@
+{
+  "input_evidence": "ota-05-journal-dma.json",
+  "candidate": {
+    "command": "scripts/Build-Ota-Boot.ps1 -ReceiverResult artifacts/ota_loader/20261119-151705-132/result.json -EvidenceDir artifacts/ota-05-dma-finished-boot-001",
+    "sdk_commit": "421126d9f476ed8e2a6f0b0ca28a9f241c182e65",
+    "bin_bytes":57508,"ftab_copy_bytes":58496,
+    "bin_sha256":"8b79182e22b0c7189bb7d26ea9fd6d94d4376573f41e214387e6553889c68383",
+    "elf_sha256":"09f30d1a67f559f714b55e7013751be22580e4b54488a53a5fdf5bf6e467b9fa",
+    "padded_boot_sha256":"4fd4f8a35a72aa05f4e3c498a0564aad13413812950eb683f47526843992e83e",
+    "vendor_path":"butterflmicro boot_flash.c write_nor -> bf0_hal_mpi_ex.c HAL_QSPIEX_WRITE_PAGE -> HAL_FLASH_DMA_START and HAL_FLASH_DMA_WAIT_DONE -> bf0_hal_dma.c HAL_DMA_PollForTransfer and DMA_FreeChannel",
+    "completion":"Check the synchronous return, HAL-ready handle and transfer identity, remaining count, request, transfer mode, destination and MPI idle state. Use the SDK channel disable macro, barrier, readback and the original all-channel flash_owner check.",
+    "elf_review":"program_unit 0x20027970: guarded flash callback at 0x2002799c, channel-only EN clear at 0x20027a42, DSB and CCR2 readback before the strict ownership check."
+  },
+  "host": {
+    "native_build":"artifacts/ota-05-dma-finished-host-001/result.json",
+    "manifest_sha256":"c6f6ec160040cec0cc657c8304c5a87c6c8a30aacd09033c1ff63584a5a4d52f",
+    "exe_sha256":"2db30dce23750a0733e4d622eafd68e69862b564ea4e241364d4725a293f1c7a",
+    "rehearsal":"artifacts/ota-05-dma-finished-rehearsal-001",
+    "simulated_entry":{"reads":60,"writes":1},"simulated_inspection":{"reads":59,"writes":0},
+    "simulated_recovery":{"reads":161,"writes":51,"whole_simulated_nor_matches_baseline_except_running_user_byte":true},
+    "invalid_stable_record_refused":true,
+    "register_test":"ota_boot_dma replays a completed transfer, already-idle case, sticky EN and 16 invalid completion/ownership conditions.",
+    "ctest":"9 OTA executables passed after building three missing test binaries",
+    "historical_v5_rebuilt_identically":true,
+    "python_tests":{"run":220,"skipped":57,"failures":0}
+  },
+  "device_trial":{
+    "capture":"artifacts/ota-05-dma-finished-device-001",
+    "phone_file":"05-rollback-2026111801.bin","operator_confirmed_file":true,
+    "receiver_end":0,"blocks":1480,"committed_release":2026111801,
+    "power_mV":4168,"startup_bytes":11962,
+    "startup_sha256":"98e867ac6dd749d018e12788cf2134fa917ab129e5520a9df4c69a65df02a2dc",
+    "wire_review_sha256":"e041a6b7ec7d4b7650295da727b3d3f65da81c8a84a2586656c9e703f4dd7753",
+    "time_from_commit_seconds":{"first_SFBL":1.207,"B_touch_12027edd":5.470,"B_storage_ready":5.489,"second_SFBL":59.581,"A_touch_12027f35":62.959,"A_storage_ready":62.978},
+    "no_host_reset_or_command_between_boots":true,"operator_saw_screen_light_during_B":true,
+    "return_boot":[56,58],"return_save_generation":[238,240],"saved_ms":[1609614598,1609616778],"save_failures":[0,0],
+    "unsaved_tail_archived_ms":879359,"rtc_valid":false,
+    "operator_confirmed_original_face_touch_key1":true
+  },
+  "physical_check":{
+    "capture":"artifacts/ota-05-dma-finished-inspect-device-003",
+    "earlier_attempts":"001 and 002 received zero application UART bytes and stopped before ROM, reset or any flash action. After the operator woke the display, 003 captured a complete snapshot and charge inhibit before reset.",
+    "reads":59,"wired_writes":0,"read_retries":0,"read_bytes":3547136,
+    "wire_review_sha256":"8e937828afb0f48f2f61f5048372c7d1120ab65dd1e768e9a6874efb8c722f14",
+    "startup_sha256":"9b6f5a638100063b1c2b70b366b118303619f2543f6707df195cc96fa6e552cc",
+    "after_snapshot_sha256":"095ec470929140e3736c61df1071bfc5889ecd3225ed2931938d55679928130d",
+    "B":"The 3,028,888 byte signed body and erased page padding matched the physical page readbacks. The 336 byte signed header matched the end of the final page. The unmodified B gap was outside this short window.",
+    "records":["generation 3 TRIED B, stable A","generation 4 STABLE A, pending NONE"],
+    "crc32_both_valid":true,"corrected_boot_retained":true,
+    "boot":[58,59],"save_generation":[240,241],"saved_ms":[1609616778,1609617871],"save_failures":[0,0],
+    "saved_scene_times_nondecreasing":true,"unsaved_tail_archived_ms":202812,"rtc_valid":false,
+    "operator_final":"常亮已关，显示、触摸和 KEY1 正常"
+  }
+}

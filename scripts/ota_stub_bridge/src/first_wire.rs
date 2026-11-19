@@ -43,7 +43,7 @@ impl Session<'_> {
     }
     fn start(&mut self) -> Result<()> {
         let mut start_receiver = true;
-        if self.cfg.action == Action::TraceJournalDma {
+        if self.cfg.action.short_entry() {
             let ready = self.cfg.out.join("phone-ready");
             let decline = self.cfg.out.join("phone-unavailable");
             self.checkpoint(json!({"waiting_for_phone":true}))?;
@@ -58,7 +58,7 @@ impl Session<'_> {
         }
         self.speed(500_000,1_000_000)?;
         if start_receiver && matches!(self.cfg.action,Action::Install|Action::EnterReceiver|Action::InspectReceiver|
-                                    Action::InstallIdentity|Action::EnterIdentity|Action::EnterTrialB|Action::TraceTrialB|Action::TraceJournalDma) {
+                                    Action::InstallIdentity|Action::EnterIdentity|Action::EnterTrialB|Action::TraceTrialB|Action::TraceJournalDma|Action::TestFixedRollback) {
             // SF32LB52 RTC_BASE + offsetof(RTC_TypeDef, BKP5R), the SDK's
             // RTC_BAKCUP_OTA_FORCE_MODE. Preserve any unknown existing value.
             const REQUEST_REGISTER:u32 = 0x500cb044;

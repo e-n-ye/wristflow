@@ -12,6 +12,9 @@
 #include "release.h"
 #include "receiver_binding.h"
 #include "startup_trace.h"
+#if !defined(WF_OTA_BOOT_TRACE) && !defined(WF_OTA_HANDOFF_TRACE)
+#include "journal_dma.h"
+#endif
 #ifdef WF_OTA_HASH_RESUME_PROBE
 #include "hash_resume_probe.h"
 #endif
@@ -92,9 +95,15 @@ static int program_unit(void *ctx, unsigned unit, const void *src, size_t n)
     wf_boot_trace('w', address);
     wf_boot_trace('y', (uint32_t)written);
     return written;
-#else
+#elif defined(WF_OTA_BOOT_TRACE) || defined(WF_OTA_HANDOFF_TRACE)
+    /* Historical trace images reproduce the originally observed transaction. */
     return unit < 2 && n == WF_OTA_AB_BYTES && flash_owner() && g_flash_write ?
            g_flash_write(WF_OTA_METADATA_REGION_START_ADDR + unit * UNIT, src, n) : -1;
+#else
+    if (unit >= 2 || n != WF_OTA_AB_BYTES || !flash_owner() || !g_flash_write) return -1;
+    int written = g_flash_write(WF_OTA_METADATA_REGION_START_ADDR + unit * UNIT, src, n);
+    if (!wf_boot_finish_journal_dma(boot_handle->dma, src, written) || !flash_owner()) boot_error('D');
+    return written;
 #endif
 }
 static bool acquire(void *ctx) { return physical(ctx); }

@@ -34,6 +34,8 @@ from serial_lab import prepare_capture
 SCOPE = {"install": "first-install-receiver-journal-boot-and-enter",
          dma.ENTRY: "trace-05-journal-dma-with-key-readback",
          dma.RESTORE: "restore-05-journal-dma-key-regions",
+         dma.FIXED: "install-corrected-boot-and-try-05-once",
+         dma.INSPECT: "inspect-corrected-05-return-keys-and-restart-a",
          "enter-trial-b": "enter-for-android-05-trial-and-passive-return",
          "inspect-trial-b": "read-05-after-autonomous-return-and-start-stable-a",
          "restore-trial-b": "restore-05-b-and-stable-a-keep-installed-identity-pair",
@@ -175,7 +177,7 @@ def app_phase(root, phase, args, console, *, worker_seconds=95):
 
 def review_wire(directory, action, bundle, source, trace_boot=None):
     """Independently reconstruct the authorized writes, every read and final NOR."""
-    if action in (dma.ENTRY,dma.RESTORE):
+    if action in dma.SHORT_ACTIONS:
         reads,writes = dma.transfers(directory,action,source,trace_boot)
         review = review_transfers(directory,reads,writes)
         review_trial_commands((directory/"tx.bin").read_bytes(),reads,writes,review["read_retries"])
@@ -388,19 +390,26 @@ def observe_gatt(root, console, report, air):
 
 def window(args):
     real=args.mode=="capture"
-    short = args.action in (dma.ENTRY,dma.RESTORE)
+    short = args.action in dma.SHORT_ACTIONS
+    fixed = args.action == dma.FIXED
+    fixed_inspect = args.action == dma.INSPECT
     tracing = args.action in ("trace-trial-b",dma.ENTRY)
     restoring_trace = args.action in ("restore-handoff-b",dma.RESTORE)
     trace_path = getattr(args,"trace_boot",None)
     require(tracing == bool(trace_path), "Only the 05 diagnostic entry takes a trace boot")
+    candidate = getattr(args,"candidate_boot",None)
+    require(fixed == bool(candidate), "Only corrected 05 entry takes a production boot")
+    if fixed:
+        trace_path = candidate
+        dma.diagnostic_boot(candidate,dma.FIXED)
     if tracing:
         if short:
             dma.diagnostic_boot(trace_path)
         else:
             rollback.handoff_binary(trace_path)
     startup_fixture = getattr(args,"startup_fixture",None)
-    require(bool(startup_fixture) == (tracing and not real), "Diagnostic simulation needs its own startup UART replay")
-    trial = args.action == "enter-trial-b" or tracing
+    require(bool(startup_fixture) == ((tracing or fixed) and not real), "Boot simulation needs a startup UART replay")
+    trial = args.action == "enter-trial-b" or tracing or fixed
     post_trial = args.action == "inspect-trial-b"
     phone = trial or args.action in ("enter-receiver", "install-identity", "enter-identity")
     inspect = args.action == "inspect-receiver"
@@ -415,13 +424,13 @@ def window(args):
             "Paired fixtures require one read-only entry without a separate file override")
     require(not adb or (real and (pair or trial) and not tracing), "USB phone log capture requires a matching live phone window")
     require(not (real and pair) or adb is not None, "Automated paired acceptance requires the authorized Android DFU log")
-    require((phone or post_trial) == bool(phone_zip) and (phone or phone_file is None), "Phone and trial verification windows require the distributed ZIP")
+    require((phone or post_trial or fixed_inspect) == bool(phone_zip) and (phone or phone_file is None), "Phone and trial verification windows require the distributed ZIP")
     prior_trial = getattr(args,"trial_window",None)
-    require(bool(prior_trial) == post_trial and not (trial and phone_file), "Use the fixed 05 file and its matching capture")
+    require(bool(prior_trial) == (post_trial or fixed_inspect) and not (trial and phone_file), "Use the fixed 05 file and its matching capture")
     require(phone_file in (None, BOARD_FILE) or args.action == "enter-identity",
             "This fixture requires read-only entry on the installed pair")
     fixture = None
-    if trial or post_trial:
+    if trial or post_trial or fixed_inspect:
         trial_package = rollback.signed_file(phone_zip)
         fixture = dict(filename=rollback.FILE,bytes=len(trial_package),sha256=rollback.PACKAGE_SHA)
     elif pair:
@@ -466,9 +475,18 @@ def window(args):
         source = prior_source(args.prior.resolve(),real)
     if short:
         source = dma.baseline()
+        if fixed_inspect:
+            previous = read_json(prior_trial/"window.json")
+            require(previous["action"]==dma.FIXED and previous["passed"] and previous["simulation"]==(not real)
+                    and previous["android_fixture"]==fixture and previous.get("trial_boots")
+                    and previous["application_return"], "No matching successful automatic return")
+            if real:
+                rollback.passive_boots(prior_trial/"media")
+                request = read_json(prior_trial/"media-request.json")
+                review_wire(prior_trial/"media",dma.FIXED,args.bundle,source.read_bytes(),Path(request["trace_boot"]))
         if restoring_trace:
             entry_request = read_json(args.prior/"media-request.json")
-            require(entry_request["action"] == dma.ENTRY and entry_request["simulation"] == (not real)
+            require(entry_request["action"] in (dma.ENTRY,dma.FIXED) and entry_request["simulation"] == (not real)
                     and entry_request["before_sha256"] == dma.BASELINE_SHA, "Wrong journal DMA entry window")
             events = (args.prior/"media/media-events.jsonl").read_bytes().splitlines()
             require(any(json.loads(e).get("journal_keys_archived") for e in events), "Entry key backup incomplete")
@@ -479,7 +497,7 @@ def window(args):
     exe=ROOT/build["executable"]["path"]
     bundle=args.bundle.resolve()
     pkg=read_json(bundle/"bundle.json")
-    scope = "original-cyclelog-identity-pair" if identity or trial or post_trial or restoring_trace or args.action == "restore-trial-b" else "original-cyclelog-first-install"
+    scope = "original-cyclelog-identity-pair" if identity or trial or post_trial or short or restoring_trace or args.action == "restore-trial-b" else "original-cyclelog-first-install"
     require(pkg["baseline_sha256"]==BASE_SHA and pkg["scope"]==scope,"Wrong installation bundle")
     verify_files(pkg["entries"])
     root=args.out.resolve()
@@ -552,7 +570,7 @@ def window(args):
                     cfg.update(signature_then_body=True, seconds=1740, listen_seconds=LISTEN_SECONDS if real else 0)
                 if trial:
                     cfg.update(seconds=1750,listen_seconds=900 if real else 0)
-                if tracing:
+                if tracing or fixed:
                     cfg.update(trace_boot=str(trace_path.resolve()),listen_seconds=420 if real else 0)
                 if short:
                     cfg["seconds"] = 800
@@ -589,8 +607,10 @@ def window(args):
                     fact = "entry_ranges_verified" if args.action == "enter-identity" else "identity_pair_verified"
                 if trial or post_trial:
                     fact = "trial_read_complete"
-                if tracing:
+                if tracing or fixed:
                     fact = "trace_boot_verified"
+                if fixed_inspect:
+                    fact = "fixed_rollback_read"
                 if args.action == dma.RESTORE:
                     fact = "restored_keys_verified"
                 report["flash_verified"]=any(e.get(fact) for e in events)
@@ -603,7 +623,7 @@ def window(args):
                     except Exception as exc:
                         report["wire_review_error"]=repr(exc)
                 report["worker_exit"]=code
-                if args.action == dma.RESTORE and report["flash_verified"]:
+                if args.action in (dma.RESTORE,dma.INSPECT) and report["flash_verified"]:
                     try:
                         report["key_ranges_match_previous_05"] = dma.fault_comparison(media)
                     except (OSError,ValueError) as exc:
@@ -657,6 +677,8 @@ def window(args):
                     except ValueError as exc:
                         report["physical_rollback_error"] = str(exc)
                 if trial:
+                    if fixed and not real:
+                        report["trial_boots"] = rollback.trial_boots(startup_fixture.read_bytes())
                     if real:
                         try:
                             report["trial_boots"] = rollback.passive_boots(media)
@@ -758,6 +780,9 @@ def window(args):
             require(not real or report["wire_verified"], "Raw wire review incomplete; see window report")
             if post_trial:
                 require("physical_rollback" in report, "Physical B or rollback record differs from the expected trial result")
+            if fixed_inspect:
+                compared = report.get("key_ranges_match_previous_05",{})
+                require(len(compared)==4 and all(compared.values()), "B pages or rollback records differ")
             report["hardware_verified"]=real
             report["passed"]=True
         except (Exception,KeyboardInterrupt) as e:
@@ -779,6 +804,7 @@ if __name__=="__main__":
         parser.add_argument("--authorize",required=True)
         parser.add_argument("--trial-window",type=Path,help="Corresponding 05 capture for the independent post-trial read")
         parser.add_argument("--trace-boot",type=Path,help="Frozen v4 diagnostic BIN for trace-trial-b")
+        parser.add_argument("--candidate-boot",type=Path,help="Pinned corrected ordinary boot for the 05 trial")
         parser.add_argument("--startup-fixture",type=Path,help="Simulated post-install UART for trace-trial-b")
         phone_args = parser.add_mutually_exclusive_group()
         phone_args.add_argument("--phone-file", choices=FILE_DIGESTS, help="Single distributed first-block rejection fixture")
