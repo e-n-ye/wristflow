@@ -65,7 +65,7 @@ impl Config {
         };
         require(!self.out.exists() && !self.cancel.exists() && (30..=max_window).contains(&self.seconds) &&
                 self.listen_seconds <= max_listen && self.listen_seconds < self.seconds, "Invalid window or reused output")?;
-        let restore = matches!(self.action, Action::Restore | Action::RestoreWithB | Action::RestoreTraceA);
+        let restore = matches!(self.action, Action::Restore | Action::RestoreWithB | Action::RestoreTrialB | Action::RestoreTraceA);
         if self.action.traced() {
             require(self.seconds <= 90 && self.listen_seconds <= 35,"Trace time limit exceeded")?;
         }
@@ -87,6 +87,7 @@ impl Config {
             Action::RestoreIdentity => "restore-provisioned-pair-after-identity-window",
             Action::Restore => "restore-first-install-and-start-original",
             Action::RestoreWithB => "restore-first-install-and-owned-b-extents-and-start-original",
+            Action::RestoreTrialB => "restore-05-b-and-stable-a-keep-installed-identity-pair",
             Action::TraceOriginalA => "ordinary-a-three-range-trace",
             Action::RestoreTraceA => "restore-three-trace-ranges",
         };

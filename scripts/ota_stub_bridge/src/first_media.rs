@@ -17,6 +17,7 @@ pub const META: Range<usize> = 0xda0000..0xda4000;
 const A: Range<usize> = 0x20000..0x420000;
 const B: Range<usize> = 0x420000..0x820000;
 const B_BODY_END: usize = 0x420000 + 3035136;
+const ROLLBACK_BODY_END: usize = B.start + 0x2e4000;
 const B_TAIL: usize = 0x820000 - PAGE;
 const A_SHA: &str = "6ebed703bad44f8715b75ec6aecf59f00ba13ce2076464b8667300c95cb0345d";
 const B_SHA: &str = "4205c2f63f4417b614d34edf9422e9f3adb3d9899cd5d9db379c7fce3ccda0a0";
@@ -26,7 +27,7 @@ const BOOT_ORIGINAL_SHA: &str = "f59f948f987362f1270b1da541405e82bd887c1a16c3063
 #[derive(Clone, Copy, Deserialize, Serialize, Debug, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum Action { Install, VerifyOriginal, EnterReceiver, InspectReceiver, InstallIdentity, EnterIdentity, RestoreIdentity,
-                  Restore, RestoreWithB, TraceOriginalA, RestoreTraceA }
+                  Restore, RestoreWithB, RestoreTrialB, TraceOriginalA, RestoreTraceA }
 impl Action {
     pub fn traced(self) -> bool { matches!(self, Self::TraceOriginalA | Self::RestoreTraceA) }
     pub fn identity(self) -> bool { matches!(self, Self::InstallIdentity | Self::EnterIdentity | Self::RestoreIdentity) }
@@ -40,13 +41,14 @@ pub struct Inputs {
 }
 impl Inputs {
     pub fn verify(&self, action: Action) -> Result<()> {
-        let span = if action.identity() { IDENTITY_RX } else { RX };
+        let identity_images = action.identity() || action == Action::RestoreTrialB;
+        let span = if identity_images { IDENTITY_RX } else { RX };
         require(self.receiver.len() == span.len() && self.boot.len() == BOOT.len(), "Wrong boot/receiver span")?;
         require(self.journal.len() == PAGE && hash(&self.journal) ==
             "0cec98cc451a579cc237715a1c259637a633b07dc9b9ad44cba901a6a3914c52", "Journal input changed")?;
         let boot = hash(&self.boot);
         let receiver = hash(&self.receiver);
-        if action.identity() {
+        if identity_images {
             return require(boot == "a7452af386289216c3357d61e329cf83e709cd76c2866c2940a4dcfbecbb520c" &&
                            receiver == "7f52f7482b5e4ae2fe81bf354ede5ad58c71c4a47fca8e94057071f29af755d4",
                            "Unbound independent-address pair");
@@ -118,7 +120,10 @@ pub fn writable(action: Action, role: &str, offset: usize, n: usize) -> bool {
         (Action::Install, "journal") => META.start..META.start+PAGE,
         (Action::Restore | Action::RestoreWithB, "journal") => META,
         (Action::RestoreWithB, "b-body") => B.start..B_BODY_END,
-        (Action::RestoreWithB, "b-tail") => B_TAIL..B.end,
+        (Action::RestoreTrialB, "b-body") => B.start..ROLLBACK_BODY_END,
+        (Action::RestoreTrialB, "stable-a") => META.start..META.start+8192,
+        (Action::RestoreTrialB, "other-record") => META.start+8192..META.end,
+        (Action::RestoreWithB | Action::RestoreTrialB, "b-tail") => B_TAIL..B.end,
         _ => return false,
     };
     offset % PAGE == 0 && n > 0 && n <= CHUNK && n % PAGE == 0 &&
@@ -214,6 +219,22 @@ pub fn run(io: &mut impl Nor, action: Action, images: &Inputs, rescue: Option<&[
             permit_entry(&expected, images)?;
             return io.checkpoint(json!({"stable_a_verified":true,"before_sha256":before_hash,"flash_writes":0}));
         }
+        Action::RestoreTrialB => {
+            let source = rescue.ok_or("Missing original installation backup")?;
+            original(source)?;
+            require(expected[BOOT] == images.boot && expected[IDENTITY_RX] == images.receiver &&
+                    expected[BOOT.end..A.start] == source[BOOT.end..A.start] &&
+                    expected[IDENTITY_RX.end..0x880000] == source[IDENTITY_RX.end..0x880000] &&
+                    expected[ROLLBACK_BODY_END..B_TAIL] == source[ROLLBACK_BODY_END..B_TAIL],
+                    "Recovery requires the installed identity pair and unchanged protected gap")?;
+            let mut stable = source[META.start..META.start+8192].to_vec();
+            stable[..PAGE].copy_from_slice(&images.journal);
+            // Read back a valid stable-A record before retiring the other copy or touching B.
+            replace(io, action, &mut expected, "stable-a", META.start, &stable)?;
+            replace(io, action, &mut expected, "other-record", META.start+8192, &source[META.start+8192..META.end])?;
+            replace(io, action, &mut expected, "b-body", B.start, &source[B.start..ROLLBACK_BODY_END])?;
+            replace(io, action, &mut expected, "b-tail", B_TAIL, &source[B_TAIL..B.end])?;
+        }
         Action::Restore | Action::RestoreWithB => {
             let source = rescue.ok_or("A verified original installation snapshot is required")?;
             original(source)?;
@@ -236,7 +257,10 @@ pub fn run(io: &mut impl Nor, action: Action, images: &Inputs, rescue: Option<&[
     }
     let after = io.read("after", 0, SIZE)?;
     require(after == expected, "Full-chip readback differs from exact expected image; suppress reset")?;
-    if action == Action::Install { permit_entry(&after, images)?; } else { original(&after)?; }
+    if action == Action::RestoreTrialB {
+        require(hash(&after[B]) == B_SHA && after[META.start..META.start+PAGE] == images.journal &&
+                after[META.start+PAGE..META.end].iter().all(|&b| b == 255), "Trial rescue readback incomplete")?;
+    } else if action == Action::Install { permit_entry(&after, images)?; } else { original(&after)?; }
     io.checkpoint(json!({"entire_nor_verified":true,"after_sha256":hash(&after),"a":hash(&after[A]),"b":hash(&after[B])}))
 }
 

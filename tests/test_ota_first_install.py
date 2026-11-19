@@ -7,12 +7,28 @@ import sys
 import tempfile
 import unittest
 import zlib
+from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 from ota_first_install import BASE_SHA, REGIONS, prepare, sha
 from lab_evidence import verify_files
-from ota_first_window import review_wire
+from ota_first_window import review_trial_commands, review_wire
+
+
+class RescueWireTests(unittest.TestCase):
+    def test_trial_write_must_be_between_original_and_immediate_readback(self):
+        name = "b-tail-0081f000"
+        payload = b"\xff"*4096
+        read = b"burn_read 0x1281f000 0x00001000\r"
+        write = b"burn_erase_write 0x1281f000 0x00001000\r" + payload
+        begin, end = b"burn_speed 500000 10\r\r\n", b"burn_speed 1000000 10\r"
+        reads = [(n,0x81f000,payload) for n in ("before-0081f000",name,"after-0081f000")]
+        writes = [("b-tail",0x81f000,payload)]
+        review_trial_commands(begin+read+write+read*3+end,reads,writes,[name])
+        for invalid in (read*2+write+read*2, read+write+write+read*3, read+write+read*2):
+            with self.assertRaises(ValueError):
+                review_trial_commands(begin+invalid+end,reads,writes,[name])
 
 
 @unittest.skipUnless(os.environ.get("WRISTFLOW_FIRST_INSTALL_BUILD"), "Requires an explicitly frozen native bridge")
@@ -140,6 +156,46 @@ class FirstInstall(unittest.TestCase):
             denied = self.invoke(f"gatt-denied-{start:x}", "inspect-receiver", altered, False, installed)
             self.assertNotIn(b"entry_ranges_verified", (denied/"media-events.jsonl").read_bytes())
             nor[start+n-1] ^= 1
+
+    def test_restore_05_after_trial_or_partial_b_keeps_installed_pair_and_user_data(self):
+        from ota_first_window import discovery_reference
+        from ota_identity_window import BOOT, RECEIVER
+        ref, _ = discovery_reference()
+        baseline = bytearray(ref.read_bytes())
+        bundle = self.directory/"rollback-identity"
+        prepare(bundle,self.old,self.old.with_name("nor-second.bin"),identity_pair=True)
+        for role,(off,n) in [("boot",BOOT),("receiver",RECEIVER)]:
+            baseline[off:off+n] = (bundle/(role+".bin")).read_bytes()
+        baseline[0xda8123] ^= 0x39  # A newer saved record survives rescue.
+        with ZipFile(ROOT/"artifacts/WristFlow-Android-OTA-20261118.zip") as archive:
+            package = archive.read("05-rollback-2026111801.bin")
+        self.assertEqual(sha(package),"e0dab39f912eec9d4a39f5182181a70b4825444e2707b2495c830b135581121d")
+        damaged = bytearray(baseline)
+        damaged[0x420000:0x704000] = package[354:].ljust(0x2e4000,b"\xff")
+        damaged[0x81f000:0x820000] = b"\xff"*(4096-336) + package[18:354]
+        damaged[0xda0000:0xda4000] = b"\x55"*16384
+        fixture = self.directory/"rollback-live.bin"
+        for label in ("trial", "torn", "already-restored"):
+            if label == "torn":
+                damaged[0x420000:0x42a000] = baseline[0x420000:0x42a000]
+                damaged[0xda0000:0xda2000] = baseline[0xda0000:0xda2000]
+            if label == "already-restored":
+                damaged = bytearray(baseline)
+            fixture.write_bytes(damaged)
+            out = self.invoke(label,"restore-trial-b",fixture,True,self.old,bundle)
+            self.assertEqual((out/"after.bin").read_bytes(), baseline)
+            events = [json.loads(row) for row in (out/"media-events.jsonl").read_bytes().splitlines()]
+            roles = [event["intent"] for event in events if "intent" in event]
+            if label == "trial":
+                self.assertEqual(list(dict.fromkeys(roles)),["stable-a","other-record","b-body","b-tail"])
+            if label == "already-restored":
+                self.assertEqual(roles,[])
+        for off in (0x704000, 0x878004, 0x10060):
+            damaged[off] ^= 1
+            fixture.write_bytes(damaged)
+            out = self.invoke(f"reject-{off:x}","restore-trial-b",fixture,False,self.old,bundle)
+            self.assertNotIn(b'"intent"',(out/"media-events.jsonl").read_bytes())
+            damaged[off] ^= 1
 
     def test_installed_identity_switch_reentry_and_torn_pair_recovery(self):
         from ota_first_window import discovery_reference
