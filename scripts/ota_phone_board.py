@@ -7,17 +7,19 @@ from ota_first_install import require, sha
 
 BOARD_FILE = "01-bad-board.bin"
 ADDRESS_FILE = "02-bad-address.bin"
+SIGNATURE_FILE = "03-bad-signature.bin"
 FILE_BYTES = 3033926
 FILE_DIGESTS = {
     BOARD_FILE: "e50b14000bf830fe959484069fef692770a28dac22ddc4774d6772d7c14add00",
     ADDRESS_FILE: "6e385fe79191328bbc0780859bffd6bead4f2a0e4a6303fc25a007e82e8db474",
+    SIGNATURE_FILE: "56ea3e27a8ac9629887b42d85a994cb606f0300e5e09b0de2b6205ead21362ca",
 }
 ADVERTISING = b"[ota-radio] advertising=0 name=WristFlow OTA"
 START = b"[ota-radio] request=38 result=0 accepted=0 sent=16"
 FIRST_DATA_REJECTED = b"[ota-radio] request=40 result=1 accepted=0 sent=16"
 IDLE = b"[ota-radio] inactive, returning to boot selection"
 PRODUCT = b"[product] storage=ready restore=yes "
-READY_PHASE = ("phone_ready", "此行显示进行中时，手机打开 SIFLI BLE 首页准备扫描")
+READY_PHASE = ("phone_ready", "手机可提前停在 SIFLI BLE 设备扫描列表，等接收器广播")
 
 
 def verify_fixture(archive, filename=BOARD_FILE):
@@ -79,7 +81,7 @@ class PhoneObservation:
         if not self.prepared and (self.last_reads.exists() or self.uart.exists()):
             self.console.stage("phone_ready", "running")
             self.prepared = True
-            print("Android operator: have SIFLI BLE ready to scan on the phone", flush=True)
+            print("Android operator: keep the device scan list open on the phone", flush=True)
         if self.finished or not self.uart.exists():
             return
         size = self.uart.stat().st_size

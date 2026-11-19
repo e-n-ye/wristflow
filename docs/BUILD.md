@@ -26,6 +26,10 @@
 
 独立地址接收器已装好后，使用 `--action enter-identity --phone-file 02-bad-address.bin` 验收固定链接地址。控制台核对已分发 ZIP 中该成员的长度和 SHA-256，重启后对照首次接收器启动的地址，匹配后才提示手机选包。用 `ota_release --android-wrong-address <解压的 02 文件>` 可在主机回放同一文件，核实首份 DATA 在清单哈希之前被拒绝。01 与 02 的串口应答相同，现场结果需绑定操作者实际选择的文件。
 
+验收发布签名时，同一入口传入 `--phone-file 03-bad-signature.bin`。用 `ota_release_trace --android-wrong-signature <解压的 03 文件>` 回放首包，可看到公钥解析成功、RSA 验签返回错误。将 03 与同一 ZIP 的 06 比较，核对两者的清单、正文和各自的包装 CRC，才能把相同的首包拒绝应答归因于签名。
+
+用 `ota_release_trace --android-signature-then-body <解压的 03 文件> <解压的 04 文件>` 测试同一接收器实例的下一次 START。回放验证 03 清除会话、04 逐块回执及完整正文校验，最后统计安装调用。[原包对照与回放结果](evidence/2026-11-19/ota-signature-window.json)
+
 ## 2026-11-18 发布签名和只读 loader
 
 首次授权建钥使用 `pwsh -File scripts/Ota-ReleaseKey.ps1 -Mode Provision`；有公钥而本机缺对应私钥时会拒绝重新生成。日常发布运行项目 Python 的 `scripts/ota_release.py --build-result <普通 Product 的 result.json> --release <正整数> --out-dir <新目录>`，生成可供 Android 选取的 `offline_install.bin`。私钥由 Windows CNG 签名接口使用，打包采用锁定 SDK 的 `imgtoolv37.exe`。
