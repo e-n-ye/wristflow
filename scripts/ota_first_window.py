@@ -16,7 +16,8 @@ from battery_lab import Journal
 from lab_evidence import digest, file_record, verify_files, write_json
 from lab_serial import PortLease, RecordedClient, lease_directory
 from ota_first_install import ROOT, BASE_SHA, read_json, require, sha
-from ota_phone_board import PHONE_PHASE, READY_PHASE, PhoneObservation, confirmed_identity, phone_evidence, verify_fixture
+from ota_phone_board import (ADDRESS_FILE, BOARD_FILE, FILE_DIGESTS, READY_PHASE, PhoneObservation,
+                             confirmed_identity, phone_evidence, verify_fixture)
 from ota_identity_window import IDENTITY_ACTIONS, restore_source, review_pair
 from ota_receiver_scan import installed_address
 from ota_b_execute import recovery_check
@@ -331,9 +332,12 @@ def window(args):
     inspect = args.action == "inspect-receiver"
     identity = args.action in IDENTITY_ACTIONS
     original_address = None
+    expected_address = None
     phone_zip = getattr(args, "phone_zip", None)
-    require(phone == bool(phone_zip), "Supply the distributed phone ZIP only for enter-receiver")
-    fixture = verify_fixture(phone_zip) if phone else None
+    phone_file = getattr(args, "phone_file", None)
+    require(phone == bool(phone_zip) and (phone or phone_file is None), "A phone window requires the distributed ZIP")
+    require(phone_file != ADDRESS_FILE or args.action == "enter-identity", "02 requires read-only entry on the installed pair")
+    fixture = verify_fixture(phone_zip, phone_file or BOARD_FILE) if phone else None
     require(args.action in SCOPE and ((real and os.name=="nt" and args.authorize==SCOPE[args.action]) or
             (not real and args.authorize=="simulation")), "Current action-specific authorization required")
     require(args.action.startswith("restore")==bool(args.prior),"Independent recovery requires its original window")
@@ -341,6 +345,13 @@ def window(args):
     if inspect or identity:
         source, air = discovery_reference()
         original_address = installed_address(air) if identity else None
+        if args.action == "enter-identity":
+            previous = read_json(ROOT/"docs/evidence/2026-11-19/ota-identity-device.json")
+            uart = "media/startup-uart.bin"
+            raw = (ROOT/previous["capture"]/uart).read_bytes()
+            require(sha(raw) == previous["sha256"][uart], "First receiver boot UART differs from its verified capture")
+            expected_address = confirmed_identity(raw, original_address)
+            require(expected_address, "Missing verified receiver address from its first boot")
         if args.action == "restore-identity":
             restore_source(args.prior.resolve(), real, source)
         if inspect and real:
@@ -362,17 +373,24 @@ def window(args):
     root=args.out.resolve()
     journal=Journal(root,binding=dict(action=args.action,simulation=not real,build=file_record(args.build),
                     bundle=file_record(bundle/"bundle.json"),operator_scope=args.authorize),mode="first-install-window")
-    def operator(console, phase, message):
-        if real: console.prompt(phase,message,180)
-        else: journal.event("simulated_operator",phase=phase,message=message)
+    def operator(console, phase, message, choices=None):
+        answer = None
+        if real:
+            answer = console.prompt(phase,message,180,choices=choices)
+        else:
+            journal.event("simulated_operator",phase=phase,message=message)
         console.stage(phase,"complete")
+        return answer
     report=dict(simulation=not real,action=args.action,flash_verified=False,wire_verified=False,
                 receiver_advertising=False,idle_return=False,application_return=False,hardware_verified=False)
-    phases = [*PHASES[:2], READY_PHASE, PHONE_PHASE, *PHASES[2:]] if phone else PHASES
-    mode = ("Android 错板包与原表盘返回" if real else "Android 错板包离线演练") if phone else (
-            "黄山派有线首装与恢复" if real else "首装离线演练")
+    phases = PHASES
+    mode = "黄山派有线首装与恢复" if real else "首装离线演练"
     if phone:
         report["android_fixture"] = fixture
+        filename = fixture["filename"]
+        phone_phase = ("phone", f"此行显示进行中时立即扫描 WristFlow OTA，点 NOR DFU → OFFLINE，选 {filename} 一次")
+        phases = [*PHASES[:2], READY_PHASE, phone_phase, *PHASES[2:]]
+        mode = f"Android {filename} " + ("与原表盘返回" if real else "离线演练")
     if inspect:
         phases = [*PHASES[:2], ("gatt","电脑读取接收器 GATT 服务与特征"), *PHASES[2:]]
         mode = "接收器关键区和 GATT 只读检查" if real else "接收器关键区离线演练"
@@ -408,7 +426,8 @@ def window(args):
                 verify_files(inputs,ROOT)
                 if real: port_identity("COM5","1-1.1")
                 media=root/"media"
-                observation = PhoneObservation(media, console, original_address=original_address) if phone and real else None
+                observation = PhoneObservation(media, console, filename=filename, original_address=original_address,
+                                               expected_address=expected_address) if phone and real else None
                 observe = observation.poll if observation else None
                 if inspect and real:
                     observe = lambda: observe_gatt(root, console, report, air)
@@ -447,23 +466,33 @@ def window(args):
                         journal.event("simulated_discovery_window")
                         console.stage("gatt", "complete")
                 message = "请确认原 CycleLog 表盘、显示和触摸已返回，打开临时常亮读取后态。"
+                file_choices = None
                 if phone:
                     if real:
                         transfer = phone_evidence(log)
                         report["phone_uart"] = transfer
                         if identity:
                             report["distinct_identity_verified"] = bool(confirmed_identity(log, original_address))
+                        if expected_address is not None:
+                            report["repeat_identity_verified"] = bool(confirmed_identity(log, original_address, expected_address))
                         require(not transfer["install_started"], "Unexpected installation on this phone window; inspect the board")
                         received = (transfer["first_data_rejected"] and transfer["product_return"] and
-                                    report.get("distinct_identity_verified", True))
+                                    report.get("distinct_identity_verified", True) and report.get("repeat_identity_verified", True))
                         console.stage("phone", "complete" if received else "error")
                         if received:
-                            message = "请核实手机本次只选了 01-bad-board.bin，并确认原表盘和触摸正常、临时常亮已开。"
+                            message = f"请核实手机本次只选了 {filename}，并确认原表盘和触摸正常、临时常亮已开。"
+                            if filename == ADDRESS_FILE:
+                                message = "请选择这一次手机实际发送的文件，并确认原表盘和触摸正常、临时常亮已开。"
+                                file_choices = [*FILE_DIGESTS, "其他文件或无法确认"]
                     else:
                         journal.event("simulated_phone", filename=fixture["filename"])
                         console.stage("phone_ready", "complete")
                         console.stage("phone", "complete")
-                operator(console,"return",message)
+                selected_file = operator(console,"return",message,file_choices)
+                if file_choices:
+                    report["operator_selected_file"] = selected_file
+                    if selected_file != filename:
+                        console.stage("phone", "error")
                 console.stage("after","running")
                 after=app_phase(root,"after",args,console)
                 report["continuity"]=recovery_check(before,after,(after["closed_ns"]-before["closed_ns"])/1e9,
@@ -475,6 +504,8 @@ def window(args):
                     "Flash and original app evidence retained; receiver advertising or idle return not observed")
             if real and phone:
                 require(received, "Android first-DATA rejection and idle Product return were not both observed")
+                if filename == ADDRESS_FILE:
+                    require(report.get("operator_selected_file") == filename, "Selected phone file did not match the requested address fixture")
             if real and inspect:
                 state = report["receiver_uart"]
                 require(state["product_return"] and not state["install_started"] and not state["replies"]
@@ -499,6 +530,7 @@ if __name__=="__main__":
         parser.add_argument("mode",choices=("capture","simulate"))
         parser.add_argument("--action",choices=SCOPE,required=True)
         parser.add_argument("--authorize",required=True)
+        parser.add_argument("--phone-file", choices=FILE_DIGESTS, help="Single distributed first-block rejection fixture")
         for opt in ("out","build","bundle"):
             parser.add_argument("--"+opt,required=True,type=Path)
         for opt in ("nor-fixture","before-fixture","after-fixture","prior","phone-zip"):

@@ -36,10 +36,12 @@ void wf_boot_trace(char point, uint32_t value)
 }
 #endif
 
+static unsigned release_hash_calls;
 bool wf_ota_release_hash(uint32_t state[8], uint32_t previous, uint8_t *block,
                          unsigned bytes, bool final)
 {
     static mbedtls_sha256_context sha;
+    ++release_hash_calls;
     if (!previous) {
         mbedtls_sha256_init(&sha);
         mbedtls_sha256_starts(&sha, 0);
@@ -208,7 +210,8 @@ static void put32(uint8_t *out, uint32_t value)
 {
     for (unsigned i = 0; i < 4; ++i) out[i] = (uint8_t)(value >> (i * 8));
 }
-static void android_file(const char *path, wf_ota_physical_reader_t *reader, bool wrong_board)
+enum android_fixture { SIGNED_PRODUCT, WRONG_BOARD, WRONG_LINK_ADDRESS };
+static void android_file(const char *path, wf_ota_physical_reader_t *reader, enum android_fixture fixture)
 {
     FILE *f = fopen(path, "rb");
     assert(f && !fseek(f, 0, SEEK_END));
@@ -238,12 +241,22 @@ static void android_file(const char *path, wf_ota_physical_reader_t *reader, boo
             data[2] = (uint8_t)(12 + n); data[3] = (uint8_t)((12 + n) >> 8);
             put32(data + 4, index); put32(data + 8, n); put32(data + 12, mpeg(NULL, file + offset, n));
             memcpy(data + 16, file + offset, n);
-            if (wrong_board) {
-                assert(!memcmp(file + WF_DFU_ENVELOPE + 8, "rf32lb52-lchspi-ulp", sizeof "rf32lb52-lchspi-ulp"));
+            if (fixture != SIGNED_PRODUCT) {
+                const uint8_t *manifest = file + WF_DFU_ENVELOPE;
+                if (fixture == WRONG_BOARD) {
+                    assert(!memcmp(manifest + 8, "rf32lb52-lchspi-ulp", sizeof "rf32lb52-lchspi-ulp"));
+                } else {
+                    assert(!memcmp(manifest + 8, "sf32lb52-lchspi-ulp", sizeof "sf32lb52-lchspi-ulp"));
+                    assert(!memcmp(manifest + 36, (uint8_t[]){1,0,2,0x12}, 4));
+                }
+                unsigned before = release_hash_calls;
                 assert(wf_dfu_request(&r, data, 16+n, reply) == 12);
+                /* A bad signature would produce the same ACK, after hashing the manifest. */
+                assert(release_hash_calls == before);
                 assert(reply[0] == 41 && reply[4] == 1 && !reply[6] && !r.accepted);
                 assert(r.phase == WF_DFU_IDLE && !wf_dfu_install_received(&r) && !installs);
-                puts("Wrong-board file: START accepted, first DATA rejected, retry=0, accepted=0, no install");
+                printf("%s file: START accepted, first DATA rejected, retry=0, accepted=0, no install\n",
+                       fixture == WRONG_BOARD ? "Wrong-board" : "Wrong-link-address");
                 free(file);
                 return;
             }
@@ -288,7 +301,11 @@ int main(int argc, char **argv)
     memset(uid, 0xff, sizeof uid);
     assert(!wf_ota_receiver_address(uid, address));
     if (argc == 3 && !strcmp(argv[1], "--android-wrong-board")) {
-        android_file(argv[2], NULL, true);
+        android_file(argv[2], NULL, WRONG_BOARD);
+        return 0;
+    }
+    if (argc == 3 && !strcmp(argv[1], "--android-wrong-address")) {
+        android_file(argv[2], NULL, WRONG_LINK_ADDRESS);
         return 0;
     }
     if ((argc==3 || argc==4) && !strcmp(argv[1],"--ordinary-a")) {
@@ -338,6 +355,6 @@ int main(int argc, char **argv)
         assert(!wf_ota_release_verify_slot(&reader, WF_OTA_READ_B, &image));
         assert(!image.bytes && !image.release);
     }
-    if (argc == 3) android_file(argv[2], &reader, false);
+    if (argc == 3) android_file(argv[2], &reader, SIGNED_PRODUCT);
     return 0;
 }

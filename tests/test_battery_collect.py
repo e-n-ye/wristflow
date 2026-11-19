@@ -264,6 +264,20 @@ class CollectorTests(unittest.TestCase):
 
 
 class ConsoleTests(unittest.TestCase):
+    def test_named_result_requires_an_explicit_choice(self):
+        folder = ROOT / "artifacts/battery-console-tests" / uuid.uuid4().hex
+        journal = Journal(folder, binding={"simulated": True})
+        with Console(journal, [("file", "所选文件")]) as console:
+            choices = ["01-bad-board.bin", "02-bad-address.bin", "其他文件或无法确认"]
+            for observed in choices:
+                def reply():
+                    prompt = console.snapshot()["prompt"]
+                    self.assertEqual(prompt["choices"], choices)
+                    with self.assertRaises(ValueError):
+                        console.respond(prompt["id"], "continue")
+                    console.respond(prompt["id"], observed)
+                self.assertEqual(console.prompt("file", "实际发送的文件", 2, choices=choices, pump=reply), observed)
+
     def test_prompt_identity_origin_cancel_and_exact_completion_count(self):
         folder = ROOT / "artifacts/battery-console-tests" / uuid.uuid4().hex
         journal = Journal(folder, binding={"simulated": True})
