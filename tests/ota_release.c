@@ -1,6 +1,7 @@
 #include "release.h"
 #include "boot_plan.h"
 #include "offline_receiver.h"
+#include "receiver_identity.h"
 #include "mbedtls/sha256.h"
 #include <assert.h>
 #include <stdio.h>
@@ -275,6 +276,17 @@ static void android_file(const char *path, wf_ota_physical_reader_t *reader, boo
 
 int main(int argc, char **argv)
 {
+    uint8_t uid[16], address[6];
+    for (unsigned i = 0; i < sizeof uid; ++i) uid[i] = (uint8_t)(i + 1);
+    assert(wf_ota_receiver_address(uid, address));
+    assert(!memcmp(address, (uint8_t[]){0x36,0x11,0x7d,0xd8,0x83,0xda}, 6));
+    for (unsigned i = 0; i < sizeof uid; ++i) ++uid[i];
+    assert(wf_ota_receiver_address(uid, address));
+    assert(!memcmp(address, (uint8_t[]){0x5f,0xb9,0xf9,0x87,0x1e,0xd1}, 6));
+    memset(uid, 0, sizeof uid);
+    assert(!wf_ota_receiver_address(uid, address));
+    memset(uid, 0xff, sizeof uid);
+    assert(!wf_ota_receiver_address(uid, address));
     if (argc == 3 && !strcmp(argv[1], "--android-wrong-board")) {
         android_file(argv[2], NULL, true);
         return 0;

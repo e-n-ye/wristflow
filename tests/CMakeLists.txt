@@ -47,7 +47,7 @@ file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/ota_crypto_config")
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/ota_crypto_config/rtconfig.h" "/* Host mbedTLS uses the C runtime allocator. */\n")
 foreach(target IN ITEMS ota_release ota_release_trace)
     add_executable(${target} ota_release.c "${OTA_LOADER}/release.c" "${OTA_LOADER}/physical_read.c"
-        "${OTA_LOADER}/offline_receiver.c" "${OTA_BOOT}/boot_plan.c" "${CORE}/ota_ab.c" ${OTA_CRYPTO_SOURCES})
+        "${OTA_LOADER}/offline_receiver.c" "${OTA_LOADER}/receiver_identity.c" "${OTA_BOOT}/boot_plan.c" "${CORE}/ota_ab.c" ${OTA_CRYPTO_SOURCES})
     target_include_directories(${target} PRIVATE "${OTA_LOADER}" "${OTA_BOOT}" "${CORE}" "${OTA_MBEDTLS}/include"
         "${CMAKE_CURRENT_BINARY_DIR}/ota_crypto_config")
     if(MSVC)
