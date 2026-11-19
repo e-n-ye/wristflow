@@ -1,0 +1,64 @@
+{
+  "base": "7c27c88a08e7eda03a97256ad549f1c46fa1576e",
+  "capture": "artifacts/ota-identity-window-device-20261119-001",
+  "binding": "ota-identity-window.json",
+  "firmware": "ota-receiver-identity.json",
+  "wired": {
+    "endpoint": "original COM5 / USB 1-1.1, onboard CH340, original battery, 4167 mV, charge inhibited",
+    "prewrite_reads": 11,
+    "prewrite_bytes": 503808,
+    "receiver_program_bytes": 364544,
+    "boot_program_bytes": 61440,
+    "extra_receiver_page_original": "0x00878000, verified against the erased reference before writing",
+    "wire_review": {"writes":7,"reads":25,"read_retries":0},
+    "readback": "Immediate readback after each of the seven writes and a second consecutive comparison of the complete pair before reset",
+    "native_exit": 0,
+    "controller_exit": 0
+  },
+  "radio": {
+    "reported_address_type": 1,
+    "distinct_from_provisioned_product": true,
+    "phone_and_air_addresses_match_UART": true,
+    "matching_name_packets": 20,
+    "matching_service_packets": 20,
+    "service_uuid": "00000000-0000-0000-6473-5f696c666973",
+    "data_uuid_found_and_expected_by_android": "00000000-0000-0200-6473-5f696c666973"
+  },
+  "wrong_board": {
+    "file": "01-bad-board.bin",
+    "sha256": "e50b14000bf830fe959484069fef692770a28dac22ddc4774d6772d7c14add00",
+    "bytes": 3033926,
+    "phone_confirmed_single_file_selection": true,
+    "host_compared_fixture": "ota-android-board-window.json",
+    "phone_sdk_local_time": {"dfu_connect":"15:44:11","uuid_match":"15:44:18.409","start_response_0":"15:44:18.504","first_packet_response":"15:44:18.543","end_with_0":"15:44:18.544"},
+    "first_packet_response": {"result":1,"retrans":0,"completed":0},
+    "uart": ["[ota-radio] request=38 result=0 accepted=0 sent=16","[ota-radio] request=40 result=1 accepted=0 sent=16"],
+    "seconds_after_first_advertising_UART": {"start_reply":51.437,"first_data_reply":51.486,"idle_reset":171.934,"original_storage_ready":175.312},
+    "install_started": false,
+    "interpretation": "The selected fixture has a wrong board identifier and correct transport CRCs. Its first DATA was refused with retry disabled and zero completed blocks. The phone's displayed exit 0 followed this error receipt."
+  },
+  "return": {
+    "saved_boot_before_after": [48,49],
+    "saved_generation_before_after": [229,230],
+    "saved_total_ms_before_after": [1598037463,1598038553],
+    "saved_scenes_nondecreasing": true,
+    "save_failures_before_after": [0,0],
+    "unsaved_tail_preserved_on_PC_ms": 53551,
+    "rtc": "unsynchronized in 2000",
+    "operator_final": "常亮已关，显示、触摸和 KEY1 正常",
+    "elapsed_seconds_including_operator": 336.526
+  },
+  "sha256": {
+    "window.json":"796ef97033c1b86115cc2bbfc4cb389e076bb95055d573b3a1655d9295708bc5",
+    "wire-review.json":"cc07a39e087e265346488f8313839784cc162e1e70b5ff744aa908c49a40486e",
+    "media/startup-uart.bin":"cfe8c75ba1981b68a413b1eebd8073e1a8a247035fb42f826069507b04e8f08c",
+    "media/tx.bin":"1af40e4ac2762e54320fdba485fc1bad3a08581ad4cf77bb66a97d826c6a2141",
+    "media/rx.bin":"3bd22a313cfa721f8e90366e4af5da4f6032f179929d0232cf3c6e1788c5f6fe",
+    "android-1544-dfu.log":"d450962f5bd398363486c1f920e79c3540d531d973bc3266213331e05cd08bc1",
+    "windows-air.jsonl":"1a12b5eb849da8c4dc313782ccd7d2c97568628997517c0581ea5c916f47c03f",
+    "operator-android-01.jpg":"6c02fdea445f1b07fb4e85b04044d5e3de93b4518f3c38a6c20b61d386758223",
+    "app-before/before-snapshot.json":"544ce891f6d4c871f0f7b86075262350d1512fe468cfbb2e7a409d3c4147fce6",
+    "app-after/after-snapshot.json":"0f915cc400dea576730634c245a64cfc825347994756fa107de05ec9fa56b44b"
+  },
+  "limits":"One receiver boot and the wrong-board fixture. No candidate B launch or full-slot post-transfer NOR read in this window. The other Android fixtures, repeated-boot address stability, normal installation, trial health, rollback and interruption need their corresponding evidence."
+}
