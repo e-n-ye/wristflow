@@ -16,7 +16,8 @@ from battery_lab import Journal
 from lab_evidence import digest, file_record, verify_files, write_json
 from lab_serial import PortLease, RecordedClient, lease_directory
 from ota_first_install import ROOT, BASE_SHA, read_json, require, sha
-from ota_phone_board import PHONE_PHASE, READY_PHASE, PhoneObservation, phone_evidence, verify_fixture
+from ota_phone_board import PHONE_PHASE, READY_PHASE, PhoneObservation, confirmed_identity, phone_evidence, verify_fixture
+from ota_identity_window import IDENTITY_ACTIONS, restore_source, review_pair
 from ota_receiver_scan import installed_address
 from ota_b_execute import recovery_check
 from ota_rom_backup import application, Simulation
@@ -29,6 +30,9 @@ SCOPE = {"install": "first-install-receiver-journal-boot-and-enter",
          "verify-original": "verify-original-nor-and-start-original",
          "enter-receiver": "enter-pinned-receiver-without-flash-write",
          "inspect-receiver": "read-installed-key-regions-enter-for-gatt-and-return",
+         "install-identity": "replace-installed-receiver-and-boot-enter-identity",
+         "enter-identity": "enter-installed-identity-receiver-read-only",
+         "restore-identity": "restore-provisioned-pair-after-identity-window",
          "restore": "restore-first-install-and-start-original",
          "restore-with-b": "restore-first-install-and-owned-b-extents-and-start-original"}
 APP = "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d"
@@ -159,6 +163,9 @@ def app_phase(root, phase, args, console, *, worker_seconds=95):
 
 def review_wire(directory, action, bundle, source):
     """Independently reconstruct the authorized writes, every read and final NOR."""
+    if action in IDENTITY_ACTIONS:
+        expected, chunks = review_pair(directory, action, bundle, source)
+        return review_transfers(directory, expected, chunks)
     if action == "inspect-receiver":
         ranges = [(0,65536),(0x10000,61440),(0x20000,4096),(0x820000,360448),
                   (0xda0000,4096),(0xda2000,4096)]
@@ -320,21 +327,28 @@ def observe_gatt(root, console, report, air):
 
 def window(args):
     real=args.mode=="capture"
-    phone = args.action == "enter-receiver"
+    phone = args.action in ("enter-receiver", "install-identity", "enter-identity")
     inspect = args.action == "inspect-receiver"
+    identity = args.action in IDENTITY_ACTIONS
+    original_address = None
     phone_zip = getattr(args, "phone_zip", None)
     require(phone == bool(phone_zip), "Supply the distributed phone ZIP only for enter-receiver")
     fixture = verify_fixture(phone_zip) if phone else None
     require(args.action in SCOPE and ((real and os.name=="nt" and args.authorize==SCOPE[args.action]) or
             (not real and args.authorize=="simulation")), "Current action-specific authorization required")
     require(args.action.startswith("restore")==bool(args.prior),"Independent recovery requires its original window")
-    source=prior_source(args.prior.resolve(),real) if args.prior else None
-    if inspect:
+    source=None
+    if inspect or identity:
         source, air = discovery_reference()
-        if real:
+        original_address = installed_address(air) if identity else None
+        if args.action == "restore-identity":
+            restore_source(args.prior.resolve(), real, source)
+        if inspect and real:
             from importlib.metadata import version
             from bleak.backends.winrt.client import BleakClientWinRT
             require(version("bleak") == "3.0.2", "Use the reviewed Windows Bleak version")
+    elif args.prior:
+        source = prior_source(args.prior.resolve(),real)
     build=read_json(args.build)
     require(build["kind"]=="original-board-first-install" and build["device_actions"] is False,"Wrong bridge build")
     inputs=[*build["sources"],build["executable"],build["sdk_lock"]]
@@ -342,7 +356,8 @@ def window(args):
     exe=ROOT/build["executable"]["path"]
     bundle=args.bundle.resolve()
     pkg=read_json(bundle/"bundle.json")
-    require(pkg["baseline_sha256"]==BASE_SHA and pkg["scope"]=="original-cyclelog-first-install","Wrong installation bundle")
+    scope = "original-cyclelog-identity-pair" if identity else "original-cyclelog-first-install"
+    require(pkg["baseline_sha256"]==BASE_SHA and pkg["scope"]==scope,"Wrong installation bundle")
     verify_files(pkg["entries"])
     root=args.out.resolve()
     journal=Journal(root,binding=dict(action=args.action,simulation=not real,build=file_record(args.build),
@@ -385,13 +400,15 @@ def window(args):
                     cfg.update(seconds=1160, listen_seconds=360 if real else 0)
                 if inspect:
                     cfg.update(seconds=235, listen_seconds=152 if real else 0)
+                if identity:
+                    cfg.update(seconds=460, listen_seconds=(300 if phone else 16) if real else 0)
                 path=root/"media-request.json";write_json(path,cfg)
                 job=root/"job-media";job.mkdir()
                 console.stage("media","running")
                 verify_files(inputs,ROOT)
                 if real: port_identity("COM5","1-1.1")
                 media=root/"media"
-                observation = PhoneObservation(media, console) if phone and real else None
+                observation = PhoneObservation(media, console, original_address=original_address) if phone and real else None
                 observe = observation.poll if observation else None
                 if inspect and real:
                     observe = lambda: observe_gatt(root, console, report, air)
@@ -403,6 +420,8 @@ def window(args):
                     fact = "stable_a_verified"
                 if inspect:
                     fact = "entry_ranges_verified"
+                if identity:
+                    fact = "entry_ranges_verified" if args.action == "enter-identity" else "identity_pair_verified"
                 report["flash_verified"]=any(e.get(fact) for e in events)
                 report["reset_ack"]=any(e.get("soft_reset_ack") for e in events)
                 if real and report["flash_verified"]:
@@ -432,8 +451,11 @@ def window(args):
                     if real:
                         transfer = phone_evidence(log)
                         report["phone_uart"] = transfer
+                        if identity:
+                            report["distinct_identity_verified"] = bool(confirmed_identity(log, original_address))
                         require(not transfer["install_started"], "Unexpected installation on this phone window; inspect the board")
-                        received = transfer["first_data_rejected"] and transfer["product_return"]
+                        received = (transfer["first_data_rejected"] and transfer["product_return"] and
+                                    report.get("distinct_identity_verified", True))
                         console.stage("phone", "complete" if received else "error")
                         if received:
                             message = "请核实手机本次只选了 01-bad-board.bin，并确认原表盘和触摸正常、临时常亮已开。"

@@ -1,5 +1,6 @@
 """Collect the Android wrong-board acceptance observations on a provisioned board."""
 from pathlib import Path
+import re
 from zipfile import ZipFile
 
 from ota_first_install import require, sha
@@ -41,11 +42,25 @@ def phone_evidence(uart):
                 replies=[line.decode("ascii", "replace") for line in replies])
 
 
+def confirmed_identity(uart, original_address):
+    address, marker, _ = uart.partition(ADVERTISING)
+    if not marker:
+        return None
+    matches = re.findall(rb"(?m)^\[ota-radio\] receiver address=((?:[A-F0-9]{2}:){5}[A-F0-9]{2}) type=1\r?$", address)
+    if len(matches) != 1:
+        return None
+    value = matches[0].decode("ascii")
+    number = int(value.replace(":", ""), 16)
+    random_bits = number & ((1 << 46) - 1)
+    return value if value != original_address and number >> 46 == 3 and 0 < random_bits < (1 << 46) - 1 else None
+
+
 class PhoneObservation:
-    def __init__(self, media, console):
+    def __init__(self, media, console, *, original_address=None):
         self.uart = Path(media) / "startup-uart.bin"
         # The last 24 reads take roughly one minute on the original COM5.
-        self.last_reads = Path(media) / "before-00e80000.bin"
+        self.last_reads = Path(media) / ("key-00000000.bin" if original_address else "before-00e80000.bin")
+        self.original_address = original_address
         self.console = console
         self.size = 0
         self.prepared = False
@@ -63,12 +78,16 @@ class PhoneObservation:
         if size == self.size:
             return
         self.size = size
-        state = phone_evidence(self.uart.read_bytes())
-        if state["advertising"] and not self.announced:
+        uart = self.uart.read_bytes()
+        state = phone_evidence(uart)
+        identity = confirmed_identity(uart, self.original_address) if self.original_address else None
+        if state["advertising"] and not self.announced and (not self.original_address or identity):
             self.console.stage("phone_ready", "complete")
             self.console.stage("phone", "running")
             self.announced = True
             print("WristFlow OTA ready for Android: NOR DFU > OFFLINE > " + FILENAME, flush=True)
+            if identity:
+                print("Receiver address suffix " + identity[-5:], flush=True)
         if state["product_return"] and not state["install_started"]:
             # The child remains the sole port owner. End its passive listening
             # after the original Product's full storage-ready line has arrived.

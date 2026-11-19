@@ -15,6 +15,7 @@ from ota_backup_review import REGIONS, require, review_pair
 ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE = ROOT / "docs/evidence/2026-11-18/ota-original-a-enrollment.json"
 HASH_FIX = ROOT / "docs/evidence/2026-11-18/ota-hash-resume.json"
+IDENTITY = ROOT / "docs/evidence/2026-11-19/ota-receiver-identity.json"
 BASE_SHA = "9140bb4e1bb700c8a7b1d06f29f510c3f18b13fb6da86e34b7f453fec639ab74"
 ORIGINAL_B_SHA = "4205c2f63f4417b614d34edf9422e9f3adb3d9899cd5d9db379c7fce3ccda0a0"
 META = 0xda0000
@@ -60,9 +61,12 @@ def save(path, data):
     require(path.read_bytes() == data, "Archive readback mismatch")
 
 
-def prepare(directory, first, second, *, historical_pair=False):
+def prepare(directory, first, second, *, historical_pair=False, identity_pair=False):
     evidence = read_json(EVIDENCE)
     build_pair = evidence if historical_pair else read_json(HASH_FIX)["first_install"]
+    if identity_pair:
+        require(not historical_pair, "Select one receiver generation")
+        build_pair = read_json(IDENTITY)
     baseline = review_pair(first, second)
     require(baseline["flash_sha256"] == BASE_SHA and baseline["boot"]["length"] == 58496 and
             baseline["regions"]["a"]["sha256"] == evidence["entire_original_a_sha256"] and
@@ -92,7 +96,8 @@ def prepare(directory, first, second, *, historical_pair=False):
         output = directory / (name + ".bin")
         save(output, data.ljust(size, b"\xff"))
         entries.append(dict(role=name, offset=start, **file_record(output)))
-    report = dict(schema=1, scope="original-cyclelog-first-install", baseline_sha256=BASE_SHA,
+    scope = "original-cyclelog-identity-pair" if identity_pair else "original-cyclelog-first-install"
+    report = dict(schema=1, scope=scope, baseline_sha256=BASE_SHA,
                   enrollment_address=hex(addr),
                   entries=entries, original_a_sha256=evidence["entire_original_a_sha256"],
                   original_b_sha256=ORIGINAL_B_SHA, hardware_verified=False)
@@ -135,9 +140,10 @@ if __name__ == "__main__":
     kit = modes.add_parser("prepare")
     for opt in ("first", "second", "out"):
         kit.add_argument("--"+opt, required=True, type=Path)
+    kit.add_argument("--identity-pair", action="store_true")
     builder = modes.add_parser("build")
     for opt in ("cargo", "cc", "cargo-home", "target-dir", "out"):
         builder.add_argument("--"+opt, required=True, type=Path)
     args = parser.parse_args()
-    result = prepare(args.out.resolve(), args.first, args.second) if args.mode == "prepare" else build_host(args)
+    result = prepare(args.out.resolve(), args.first, args.second, identity_pair=args.identity_pair) if args.mode == "prepare" else build_host(args)
     print(json.dumps(result, indent=2))
