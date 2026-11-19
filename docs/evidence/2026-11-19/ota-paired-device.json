@@ -1,0 +1,43 @@
+{
+  "base": "788f200f192da429a845ef6577682b81f2645b82",
+  "capture": "artifacts/ota-paired-device-20261119-002",
+  "fixture_identity_and_reference_model": "ota-signature-window.json",
+  "installed_watch_pair": "ota-identity-device.json",
+  "host": {
+    "bridge": "artifacts/ota-paired-host-20261119-002/result.json",
+    "bridge_manifest_sha256": "73cf3e6fcdc1019beca6baf15694bf4f07cae917ff8a3521be76ce5a97342238",
+    "bridge_executable_sha256": "a60101cd51a66f1764321eb9f0895ddc26450a2152a98657511b9fb5c55de646",
+    "simulation": "artifacts/ota-paired-sim-20261119-002",
+    "rehearsal": "artifacts/ota-paired-rehearsal-20261119-001/rehearsal.json",
+    "limits_seconds": {"active":1440,"minimum_left_at_body_start":1080,"return_reserve":180,"native_listen":1620,"native_total":1740}
+  },
+  "pre_entry": {
+    "first_capture": "artifacts/ota-paired-device-20261119-001",
+    "detail": "A sample row was missing two token digits. Snapshot decode stopped before charging inhibit, ROM entry or phone logging. The full snapshot was read again before the single receiver entry."
+  },
+  "wired": {"supply_mV":4169,"charge_inhibited":true,"reads":11,"bytes":503808,"writes":0,"retries":0,"receiver_address_same_as_first_boot":true,"native_exit":0},
+  "cases": [
+    {"filename":"03-bad-signature.bin","operator_confirmed":true,"phone_start":"17:00:00.442","first_reply":"17:00:00.546","result":1,"retrans":0,"completed":0,"uart_requests":[38,40],"uart_results":[0,1],"install_started":false},
+    {"filename":"04-bad-body.bin","operator_confirmed":true,"phone_selected_item":{"display_name":"04-bad-body.bin","bytes":3033926},"declared_blocks":1482,"sdk_success_DATA_rows":0,"last_observed_DATA_count":null,"operator_screen":"pro100","phone_start_ack":"17:00:45.265","phone_end_request":"17:01:50.857","phone_end_response":"17:01:51.052","phone_numeric_end_status":null,"uart_requests":[38,42],"uart_results":[0,1],"uart_end_accepted_after_session_clear":0,"uart_start_to_end_seconds":65.786,"install_started":false}
+  ],
+  "interpretation": {
+    "03": "The identified signature fixture was refused on its first DATA by both endpoints.",
+    "04": "Android displayed 100 percent for the identified body fixture, sent END and logged its END response. The board rejected END and did not start an install. The exact number of individually observed successful DATA acknowledgments is zero. The reference model separately demonstrates the digest mismatch with these archived bytes.",
+    "controller": "Original unmodified window.json marks 03 true, 04 false and controller exit 1 because Android did not emit a cumulative success counter. Independent review used the operator screenshot, exact media item metadata, Android END exchange and UART result. The updated reviewer reproduces that evidence path and keeps the cumulative ACK count unobserved."
+  },
+  "return": {"end_to_idle_reset_seconds":120.423,"boot":[51,52],"generation":[232,233],"saved_ms":[1598040735,1598041825],"save_failures":[0,0],"saved_scenes_nondecreasing":true,"host_archived_unsaved_ms":1698226,"rtc_valid":false,"operator":"常亮已关，显示、触摸和 KEY1 正常"},
+  "sha256": {
+    "window.json":"a5c5bb59655575346947566178575e71a0a839c7e397d9cb6bbb341f2303810d",
+    "wire-review.json":"e36220102359ee20e6c9e503ad19a6ed1a15da3e812f5207d7571f3a6cb22ffc",
+    "media/tx.bin":"f7400958f2a05578c360361300144e044c5e43ea300120a34cdd1349990324cb",
+    "media/rx.bin":"20a26403df96155e6a5c7213c948dba0330a0c34803be33bf3127ddb5b4d6f38",
+    "media/startup-uart.bin":"780ae9a2edd7e04d4e0510e0e8a8e1cd1978a766edf86c174a202aa47358a7e2",
+    "media/wire-events.jsonl":"a803a9922351c789cb4e5f0a47a34a0d7b2704c1dbe5985d95a74fc87d37a8ba",
+    "android-dfu.log":"4ab4f5851e88fe6f86fd7e97b0384063c904f434dceddde3c30a165e3a60e54a",
+    "android-end-receipt.log":"abedc896179190039e24794ac3ff9d98f4247c85ad7204e0c6b22fe7f16b7e88",
+    "operator-04.jpg":"35a02657c74a3ade3f215636e02f97526ba2150ac4a841e4edb984d87c0102cd",
+    "android-04-file.txt":"80ae1e817a8adcf3e1702ad5f91707a0cb3b0eacd6fdc547df66335387d35cfc",
+    "app-before/before-snapshot.json":"b60dc16aefd24258e5ff67ac7e2c5e67e37a9b871285a4174c57277f706ec84e",
+    "app-after/after-snapshot.json":"f9e8f618712e1f5a7c65713c357660ed6448c2f4a052b7b695e48c537261ec9e"
+  }
+}

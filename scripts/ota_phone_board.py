@@ -22,13 +22,17 @@ PRODUCT = b"[product] storage=ready restore=yes "
 READY_PHASE = ("phone_ready", "手机可提前停在 SIFLI BLE 设备扫描列表，等接收器广播")
 
 
-def verify_fixture(archive, filename=BOARD_FILE):
-    require(filename in FILE_DIGESTS, "Unknown first-block rejection fixture")
+def verified_member(archive, filename, expected_sha):
     with ZipFile(archive) as package:
         items = [item for item in package.infolist() if item.filename == filename]
         require(len(items) == 1 and items[0].file_size == FILE_BYTES, "Missing or ambiguous Android fixture")
-        require(sha(package.read(items[0])) == FILE_DIGESTS[filename], "Wrong Android fixture contents")
-    return dict(filename=filename, bytes=FILE_BYTES, sha256=FILE_DIGESTS[filename])
+        require(sha(package.read(items[0])) == expected_sha, "Wrong Android fixture contents")
+    return dict(filename=filename, bytes=FILE_BYTES, sha256=expected_sha)
+
+
+def verify_fixture(archive, filename=BOARD_FILE):
+    require(filename in FILE_DIGESTS, "Unknown first-block rejection fixture")
+    return verified_member(archive, filename, FILE_DIGESTS[filename])
 
 
 def phone_evidence(uart):
@@ -75,6 +79,7 @@ class PhoneObservation:
         self.size = 0
         self.prepared = False
         self.announced = False
+        self.invites_open = True
         self.finished = False
 
     def poll(self):
@@ -91,7 +96,7 @@ class PhoneObservation:
         uart = self.uart.read_bytes()
         state = phone_evidence(uart)
         identity = confirmed_identity(uart, self.original_address, self.expected_address) if self.original_address else None
-        if state["advertising"] and not state["idle_return"] and not self.announced and (not self.original_address or identity):
+        if self.invites_open and state["advertising"] and not state["idle_return"] and not self.announced and (not self.original_address or identity):
             self.console.stage("phone_ready", "complete")
             self.console.stage("phone", "running")
             self.announced = True
@@ -103,3 +108,4 @@ class PhoneObservation:
             # after the original Product's full storage-ready line has arrived.
             self.uart.with_name("finish-listening").touch(exist_ok=True)
             self.finished = True
+        return state

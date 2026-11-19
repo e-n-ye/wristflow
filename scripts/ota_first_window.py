@@ -1,6 +1,6 @@
 """Attended original-board installation and recovery with a continuous endpoint lease."""
 import argparse
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 import json
 import os
 from pathlib import Path
@@ -18,6 +18,8 @@ from lab_serial import PortLease, RecordedClient, lease_directory
 from ota_first_install import ROOT, BASE_SHA, read_json, require, sha
 from ota_phone_board import (BOARD_FILE, FILE_DIGESTS, READY_PHASE, PhoneObservation,
                              confirmed_identity, phone_evidence, verify_fixture)
+from ota_phone_pair import (ACTIVE_SECONDS, BODY_AT_100, BODY_FILE, BODY_MIN_SECONDS, LISTEN_SECONDS, PairedObservation,
+                            android_capture, android_receipts, body_completion, pair_files, uart_receipts)
 from ota_identity_window import IDENTITY_ACTIONS, restore_source, review_pair
 from ota_receiver_scan import installed_address
 from ota_b_execute import recovery_check
@@ -335,10 +337,21 @@ def window(args):
     expected_address = None
     phone_zip = getattr(args, "phone_zip", None)
     phone_file = getattr(args, "phone_file", None)
+    pair = getattr(args, "signature_then_body", False)
+    adb = getattr(args, "phone_adb", None)
+    require(not pair or (args.action == "enter-identity" and phone_file is None),
+            "Paired fixtures require one read-only entry without a separate file override")
+    require(not adb or (real and pair), "USB phone log capture applies only to a live paired window")
+    require(not (real and pair) or adb is not None, "Automated paired acceptance requires the authorized Android DFU log")
     require(phone == bool(phone_zip) and (phone or phone_file is None), "A phone window requires the distributed ZIP")
     require(phone_file in (None, BOARD_FILE) or args.action == "enter-identity",
             "This fixture requires read-only entry on the installed pair")
-    fixture = verify_fixture(phone_zip, phone_file or BOARD_FILE) if phone else None
+    fixture = None
+    if pair:
+        fixtures = pair_files(phone_zip)
+        fixture = fixtures[0]
+    elif phone:
+        fixture = verify_fixture(phone_zip, phone_file or BOARD_FILE)
     require(args.action in SCOPE and ((real and os.name=="nt" and args.authorize==SCOPE[args.action]) or
             (not real and args.authorize=="simulation")), "Current action-specific authorization required")
     require(args.action.startswith("restore")==bool(args.prior),"Independent recovery requires its original window")
@@ -373,7 +386,8 @@ def window(args):
     verify_files(pkg["entries"])
     root=args.out.resolve()
     journal=Journal(root,binding=dict(action=args.action,simulation=not real,build=file_record(args.build),
-                    bundle=file_record(bundle/"bundle.json"),operator_scope=args.authorize),mode="first-install-window")
+                    bundle=file_record(bundle/"bundle.json"),operator_scope=args.authorize,
+                    signature_then_body=pair,phone_dfu_log=bool(adb)),mode="first-install-window")
     def operator(console, phase, message, choices=None):
         answer = None
         if real:
@@ -392,6 +406,15 @@ def window(args):
         phone_phase = ("phone", f"此行显示进行中时立即扫描 WristFlow OTA，点 NOR DFU → OFFLINE，选 {filename} 一次")
         phases = [*PHASES[:2], READY_PHASE, phone_phase, *PHASES[2:]]
         mode = f"Android {filename} " + ("与原表盘返回" if real else "离线演练")
+    if pair:
+        report["android_fixtures"] = fixtures
+        report["phone_budget_seconds"] = dict(active=ACTIVE_SECONDS, minimum_at_body_start=BODY_MIN_SECONDS,
+                                              return_reserve=LISTEN_SECONDS-ACTIVE_SECONDS)
+        phases = [*PHASES[:2], READY_PHASE, phone_phase,
+                  ("body", f"本行显示进行中时，保留 03 结果，只选一次 {BODY_FILE}，等待传完"),
+                  ("disconnect","仅当本行显示进行中时，停止发包，若仍在传输请断开手机，等待原表盘"),
+                  ("first_file","记录第一次选包"), *PHASES[2:]]
+        mode = "Android 03 签名和 04 正文" + ("同窗验收" if real else "离线演练")
     if inspect:
         phases = [*PHASES[:2], ("gatt","电脑读取接收器 GATT 服务与特征"), *PHASES[2:]]
         mode = "接收器关键区和 GATT 只读检查" if real else "接收器关键区离线演练"
@@ -421,19 +444,28 @@ def window(args):
                     cfg.update(seconds=235, listen_seconds=152 if real else 0)
                 if identity:
                     cfg.update(seconds=460, listen_seconds=(300 if phone else 16) if real else 0)
+                if pair:
+                    cfg.update(signature_then_body=True, seconds=1740, listen_seconds=LISTEN_SECONDS if real else 0)
                 path=root/"media-request.json";write_json(path,cfg)
                 job=root/"job-media";job.mkdir()
                 console.stage("media","running")
                 verify_files(inputs,ROOT)
                 if real: port_identity("COM5","1-1.1")
                 media=root/"media"
-                observation = PhoneObservation(media, console, filename=filename, original_address=original_address,
-                                               expected_address=expected_address) if phone and real else None
-                observe = observation.poll if observation else None
-                if inspect and real:
-                    observe = lambda: observe_gatt(root, console, report, air)
-                code=run_owned([str(exe),"--config",str(path),digest(path)],job,console,root/"cancel",cfg["seconds"]+20,
-                               observe=observe)
+                with android_capture(adb, root) if adb else nullcontext() as collector:
+                    observe = None
+                    if phone and real:
+                        options = dict(filename=filename, original_address=original_address, expected_address=expected_address)
+                        if pair:
+                            observation = PairedObservation(media,console,android_log=root/"android-dfu.log",
+                                                            collector=collector,**options)
+                        else:
+                            observation = PhoneObservation(media,console,**options)
+                        observe = observation.poll
+                    if inspect and real:
+                        observe = lambda: observe_gatt(root, console, report, air)
+                    code=run_owned([str(exe),"--config",str(path),digest(path)],job,console,root/"cancel",cfg["seconds"]+20,
+                                   observe=observe)
                 events=[json.loads(s) for s in (media/"media-events.jsonl").read_text().splitlines()]
                 fact="checked_original_only" if args.action=="verify-original" else "entire_nor_verified"
                 if phone:
@@ -468,7 +500,30 @@ def window(args):
                         console.stage("gatt", "complete")
                 message = "请确认原 CycleLog 表盘、显示和触摸已返回，打开临时常亮读取后态。"
                 file_choices = None
-                if phone:
+                if pair:
+                    choices = [*FILE_DIGESTS, BODY_FILE, "其他文件、未发送或无法确认"]
+                    if real:
+                        state = phone_evidence(log)
+                        summary = uart_receipts(state)
+                        report["phone_uart"] = state
+                        report["pair_uart"] = summary
+                        report["repeat_identity_verified"] = bool(confirmed_identity(log, original_address, expected_address))
+                        if adb:
+                            raw = (root/"android-dfu.log").read_text(encoding="utf-8", errors="replace")
+                            report["pair_android"] = android_receipts(raw, expected_address)
+                        require(not state["install_started"] and state["product_return"],
+                                "Paired window closed without a confirmed idle return to Product. Inspect the saved capture.")
+                        console.stage("disconnect", "complete")
+                        console.stage("phone", "waiting")
+                        console.stage("body", "waiting")
+                        report["first_selected_file"] = operator(console,"first_file","请选择手机第一次实际发送的文件。",choices)
+                        message = "请选择第二次实际发送的文件。若 04 结果页到了 100%，选择带 pro100 的一项。请确认原表盘和触摸正常，临时常亮已开。"
+                        file_choices = [BODY_AT_100, *choices]
+                    else:
+                        for phase in ("phone_ready","phone","body","disconnect","first_file"):
+                            console.stage(phase,"complete")
+                        journal.event("simulated_phone_pair", files=[f["filename"] for f in fixtures])
+                elif phone:
                     if real:
                         transfer = phone_evidence(log)
                         report["phone_uart"] = transfer
@@ -490,7 +545,21 @@ def window(args):
                         console.stage("phone_ready", "complete")
                         console.stage("phone", "complete")
                 selected_file = operator(console,"return",message,file_choices)
-                if file_choices:
+                if pair and real:
+                    saw_pro100 = selected_file == BODY_AT_100
+                    report["second_selected_file"] = BODY_FILE if saw_pro100 else selected_file
+                    report["operator_saw_pro100"] = saw_pro100
+                    phone_report = report["pair_android"]
+                    completion = body_completion(phone_report, saw_pro100)
+                    report["body_completion_evidence"] = completion
+                    signature_ok = (report["repeat_identity_verified"] and report["first_selected_file"] == filename and
+                                    summary["signature_rejected"] and phone_report["signature_rejected"])
+                    body_ok = (signature_ok and report["second_selected_file"] == BODY_FILE and summary["body_end_rejected"] and
+                               completion is not None and summary["body_retries"] == phone_report["sessions"][1]["retries"])
+                    console.stage("phone", "complete" if signature_ok else "error")
+                    console.stage("body", "complete" if body_ok else "error")
+                    report["phone_cases"] = {filename:signature_ok, BODY_FILE:body_ok}
+                elif file_choices:
                     report["operator_selected_file"] = selected_file
                     if selected_file != filename:
                         console.stage("phone", "error")
@@ -503,7 +572,9 @@ def window(args):
             operator(console,"final","请关闭临时常亮，回到表盘并确认显示、触摸和 KEY1。")
             require(not real or args.action!="install" or report["idle_return"],
                     "Flash and original app evidence retained; receiver advertising or idle return not observed")
-            if real and phone:
+            if real and pair:
+                require(all(report["phone_cases"].values()), "Paired phone acceptance incomplete. See both receipts and file selections.")
+            elif real and phone:
                 require(received, "Android first-DATA rejection and idle Product return were not both observed")
                 if filename != BOARD_FILE:
                     require(report.get("operator_selected_file") == filename, "Selected phone file did not match the requested fixture")
@@ -531,7 +602,10 @@ if __name__=="__main__":
         parser.add_argument("mode",choices=("capture","simulate"))
         parser.add_argument("--action",choices=SCOPE,required=True)
         parser.add_argument("--authorize",required=True)
-        parser.add_argument("--phone-file", choices=FILE_DIGESTS, help="Single distributed first-block rejection fixture")
+        phone_args = parser.add_mutually_exclusive_group()
+        phone_args.add_argument("--phone-file", choices=FILE_DIGESTS, help="Single distributed first-block rejection fixture")
+        phone_args.add_argument("--signature-then-body",action="store_true",help="One read-only entry for 03 followed by 04")
+        parser.add_argument("--phone-adb",type=Path,help="Collect the paired window's USB SIFLI BLE DFU tag with operator permission")
         for opt in ("out","build","bundle"):
             parser.add_argument("--"+opt,required=True,type=Path)
         for opt in ("nor-fixture","before-fixture","after-fixture","prior","phone-zip"):
