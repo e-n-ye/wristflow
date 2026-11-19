@@ -16,6 +16,8 @@
 
 `pwsh -File scripts/Build-Ota-Loader.ps1 -AndroidReceiver` 显式构建有线初装使用的 receiver，使用 SDK AddLCPU、板载 BLE Serial、片上 CRC／SHA 和已登记公钥。检查 384 KiB 链接上限、PSRAM 缓冲、独立安装和 journal 符号，排除旧安装器、自动充电和持久 BLE 数据库初始化。省略参数继续构建只读 probe。构建不连接设备。[容量与回归](evidence/2026-11-18/ota-android-receiver.json)
 
+在装有 Bleak 3.0.2 的 Windows Python 环境中，用 `python -B scripts/ota_receiver_scan.py --seconds 180 --out <新文件.jsonl>` 观察首装后的空口。保持手机断开，从接收器复位前开始主动扫描。原始记录分别保留扫描响应中的完整名称 `WristFlow OTA` 和主广告中的 128 位服务 UUID，按同一蓝牙地址核对。用串口的 `advertising=0` 和空闲返回日志核对事件顺序，再核原 Product 的启动日志和广播。
+
 ## 2026-11-18 发布签名和只读 loader
 
 首次授权建钥使用 `pwsh -File scripts/Ota-ReleaseKey.ps1 -Mode Provision`；有公钥而本机缺对应私钥时会拒绝重新生成。日常发布运行项目 Python 的 `scripts/ota_release.py --build-result <普通 Product 的 result.json> --release <正整数> --out-dir <新目录>`，生成可供 Android 选取的 `offline_install.bin`。私钥由 Windows CNG 签名接口使用，打包采用锁定 SDK 的 `imgtoolv37.exe`。
