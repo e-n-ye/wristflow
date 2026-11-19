@@ -9,6 +9,7 @@ import sys
 import time
 from types import SimpleNamespace
 import zlib
+import ota_rollback_evidence as rollback
 
 from battery_console import Cancelled, Console
 from battery_device import port_identity
@@ -30,6 +31,8 @@ from ota_rom_transport import BoundedSerial
 from serial_lab import prepare_capture
 
 SCOPE = {"install": "first-install-receiver-journal-boot-and-enter",
+         "enter-trial-b": "enter-for-android-05-trial-and-passive-return",
+         "inspect-trial-b": "read-05-after-autonomous-return-and-start-stable-a",
          "restore-trial-b": "restore-05-b-and-stable-a-keep-installed-identity-pair",
          "verify-original": "verify-original-nor-and-start-original",
          "enter-receiver": "enter-pinned-receiver-without-flash-write",
@@ -167,6 +170,17 @@ def app_phase(root, phase, args, console, *, worker_seconds=95):
 
 def review_wire(directory, action, bundle, source):
     """Independently reconstruct the authorized writes, every read and final NOR."""
+    if action in ("enter-trial-b","inspect-trial-b"):
+        before = (directory/"before.bin").read_bytes()
+        require(len(before)==0x1000000, "Incomplete physical trial evidence")
+        if action == "enter-trial-b":
+            rollback.verify_before(before,source,bundle)
+            require((directory/"original-b-4MiB.bin").read_bytes()==before[rollback.B_START:rollback.B_END],
+                    "Fresh B archive differs from the pre-trial readback")
+        reads = [(f"before-{off:08x}",off,before[off:off+65536]) for off in range(0,len(before),65536)]
+        review = review_transfers(directory,reads,[])
+        review_trial_commands((directory/"tx.bin").read_bytes(),reads,[],review["read_retries"])
+        return review
     if action in IDENTITY_ACTIONS:
         expected, chunks = review_pair(directory, action, bundle, source)
         return review_transfers(directory, expected, chunks)
@@ -357,7 +371,9 @@ def observe_gatt(root, console, report, air):
 
 def window(args):
     real=args.mode=="capture"
-    phone = args.action in ("enter-receiver", "install-identity", "enter-identity")
+    trial = args.action == "enter-trial-b"
+    post_trial = args.action == "inspect-trial-b"
+    phone = trial or args.action in ("enter-receiver", "install-identity", "enter-identity")
     inspect = args.action == "inspect-receiver"
     identity = args.action in IDENTITY_ACTIONS
     original_address = None
@@ -368,13 +384,18 @@ def window(args):
     adb = getattr(args, "phone_adb", None)
     require(not pair or (args.action == "enter-identity" and phone_file is None),
             "Paired fixtures require one read-only entry without a separate file override")
-    require(not adb or (real and pair), "USB phone log capture applies only to a live paired window")
+    require(not adb or (real and (pair or trial)), "USB phone log capture requires a live phone window")
     require(not (real and pair) or adb is not None, "Automated paired acceptance requires the authorized Android DFU log")
-    require(phone == bool(phone_zip) and (phone or phone_file is None), "A phone window requires the distributed ZIP")
+    require((phone or post_trial) == bool(phone_zip) and (phone or phone_file is None), "Phone and trial verification windows require the distributed ZIP")
+    prior_trial = getattr(args,"trial_window",None)
+    require(bool(prior_trial) == post_trial and not (trial and phone_file), "Use the fixed 05 file and its matching capture")
     require(phone_file in (None, BOARD_FILE) or args.action == "enter-identity",
             "This fixture requires read-only entry on the installed pair")
     fixture = None
-    if pair:
+    if trial or post_trial:
+        trial_package = rollback.signed_file(phone_zip)
+        fixture = dict(filename=rollback.FILE,bytes=len(trial_package),sha256=rollback.PACKAGE_SHA)
+    elif pair:
         fixtures = pair_files(phone_zip)
         fixture = fixtures[0]
     elif phone:
@@ -383,16 +404,26 @@ def window(args):
             (not real and args.authorize=="simulation")), "Current action-specific authorization required")
     require(args.action.startswith("restore")==bool(args.prior),"Independent recovery requires its original window")
     source=None
-    if inspect or identity:
+    if inspect or identity or trial or post_trial:
         source, air = discovery_reference()
-        original_address = installed_address(air) if identity else None
-        if args.action == "enter-identity":
+        original_address = installed_address(air) if identity or trial else None
+        if args.action == "enter-identity" or trial:
             previous = read_json(ROOT/"docs/evidence/2026-11-19/ota-identity-device.json")
             uart = "media/startup-uart.bin"
             raw = (ROOT/previous["capture"]/uart).read_bytes()
             require(sha(raw) == previous["sha256"][uart], "First receiver boot UART differs from its verified capture")
             expected_address = confirmed_identity(raw, original_address)
             require(expected_address, "Missing verified receiver address from its first boot")
+        if post_trial:
+            previous = read_json(prior_trial/"window.json")
+            require(previous["simulation"] == (not real) and previous["action"] == "enter-trial-b"
+                    and previous["passed"] and previous["android_fixture"] == fixture, "Missing matching returned 05 trial")
+            prior_media = prior_trial/"media"
+            if real:
+                rollback.passive_boots(prior_media)
+                review_wire(prior_media,"enter-trial-b",args.bundle,source.read_bytes())
+            trial_before = (prior_media/"before.bin").read_bytes()
+            rollback.verify_before(trial_before, source.read_bytes(), args.bundle)
         if args.action == "restore-identity":
             restore_source(args.prior.resolve(), real, source)
         if inspect and real:
@@ -408,7 +439,7 @@ def window(args):
     exe=ROOT/build["executable"]["path"]
     bundle=args.bundle.resolve()
     pkg=read_json(bundle/"bundle.json")
-    scope = "original-cyclelog-identity-pair" if identity or args.action == "restore-trial-b" else "original-cyclelog-first-install"
+    scope = "original-cyclelog-identity-pair" if identity or trial or post_trial or args.action == "restore-trial-b" else "original-cyclelog-first-install"
     require(pkg["baseline_sha256"]==BASE_SHA and pkg["scope"]==scope,"Wrong installation bundle")
     verify_files(pkg["entries"])
     root=args.out.resolve()
@@ -473,6 +504,8 @@ def window(args):
                     cfg.update(seconds=460, listen_seconds=(300 if phone else 16) if real else 0)
                 if pair:
                     cfg.update(signature_then_body=True, seconds=1740, listen_seconds=LISTEN_SECONDS if real else 0)
+                if trial:
+                    cfg.update(seconds=1750,listen_seconds=900 if real else 0)
                 path=root/"media-request.json";write_json(path,cfg)
                 job=root/"job-media";job.mkdir()
                 console.stage("media","running")
@@ -486,6 +519,8 @@ def window(args):
                         if pair:
                             observation = PairedObservation(media,console,android_log=root/"android-dfu.log",
                                                             collector=collector,**options)
+                        elif trial:
+                            observation = rollback.TrialObservation(media,console,**options)
                         else:
                             observation = PhoneObservation(media,console,**options)
                         observe = observation.poll
@@ -501,6 +536,8 @@ def window(args):
                     fact = "entry_ranges_verified"
                 if identity:
                     fact = "entry_ranges_verified" if args.action == "enter-identity" else "identity_pair_verified"
+                if trial or post_trial:
+                    fact = "trial_read_complete"
                 report["flash_verified"]=any(e.get(fact) for e in events)
                 report["reset_ack"]=any(e.get("soft_reset_ack") for e in events)
                 if real and report["flash_verified"]:
@@ -527,7 +564,28 @@ def window(args):
                         console.stage("gatt", "complete")
                 message = "请确认原 CycleLog 表盘、显示和触摸已返回，打开临时常亮读取后态。"
                 file_choices = None
-                if pair:
+                if post_trial:
+                    try:
+                        report["physical_rollback"] = rollback.verify_after(trial_before,(media/"before.bin").read_bytes(),trial_package)
+                    except ValueError as exc:
+                        report["physical_rollback_error"] = str(exc)
+                if trial:
+                    if real:
+                        try:
+                            report["trial_boots"] = rollback.passive_boots(media)
+                        except ValueError as exc:
+                            report["trial_boot_error"] = str(exc)
+                        received = bool(report.get("trial_boots") and confirmed_identity(log,original_address,expected_address))
+                        console.stage("phone","complete" if received else "error")
+                        require(received or phone_evidence(log)["product_return"],
+                                "Original A return unconfirmed; keep the device powered and inspect the passive capture")
+                        message = "请选择实际发送的文件。确认原 CycleLog 表盘和触摸正常后开临时常亮。"
+                        file_choices = [rollback.FILE,"其他文件或未发送"]
+                    else:
+                        journal.event("simulated_trial_entry",filename=filename)
+                        console.stage("phone_ready","complete")
+                        console.stage("phone","complete")
+                elif pair:
                     choices = [*FILE_DIGESTS, BODY_FILE, "其他文件、未发送或无法确认"]
                     if real:
                         state = phone_evidence(log)
@@ -593,7 +651,8 @@ def window(args):
                 console.stage("after","running")
                 after=app_phase(root,"after",args,console)
                 report["continuity"]=recovery_check(before,after,(after["closed_ns"]-before["closed_ns"])/1e9,
-                                                     args.action.startswith("restore"))
+                                                     args.action.startswith("restore"),
+                                                     boot_deltas=(1,2) if trial and report.get("trial_boots") else (1,))
                 report["application_return"]=True
                 console.stage("after","complete")
             operator(console,"final","请关闭临时常亮，回到表盘并确认显示、触摸和 KEY1。")
@@ -602,7 +661,7 @@ def window(args):
             if real and pair:
                 require(all(report["phone_cases"].values()), "Paired phone acceptance incomplete. See both receipts and file selections.")
             elif real and phone:
-                require(received, "Android first-DATA rejection and idle Product return were not both observed")
+                require(received, "Expected Android exchange and Product return were not both observed")
                 if filename != BOARD_FILE:
                     require(report.get("operator_selected_file") == filename, "Selected phone file did not match the requested fixture")
             if real and inspect:
@@ -610,6 +669,8 @@ def window(args):
                 require(state["product_return"] and not state["install_started"] and not state["replies"]
                         and report.get("gatt_worker_exit") == 0, "See receiver return and independent GATT observation")
             require(not real or report["wire_verified"], "Raw wire review incomplete; see window report")
+            if post_trial:
+                require("physical_rollback" in report, "Physical B or rollback record differs from the expected trial result")
             report["hardware_verified"]=real
             report["passed"]=True
         except (Exception,KeyboardInterrupt) as e:
@@ -629,6 +690,7 @@ if __name__=="__main__":
         parser.add_argument("mode",choices=("capture","simulate"))
         parser.add_argument("--action",choices=SCOPE,required=True)
         parser.add_argument("--authorize",required=True)
+        parser.add_argument("--trial-window",type=Path,help="Corresponding 05 capture for the independent post-trial read")
         phone_args = parser.add_mutually_exclusive_group()
         phone_args.add_argument("--phone-file", choices=FILE_DIGESTS, help="Single distributed first-block rejection fixture")
         phone_args.add_argument("--signature-then-body",action="store_true",help="One read-only entry for 03 followed by 04")

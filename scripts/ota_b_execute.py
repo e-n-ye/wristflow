@@ -126,9 +126,9 @@ def prior_before(config, directory):
     return value
 
 
-def recovery_check(before, after, elapsed, recovery_only):
+def recovery_check(before, after, elapsed, recovery_only, *, boot_deltas=(1,)):
     if not recovery_only:
-        value = recovery(before, after, elapsed_seconds=elapsed, check_rtc=False)
+        value = recovery(before, after, elapsed_seconds=elapsed, check_rtc=False, boot_deltas=boot_deltas)
     else:
         healthy(after["records"])
         a, b = before["records"]["saved"], after["records"]["saved"]

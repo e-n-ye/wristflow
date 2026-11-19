@@ -69,12 +69,12 @@ impl Config {
         if self.action.traced() {
             require(self.seconds <= 90 && self.listen_seconds <= 35,"Trace time limit exceeded")?;
         }
-        let has_reference = restore || self.action.key_regions();
+        let has_reference = restore || self.action.key_regions() || self.action.trial_read();
         require(self.before.is_some() == has_reference && self.before_sha256.is_some() == has_reference, "Missing or unexpected NOR reference")?;
         if self.action == Action::InspectReceiver {
             require(self.seconds <= 240 && self.listen_seconds <= 160, "Receiver discovery time limit exceeded")?;
         }
-        if self.action.key_regions() {
+        if self.action.key_regions() || self.action.trial_read() {
             require(self.before_sha256.as_deref() == Some(media::INSTALLED_SHA), "Wrong installed reference binding")?;
         }
         let scope = match self.action {
@@ -88,6 +88,8 @@ impl Config {
             Action::Restore => "restore-first-install-and-start-original",
             Action::RestoreWithB => "restore-first-install-and-owned-b-extents-and-start-original",
             Action::RestoreTrialB => "restore-05-b-and-stable-a-keep-installed-identity-pair",
+            Action::EnterTrialB => "enter-for-android-05-trial-and-passive-return",
+            Action::InspectTrialB => "read-05-after-autonomous-return-and-start-stable-a",
             Action::TraceOriginalA => "ordinary-a-three-range-trace",
             Action::RestoreTraceA => "restore-three-trace-ranges",
         };
@@ -133,7 +135,7 @@ fn apply(c: &Config) -> Result<()> {
     if let Some(d) = &source {
         require(Some(hash(d)) == c.before_sha256, "Previous window original changed")?;
         if c.action.traced() { require(hash(d)==trace_media::ORIGINALS_SHA,"Invalid compact originals")?; }
-        else if !c.action.key_regions() { media::original(d)?; }
+        else if !c.action.key_regions() && !c.action.trial_read() { media::original(d)?; }
     }
     let stub = fs::read(&c.stub)?;
     require(stub.len() == 132816 && hash(&stub) == "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43",

@@ -1,0 +1,24 @@
+{
+  "base": "a3add560bbff0d0c00d9dc645b7bc7b30962c1b0",
+  "observation_contract": "ota-05-observation.json",
+  "rescue_contract": "ota-05-rescue.json",
+  "capture": "artifacts/ota-05-trial-device-001",
+  "wired_entry": {"full_before_sha256":"608c86725bc239ac9da402235abc8b10865dd06db7f8b77b172a267f1c41d6d1","separate_b_sha256":"4205c2f63f4417b614d34edf9422e9f3adb3d9899cd5d9db379c7fce3ccda0a0","reads":256,"writes":0,"retries":0,"supply_mV":4168,"host_archived_tail_ms":64478},
+  "phone": {"operator_confirmed":"05-rollback-2026111801.bin","screen":"pro100","dfu_end_phone_time":"20:30:47","screenshot_sha256":"c79e9bb536be849ec467d00f92b5c91d3757352ef341061d83f6f716a17d22c1"},
+  "receiver": {"end_result":0,"accepted_blocks":1480,"release":2026111801,"body_bytes":3028888,"trial_committed":true},
+  "startup": {"sha256":"dc8c6bdce28e09692a045772cb73abfab1fe29d3d151c712abe28696a2c96750","SFBL_seconds_after_commit":[1.205,59.573],"B_product_marker_seen":false,"A_product_marker_seen":false,"operator_observed":"屏幕一直黑，按键也无法唤醒","controller_exit":1,"native_exit":0},
+  "fault_state": {"source":"artifacts/ota-05-rescue-device-001/media/before.bin","sha256":"ccf1241c3e2f57c148224d7e2976bc02a85c8b5877b4a6a3f0e2e2054a17d435","b_sha256":"e2d5bfe2b0d8d17b9f3b58949899a133c9e58925652d8e0a756e3a518899ce90","journal_16k_sha256":"4c9eb1c6e30e14f9b24ae5959641342cb3b44469170c51bc294b2f8585031c73","records":["generation 3: stable A, TRIED B","generation 4: STABLE A, no pending slot"],"changed_user_pages":[]},
+  "result": "BLE installation of the exact B image and persistent rollback selection passed. Neither expected Product marker appeared after commit, the operator observed a black screen, and end-to-end automatic return failed. The fault-state read was made during the separately authorized rescue, before any rescue write. Reset timing alone does not identify the reset cause.",
+  "rescue": {
+    "capture":"artifacts/ota-05-rescue-device-001",
+    "action":"restore-trial-b",
+    "verified_reads":562,"writes":50,"retried_reads":["before-00140000"],
+    "full_after_sha256":"608c86725bc239ac9da402235abc8b10865dd06db7f8b77b172a267f1c41d6d1",
+    "entire_nor_equals_live_pretrial":true,
+    "wire_review_sha256":"3d8cb86e8eb07fcbe665d1399c685ac71101b6fd4b096a80a162f6c75a082e9e",
+    "startup_uart_sha256":"7c27007e79d388bbd4d212497300436466a61b0c4d60a66c5347bb5a5b3b8917",
+    "return_snapshot_sha256":"96969adcad9f0996fa447f434e4067976ba270a4a58d9acdc68058d0fbc60899",
+    "boot":[52,53],"generation":[234,235],"saved_ms":[1609610239,1609611328],"save_failures":[0,0],"saved_scenes_nondecreasing":true,
+    "operator_final":"常亮已关，显示、触摸和 KEY1 正常"
+  }
+}

@@ -27,11 +27,12 @@ const BOOT_ORIGINAL_SHA: &str = "f59f948f987362f1270b1da541405e82bd887c1a16c3063
 #[derive(Clone, Copy, Deserialize, Serialize, Debug, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum Action { Install, VerifyOriginal, EnterReceiver, InspectReceiver, InstallIdentity, EnterIdentity, RestoreIdentity,
-                  Restore, RestoreWithB, RestoreTrialB, TraceOriginalA, RestoreTraceA }
+                  Restore, RestoreWithB, RestoreTrialB, EnterTrialB, InspectTrialB, TraceOriginalA, RestoreTraceA }
 impl Action {
     pub fn traced(self) -> bool { matches!(self, Self::TraceOriginalA | Self::RestoreTraceA) }
     pub fn identity(self) -> bool { matches!(self, Self::InstallIdentity | Self::EnterIdentity | Self::RestoreIdentity) }
     pub fn key_regions(self) -> bool { self.identity() || self == Self::InspectReceiver }
+    pub fn trial_read(self) -> bool { matches!(self, Self::EnterTrialB | Self::InspectTrialB) }
 }
 
 pub struct Inputs {
@@ -41,7 +42,7 @@ pub struct Inputs {
 }
 impl Inputs {
     pub fn verify(&self, action: Action) -> Result<()> {
-        let identity_images = action.identity() || action == Action::RestoreTrialB;
+        let identity_images = action.identity() || action.trial_read() || action == Action::RestoreTrialB;
         let span = if identity_images { IDENTITY_RX } else { RX };
         require(self.receiver.len() == span.len() && self.boot.len() == BOOT.len(), "Wrong boot/receiver span")?;
         require(self.journal.len() == PAGE && hash(&self.journal) ==
@@ -218,6 +219,27 @@ pub fn run(io: &mut impl Nor, action: Action, images: &Inputs, rescue: Option<&[
         Action::EnterReceiver => {
             permit_entry(&expected, images)?;
             return io.checkpoint(json!({"stable_a_verified":true,"before_sha256":before_hash,"flash_writes":0}));
+        }
+        Action::EnterTrialB | Action::InspectTrialB => {
+            let source = rescue.ok_or("Missing provisioned board reference")?;
+            require(hash(source) == INSTALLED_SHA, "Wrong 05 reference")?;
+            let mut baseline = source.to_vec();
+            baseline[BOOT].copy_from_slice(&images.boot);
+            baseline[IDENTITY_RX].copy_from_slice(&images.receiver);
+            require(expected[..B.start] == baseline[..B.start] &&
+                    expected[B.end..0x9a0000] == baseline[B.end..0x9a0000] &&
+                    expected[0xdac000..] == baseline[0xdac000..], "Protected 05 firmware region differs")?;
+            if action == Action::EnterTrialB {
+                require(expected[B] == baseline[B] && expected[META] == baseline[META],
+                        "05 requires the original B and first stable A record")?;
+                io.preserve_b(&expected[B])?;
+            } else {
+                require(hash(&expected[META]) == "4c9eb1c6e30e14f9b24ae5959641342cb3b44469170c51bc294b2f8585031c73",
+                        "05 journal does not prove the return to stable A")?;
+                // Stable A is verified, so a bad inactive B must not strand the watch in the RAM stub.
+            }
+            return io.checkpoint(json!({"trial_read_complete":true,"before_sha256":before_hash,
+                                        "b_sha256":hash(&expected[B]),"flash_writes":0}));
         }
         Action::RestoreTrialB => {
             let source = rescue.ok_or("Missing original installation backup")?;
