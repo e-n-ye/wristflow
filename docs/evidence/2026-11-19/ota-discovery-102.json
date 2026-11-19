@@ -1,0 +1,103 @@
+{
+  "base": "85fcaee74cb275db6d9446301b874c87457a27c9",
+  "phone_retry": {
+    "capture": "artifacts/ota-android-board-device-20261119-003",
+    "capture_predecessor": "artifacts/ota-android-board-device-20261119-002 stopped while reading the Product snapshot. One sample had 59 rather than 64 hex characters. Only record queries were sent; no reset, charge inhibit or flash operation. The next capture used a new complete snapshot.",
+    "phone_fixture": "01-bad-board.bin",
+    "fixture_sha256": "e50b14000bf830fe959484069fef692770a28dac22ddc4774d6772d7c14add00",
+    "pre_reset_millivolts": 4168,
+    "saved_unsaved_tail_on_host_ms": 828734,
+    "console_local_time": {"phone_ready": "14:39:30.738", "receiver_advertising": "14:40:32.526"},
+    "phone_local_time": {"file_selected_and_connectGatt": "14:41:04", "fail_to_find_target_uuid": "14:41:11", "dfu_exit": 102},
+    "seconds_relative_to_first_uart_advertising_callback": {"second_advertising_callback": 51.510, "idle_reset": 120.426, "original_product_storage_ready": 123.805},
+    "receiver_request_result_lines": [],
+    "local_install_marker": false,
+    "wire": {"nor_reads": 256, "nor_writes": 0, "read_retries": 0, "worker_exit": 0},
+    "controller_exit": 1,
+    "controller_reason": "First DATA rejection was not observed; idle Product return and original app snapshot passed",
+    "saved_boot": [46, 47],
+    "saved_generation": [226, 227],
+    "saved_total_ms": [1595280249, 1595281339],
+    "saved_scenes_nondecreasing": true,
+    "save_failures": [0, 0],
+    "rtc": "unsynchronized in 2000",
+    "user_final": "常亮已关，显示、触摸和 KEY1 正常",
+    "sha256": {
+      "media/before.bin": "e79fd123440e102be2c667789a2b194db786ff8f99dc32d06c5ff6201597d8d7",
+      "media/rx.bin": "661d0ab8263aec9a1d530ca2d2723810ede1206896afb056c27ff1ca8f79ef13",
+      "media/tx.bin": "e790731c76ac029fcc81eb011ed6e6bb023fb0bd7ba95757f624c30611a08da3",
+      "media/startup-uart.bin": "c08c862717d516c026747d701b25b6d558fc36588edf2ef34324905c5d628928",
+      "wire-review.json": "9c95bd51cf52749c93c90cdc6d7f83d362512aba190bc897ccd02e38817d1509",
+      "operator-android-discovery.jpg": "2624bd9c6797d228a62e9c049051ce904e0baafe6a8a13946561b127a4f44d94",
+      "window.json": "759035eede42e87c7fe8284ab6e617776ceffa4c5e97e8d3ac7617314e24e06c"
+    }
+  },
+  "discovery_preparation": {
+    "native_build": "artifacts/ota-gatt-key-host-20261119-001/result.json",
+    "exe_sha256": "d344bd46f97c91f650788ba3c2c4e81b2424e78c0c3f38fc25f0bd3604c79f60",
+    "simulation": "artifacts/ota-gatt-key-sim-20261119-001",
+    "software_checks": "10 Rust tests, Release build, 5 bound first-install tests including rescue and per-range mismatch, 2 Windows BLE observer tests and 2 phone observer tests passed. Integrated simulation ran against the fresh Android-window NOR.",
+    "checked_regions": ["FTAB 64 KiB", "boot 60 KiB", "first original A page 4 KiB", "receiver 352 KiB", "first page of each of the two journal copies, 4 KiB each"],
+    "read_bytes": 499712,
+    "expected_service": "00000000-0000-0000-6473-5f696c666973",
+    "expected_data": "00000000-0000-0200-6473-5f696c666973",
+    "expected_cccd": "00002902-0000-1000-8000-00805f9b34fb",
+    "expectation_source": "Locked SiFli BLE Serial ATT definition linked into the installed receiver. The Android log below independently identifies the exact data UUID requested by the installed phone app.",
+    "host_manifest_sha256": "f9ec6d95af7b94d64b76a50706320d55da4137fb606f2d1ed4122420bc5ebab2"
+  },
+  "windows_gatt": {
+    "capture": "artifacts/ota-gatt-key-device-20261119-001",
+    "mode": "inspect-receiver, Bleak 3.0.2/WinRT, pair=False, use_cached_services=False, one application client; phone disconnected",
+    "local_time": {"connect_request":"14:53:26.507","attribute_table":"14:53:29.078","host_disconnected":"14:53:29.191"},
+    "services": [
+      {"uuid":"00001800-0000-1000-8000-00805f9b34fb","handle":1},
+      {"uuid":"00001801-0000-1000-8000-00805f9b34fb","handle":10},
+      {"uuid":"00000000-0000-0000-6473-5f696c666973","handle":16}
+    ],
+    "serial_characteristics": [
+      {"uuid":"00000000-0000-0100-6473-5f696c666973","handle":17,"properties":["read","write-without-response","write"],"descriptors":[]},
+      {"uuid":"00000000-0000-0200-6473-5f696c666973","handle":19,"properties":["read","notify","write-without-response","write"],"descriptors":[{"uuid":"00002902-0000-1000-8000-00805f9b34fb","handle":21}]}
+    ],
+    "scope": "GATT attribute discovery only, no subscription, value read/write or OTA request sent by the host application.",
+    "wire": {"reads":11,"writes":0,"read_retries":0,"nor_read_bytes":499712,"native_exit":0,"controller_exit":0},
+    "pre_reset_millivolts":4167,
+    "archived_unsaved_ms":611904,
+    "saved_boot":[47,48],
+    "saved_generation":[227,228],
+    "saved_total_ms":[1595281339,1595282430],
+    "rtc":"unsynchronized in 2000",
+    "user_final":"常亮已关，显示、触摸和 KEY1 正常",
+    "elapsed_seconds_including_operator":233.969,
+    "sha256":{
+      "gatt.jsonl":"8582657dc4e47f717f7a8cdba52b9808838254e1c8fd80bce26eee7842eb44d5",
+      "window.json":"9cafae403b49ed7d4712b969ea254f692087cd7c4c4771610adf70cdd543c0af",
+      "wire-review.json":"89a7d18f7ac699aa2b3bc4e2fa371b93d2fff31d38e8109eba0f245431dd5ffb",
+      "media/rx.bin":"7f3cab171aca89fee32be81584ef1fe7dd4dbfc2b25998f062c1eb3f1fd71d34",
+      "media/tx.bin":"994189797b0d321ef6e7c442d75eeb29bf843e6e402ccaf5df21a9eb284deda0",
+      "media/startup-uart.bin":"ccf0efffcad9d2cbdb28b6b5535a828e586ea4131efd3258148dbdb6256d681b"
+    }
+  },
+  "android_existing_log": {
+    "scope":"Read existing November 19 14:40 through 14:42 local Bluetooth/DFU log lines from the authorized app UID over another USB port. No new BLE connection or device reset.",
+    "package":"com.sifli.siflible",
+    "app_version":"1.7.3 (155)",
+    "dfu_sdk_reported":"1.1.38",
+    "activity":"DeviceNor2DFUActivity",
+    "capture":"artifacts/ota-gatt-key-device-20261119-001/android-existing",
+    "private_filtered_log_sha256":"1f12b3597ab1ed9ed2e137e6b5b3475b965f4fea1a2a30528a7c2a2b7da90faf",
+    "clock_sample_phone_minus_host_seconds_interval":[-0.484,0.617],
+    "sole_peer_address_matches_sealed_receiver_address":true,
+    "local_events":{
+      "UI_client_connect":"14:40:43.372",
+      "DFU_client_connected_status_0_state_2":"14:41:04.988",
+      "DFU_refresh_returned_true":"14:41:09.809",
+      "DFU_discoverServices":"14:41:11.811",
+      "onSearchComplete_status_0":"14:41:11.827",
+      "app_characteristic_lookup":"14:41:11.828",
+      "exit_102":"14:41:11.841"
+    },
+    "phone_expected":"00000000-0000-0200-6473-5f696c666973",
+    "phone_found_characteristics":["2a00","2a01","2aa6","2ac9","2a05","2b2a","6e400002-b5a3-f393-e0a9-e50e24dcca9e","6e400003-b5a3-f393-e0a9-e50e24dcca9e"],
+    "interpretation":"The expected Android UUID is present on the live receiver in the separate Windows session. The Android app received the original Product NUS view for the same peer address during the receiver window. These records do not identify which cache or stack layer supplied the stale table."
+  }
+}

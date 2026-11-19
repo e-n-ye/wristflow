@@ -23,7 +23,7 @@ const BOOT_ORIGINAL_SHA: &str = "f59f948f987362f1270b1da541405e82bd887c1a16c3063
 
 #[derive(Clone, Copy, Deserialize, Serialize, Debug, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-pub enum Action { Install, VerifyOriginal, EnterReceiver, Restore, RestoreWithB, TraceOriginalA, RestoreTraceA }
+pub enum Action { Install, VerifyOriginal, EnterReceiver, InspectReceiver, Restore, RestoreWithB, TraceOriginalA, RestoreTraceA }
 impl Action {
     pub fn traced(self) -> bool { matches!(self, Self::TraceOriginalA | Self::RestoreTraceA) }
 }
@@ -131,11 +131,30 @@ fn replace(io: &mut impl Nor, action: Action, expected: &mut [u8], role: &str,
 pub fn run(io: &mut impl Nor, action: Action, images: &Inputs, rescue: Option<&[u8]>) -> Result<()> {
     require(!action.traced(), "Use the bounded original-A transaction")?;
     images.verify(action)?;
+    if action == Action::InspectReceiver {
+        let installed = rescue.ok_or("The verified first-install readback is required")?;
+        require(hash(installed) == "d862c6aab38f33490519c70be2583fc56cc5d2bc9c465543efe6aa41ab8d2258",
+                "Wrong provisioned-board reference")?;
+        same_board(installed)?;
+        permit_entry(installed, images)?;
+        let ranges = [0..CHUNK, BOOT, A.start..A.start+PAGE, RX, META.start..META.start+PAGE,
+                      META.start+8192..META.start+8192+PAGE];
+        let mut read_bytes = 0;
+        for range in ranges {
+            for (i, part) in installed[range.clone()].chunks(CHUNK).enumerate() {
+                let off = range.start + i * CHUNK;
+                let live = io.read(&format!("key-{off:08x}"), off, part.len())?;
+                require(live == part, "Critical installed range differs; suppress receiver request")?;
+                read_bytes += live.len();
+            }
+        }
+        return io.checkpoint(json!({"entry_ranges_verified":true,"read_bytes":read_bytes,"flash_writes":0}));
+    }
     let mut expected = io.read("before", 0, SIZE)?;
     same_board(&expected)?;
     let before_hash = hash(&expected);
     match action {
-        Action::TraceOriginalA | Action::RestoreTraceA => return Err("Unexpected trace action".into()),
+        Action::TraceOriginalA | Action::RestoreTraceA | Action::InspectReceiver => return Err("Unexpected storage action".into()),
         Action::Install | Action::VerifyOriginal => {
             original(&expected)?;
             io.preserve_b(&expected[B])?;

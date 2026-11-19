@@ -43,7 +43,7 @@ impl Session<'_> {
     }
     fn start(&mut self) -> Result<()> {
         self.speed(500_000,1_000_000)?;
-        if matches!(self.cfg.action,Action::Install|Action::EnterReceiver) {
+        if matches!(self.cfg.action,Action::Install|Action::EnterReceiver|Action::InspectReceiver) {
             // SF32LB52 RTC_BASE + offsetof(RTC_TypeDef, BKP5R), the SDK's
             // RTC_BAKCUP_OTA_FORCE_MODE. Preserve any unknown existing value.
             const REQUEST_REGISTER:u32 = 0x500cb044;

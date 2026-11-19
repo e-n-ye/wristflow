@@ -119,6 +119,28 @@ class FirstInstall(unittest.TestCase):
         out=self.invoke("wrong-a","install",p,False)
         self.assertNotIn('"intent"',(out/"media-events.jsonl").read_text())
 
+    def test_gatt_entry_only_checks_fixed_installed_regions(self):
+        from ota_first_window import discovery_reference
+        installed, _ = discovery_reference()
+        out = self.invoke("installed-gatt", "inspect-receiver", installed, source=installed)
+        spans = [(0,65536),(0x10000,61440),(0x20000,4096),(0x820000,360448),
+                 (0xda0000,4096),(0xda2000,4096)]
+        nor = bytearray(installed.read_bytes())
+        expected = {f"key-{off:08x}.bin": nor[off:min(off+65536,start+n)]
+                    for start,n in spans for off in range(start,start+n,65536)}
+        self.assertEqual({f.name:f.read_bytes() for f in out.glob("*.bin")}, expected)
+        checkpoint, terminal = [json.loads(line) for line in (out/"media-events.jsonl").read_bytes().splitlines()]
+        self.assertEqual(checkpoint, dict(entry_ranges_verified=True, read_bytes=499712, flash_writes=0))
+        self.assertTrue(terminal["ok"])
+        # Each fixed region must gate the request independently.
+        for start, n in spans:
+            nor[start+n-1] ^= 1
+            altered = self.directory/"gatt-altered.bin"
+            altered.write_bytes(nor)
+            denied = self.invoke(f"gatt-denied-{start:x}", "inspect-receiver", altered, False, installed)
+            self.assertNotIn(b"entry_ranges_verified", (denied/"media-events.jsonl").read_bytes())
+            nor[start+n-1] ^= 1
+
     def test_read_only_archives_original_without_programming(self):
         out=self.invoke("qualify","verify-original",self.old)
         before=self.old.read_bytes()
