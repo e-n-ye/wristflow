@@ -11,6 +11,8 @@ pub const PAGE: usize = 4096;
 pub const CHUNK: usize = 65536;
 pub const BOOT: Range<usize> = 0x10000..0x1f000;
 pub const RX: Range<usize> = 0x820000..0x878000;
+const IDENTITY_RX: Range<usize> = 0x820000..0x879000;
+pub const INSTALLED_SHA: &str = "d862c6aab38f33490519c70be2583fc56cc5d2bc9c465543efe6aa41ab8d2258";
 pub const META: Range<usize> = 0xda0000..0xda4000;
 const A: Range<usize> = 0x20000..0x420000;
 const B: Range<usize> = 0x420000..0x820000;
@@ -23,9 +25,12 @@ const BOOT_ORIGINAL_SHA: &str = "f59f948f987362f1270b1da541405e82bd887c1a16c3063
 
 #[derive(Clone, Copy, Deserialize, Serialize, Debug, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-pub enum Action { Install, VerifyOriginal, EnterReceiver, InspectReceiver, Restore, RestoreWithB, TraceOriginalA, RestoreTraceA }
+pub enum Action { Install, VerifyOriginal, EnterReceiver, InspectReceiver, InstallIdentity, EnterIdentity, RestoreIdentity,
+                  Restore, RestoreWithB, TraceOriginalA, RestoreTraceA }
 impl Action {
     pub fn traced(self) -> bool { matches!(self, Self::TraceOriginalA | Self::RestoreTraceA) }
+    pub fn identity(self) -> bool { matches!(self, Self::InstallIdentity | Self::EnterIdentity | Self::RestoreIdentity) }
+    pub fn key_regions(self) -> bool { self.identity() || self == Self::InspectReceiver }
 }
 
 pub struct Inputs {
@@ -35,11 +40,17 @@ pub struct Inputs {
 }
 impl Inputs {
     pub fn verify(&self, action: Action) -> Result<()> {
-        require(self.receiver.len() == RX.len() && self.boot.len() == BOOT.len(), "Wrong boot/receiver span")?;
+        let span = if action.identity() { IDENTITY_RX } else { RX };
+        require(self.receiver.len() == span.len() && self.boot.len() == BOOT.len(), "Wrong boot/receiver span")?;
         require(self.journal.len() == PAGE && hash(&self.journal) ==
             "0cec98cc451a579cc237715a1c259637a633b07dc9b9ad44cba901a6a3914c52", "Journal input changed")?;
         let boot = hash(&self.boot);
         let receiver = hash(&self.receiver);
+        if action.identity() {
+            return require(boot == "a7452af386289216c3357d61e329cf83e709cd76c2866c2940a4dcfbecbb520c" &&
+                           receiver == "7f52f7482b5e4ae2fe81bf354ede5ad58c71c4a47fca8e94057071f29af755d4",
+                           "Unbound independent-address pair");
+        }
         let corrected = boot == "20e2b126a64945a883e440cb966d41f607efd00fd9875eb35b9f4f533436004f" &&
                        receiver == "6c5865b8b114b9eae51dec7239760918f57fe097d5889a39906b63c082815603";
         let historical = matches!(action, Action::Restore | Action::RestoreWithB | Action::VerifyOriginal) &&
@@ -100,6 +111,8 @@ pub fn writable(action: Action, role: &str, offset: usize, n: usize) -> bool {
             ("certificate", 0x86c000, 4096) | ("journal", 0xda0000, 4096));
     }
     let range = match (action, role) {
+        (Action::InstallIdentity | Action::RestoreIdentity, "boot") => BOOT,
+        (Action::InstallIdentity | Action::RestoreIdentity, "receiver") => IDENTITY_RX,
         (Action::Install | Action::Restore | Action::RestoreWithB, "boot") => BOOT,
         (Action::Install | Action::Restore | Action::RestoreWithB, "receiver") => RX,
         (Action::Install, "journal") => META.start..META.start+PAGE,
@@ -128,33 +141,64 @@ fn replace(io: &mut impl Nor, action: Action, expected: &mut [u8], role: &str,
     Ok(())
 }
 
+fn key_transaction(io: &mut impl Nor, action: Action, images: &Inputs, installed: &[u8]) -> Result<()> {
+    require(hash(installed) == INSTALLED_SHA, "Wrong provisioned-board reference")?;
+    same_board(installed)?;
+    let rx = if action.identity() { IDENTITY_RX } else { RX };
+    let mut snapshot = installed.to_vec();
+    if action == Action::EnterIdentity {
+        snapshot[BOOT].copy_from_slice(&images.boot);
+        snapshot[rx.clone()].copy_from_slice(&images.receiver);
+    }
+    let ranges = [0..CHUNK, BOOT, A.start..A.start+PAGE, rx.clone(), META.start..META.start+PAGE,
+                  META.start+8192..META.start+8192+PAGE];
+    let mut bytes = 0;
+    for range in ranges {
+        // Recovery can follow an interrupted program in either of these two extents.
+        let recoverable = action == Action::RestoreIdentity && (range == BOOT || range == rx);
+        for off in (range.start..range.end).step_by(CHUNK) {
+            let end = (off + CHUNK).min(range.end);
+            let live = io.read(&format!("key-{off:08x}"), off, end-off)?;
+            require(live.len() == end-off && (recoverable || live == snapshot[off..end]),
+                    "Critical installed range differs; stop before mutation or reset")?;
+            snapshot[off..end].copy_from_slice(&live);
+            bytes += live.len();
+        }
+    }
+    if matches!(action, Action::InspectReceiver | Action::EnterIdentity) {
+        return io.checkpoint(json!({"entry_ranges_verified":true,"read_bytes":bytes,"flash_writes":0}));
+    }
+    io.checkpoint(json!({"identity_keys_archived":true,"read_bytes":bytes}))?;
+    if action == Action::RestoreIdentity {
+        replace(io, action, &mut snapshot, "boot", BOOT.start, &installed[BOOT])?;
+        replace(io, action, &mut snapshot, "receiver", rx.start, &installed[rx.clone()])?;
+    } else {
+        require(action == Action::InstallIdentity, "Unexpected receiver programming action")?;
+        replace(io, action, &mut snapshot, "receiver", rx.start, &images.receiver)?;
+        replace(io, action, &mut snapshot, "boot", BOOT.start, &images.boot)?;
+    }
+    for range in [BOOT, rx] {
+        for off in (range.start..range.end).step_by(CHUNK) {
+            let end = (off+CHUNK).min(range.end);
+            require(io.read(&format!("pair-{off:08x}"), off, end-off)? == snapshot[off..end],
+                    "Programmed boot/receiver pair differs; suppress reset")?;
+        }
+    }
+    io.checkpoint(json!({"identity_pair_verified":true,"restored":action==Action::RestoreIdentity}))
+}
+
 pub fn run(io: &mut impl Nor, action: Action, images: &Inputs, rescue: Option<&[u8]>) -> Result<()> {
     require(!action.traced(), "Use the bounded original-A transaction")?;
     images.verify(action)?;
-    if action == Action::InspectReceiver {
-        let installed = rescue.ok_or("The verified first-install readback is required")?;
-        require(hash(installed) == "d862c6aab38f33490519c70be2583fc56cc5d2bc9c465543efe6aa41ab8d2258",
-                "Wrong provisioned-board reference")?;
-        same_board(installed)?;
-        permit_entry(installed, images)?;
-        let ranges = [0..CHUNK, BOOT, A.start..A.start+PAGE, RX, META.start..META.start+PAGE,
-                      META.start+8192..META.start+8192+PAGE];
-        let mut read_bytes = 0;
-        for range in ranges {
-            for (i, part) in installed[range.clone()].chunks(CHUNK).enumerate() {
-                let off = range.start + i * CHUNK;
-                let live = io.read(&format!("key-{off:08x}"), off, part.len())?;
-                require(live == part, "Critical installed range differs; suppress receiver request")?;
-                read_bytes += live.len();
-            }
-        }
-        return io.checkpoint(json!({"entry_ranges_verified":true,"read_bytes":read_bytes,"flash_writes":0}));
+    if action.key_regions() {
+        return key_transaction(io, action, images, rescue.ok_or("Missing installed reference")?);
     }
     let mut expected = io.read("before", 0, SIZE)?;
     same_board(&expected)?;
     let before_hash = hash(&expected);
     match action {
-        Action::TraceOriginalA | Action::RestoreTraceA | Action::InspectReceiver => return Err("Unexpected storage action".into()),
+        Action::TraceOriginalA | Action::RestoreTraceA | Action::InspectReceiver |
+        Action::InstallIdentity | Action::EnterIdentity | Action::RestoreIdentity => return Err("Unexpected storage action".into()),
         Action::Install | Action::VerifyOriginal => {
             original(&expected)?;
             io.preserve_b(&expected[B])?;

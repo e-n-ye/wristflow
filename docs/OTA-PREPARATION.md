@@ -1095,3 +1095,5 @@ boot、接收器校验 Android 包和安装后回读共用修正的 HASH 适配�
 接收器读取 SF32LB52 的 16 字节芯片 UID，将固定的随机命名空间和 UID 交给已有片上 SHA-256，生成同板可重复的升级地址。静态随机地址最高两位为 11，剩余 46 位排除全零、全一。命名空间是公开的固件兼容参数。SDK 在首次广播前读取 RAM 后端的 `SIF_APP` 地址标签（0x91）。工作线程核对 GAP 回报的地址字节和类型，并检查地址与公开地址不同，成功后才启动 Serial 服务和广播。升级名仍是 `WristFlow OTA`。此配置仅在接收器镜像内运行。[地址格式](https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-61/out/en/low-energy-controller/link-layer-specification.html) · [构建及回放](evidence/2026-11-19/ota-receiver-identity.json)
 
 锁定 SDK 的接收器、绑定其摘要的普通 RAM boot 及原只读 probe 均构建成功。新接收器 360,572 字节，按扇区补齐为 364,544 字节，相比首装多覆盖 NOR 偏移 `0x878000` 处一页。原 A 的独立登记记录摘要不变，新址 `0x1286c72c`。主机在新组合的模拟 NOR 上验签并选择原 A，恢复两处后与原始快照逐字节相同。首次广播地址、跨接收器启动的稳定性、Android 服务发现和首包拒绝需要真机核实。
+
+切换工具绑定旧组合的完整参考读回及新组合的两个摘要。它把接收器额外一页也纳入前态，11 段共 503,808 字节通过后才允许写。接收器六块、boot 一块各自立即读回，启动前再核两处完整内容。恢复动作独立核之前窗口的原字节和写入意图，先还原旧 boot，再还原旧接收器及扩展页。主机以含新用户记录的 NOR 演练了正常切换、恢复、部分擦写和受保护区变化。模拟恢复得到整片原 SHA-256。[工具和演练](evidence/2026-11-19/ota-identity-window.json)

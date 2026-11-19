@@ -141,6 +141,54 @@ class FirstInstall(unittest.TestCase):
             self.assertNotIn(b"entry_ranges_verified", (denied/"media-events.jsonl").read_bytes())
             nor[start+n-1] ^= 1
 
+    def test_installed_identity_switch_reentry_and_torn_pair_recovery(self):
+        from ota_first_window import discovery_reference
+        from ota_identity_window import BOOT, RECEIVER, KEYS, blocks, review_pair
+        reference, _ = discovery_reference()
+        bundle = self.directory/"identity-bundle"
+        prepare(bundle, self.old, self.old.with_name("nor-second.bin"), identity_pair=True)
+        old = bytearray(reference.read_bytes())
+        old[0xda8123] ^= 23
+        fixture = self.directory/"identity-fixture.bin"
+        fixture.write_bytes(old)
+        destination = bytearray(old)
+        for role, (off,n) in [("receiver",RECEIVER),("boot",BOOT)]:
+            destination[off:off+n] = (bundle/(role+".bin")).read_bytes()
+        out = self.invoke("switch-identity","install-identity",fixture,True,reference,bundle)
+        self.assertEqual((out/"simulated-nor.bin").read_bytes(),destination)
+        self.assertFalse((out/"before.bin").exists())
+        changes = [e for e in map(json.loads,(out/"media-events.jsonl").read_bytes().splitlines()) if "intent" in e]
+        self.assertEqual([e["intent"] for e in changes], ["receiver"]*6+["boot"])
+        # Wire audit checks the unbroken command stream including every payload.
+        command = lambda off,n: f"burn_read 0x{0x12000000+off:08x} 0x{n:08x}\r".encode()
+        tx = bytearray(b"burn_speed 500000 10\r\r\n")
+        for start,n in KEYS:
+            for off,size in blocks(start,n): tx.extend(command(off,size))
+        for event in changes:
+            off,n=event["offset"],event["bytes"]
+            tx.extend(f"burn_erase_write 0x{0x12000000+off:08x} 0x{n:08x}\r".encode())
+            tx.extend(destination[off:off+n])
+            tx.extend(command(off,n))
+        for start,n in (BOOT,RECEIVER):
+            for off,size in blocks(start,n): tx.extend(command(off,size))
+        tx.extend(b"burn_speed 1000000 10\r")
+        (out/"tx.bin").write_bytes(tx)
+        reads,writes = review_pair(out,"install-identity",bundle,reference.read_bytes())
+        self.assertEqual((len(reads),len(writes)),(25,7))
+        self.assertTrue(all((out/(name+".bin")).read_bytes()==part for name,_,part in reads))
+        fixture.write_bytes(destination)
+        self.invoke("checked-identity","enter-identity",fixture,True,reference,bundle)
+        self.invoke("duplicate-identity-install","install-identity",fixture,False,reference,bundle)
+        destination[0x10010:0x10080] = b"\xff"*112
+        destination[0x878000:0x878020] = b"\x12"*32
+        fixture.write_bytes(destination)
+        restored = self.invoke("recover-identity","restore-identity",fixture,True,reference,bundle)
+        self.assertEqual((restored/"simulated-nor.bin").read_bytes(),old)
+        old[0x878123] ^= 1
+        fixture.write_bytes(old)
+        refused = self.invoke("nonempty-extra-page","install-identity",fixture,False,reference,bundle)
+        self.assertNotIn(b'"intent"', (refused/"media-events.jsonl").read_bytes())
+
     def test_read_only_archives_original_without_programming(self):
         out=self.invoke("qualify","verify-original",self.old)
         before=self.old.read_bytes()

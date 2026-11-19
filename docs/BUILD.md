@@ -22,6 +22,8 @@
 
 排查手机服务发现错误 102 时，用同一控制台的 `--action inspect-receiver`。离线演练沿用 `--build`、`--bundle`、`--nor-fixture`、应用前后态样本和新输出目录。该模式依据正式首装时封存的读回、整片救援备份及独立 B 备份，在原 COM5 上只核对 11 段、共 499,712 字节。现场单独授权后，使用安装了 pyserial 及 Bleak 3.0.2 的 Windows Python。板端报告广播成功后，控制台调用 `ota_receiver_scan.py --gatt-from <首装空中记录> --seconds 6 --out <新 JSONL>`。同时匹配封存地址、本次扫描的完整名称和服务 UUID 后，Windows 做一次未缓存的 GATT 枚举。结果保存服务、特征、属性和描述符，设备端继续空闲返回。手机在该窗保持断开。[关键区与对时实测](OTA-PREPARATION.md#gatt-discovery-20261119)
 
+从已装组合切换到独立地址版本，用 `ota_first_install.py prepare --identity-pair` 准备配对镜像，其余准备参数沿用首装。控制台 `ota_first_window.py simulate --action install-identity --authorize simulation` 使用该包、同版主机、现有 NOR 与应用快照及已发手机的 `--phone-zip`。它先核 11 段关键区，再按接收器、boot 顺序写入，分块立即读回并重读整对。恢复演练使用 `--action restore-identity --prior <切换窗口>`，由旧 boot、旧接收器及同窗扩展页重建原组合。已换好后的只读入口为 `--action enter-identity`。三个动作仅接受各自的镜像、前态和授权范围。[候选镜像与地址契约](OTA-PREPARATION.md#receiver-identity-20261119)
+
 ## 2026-11-18 发布签名和只读 loader
 
 首次授权建钥使用 `pwsh -File scripts/Ota-ReleaseKey.ps1 -Mode Provision`；有公钥而本机缺对应私钥时会拒绝重新生成。日常发布运行项目 Python 的 `scripts/ota_release.py --build-result <普通 Product 的 result.json> --release <正整数> --out-dir <新目录>`，生成可供 Android 选取的 `offline_install.bin`。私钥由 Windows CNG 签名接口使用，打包采用锁定 SDK 的 `imgtoolv37.exe`。

@@ -1,0 +1,18 @@
+{
+  "base": "fdf2e938e65eef25f9437faebe920d3710582044",
+  "firmware": "docs/evidence/2026-11-19/ota-receiver-identity.json",
+  "host_build": "artifacts/ota-identity-window-host-20261119-001/result.json",
+  "host_manifest_sha256": "bfcdf2c93cdfb370f8f514954300c5a07d33e219f7945eecd54338a97cfc9c6f",
+  "host_executable_sha256": "d0ad0b9e341ec2803380dc782bebd0dba1509e5cac5fd26c15147943369e1f58",
+  "bundle": "artifacts/ota-identity-window-bundle-20261119/bundle.json",
+  "bundle_manifest_sha256": "2b30523eee98e0ebef38f63531d7b3ee7af08352cf1b9b612d3abb372df089b6",
+  "fixed_reference": "First board's verified post-provisioning 16 MiB; exact live critical readback precedes programming",
+  "reference_sha256": "d862c6aab38f33490519c70be2583fc56cc5d2bc9c465543efe6aa41ab8d2258",
+  "read_first": {"extents":11,"bytes":503808,"roles":["FTAB","boot","original A first page","receiver including extension","first page of each journal copy"]},
+  "change_order":[{"role":"receiver","offset":"0x00820000","bytes":364544,"blocks":6},{"role":"boot","offset":"0x00010000","bytes":61440,"blocks":1}],
+  "recovery_order":["previously provisioned boot","previously provisioned receiver including erased extension page"],
+  "simulated_install": "artifacts/ota-identity-window-sim-20261119-001",
+  "simulated_restore": "artifacts/ota-identity-restore-sim-20261119-001",
+  "simulated_complete_restore_sha256": "e79fd123440e102be2c667789a2b194db786ff8f99dc32d06c5ff6201597d8d7",
+  "host_validation":"10 Rust tests, Release, 6 bound media model tests, 3 phone observation tests and 2 BLE observer tests passed. Simulated complete NOR retained user data and stable A. Torn boot and extension restored, mismatched initial extension refused before write."
+}
