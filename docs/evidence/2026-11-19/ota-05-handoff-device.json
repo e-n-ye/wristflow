@@ -1,0 +1,31 @@
+{
+  "diagnostic_build": "ota-05-handoff.json",
+  "window_contract": "ota-05-handoff-window.json",
+  "capture": "artifacts/ota-05-handoff-device-001",
+  "pretrial_nor_sha256": "acad8c5aee3d81f1f9defed9923274a7b6982e12b688cf834313a27420f521ac",
+  "operator_file": "05-rollback-2026111801.bin",
+  "entry": {"wire_verified":true,"verified_reads":257,"writes":1,"written_bytes":61440,"supply_mV":4167},
+  "transfer": {"accepted_blocks":1480,"end_result":0,"signed_release_committed":2026111801},
+  "uart": {"bytes":6629,"whole_sha256":"dfe1ae7337d5427c726751bd86de19f6b23cd40f311d99f432328b0ea9651c1e","after_commit_sha256":"3ca0ef672585a9982c107bce2b379a21328177505999bfb5db47a43cc2cb3d46","matched_physical_rx_suffix":true,"host_intervened_between_boots":false},
+  "receiver_control": {"path":"PEFNJRHOMmT","target_vector":"0x12820000","dmac1_enabled_mask":0,"dmac2_enabled_mask":0,"mapped_reset":"0x128290a9","receiver_advertised":true},
+  "trial": {"path":"PEFNJGpSSVWO!","loaded_generation":2,"loaded_phase":"READY","target":"B","rtc_trial_word":"0xa190075a","error_seconds_after_commit":5.326},
+  "rollback": {"path":"PEFNJGpSSVO!","loaded_generation":3,"loaded_phase":"TRIED","target":"A","incoming_rtc_word":"0xa190075a","error_seconds_after_commit":63.705},
+  "both_product_attempts": {"owner_frame":"O","alias":[0,0,0],"lcpu_pmr":4,"extdma_ccr":985792,"dmac1_enabled_mask":2,"dmac2_enabled_mask":0,"next_frame":"!","error":"0x41","mapping_entered":false,"product_started":false},
+  "fault_media": {"path":"artifacts/ota-05-handoff-restore-device-001/media/before.bin","sha256":"0c43557edb97930115a0514498d81a8e822e8887f956cd467b98f54ac9c33db0","b_sha256":"e2d5bfe2b0d8d17b9f3b58949899a133c9e58925652d8e0a756e3a518899ce90","expected_journal_match":true,"changed_user_pages":[]},
+  "restoration": {
+    "capture":"artifacts/ota-05-handoff-restore-device-001","verified_reads":563,"writes":51,"read_retries":0,
+    "wire_review_sha256":"89442b1a4219165df361ae16f287d7f4664135a13db024de00c591d56b44448c",
+    "full_nor_equals_pretrial":true,"full_sha256":"acad8c5aee3d81f1f9defed9923274a7b6982e12b688cf834313a27420f521ac",
+    "startup_sha256":"9bdc6974a8aa424f19541be54c6b002e00af36c3df081bd5c93c4532bd9d99b4",
+    "after_snapshot_sha256":"aa7028055ee5e8cceee05e16c8937add1a1c804a32310c755d86fcef4c58f047",
+    "boot":[53,54],"save_generation":[235,236],"saved_ms":[1609611328,1609612418],"saved_scenes_nondecreasing":true,"save_failures":[0,0],
+    "pretrial_unsaved_tail_archived_ms":1643810,"rtc_valid_before":false,"rtc_valid_after":false,
+    "operator_final":"常亮已关，显示、触摸和 KEY1 正常"
+  },
+  "next_measurement": {
+    "scope": "Reuse the verified full capture as a baseline. Rehearse readback and recovery of the ordinary boot, both journal units, B body erase pages 0x420000..0x704000 and tail 0x81f000..0x820000.",
+    "paired_samples": "Latch DMA1 CCR2.EN and CNDTR2.NDT, MPI2 CR.DMAE and SR.BUSY immediately before and after the same boot journal program call. Keep the request selector and program result alongside the samples. Buffer the readings before emitting UART frames so printing does not separate the call from the second observation.",
+    "register_contract": "Locked SF32LB52x dmac.h defines CNDTR2.NDT in bits 15:0; mpi.h defines CR.DMAE at bit 5 and SR.BUSY at bit 31."
+  },
+  "interpretation": "The diagnostic boot selected B, then A. Both launches took boot_error('A') before the before-mapping M frame. At both ownership samples DMA1 channel 2 was enabled. The locked butterflmicro boot_flash.h assigns FLASH2_DMA_INSTANCE to DMA1_Channel2. These frames do not report the remaining DMA count or prove a transfer was still in flight. Mapping, the Product reset handler, the user interface and autonomous return were not reached on either attempt."
+}

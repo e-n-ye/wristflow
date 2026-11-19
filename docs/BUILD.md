@@ -38,6 +38,8 @@
 
 诊断 05 提交后黑屏时，使用 `scripts/Build-Ota-Boot.ps1 -TraceHandoff -ReceiverResult <在机接收器的result.json> -EvidenceDir <新目录>`。用 `python scripts/ota_probe_package.py parse-startup --manifest <新目录>/elf-check.json --uart <原始串口捕获> --output <解码.json>` 读取第 4 版阶段帧。每次启动按顺序看 G（记录代）、p（状态）、V（目标），若为试启动还会出现 W。O 帧在所有权检查前，M 在应用映射前，m 带映射后的实际复位向量，T 表示两个向量均已核对。四帧均附三只映射寄存器、LCPU PMR、EXTDMA CCR 和两个 DMA 控制器的启用通道掩码。T 由 boot 发出；判断 Product 已执行还需要后续 Product 证据。
 
+该诊断窗口复用 `ota_first_window.py`。先用 `simulate --action trace-trial-b`，给出已装独立地址组合、手机 ZIP、`--trace-boot` 冻结 BIN 和 `--startup-fixture` 模拟串口。控制台在全片和原 B 归档后写入并核回诊断 boot，保存 05 提交后的帧。恢复用 `simulate --action restore-handoff-b --prior <同次诊断窗口>`，保留故障现场的用户区，先核回稳定 A 记录，再恢复另一份记录、原 B 的正文页和槽尾，最后恢复普通 boot 并核对整片。两段各用新输出目录。实机模式没有模拟串口参数，写表和恢复需要现场授权。[构建与演练证据](evidence/2026-11-19/ota-05-handoff-window.json)
+
 05 的两段观察共用 `ota_first_window.py`、独立地址接收器镜像和手机 ZIP。先用 `simulate --action enter-trial-b --authorize simulation` 验证整片前态及独立原 B 备份。再用 `simulate --action inspect-trial-b --trial-window <第一段目录> --authorize simulation` 检查回滚后的整片样本。两段分别使用新的输出目录和对应的 NOR、应用 UART 样本。实机必须先在第一段持续监听中观察到 05 的安装提交、B 执行和原 A 自动返回，才能进入第二段。第二段只读检查两份日志、完整物理 B、其余固件区并启动稳定 A。[镜像标记及预期读回](evidence/2026-11-19/ota-05-observation.json)
 
 05 的有线救援由 `scripts/ota_first_window.py simulate --action restore-trial-b --authorize simulation` 演练。传入对应的主机构建、独立地址组合的 `--bundle`、首次正式安装的 `--prior`、待恢复的模拟 NOR、原程序返回快照样本和新输出目录。工具要求当前 boot、接收器、原 A 与受保护区段符合本机参考。先恢复并读回稳定 A 记录，再清另一份记录，最后恢复 B 正文所占擦除页和槽尾。启动原程序前比较整片。实机救援需要另行授权。[范围、备份和版本](evidence/2026-11-19/ota-05-rescue.json)

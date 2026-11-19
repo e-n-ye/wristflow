@@ -27,22 +27,30 @@ const BOOT_ORIGINAL_SHA: &str = "f59f948f987362f1270b1da541405e82bd887c1a16c3063
 #[derive(Clone, Copy, Deserialize, Serialize, Debug, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum Action { Install, VerifyOriginal, EnterReceiver, InspectReceiver, InstallIdentity, EnterIdentity, RestoreIdentity,
-                  Restore, RestoreWithB, RestoreTrialB, EnterTrialB, InspectTrialB, TraceOriginalA, RestoreTraceA }
+                  Restore, RestoreWithB, RestoreTrialB, EnterTrialB, InspectTrialB, TraceTrialB, RestoreHandoffB,
+                  TraceOriginalA, RestoreTraceA }
 impl Action {
     pub fn traced(self) -> bool { matches!(self, Self::TraceOriginalA | Self::RestoreTraceA) }
     pub fn identity(self) -> bool { matches!(self, Self::InstallIdentity | Self::EnterIdentity | Self::RestoreIdentity) }
     pub fn key_regions(self) -> bool { self.identity() || self == Self::InspectReceiver }
     pub fn trial_read(self) -> bool { matches!(self, Self::EnterTrialB | Self::InspectTrialB) }
+    pub fn handoff(self) -> bool { matches!(self, Self::TraceTrialB | Self::RestoreHandoffB) }
 }
 
 pub struct Inputs {
     pub receiver: Vec<u8>,
     pub journal: Vec<u8>,
     pub boot: Vec<u8>,
+    pub trace_boot: Option<Vec<u8>>,
 }
 impl Inputs {
     pub fn verify(&self, action: Action) -> Result<()> {
-        let identity_images = action.identity() || action.trial_read() || action == Action::RestoreTrialB;
+        require((action == Action::TraceTrialB) == self.trace_boot.is_some(), "Unexpected or missing trace image")?;
+        if let Some(bytes) = &self.trace_boot {
+            require(bytes.len() == BOOT.len() && hash(bytes) ==
+                "340d5aab6097e892216b0129a7d377cd3ffb748ba5bdc736f175e9c7cdfd8ed8", "Wrong padded handoff boot")?;
+        }
+        let identity_images = action.identity() || action.trial_read() || action.handoff() || action == Action::RestoreTrialB;
         let span = if identity_images { IDENTITY_RX } else { RX };
         require(self.receiver.len() == span.len() && self.boot.len() == BOOT.len(), "Wrong boot/receiver span")?;
         require(self.journal.len() == PAGE && hash(&self.journal) ==
@@ -114,17 +122,17 @@ pub fn writable(action: Action, role: &str, offset: usize, n: usize) -> bool {
             ("certificate", 0x86c000, 4096) | ("journal", 0xda0000, 4096));
     }
     let range = match (action, role) {
-        (Action::InstallIdentity | Action::RestoreIdentity, "boot") => BOOT,
+        (Action::InstallIdentity | Action::RestoreIdentity | Action::TraceTrialB | Action::RestoreHandoffB, "boot") => BOOT,
         (Action::InstallIdentity | Action::RestoreIdentity, "receiver") => IDENTITY_RX,
         (Action::Install | Action::Restore | Action::RestoreWithB, "boot") => BOOT,
         (Action::Install | Action::Restore | Action::RestoreWithB, "receiver") => RX,
         (Action::Install, "journal") => META.start..META.start+PAGE,
         (Action::Restore | Action::RestoreWithB, "journal") => META,
         (Action::RestoreWithB, "b-body") => B.start..B_BODY_END,
-        (Action::RestoreTrialB, "b-body") => B.start..ROLLBACK_BODY_END,
-        (Action::RestoreTrialB, "stable-a") => META.start..META.start+8192,
-        (Action::RestoreTrialB, "other-record") => META.start+8192..META.end,
-        (Action::RestoreWithB | Action::RestoreTrialB, "b-tail") => B_TAIL..B.end,
+        (Action::RestoreTrialB | Action::RestoreHandoffB, "b-body") => B.start..ROLLBACK_BODY_END,
+        (Action::RestoreTrialB | Action::RestoreHandoffB, "stable-a") => META.start..META.start+8192,
+        (Action::RestoreTrialB | Action::RestoreHandoffB, "other-record") => META.start+8192..META.end,
+        (Action::RestoreWithB | Action::RestoreTrialB | Action::RestoreHandoffB, "b-tail") => B_TAIL..B.end,
         _ => return false,
     };
     offset % PAGE == 0 && n > 0 && n <= CHUNK && n % PAGE == 0 &&
@@ -220,7 +228,7 @@ pub fn run(io: &mut impl Nor, action: Action, images: &Inputs, rescue: Option<&[
             permit_entry(&expected, images)?;
             return io.checkpoint(json!({"stable_a_verified":true,"before_sha256":before_hash,"flash_writes":0}));
         }
-        Action::EnterTrialB | Action::InspectTrialB => {
+        Action::EnterTrialB | Action::InspectTrialB | Action::TraceTrialB => {
             let source = rescue.ok_or("Missing provisioned board reference")?;
             require(hash(source) == INSTALLED_SHA, "Wrong 05 reference")?;
             let mut baseline = source.to_vec();
@@ -229,10 +237,16 @@ pub fn run(io: &mut impl Nor, action: Action, images: &Inputs, rescue: Option<&[
             require(expected[..B.start] == baseline[..B.start] &&
                     expected[B.end..0x9a0000] == baseline[B.end..0x9a0000] &&
                     expected[0xdac000..] == baseline[0xdac000..], "Protected 05 firmware region differs")?;
-            if action == Action::EnterTrialB {
+            if action != Action::InspectTrialB {
                 require(expected[B] == baseline[B] && expected[META] == baseline[META],
                         "05 requires the original B and first stable A record")?;
                 io.preserve_b(&expected[B])?;
+                if let Some(boot) = &images.trace_boot {
+                    io.checkpoint(json!({"pretrace_archived":true,"before_sha256":before_hash,"b_sha256":hash(&expected[B])}))?;
+                    replace(io, action, &mut expected, "boot", BOOT.start, boot)?;
+                    return io.checkpoint(json!({"trace_boot_verified":true,"before_sha256":before_hash,
+                                                "b_sha256":hash(&expected[B]),"boot_sha256":hash(boot)}));
+                }
             } else {
                 require(hash(&expected[META]) == "4c9eb1c6e30e14f9b24ae5959641342cb3b44469170c51bc294b2f8585031c73",
                         "05 journal does not prove the return to stable A")?;
@@ -241,10 +255,22 @@ pub fn run(io: &mut impl Nor, action: Action, images: &Inputs, rescue: Option<&[
             return io.checkpoint(json!({"trial_read_complete":true,"before_sha256":before_hash,
                                         "b_sha256":hash(&expected[B]),"flash_writes":0}));
         }
-        Action::RestoreTrialB => {
+        Action::RestoreTrialB | Action::RestoreHandoffB => {
             let source = rescue.ok_or("Missing original installation backup")?;
-            original(source)?;
-            require(expected[BOOT] == images.boot && expected[IDENTITY_RX] == images.receiver &&
+            if action == Action::RestoreHandoffB {
+                same_board(source)?;
+                require(hash(&source[B]) == B_SHA && source[BOOT] == images.boot && source[IDENTITY_RX] == images.receiver &&
+                    source[META.start..META.start+PAGE] == images.journal && source[META.start+PAGE..META.end].iter().all(|&b| b==255),
+                    "Wrong pre-trace board snapshot")?;
+                for range in [0..BOOT.start, BOOT.end..B.start, ROLLBACK_BODY_END..B_TAIL,
+                              B.end..0x9a0000, 0xdac000..SIZE] {
+                    require(expected[range.clone()] == source[range], "Protected trace firmware changed")?;
+                }
+            } else {
+                original(source)?;
+                require(expected[BOOT] == images.boot, "Trial rescue expects the ordinary boot")?;
+            }
+            require(expected[IDENTITY_RX] == images.receiver &&
                     expected[BOOT.end..A.start] == source[BOOT.end..A.start] &&
                     expected[IDENTITY_RX.end..0x880000] == source[IDENTITY_RX.end..0x880000] &&
                     expected[ROLLBACK_BODY_END..B_TAIL] == source[ROLLBACK_BODY_END..B_TAIL],
@@ -256,6 +282,9 @@ pub fn run(io: &mut impl Nor, action: Action, images: &Inputs, rescue: Option<&[
             replace(io, action, &mut expected, "other-record", META.start+8192, &source[META.start+8192..META.end])?;
             replace(io, action, &mut expected, "b-body", B.start, &source[B.start..ROLLBACK_BODY_END])?;
             replace(io, action, &mut expected, "b-tail", B_TAIL, &source[B_TAIL..B.end])?;
+            if action == Action::RestoreHandoffB {
+                replace(io, action, &mut expected, "boot", BOOT.start, &images.boot)?;
+            }
         }
         Action::Restore | Action::RestoreWithB => {
             let source = rescue.ok_or("A verified original installation snapshot is required")?;
@@ -279,7 +308,7 @@ pub fn run(io: &mut impl Nor, action: Action, images: &Inputs, rescue: Option<&[
     }
     let after = io.read("after", 0, SIZE)?;
     require(after == expected, "Full-chip readback differs from exact expected image; suppress reset")?;
-    if action == Action::RestoreTrialB {
+    if matches!(action, Action::RestoreTrialB | Action::RestoreHandoffB) {
         require(hash(&after[B]) == B_SHA && after[META.start..META.start+PAGE] == images.journal &&
                 after[META.start+PAGE..META.end].iter().all(|&b| b == 255), "Trial rescue readback incomplete")?;
     } else if action == Action::Install { permit_entry(&after, images)?; } else { original(&after)?; }

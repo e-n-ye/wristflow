@@ -1,6 +1,7 @@
 """Correlate the fixed 05 trial's UART boots with its physical B and journal readbacks."""
 import argparse
 import json
+import re
 from pathlib import Path
 import struct
 import zlib
@@ -9,6 +10,7 @@ from zipfile import ZipFile
 from ota_first_install import ROOT, read_json, require, sha
 from ota_identity_window import BOOT, RECEIVER
 from ota_phone_board import ADVERTISING, START, PRODUCT, PhoneObservation
+from ota_probe_package import MAGIC, parse_startup
 
 FILE = "05-rollback-2026111801.bin"
 PACKAGE_SHA = "e0dab39f912eec9d4a39f5182181a70b4825444e2707b2495c830b135581121d"
@@ -21,6 +23,75 @@ B_TOUCH = b"[I/TOUCH] Regist touch screen driver, probe=12027edd"
 COMMIT = b"[ota-ready] release=2026111801 bytes=3028888 trial committed"
 INSTALL = b"[ota-radio] complete signed file, starting local install"
 END_OK = b"[ota-radio] request=42 result=0 accepted=1480 sent=10"
+TRACE_SHA = "ba2bce4faa2b51455131b9f584e33542cdb08c7b22485c3a8f1e09d64a827424"
+TRACE_CHECK = dict(passed=True, startup_trace_tag=[1727834883,1910445575,324627080,2531195360],
+                   handoff_trace=4)
+
+
+def uart_lines(raw):
+    # The original Product wraps touch registration in terminal color escapes.
+    return [re.sub(rb"\x1b\[[0-9;]*m", b"", line).strip() for line in raw.split(b"\n")[:-1]]
+
+
+def handoff_binary(path):
+    data = path.read_bytes()
+    require(len(data) == 58264 and sha(data) == TRACE_SHA, "Wrong 05 diagnostic boot")
+    return data.ljust(61440,b"\xff")
+
+
+def handoff_report(raw):
+    """Decode only frames after the signed install commitment; retain partial captures."""
+    before, separator, after = raw.partition(COMMIT + b"\r\n")
+    if not separator:
+        return {"committed": False, "frames": []}
+    cursor = 0
+    for marker in (ADVERTISING, START, END_OK, INSTALL):
+        line = marker + b"\r\n"
+        pos = before.find(line,cursor)
+        require(pos >= cursor, "Missing or out-of-order 05 transfer receipt")
+        cursor = pos + len(line)
+    require(COMMIT not in after, "Ambiguous 05 commit")
+    result = parse_startup(after, TRACE_CHECK)
+    # Frames are binary and do not end with a newline. Remove only frames
+    # whose CRC, tag and phase were validated by parse_startup.
+    parts = []
+    cursor = 0
+    for _ in result["frames"]:
+        pos = after.index(struct.pack("<I",MAGIC),cursor)
+        parts.append(after[cursor:pos])
+        parts.append(b"\n")
+        cursor = pos + 80
+    if result["decode_error"] is None:
+        parts.append(after[cursor:])
+    text = b"".join(parts)
+    result.update(committed=True, automatic_sequence_observed=False, original_storage_seen=False)
+    lines = uart_lines(text)
+    boots = [i for i, line in enumerate(lines) if line == b"SFBL"]
+    last_boot = lines[boots[-1]+1:] if boots else []
+    if A_TOUCH in last_boot and B_TOUCH not in last_boot:
+        result["original_storage_seen"] = any(s.startswith(PRODUCT) for s in last_boot[last_boot.index(A_TOUCH)+1:])
+    try:
+        trial_boots(before + separator + text)
+        result["automatic_sequence_observed"] = result["decode_error"] is None
+    except ValueError:
+        pass
+    return result
+
+
+def pretrace_source(window, real, reference, bundle):
+    request = read_json(window/"media-request.json")
+    require(request["action"] == "trace-trial-b" and request["simulation"] == (not real),
+            "Recovery requires the matching diagnostic window")
+    media = window/"media"
+    path = media/"before.bin"
+    before = path.read_bytes()
+    verify_before(before,reference,bundle)
+    events = [json.loads(row) for row in (media/"media-events.jsonl").read_text().splitlines()]
+    archived = [e for e in events if e.get("pretrace_archived")]
+    require(len(archived)==1 and archived[0]["before_sha256"]==sha(before) and
+            (media/"original-b-4MiB.bin").read_bytes()==before[B_START:B_END] and
+            archived[0]["b_sha256"]==sha(before[B_START:B_END]), "Missing same-window archives")
+    return path
 
 
 def signed_file(archive):
@@ -33,7 +104,7 @@ def signed_file(archive):
 
 
 def trial_boots(raw):
-    lines = [s.strip() for s in raw.split(b"\n")[:-1] if s.strip()]
+    lines = uart_lines(raw)
     markers = [ADVERTISING, START, END_OK, INSTALL, COMMIT]
     position = 0
     for marker in markers:
@@ -50,9 +121,14 @@ def trial_boots(raw):
 
 def passive_boots(media):
     raw = (media/"startup-uart.bin").read_bytes()
+    verify_passive_wire(media, raw)
     result = trial_boots(raw)
+    return result
+
+
+def verify_passive_wire(media, raw):
     rx = (media/"rx.bin").read_bytes()
-    require(rx.endswith(raw), "Boot transcript differs from physical RX")
+    require(raw and rx.endswith(raw), "Boot transcript differs from physical RX")
     begin = len(rx) - len(raw)
     received = 0
     for line in (media/"wire-events.jsonl").read_bytes().splitlines():
@@ -64,13 +140,13 @@ def passive_boots(media):
             require(event["offset"] == received, "RX capture gap")
             received += event["bytes"]
     require(received == len(rx), "Incomplete RX events")
-    return result
 
 
 class TrialObservation(PhoneObservation):
-    def __init__(self, media, console, **options):
+    def __init__(self, media, console, *, handoff=False, **options):
         super().__init__(media,console,**options)
         self.last_reads = Path(media)/"before-00e80000.bin"
+        self.handoff = handoff
 
     def poll(self):
         state = super().poll()
@@ -80,7 +156,12 @@ class TrialObservation(PhoneObservation):
             self.invites_open = False
             self.console.stage("phone","waiting")
         try:
-            trial_boots(self.uart.read_bytes())
+            raw = self.uart.read_bytes()
+            if self.handoff:
+                if not handoff_report(raw).get("automatic_sequence_observed"):
+                    return
+            else:
+                trial_boots(raw)
         except ValueError:
             return
         self.uart.with_name("finish-listening").touch(exist_ok=True)
