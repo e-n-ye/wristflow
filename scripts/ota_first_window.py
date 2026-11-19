@@ -10,6 +10,7 @@ import time
 from types import SimpleNamespace
 import zlib
 import ota_rollback_evidence as rollback
+import ota_journal_window as dma
 
 from battery_console import Cancelled, Console
 from battery_device import port_identity
@@ -31,6 +32,8 @@ from ota_rom_transport import BoundedSerial
 from serial_lab import prepare_capture
 
 SCOPE = {"install": "first-install-receiver-journal-boot-and-enter",
+         dma.ENTRY: "trace-05-journal-dma-with-key-readback",
+         dma.RESTORE: "restore-05-journal-dma-key-regions",
          "enter-trial-b": "enter-for-android-05-trial-and-passive-return",
          "inspect-trial-b": "read-05-after-autonomous-return-and-start-stable-a",
          "restore-trial-b": "restore-05-b-and-stable-a-keep-installed-identity-pair",
@@ -116,7 +119,7 @@ def app_worker(cfg):
                                     build_archive=ROOT/f["archive"]["path"],recorded_root=ROOT)
         device=BoundedSerial("COM5",phase,journal,check,identity)
     return application(phase,device,journal,SimpleNamespace(cancelled=cancel),identity,cycle=True,
-                       before_close=inhibit if phase=="before" or cfg["action"]=="trace-trial-b" else None)
+                       before_close=inhibit if phase=="before" or cfg["action"] in ("trace-trial-b",dma.ENTRY) else None)
 
 
 def run_owned(argv, directory, console, cancel, seconds, *, observe=None):
@@ -172,6 +175,11 @@ def app_phase(root, phase, args, console, *, worker_seconds=95):
 
 def review_wire(directory, action, bundle, source, trace_boot=None):
     """Independently reconstruct the authorized writes, every read and final NOR."""
+    if action in (dma.ENTRY,dma.RESTORE):
+        reads,writes = dma.transfers(directory,action,source,trace_boot)
+        review = review_transfers(directory,reads,writes)
+        review_trial_commands((directory/"tx.bin").read_bytes(),reads,writes,review["read_retries"])
+        return review
     if action in ("enter-trial-b","inspect-trial-b","trace-trial-b"):
         before = (directory/"before.bin").read_bytes()
         require(len(before)==0x1000000, "Incomplete physical trial evidence")
@@ -380,12 +388,16 @@ def observe_gatt(root, console, report, air):
 
 def window(args):
     real=args.mode=="capture"
-    tracing = args.action == "trace-trial-b"
-    restoring_trace = args.action == "restore-handoff-b"
+    short = args.action in (dma.ENTRY,dma.RESTORE)
+    tracing = args.action in ("trace-trial-b",dma.ENTRY)
+    restoring_trace = args.action in ("restore-handoff-b",dma.RESTORE)
     trace_path = getattr(args,"trace_boot",None)
     require(tracing == bool(trace_path), "Only the 05 diagnostic entry takes a trace boot")
     if tracing:
-        rollback.handoff_binary(trace_path)
+        if short:
+            dma.diagnostic_boot(trace_path)
+        else:
+            rollback.handoff_binary(trace_path)
     startup_fixture = getattr(args,"startup_fixture",None)
     require(bool(startup_fixture) == (tracing and not real), "Diagnostic simulation needs its own startup UART replay")
     trial = args.action == "enter-trial-b" or tracing
@@ -447,11 +459,19 @@ def window(args):
             from importlib.metadata import version
             from bleak.backends.winrt.client import BleakClientWinRT
             require(version("bleak") == "3.0.2", "Use the reviewed Windows Bleak version")
-    elif restoring_trace:
+    elif restoring_trace and not short:
         installed, _ = discovery_reference()
         source = rollback.pretrace_source(args.prior.resolve(),real,installed.read_bytes(),args.bundle)
-    elif args.prior:
+    elif args.prior and not short:
         source = prior_source(args.prior.resolve(),real)
+    if short:
+        source = dma.baseline()
+        if restoring_trace:
+            entry_request = read_json(args.prior/"media-request.json")
+            require(entry_request["action"] == dma.ENTRY and entry_request["simulation"] == (not real)
+                    and entry_request["before_sha256"] == dma.BASELINE_SHA, "Wrong journal DMA entry window")
+            events = (args.prior/"media/media-events.jsonl").read_bytes().splitlines()
+            require(any(json.loads(e).get("journal_keys_archived") for e in events), "Entry key backup incomplete")
     build=read_json(args.build)
     require(build["kind"]=="original-board-first-install" and build["device_actions"] is False,"Wrong bridge build")
     inputs=[*build["sources"],build["executable"],build["sdk_lock"]]
@@ -502,7 +522,13 @@ def window(args):
             with owned_endpoint("COM5" if real else "SIMULATED-FIRST-INSTALL",report):
                 if real: port_identity("COM5","1-1.1")
                 console.stage("before","running")
-                if not args.action.startswith("restore"):
+                idle_product = False
+                if real and args.action == dma.RESTORE:
+                    entry_uart = args.prior/"media/startup-uart.bin"
+                    if entry_uart.is_file():
+                        session = phone_evidence(entry_uart.read_bytes())
+                        idle_product = session["product_return"] and not session["install_started"]
+                if not args.action.startswith("restore") or idle_product:
                     before=app_phase(root,"before",args,console)
                 else:
                     before=read_json(args.prior/"app-before/before-snapshot.json")
@@ -528,6 +554,8 @@ def window(args):
                     cfg.update(seconds=1750,listen_seconds=900 if real else 0)
                 if tracing:
                     cfg.update(trace_boot=str(trace_path.resolve()),listen_seconds=420 if real else 0)
+                if short:
+                    cfg["seconds"] = 800
                 path=root/"media-request.json";write_json(path,cfg)
                 job=root/"job-media";job.mkdir()
                 console.stage("media","running")
@@ -542,7 +570,8 @@ def window(args):
                             observation = PairedObservation(media,console,android_log=root/"android-dfu.log",
                                                             collector=collector,**options)
                         elif trial:
-                            observation = rollback.TrialObservation(media,console,handoff=tracing,**options)
+                            observation = rollback.TrialObservation(media,console,handoff=tracing,
+                                check=dma.CHECK if short else rollback.TRACE_CHECK,**options)
                         else:
                             observation = PhoneObservation(media,console,**options)
                         observe = observation.poll
@@ -562,6 +591,8 @@ def window(args):
                     fact = "trial_read_complete"
                 if tracing:
                     fact = "trace_boot_verified"
+                if args.action == dma.RESTORE:
+                    fact = "restored_keys_verified"
                 report["flash_verified"]=any(e.get(fact) for e in events)
                 report["reset_ack"]=any(e.get("soft_reset_ack") for e in events)
                 if real and report["flash_verified"]:
@@ -572,6 +603,11 @@ def window(args):
                     except Exception as exc:
                         report["wire_review_error"]=repr(exc)
                 report["worker_exit"]=code
+                if args.action == dma.RESTORE and report["flash_verified"]:
+                    try:
+                        report["key_ranges_match_previous_05"] = dma.fault_comparison(media)
+                    except (OSError,ValueError) as exc:
+                        report["fault_comparison_error"] = str(exc)
                 require(report["flash_verified"] and (report["reset_ack"] if real else code==0),
                         "Transport stopped. Keep exact media state and consult the independent recovery window.")
                 if real:
@@ -587,7 +623,7 @@ def window(args):
                     else:
                         log = startup_fixture.read_bytes()
                         journal.event("simulated_startup_replay",uart=file_record(startup_fixture))
-                    observed = rollback.handoff_report(log)
+                    observed = rollback.handoff_report(log,dma.CHECK if short else rollback.TRACE_CHECK)
                     report["handoff_trace"] = observed
                     received = observed["committed"] and confirmed_identity(log,original_address,expected_address)
                     require(received, "05 commitment or receiver identity missing; retain the pre-trace backup")
@@ -602,6 +638,9 @@ def window(args):
                             "File selection or physical wire readback unconfirmed")
                     require(observed["frames"] and not observed["decode_error"],
                             "No complete diagnostic capture; inspect raw UART and restore the pre-trace firmware")
+                    if short:
+                        require(dma.pair_generations(observed["frames"]) == [(2,0x12da0000),(3,0x12da2000)],
+                                "Missing journal write evidence for the two 05 boot generations")
                     report["passed"]=True
                     return report
                 if inspect:

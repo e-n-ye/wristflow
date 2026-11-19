@@ -36,6 +36,10 @@
 
 ## 2026-11-18 发布签名和只读 loader
 
+用 `scripts/Build-Ota-Boot.ps1 -TraceJournalDma -ReceiverResult <已装接收器的result.json> -EvidenceDir <新目录>` 构建第 5 版诊断 boot。串口 w、y 两帧分别保存同一次 128 字节启动记录写入前、返回后的 DMA1 CCR2、CNDTR2、CSELR1 以及 MPI2 CR、SR。w 的 detail 为物理地址，y 的 detail 为写入返回值。两次采样均在发送 w 之前完成。
+
+关键区演练用 `ota_first_window.py simulate --action trace-journal-dma` 指定第 5 版 BIN、模拟串口、手机 ZIP 和正常表盘前态；恢复用 `--action restore-journal-dma --prior <同次诊断目录>`。两段均复用上轮恢复后的 16 MiB 基线。实机串口日志、两份启动记录和逐块读回保存在各自窗口目录。恢复结果只涵盖实际读回的关键区。[范围与模拟证据](evidence/2026-11-19/ota-05-journal-dma.json)
+
 诊断 05 提交后黑屏时，使用 `scripts/Build-Ota-Boot.ps1 -TraceHandoff -ReceiverResult <在机接收器的result.json> -EvidenceDir <新目录>`。用 `python scripts/ota_probe_package.py parse-startup --manifest <新目录>/elf-check.json --uart <原始串口捕获> --output <解码.json>` 读取第 4 版阶段帧。每次启动按顺序看 G（记录代）、p（状态）、V（目标），若为试启动还会出现 W。O 帧在所有权检查前，M 在应用映射前，m 带映射后的实际复位向量，T 表示两个向量均已核对。四帧均附三只映射寄存器、LCPU PMR、EXTDMA CCR 和两个 DMA 控制器的启用通道掩码。T 由 boot 发出；判断 Product 已执行还需要后续 Product 证据。
 
 该诊断窗口复用 `ota_first_window.py`。先用 `simulate --action trace-trial-b`，给出已装独立地址组合、手机 ZIP、`--trace-boot` 冻结 BIN 和 `--startup-fixture` 模拟串口。控制台在全片和原 B 归档后写入并核回诊断 boot，保存 05 提交后的帧。恢复用 `simulate --action restore-handoff-b --prior <同次诊断窗口>`，保留故障现场的用户区，先核回稳定 A 记录，再恢复另一份记录、原 B 的正文页和槽尾，最后恢复普通 boot 并核对整片。两段各用新输出目录。实机模式没有模拟串口参数，写表和恢复需要现场授权。[构建与演练证据](evidence/2026-11-19/ota-05-handoff-window.json)

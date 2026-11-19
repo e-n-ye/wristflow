@@ -17,7 +17,7 @@ includes=[cwd,vendor_board]
 binding=ARGUMENTS.get('wf_probe_binding')
 receiver=ARGUMENTS.get('wf_receiver_result')
 trace = ARGUMENTS.get('wf_boot_trace')
-if trace and (trace not in ('1', 'hash-resume', 'handoff') or not receiver):
+if trace and (trace not in ('1', 'hash-resume', 'handoff', 'journal-dma') or not receiver):
     raise ValueError('Startup trace requires a receiver-bound boot')
 if binding and receiver:
     raise ValueError('Probe and production bindings are mutually exclusive')
@@ -64,7 +64,9 @@ if receiver:
         VariantDir(shared, os.path.join(root,'apps/ota_probe_support'),duplicate=0)
         sources += [File(os.path.join(shared,name)) for name in ('uart.c','ota_probe.c')]
         defines += ['WF_OTA_PROBE_UART_INIT']
-        defines.append('WF_OTA_HANDOFF_TRACE' if trace == 'handoff' else 'WF_OTA_BOOT_TRACE')
+        defines.append('WF_OTA_HANDOFF_TRACE' if trace in ('handoff', 'journal-dma') else 'WF_OTA_BOOT_TRACE')
+        if trace == 'journal-dma':
+            defines.append('WF_OTA_JOURNAL_DMA_TRACE')
         if trace == 'hash-resume':
             defines += ['WF_OTA_HASH_RESUME_PROBE', 'MBEDTLS_CONFIG_FILE=\\"hash_probe_mbedtls.h\\"']
 if binding:

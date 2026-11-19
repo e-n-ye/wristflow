@@ -27,6 +27,31 @@ def mutate(raw,index,value):
     data=struct.pack('<19I',*words[:19]);return data+struct.pack('<I',zlib.crc32(data))
 
 class ProbePackage(unittest.TestCase):
+    def test_journal_dma_pairs_preserve_raw_state_and_reject_missing_halves(self):
+        m = dict(passed=True,startup_trace_tag=TAG,handoff_trace=5)
+        def sample(point,detail,registers):
+            data = mutate(mutate(frame(1),6,ord(point)),7,detail)
+            for index,val in enumerate(registers,13):
+                data = mutate(data,index,val)
+            return data
+        before = sample('w',0x12da2000,(0,0,0,0,0x100))
+        for registers, status in [((1,0,0,0,0x100),128),((1,17,32,1<<31,0x100),0xffffffff)]:
+            after = sample('y',status,registers)
+            decoded = parse_startup(before+after,m)
+            self.assertIsNone(decoded['decode_error'])
+            record = decoded['frames'][1]
+            self.assertEqual(record['write_address'],0x12da2000)
+            self.assertEqual(record['write_result'],128 if status==128 else -1)
+            fields = record['journal_dma']
+            self.assertTrue(fields['enabled'])
+            self.assertEqual(fields['remaining'],registers[1])
+            self.assertEqual(fields['mpi_dma_enabled'],bool(registers[2]))
+            self.assertEqual(fields['mpi_busy'],bool(registers[3]))
+            self.assertEqual(fields['request'],1)
+            for incomplete in (before,after,before+before+after,before+after[:-1],
+                               mutate(before,7,0x12020000)+after):
+                self.assertTrue(parse_startup(incomplete,m)['decode_error'])
+
     def test_handoff_stages_keep_register_samples_separate_from_old_hash_words(self):
         manifest = {'passed': True, 'startup_trace_tag': TAG, 'handoff_trace': 4}
         def point(name, detail):
