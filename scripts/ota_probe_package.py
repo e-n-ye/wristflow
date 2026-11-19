@@ -186,6 +186,11 @@ def parse_startup(raw, manifest):
                        'e':'short-vector engine failure offset', 'U':'short-vector matches', 'I':'full A method',
                        'Z':'full A result word', 'f':'full A qualification failure offset', 'C':'qualified method',
                        'X':'CPU/peripheral discrepancy in signed verification'})
+    handoff = manifest.get('handoff_trace') == 4
+    if handoff:
+        stages.update({'G':'loaded journal generation', 'p':'loaded journal phase',
+                       'W':'before setting trial request and arming watchdog',
+                       'm':'reset vector read through applied mapping', 'v':'vector preparation rejected slot'})
     records=[]
     error=None
     try:
@@ -193,8 +198,12 @@ def parse_startup(raw, manifest):
             require(f[6] <= 127 and chr(f[6]) in stages, 'Unknown boot trace point')
             point=chr(f[6])
             require(f[1]&0xffff == (4 if point=='!' else 1), 'Boot trace kind differs from point')
-            records.append(dict(point=point,stage=stages[point],detail=f[7],pc=hex(f[8]),
-                                sp=hex(f[9]),vtor=hex(f[10]),ccr=hex(f[11]),primask=f[12]))
+            record = dict(point=point,stage=stages[point],detail=f[7],pc=hex(f[8]),
+                          sp=hex(f[9]),vtor=hex(f[10]),ccr=hex(f[11]),primask=f[12])
+            if handoff and point in ('O', 'M', 'm', 'T'):
+                record['handoff'] = dict(alias=list(f[13:16]), lcpu_pmr=f[16], extdma_ccr=f[17],
+                                         dmac1_enabled_mask=f[18] & 0xff, dmac2_enabled_mask=f[18] >> 8)
+            records.append(record)
     except ValueError as exc:
         error=str(exc)
     return dict(frames=records,decode_error=error,uart_sha256=hashlib.sha256(raw).hexdigest())

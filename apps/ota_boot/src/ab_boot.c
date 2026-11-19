@@ -124,6 +124,9 @@ static void launch(const wf_ota_boot_plan_t *plan)
     wf_boot_trace('M', plan->reset);
     if (!wf_ota_ram_apply(hwp_mpi2, &plan->alias)) boot_error('A');
     volatile const uint32_t *vectors = (volatile const uint32_t *)plan->vector;
+#ifdef WF_OTA_HANDOFF_TRACE
+    wf_boot_trace('m', vectors[1]);
+#endif
     if (vectors[0] != plan->stack || vectors[1] != plan->reset) boot_error('M');
     wf_boot_trace('T', plan->reset);
     wf_ota_ram_jump(plan);
@@ -183,6 +186,10 @@ void wf_ota_boot_select(void)
     unsigned unit;
     if (wf_ota_journal_load(&journal, &s, &unit) ||
         (s.phase == WF_OTA_AB_STABLE && word == WF_OTA_ENTER_RECEIVER)) receiver();
+#ifdef WF_OTA_HANDOFF_TRACE
+    wf_boot_trace('G', s.generation);
+    wf_boot_trace('p', s.phase);
+#endif
 #ifdef WF_OTA_HASH_RESUME_PROBE
     if (s.phase != WF_OTA_AB_STABLE || s.stable != WF_OTA_AB_SLOT_A || word ||
         !wf_boot_hash_qualify(&reader)) boot_error('Q');
@@ -207,6 +214,9 @@ void wf_ota_boot_select(void)
     wf_boot_trace('V', target);
     if (target == WF_OTA_AB_RECOVERY) receiver();
     if (trial) {
+#ifdef WF_OTA_HANDOFF_TRACE
+        wf_boot_trace('W', trial);
+#endif
         HAL_Set_backup(RTC_BAKCUP_OTA_FORCE_MODE, trial);
         /* A reset consumes the just-persisted TRIED record and selects stable. */
         if (HAL_Get_backup(RTC_BAKCUP_OTA_FORCE_MODE) != trial || !trial_watchdog()) NVIC_SystemReset();
