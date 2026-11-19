@@ -36,6 +36,8 @@
 
 ## 2026-11-18 发布签名和只读 loader
 
+05 的有线救援由 `scripts/ota_first_window.py simulate --action restore-trial-b --authorize simulation` 演练。传入对应的主机构建、独立地址组合的 `--bundle`、首次正式安装的 `--prior`、待恢复的模拟 NOR、原程序返回快照样本和新输出目录。工具要求当前 boot、接收器、原 A 与受保护区段符合本机参考。先恢复并读回稳定 A 记录，再清另一份记录，最后恢复 B 正文所占擦除页和槽尾。启动原程序前比较整片。实机救援需要另行授权。[范围、备份和版本](evidence/2026-11-19/ota-05-rescue.json)
+
 首次授权建钥使用 `pwsh -File scripts/Ota-ReleaseKey.ps1 -Mode Provision`；有公钥而本机缺对应私钥时会拒绝重新生成。日常发布运行项目 Python 的 `scripts/ota_release.py --build-result <普通 Product 的 result.json> --release <正整数> --out-dir <新目录>`，生成可供 Android 选取的 `offline_install.bin`。私钥由 Windows CNG 签名接口使用，打包采用锁定 SDK 的 `imgtoolv37.exe`。
 
 目标构建沿用 `pwsh -File scripts/Build-Ota-Loader.ps1`，核对签名验证符号及候选区域。主机 `ota_release` CTest 校验同一 loader 代码及 SDK RSA 实现，另可向该测试程序传入打包目录的 `packer/hcpu.bin` 验证实际签名正文。本轮未部署此 loader。[构建与包指纹](evidence/2026-11-18/ota-signed-release.json)

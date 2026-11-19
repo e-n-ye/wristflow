@@ -1,0 +1,26 @@
+{
+  "base": "9aeca0e5940ff359b52324c71d4484c9e356fd33",
+  "fixture": "05-rollback-2026111801.bin",
+  "fixture_sha256": "e0dab39f912eec9d4a39f5182181a70b4825444e2707b2495c830b135581121d",
+  "signed_reference": "../2026-11-18/ota-signed-release.json",
+  "verified_body_bytes": 3028888,
+  "verified_body_sha256": "5907909de105963a01cad8c62056cfcfc4c09d8fdfcad0d9c928a232b5ce90c9",
+  "original_backup": "ota-receiver-first-install.json",
+  "original_backup_sha256": "d5ab3c530a789f38ca9852a56e16a5d3c9d67a0d4803a570572662482449621b",
+  "original_b_sha256": "4205c2f63f4417b614d34edf9422e9f3adb3d9899cd5d9db379c7fce3ccda0a0",
+  "legacy_limits": "RestoreWithB expects the old receiver extension to match the erased factory region. RestoreIdentity expects the original installed journal. A staged trial can violate both preconditions.",
+  "action": "restore-trial-b",
+  "allowed_NOR_offsets_half_open_in_recovery_order": [
+    ["stable-a","0xda0000","0xda2000"],
+    ["other-record","0xda2000","0xda4000"],
+    ["b-body","0x420000","0x704000"],
+    ["b-tail","0x81f000","0x820000"]
+  ],
+  "host_build": "artifacts/ota-05-rescue-host-001/result.json",
+  "host_build_sha256": "1b9ff4e612d0dbe06c224499e5d6f420db0084661b85ab1c46fb3f4c93707d65",
+  "host_executable_sha256": "132630fc1b61dfdd00a31d7a2abc6e4b8f7729a1fe1cb22061aafd15a0129696",
+  "simulation": "artifacts/ota-05-rescue-sim-001",
+  "simulation_after_sha256": "38d693fb320f2170e24abead3777fe6733588a26113c8e789582efd2ff388b51",
+  "checks": "Compared the archived Android member with the signed release and replayed it through the host verifier. Eight Python first-install tests passed with the frozen bridge. Exercised actual 05 bytes and damaged journal, interrupted restoration, already-restored input, changed protected gap, receiver extension and boot. A sentinel in user data survived full 16 MiB comparison.",
+  "limits": "Host simulation only. It tests rescue after a failed trial. Device watchdog expiry, actual B execution, the autonomous return to A and subsequent application compatibility require separate physical evidence."
+}

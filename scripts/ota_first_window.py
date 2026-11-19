@@ -30,6 +30,7 @@ from ota_rom_transport import BoundedSerial
 from serial_lab import prepare_capture
 
 SCOPE = {"install": "first-install-receiver-journal-boot-and-enter",
+         "restore-trial-b": "restore-05-b-and-stable-a-keep-installed-identity-pair",
          "verify-original": "verify-original-nor-and-start-original",
          "enter-receiver": "enter-pinned-receiver-without-flash-write",
          "inspect-receiver": "read-installed-key-regions-enter-for-gatt-and-return",
@@ -189,7 +190,8 @@ def review_wire(directory, action, bundle, source):
     target=bytearray(before)
     spans=[]
     read_only = action in ("verify-original", "enter-receiver")
-    entries=[] if read_only else read_json(bundle/"bundle.json")["entries"]
+    trial_rescue = action == "restore-trial-b"
+    entries=[] if read_only or trial_rescue else read_json(bundle/"bundle.json")["entries"]
     for entry in entries:
         start, n, role = entry["offset"], entry["bytes"], entry["role"]
         if source is None:
@@ -205,6 +207,11 @@ def review_wire(directory, action, bundle, source):
         if action=="restore-with-b":
             spans.extend([("b-body",0x420000,source[0x420000:0x420000+3035136]),
                           ("b-tail",0x81f000,source[0x81f000:0x820000])])
+        if trial_rescue:
+            spans = [("stable-a",0xda0000,(bundle/"journal.bin").read_bytes() + source[0xda1000:0xda2000]),
+                     ("other-record",0xda2000,source[0xda2000:0xda4000]),
+                     ("b-body",0x420000,source[0x420000:0x704000]),
+                     ("b-tail",0x81f000,source[0x81f000:0x820000])]
     chunks=[]
     for role,start,payload in spans:
         for i in range(0,len(payload),65536):
@@ -221,7 +228,27 @@ def review_wire(directory, action, bundle, source):
         require(target==(directory/"after.bin").read_bytes(),"Unexpected whole-NOR result")
         expected.extend((f"{role}-{off:08x}",off,part) for role,off,part in chunks)
         expected.extend((f"after-{i:08x}",i,target[i:i+65536]) for i in range(0,len(target),65536))
-    return review_transfers(directory, expected, chunks)
+    review = review_transfers(directory, expected, chunks)
+    if trial_rescue:
+        review_trial_commands((directory/"tx.bin").read_bytes(), expected, chunks, review["read_retries"])
+    return review
+
+
+def review_trial_commands(tx, reads, writes, retries):
+    """Check the whole 500K command stream, including gaps between individual verified transfers."""
+    commands = bytearray(b"burn_speed 500000 10\r\r\n")
+    write_at_readback = {f"{role}-{off:08x}": (off, data) for role, off, data in writes}
+    for name, off, data in reads:
+        if name in write_at_readback:
+            dest, payload = write_at_readback[name]
+            commands.extend(f"burn_erase_write 0x{0x12000000+dest:08x} 0x{len(payload):08x}\r".encode())
+            commands.extend(payload)
+        read = f"burn_read 0x{0x12000000+off:08x} 0x{len(data):08x}\r".encode()
+        commands.extend(read)
+        if name in retries:
+            commands.extend(read)
+    commands.extend(b"burn_speed 1000000 10\r")
+    require(tx.count(commands) == 1, "Unexpected command or readback order during trial rescue")
 
 
 def review_transfers(directory, expected, chunks):
@@ -381,7 +408,7 @@ def window(args):
     exe=ROOT/build["executable"]["path"]
     bundle=args.bundle.resolve()
     pkg=read_json(bundle/"bundle.json")
-    scope = "original-cyclelog-identity-pair" if identity else "original-cyclelog-first-install"
+    scope = "original-cyclelog-identity-pair" if identity or args.action == "restore-trial-b" else "original-cyclelog-first-install"
     require(pkg["baseline_sha256"]==BASE_SHA and pkg["scope"]==scope,"Wrong installation bundle")
     verify_files(pkg["entries"])
     root=args.out.resolve()
