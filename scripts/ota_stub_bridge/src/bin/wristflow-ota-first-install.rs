@@ -59,11 +59,16 @@ impl Config {
         if self.action.traced() {
             require(self.seconds <= 90 && self.listen_seconds <= 35,"Trace time limit exceeded")?;
         }
-        require(self.before.is_some() == restore && self.before_sha256.is_some() == restore, "Prior original is required only for recovery")?;
+        let has_reference = restore || self.action == Action::InspectReceiver;
+        require(self.before.is_some() == has_reference && self.before_sha256.is_some() == has_reference, "Missing or unexpected NOR reference")?;
+        if self.action == Action::InspectReceiver {
+            require(self.seconds <= 240 && self.listen_seconds <= 160, "Receiver discovery time limit exceeded")?;
+        }
         let scope = match self.action {
             Action::Install => "first-install-receiver-journal-boot-and-enter",
             Action::VerifyOriginal => "verify-original-nor-and-start-original",
             Action::EnterReceiver => "enter-pinned-receiver-without-flash-write",
+            Action::InspectReceiver => "read-installed-key-regions-enter-for-gatt-and-return",
             Action::Restore => "restore-first-install-and-start-original",
             Action::RestoreWithB => "restore-first-install-and-owned-b-extents-and-start-original",
             Action::TraceOriginalA => "ordinary-a-three-range-trace",
@@ -111,7 +116,7 @@ fn apply(c: &Config) -> Result<()> {
     if let Some(d) = &source {
         require(Some(hash(d)) == c.before_sha256, "Previous window original changed")?;
         if c.action.traced() { require(hash(d)==trace_media::ORIGINALS_SHA,"Invalid compact originals")?; }
-        else { media::original(d)?; }
+        else if c.action != Action::InspectReceiver { media::original(d)?; }
     }
     let stub = fs::read(&c.stub)?;
     require(stub.len() == 132816 && hash(&stub) == "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43",

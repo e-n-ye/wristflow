@@ -17,6 +17,7 @@ from lab_evidence import digest, file_record, verify_files, write_json
 from lab_serial import PortLease, RecordedClient, lease_directory
 from ota_first_install import ROOT, BASE_SHA, read_json, require, sha
 from ota_phone_board import PHONE_PHASE, READY_PHASE, PhoneObservation, phone_evidence, verify_fixture
+from ota_receiver_scan import installed_address
 from ota_b_execute import recovery_check
 from ota_rom_backup import application, Simulation
 from ota_rom_device import FileCancel
@@ -27,6 +28,7 @@ from serial_lab import prepare_capture
 SCOPE = {"install": "first-install-receiver-journal-boot-and-enter",
          "verify-original": "verify-original-nor-and-start-original",
          "enter-receiver": "enter-pinned-receiver-without-flash-write",
+         "inspect-receiver": "read-installed-key-regions-enter-for-gatt-and-return",
          "restore": "restore-first-install-and-start-original",
          "restore-with-b": "restore-first-install-and-owned-b-extents-and-start-original"}
 APP = "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d"
@@ -157,8 +159,22 @@ def app_phase(root, phase, args, console, *, worker_seconds=95):
 
 def review_wire(directory, action, bundle, source):
     """Independently reconstruct the authorized writes, every read and final NOR."""
-    raw=(directory/"rx.bin").read_bytes()
-    tx=(directory/"tx.bin").read_bytes()
+    if action == "inspect-receiver":
+        ranges = [(0,65536),(0x10000,61440),(0x20000,4096),(0x820000,360448),
+                  (0xda0000,4096),(0xda2000,4096)]
+        expected = []
+        for start, size in ranges:
+            for off in range(start, start + size, 65536):
+                part = source[off:min(off + 65536, start + size)]
+                expected.append((f"key-{off:08x}", off, part))
+        tx = (directory/"tx.bin").read_bytes()
+        enter = b"burn_speed 500000 10\r\r\n"
+        leave = b"burn_speed 1000000 10\r"
+        begin = tx.rindex(enter) + len(enter)
+        commands = b"".join(f"burn_read 0x{0x12000000+off:08x} 0x{len(data):08x}\r".encode()
+                            for _, off, data in expected)
+        require(tx[begin:tx.index(leave, begin)] == commands, "Unexpected command in critical-region pass")
+        return review_transfers(directory, expected, [])
     before=(directory/"before.bin").read_bytes()
     target=bytearray(before)
     spans=[]
@@ -195,6 +211,12 @@ def review_wire(directory, action, bundle, source):
         require(target==(directory/"after.bin").read_bytes(),"Unexpected whole-NOR result")
         expected.extend((f"{role}-{off:08x}",off,part) for role,off,part in chunks)
         expected.extend((f"after-{i:08x}",i,target[i:i+65536]) for i in range(0,len(target),65536))
+    return review_transfers(directory, expected, chunks)
+
+
+def review_transfers(directory, expected, chunks):
+    raw=(directory/"rx.bin").read_bytes()
+    tx=(directory/"tx.bin").read_bytes()
     cursor=0; sent=0; active=None; writing=None; results=[]; writes=[]; repeats=[]
     pending_retry=False
     for e in wire_events(directory):
@@ -264,9 +286,42 @@ def prior_source(window, real):
     return p
 
 
+def discovery_reference():
+    evidence = read_json(ROOT/"docs/evidence/2026-11-19/ota-receiver-first-install.json")
+    window = ROOT/evidence["capture"]
+    flash = evidence["flash_before_first_receiver_boot"]
+    before = prior_source(window, True)
+    require(digest(before) == flash["backup_sha256"], "Original full rescue backup changed")
+    installed = window/"media/after.bin"
+    require(digest(installed) == flash["expected_and_readback_sha256"], "Installed NOR reference changed")
+    air = window/"windows-air.jsonl"
+    installed_address(air)
+    return installed, air
+
+
+def observe_gatt(root, console, report, air):
+    if "gatt_worker_exit" in report:
+        return
+    uart = root/"media/startup-uart.bin"
+    if not uart.exists():
+        return
+    state = phone_evidence(uart.read_bytes())
+    if not state["advertising"] or state["idle_return"]:
+        return
+    job = root/"job-gatt"
+    job.mkdir()
+    console.stage("gatt", "running")
+    code = run_owned([sys.executable,"-B",str(ROOT/"scripts/ota_receiver_scan.py"),
+                      "--out",str(root/"gatt.jsonl"),"--seconds","6","--gatt-from",str(air)],
+                     job,console,root/"cancel",45)
+    report["gatt_worker_exit"] = code
+    console.stage("gatt", "complete" if code == 0 else "error")
+
+
 def window(args):
     real=args.mode=="capture"
     phone = args.action == "enter-receiver"
+    inspect = args.action == "inspect-receiver"
     phone_zip = getattr(args, "phone_zip", None)
     require(phone == bool(phone_zip), "Supply the distributed phone ZIP only for enter-receiver")
     fixture = verify_fixture(phone_zip) if phone else None
@@ -274,6 +329,12 @@ def window(args):
             (not real and args.authorize=="simulation")), "Current action-specific authorization required")
     require(args.action.startswith("restore")==bool(args.prior),"Independent recovery requires its original window")
     source=prior_source(args.prior.resolve(),real) if args.prior else None
+    if inspect:
+        source, air = discovery_reference()
+        if real:
+            from importlib.metadata import version
+            from bleak.backends.winrt.client import BleakClientWinRT
+            require(version("bleak") == "3.0.2", "Use the reviewed Windows Bleak version")
     build=read_json(args.build)
     require(build["kind"]=="original-board-first-install" and build["device_actions"] is False,"Wrong bridge build")
     inputs=[*build["sources"],build["executable"],build["sdk_lock"]]
@@ -297,13 +358,16 @@ def window(args):
             "黄山派有线首装与恢复" if real else "首装离线演练")
     if phone:
         report["android_fixture"] = fixture
+    if inspect:
+        phases = [*PHASES[:2], ("gatt","电脑读取接收器 GATT 服务与特征"), *PHASES[2:]]
+        mode = "接收器关键区和 GATT 只读检查" if real else "接收器关键区离线演练"
     with Console(journal,phases,mode=mode) as console:
         print(console.url,flush=True)
         try:
             with owned_endpoint("COM5" if real else "SIMULATED-FIRST-INSTALL",report):
                 if real: port_identity("COM5","1-1.1")
                 console.stage("before","running")
-                if source is None:
+                if not args.action.startswith("restore"):
                     before=app_phase(root,"before",args,console)
                 else:
                     before=read_json(args.prior/"app-before/before-snapshot.json")
@@ -319,6 +383,8 @@ def window(args):
                 if phone:
                     # One physical read pass followed by the Android exchange and idle return.
                     cfg.update(seconds=1160, listen_seconds=360 if real else 0)
+                if inspect:
+                    cfg.update(seconds=235, listen_seconds=152 if real else 0)
                 path=root/"media-request.json";write_json(path,cfg)
                 job=root/"job-media";job.mkdir()
                 console.stage("media","running")
@@ -326,12 +392,17 @@ def window(args):
                 if real: port_identity("COM5","1-1.1")
                 media=root/"media"
                 observation = PhoneObservation(media, console) if phone and real else None
+                observe = observation.poll if observation else None
+                if inspect and real:
+                    observe = lambda: observe_gatt(root, console, report, air)
                 code=run_owned([str(exe),"--config",str(path),digest(path)],job,console,root/"cancel",cfg["seconds"]+20,
-                               observe=observation.poll if observation else None)
+                               observe=observe)
                 events=[json.loads(s) for s in (media/"media-events.jsonl").read_text().splitlines()]
                 fact="checked_original_only" if args.action=="verify-original" else "entire_nor_verified"
                 if phone:
                     fact = "stable_a_verified"
+                if inspect:
+                    fact = "entry_ranges_verified"
                 report["flash_verified"]=any(e.get(fact) for e in events)
                 report["reset_ack"]=any(e.get("soft_reset_ack") for e in events)
                 if real and report["flash_verified"]:
@@ -350,6 +421,12 @@ def window(args):
                     idle=log.find(b"[ota-radio] inactive, returning to boot selection")
                     report.update(receiver_advertising=ad>=0,idle_return=ad>=0 and idle>ad)
                 console.stage("media","complete")
+                if inspect:
+                    if real:
+                        report["receiver_uart"] = phone_evidence(log)
+                    else:
+                        journal.event("simulated_discovery_window")
+                        console.stage("gatt", "complete")
                 message = "请确认原 CycleLog 表盘、显示和触摸已返回，打开临时常亮读取后态。"
                 if phone:
                     if real:
@@ -376,6 +453,10 @@ def window(args):
                     "Flash and original app evidence retained; receiver advertising or idle return not observed")
             if real and phone:
                 require(received, "Android first-DATA rejection and idle Product return were not both observed")
+            if real and inspect:
+                state = report["receiver_uart"]
+                require(state["product_return"] and not state["install_started"] and not state["replies"]
+                        and report.get("gatt_worker_exit") == 0, "See receiver return and independent GATT observation")
             require(not real or report["wire_verified"], "Raw wire review incomplete; see window report")
             report["hardware_verified"]=real
             report["passed"]=True
