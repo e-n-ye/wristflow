@@ -57,6 +57,28 @@ class FirstInstall(unittest.TestCase):
         self.assertEqual(run.returncode==0,expected,run.stderr)
         return self.directory/label
 
+    @unittest.skipUnless((ROOT/"artifacts/ota-05-dma-finished-inspect-device-003/media/key-00da2000.bin").is_file(),
+                         "Requires the physical 05 rollback readbacks")
+    def test_health_entry_and_restart_bind_the_actual_b_extents(self):
+        import ota_health_media as health
+        bundle = self.directory/"health-models"
+        health.prepare(bundle)
+        before, after = bundle/"post-05-model.bin", bundle/"stable-06-model.bin"
+        for action, model in ((health.ENTER, before), (health.INSPECT, after)):
+            out = self.invoke(action, action, model, source=model, bundle=bundle)
+            reads, writes = health.transfers(out, action, model.read_bytes())
+            self.assertEqual((59, 3551232, []), (len(reads), sum(len(d) for _, _, d in reads), writes))
+        changed = bytearray(before.read_bytes())
+        changed[0x704fff] ^= 1
+        fixture = self.directory/"unexpected-06-page.bin"
+        fixture.write_bytes(changed)
+        for label, action, model, actual in (("extra-page", health.ENTER, before, fixture),
+                                             ("late-disconnect", health.ENTER, before, after),
+                                             ("still-a", health.INSPECT, after, before)):
+            out = self.invoke(label, action, actual, expected=False, source=model, bundle=bundle)
+            events = [json.loads(line) for line in (out/"media-events.jsonl").read_text().splitlines()]
+            self.assertFalse(any("intent" in event or event.get("health_keys_verified") for event in events))
+
     @unittest.skipUnless(os.environ.get("WRISTFLOW_TRACE_A_BUILD"), "Requires the frozen early-marker boot")
     def test_trace_only_three_ranges_and_independent_torn_restore(self):
         from ota_trace_a_window import prepare as trace_bundle, REGIONS as trace_regions
