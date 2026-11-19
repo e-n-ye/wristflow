@@ -210,7 +210,7 @@ static void put32(uint8_t *out, uint32_t value)
 {
     for (unsigned i = 0; i < 4; ++i) out[i] = (uint8_t)(value >> (i * 8));
 }
-enum android_fixture { SIGNED_PRODUCT, WRONG_BOARD, WRONG_LINK_ADDRESS };
+enum android_fixture { SIGNED_PRODUCT, WRONG_BOARD, WRONG_LINK_ADDRESS, WRONG_SIGNATURE, WRONG_BODY };
 static void android_file(const char *path, wf_ota_physical_reader_t *reader, enum android_fixture fixture)
 {
     FILE *f = fopen(path, "rb");
@@ -223,7 +223,10 @@ static void android_file(const char *path, wf_ota_physical_reader_t *reader, enu
     uint32_t count = ((uint32_t)size + WF_DFU_BLOCK - 1) / WF_DFU_BLOCK;
     uint8_t begin[20] = {38,0,16,0}, reply[12], end[6] = {42,0,2,0};
     put32(begin + 4, size); put32(begin + 8, count); memcpy(begin + 12, file + 8, 4); begin[16] = 1;
-    wf_dfu_receiver_t r = {.file=staging, .capacity=sizeof staging, .context=reader, .can_start=ready, .crc32_mpeg2=mpeg, .install=install};
+    /* Like the device worker, keep one receiver alive across successive Android files. */
+    static wf_dfu_receiver_t r = {.file=staging, .capacity=sizeof staging, .can_start=ready, .crc32_mpeg2=mpeg, .install=install};
+    r.context = reader;
+    assert(r.phase == WF_DFU_IDLE && !r.accepted && !r.total && !r.blocks && !r.crc && !r.image.bytes);
     for (unsigned pass = 0; pass < 3; ++pass) {
         if (pass) {
             /* On pass 1, even self-consistent transport CRCs cannot admit a
@@ -241,26 +244,39 @@ static void android_file(const char *path, wf_ota_physical_reader_t *reader, enu
             data[2] = (uint8_t)(12 + n); data[3] = (uint8_t)((12 + n) >> 8);
             put32(data + 4, index); put32(data + 8, n); put32(data + 12, mpeg(NULL, file + offset, n));
             memcpy(data + 16, file + offset, n);
-            if (fixture != SIGNED_PRODUCT) {
+            if (fixture != SIGNED_PRODUCT && fixture != WRONG_BODY) {
                 const uint8_t *manifest = file + WF_DFU_ENVELOPE;
                 if (fixture == WRONG_BOARD) {
                     assert(!memcmp(manifest + 8, "rf32lb52-lchspi-ulp", sizeof "rf32lb52-lchspi-ulp"));
-                } else {
+                } else if (fixture == WRONG_LINK_ADDRESS) {
                     assert(!memcmp(manifest + 8, "sf32lb52-lchspi-ulp", sizeof "sf32lb52-lchspi-ulp"));
                     assert(!memcmp(manifest + 36, (uint8_t[]){1,0,2,0x12}, 4));
                 }
+#ifdef WF_OTA_BOOT_TRACE
+                collect = fixture == WRONG_SIGNATURE;
+#endif
                 unsigned before = release_hash_calls;
                 assert(wf_dfu_request(&r, data, 16+n, reply) == 12);
-                /* A bad signature would produce the same ACK, after hashing the manifest. */
-                assert(release_hash_calls == before);
+                /* All three receive the same ACK. Only the signature case hashes the manifest. */
+                assert(release_hash_calls == before + (fixture == WRONG_SIGNATURE));
+#ifdef WF_OTA_BOOT_TRACE
+                if (fixture == WRONG_SIGNATURE) {
+                    assert(emitted >= 2 && points[emitted - 2] == 'k' && details[emitted - 2] == 0);
+                    assert(points[emitted - 1] == 'w' && (int32_t)details[emitted - 1] < 0);
+                    printf("Parsed release public key, RSA verify returned %d\n", (int32_t)details[emitted - 1]);
+                }
+                collect = false;
+#endif
                 assert(reply[0] == 41 && reply[4] == 1 && !reply[6] && !r.accepted);
                 assert(r.phase == WF_DFU_IDLE && !wf_dfu_install_received(&r) && !installs);
-                printf("%s file: START accepted, first DATA rejected, retry=0, accepted=0, no install\n",
-                       fixture == WRONG_BOARD ? "Wrong-board" : "Wrong-link-address");
+                static const char *const labels[] = {
+                    [WRONG_BOARD]="Wrong-board", [WRONG_LINK_ADDRESS]="Wrong-link-address", [WRONG_SIGNATURE]="Wrong-signature"
+                };
+                printf("%s file: START accepted, first DATA rejected, retry=0, accepted=0, no install\n", labels[fixture]);
                 free(file);
                 return;
             }
-            if (index == 1) {
+            if (index == 1 && fixture == SIGNED_PRODUCT) {
                 put32(data + 4, 2);
                 assert(wf_dfu_request(&r, data, 16+n, reply) == 12 && reply[4] == 13 && reply[6] && !r.accepted);
                 put32(data + 4, 1);
@@ -268,12 +284,27 @@ static void android_file(const char *path, wf_ota_physical_reader_t *reader, enu
                 assert(wf_dfu_request(&r, data, 16+n, reply) == 12 && reply[4] && reply[6] && !r.accepted);
                 data[12] ^= 1;
             }
-            assert(wf_dfu_request(&r, data, 16+n, reply) == 12 && !reply[4] && r.accepted == index);
-            if (!pass && index == 1) {
+            assert(wf_dfu_request(&r, data, 16+n, reply) == 12 && !reply[4] && !reply[6] && r.accepted == index);
+            uint8_t completed[4];
+            put32(completed, index);
+            assert(!memcmp(reply + 8, completed, sizeof completed));
+            if (!pass && index == 1 && fixture == SIGNED_PRODUCT) {
                 wf_dfu_disconnect(&r);
                 assert(wf_dfu_request(&r, end, sizeof end, reply) == 6 && reply[4] && !installs);
                 break;
             }
+        }
+        if (fixture == WRONG_BODY) {
+            unsigned before = release_hash_calls;
+            uint32_t body_bytes = r.image.bytes;
+            assert(body_bytes == size - WF_DFU_ENVELOPE - WF_RELEASE_HEADER_BYTES && r.accepted == count);
+            assert(wf_dfu_request(&r, end, sizeof end, reply) == 6 && reply[0] == 43 && reply[4] == 1);
+            /* END revalidates the signed manifest, then hashes every 256-byte body chunk. */
+            assert(release_hash_calls == before + 1 + (body_bytes + 255) / 256);
+            assert(r.phase == WF_DFU_IDLE && !r.accepted && !wf_dfu_install_received(&r) && !installs);
+            printf("Wrong-body file: %u DATA acknowledgments, final body rejected, no install\n", count);
+            free(file);
+            return;
         }
         if (pass == 1) {
             assert(wf_dfu_request(&r, end, sizeof end, reply) == 6 && reply[4] && !installs);
@@ -306,6 +337,15 @@ int main(int argc, char **argv)
     }
     if (argc == 3 && !strcmp(argv[1], "--android-wrong-address")) {
         android_file(argv[2], NULL, WRONG_LINK_ADDRESS);
+        return 0;
+    }
+    if (argc == 3 && !strcmp(argv[1], "--android-wrong-signature")) {
+        android_file(argv[2], NULL, WRONG_SIGNATURE);
+        return 0;
+    }
+    if (argc == 4 && !strcmp(argv[1], "--android-signature-then-body")) {
+        android_file(argv[2], NULL, WRONG_SIGNATURE);
+        android_file(argv[3], NULL, WRONG_BODY);
         return 0;
     }
     if ((argc==3 || argc==4) && !strcmp(argv[1],"--ordinary-a")) {

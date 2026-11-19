@@ -16,7 +16,7 @@ from battery_lab import Journal
 from lab_evidence import digest, file_record, verify_files, write_json
 from lab_serial import PortLease, RecordedClient, lease_directory
 from ota_first_install import ROOT, BASE_SHA, read_json, require, sha
-from ota_phone_board import (ADDRESS_FILE, BOARD_FILE, FILE_DIGESTS, READY_PHASE, PhoneObservation,
+from ota_phone_board import (BOARD_FILE, FILE_DIGESTS, READY_PHASE, PhoneObservation,
                              confirmed_identity, phone_evidence, verify_fixture)
 from ota_identity_window import IDENTITY_ACTIONS, restore_source, review_pair
 from ota_receiver_scan import installed_address
@@ -336,7 +336,8 @@ def window(args):
     phone_zip = getattr(args, "phone_zip", None)
     phone_file = getattr(args, "phone_file", None)
     require(phone == bool(phone_zip) and (phone or phone_file is None), "A phone window requires the distributed ZIP")
-    require(phone_file != ADDRESS_FILE or args.action == "enter-identity", "02 requires read-only entry on the installed pair")
+    require(phone_file in (None, BOARD_FILE) or args.action == "enter-identity",
+            "This fixture requires read-only entry on the installed pair")
     fixture = verify_fixture(phone_zip, phone_file or BOARD_FILE) if phone else None
     require(args.action in SCOPE and ((real and os.name=="nt" and args.authorize==SCOPE[args.action]) or
             (not real and args.authorize=="simulation")), "Current action-specific authorization required")
@@ -481,7 +482,7 @@ def window(args):
                         console.stage("phone", "complete" if received else "error")
                         if received:
                             message = f"请核实手机本次只选了 {filename}，并确认原表盘和触摸正常、临时常亮已开。"
-                            if filename == ADDRESS_FILE:
+                            if filename != BOARD_FILE:
                                 message = "请选择这一次手机实际发送的文件，并确认原表盘和触摸正常、临时常亮已开。"
                                 file_choices = [*FILE_DIGESTS, "其他文件或无法确认"]
                     else:
@@ -504,8 +505,8 @@ def window(args):
                     "Flash and original app evidence retained; receiver advertising or idle return not observed")
             if real and phone:
                 require(received, "Android first-DATA rejection and idle Product return were not both observed")
-                if filename == ADDRESS_FILE:
-                    require(report.get("operator_selected_file") == filename, "Selected phone file did not match the requested address fixture")
+                if filename != BOARD_FILE:
+                    require(report.get("operator_selected_file") == filename, "Selected phone file did not match the requested fixture")
             if real and inspect:
                 state = report["receiver_uart"]
                 require(state["product_return"] and not state["install_started"] and not state["replies"]

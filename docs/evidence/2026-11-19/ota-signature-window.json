@@ -1,0 +1,38 @@
+{
+  "base": "bcc262bb5974a2a6129b4d84b22e9fe35d4e79d2",
+  "archive": "artifacts/WristFlow-Android-OTA-20261118.zip",
+  "archive_sha256": "ca83136e150feec7c9dc7832506be818a8d7b75b0b6dec6b7d95ec556eac8409",
+  "files": {
+    "03-bad-signature.bin": {"sha256":"56ea3e27a8ac9629887b42d85a994cb606f0300e5e09b0de2b6205ead21362ca","different_offsets_from_06":[8,9,10,11,98],"wrapper_crc32_mpeg2":"dc5842b6"},
+    "04-bad-body.bin": {"sha256":"675453cdf33b7c7bcb8befeab42adadc90acdef40f8ede672fb36b041b6a1fec","different_offsets_from_06":[8,9,10,11,3033925],"wrapper_crc32_mpeg2":"bc5578a8"},
+    "06-WristFlow-2026111802.bin": {"sha256":"8a9306b8b2d627c4a198c05102488b8e818543c3c1b12081b743c689019f5ee3","signed_body_sha256":"c96509ea7ceab2f68eb6a82f2ada06ac902cede42e3aaeee45564f841d2edd0d"}
+  },
+  "host": {
+    "simulation": "artifacts/ota-signature-sim-20261119-001",
+    "commands": ["cmake --build artifacts/ota-signed-release-20261118/host --target ota_release ota_release_trace","ctest --test-dir artifacts/ota-signed-release-20261118/host -R ^ota_","ota_release_trace --android-signature-then-body <archived 03> <archived 04>"],
+    "signature": "03 and 06 share the same 80-byte manifest and body. With the compiled public key, 06 verifies and 03 fails PKCS#1 v1.5 / SHA-256. The traced receiver parsed the public key and mbedTLS returned -16640 on RSA verification of 03.",
+    "pair": "One receiver instance. 03 first DATA rejected, no retry, no blocks accepted, session cleared. 04 START then accepted all 1482 DATA blocks with individual matching acknowledgments. At END it revalidated the manifest, hashed every body chunk, rejected and returned to IDLE. Neither session called install.",
+    "positive": "The same-source ordinary host receiver separately admitted and installed the authentic 06 fixture in simulated storage.",
+    "regression": "Eight OTA CTests and ten focused Python tests passed. Both standard and trace host binaries passed the sequential fixture replay. No new watch firmware."
+  },
+  "device_attempt": {
+    "capture": "artifacts/ota-signature-device-20261119-001",
+    "action": "enter-identity",
+    "read_bytes": 503808, "reads": 11, "writes": 0, "retries": 0, "supply_mV": 4168,
+    "receiver_address_matched": true, "uart_requests": 0, "idle_and_original_storage_return": true,
+    "boot": [50,51], "generation": [231,232], "saved_ms": [1598039643,1598040735],
+    "save_failures": [0,0], "saved_scenes_nondecreasing": true, "unsaved_ms_archived": 999058, "rtc_valid": false,
+    "operator": ["刚才我没连上","原表盘和触摸正常，临时常亮已开","常亮已关，显示、触摸和 KEY1 正常"],
+    "native_exit": 0, "controller_exit": 1,
+    "result": "Phone did not connect. No Android package was sent. No phone data was read. Physical verification of 03 and 04 remains open.",
+    "sha256": {
+      "window.json":"6be3e565b4efa12d5650989d561b01fed4978a51e7c54cf22ea1c57b7157f0ad",
+      "wire-review.json":"e36220102359ee20e6c9e503ad19a6ed1a15da3e812f5207d7571f3a6cb22ffc",
+      "media/startup-uart.bin":"7fe8931d895fc5ac60819b698931a7e1ec0fddb1049696e69fb1b6e8645daaaf",
+      "media/rx.bin":"9ac36aefff1f1b195fbbd8617fe4dea01cc63a54d6719f91116db33ef8313adf",
+      "media/tx.bin":"f7400958f2a05578c360361300144e044c5e43ea300120a34cdd1349990324cb",
+      "app-before/before-snapshot.json":"d3fc19fb84ac6991628f5988afb962abf19caea4b0989355bd5e620f7686cb86",
+      "app-after/after-snapshot.json":"7a134e1d8fe426d1456a07add0640f563e9a8bbb3cca3b8a59bc5380d4796c38"
+    }
+  }
+}
