@@ -72,7 +72,8 @@ impl Config {
             require(self.seconds <= 90 && self.listen_seconds <= 35,"Trace time limit exceeded")?;
         }
         require(self.trace_boot.is_some() == (self.action.short_entry() || self.action == Action::TraceTrialB), "Unexpected boot image argument")?;
-        let has_reference = restore || self.action.key_regions() || self.action.trial_read() || self.action.handoff() || self.action.journal_dma();
+        let health_model = self.action.health_model();
+        let has_reference = restore || self.action.key_regions() || self.action.trial_read() || self.action.handoff() || self.action.journal_dma() || health_model.is_some();
         require(self.before.is_some() == has_reference && self.before_sha256.is_some() == has_reference, "Missing or unexpected NOR reference")?;
         if self.action == Action::InspectReceiver {
             require(self.seconds <= 240 && self.listen_seconds <= 160, "Receiver discovery time limit exceeded")?;
@@ -83,6 +84,10 @@ impl Config {
         if self.action.journal_dma() {
             require(self.before_sha256.as_deref() == Some(media::RESTORED_SHA) && self.seconds <= 800 &&
                     self.listen_seconds <= 420, "Wrong journal DMA reference or time limit")?;
+        }
+        if health_model.is_some() {
+            require(self.before_sha256.as_deref() == health_model && self.seconds <= 800 &&
+                    self.listen_seconds <= 420, "Wrong 06 model or time limit")?;
         }
         let scope = match self.action {
             Action::Install => "first-install-receiver-journal-boot-and-enter",
@@ -103,6 +108,9 @@ impl Config {
             Action::RestoreJournalDma => "restore-05-journal-dma-key-regions",
             Action::TestFixedRollback => "install-corrected-boot-and-try-05-once",
             Action::InspectFixedRollback => "inspect-corrected-05-return-keys-and-restart-a",
+            Action::EnterHealthB => "verify-post-05-keys-and-enter-for-manual-06",
+            Action::InspectHealthB => "verify-confirmed-06-keys-and-ordinary-restart",
+            Action::RestoreHealthB => "restore-post-05-journal-and-b-pages-restart-a",
             Action::TraceOriginalA => "ordinary-a-three-range-trace",
             Action::RestoreTraceA => "restore-three-trace-ranges",
         };
@@ -159,7 +167,7 @@ fn apply(c: &Config) -> Result<()> {
     if let Some(d) = &source {
         require(Some(hash(d)) == c.before_sha256, "Previous window original changed")?;
         if c.action.traced() { require(hash(d)==trace_media::ORIGINALS_SHA,"Invalid compact originals")?; }
-        else if !c.action.key_regions() && !c.action.trial_read() && !c.action.handoff() && !c.action.journal_dma() { media::original(d)?; }
+        else if !c.action.key_regions() && !c.action.trial_read() && !c.action.handoff() && !c.action.journal_dma() && c.action.health_model().is_none() { media::original(d)?; }
     }
     let stub = fs::read(&c.stub)?;
     require(stub.len() == 132816 && hash(&stub) == "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43",

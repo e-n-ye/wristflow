@@ -29,10 +29,10 @@ impl Session<'_> {
         self.tool.debug_command(SifliUartCommand::Enter)?;
         let aliases=[self.tool.debug_read_word32(0x5004206c)?,self.tool.debug_read_word32(0x50042070)?,
                      self.tool.debug_read_word32(0x50042074)?];
-        if self.cfg.action==Action::TraceOriginalA {
+        if self.cfg.action==Action::TraceOriginalA || self.cfg.action == Action::InspectHealthB {
             let prior=self.tool.debug_read_word32(0x500cb044)?;
             self.checkpoint(json!({"ordinary_rtc_word":prior}))?;
-            require(prior==0,"Ordinary A requires a clear OTA word")?;
+            require(prior==0,"Ordinary startup requires a clear OTA word")?;
         }
         self.tool.debug_command(SifliUartCommand::Exit)?;
         common::receive_exit(&mut self.tool,&self.trace,"physical")?;
@@ -43,7 +43,7 @@ impl Session<'_> {
     }
     fn start(&mut self) -> Result<()> {
         let mut start_receiver = true;
-        if self.cfg.action.short_entry() {
+        if self.cfg.action.short_entry() || self.cfg.action == Action::EnterHealthB {
             let ready = self.cfg.out.join("phone-ready");
             let decline = self.cfg.out.join("phone-unavailable");
             self.checkpoint(json!({"waiting_for_phone":true}))?;
@@ -58,14 +58,14 @@ impl Session<'_> {
         }
         self.speed(500_000,1_000_000)?;
         if start_receiver && matches!(self.cfg.action,Action::Install|Action::EnterReceiver|Action::InspectReceiver|
-                                    Action::InstallIdentity|Action::EnterIdentity|Action::EnterTrialB|Action::TraceTrialB|Action::TraceJournalDma|Action::TestFixedRollback) {
+                                    Action::InstallIdentity|Action::EnterIdentity|Action::EnterTrialB|Action::TraceTrialB|Action::TraceJournalDma|Action::TestFixedRollback|Action::EnterHealthB) {
             // SF32LB52 RTC_BASE + offsetof(RTC_TypeDef, BKP5R), the SDK's
             // RTC_BAKCUP_OTA_FORCE_MODE. Preserve any unknown existing value.
             const REQUEST_REGISTER:u32 = 0x500cb044;
             const ENTER:u32 = 0x57464f54;
             self.tool.debug_command(SifliUartCommand::Enter)?;
             let old=self.tool.debug_read_word32(REQUEST_REGISTER)?;
-            require(old==0 || old==ENTER,"OTA backup word already in use")?;
+            require(old==0 || (self.cfg.action != Action::EnterHealthB && old==ENTER),"OTA backup word already in use")?;
             self.checkpoint(json!({"intent":"one-shot-receiver","prior":old}))?;
             self.tool.debug_write_word32(REQUEST_REGISTER,ENTER)?;
             require(self.tool.debug_read_word32(REQUEST_REGISTER)?==ENTER,"One-shot word readback failed")?;

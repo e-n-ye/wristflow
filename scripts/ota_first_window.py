@@ -11,6 +11,7 @@ from types import SimpleNamespace
 import zlib
 import ota_rollback_evidence as rollback
 import ota_journal_window as dma
+import ota_health_media as health
 
 from battery_console import Cancelled, Console
 from battery_device import port_identity
@@ -177,8 +178,11 @@ def app_phase(root, phase, args, console, *, worker_seconds=95):
 
 def review_wire(directory, action, bundle, source, trace_boot=None):
     """Independently reconstruct the authorized writes, every read and final NOR."""
-    if action in dma.SHORT_ACTIONS:
-        reads,writes = dma.transfers(directory,action,source,trace_boot)
+    if action in dma.SHORT_ACTIONS or action in health.MODELS:
+        if action in health.MODELS:
+            reads,writes = health.transfers(directory,action,source)
+        else:
+            reads,writes = dma.transfers(directory,action,source,trace_boot)
         review = review_transfers(directory,reads,writes)
         review_trial_commands((directory/"tx.bin").read_bytes(),reads,writes,review["read_retries"])
         return review
