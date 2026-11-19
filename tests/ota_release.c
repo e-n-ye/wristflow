@@ -207,7 +207,7 @@ static void put32(uint8_t *out, uint32_t value)
 {
     for (unsigned i = 0; i < 4; ++i) out[i] = (uint8_t)(value >> (i * 8));
 }
-static void android_file(const char *path, wf_ota_physical_reader_t *reader)
+static void android_file(const char *path, wf_ota_physical_reader_t *reader, bool wrong_board)
 {
     FILE *f = fopen(path, "rb");
     assert(f && !fseek(f, 0, SEEK_END));
@@ -237,6 +237,15 @@ static void android_file(const char *path, wf_ota_physical_reader_t *reader)
             data[2] = (uint8_t)(12 + n); data[3] = (uint8_t)((12 + n) >> 8);
             put32(data + 4, index); put32(data + 8, n); put32(data + 12, mpeg(NULL, file + offset, n));
             memcpy(data + 16, file + offset, n);
+            if (wrong_board) {
+                assert(!memcmp(file + WF_DFU_ENVELOPE + 8, "rf32lb52-lchspi-ulp", sizeof "rf32lb52-lchspi-ulp"));
+                assert(wf_dfu_request(&r, data, 16+n, reply) == 12);
+                assert(reply[0] == 41 && reply[4] == 1 && !reply[6] && !r.accepted);
+                assert(r.phase == WF_DFU_IDLE && !wf_dfu_install_received(&r) && !installs);
+                puts("Wrong-board file: START accepted, first DATA rejected, retry=0, accepted=0, no install");
+                free(file);
+                return;
+            }
             if (index == 1) {
                 put32(data + 4, 2);
                 assert(wf_dfu_request(&r, data, 16+n, reply) == 12 && reply[4] == 13 && reply[6] && !r.accepted);
@@ -266,6 +275,10 @@ static void android_file(const char *path, wf_ota_physical_reader_t *reader)
 
 int main(int argc, char **argv)
 {
+    if (argc == 3 && !strcmp(argv[1], "--android-wrong-board")) {
+        android_file(argv[2], NULL, true);
+        return 0;
+    }
     if ((argc==3 || argc==4) && !strcmp(argv[1],"--ordinary-a")) {
         uint32_t enrollment = 0x1286c404;
         if (argc==4) {
@@ -313,6 +326,6 @@ int main(int argc, char **argv)
         assert(!wf_ota_release_verify_slot(&reader, WF_OTA_READ_B, &image));
         assert(!image.bytes && !image.release);
     }
-    if (argc == 3) android_file(argv[2], &reader);
+    if (argc == 3) android_file(argv[2], &reader, false);
     return 0;
 }

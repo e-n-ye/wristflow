@@ -1,0 +1,79 @@
+{
+  "base": "d5f1c6159c91172ea59fc1fc09465006475b78cf",
+  "capture": "artifacts/ota-android-board-device-20261119-001",
+  "simulation": "artifacts/ota-android-board-sim-20261119-001",
+  "final_host_rehearsal": "artifacts/ota-android-board-sim-20261119-002",
+  "bridge": "artifacts/ota-hash-resume-first-host/result.json",
+  "bundle": "artifacts/ota-hash-resume-first-bundle",
+  "board": "Original Huangshan, CH340 COM5 / 1-1.1, battery and USB, pre-reset 4168 mV, charger inhibited",
+  "fixture": {
+    "phone_archive": "artifacts/WristFlow-Android-OTA-20261118.zip",
+    "filename": "01-bad-board.bin",
+    "bytes": 3033926,
+    "sha256": "e50b14000bf830fe959484069fef692770a28dac22ddc4774d6772d7c14add00",
+    "transport_crc32_mpeg2": "545e9045",
+    "differing_offsets_from_06": [8, 9, 10, 11, 26],
+    "body_sha256_for_both": "c96509ea7ceab2f68eb6a82f2ada06ac902cede42e3aaeee45564f841d2edd0d",
+    "host_request_results": "START accepted; first DATA error=1 retry=0 accepted=0; session idle; no installation",
+    "host_command": "ota_release.exe --android-wrong-board <extracted 01-bad-board.bin>",
+    "checks": "Two release test executables rebuilt; eight OTA CTest targets and six focused Python tests passed. Receiver and watch firmware were reused."
+  },
+  "wired_entry": {
+    "stable_a_verified": true,
+    "nor_read_bytes": 16777216,
+    "wire_reads": 256,
+    "wire_writes": 0,
+    "wire_read_retries": 0,
+    "installed_boot_receiver_slots_and_journal_equal_to_first_install_readback": true,
+    "changed_4KiB_offsets_since_first_install": ["0x00da8000", "0x00da9000"],
+    "one_shot_request": true,
+    "reset_ack": true,
+    "native_exit": 0,
+    "uart_closed": true
+  },
+  "actual_uart": {
+    "advertising_success_messages": 2,
+    "ota_request_result_lines": 0,
+    "install_started": false,
+    "idle_return": true,
+    "subsequent_product_storage_ready_and_layout_restored": true,
+    "android_first_data_rejection_verified": false
+  },
+  "android_discovery": {
+    "operator": "已选 01，手机提示失败或拒绝",
+    "image_sha256": "51f016e031f0b2d932e95568ab2b8f5e174359387d985dfd4db10413a0369922",
+    "local_image": "operator-android-discovery.jpg",
+    "host_local_advertising_callback_observed": "14:13:48.801",
+    "host_local_product_return_confirmed_by": "14:15:54.639",
+    "phone_local_file_selected_and_connectGatt": "14:19:02",
+    "phone_local_target_uuid_discovery_failure": "14:19:09",
+    "phone_exit": 102,
+    "interpretation": "With the displayed clocks aligned, the phone began its DFU GATT connection about 187 seconds after the original Product had already returned. The receiver's GATT attribute table was not measured during its advertising window. The phone screenshot does not identify a particular absent attribute."
+  },
+  "operator_and_application": {
+    "controller_exit": 1,
+    "controller_error": "Operator confirmation expired",
+    "late_read_only_result": "return-followthrough/result.json",
+    "additional_resets": 0,
+    "saved_boot_before_after": [45, 46],
+    "saved_generations_before_after": [225, 226],
+    "saved_total_recorded_ms_before_after": [1595279157, 1595280249],
+    "unsaved_tail_archived_on_host_ms": 1041188,
+    "saved_scenes_nondecreasing": true,
+    "save_failures_before_after": [0, 0],
+    "rtc_before_after": "2000-01-01, unsynchronized",
+    "user_on_return": "原表盘和触摸正常，临时常亮已开",
+    "user_final": "常亮已关，显示、触摸和 KEY1 正常"
+  },
+  "raw_sha256": {
+    "media/before.bin": "566f153b4d7aa9a7f21f3f5ab9b5aa56ed2e69dbf67f6d6dcc520cff8914af35",
+    "media/tx.bin": "e790731c76ac029fcc81eb011ed6e6bb023fb0bd7ba95757f624c30611a08da3",
+    "media/rx.bin": "7d215226211832e5f94e27b9e7a563564824fa2f2ca739210a0c56cab5bad875",
+    "media/startup-uart.bin": "9ab946050eac185e92524a1bcf4e5ee4f88c07ca237f019ccc19a515960e98d7",
+    "wire-review.json": "32808a447d6dfc86fbea3534357d5c4e001060958d9456551a6746c2f1448640",
+    "app-before/before-snapshot.json": "22e3e1f11176742bd11f7cb9f5275ef41055ae33fa7ba26b68bec84b2c7ba88f",
+    "window.json": "fdc64d2a9e50de994aeb07cc1215acd2daaf8834443011c8275a1860b8bd89e6",
+    "return-followthrough/app-after/after-snapshot.json": "6a321ec3f85a9a4e8612ef4b816cd5cffa68a11fb2ca2d405a5dc1d419a3d6da",
+    "return-followthrough/result.json": "577464c598f24fdc2622b11745761c611f5c4e8b4019c40c8523946ea42702a7"
+  }
+}
