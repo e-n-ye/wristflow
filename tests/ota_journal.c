@@ -5,7 +5,8 @@
 #include <string.h>
 
 typedef struct {
-    uint8_t before[16], unit[2][4096], after[16];
+    uint8_t before[16], unit[2][8192], after[16];
+    uint32_t erase_bytes;
     unsigned calls, fail_call, programs, erases, locked, locks, unlocks;
     int cut, erase_cut;
     bool lie_erase, lie_program, damage_peer;
@@ -16,7 +17,7 @@ static bool broken(nor_t *n) { return ++n->calls == n->fail_call; }
 static int read_bytes(void *ctx, unsigned unit, uint32_t off, void *out, size_t size)
 {
     nor_t *n = ctx;
-    assert(n->locked && unit < 2 && off + size <= 4096);
+    assert(n->locked && unit < 2 && off + size <= n->erase_bytes);
     if (broken(n)) return (int)size - 1;
     memcpy(out, n->unit[unit] + off, size);
     return (int)size;
@@ -43,7 +44,7 @@ static int erase(void *ctx, unsigned unit)
         memset(n->unit[unit], 0xFF, (size_t)n->erase_cut);
         return -1;
     }
-    if (!n->lie_erase) memset(n->unit[unit], 0xFF, 4096);
+    if (!n->lie_erase) memset(n->unit[unit], 0xFF, n->erase_bytes);
     return 0;
 }
 static int sync_bytes(void *ctx) { return broken(ctx) ? -1 : 0; }
@@ -55,7 +56,7 @@ static uint32_t now(void *ctx) { return ((nor_t *)ctx)->time++; }
 static wf_ota_journal_t port(nor_t *n)
 {
     return (wf_ota_journal_t){.context=n,.read=read_bytes,.program=program,.erase=erase,.sync=sync_bytes,
-        .acquire=acquire,.release=release,.now_ms=now,.erase_bytes=4096,.budget_ms=2000,.writable=true};
+        .acquire=acquire,.release=release,.now_ms=now,.erase_bytes=n->erase_bytes,.budget_ms=2000,.writable=true};
 }
 static wf_ota_ab_image_t image(unsigned number)
 {
@@ -66,6 +67,7 @@ static wf_ota_ab_image_t image(unsigned number)
 static wf_ota_ab_state_t seed(nor_t *n)
 {
     memset(n, 0, sizeof *n);
+    n->erase_bytes = 4096;
     memset(n->unit, 0xFF, sizeof n->unit);
     memset(n->before, 0xA5, sizeof n->before);
     memset(n->after, 0x5A, sizeof n->after);
@@ -253,8 +255,70 @@ static void trial_resets(void)
     checked[0].bytes = 0;
     assert(wf_ota_trial_select(&j, &tried, checked, healthy, &trial) == WF_OTA_AB_RECOVERY && !trial);
 }
-int main(void)
+/* Replay two archived erase units with an independently verified candidate.
+ * This input is a test fixture, never an installation or authentication API. */
+static void replay_health(const char *bank0, const char *bank1, const char *identity)
 {
+    nor_t n = {.cut = -1, .erase_cut = -1};
+    n.erase_bytes = sizeof n.unit[0];
+    wf_ota_ab_image_t checked[2];
+    uint8_t wire[40];
+    uint8_t *outputs[] = {n.unit[0], n.unit[1], wire};
+    const char *paths[] = {bank0, bank1, identity};
+    const size_t sizes[] = {sizeof n.unit[0], sizeof n.unit[1], sizeof wire};
+    for (unsigned i = 0; i < 3; ++i) {
+        FILE *f = fopen(paths[i], "rb");
+        assert(f && fread(outputs[i], 1, sizes[i], f) == sizes[i]);
+        assert(fgetc(f) == EOF && !ferror(f));
+        assert(fclose(f) == 0);
+    }
+    wf_ota_journal_t j = port(&n);
+    wf_ota_ab_state_t state, ready;
+    unsigned unit;
+    assert(wf_ota_journal_load(&j, &state, &unit) == WF_OTA_JOURNAL_OK);
+    assert(unit == 1 && state.stable == 0 && state.phase == WF_OTA_AB_STABLE && state.generation == 4);
+    wf_ota_ab_state_t previous;
+    assert(wf_ota_ab_decode(&previous, n.unit[0], WF_OTA_AB_BYTES));
+    assert(previous.generation == 3 && previous.phase == WF_OTA_AB_TRIED && previous.pending == 1);
+    checked[0] = state.image[0];
+    checked[1] = (wf_ota_ab_image_t){0};
+    for (unsigned i = 0; i < 4; ++i) {
+        checked[1].bytes |= (uint32_t)wire[i] << (8 * i);
+        checked[1].release |= (uint32_t)wire[i + 4] << (8 * i);
+    }
+    memcpy(checked[1].sha256, wire + 8, sizeof checked[1].sha256);
+    assert(wf_ota_ab_stage(&ready, &state, &checked[1]));
+    uint8_t back[WF_OTA_AB_BYTES];
+    assert(wf_ota_journal_commit(&j, &state, &ready, back) == WF_OTA_JOURNAL_OK);
+    assert(wf_ota_journal_load(&j, &state, &unit) == 0 && unit == 0 && state.generation == 5);
+    assert(state.phase == WF_OTA_AB_READY && state.pending == 1);
+    uint32_t word;
+    assert(wf_ota_trial_select(&j, &state, checked, 0, &word) == WF_OTA_AB_SLOT_B);
+    assert(wf_ota_journal_load(&j, &state, &unit) == 0 && unit == 1 && state.generation == 6);
+    assert(state.phase == WF_OTA_AB_TRIED && state.stable == 0 && state.pending == 1);
+    assert(word == (WF_OTA_TRIAL_PENDING | wf_ota_trial_cookie(&state)));
+    uint32_t healthy = WF_OTA_TRIAL_HEALTHY | (word & WF_OTA_TRIAL_PAYLOAD);
+    assert(wf_ota_trial_select(&j, &state, checked, healthy, &word) == WF_OTA_AB_SLOT_B && word == 0);
+
+    /* Fresh boot port, no RTC request, only the two persisted units survive. */
+    nor_t restarted = {.cut = -1, .erase_cut = -1, .erase_bytes = n.erase_bytes};
+    memcpy(restarted.unit, n.unit, sizeof n.unit);
+    j = port(&restarted);
+    assert(wf_ota_journal_load(&j, &state, &unit) == 0 && unit == 0 && state.generation == 7);
+    assert(state.phase == WF_OTA_AB_STABLE && state.stable == 1 && state.pending == WF_OTA_AB_NONE);
+    assert(wf_ota_trial_select(&j, &state, checked, 0, &word) == WF_OTA_AB_SLOT_B && word == 0);
+    assert(restarted.programs == 0 && restarted.erases == 0);
+    printf("release %lu, healthy 0x%08lx, generation 7 STABLE B, ordinary restart B, zero writes\n",
+           (unsigned long)checked[1].release, (unsigned long)healthy);
+}
+
+int main(int argc, char **argv)
+{
+    if (argc == 5 && !strcmp(argv[1], "--replay-health")) {
+        replay_health(argv[2], argv[3], argv[4]);
+        return 0;
+    }
+    if (argc != 1) return 2;
     lifecycle(); errors_and_cuts(); refusal(); illegal_transitions_and_peer_damage(); trial_resets();
     printf("OTA journal: %u checks passed; in-memory NOR only\n", checks);
     return 0;
