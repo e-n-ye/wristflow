@@ -52,6 +52,7 @@ struct Config {
     cancel: PathBuf, stub: PathBuf, seconds: u64, listen_seconds: u64, authorization: String,
     #[serde(default)]
     signature_then_body: bool,
+    trace_boot: Option<PathBuf>,
 }
 impl Config {
     fn validate(&self) -> Result<()> {
@@ -65,16 +66,18 @@ impl Config {
         };
         require(!self.out.exists() && !self.cancel.exists() && (30..=max_window).contains(&self.seconds) &&
                 self.listen_seconds <= max_listen && self.listen_seconds < self.seconds, "Invalid window or reused output")?;
-        let restore = matches!(self.action, Action::Restore | Action::RestoreWithB | Action::RestoreTrialB | Action::RestoreTraceA);
+        let restore = matches!(self.action, Action::Restore | Action::RestoreWithB | Action::RestoreTrialB |
+                              Action::RestoreHandoffB | Action::RestoreTraceA);
         if self.action.traced() {
             require(self.seconds <= 90 && self.listen_seconds <= 35,"Trace time limit exceeded")?;
         }
-        let has_reference = restore || self.action.key_regions() || self.action.trial_read();
+        require(self.trace_boot.is_some() == (self.action == Action::TraceTrialB), "Unexpected trace boot argument")?;
+        let has_reference = restore || self.action.key_regions() || self.action.trial_read() || self.action.handoff();
         require(self.before.is_some() == has_reference && self.before_sha256.is_some() == has_reference, "Missing or unexpected NOR reference")?;
         if self.action == Action::InspectReceiver {
             require(self.seconds <= 240 && self.listen_seconds <= 160, "Receiver discovery time limit exceeded")?;
         }
-        if self.action.key_regions() || self.action.trial_read() {
+        if self.action.key_regions() || self.action.trial_read() || self.action == Action::TraceTrialB {
             require(self.before_sha256.as_deref() == Some(media::INSTALLED_SHA), "Wrong installed reference binding")?;
         }
         let scope = match self.action {
@@ -90,6 +93,8 @@ impl Config {
             Action::RestoreTrialB => "restore-05-b-and-stable-a-keep-installed-identity-pair",
             Action::EnterTrialB => "enter-for-android-05-trial-and-passive-return",
             Action::InspectTrialB => "read-05-after-autonomous-return-and-start-stable-a",
+            Action::TraceTrialB => "temporary-handoff-boot-and-android-05",
+            Action::RestoreHandoffB => "restore-pretrace-boot-stable-a-and-original-b",
             Action::TraceOriginalA => "ordinary-a-three-range-trace",
             Action::RestoreTraceA => "restore-three-trace-ranges",
         };
@@ -128,14 +133,20 @@ fn transact(io: &mut impl Nor,c: &Config, images: &Inputs, source: Option<&[u8]>
 fn apply(c: &Config) -> Result<()> {
     c.validate()?;
     let receiver = if c.action.traced() { "certificate.bin" } else { "receiver.bin" };
+    let trace_boot = if let Some(path) = &c.trace_boot {
+        let mut bytes = fs::read(path)?;
+        require(bytes.len() == 58264, "Wrong handoff BIN length")?;
+        bytes.resize(media::BOOT.len(), 255);
+        Some(bytes)
+    } else { None };
     let images = Inputs { receiver: fs::read(c.bundle.join(receiver))?,
-        journal: fs::read(c.bundle.join("journal.bin"))?, boot: fs::read(c.bundle.join("boot.bin"))? };
+        journal: fs::read(c.bundle.join("journal.bin"))?, boot: fs::read(c.bundle.join("boot.bin"))?, trace_boot };
     if c.action.traced() { trace_media::verify_inputs(&images)?; } else { images.verify(c.action)?; }
     let source = c.before.as_ref().map(fs::read).transpose()?;
     if let Some(d) = &source {
         require(Some(hash(d)) == c.before_sha256, "Previous window original changed")?;
         if c.action.traced() { require(hash(d)==trace_media::ORIGINALS_SHA,"Invalid compact originals")?; }
-        else if !c.action.key_regions() && !c.action.trial_read() { media::original(d)?; }
+        else if !c.action.key_regions() && !c.action.trial_read() && !c.action.handoff() { media::original(d)?; }
     }
     let stub = fs::read(&c.stub)?;
     require(stub.len() == 132816 && hash(&stub) == "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43",
@@ -144,7 +155,7 @@ fn apply(c: &Config) -> Result<()> {
     let result = if c.simulation {
         let mut mem = Memory {bytes:fs::read(c.fixture.as_ref().unwrap())?,out:&c.out,action:c.action};
         transact(&mut mem,c,&images,source.as_deref()).and_then(|()| {
-            if c.action.traced() || c.action.identity() { save(&c.out.join("simulated-nor.bin"),&mem.bytes)?; }
+            if c.action.traced() || c.action.identity() || c.action == Action::TraceTrialB { save(&c.out.join("simulated-nor.bin"),&mem.bytes)?; }
             Ok(())
         })
     } else {

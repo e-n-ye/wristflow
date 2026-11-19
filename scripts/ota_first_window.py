@@ -34,6 +34,8 @@ SCOPE = {"install": "first-install-receiver-journal-boot-and-enter",
          "enter-trial-b": "enter-for-android-05-trial-and-passive-return",
          "inspect-trial-b": "read-05-after-autonomous-return-and-start-stable-a",
          "restore-trial-b": "restore-05-b-and-stable-a-keep-installed-identity-pair",
+         "trace-trial-b": "temporary-handoff-boot-and-android-05",
+         "restore-handoff-b": "restore-pretrace-boot-stable-a-and-original-b",
          "verify-original": "verify-original-nor-and-start-original",
          "enter-receiver": "enter-pinned-receiver-without-flash-write",
          "inspect-receiver": "read-installed-key-regions-enter-for-gatt-and-return",
@@ -114,7 +116,7 @@ def app_worker(cfg):
                                     build_archive=ROOT/f["archive"]["path"],recorded_root=ROOT)
         device=BoundedSerial("COM5",phase,journal,check,identity)
     return application(phase,device,journal,SimpleNamespace(cancelled=cancel),identity,cycle=True,
-                       before_close=inhibit if phase=="before" else None)
+                       before_close=inhibit if phase=="before" or cfg["action"]=="trace-trial-b" else None)
 
 
 def run_owned(argv, directory, console, cancel, seconds, *, observe=None):
@@ -168,18 +170,23 @@ def app_phase(root, phase, args, console, *, worker_seconds=95):
     return read_json(root/("app-"+phase)/(phase+"-snapshot.json"))
 
 
-def review_wire(directory, action, bundle, source):
+def review_wire(directory, action, bundle, source, trace_boot=None):
     """Independently reconstruct the authorized writes, every read and final NOR."""
-    if action in ("enter-trial-b","inspect-trial-b"):
+    if action in ("enter-trial-b","inspect-trial-b","trace-trial-b"):
         before = (directory/"before.bin").read_bytes()
         require(len(before)==0x1000000, "Incomplete physical trial evidence")
-        if action == "enter-trial-b":
+        if action != "inspect-trial-b":
             rollback.verify_before(before,source,bundle)
             require((directory/"original-b-4MiB.bin").read_bytes()==before[rollback.B_START:rollback.B_END],
                     "Fresh B archive differs from the pre-trial readback")
         reads = [(f"before-{off:08x}",off,before[off:off+65536]) for off in range(0,len(before),65536)]
-        review = review_transfers(directory,reads,[])
-        review_trial_commands((directory/"tx.bin").read_bytes(),reads,[],review["read_retries"])
+        writes = []
+        if action == "trace-trial-b":
+            payload = rollback.handoff_binary(trace_boot)
+            writes.append(("boot",0x10000,payload))
+            reads.append(("boot-00010000",0x10000,payload))
+        review = review_transfers(directory,reads,writes)
+        review_trial_commands((directory/"tx.bin").read_bytes(),reads,writes,review["read_retries"])
         return review
     if action in IDENTITY_ACTIONS:
         expected, chunks = review_pair(directory, action, bundle, source)
@@ -204,7 +211,7 @@ def review_wire(directory, action, bundle, source):
     target=bytearray(before)
     spans=[]
     read_only = action in ("verify-original", "enter-receiver")
-    trial_rescue = action == "restore-trial-b"
+    trial_rescue = action in ("restore-trial-b","restore-handoff-b")
     entries=[] if read_only or trial_rescue else read_json(bundle/"bundle.json")["entries"]
     for entry in entries:
         start, n, role = entry["offset"], entry["bytes"], entry["role"]
@@ -226,6 +233,8 @@ def review_wire(directory, action, bundle, source):
                      ("other-record",0xda2000,source[0xda2000:0xda4000]),
                      ("b-body",0x420000,source[0x420000:0x704000]),
                      ("b-tail",0x81f000,source[0x81f000:0x820000])]
+            if action == "restore-handoff-b":
+                spans.append(("boot",0x10000,source[0x10000:0x1f000]))
     chunks=[]
     for role,start,payload in spans:
         for i in range(0,len(payload),65536):
@@ -371,7 +380,15 @@ def observe_gatt(root, console, report, air):
 
 def window(args):
     real=args.mode=="capture"
-    trial = args.action == "enter-trial-b"
+    tracing = args.action == "trace-trial-b"
+    restoring_trace = args.action == "restore-handoff-b"
+    trace_path = getattr(args,"trace_boot",None)
+    require(tracing == bool(trace_path), "Only the 05 diagnostic entry takes a trace boot")
+    if tracing:
+        rollback.handoff_binary(trace_path)
+    startup_fixture = getattr(args,"startup_fixture",None)
+    require(bool(startup_fixture) == (tracing and not real), "Diagnostic simulation needs its own startup UART replay")
+    trial = args.action == "enter-trial-b" or tracing
     post_trial = args.action == "inspect-trial-b"
     phone = trial or args.action in ("enter-receiver", "install-identity", "enter-identity")
     inspect = args.action == "inspect-receiver"
@@ -384,7 +401,7 @@ def window(args):
     adb = getattr(args, "phone_adb", None)
     require(not pair or (args.action == "enter-identity" and phone_file is None),
             "Paired fixtures require one read-only entry without a separate file override")
-    require(not adb or (real and (pair or trial)), "USB phone log capture requires a live phone window")
+    require(not adb or (real and (pair or trial) and not tracing), "USB phone log capture requires a matching live phone window")
     require(not (real and pair) or adb is not None, "Automated paired acceptance requires the authorized Android DFU log")
     require((phone or post_trial) == bool(phone_zip) and (phone or phone_file is None), "Phone and trial verification windows require the distributed ZIP")
     prior_trial = getattr(args,"trial_window",None)
@@ -430,6 +447,9 @@ def window(args):
             from importlib.metadata import version
             from bleak.backends.winrt.client import BleakClientWinRT
             require(version("bleak") == "3.0.2", "Use the reviewed Windows Bleak version")
+    elif restoring_trace:
+        installed, _ = discovery_reference()
+        source = rollback.pretrace_source(args.prior.resolve(),real,installed.read_bytes(),args.bundle)
     elif args.prior:
         source = prior_source(args.prior.resolve(),real)
     build=read_json(args.build)
@@ -439,7 +459,7 @@ def window(args):
     exe=ROOT/build["executable"]["path"]
     bundle=args.bundle.resolve()
     pkg=read_json(bundle/"bundle.json")
-    scope = "original-cyclelog-identity-pair" if identity or trial or post_trial or args.action == "restore-trial-b" else "original-cyclelog-first-install"
+    scope = "original-cyclelog-identity-pair" if identity or trial or post_trial or restoring_trace or args.action == "restore-trial-b" else "original-cyclelog-first-install"
     require(pkg["baseline_sha256"]==BASE_SHA and pkg["scope"]==scope,"Wrong installation bundle")
     verify_files(pkg["entries"])
     root=args.out.resolve()
@@ -506,6 +526,8 @@ def window(args):
                     cfg.update(signature_then_body=True, seconds=1740, listen_seconds=LISTEN_SECONDS if real else 0)
                 if trial:
                     cfg.update(seconds=1750,listen_seconds=900 if real else 0)
+                if tracing:
+                    cfg.update(trace_boot=str(trace_path.resolve()),listen_seconds=420 if real else 0)
                 path=root/"media-request.json";write_json(path,cfg)
                 job=root/"job-media";job.mkdir()
                 console.stage("media","running")
@@ -520,7 +542,7 @@ def window(args):
                             observation = PairedObservation(media,console,android_log=root/"android-dfu.log",
                                                             collector=collector,**options)
                         elif trial:
-                            observation = rollback.TrialObservation(media,console,**options)
+                            observation = rollback.TrialObservation(media,console,handoff=tracing,**options)
                         else:
                             observation = PhoneObservation(media,console,**options)
                         observe = observation.poll
@@ -538,11 +560,13 @@ def window(args):
                     fact = "entry_ranges_verified" if args.action == "enter-identity" else "identity_pair_verified"
                 if trial or post_trial:
                     fact = "trial_read_complete"
+                if tracing:
+                    fact = "trace_boot_verified"
                 report["flash_verified"]=any(e.get(fact) for e in events)
                 report["reset_ack"]=any(e.get("soft_reset_ack") for e in events)
                 if real and report["flash_verified"]:
                     try:
-                        review=review_wire(media,args.action,bundle,source.read_bytes() if source else None)
+                        review=review_wire(media,args.action,bundle,source.read_bytes() if source else None,trace_path)
                         write_json(root/"wire-review.json",review)
                         report["wire_verified"]=True
                     except Exception as exc:
@@ -556,6 +580,30 @@ def window(args):
                     idle=log.find(b"[ota-radio] inactive, returning to boot selection")
                     report.update(receiver_advertising=ad>=0,idle_return=ad>=0 and idle>ad)
                 console.stage("media","complete")
+                if tracing:
+                    report["restore_required"] = True
+                    if real:
+                        rollback.verify_passive_wire(media, log)
+                    else:
+                        log = startup_fixture.read_bytes()
+                        journal.event("simulated_startup_replay",uart=file_record(startup_fixture))
+                    observed = rollback.handoff_report(log)
+                    report["handoff_trace"] = observed
+                    received = observed["committed"] and confirmed_identity(log,original_address,expected_address)
+                    require(received, "05 commitment or receiver identity missing; retain the pre-trace backup")
+                    console.stage("phone","complete")
+                    selected = operator(console,"return","请确认本轮实际发送的文件。若表仍黑屏，保持接线等恢复。",
+                                        [rollback.FILE,"其他文件或无法确认"])
+                    report["operator_selected_file"] = selected
+                    if observed["original_storage_seen"]:
+                        operator(console,"after","串口已收到原 A 存储日志。确认原表盘和触摸正常后开临时常亮，以便保存记录和停充。")
+                        app_phase(root,"after",args,console)
+                    require(not real or (selected == rollback.FILE and report["wire_verified"]),
+                            "File selection or physical wire readback unconfirmed")
+                    require(observed["frames"] and not observed["decode_error"],
+                            "No complete diagnostic capture; inspect raw UART and restore the pre-trace firmware")
+                    report["passed"]=True
+                    return report
                 if inspect:
                     if real:
                         report["receiver_uart"] = phone_evidence(log)
@@ -691,6 +739,8 @@ if __name__=="__main__":
         parser.add_argument("--action",choices=SCOPE,required=True)
         parser.add_argument("--authorize",required=True)
         parser.add_argument("--trial-window",type=Path,help="Corresponding 05 capture for the independent post-trial read")
+        parser.add_argument("--trace-boot",type=Path,help="Frozen v4 diagnostic BIN for trace-trial-b")
+        parser.add_argument("--startup-fixture",type=Path,help="Simulated post-install UART for trace-trial-b")
         phone_args = parser.add_mutually_exclusive_group()
         phone_args.add_argument("--phone-file", choices=FILE_DIGESTS, help="Single distributed first-block rejection fixture")
         phone_args.add_argument("--signature-then-body",action="store_true",help="One read-only entry for 03 followed by 04")

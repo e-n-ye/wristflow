@@ -1,0 +1,26 @@
+{
+  "diagnostic_firmware": "ota-05-handoff.json",
+  "original_device_observation": "ota-05-device.json",
+  "host_build": "artifacts/ota-05-handoff-host-001/result.json",
+  "host_manifest_sha256": "274e5b682b6442cdf12b8abbe399311601456c883f0eec3e68b66eb0c0ee8270",
+  "host_exe_sha256": "dc2431ff2eb2703510ccf5c37d3498770779dcc0a4c236328b41bac0336c846f",
+  "output": "artifacts/ota-05-handoff-rehearsal-001",
+  "entry": {
+    "action": "trace-trial-b",
+    "prestate": "ota-05-trial-device-001/media/before.bin",
+    "nor_reads": "Full 16 MiB plus independent boot readback; a separate 4 MiB original B was archived before the first write",
+    "wired_writes": [{"offset":"0x10000","bytes":61440,"sha256":"340d5aab6097e892216b0129a7d377cd3ffb748ba5bdc736f175e9c7cdfd8ed8"}],
+    "replay": "Recorded Android 05 transfer and commit followed by two simulated boots and thirteen synthetic diagnostic frames, with no Product startup marker. These frames exercise the decoder and do not identify a hardware fault."
+  },
+  "restore": {
+    "action": "restore-handoff-b",
+    "prestate": "Actual 05 fault snapshot with diagnostic boot substituted and a simulated user change at 0x9a4060",
+    "writes": 51,
+    "order": ["stable-a", "other-record", "b-body", "b-tail", "boot"],
+    "final_nor": "Equal to the full pretrace snapshot apart from the intentionally changed user byte, which was preserved",
+    "partial_boot_recovery": true,
+    "foreign_gap_change_at_0x780000_rejected_before_write": true
+  },
+  "validation": {"native_tests_passed":10,"native_release_build":true,"python_tests_run":218,"skipped":57,"failures":0},
+  "hardware_verified": false
+}
