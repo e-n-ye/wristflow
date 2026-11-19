@@ -16,6 +16,7 @@ from battery_lab import Journal
 from lab_evidence import digest, file_record, verify_files, write_json
 from lab_serial import PortLease, RecordedClient, lease_directory
 from ota_first_install import ROOT, BASE_SHA, read_json, require, sha
+from ota_phone_board import PHONE_PHASE, READY_PHASE, PhoneObservation, phone_evidence, verify_fixture
 from ota_b_execute import recovery_check
 from ota_rom_backup import application, Simulation
 from ota_rom_device import FileCancel
@@ -25,6 +26,7 @@ from serial_lab import prepare_capture
 
 SCOPE = {"install": "first-install-receiver-journal-boot-and-enter",
          "verify-original": "verify-original-nor-and-start-original",
+         "enter-receiver": "enter-pinned-receiver-without-flash-write",
          "restore": "restore-first-install-and-start-original",
          "restore-with-b": "restore-first-install-and-owned-b-extents-and-start-original"}
 APP = "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d"
@@ -102,7 +104,7 @@ def app_worker(cfg):
                        before_close=inhibit if phase=="before" else None)
 
 
-def run_owned(argv, directory, console, cancel, seconds):
+def run_owned(argv, directory, console, cancel, seconds, *, observe=None):
     deadline=time.monotonic()+seconds
     child=ReadProcess(argv,directory)
     try:
@@ -112,6 +114,8 @@ def run_owned(argv, directory, console, cancel, seconds):
                 grace=time.monotonic()+3
                 while child.poll() is None and time.monotonic()<grace: time.sleep(.05)
                 raise Cancelled("Owned worker cancelled or timed out")
+            if observe is not None:
+                observe()
             time.sleep(.15)
         return child.poll()
     finally:
@@ -158,7 +162,8 @@ def review_wire(directory, action, bundle, source):
     before=(directory/"before.bin").read_bytes()
     target=bytearray(before)
     spans=[]
-    entries=read_json(bundle/"bundle.json")["entries"] if action!="verify-original" else []
+    read_only = action in ("verify-original", "enter-receiver")
+    entries=[] if read_only else read_json(bundle/"bundle.json")["entries"]
     for entry in entries:
         start, n, role = entry["offset"], entry["bytes"], entry["role"]
         if source is None:
@@ -184,9 +189,9 @@ def review_wire(directory, action, bundle, source):
         target[start:start+len(payload)]=payload
     require(len(before)==0x1000000,"Incomplete whole-NOR backup")
     expected=[(f"before-{i:08x}",i,before[i:i+65536]) for i in range(0,len(before),65536)]
-    if source is None:
+    if source is None and action != "enter-receiver":
         require((directory/"original-b-4MiB.bin").read_bytes()==before[0x420000:0x820000],"Original B archive differs")
-    if action!="verify-original":
+    if not read_only:
         require(target==(directory/"after.bin").read_bytes(),"Unexpected whole-NOR result")
         expected.extend((f"{role}-{off:08x}",off,part) for role,off,part in chunks)
         expected.extend((f"after-{i:08x}",i,target[i:i+65536]) for i in range(0,len(target),65536))
@@ -261,6 +266,10 @@ def prior_source(window, real):
 
 def window(args):
     real=args.mode=="capture"
+    phone = args.action == "enter-receiver"
+    phone_zip = getattr(args, "phone_zip", None)
+    require(phone == bool(phone_zip), "Supply the distributed phone ZIP only for enter-receiver")
+    fixture = verify_fixture(phone_zip) if phone else None
     require(args.action in SCOPE and ((real and os.name=="nt" and args.authorize==SCOPE[args.action]) or
             (not real and args.authorize=="simulation")), "Current action-specific authorization required")
     require(args.action.startswith("restore")==bool(args.prior),"Independent recovery requires its original window")
@@ -283,7 +292,12 @@ def window(args):
         console.stage(phase,"complete")
     report=dict(simulation=not real,action=args.action,flash_verified=False,wire_verified=False,
                 receiver_advertising=False,idle_return=False,application_return=False,hardware_verified=False)
-    with Console(journal,PHASES,mode="黄山派有线首装与恢复" if real else "首装离线演练") as console:
+    phases = [*PHASES[:2], READY_PHASE, PHONE_PHASE, *PHASES[2:]] if phone else PHASES
+    mode = ("Android 错板包与原表盘返回" if real else "Android 错板包离线演练") if phone else (
+            "黄山派有线首装与恢复" if real else "首装离线演练")
+    if phone:
+        report["android_fixture"] = fixture
+    with Console(journal,phases,mode=mode) as console:
         print(console.url,flush=True)
         try:
             with owned_endpoint("COM5" if real else "SIMULATED-FIRST-INSTALL",report):
@@ -302,15 +316,22 @@ def window(args):
                          # 2.52 seconds. Allow both 256-block passes and the idle return.
                          seconds=800 if args.action=="verify-original" else 1750,
                          listen_seconds=(155 if args.action=="install" else 16) if real else 0,authorization=args.authorize)
+                if phone:
+                    # One physical read pass followed by the Android exchange and idle return.
+                    cfg.update(seconds=1160, listen_seconds=360 if real else 0)
                 path=root/"media-request.json";write_json(path,cfg)
                 job=root/"job-media";job.mkdir()
                 console.stage("media","running")
                 verify_files(inputs,ROOT)
                 if real: port_identity("COM5","1-1.1")
-                code=run_owned([str(exe),"--config",str(path),digest(path)],job,console,root/"cancel",cfg["seconds"]+20)
                 media=root/"media"
+                observation = PhoneObservation(media, console) if phone and real else None
+                code=run_owned([str(exe),"--config",str(path),digest(path)],job,console,root/"cancel",cfg["seconds"]+20,
+                               observe=observation.poll if observation else None)
                 events=[json.loads(s) for s in (media/"media-events.jsonl").read_text().splitlines()]
                 fact="checked_original_only" if args.action=="verify-original" else "entire_nor_verified"
+                if phone:
+                    fact = "stable_a_verified"
                 report["flash_verified"]=any(e.get(fact) for e in events)
                 report["reset_ack"]=any(e.get("soft_reset_ack") for e in events)
                 if real and report["flash_verified"]:
@@ -329,7 +350,21 @@ def window(args):
                     idle=log.find(b"[ota-radio] inactive, returning to boot selection")
                     report.update(receiver_advertising=ad>=0,idle_return=ad>=0 and idle>ad)
                 console.stage("media","complete")
-                operator(console,"return","请确认原 CycleLog 表盘、显示和触摸已返回，打开临时常亮读取后态。")
+                message = "请确认原 CycleLog 表盘、显示和触摸已返回，打开临时常亮读取后态。"
+                if phone:
+                    if real:
+                        transfer = phone_evidence(log)
+                        report["phone_uart"] = transfer
+                        require(not transfer["install_started"], "Unexpected installation on this phone window; inspect the board")
+                        received = transfer["first_data_rejected"] and transfer["product_return"]
+                        console.stage("phone", "complete" if received else "error")
+                        if received:
+                            message = "请核实手机本次只选了 01-bad-board.bin，并确认原表盘和触摸正常、临时常亮已开。"
+                    else:
+                        journal.event("simulated_phone", filename=fixture["filename"])
+                        console.stage("phone_ready", "complete")
+                        console.stage("phone", "complete")
+                operator(console,"return",message)
                 console.stage("after","running")
                 after=app_phase(root,"after",args,console)
                 report["continuity"]=recovery_check(before,after,(after["closed_ns"]-before["closed_ns"])/1e9,
@@ -339,6 +374,8 @@ def window(args):
             operator(console,"final","请关闭临时常亮，回到表盘并确认显示、触摸和 KEY1。")
             require(not real or args.action!="install" or report["idle_return"],
                     "Flash and original app evidence retained; receiver advertising or idle return not observed")
+            if real and phone:
+                require(received, "Android first-DATA rejection and idle Product return were not both observed")
             require(not real or report["wire_verified"], "Raw wire review incomplete; see window report")
             report["hardware_verified"]=real
             report["passed"]=True
@@ -361,7 +398,7 @@ if __name__=="__main__":
         parser.add_argument("--authorize",required=True)
         for opt in ("out","build","bundle"):
             parser.add_argument("--"+opt,required=True,type=Path)
-        for opt in ("nor-fixture","before-fixture","after-fixture","prior"):
+        for opt in ("nor-fixture","before-fixture","after-fixture","prior","phone-zip"):
             parser.add_argument("--"+opt,type=Path)
         a=parser.parse_args()
         for k in ("before_fixture","after_fixture"):

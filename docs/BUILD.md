@@ -18,6 +18,8 @@
 
 在装有 Bleak 3.0.2 的 Windows Python 环境中，用 `python -B scripts/ota_receiver_scan.py --seconds 180 --out <新文件.jsonl>` 观察首装后的空口。保持手机断开，从接收器复位前开始主动扫描。原始记录分别保留扫描响应中的完整名称 `WristFlow OTA` 和主广告中的 128 位服务 UUID，按同一蓝牙地址核对。用串口的 `advertising=0` 和空闲返回日志核对事件顺序，再核原 Product 的启动日志和广播。
 
+已首装的原 A 可用 `ota_first_window.py simulate --action enter-receiver --authorize simulation` 演练第一次手机验收。传入该版本的 `--build`、`--bundle`、已发手机的 `--phone-zip`、首装后的整片读回 `--nor-fixture`、原应用的 `--before-fixture` 和 `--after-fixture`（各自的原始 UART 文件）及新的 `--out` 目录。现场单独确认后，沿用首装工具的固定只读入口和稳定 A 校验。此入口读取 256 个 64 KiB 块，有线 Flash 写入数为零。协作页提示收到广播后，手机连接 `WristFlow OTA`，点 `NOR DFU → OFFLINE` 并选择 `01-bad-board.bin`。选好即开始发送。查看手机结果、板端 START 和第一份 DATA 的应答，再核空闲返回与原表盘。仅收到广播或回到原程序不足以证明手机已传包。[SDK 手机操作图](../vendor/SiFli-SDK/example/ble/peripheral_with_ota/README.md#手机使用)
+
 ## 2026-11-18 发布签名和只读 loader
 
 首次授权建钥使用 `pwsh -File scripts/Ota-ReleaseKey.ps1 -Mode Provision`；有公钥而本机缺对应私钥时会拒绝重新生成。日常发布运行项目 Python 的 `scripts/ota_release.py --build-result <普通 Product 的 result.json> --release <正整数> --out-dir <新目录>`，生成可供 Android 选取的 `offline_install.bin`。私钥由 Windows CNG 签名接口使用，打包采用锁定 SDK 的 `imgtoolv37.exe`。

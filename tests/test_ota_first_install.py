@@ -157,6 +157,11 @@ class FirstInstall(unittest.TestCase):
         self.assertEqual(len(review["reads"]),256)
         self.assertEqual(review["read_retries"],["before-00010000"])
         self.assertEqual(review["writes"],[])
+        # The same single pass is used before receiver entry, without a second
+        # B backup or any programming/read-after records.
+        (out/"original-b-4MiB.bin").rename(out/"original-b-archived.bin")
+        self.assertEqual(review_wire(out,"enter-receiver",self.bundle,None),review)
+        (out/"original-b-archived.bin").rename(out/"original-b-4MiB.bin")
         with (out/"tx.bin").open("r+b") as tx:
             tx.seek(12)
             tx.write(b"9")
