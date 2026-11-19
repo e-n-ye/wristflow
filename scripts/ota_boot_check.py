@@ -55,7 +55,7 @@ def jump_unreferenced(disassembly, start, size):
 
 
 def check(elf, binary=None, binding=None, receiver_result=None, startup_trace=False, hash_resume_probe=False,
-          handoff_trace=False):
+          handoff_trace=False, journal_dma_trace=False):
     require(not (binding and receiver_result), "Two boot bindings")
     require(not startup_trace or receiver_result is not None, "Startup trace requires an authenticated boot")
     def output(tool, *args):
@@ -63,6 +63,10 @@ def check(elf, binary=None, binding=None, receiver_result=None, startup_trace=Fa
     symbols = output("arm-none-eabi-nm", "-S")
     require(not hash_resume_probe or startup_trace, "HASH qualification requires startup trace")
     require(not handoff_trace or (startup_trace and not hash_resume_probe), "Unexpected handoff trace mode")
+    require(not journal_dma_trace or (startup_trace and not hash_resume_probe and not handoff_trace),
+            "Unexpected journal DMA trace mode")
+    sampler = re.search(r"(?m)^[0-9a-f]+ [0-9a-f]+ [Tt] wf_boot_sample_journal_dma$", symbols)
+    require(bool(sampler) == journal_dma_trace, "Unexpected journal DMA sampler")
     handoff_symbol = re.search(r"(?m)^[0-9a-f]+ [0-9a-f]+ [Tt] sample_handoff$", symbols)
     require(bool(handoff_symbol) == handoff_trace, "Unexpected handoff register sampler")
     probe_symbol = re.search(r"(?m)^[0-9a-f]+ [0-9a-f]+ [Tt] wf_boot_hash_qualify$", symbols)
@@ -71,7 +75,7 @@ def check(elf, binary=None, binding=None, receiver_result=None, startup_trace=Fa
         require(not re.search(r"\bmbedtls_sha512_process$", symbols, re.M), "Diagnostic SHA-512 configuration differs")
     for symbol in ("wf_boot_trace_preinit", "wf_boot_trace_start", "wf_boot_trace", "wf_boot_trace_hash"):
         found = re.search(r"(?m)^[0-9a-f]+ [0-9a-f]+ [Tt] "+symbol+r"$", symbols)
-        expected = startup_trace and (symbol != "wf_boot_trace_hash" or not handoff_trace)
+        expected = startup_trace and (symbol != "wf_boot_trace_hash" or not (handoff_trace or journal_dma_trace))
         require(bool(found) == expected, "Startup trace symbol binding differs: "+symbol)
     disassembly = output("arm-none-eabi-objdump", "-d", "-z", "--no-show-raw-insn")
     sizes = {}
@@ -162,7 +166,10 @@ def check(elf, binary=None, binding=None, receiver_result=None, startup_trace=Fa
                      remaining_ftab_bytes=58496-len(data), original_a_enrollment_address=hex(addr))
         if startup_trace:
             tag = list(struct.unpack("<4I", bytes.fromhex(image["sha256"])[:16]))
-            if handoff_trace:
+            if journal_dma_trace:
+                tag[0] ^= 0x35544257
+                extra["handoff_trace"] = 5
+            elif handoff_trace:
                 tag[0] ^= 0x34544257
                 extra["handoff_trace"] = 4
             else:
@@ -185,10 +192,11 @@ def main():
     parser.add_argument("--startup-trace", action="store_true")
     parser.add_argument("--hash-resume-probe", action="store_true")
     parser.add_argument("--handoff-trace", action="store_true")
+    parser.add_argument("--journal-dma-trace", action="store_true")
     args = parser.parse_args()
     try:
         report = dict(passed=True, **check(args.elf,args.bin,args.probe_binding,args.receiver_result,
-                                          args.startup_trace,args.hash_resume_probe,args.handoff_trace))
+                                          args.startup_trace,args.hash_resume_probe,args.handoff_trace,args.journal_dma_trace))
     except (ValueError, OSError, subprocess.SubprocessError) as exc:
         report = {"passed": False, "error": str(exc)}
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

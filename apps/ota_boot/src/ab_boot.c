@@ -83,8 +83,19 @@ static int erase_unit(void *ctx, unsigned unit)
 static int program_unit(void *ctx, unsigned unit, const void *src, size_t n)
 {
     (void)ctx;
+#ifdef WF_OTA_JOURNAL_DMA_TRACE
+    if (unit >= 2 || n != WF_OTA_AB_BYTES || !flash_owner() || !g_flash_write) return -1;
+    uint32_t address = WF_OTA_METADATA_REGION_START_ADDR + unit * UNIT;
+    wf_boot_sample_journal_dma(false);
+    int written = g_flash_write(address, src, n);
+    wf_boot_sample_journal_dma(true);
+    wf_boot_trace('w', address);
+    wf_boot_trace('y', (uint32_t)written);
+    return written;
+#else
     return unit < 2 && n == WF_OTA_AB_BYTES && flash_owner() && g_flash_write ?
            g_flash_write(WF_OTA_METADATA_REGION_START_ADDR + unit * UNIT, src, n) : -1;
+#endif
 }
 static bool acquire(void *ctx) { return physical(ctx); }
 static void release_lock(void *ctx) { (void)ctx; }

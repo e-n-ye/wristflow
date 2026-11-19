@@ -4,6 +4,7 @@ import struct
 import sys
 from tempfile import TemporaryDirectory
 import unittest
+from unittest.mock import Mock
 import zlib
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"scripts"))
@@ -11,6 +12,24 @@ import ota_rollback_evidence as trial
 
 
 class RollbackTranscript(unittest.TestCase):
+    def test_scanner_ready_gate_for_short_window_only(self):
+        import ota_journal_window as dma
+        for available in (True, False):
+            with TemporaryDirectory() as td:
+                media = Path(td)
+                console = Mock()
+                if not available:
+                    console.prompt.side_effect = TimeoutError()
+                observer = trial.TrialObservation(media, console, check=dma.CHECK, handoff=True)
+                observer.poll()
+                console.prompt.assert_not_called()
+                (media/"await-phone").touch()
+                observer.poll()
+                observer.poll()
+                console.prompt.assert_called_once()
+                self.assertEqual((media/"phone-ready").exists(), available)
+                self.assertEqual((media/"phone-unavailable").exists(), not available)
+
     def test_handoff_frames_are_not_product_execution_and_bad_crc_is_retained(self):
         def stage(point, detail):
             words = [trial.MAGIC,0x10001,*trial.TRACE_CHECK["startup_trace_tag"],ord(point),detail,

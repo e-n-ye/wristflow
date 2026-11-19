@@ -13,6 +13,7 @@ pub const BOOT: Range<usize> = 0x10000..0x1f000;
 pub const RX: Range<usize> = 0x820000..0x878000;
 const IDENTITY_RX: Range<usize> = 0x820000..0x879000;
 pub const INSTALLED_SHA: &str = "d862c6aab38f33490519c70be2583fc56cc5d2bc9c465543efe6aa41ab8d2258";
+pub const RESTORED_SHA: &str = "acad8c5aee3d81f1f9defed9923274a7b6982e12b688cf834313a27420f521ac";
 pub const META: Range<usize> = 0xda0000..0xda4000;
 const A: Range<usize> = 0x20000..0x420000;
 const B: Range<usize> = 0x420000..0x820000;
@@ -28,13 +29,14 @@ const BOOT_ORIGINAL_SHA: &str = "f59f948f987362f1270b1da541405e82bd887c1a16c3063
 #[serde(rename_all = "kebab-case")]
 pub enum Action { Install, VerifyOriginal, EnterReceiver, InspectReceiver, InstallIdentity, EnterIdentity, RestoreIdentity,
                   Restore, RestoreWithB, RestoreTrialB, EnterTrialB, InspectTrialB, TraceTrialB, RestoreHandoffB,
-                  TraceOriginalA, RestoreTraceA }
+                  TraceOriginalA, RestoreTraceA, TraceJournalDma, RestoreJournalDma }
 impl Action {
     pub fn traced(self) -> bool { matches!(self, Self::TraceOriginalA | Self::RestoreTraceA) }
     pub fn identity(self) -> bool { matches!(self, Self::InstallIdentity | Self::EnterIdentity | Self::RestoreIdentity) }
     pub fn key_regions(self) -> bool { self.identity() || self == Self::InspectReceiver }
     pub fn trial_read(self) -> bool { matches!(self, Self::EnterTrialB | Self::InspectTrialB) }
     pub fn handoff(self) -> bool { matches!(self, Self::TraceTrialB | Self::RestoreHandoffB) }
+    pub fn journal_dma(self) -> bool { matches!(self, Self::TraceJournalDma | Self::RestoreJournalDma) }
 }
 
 pub struct Inputs {
@@ -45,12 +47,13 @@ pub struct Inputs {
 }
 impl Inputs {
     pub fn verify(&self, action: Action) -> Result<()> {
-        require((action == Action::TraceTrialB) == self.trace_boot.is_some(), "Unexpected or missing trace image")?;
+        require(matches!(action, Action::TraceTrialB | Action::TraceJournalDma) == self.trace_boot.is_some(), "Unexpected or missing trace image")?;
         if let Some(bytes) = &self.trace_boot {
-            require(bytes.len() == BOOT.len() && hash(bytes) ==
-                "340d5aab6097e892216b0129a7d377cd3ffb748ba5bdc736f175e9c7cdfd8ed8", "Wrong padded handoff boot")?;
+            let digest = if action == Action::TraceJournalDma { "1555afe8831bd486f4b7b0c054542772ea68e5a9187283d10ecea3e0884f2ae2" }
+                         else { "340d5aab6097e892216b0129a7d377cd3ffb748ba5bdc736f175e9c7cdfd8ed8" };
+            require(bytes.len() == BOOT.len() && hash(bytes) == digest, "Wrong padded diagnostic boot")?;
         }
-        let identity_images = action.identity() || action.trial_read() || action.handoff() || action == Action::RestoreTrialB;
+        let identity_images = action.identity() || action.trial_read() || action.handoff() || action.journal_dma() || action == Action::RestoreTrialB;
         let span = if identity_images { IDENTITY_RX } else { RX };
         require(self.receiver.len() == span.len() && self.boot.len() == BOOT.len(), "Wrong boot/receiver span")?;
         require(self.journal.len() == PAGE && hash(&self.journal) ==
@@ -122,17 +125,18 @@ pub fn writable(action: Action, role: &str, offset: usize, n: usize) -> bool {
             ("certificate", 0x86c000, 4096) | ("journal", 0xda0000, 4096));
     }
     let range = match (action, role) {
-        (Action::InstallIdentity | Action::RestoreIdentity | Action::TraceTrialB | Action::RestoreHandoffB, "boot") => BOOT,
+        (Action::InstallIdentity | Action::RestoreIdentity | Action::TraceTrialB | Action::RestoreHandoffB |
+         Action::TraceJournalDma | Action::RestoreJournalDma, "boot") => BOOT,
         (Action::InstallIdentity | Action::RestoreIdentity, "receiver") => IDENTITY_RX,
         (Action::Install | Action::Restore | Action::RestoreWithB, "boot") => BOOT,
         (Action::Install | Action::Restore | Action::RestoreWithB, "receiver") => RX,
         (Action::Install, "journal") => META.start..META.start+PAGE,
         (Action::Restore | Action::RestoreWithB, "journal") => META,
         (Action::RestoreWithB, "b-body") => B.start..B_BODY_END,
-        (Action::RestoreTrialB | Action::RestoreHandoffB, "b-body") => B.start..ROLLBACK_BODY_END,
-        (Action::RestoreTrialB | Action::RestoreHandoffB, "stable-a") => META.start..META.start+8192,
-        (Action::RestoreTrialB | Action::RestoreHandoffB, "other-record") => META.start+8192..META.end,
-        (Action::RestoreWithB | Action::RestoreTrialB | Action::RestoreHandoffB, "b-tail") => B_TAIL..B.end,
+        (Action::RestoreTrialB | Action::RestoreHandoffB | Action::RestoreJournalDma, "b-body") => B.start..ROLLBACK_BODY_END,
+        (Action::RestoreTrialB | Action::RestoreHandoffB | Action::RestoreJournalDma, "stable-a") => META.start..META.start+8192,
+        (Action::RestoreTrialB | Action::RestoreHandoffB | Action::RestoreJournalDma, "other-record") => META.start+8192..META.end,
+        (Action::RestoreWithB | Action::RestoreTrialB | Action::RestoreHandoffB | Action::RestoreJournalDma, "b-tail") => B_TAIL..B.end,
         _ => return false,
     };
     offset % PAGE == 0 && n > 0 && n <= CHUNK && n % PAGE == 0 &&
@@ -201,9 +205,51 @@ fn key_transaction(io: &mut impl Nor, action: Action, images: &Inputs, installed
     io.checkpoint(json!({"identity_pair_verified":true,"restored":action==Action::RestoreIdentity}))
 }
 
+fn journal_dma_window(io: &mut impl Nor, action: Action, images: &Inputs, baseline: &[u8]) -> Result<()> {
+    require(hash(baseline) == RESTORED_SHA, "Wrong restored-board reference")?;
+    // The buffer is workspace for replace(). Only the explicitly read slices
+    // carry current device data. Never save it as a fresh full-chip snapshot.
+    let mut current = baseline.to_vec();
+    let owned = [("stable-a", META.start..META.start+8192), ("other-record", META.start+8192..META.end),
+                 ("b-body", B.start..ROLLBACK_BODY_END), ("b-tail", B_TAIL..B.end), ("boot", BOOT)];
+    for (role, range) in [("ftab",0..CHUNK), ("a-vectors",A.start..A.start+PAGE), ("receiver",IDENTITY_RX)]
+        .into_iter().chain(owned.clone()) {
+        for off in (range.start..range.end).step_by(CHUNK) {
+            let end = (off + CHUNK).min(range.end);
+            let bytes = io.read(&format!("key-{off:08x}"),off,end-off)?;
+            require(bytes.len()==end-off, "Incomplete diagnostic region")?;
+            let installed_trace = role == "boot" && action == Action::TraceJournalDma &&
+                images.trace_boot.as_deref() == Some(bytes.as_slice());
+            if !installed_trace && (action == Action::TraceJournalDma || !writable(action,role,off,end-off)) {
+                require(bytes == baseline[off..end], "Key region differs from restored baseline")?;
+            }
+            current[off..end].copy_from_slice(&bytes);
+        }
+    }
+    io.checkpoint(json!({"journal_keys_archived":true,"reference":RESTORED_SHA}))?;
+    if action == Action::TraceJournalDma {
+        replace(io,action,&mut current,"boot",BOOT.start,images.trace_boot.as_ref().ok_or("Missing trace boot")?)?;
+        return io.checkpoint(json!({"trace_boot_verified":true}));
+    }
+    for (role,range) in &owned {
+        replace(io,action,&mut current,role,range.start,&baseline[range.clone()])?;
+    }
+    for (_,range) in owned {
+        for off in (range.start..range.end).step_by(CHUNK) {
+            let end = (off + CHUNK).min(range.end);
+            require(io.read(&format!("restored-{off:08x}"),off,end-off)? == baseline[off..end],
+                    "Final key region differs; suppress reset")?;
+        }
+    }
+    io.checkpoint(json!({"restored_keys_verified":true,"reference":RESTORED_SHA}))
+}
+
 pub fn run(io: &mut impl Nor, action: Action, images: &Inputs, rescue: Option<&[u8]>) -> Result<()> {
     require(!action.traced(), "Use the bounded original-A transaction")?;
     images.verify(action)?;
+    if action.journal_dma() {
+        return journal_dma_window(io,action,images,rescue.ok_or("Missing restored-board reference")?);
+    }
     if action.key_regions() {
         return key_transaction(io, action, images, rescue.ok_or("Missing installed reference")?);
     }
@@ -211,7 +257,7 @@ pub fn run(io: &mut impl Nor, action: Action, images: &Inputs, rescue: Option<&[
     same_board(&expected)?;
     let before_hash = hash(&expected);
     match action {
-        Action::TraceOriginalA | Action::RestoreTraceA | Action::InspectReceiver |
+        Action::TraceOriginalA | Action::RestoreTraceA | Action::InspectReceiver | Action::TraceJournalDma | Action::RestoreJournalDma |
         Action::InstallIdentity | Action::EnterIdentity | Action::RestoreIdentity => return Err("Unexpected storage action".into()),
         Action::Install | Action::VerifyOriginal => {
             original(&expected)?;

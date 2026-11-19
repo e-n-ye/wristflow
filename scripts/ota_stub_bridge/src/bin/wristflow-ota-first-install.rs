@@ -71,14 +71,18 @@ impl Config {
         if self.action.traced() {
             require(self.seconds <= 90 && self.listen_seconds <= 35,"Trace time limit exceeded")?;
         }
-        require(self.trace_boot.is_some() == (self.action == Action::TraceTrialB), "Unexpected trace boot argument")?;
-        let has_reference = restore || self.action.key_regions() || self.action.trial_read() || self.action.handoff();
+        require(self.trace_boot.is_some() == matches!(self.action, Action::TraceTrialB | Action::TraceJournalDma), "Unexpected trace boot argument")?;
+        let has_reference = restore || self.action.key_regions() || self.action.trial_read() || self.action.handoff() || self.action.journal_dma();
         require(self.before.is_some() == has_reference && self.before_sha256.is_some() == has_reference, "Missing or unexpected NOR reference")?;
         if self.action == Action::InspectReceiver {
             require(self.seconds <= 240 && self.listen_seconds <= 160, "Receiver discovery time limit exceeded")?;
         }
         if self.action.key_regions() || self.action.trial_read() || self.action == Action::TraceTrialB {
             require(self.before_sha256.as_deref() == Some(media::INSTALLED_SHA), "Wrong installed reference binding")?;
+        }
+        if self.action.journal_dma() {
+            require(self.before_sha256.as_deref() == Some(media::RESTORED_SHA) && self.seconds <= 800 &&
+                    self.listen_seconds <= 420, "Wrong journal DMA reference or time limit")?;
         }
         let scope = match self.action {
             Action::Install => "first-install-receiver-journal-boot-and-enter",
@@ -95,6 +99,8 @@ impl Config {
             Action::InspectTrialB => "read-05-after-autonomous-return-and-start-stable-a",
             Action::TraceTrialB => "temporary-handoff-boot-and-android-05",
             Action::RestoreHandoffB => "restore-pretrace-boot-stable-a-and-original-b",
+            Action::TraceJournalDma => "trace-05-journal-dma-with-key-readback",
+            Action::RestoreJournalDma => "restore-05-journal-dma-key-regions",
             Action::TraceOriginalA => "ordinary-a-three-range-trace",
             Action::RestoreTraceA => "restore-three-trace-ranges",
         };
@@ -135,7 +141,8 @@ fn apply(c: &Config) -> Result<()> {
     let receiver = if c.action.traced() { "certificate.bin" } else { "receiver.bin" };
     let trace_boot = if let Some(path) = &c.trace_boot {
         let mut bytes = fs::read(path)?;
-        require(bytes.len() == 58264, "Wrong handoff BIN length")?;
+        let size = if c.action == Action::TraceJournalDma { 58272 } else { 58264 };
+        require(bytes.len() == size, "Wrong diagnostic BIN length")?;
         bytes.resize(media::BOOT.len(), 255);
         Some(bytes)
     } else { None };
@@ -146,7 +153,7 @@ fn apply(c: &Config) -> Result<()> {
     if let Some(d) = &source {
         require(Some(hash(d)) == c.before_sha256, "Previous window original changed")?;
         if c.action.traced() { require(hash(d)==trace_media::ORIGINALS_SHA,"Invalid compact originals")?; }
-        else if !c.action.key_regions() && !c.action.trial_read() && !c.action.handoff() { media::original(d)?; }
+        else if !c.action.key_regions() && !c.action.trial_read() && !c.action.handoff() && !c.action.journal_dma() { media::original(d)?; }
     }
     let stub = fs::read(&c.stub)?;
     require(stub.len() == 132816 && hash(&stub) == "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43",
@@ -155,7 +162,7 @@ fn apply(c: &Config) -> Result<()> {
     let result = if c.simulation {
         let mut mem = Memory {bytes:fs::read(c.fixture.as_ref().unwrap())?,out:&c.out,action:c.action};
         transact(&mut mem,c,&images,source.as_deref()).and_then(|()| {
-            if c.action.traced() || c.action.identity() || c.action == Action::TraceTrialB { save(&c.out.join("simulated-nor.bin"),&mem.bytes)?; }
+            if c.action.traced() || c.action.identity() || c.action == Action::TraceTrialB || c.action.journal_dma() { save(&c.out.join("simulated-nor.bin"),&mem.bytes)?; }
             Ok(())
         })
     } else {

@@ -42,9 +42,23 @@ impl Session<'_> {
         self.speed(1_000_000,500_000)
     }
     fn start(&mut self) -> Result<()> {
+        let mut start_receiver = true;
+        if self.cfg.action == Action::TraceJournalDma {
+            let ready = self.cfg.out.join("phone-ready");
+            let decline = self.cfg.out.join("phone-unavailable");
+            self.checkpoint(json!({"waiting_for_phone":true}))?;
+            save(&self.cfg.out.join("await-phone"),b"")?;
+            let until = Instant::now() + Duration::from_secs(175);
+            while !ready.exists() && !decline.exists() && Instant::now() < until {
+                self.check()?;
+                thread::sleep(Duration::from_millis(100));
+            }
+            start_receiver = ready.exists() && !decline.exists();
+            self.checkpoint(json!({"phone_ready":start_receiver}))?;
+        }
         self.speed(500_000,1_000_000)?;
-        if matches!(self.cfg.action,Action::Install|Action::EnterReceiver|Action::InspectReceiver|
-                                    Action::InstallIdentity|Action::EnterIdentity|Action::EnterTrialB|Action::TraceTrialB) {
+        if start_receiver && matches!(self.cfg.action,Action::Install|Action::EnterReceiver|Action::InspectReceiver|
+                                    Action::InstallIdentity|Action::EnterIdentity|Action::EnterTrialB|Action::TraceTrialB|Action::TraceJournalDma) {
             // SF32LB52 RTC_BASE + offsetof(RTC_TypeDef, BKP5R), the SDK's
             // RTC_BAKCUP_OTA_FORCE_MODE. Preserve any unknown existing value.
             const REQUEST_REGISTER:u32 = 0x500cb044;

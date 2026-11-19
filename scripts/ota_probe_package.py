@@ -186,11 +186,13 @@ def parse_startup(raw, manifest):
                        'e':'short-vector engine failure offset', 'U':'short-vector matches', 'I':'full A method',
                        'Z':'full A result word', 'f':'full A qualification failure offset', 'C':'qualified method',
                        'X':'CPU/peripheral discrepancy in signed verification'})
-    handoff = manifest.get('handoff_trace') == 4
-    if handoff:
+    handoff_version = manifest.get('handoff_trace')
+    if handoff_version in (4, 5):
         stages.update({'G':'loaded journal generation', 'p':'loaded journal phase',
                        'W':'before setting trial request and arming watchdog',
                        'm':'reset vector read through applied mapping', 'v':'vector preparation rejected slot'})
+    if handoff_version == 5:
+        stages.update(w='DMA/MPI sample before journal program', y='DMA/MPI sample after journal program')
     records=[]
     error=None
     try:
@@ -200,10 +202,24 @@ def parse_startup(raw, manifest):
             require(f[1]&0xffff == (4 if point=='!' else 1), 'Boot trace kind differs from point')
             record = dict(point=point,stage=stages[point],detail=f[7],pc=hex(f[8]),
                           sp=hex(f[9]),vtor=hex(f[10]),ccr=hex(f[11]),primask=f[12])
-            if handoff and point in ('O', 'M', 'm', 'T'):
+            if handoff_version == 4 and point in ('O', 'M', 'm', 'T'):
                 record['handoff'] = dict(alias=list(f[13:16]), lcpu_pmr=f[16], extdma_ccr=f[17],
                                          dmac1_enabled_mask=f[18] & 0xff, dmac2_enabled_mask=f[18] >> 8)
+            if handoff_version == 5:
+                previous = records[-1] if records else {}
+                require((previous.get('point') == 'w') == (point == 'y'), 'Incomplete journal write pair')
+                if point in ('w','y'):
+                    record['journal_dma'] = dict(ccr2=f[13], cndtr2=f[14], mpi_cr=f[15], mpi_sr=f[16],
+                        cselr1=f[17], enabled=bool(f[13]&1), remaining=f[14]&0xffff,
+                        mpi_dma_enabled=bool(f[15]&32), mpi_busy=bool(f[16]&(1<<31)), request=(f[17]>>8)&63)
+                    if point == 'w':
+                        require(f[7] in (0x12da0000,0x12da2000), 'Unexpected journal program address')
+                    else:
+                        record['write_address'] = previous['detail']
+                        record['write_result'] = struct.unpack('<i',struct.pack('<I',f[7]))[0]
             records.append(record)
+        if handoff_version == 5 and records:
+            require(records[-1]['point'] != 'w', 'Missing journal program return')
     except ValueError as exc:
         error=str(exc)
     return dict(frames=records,decode_error=error,uart_sha256=hashlib.sha256(raw).hexdigest())

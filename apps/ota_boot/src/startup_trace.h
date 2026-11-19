@@ -3,6 +3,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#ifdef WF_OTA_JOURNAL_DMA_TRACE
+void wf_boot_sample_journal_dma(bool after);
+#endif
+
 #if defined(WF_OTA_BOOT_TRACE) || defined(WF_OTA_HANDOFF_TRACE)
 void wf_boot_trace_preinit(void);
 void wf_boot_trace_start(void);

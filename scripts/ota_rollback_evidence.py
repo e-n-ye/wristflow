@@ -39,7 +39,7 @@ def handoff_binary(path):
     return data.ljust(61440,b"\xff")
 
 
-def handoff_report(raw):
+def handoff_report(raw, check=TRACE_CHECK):
     """Decode only frames after the signed install commitment; retain partial captures."""
     before, separator, after = raw.partition(COMMIT + b"\r\n")
     if not separator:
@@ -51,7 +51,7 @@ def handoff_report(raw):
         require(pos >= cursor, "Missing or out-of-order 05 transfer receipt")
         cursor = pos + len(line)
     require(COMMIT not in after, "Ambiguous 05 commit")
-    result = parse_startup(after, TRACE_CHECK)
+    result = parse_startup(after, check)
     # Frames are binary and do not end with a newline. Remove only frames
     # whose CRC, tag and phase were validated by parse_startup.
     parts = []
@@ -143,12 +143,26 @@ def verify_passive_wire(media, raw):
 
 
 class TrialObservation(PhoneObservation):
-    def __init__(self, media, console, *, handoff=False, **options):
+    def __init__(self, media, console, *, handoff=False, check=TRACE_CHECK, **options):
         super().__init__(media,console,**options)
         self.last_reads = Path(media)/"before-00e80000.bin"
         self.handoff = handoff
+        self.check = check
+        self.ready_answered = False
+        if check.get("handoff_trace") == 5:
+            self.last_reads = Path(media)/"key-005a0000.bin"
 
     def poll(self):
+        directory = self.uart.parent
+        if self.check.get("handoff_trace")==5 and not self.ready_answered and (directory/"await-phone").exists():
+            self.ready_answered = True
+            try:
+                self.console.prompt("phone_ready","手机已停在 SIFLI BLE 扫描列表时点“确认并继续”，随即开始广播。",150)
+                (directory/"phone-ready").touch(exist_ok=False)
+                self.console.stage("phone_ready","complete")
+                self.prepared = True
+            except TimeoutError:
+                (directory/"phone-unavailable").touch(exist_ok=False)
         state = super().poll()
         if not state or self.finished or not self.announced or not state["install_started"]:
             return
@@ -158,7 +172,7 @@ class TrialObservation(PhoneObservation):
         try:
             raw = self.uart.read_bytes()
             if self.handoff:
-                if not handoff_report(raw).get("automatic_sequence_observed"):
+                if not handoff_report(raw,self.check).get("automatic_sequence_observed"):
                     return
             else:
                 trial_boots(raw)
