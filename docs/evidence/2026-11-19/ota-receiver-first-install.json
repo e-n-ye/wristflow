@@ -1,0 +1,73 @@
+{
+  "base": "6a49bd06ef7e2a3ddc8ce585076457085c39b710",
+  "capture": "artifacts/ota-corrected-first-device-20261119-001",
+  "action": "persistent first installation and one idle receiver boot, Android disconnected",
+  "controller_command": "python -B scripts/ota_first_window.py capture --action install --authorize first-install-receiver-journal-boot-and-enter --out artifacts/ota-corrected-first-device-20261119-001 --build artifacts/ota-hash-resume-first-host/result.json --bundle artifacts/ota-hash-resume-first-bundle",
+  "hardware": "original Huangshan board, original battery, onboard CH340 COM5 at USB 1-1.1, 4168 mV, charger inhibited with REG01=ac",
+  "build": {
+    "firmware": "reuse the corrected ordinary boot and full receiver in ../2026-11-18/ota-hash-resume.json",
+    "host": "artifacts/ota-hash-resume-first-host/result.json",
+    "host_manifest_sha256": "8dcecfc39f93d124df32a43bbd096731bf548a76f39963dc73d9b5e9ad0c0368",
+    "bundle": "artifacts/ota-hash-resume-first-bundle/bundle.json",
+    "bundle_manifest_sha256": "008218b1cbe39507464990996a3613c57681186a368999d5c6910ff9cd0994e0"
+  },
+  "flash_before_first_receiver_boot": {
+    "backup_bytes": 16777216,
+    "backup_sha256": "d5ab3c530a789f38ca9852a56e16a5d3c9d67a0d4803a570572662482449621b",
+    "expected_and_readback_sha256": "d862c6aab38f33490519c70be2583fc56cc5d2bc9c465543efe6aa41ab8d2258",
+    "a_slot_before_and_after_sha256": "6ebed703bad44f8715b75ec6aecf59f00ba13ce2076464b8667300c95cb0345d",
+    "b_slot_before_after_and_separate_4MiB_backup_sha256": "4205c2f63f4417b614d34edf9422e9f3adb3d9899cd5d9db379c7fce3ccda0a0",
+    "nor_offsets_in_write_order": [
+      {"role": "receiver", "offset": "0x00820000", "bytes": 360448, "blocks": 6},
+      {"role": "stable A journal", "offset": "0x00da0000", "bytes": 4096, "blocks": 1},
+      {"role": "ordinary boot", "offset": "0x00010000", "bytes": 61440, "blocks": 1}
+    ],
+    "raw_review": {"reads": 520, "writes": 8, "read_retries": 0, "uart_closed": true},
+    "entire_readback_check": "256 original blocks, individual write readbacks, then 256 post-install blocks compared against original bytes with only the three sealed ranges replaced"
+  },
+  "receiver_and_return": {
+    "startup_uart_in_order": [
+      "[ota-radio] advertising=0 name=WristFlow OTA",
+      "[ota-radio] inactive, returning to boot selection",
+      "SFBL",
+      "[product] layout restore=yes generation=56 pages=3",
+      "[product] storage=ready restore=yes brightness=50 face=diffusion breathing=1 rtc=available"
+    ],
+    "scanner": "Windows active scan with Bleak 3.0.2 for 180 seconds, no GATT connection",
+    "distinct_receiver_addresses_with_name_and_service": 1,
+    "complete_local_name_scan_responses": 118,
+    "service_uuid_advertisements": 126,
+    "service_uuid_ad_type": 7,
+    "service_uuid_wire_hex": "7369666c695f73640000000000000000",
+    "service_uuid": "00000000-0000-0000-6473-5f696c666973",
+    "receiver_rssi_dbm_range": [-59, -48],
+    "first_to_last_receiver_name_host_ms": 120293,
+    "last_receiver_name_to_first_original_name_host_ms": 5693,
+    "subsequent_original_name": "Bangle.js WristFlow",
+    "subsequent_original_name_packets": 51
+  },
+  "original_product": {
+    "operator_on_return": "原表盘和触摸正常，临时常亮已开",
+    "saved_boot_before_after": [44, 45],
+    "saved_generation_before_after": [224, 225],
+    "saved_total_recorded_ms_before_after": [1595278067, 1595279157],
+    "all_saved_scenes_nondecreasing": true,
+    "saved_failures_before_after": [0, 0],
+    "previous_unsaved_tail_archived_on_host_ms": 108035,
+    "rtc": "2000-01-01 before and after, unsynchronized",
+    "operator_final": "临时常亮已关，显示、触摸和 KEY1 正常"
+  },
+  "capture_sha256": {
+    "media/rx.bin": "d3752e866373238da1c6c72188d62f100c9b9d9beae4d614c1a85689defee1d5",
+    "media/tx.bin": "fbfdcef16948995ab963061335609694b9dedf6d6f2b3ef33d77de42bad25006",
+    "media/startup-uart.bin": "1f116fae7e8d25ff4d7cb85e13c0fb06ad0afbec34eaa39e7a90facdfbd9f2db",
+    "wire-review.json": "c510f8d9cb5cbb8adc10f3983c2ba69047856686cd025e18bcbd2deeb298be1b",
+    "windows-air.jsonl": "b04f744722f4a84a090917c7b08e4e6f1573fea1b53ea3f6c783e60a5af9e05d",
+    "app-before/before-snapshot.json": "634a618a789ea75952eb48dc42ffad2a8866e7a0a7b579482034231e1d7438f8",
+    "app-after/after-snapshot.json": "c60dedb200b18f418b9096c894e554f948276269378d306f8ce8519add4ddeed",
+    "window.json": "83726ccd399445c4125b77e271349cdfa7359c422e46e740ff3c4824c5af7b78"
+  },
+  "worker_and_controller_exit": [0, 0],
+  "elapsed_seconds_including_operator": 1523.43,
+  "limits": "No phone file transfer, inactive-slot OTA install, trial or rollback in this capture. No RTC synchronization. The whole-NOR comparison was before starting the receiver and returning to Product."
+}
