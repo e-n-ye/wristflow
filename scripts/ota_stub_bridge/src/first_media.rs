@@ -20,7 +20,7 @@ const FIXED_BOOT_SHA: &str = "4fd4f8a35a72aa05f4e3c498a0564aad13413812950eb683f4
 // readbacks and (for stable B) the signed 06 package and journal transitions.
 pub const POST_05_MODEL: &str = "116219ecabdcf9c5ce01043e821ad3885d86e6251a199e5a166f1ede23bc95ed";
 pub const STABLE_06_MODEL: &str = "3e24c4b965433b6225b001c3a47744e833594c7663ba25cf7a9efa097f18ea47";
-const STABLE_DISPLAY_A_MODEL: &str = "f242e48a6df6215e215461ec36137fa82aa3a98c0b68f7a9e8ad4eceaa59003b";
+const STABLE_DISPLAY_2026112001_MODEL: &str = "df93ea035e8ff9527caa98d1d320017e716cb46a468c703813089497d551685e";
 pub const META: Range<usize> = 0xda0000..0xda4000;
 const A: Range<usize> = 0x20000..0x420000;
 const B: Range<usize> = 0x420000..0x820000;
@@ -39,7 +39,10 @@ pub enum Action { Install, VerifyOriginal, EnterReceiver, InspectReceiver, Insta
                   Restore, RestoreWithB, RestoreTrialB, EnterTrialB, InspectTrialB, TraceTrialB, RestoreHandoffB,
                   TraceOriginalA, RestoreTraceA, TraceJournalDma, RestoreJournalDma, TestFixedRollback, InspectFixedRollback,
                   EnterHealthB, InspectHealthB, RestoreHealthB, InstallDisplayPair, RestoreDisplayPair,
-                  InstallDisplayPairA, RestoreDisplayPairA }
+                  #[serde(rename = "install-display-pair-2026112001")]
+                  InstallDisplayPair2026112001,
+                  #[serde(rename = "restore-display-pair-2026112001")]
+                  RestoreDisplayPair2026112001 }
 impl Action {
     pub fn traced(self) -> bool { matches!(self, Self::TraceOriginalA | Self::RestoreTraceA) }
     pub fn identity(self) -> bool { matches!(self, Self::InstallIdentity | Self::EnterIdentity | Self::RestoreIdentity) }
@@ -52,7 +55,8 @@ impl Action {
     pub fn display_model(self) -> Option<&'static str> {
         match self {
             Self::InstallDisplayPair | Self::RestoreDisplayPair => Some(STABLE_06_MODEL),
-            Self::InstallDisplayPairA | Self::RestoreDisplayPairA => Some(STABLE_DISPLAY_A_MODEL),
+            Self::InstallDisplayPair2026112001 | Self::RestoreDisplayPair2026112001 =>
+                Some(STABLE_DISPLAY_2026112001_MODEL),
             _ => None,
         }
     }
@@ -202,9 +206,9 @@ fn display_pair_window(io: &mut impl Nor, action: Action, images: &Inputs, befor
     require(before.len() == SIZE && Some(hash(before).as_str()) == action.display_model(),
             "Wrong stable display reference")?;
     let mut live = before.to_vec();
-    let restore = matches!(action, Action::RestoreDisplayPair | Action::RestoreDisplayPairA);
-    let stable_a = matches!(action, Action::InstallDisplayPairA | Action::RestoreDisplayPairA);
-    let a_tail = stable_a.then_some((A.end - PAGE..A.end, false));
+    let restore = matches!(action, Action::RestoreDisplayPair | Action::RestoreDisplayPair2026112001);
+    let current = matches!(action, Action::InstallDisplayPair2026112001 | Action::RestoreDisplayPair2026112001);
+    let a_tail = current.then_some((A.end - PAGE..A.end, false));
     for (range, writable) in [(0..CHUNK, false), (BOOT, true), (DISPLAY_RX, true),
                                (META, false), (B_TAIL..B.end, false)].into_iter().chain(a_tail) {
         for off in (range.start..range.end).step_by(CHUNK) {
@@ -389,7 +393,7 @@ pub fn run(io: &mut impl Nor, action: Action, images: &Inputs, rescue: Option<&[
     let before_hash = hash(&expected);
     match action {
         Action::EnterHealthB | Action::InspectHealthB | Action::RestoreHealthB | Action::InstallDisplayPair | Action::RestoreDisplayPair |
-        Action::InstallDisplayPairA | Action::RestoreDisplayPairA |
+        Action::InstallDisplayPair2026112001 | Action::RestoreDisplayPair2026112001 |
         Action::TraceOriginalA | Action::RestoreTraceA | Action::InspectReceiver | Action::TraceJournalDma | Action::RestoreJournalDma |
         Action::TestFixedRollback | Action::InspectFixedRollback | Action::InstallIdentity | Action::EnterIdentity | Action::RestoreIdentity => return Err("Unexpected storage action".into()),
         Action::Install | Action::VerifyOriginal => {

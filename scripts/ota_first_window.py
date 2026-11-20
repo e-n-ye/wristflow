@@ -50,8 +50,8 @@ SCOPE = {"install": "first-install-receiver-journal-boot-and-enter",
          "restore-identity": "restore-provisioned-pair-after-identity-window",
          "install-display-pair": "install-512k-display-pair-restart-stable-b",
          "restore-display-pair": "restore-original-display-pair-restart-stable-b",
-         "install-display-pair-a": "install-512k-display-pair-restart-stable-a",
-         "restore-display-pair-a": "restore-original-display-pair-restart-stable-a",
+         "install-display-pair-2026112001": "install-512k-display-pair-restart-stable-b-2026112001",
+         "restore-display-pair-2026112001": "restore-original-display-pair-restart-stable-b-2026112001",
          "restore": "restore-first-install-and-start-original",
          "restore-with-b": "restore-first-install-and-owned-b-extents-and-start-original"}
 APP = "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d"
@@ -101,14 +101,14 @@ class AppSimulation(Simulation):
 def app_worker(cfg):
     out, phase = Path(cfg["root"]), cfg["phase"]
     require(phase in ("before","after"), "Unknown application phase")
-    from ota_health_evidence import SCOPE as health_scope, boot_result, display_a_reference
+    from ota_health_evidence import SCOPE as health_scope, boot_result, display_b_reference
     combined = cfg["action"] == "combined-06" and cfg["authorization"] == health_scope
-    display_pair = (cfg["action"] in ("install-display-pair", "restore-display-pair", "install-display-pair-a") and
+    display_pair = (cfg["action"] in ("install-display-pair", "restore-display-pair", "install-display-pair-2026112001") and
                     cfg["authorization"] == SCOPE[cfg["action"]])
-    display_a = display_pair and cfg["action"] == "install-display-pair-a"
+    display_current = display_pair and cfg["action"] == "install-display-pair-2026112001"
     boot_source = cfg.get("health_boot")
     require(not boot_source or combined or display_pair, "Unexpected firmware boot evidence")
-    mode = "display-a-product" if display_a else "06-product" if boot_source else "original-cyclelog"
+    mode = "display-b-2026112001-product" if display_current else "06-product" if boot_source else "original-cyclelog"
     journal = Journal(out / ("app-"+phase),binding=cfg,mode=mode)
     cancel = FileCancel(out/"cancel")
     deadline = time.monotonic()+65
@@ -130,8 +130,8 @@ def app_worker(cfg):
                     cfg["authorization"]=="trace-ordinary-a-68k-and-restore"))
         require(os.name=="nt" and allowed, "Explicit device window required")
         if boot_source:
-            if display_a:
-                display_a_reference(Path(boot_source).read_bytes())
+            if display_current:
+                display_b_reference(Path(boot_source).read_bytes())
             else:
                 from lab_check import check_build
                 media = Path(boot_source)

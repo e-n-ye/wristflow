@@ -11,24 +11,20 @@ from battery_lab import Journal
 from lab_evidence import digest, file_record, verify_files, write_json
 from ota_first_install import ROOT, read_json, require, save, sha
 from ota_first_window import SCOPE, STUB, app_phase, owned_endpoint, review_transfers, review_trial_commands, run_owned
-from ota_health_evidence import boot_result, display_a_reference
+from ota_health_evidence import STABLE, STABLE_DISPLAY_B, boot_result, display_b_reference
 from ota_health_media import STABLE_06
 from ota_rollback_evidence import verify_passive_wire
 
 INSTALL = "install-display-pair"
 RESTORE = "restore-display-pair"
-INSTALL_A = "install-display-pair-a"
-RESTORE_A = "restore-display-pair-a"
-STABLE_A = "f242e48a6df6215e215461ec36137fa82aa3a98c0b68f7a9e8ad4eceaa59003b"
+INSTALL_CURRENT = "install-display-pair-2026112001"
+RESTORE_CURRENT = "restore-display-pair-2026112001"
+STABLE_CURRENT = "df93ea035e8ff9527caa98d1d320017e716cb46a468c703813089497d551685e"
 BOOT = (0x10000, 0x1F000)
 RECEIVER = (0x820000, 0x8A0000)
 CHUNK = 0x10000
 PROTECTED = ((0, 0x10000), (0xDA0000, 0xDA4000), (0x81F000, 0x820000))
 A_SIGNATURE = (0x41F000, 0x420000)
-
-
-def stable_slot(action):
-    return "A" if action in (INSTALL_A, RESTORE_A) else "B"
 
 
 def frozen_build(path, kind):
@@ -53,8 +49,8 @@ def prepare(receiver_result, boot_result_path, model, out):
             "Boot does not bind the expanded receiver")
     known = model.read_bytes()
     known_sha = sha(known)
-    require(len(known) == 0x1000000 and known_sha in (STABLE_06, STABLE_A), "Wrong stable display model")
-    model_name = "stable-a.bin" if known_sha == STABLE_A else "stable-b.bin"
+    require(len(known) == 0x1000000 and known_sha in (STABLE_06, STABLE_CURRENT), "Wrong stable display model")
+    model_name = "stable-b-2026112001.bin" if known_sha == STABLE_CURRENT else "stable-b.bin"
     out.mkdir(parents=True)
     save(out / "boot.bin", boot.ljust(BOOT[1] - BOOT[0], b"\xff"))
     save(out / "receiver.bin", receiver.ljust(RECEIVER[1] - RECEIVER[0], b"\xff"))
@@ -71,8 +67,8 @@ def chunks(region):
 
 def pair_transfers(directory, action, old, boot, receiver):
     """Rebuild the expected transaction from the same-window preflight files."""
-    restoring = action in (RESTORE, RESTORE_A)
-    protected = PROTECTED + ((A_SIGNATURE,) if stable_slot(action) == "A" else ())
+    restoring = action in (RESTORE, RESTORE_CURRENT)
+    protected = PROTECTED + ((A_SIGNATURE,) if action in (INSTALL_CURRENT, RESTORE_CURRENT) else ())
     reads, writes, final = [], [], []
     current = {}
     for region in (protected[0], BOOT, RECEIVER, *protected[1:]):
@@ -102,10 +98,11 @@ def pair_transfers(directory, action, old, boot, receiver):
 
 def run(args):
     live = args.operation == "capture"
-    slot = stable_slot(args.action)
-    restoring = args.action in (RESTORE, RESTORE_A)
-    expected_model = STABLE_A if slot == "A" else STABLE_06
-    install_action = INSTALL_A if slot == "A" else INSTALL
+    current = args.action in (INSTALL_CURRENT, RESTORE_CURRENT)
+    label = "B 2026112001" if current else "B 2026111802"
+    restoring = args.action in (RESTORE, RESTORE_CURRENT)
+    expected_model = STABLE_CURRENT if current else STABLE_06
+    install_action = INSTALL_CURRENT if current else INSTALL
     require(args.authorize == (SCOPE[args.action] if live else "simulation") and
             (not live or os.name == "nt" and not args.fixture) and
             args.on_site_confirmed == live and
@@ -115,13 +112,14 @@ def run(args):
     bundle, out = args.bundle.resolve(), args.out.resolve()
     pair = read_json(bundle / "pair.json")
     verify_files(pair["files"])
-    boot, receiver, model = [bundle / name for name in ("boot.bin", "receiver.bin", f"stable-{slot.lower()}.bin")]
+    model_name = "stable-b-2026112001.bin" if current else "stable-b.bin"
+    boot, receiver, model = [bundle / name for name in ("boot.bin", "receiver.bin", model_name)]
     require([str(p) for p in (boot, receiver, model)] == [r["path"] for r in pair["files"]],
             "Bundle must use the frozen paths")
     old = model.read_bytes()
-    require(sha(old) == expected_model, f"Stable {slot} model differs")
-    if args.stable_uart and slot == "A":
-        display_a_reference(args.stable_uart.read_bytes())
+    require(sha(old) == expected_model, f"Stable {label} model differs")
+    if args.stable_uart and current:
+        display_b_reference(args.stable_uart.read_bytes())
     if args.prior:
         prior = args.prior.resolve()
         prior_request = read_json(prior / "media-request.json")
@@ -133,14 +131,14 @@ def run(args):
                 "Installation has no Flash write intent")
         for start, end in chunks(BOOT) + chunks(RECEIVER):
             require((prior / f"media/key-{start:08x}.bin").read_bytes() == old[start:end],
-                    f"Installation preimage differs from stable {slot}")
+                    f"Installation preimage differs from stable {label}")
     build = read_json(args.build.resolve())
     require(build["kind"] == "original-board-first-install" and not build["device_actions"], "Unexpected bridge")
     verify_files([*build["sources"], build["executable"], build["sdk_lock"]], ROOT)
     journal = Journal(out, binding=dict(action=args.action, simulation=not live, pair=pair), mode="ota-display-pair")
     report = {"passed": False, "simulation": not live, "hardware_verified": False}
-    phases = [("preflight", f"核对同一块表及稳定 {slot}"), ("pair", "写入并读回配套镜像"),
-              ("normal", f"从串口核对稳定 {slot} 启动")]
+    phases = [("preflight", f"核对同一块表及稳定 {label}"), ("pair", "写入并读回配套镜像"),
+              ("normal", f"从串口核对稳定 {label} 启动")]
     with Console(journal, phases, mode="OTA 接收器和配套 boot") as console:
         try:
             with owned_endpoint("COM5" if live else "SIMULATED-DISPLAY", report):
@@ -170,7 +168,7 @@ def run(args):
                     review_trial_commands((media / "tx.bin").read_bytes(), reads, writes, trace["read_retries"])
                     uart = (media / "startup-uart.bin").read_bytes()
                     verify_passive_wire(media, uart)
-                    boot_result(uart, "ordinary", stable_slot=slot)
+                    boot_result(uart, "ordinary", stable_marker=STABLE_DISPLAY_B if current else STABLE)
                 else:
                     expected = bytearray(fixture.read_bytes())
                     for _, start, part in writes:
@@ -199,7 +197,7 @@ if __name__ == "__main__":
         packing.add_argument("--" + name, type=Path, required=True)
     for mode in ("simulate", "capture"):
         window = modes.add_parser(mode)
-        window.add_argument("--action", choices=(INSTALL, RESTORE, INSTALL_A, RESTORE_A), required=True)
+        window.add_argument("--action", choices=(INSTALL, RESTORE, INSTALL_CURRENT, RESTORE_CURRENT), required=True)
         window.add_argument("--authorize", required=True)
         window.add_argument("--on-site-confirmed", action="store_true",
                             help="Record the operator's existing confirmation of board, power and presence in chat")

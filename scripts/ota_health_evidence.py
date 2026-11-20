@@ -18,8 +18,8 @@ END = b"[ota-radio] request=42 result=0 accepted=1482 sent=10"
 COMMIT = b"[ota-ready] release=2026111802 bytes=3033572 trial committed"
 TRIAL = b"[ota-product] slot=B release=2026111802 trial=1 services=1"
 STABLE = b"[ota-product] slot=B release=2026111802 trial=0 services=1"
-STABLE_DISPLAY_A = b"[ota-product] slot=A release=2026112001 trial=0 services=1"
-STABLE_DISPLAY_A_UART_SHA256 = "d1265499b1b49c6d2bba4cc1a572640439fa2a03f83621a13acef5637275a041"
+STABLE_DISPLAY_B = b"[ota-product] slot=B release=2026112001 trial=0 services=1"
+STABLE_DISPLAY_B_UART_SHA256 = "9d2afcf0e5e39e01b1e7b4b571396305413d3af6c5440fc887dce9efc18949c7"
 HANDOFF = re.compile(rb"\[ota-product\] handoff_intent=healthy saved_generation=(\d+)")
 
 
@@ -84,15 +84,14 @@ def restored_values(lines):
     return [v.decode() for v in storage[0]+layout[0]]
 
 
-def boot_result(raw, stage, *, stable_slot="B"):
+def boot_result(raw, stage, *, stable_marker=STABLE):
     lines = uart_lines(raw)
     if stage == "ordinary":
-        stable = {"A": STABLE_DISPLAY_A, "B": STABLE}[stable_slot]
         require(lines.count(b"SFBL") == 1 and ADVERTISING not in lines, "Unexpected ordinary restart")
         lines = lines[lines.index(b"SFBL")+1:]
-        require([s for s in lines if s.startswith(b"[ota-product]")] == [stable],
-                f"Ordinary reboot did not run the expected stable slot {stable_slot}")
-        return dict(slot=stable_slot, settings=restored_values(lines))
+        require([s for s in lines if s.startswith(b"[ota-product]")] == [stable_marker],
+                "Ordinary reboot did not run the expected stable B release")
+        return dict(slot="B", settings=restored_values(lines))
     # A disconnect can restart advertising without rebooting the receiver.
     require(confirmed_identity(raw, None, ADDRESS) == ADDRESS and ADVERTISING in lines, "Receiver identity mismatch")
     session = lines[lines.index(ADVERTISING)+1:]
@@ -121,11 +120,9 @@ def boot_result(raw, stage, *, stable_slot="B"):
     return dict(slot="B", settings=settings, handoff_generation=int(HANDOFF.fullmatch(markers[1])[1]))
 
 
-def display_a_reference(raw):
-    require(sha(raw) == STABLE_DISPLAY_A_UART_SHA256, "Stable A UART evidence changed")
-    lines = uart_lines(raw)
-    last_boot = max(i for i, line in enumerate(lines) if line == b"SFBL")
-    return boot_result(b"\n".join(lines[last_boot:]) + b"\n", "ordinary", stable_slot="A")
+def display_b_reference(raw):
+    require(sha(raw) == STABLE_DISPLAY_B_UART_SHA256, "Stable 2026112001 UART evidence changed")
+    return boot_result(raw, "ordinary", stable_marker=STABLE_DISPLAY_B)
 
 
 def partial_phone(raw):
