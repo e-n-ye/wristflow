@@ -131,7 +131,8 @@ bool wf_ota_loader_has_stable(void)
 {
     wf_ota_ab_state_t state;
     unsigned unit;
-    return wf_ota_journal_load(&journal, &state, &unit) == WF_OTA_JOURNAL_OK;
+    return wf_ota_journal_load(&journal, &state, &unit) == WF_OTA_JOURNAL_OK &&
+           state.phase == WF_OTA_AB_STABLE;
 }
 
 /* The receiver worker is the only slot writer. Abort on the first ambiguous

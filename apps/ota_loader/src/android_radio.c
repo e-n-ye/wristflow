@@ -1,8 +1,11 @@
 #include <rtconfig.h>
 #ifdef WF_OTA_ANDROID_RECEIVER
 #include <rtthread.h>
+#include <rthw.h>
 #include <bf0_hal.h>
 #include <string.h>
+#include "button.h"
+#include "endurance.h"
 #include "bf0_ble_gap.h"
 #include "bf0_sibles.h"
 #include "bf0_sibles_internal.h"
@@ -28,6 +31,93 @@ static volatile bool address_matched;
 static rt_mq_t requests;
 static volatile uint32_t connection_epoch;
 static volatile uint8_t peer = 0xff;
+static bool key_available;
+static volatile bool key_allowed = true;
+static volatile bool key_down;
+static volatile uint32_t key_id;
+static volatile rt_tick_t key_started;
+static wristflow_endurance_t exit_hold = {.enabled = true};
+#define KEY_POLL_MS 40u
+
+static void key_event(int32_t pin, button_action_t action)
+{
+    (void)pin;
+    rt_base_t level = rt_hw_interrupt_disable();
+    if (action == BUTTON_PRESSED && key_allowed) {
+        key_started = rt_tick_get();
+        ++key_id;
+        key_down = true;
+    } else if (action == BUTTON_RELEASED) {
+        key_down = false;
+    }
+    rt_hw_interrupt_enable(level);
+}
+
+static void key_start(void)
+{
+    button_cfg_t key = {
+        .pin = BSP_KEY1_PIN,
+#ifdef BSP_KEY1_ACTIVE_HIGH
+        .active_state = BUTTON_ACTIVE_HIGH,
+#else
+        .active_state = BUTTON_ACTIVE_LOW,
+#endif
+        .mode = PIN_MODE_INPUT,
+        .button_handler = key_event,
+    };
+    int32_t id = button_init(&key);
+    key_available = id >= 0 && button_enable(id) == SF_EOK;
+    if (key_available) wf_ota_display_exit_progress(0);
+    else rt_kprintf("[ota-radio] side key unavailable\n");
+}
+
+/* Only the receiver owner closes or reopens the exit window. A press made
+ * before or during a transfer cannot carry into the next idle window. */
+static void set_key_allowed(bool allowed)
+{
+    if (key_allowed == allowed) return;
+    rt_base_t level = rt_hw_interrupt_disable();
+    key_allowed = allowed;
+    if (!allowed) key_down = false;
+    rt_hw_interrupt_enable(level);
+    if (!allowed && key_available) wf_ota_display_exit_progress(0);
+}
+
+static bool poll_key_return(void)
+{
+    if (!key_available) return false;
+    rt_base_t level = rt_hw_interrupt_disable();
+    bool down = key_down;
+    uint32_t id = key_id;
+    rt_tick_t held = rt_tick_get() - key_started;
+    rt_hw_interrupt_enable(level);
+    uint32_t ms = held >= rt_tick_from_millisecond(WRISTFLOW_ENDURANCE_HOLD_MS) ?
+                  WRISTFLOW_ENDURANCE_HOLD_MS : held * 1000u / RT_TICK_PER_SECOND;
+    bool complete = wristflow_endurance_hold(&exit_hold, down, id, ms);
+    int percent = exit_hold.progress / 10;
+    if (exit_hold.holding && !percent) percent = 1;
+    wf_ota_display_exit_progress(complete ? 100 : percent);
+    if (!complete || !wf_ota_loader_has_stable()) return false;
+    rt_kprintf("[ota-radio] side key, returning to boot selection\n");
+    HAL_PMU_Reboot();
+    return true;
+}
+
+static rt_err_t take_radio_signal(rt_sem_t signal, unsigned timeout_ms)
+{
+    rt_tick_t start = rt_tick_get();
+    rt_tick_t timeout = rt_tick_from_millisecond(timeout_ms);
+    rt_tick_t interval = rt_tick_from_millisecond(KEY_POLL_MS);
+    for (;;) {
+        if (poll_key_return()) return -RT_EINTR;
+        rt_tick_t elapsed = rt_tick_get() - start;
+        if (elapsed >= timeout) return -RT_ETIMEOUT;
+        rt_tick_t remaining = timeout - elapsed;
+        rt_err_t status = rt_sem_take(signal, remaining < interval ? remaining : interval);
+        if (status != -RT_ETIMEOUT) return status;
+    }
+}
+
 typedef struct {
     uint32_t epoch;
     uint16_t len;
@@ -108,29 +198,33 @@ static bool prepare_address(void)
     return sifli_nvds_flash_adaptor_write("SIF_APP", tag, sizeof tag) == NVDS_OK;
 }
 
-static bool confirm_address(void)
+static rt_err_t confirm_address(void)
 {
     bd_addr_t public_address;
     if (ble_get_public_address(&public_address) != 0 ||
-        !memcmp(public_address.addr, receiver_address.addr, sizeof receiver_address.addr)) return false;
+        !memcmp(public_address.addr, receiver_address.addr, sizeof receiver_address.addr)) return -RT_ERROR;
     address_requested = true;
-    bool ok = ble_gap_get_local_bdaddr() == 0 &&
-              rt_sem_take(&address_ready, rt_tick_from_millisecond(3000)) == RT_EOK && address_matched;
+    rt_err_t status = ble_gap_get_local_bdaddr() == 0 ? take_radio_signal(&address_ready, 3000) : -RT_ERROR;
     address_requested = false;
-    if (ok) {
-        const uint8_t *a = receiver_address.addr;
-        rt_kprintf("[ota-radio] receiver address=%02X:%02X:%02X:%02X:%02X:%02X type=1\n",
-                   a[5], a[4], a[3], a[2], a[1], a[0]);
-    }
-    return ok;
+    if (status != RT_EOK) return status;
+    if (!address_matched) return -RT_ERROR;
+    const uint8_t *a = receiver_address.addr;
+    rt_kprintf("[ota-radio] receiver address=%02X:%02X:%02X:%02X:%02X:%02X type=1\n",
+               a[5], a[4], a[3], a[2], a[1], a[0]);
+    return RT_EOK;
 }
 
-static void address_failure(void)
+static void wait_after_startup_failure(wf_ota_display_phase_t phase)
 {
-    rt_kprintf("[ota-radio] receiver address unconfirmed\n");
-    wf_ota_display_publish(WF_OTA_RADIO_FAILED, 0);
-    rt_thread_mdelay(120000);
-    if (wf_ota_loader_has_stable()) HAL_PMU_Reboot();
+    wf_ota_display_publish(phase, 0);
+    rt_tick_t last = rt_tick_get();
+    while (!poll_key_return()) {
+        rt_thread_mdelay(KEY_POLL_MS);
+        if (rt_tick_get() - last > rt_tick_from_millisecond(WF_OTA_IDLE_TIMEOUT_MS)) {
+            last = rt_tick_get();
+            if (wf_ota_loader_has_stable()) { HAL_PMU_Reboot(); return; }
+        }
+    }
 }
 
 uint8_t sibles_advertising_disc_mode_get(void) { return GAPM_ADV_MODE_GEN_DISC; }
@@ -181,16 +275,24 @@ static void verifying(void *context)
 static void worker(void *unused)
 {
     (void)unused;
-    if (rt_sem_take(&power, rt_tick_from_millisecond(15000)) != RT_EOK) {
+    rt_err_t status = take_radio_signal(&power, 15000);
+    if (status == -RT_EINTR) return;
+    if (status != RT_EOK) {
         rt_kprintf("[ota-radio] power-on timeout\n");
-        wf_ota_display_publish(WF_OTA_RADIO_FAILED, 0);
+        wait_after_startup_failure(WF_OTA_RADIO_FAILED);
         return;
     }
-    if (!confirm_address()) { address_failure(); return; }
+    status = confirm_address();
+    if (status == -RT_EINTR) return;
+    if (status != RT_EOK) {
+        rt_kprintf("[ota-radio] receiver address unconfirmed\n");
+        wait_after_startup_failure(WF_OTA_RADIO_FAILED);
+        return;
+    }
     ble_serial_tran_init();
     if (!advertise()) {
         rt_kprintf("[ota-radio] advertising setup failed\n");
-        wf_ota_display_publish(WF_OTA_RADIO_FAILED, 0);
+        wait_after_startup_failure(WF_OTA_RADIO_FAILED);
         return;
     }
     wf_dfu_receiver_t r = {.file=package + 2, .capacity=sizeof package - 2,
@@ -201,8 +303,10 @@ static void worker(void *unused)
     if (connected) wf_ota_display_publish(WF_OTA_CONNECTED, 0);
     rt_tick_t last = rt_tick_get();
     for (;;) {
+        set_key_allowed(r.phase == WF_DFU_IDLE);
+        if (poll_key_return()) return;
         message_t *m = NULL;
-        rt_mq_recv(requests, &m, sizeof m, rt_tick_from_millisecond(500));
+        rt_mq_recv(requests, &m, sizeof m, rt_tick_from_millisecond(key_allowed ? KEY_POLL_MS : 500));
         if (epoch != connection_epoch) {
             bool now_connected = peer != 0xff;
             if (r.phase == WF_DFU_RECEIVING) wf_ota_display_disconnected(last);
@@ -228,6 +332,7 @@ static void worker(void *unused)
         if (active(m)) {
             uint8_t reply[12];
             size_t n = wf_dfu_request(&r, m->data, m->len, reply);
+            if (r.phase != WF_DFU_IDLE) set_key_allowed(false);
             bool receipt = false;
             if (n && active(m)) {
                 ble_serial_tran_data_t packet = {.handle=m->handle,.cate_id=BLE_DFU_CATEID,.len=n,.data=reply};
@@ -267,21 +372,26 @@ static void worker(void *unused)
 void wf_ota_android_start(void)
 {
     if (!wf_ota_loader_inhibited()) { rt_kprintf("[ota-radio] charger inhibit unverified\n"); return; }
+    key_start();
     wf_ota_display_start();
     HAL_RCC_EnableModule(RCC_MOD_CRC1);
     if (HAL_CRC_Init(&crc) != HAL_OK || !wristflow_product_power_adc_init() ||
         checksum(NULL, (const uint8_t *)"123456789", 9) != 0x0376e6e7u) {
         rt_kprintf("[ota-radio] startup guard rejected\n");
-        wf_ota_display_publish(WF_OTA_NOT_READY, 0);
+        wait_after_startup_failure(WF_OTA_NOT_READY);
         return;
     }
-    if (!prepare_address()) { address_failure(); return; }
+    if (!prepare_address()) {
+        rt_kprintf("[ota-radio] receiver address setup failed\n");
+        wait_after_startup_failure(WF_OTA_RADIO_FAILED);
+        return;
+    }
     rt_sem_init(&power, "ota_pwr", 0, RT_IPC_FLAG_FIFO);
     rt_sem_init(&address_ready, "ota_addr", 0, RT_IPC_FLAG_FIFO);
     requests = rt_mq_create("ota_wire", sizeof(message_t *), 4, RT_IPC_FLAG_FIFO);
-    if (!requests) { wf_ota_display_publish(WF_OTA_RADIO_FAILED, 0); return; }
+    if (!requests) { wait_after_startup_failure(WF_OTA_RADIO_FAILED); return; }
     rt_thread_t th = rt_thread_create("ota_rx", worker, NULL, 16384, 22, 10);
-    if (!th || rt_thread_startup(th) != RT_EOK) { wf_ota_display_publish(WF_OTA_RADIO_FAILED, 0); return; }
+    if (!th || rt_thread_startup(th) != RT_EOK) { wait_after_startup_failure(WF_OTA_RADIO_FAILED); return; }
     sifli_ble_enable();
 }
 #endif

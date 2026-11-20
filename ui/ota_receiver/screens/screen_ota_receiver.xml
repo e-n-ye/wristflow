@@ -12,6 +12,7 @@
         <lv_label name="ota_value" x="24" y="189" width="342" text="0%" hidden="true" style_text_font="ota_digits" style_text_align="center" />
         <lv_label name="ota_peer" x="24" y="325" width="342" text="WristFlow OTA" style_text_font="ota_title" style_text_align="center" />
         <lv_label name="ota_icon" x="24" y="185" width="342" text="&#xf294;" style_text_font="ota_bluetooth" style_text_color="0x0396fa" style_text_align="center" />
-        <lv_label name="ota_instructions" x="24" y="369" width="342" text="在 SIFLI BLE 中选择此设备" style_text_font="ota_hint" style_text_color="0xa7adb5" style_text_align="center" />
+        <lv_label name="ota_instructions" x="24" y="363" width="342" text="在 SIFLI BLE 中选择此设备" style_text_font="ota_hint" style_text_color="0xa7adb5" style_text_align="center" />
+        <lv_label name="ota_exit" x="24" y="413" width="342" text="长按侧键3秒退出" style_text_font="ota_hint" style_text_align="center" />
     </view>
 </screen>

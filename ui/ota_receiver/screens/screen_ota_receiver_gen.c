@@ -131,12 +131,21 @@ lv_obj_t * screen_ota_receiver_create(void)
         lv_obj_t * ota_instructions = lv_label_create(lv_obj_0);
         lv_obj_set_name(ota_instructions, "ota_instructions");
         lv_obj_set_x(ota_instructions, 24);
-        lv_obj_set_y(ota_instructions, 369);
+        lv_obj_set_y(ota_instructions, 363);
         lv_obj_set_width(ota_instructions, 342);
         lv_label_set_text(ota_instructions, "在 SIFLI BLE 中选择此设备");
         lv_obj_set_style_text_font(ota_instructions, ota_hint, 0);
         lv_obj_set_style_text_color(ota_instructions, lv_color_hex(0xa7adb5), 0);
         lv_obj_set_style_text_align(ota_instructions, LV_TEXT_ALIGN_CENTER, 0);
+
+        lv_obj_t * ota_exit = lv_label_create(lv_obj_0);
+        lv_obj_set_name(ota_exit, "ota_exit");
+        lv_obj_set_x(ota_exit, 24);
+        lv_obj_set_y(ota_exit, 413);
+        lv_obj_set_width(ota_exit, 342);
+        lv_label_set_text(ota_exit, "长按侧键3秒退出");
+        lv_obj_set_style_text_font(ota_exit, ota_hint, 0);
+        lv_obj_set_style_text_align(ota_exit, LV_TEXT_ALIGN_CENTER, 0);
 
         the_root = lv_obj_0;
     }

@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include "power_state.h"
 
+#define WRISTFLOW_ENDURANCE_HOLD_MS 3000u
+
 typedef struct {
     bool enabled, usb_absent, holding, blocked;
     uint32_t key_id, usb_insertions;

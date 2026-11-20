@@ -14,5 +14,7 @@ typedef enum {
 void wf_ota_display_start(void);
 void wf_ota_display_publish(wf_ota_display_phase_t phase, uint8_t percent);
 void wf_ota_display_disconnected(uint32_t last_activity_tick);
+/* Negative when the side key is unavailable, zero when ready, 1–100 while held. */
+void wf_ota_display_exit_progress(int percent);
 
 #endif

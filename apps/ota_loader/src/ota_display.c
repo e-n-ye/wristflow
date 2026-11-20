@@ -26,6 +26,7 @@ static const struct {
     [WF_OTA_RADIO_FAILED]   = {"蓝牙未就绪", "返回表盘后重试"},
 };
 static uint32_t display_state = WF_OTA_WAITING;
+static int exit_progress = -1;
 #define PHASE_MASK 0xffu
 #define VALUE_SHIFT 8u
 #define VALUE_MASK (UINT32_MAX >> VALUE_SHIFT)
@@ -39,6 +40,11 @@ void wf_ota_display_publish(wf_ota_display_phase_t phase, uint8_t percent)
 void wf_ota_display_disconnected(uint32_t last_activity_tick)
 {
     __atomic_store_n(&display_state, WF_OTA_DISCONNECTED | (last_activity_tick << VALUE_SHIFT), __ATOMIC_RELAXED);
+}
+
+void wf_ota_display_exit_progress(int percent)
+{
+    __atomic_store_n(&exit_progress, percent, __ATOMIC_RELAXED);
 }
 
 static unsigned seconds_to_return(uint32_t last_activity_tick)
@@ -74,9 +80,11 @@ static void show(void *context)
     lv_obj_t *peer = lv_obj_find_by_name(screen, "ota_peer");
     lv_obj_t *icon = lv_obj_find_by_name(screen, "ota_icon");
     lv_obj_t *hint = lv_obj_find_by_name(screen, "ota_instructions");
-    if (!title || !ring || !value || !peer || !icon || !hint) return;
+    lv_obj_t *exit_hint = lv_obj_find_by_name(screen, "ota_exit");
+    if (!title || !ring || !value || !peer || !icon || !hint || !exit_hint) return;
 
     uint32_t shown = UINT32_MAX;
+    int shown_exit = -2;
     lv_screen_load(screen);
     for (;;) {
         uint32_t state = __atomic_load_n(&display_state, __ATOMIC_RELAXED);
@@ -84,27 +92,32 @@ static void show(void *context)
         unsigned value_data = state >> VALUE_SHIFT;
         if (phase == WF_OTA_DISCONNECTED) value_data = seconds_to_return(value_data);
         uint32_t current = (value_data << VALUE_SHIFT) | phase;
-        if (current != shown) {
-            bool receiving = phase == WF_OTA_RECEIVING;
-            bool transfer_complete = phase == WF_OTA_VERIFYING || phase == WF_OTA_INSTALLING ||
-                                     phase == WF_OTA_REBOOTING;
+        bool receiving = phase == WF_OTA_RECEIVING;
+        bool transfer_complete = phase == WF_OTA_VERIFYING || phase == WF_OTA_INSTALLING ||
+                                 phase == WF_OTA_REBOOTING;
+        int exit = receiving || transfer_complete ? -1 : __atomic_load_n(&exit_progress, __ATOMIC_RELAXED);
+        if (current != shown || exit != shown_exit) {
             if ((shown & PHASE_MASK) != phase) {
                 lv_label_set_text_static(title, copy[phase].title);
                 if (phase != WF_OTA_DISCONNECTED) lv_label_set_text_static(hint, copy[phase].hint);
                 lv_obj_set_flag(value, LV_OBJ_FLAG_HIDDEN, !receiving);
                 lv_obj_set_flag(peer, LV_OBJ_FLAG_HIDDEN, phase != WF_OTA_WAITING);
-                lv_obj_set_flag(icon, LV_OBJ_FLAG_HIDDEN,
-                                phase != WF_OTA_WAITING && phase != WF_OTA_CONNECTED && phase != WF_OTA_DISCONNECTED);
             }
+            lv_obj_set_flag(icon, LV_OBJ_FLAG_HIDDEN, exit > 0 ||
+                            (phase != WF_OTA_WAITING && phase != WF_OTA_CONNECTED && phase != WF_OTA_DISCONNECTED));
+            lv_obj_set_flag(exit_hint, LV_OBJ_FLAG_HIDDEN, exit < 0);
+            if (shown_exit < 0 || (exit > 0) != (shown_exit > 0))
+                lv_label_set_text_static(exit_hint, exit > 0 ? "松开取消" : "长按侧键3秒退出");
             unsigned percent = receiving ? value_data : 0;
             if (receiving) lv_label_set_text_fmt(value, "%u%%", percent);
             if (phase == WF_OTA_DISCONNECTED)
                 lv_label_set_text_fmt(hint, "%s\n%02u:%02u 后返回表盘", copy[phase].hint,
                                       value_data / 60u, value_data % 60u);
-            lv_arc_set_value(ring, transfer_complete ? 100 : receiving ? percent : 0);
-            lv_obj_set_style_arc_opa(ring, transfer_complete || (receiving && percent) ? LV_OPA_COVER : LV_OPA_TRANSP,
-                                     LV_PART_INDICATOR);
+            unsigned arc = transfer_complete ? 100u : exit > 0 ? (unsigned)exit : percent;
+            lv_arc_set_value(ring, arc);
+            lv_obj_set_style_arc_opa(ring, arc ? LV_OPA_COVER : LV_OPA_TRANSP, LV_PART_INDICATOR);
             shown = current;
+            shown_exit = exit;
         }
         lv_timer_handler();
         rt_thread_mdelay(80);
