@@ -92,7 +92,7 @@ if ($AndroidReceiver) {
     foreach ($dir in 'fonts','screens') {
         $candidateSources += @(Get-ChildItem -LiteralPath (Join-Path $uiProject $dir) -File)
     }
-    foreach ($name in 'apps/product/src/product_power.c','apps/product/src/product_power.h','core/power_state.h') {
+    foreach ($name in 'apps/product/src/product_power.c','apps/product/src/product_power.h','core/power_state.h','core/endurance.c','core/endurance.h') {
         $candidateSources += Get-Item -LiteralPath (Join-Path $ProjectRoot $name)
     }
 }

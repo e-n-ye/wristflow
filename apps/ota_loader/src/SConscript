@@ -15,6 +15,7 @@ VariantDir(core_variant, core, duplicate=0)
 sources += [File(os.path.join(product_variant, 'aw32001_inhibit.c'))]
 if GetDepend('WF_OTA_ANDROID_RECEIVER'):
     sources += [File(os.path.join(product_variant, 'product_power.c'))]
+    sources += [File(os.path.join(core_variant, 'endurance.c'))]
     ui_variant = os.path.join(Dir('.').abspath, 'ota_ui')
     VariantDir(ui_variant, ui, duplicate=0)
     with open(os.path.join(ui, 'file_list_gen.cmake'), encoding='utf-8') as manifest:
