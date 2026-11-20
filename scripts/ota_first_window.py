@@ -50,6 +50,8 @@ SCOPE = {"install": "first-install-receiver-journal-boot-and-enter",
          "restore-identity": "restore-provisioned-pair-after-identity-window",
          "install-display-pair": "install-512k-display-pair-restart-stable-b",
          "restore-display-pair": "restore-original-display-pair-restart-stable-b",
+         "install-display-pair-a": "install-512k-display-pair-restart-stable-a",
+         "restore-display-pair-a": "restore-original-display-pair-restart-stable-a",
          "restore": "restore-first-install-and-start-original",
          "restore-with-b": "restore-first-install-and-owned-b-extents-and-start-original"}
 APP = "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d"
@@ -99,13 +101,15 @@ class AppSimulation(Simulation):
 def app_worker(cfg):
     out, phase = Path(cfg["root"]), cfg["phase"]
     require(phase in ("before","after"), "Unknown application phase")
-    from ota_health_evidence import SCOPE as health_scope, boot_result
+    from ota_health_evidence import SCOPE as health_scope, boot_result, display_a_reference
     combined = cfg["action"] == "combined-06" and cfg["authorization"] == health_scope
-    display_pair = (cfg["action"] in ("install-display-pair", "restore-display-pair") and
+    display_pair = (cfg["action"] in ("install-display-pair", "restore-display-pair", "install-display-pair-a") and
                     cfg["authorization"] == SCOPE[cfg["action"]])
+    display_a = display_pair and cfg["action"] == "install-display-pair-a"
     boot_source = cfg.get("health_boot")
-    require(not boot_source or combined or display_pair, "Unexpected stable B firmware evidence")
-    journal = Journal(out / ("app-"+phase),binding=cfg,mode="06-product" if boot_source else "original-cyclelog")
+    require(not boot_source or combined or display_pair, "Unexpected firmware boot evidence")
+    mode = "display-a-product" if display_a else "06-product" if boot_source else "original-cyclelog"
+    journal = Journal(out / ("app-"+phase),binding=cfg,mode=mode)
     cancel = FileCancel(out/"cancel")
     deadline = time.monotonic()+65
     def check():
@@ -126,20 +130,23 @@ def app_worker(cfg):
                     cfg["authorization"]=="trace-ordinary-a-68k-and-restore"))
         require(os.name=="nt" and allowed, "Explicit device window required")
         if boot_source:
-            from lab_check import check_build
-            media = Path(boot_source)
-            raw = (media/"startup-uart.bin").read_bytes()
-            rollback.verify_passive_wire(media, raw)
-            boot_result(raw, "ordinary" if phase == "after" or display_pair else "complete")
-            e = read_json(ROOT/"docs/evidence/2026-11-18/ota-product-health.json")
-            result, archive = ROOT/e["build"], ROOT/e["build_archive"]
-            require(digest(result) == e["build_result_sha256"] and digest(archive) == e["archive_sha256"], "06 build changed")
-            checked = check_build(result, build_archive=archive, recorded_root=ROOT)
-            require([i["sha256"] for i in checked["images"] if i["name"] == "main.bin"] == [e["main_sha256"]],
-                    "06 Product build identity mismatch")
+            if display_a:
+                display_a_reference(Path(boot_source).read_bytes())
+            else:
+                from lab_check import check_build
+                media = Path(boot_source)
+                raw = (media/"startup-uart.bin").read_bytes()
+                rollback.verify_passive_wire(media, raw)
+                boot_result(raw, "ordinary" if phase == "after" or display_pair else "complete")
+                e = read_json(ROOT/"docs/evidence/2026-11-18/ota-product-health.json")
+                result, archive = ROOT/e["build"], ROOT/e["build_archive"]
+                require(digest(result) == e["build_result_sha256"] and digest(archive) == e["archive_sha256"], "06 build changed")
+                checked = check_build(result, build_archive=archive, recorded_root=ROOT)
+                require([i["sha256"] for i in checked["images"] if i["name"] == "main.bin"] == [e["main_sha256"]],
+                        "06 Product build identity mismatch")
             endpoint = port_identity("COM5","1-1.1")
             def identity():
-                require(port_identity("COM5","1-1.1") == endpoint, "06 endpoint changed before snapshot")
+                require(port_identity("COM5","1-1.1") == endpoint, "Product endpoint changed before snapshot")
         else:
             f=read_json(APP_EVIDENCE)["firmware"]
             _, identity=prepare_capture(ROOT/f["result"],ROOT/f["flash"],APP,"COM5","1-1.1",True,

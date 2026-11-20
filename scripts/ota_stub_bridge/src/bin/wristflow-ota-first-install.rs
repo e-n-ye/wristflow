@@ -94,7 +94,7 @@ impl Config {
         }
         require(self.display_pair_sha256.is_some() == self.action.display_pair(), "Display-pair digest binding missing or unexpected")?;
         if self.action.display_pair() {
-            require(self.before_sha256.as_deref() == Some(media::STABLE_06_MODEL), "Wrong stable B reference")?;
+            require(self.before_sha256.as_deref() == self.action.display_model(), "Wrong stable display reference")?;
         }
         let scope = match self.action {
             Action::Install => "first-install-receiver-journal-boot-and-enter",
@@ -120,6 +120,8 @@ impl Config {
             Action::RestoreHealthB => "restore-post-05-journal-and-b-pages-restart-a",
             Action::InstallDisplayPair => "install-512k-display-pair-restart-stable-b",
             Action::RestoreDisplayPair => "restore-original-display-pair-restart-stable-b",
+            Action::InstallDisplayPairA => "install-512k-display-pair-restart-stable-a",
+            Action::RestoreDisplayPairA => "restore-original-display-pair-restart-stable-a",
             Action::TraceOriginalA => "ordinary-a-three-range-trace",
             Action::RestoreTraceA => "restore-three-trace-ranges",
         };

@@ -1216,3 +1216,12 @@ LVGL Pro Editor 2.0.1 以 LVGL 9.4.0 导出页面和增补字形。主机验证�
 锁定 SDK 的接收器通过 `Build-Ota-Loader.ps1 -AndroidReceiver`，产物为 **517,572 B**，512 KiB 分区余 **6,716 B**，SHA-256 `3f0be5b319096065398348ec94a9dce14a1d40377203f9ad41110c9745beb9a8`。使用该结果执行 `Build-Ota-Boot.ps1 -ReceiverResult <result.json>`，绑定检查通过。boot 为 **57,564 B**，原 FTAB 限额余 **932 B**，SHA-256 `e66bacd98d02c025ce4e8bb43cd4830b55f08921349eec7266e724204475a9f6`。本机报告为 `artifacts/ota_loader/20261120-191209-960/result.json` 和 `artifacts/ota_boot/20261120-191428-222/elf-check.json`。默认只读探针及 Product 构建也通过，报告分别为 `artifacts/ota_loader/20261120-191456-741/result.json` 和 `artifacts/product/20261120-191509-647/result.json`。
 
 候选未上板。下一次有线交换先核对稳定 A 2026112001 前态及恢复范围。上板后先看等待页亮度，短按和提前松手均应留在接收器，长按满三秒应回到稳定表盘。再验证传输期间侧键不会退出及断连后的倒计时、重新长按退出。
+
+<a id="ota-display-pair-a-20261120"></a>
+### 2026-11-20 稳定 A 配套镜像交换
+
+以稳定 B 第 7 代模型和首次上板的镜像实读为基础，逐块对照 FTAB、旧 boot、旧接收区、启动记录和 B 槽签名页。再按已安装签名包 `WristFlow-2026112001.bin` 重建 A 槽正文与签名页，按原提交逻辑编码第 9 代 TRIED 及第 10 代 STABLE A。得到 16 MiB **主机模型** `f242e48a6df6215e215461ec36137fa82aa3a98c0b68f7a9e8ad4eceaa59003b`。此前断连窗口的普通启动串口记录独立证明稳定 A 2026112001。当前模型中的运行记录和设置字节是历史值，现场工具不以其作为恢复源。
+
+[有线适配](../scripts/ota_display_pair.py) 的 `install-display-pair-a` 和 `restore-display-pair-a` 将授权、前态摘要和回启版本绑定到稳定 A，保留原稳定 B 动作。重用连续 COM5 租约、原应用快照与禁充守卫，以及锁定 SDK 的官方 RAM stub。写入前逐字节核对 A/B 签名页、FTAB、启动记录和原镜像。写入范围只有 `0x12820000–0x1289ffff` 和 `0x12010000–0x1201efff`。安装先接收器后 boot，异常停止后仅按明确的恢复授权用同窗前态恢复 boot 和接收器，逐块读回再普通启动。
+
+软件证据在本机 `artifacts/ota-display-stable-a-{host-002,bundle-001,checks}`。用 `ota_first_install.py build` 离线重建原生工具，Rust 11 项通过，Python OTA 健康证据 5 项、首装回归 8 项通过，旧原 A 跟踪夹具缺失项跳过。用 `ota_display_pair.py prepare` 绑定上一节的冻结接收器和 boot。A 安装、破损配套镜像恢复各完成 9 次写入和 31 次读回的模拟，恢复保留另外修改的设置字节。改动 A 签名页、启动记录或原 boot 时均在第一次写入前拒绝，旧 B 动作模拟通过。使用固件同源验签、启动记录及向量检查验证安装后模型选中第 10 代稳定 A。第一次原生测试编译发现遗漏的新动作枚举分支，修正后重建通过。

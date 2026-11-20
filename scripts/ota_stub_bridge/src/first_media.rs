@@ -20,6 +20,7 @@ const FIXED_BOOT_SHA: &str = "4fd4f8a35a72aa05f4e3c498a0564aad13413812950eb683f4
 // readbacks and (for stable B) the signed 06 package and journal transitions.
 pub const POST_05_MODEL: &str = "116219ecabdcf9c5ce01043e821ad3885d86e6251a199e5a166f1ede23bc95ed";
 pub const STABLE_06_MODEL: &str = "3e24c4b965433b6225b001c3a47744e833594c7663ba25cf7a9efa097f18ea47";
+const STABLE_DISPLAY_A_MODEL: &str = "f242e48a6df6215e215461ec36137fa82aa3a98c0b68f7a9e8ad4eceaa59003b";
 pub const META: Range<usize> = 0xda0000..0xda4000;
 const A: Range<usize> = 0x20000..0x420000;
 const B: Range<usize> = 0x420000..0x820000;
@@ -37,7 +38,8 @@ const BOOT_ORIGINAL_SHA: &str = "f59f948f987362f1270b1da541405e82bd887c1a16c3063
 pub enum Action { Install, VerifyOriginal, EnterReceiver, InspectReceiver, InstallIdentity, EnterIdentity, RestoreIdentity,
                   Restore, RestoreWithB, RestoreTrialB, EnterTrialB, InspectTrialB, TraceTrialB, RestoreHandoffB,
                   TraceOriginalA, RestoreTraceA, TraceJournalDma, RestoreJournalDma, TestFixedRollback, InspectFixedRollback,
-                  EnterHealthB, InspectHealthB, RestoreHealthB, InstallDisplayPair, RestoreDisplayPair }
+                  EnterHealthB, InspectHealthB, RestoreHealthB, InstallDisplayPair, RestoreDisplayPair,
+                  InstallDisplayPairA, RestoreDisplayPairA }
 impl Action {
     pub fn traced(self) -> bool { matches!(self, Self::TraceOriginalA | Self::RestoreTraceA) }
     pub fn identity(self) -> bool { matches!(self, Self::InstallIdentity | Self::EnterIdentity | Self::RestoreIdentity) }
@@ -46,7 +48,14 @@ impl Action {
     pub fn handoff(self) -> bool { matches!(self, Self::TraceTrialB | Self::RestoreHandoffB) }
     pub fn short_entry(self) -> bool { matches!(self, Self::TraceJournalDma | Self::TestFixedRollback) }
     pub fn journal_dma(self) -> bool { self.short_entry() || matches!(self, Self::RestoreJournalDma | Self::InspectFixedRollback) }
-    pub fn display_pair(self) -> bool { matches!(self, Self::InstallDisplayPair | Self::RestoreDisplayPair) }
+    pub fn display_pair(self) -> bool { self.display_model().is_some() }
+    pub fn display_model(self) -> Option<&'static str> {
+        match self {
+            Self::InstallDisplayPair | Self::RestoreDisplayPair => Some(STABLE_06_MODEL),
+            Self::InstallDisplayPairA | Self::RestoreDisplayPairA => Some(STABLE_DISPLAY_A_MODEL),
+            _ => None,
+        }
+    }
     pub fn health_model(self) -> Option<&'static str> {
         match self {
             Self::EnterHealthB | Self::RestoreHealthB => Some(POST_05_MODEL),
@@ -153,8 +162,8 @@ pub fn writable(action: Action, role: &str, offset: usize, n: usize) -> bool {
         (Action::InstallIdentity | Action::RestoreIdentity | Action::TraceTrialB | Action::RestoreHandoffB |
          Action::TraceJournalDma | Action::RestoreJournalDma | Action::TestFixedRollback, "boot") => BOOT,
         (Action::InstallIdentity | Action::RestoreIdentity, "receiver") => IDENTITY_RX,
-        (Action::InstallDisplayPair | Action::RestoreDisplayPair, "boot") => BOOT,
-        (Action::InstallDisplayPair | Action::RestoreDisplayPair, "receiver") => DISPLAY_RX,
+        (action, "boot") if action.display_pair() => BOOT,
+        (action, "receiver") if action.display_pair() => DISPLAY_RX,
         (Action::Install | Action::Restore | Action::RestoreWithB, "boot") => BOOT,
         (Action::Install | Action::Restore | Action::RestoreWithB, "receiver") => RX,
         (Action::Install, "journal") => META.start..META.start+PAGE,
@@ -190,17 +199,20 @@ fn replace(io: &mut impl Nor, action: Action, expected: &mut [u8], role: &str,
 }
 
 fn display_pair_window(io: &mut impl Nor, action: Action, images: &Inputs, before: &[u8]) -> Result<()> {
-    require(before.len() == SIZE && hash(before) == STABLE_06_MODEL, "Wrong stable-B reference")?;
+    require(before.len() == SIZE && Some(hash(before).as_str()) == action.display_model(),
+            "Wrong stable display reference")?;
     let mut live = before.to_vec();
-    let restore = action == Action::RestoreDisplayPair;
+    let restore = matches!(action, Action::RestoreDisplayPair | Action::RestoreDisplayPairA);
+    let stable_a = matches!(action, Action::InstallDisplayPairA | Action::RestoreDisplayPairA);
+    let a_tail = stable_a.then_some((A.end - PAGE..A.end, false));
     for (range, writable) in [(0..CHUNK, false), (BOOT, true), (DISPLAY_RX, true),
-                               (META, false), (B_TAIL..B.end, false)] {
+                               (META, false), (B_TAIL..B.end, false)].into_iter().chain(a_tail) {
         for off in (range.start..range.end).step_by(CHUNK) {
             let end = (off + CHUNK).min(range.end);
             let data = io.read(&format!("key-{off:08x}"), off, end - off)?;
             require(data.len() == end - off, "Short display-pair preflight read")?;
             if !restore || !writable {
-                require(data == before[off..end], "Display-pair preflight differs from stable B")?;
+                require(data == before[off..end], &format!("Display-pair preflight differs at {off:#x}"))?;
             }
             live[off..end].copy_from_slice(&data);
         }
@@ -361,7 +373,7 @@ pub fn run(io: &mut impl Nor, action: Action, images: &Inputs, rescue: Option<&[
     require(!action.traced(), "Use the bounded original-A transaction")?;
     images.verify(action)?;
     if action.display_pair() {
-        return display_pair_window(io, action, images, rescue.ok_or("Missing stable-B reference")?);
+        return display_pair_window(io, action, images, rescue.ok_or("Missing stable display reference")?);
     }
     if action.health_model().is_some() {
         return health_window(io, action, rescue.ok_or("Missing 06 model")?);
@@ -377,6 +389,7 @@ pub fn run(io: &mut impl Nor, action: Action, images: &Inputs, rescue: Option<&[
     let before_hash = hash(&expected);
     match action {
         Action::EnterHealthB | Action::InspectHealthB | Action::RestoreHealthB | Action::InstallDisplayPair | Action::RestoreDisplayPair |
+        Action::InstallDisplayPairA | Action::RestoreDisplayPairA |
         Action::TraceOriginalA | Action::RestoreTraceA | Action::InspectReceiver | Action::TraceJournalDma | Action::RestoreJournalDma |
         Action::TestFixedRollback | Action::InspectFixedRollback | Action::InstallIdentity | Action::EnterIdentity | Action::RestoreIdentity => return Err("Unexpected storage action".into()),
         Action::Install | Action::VerifyOriginal => {
