@@ -1,0 +1,8 @@
+<globals>
+    <fonts>
+        <bin name="ota_title" src_path="fonts/WristFlowOTA.ttf" size="27" bpp="2" as_file="false" range="0x20-0x7e" symbols="等待手机连接手机已连接正在接收更新正在校验更新正在安装更新即将重启手机连接已断开更新已取消接收超时更新包无法使用暂不能升级安装失败蓝牙未就绪" />
+        <bin name="ota_hint" src_path="fonts/WristFlowOTA.ttf" size="19" bpp="2" as_file="false" range="0x20-0x7e" symbols="在中选择此设备请在手机上选择升级包请保持手机蓝牙连接请保持手表供电请勿关闭手表重启后查看更新结果重新连接后请从头发送在手机上可重新发送请在手机上重新发送请检查升级包并重试请检查电量后重试返回表盘后重试" />
+        <bin name="ota_digits" src_path="fonts/WristFlowOTA.ttf" size="52" bpp="2" as_file="false" range="0x25-0x39" />
+        <bin name="ota_bluetooth" src_path="fonts/WristFlowOTABluetooth.ttf" size="48" bpp="2" as_file="false" range="0xf294-0xf294" />
+    </fonts>
+</globals>

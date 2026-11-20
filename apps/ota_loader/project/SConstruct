@@ -1,4 +1,5 @@
 import os
+import building
 import rtconfig
 from building import *
 from SCons.Script import ARGUMENTS
@@ -13,5 +14,14 @@ if receiver == '1':
 SifliEnv()
 TARGET = rtconfig.OUTPUT_DIR + rtconfig.TARGET_NAME + '.' + rtconfig.TARGET_EXT
 objs = PrepareBuilding(None)
+if receiver == '1':
+    # The locked SDK references a shell-only diagnostic flag in app_mem.c.
+    # Preserve the shell-free receiver, with those diagnostics off.
+    for group in building.Projects:
+        if group['name'] == 'lvgl_sifli':
+            group['LOCAL_CCFLAGS'] = group.get('LOCAL_CCFLAGS', '') + ' -Dmem_log=0'
+    env = GetCurrentEnv()
+    env.AppendUnique(CPPPATH=[os.path.abspath('../src')])
+    env.Append(CCFLAGS=r' -DLV_KCONFIG_PRESENT -DLV_CONF_PATH=\"ota_lv_conf.h\"')
 DoBuilding(TARGET, objs)
 # Diagnostic candidate only: no bootloader, FTAB or download scripts are emitted.

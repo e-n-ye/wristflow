@@ -12,6 +12,14 @@
 
 用 `Build-Ota-Boot.ps1 -HashResumeProbe -ReceiverResult <原登记接收器 result.json> -EvidenceDir <新目录>` 构建第三版有界 HASH 对照。它比较七组短输入，在完整原 A 通过后仍独立验签并核对 CPU 摘要。诊断编译配置省去未使用的 SHA-512 分派。正式镜像使用固定的 32 位状态写入方式。新版首装 `prepare` 自动选择已冻结的修正镜像；主机回放可用 `ota_release_trace --ordinary-a <模拟 NOR> 0x1286c44c` 核实新版登记地址。[版本及实测边界](evidence/2026-11-18/ota-hash-resume.json)
 
+## 带表端显示的 Android 接收器
+
+在官方 LVGL Pro Editor 打开 [ui/ota_receiver](../ui/ota_receiver/)，用 **Export Code and Recompile** 同步生成 C 和字形。修改字形范围后，先执行 `uv run --offline --with fonttools==4.60.1 --no-project python scripts/Generate-Ui-Assets.py --ota-fonts-only`。接收器字库沿用 [Noto 子集许可](../ui/xml/fonts/OFL.txt) 和 [Font Awesome 子集许可](../ui/xml/fonts/ICONS-LICENSE.txt)。
+
+用 `pwsh -File scripts/Build-Ota-Loader.ps1 -AndroidReceiver` 构建 512 KiB 接收器。将该次冻结的 `result.json` 传给 `pwsh -File scripts/Build-Ota-Boot.ps1 -ReceiverResult <result.json>`。两条命令只构建和检查。普通 Product 用 `Build.ps1 -Example product` 构建，签名包沿用下方发布入口。接收器的默认无参数构建仍用于只读探针。
+
+配套镜像用 `ota_display_pair.py prepare` 绑定上述两个冻结构建和 06 的稳定 B 模型。用 `simulate --action install-display-pair` 模拟交换。恢复模拟使用 `--action restore-display-pair`、`--prior <交换窗口>` 和交换后的 `--fixture <simulated-nor.bin>`。两次模拟均显式指定 `--authorize simulation` 及新的输出目录。正式步骤和范围见 [OTA 容量及配套验证](OTA-PREPARATION.md#ota-display-budget-20261120)。
+
 ## 2026-11-18 Android 接收 loader
 
 `pwsh -File scripts/Build-Ota-Loader.ps1 -AndroidReceiver` 显式构建有线初装使用的 receiver，使用 SDK AddLCPU、板载 BLE Serial、片上 CRC／SHA 和已登记公钥。检查 384 KiB 链接上限、PSRAM 缓冲、独立安装和 journal 符号，排除旧安装器、自动充电和持久 BLE 数据库初始化。省略参数继续构建只读 probe。构建不连接设备。[容量与回归](evidence/2026-11-18/ota-android-receiver.json)

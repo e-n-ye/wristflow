@@ -13,11 +13,13 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--fonts-only", action="store_true", help="Preserve existing watchface bitmaps")
 parser.add_argument("--static-fonts-only", action="store_true", help="Update only fixed UI and icon subsets; preserve message font and bitmaps")
 parser.add_argument("--message-font-only", action="store_true", help="Update only the common notification font subset")
+parser.add_argument("--ota-fonts-only", action="store_true", help="Update only the OTA receiver font subsets")
 parser.add_argument("--lvgl-root", type=Path, default=ROOT / "vendor/SiFli-SDK/external/lvgl_v9",
                     help="Locked SDK LVGL directory (for isolated worktrees)")
 args = parser.parse_args()
-if args.message_font_only and (args.fonts_only or args.static_fonts_only):
-    parser.error("--message-font-only must be used on its own")
+if (args.message_font_only and args.ota_fonts_only or
+        (args.message_font_only or args.ota_fonts_only) and (args.fonts_only or args.static_fonts_only)):
+    parser.error("--message-font-only and --ota-fonts-only must each be used on their own")
 LVGL = args.lvgl_root
 OUTPUT = ROOT / "ui/xml"
 TEXT = (
@@ -49,6 +51,22 @@ def subset_font(source, target, family, codepoints):
     font.save(target)
     print(f"{target.relative_to(ROOT)}: {target.stat().st_size} bytes")
 
+
+if args.ota_fonts_only:
+    from xml.etree import ElementTree
+
+    output = ROOT / "ui/ota_receiver"
+    globals_xml = ElementTree.parse(output / "globals.xml")
+    title, hint = (globals_xml.find(f"./fonts/bin[@name='{name}']") for name in ("ota_title", "ota_hint"))
+    chars = set(range(32, 127)) | {ord(c) for c in title.attrib["symbols"] + hint.attrib["symbols"]}
+    source = LVGL / "tests/src/test_files/fonts/noto/NotoSansSC-Regular.ttf"
+    missing = chars - set(TTFont(source).getBestCmap())
+    if missing:
+        raise ValueError(f"Source font lacks OTA glyphs {sorted(missing)}")
+    subset_font(source, output / "fonts/WristFlowOTA.ttf", "WristFlow OTA", chars)
+    subset_font(LVGL / "scripts/built_in_font/FontAwesome5-Solid+Brands+Regular.woff",
+                output / "fonts/WristFlowOTABluetooth.ttf", "WristFlow OTA Bluetooth", [0xf294])
+    sys.exit(0)
 
 if not args.message_font_only:
     subset_font(LVGL / "tests/src/test_files/fonts/noto/NotoSansSC-Regular.ttf",

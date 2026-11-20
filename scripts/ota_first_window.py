@@ -48,6 +48,8 @@ SCOPE = {"install": "first-install-receiver-journal-boot-and-enter",
          "install-identity": "replace-installed-receiver-and-boot-enter-identity",
          "enter-identity": "enter-installed-identity-receiver-read-only",
          "restore-identity": "restore-provisioned-pair-after-identity-window",
+         "install-display-pair": "install-512k-display-pair-restart-stable-b",
+         "restore-display-pair": "restore-original-display-pair-restart-stable-b",
          "restore": "restore-first-install-and-start-original",
          "restore-with-b": "restore-first-install-and-owned-b-extents-and-start-original"}
 APP = "10560604d08b7951516a1b0b7914b8f6ffa22427a6a373e8f0ad1cc3f432d28d"
@@ -99,8 +101,10 @@ def app_worker(cfg):
     require(phase in ("before","after"), "Unknown application phase")
     from ota_health_evidence import SCOPE as health_scope, boot_result
     combined = cfg["action"] == "combined-06" and cfg["authorization"] == health_scope
+    display_pair = (cfg["action"] in ("install-display-pair", "restore-display-pair") and
+                    cfg["authorization"] == SCOPE[cfg["action"]])
     boot_source = cfg.get("health_boot")
-    require(not boot_source or combined, "06 evidence belongs to the combined window")
+    require(not boot_source or combined or display_pair, "Unexpected stable B firmware evidence")
     journal = Journal(out / ("app-"+phase),binding=cfg,mode="06-product" if boot_source else "original-cyclelog")
     cancel = FileCancel(out/"cancel")
     deadline = time.monotonic()+65
@@ -126,7 +130,7 @@ def app_worker(cfg):
             media = Path(boot_source)
             raw = (media/"startup-uart.bin").read_bytes()
             rollback.verify_passive_wire(media, raw)
-            boot_result(raw, "ordinary" if phase == "after" else "complete")
+            boot_result(raw, "ordinary" if phase == "after" or display_pair else "complete")
             e = read_json(ROOT/"docs/evidence/2026-11-18/ota-product-health.json")
             result, archive = ROOT/e["build"], ROOT/e["build_archive"]
             require(digest(result) == e["build_result_sha256"] and digest(archive) == e["archive_sha256"], "06 build changed")

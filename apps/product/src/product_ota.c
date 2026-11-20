@@ -19,12 +19,13 @@
 #include "product_alarm.h"
 #include "product_steps.h"
 #include "product_charger.h"
+#include "wristflow_ui.h"
 
 enum { SLOT_BYTES = HCPU_FLASH_CODE_SIZE / 2, HEADER_BYTES = 336 };
 _Static_assert(HCPU_FLASH_CODE_START_ADDR == 0x12020000 && SLOT_BYTES == 0x400000, "Product slot layout");
 _Static_assert(KVDB_DFU_REGION_SIZE == 16384, "Two independent journal units required");
 static const char board[24] = "sf32lb52-lchspi-ulp";
-static uint32_t trial, version;
+static uint32_t trial, version, outcome;
 static unsigned running;
 static bool requested, attempted;
 static rt_tick_t first_frame;
@@ -45,7 +46,8 @@ static bool inspect(void)
         if (rt_flash_read(addr, raw[i], sizeof raw[i]) != sizeof raw[i]) return false;
     }
     wf_ota_ab_state_t state;
-    if (wf_ota_ab_select(&state, raw[0], sizeof raw[0], raw[1], sizeof raw[1]) < 0) return false;
+    int selected = wf_ota_ab_select(&state, raw[0], sizeof raw[0], raw[1], sizeof raw[1]);
+    if (selected < 0) return false;
     uint32_t word = HAL_Get_backup(RTC_BAKCUP_OTA_FORCE_MODE);
     bool trying = state.phase == WF_OTA_AB_TRIED && state.pending == running &&
                   word == (WF_OTA_TRIAL_PENDING | wf_ota_trial_cookie(&state)) &&
@@ -60,6 +62,15 @@ static bool inspect(void)
         memcmp(manifest + 12, image->sha256, sizeof image->sha256)) return false;
     trial = trying ? word : 0;
     version = image->release;
+    uint32_t receipt = HAL_Get_backup(RTC_BACKUP_NAND_OTA_DES);
+    uint32_t kind = receipt & WF_OTA_TRIAL_KIND;
+    if (kind == WF_OTA_RESULT_SUCCESS || kind == WF_OTA_RESULT_ROLLBACK) {
+        HAL_Set_backup(RTC_BACKUP_NAND_OTA_DES, 0);
+        wf_ota_ab_state_t previous;
+        if (HAL_Get_backup(RTC_BACKUP_NAND_OTA_DES) == 0 &&
+            wf_ota_ab_decode(&previous, raw[1 - selected], sizeof raw[0]))
+            outcome = wf_ota_trial_result(receipt, &state, &previous);
+    }
     return true;
 }
 
@@ -76,6 +87,16 @@ void wf_product_ota_start(wristflow_ui_shell_t *shell, bool services_started)
     rt_kprintf("[ota-product] slot=%c release=%u trial=%u services=%u\n", 'A'+running, version, !!trial, services_started);
     if (!services_started) { attempted = true; return; }
     wristflow_ui_shell_bind_firmware(shell, version, trial ? NULL : request);
+    if (outcome) {
+        lv_obj_t *notice = layout_save_status_create(lv_layer_top());
+        if (notice) {
+            lv_obj_set_style_text_font(notice, notification_22, 0);
+            lv_label_set_text_fmt(notice, outcome == WF_OTA_RESULT_SUCCESS ?
+                                  "更新成功，版本 %u" : "已回退到版本 %u", (unsigned)version);
+            lv_obj_remove_flag(notice, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_CLICKABLE);
+            lv_obj_delete_delayed(notice, 6500);
+        }
+    }
     if (trial) {
         display = rt_device_find("lcd");
         lv_refr_now(NULL);

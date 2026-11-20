@@ -128,7 +128,7 @@ static int read_nor_file(void *context, uint32_t addr, void *out, size_t n)
     return (int)fread(out, 1, n, f);
 }
 
-static void check_ordinary_a(const char *path, uint32_t enrollment)
+static void check_ordinary(const char *path, uint32_t enrollment, unsigned stable)
 {
     FILE *f = fopen(path, "rb");
     assert(f);
@@ -139,15 +139,20 @@ static void check_ordinary_a(const char *path, uint32_t enrollment)
     for (unsigned i=0; i<2; ++i)
         assert(read_nor_file(f,0x12da0000+i*8192,records[i],sizeof records[i])==(int)sizeof records[i]);
     wf_ota_ab_state_t state;
-    assert(wf_ota_ab_select(&state,records[0],sizeof records[0],records[1],sizeof records[1])==0);
+    assert(wf_ota_ab_select(&state, records[0], sizeof records[0], records[1], sizeof records[1]) >= 0);
+    assert(state.stable == stable && state.phase == WF_OTA_AB_STABLE);
     wf_ota_ab_image_t checked[2] = {0};
     assert(wf_ota_release_verify_slot(&reader,WF_OTA_READ_A,&checked[0]));
     wf_ota_ab_plan_t plan;
-    assert(wf_ota_ab_plan(&plan,&state,checked) && !plan.persist && plan.target==WF_OTA_AB_SLOT_A);
     assert(checked[0].release==2026110301 && checked[0].bytes==3055760);
+    if (stable == 1) {
+        assert(wf_ota_release_verify_slot(&reader, WF_OTA_READ_B, &checked[1]));
+        assert(checked[1].release == 2026111802);
+    }
+    assert(wf_ota_ab_plan(&plan, &state, checked) && !plan.persist && plan.target == (wf_ota_ab_target_t)stable);
     const wf_ota_boot_layout_t layout = {
         .flash=0x12000000, .flash_bytes=0x1000000, .slot={0x12020000,0x12420000},
-        .slot_bytes=0x400000, .loader=0x12820000, .loader_bytes=0x60000,
+        .slot_bytes=0x400000, .loader=0x12820000, .loader_bytes=0x80000,
         .ram=0x20000000, .ram_bytes=0x7fc00
     };
     uint32_t vectors[2];
@@ -155,6 +160,11 @@ static void check_ordinary_a(const char *path, uint32_t enrollment)
     assert(read_nor_file(f,layout.slot[0],vectors,sizeof vectors)==sizeof vectors);
     assert(wf_ota_boot_plan(&boot,&layout,WF_OTA_BOOT_A,checked[0].bytes,vectors));
     assert(boot.stack==0x20002000 && boot.reset==0x1202baa1 && boot.vector==layout.slot[0]);
+    if (stable == 1) {
+        assert(read_nor_file(f, layout.slot[1], vectors, sizeof vectors) == sizeof vectors);
+        assert(wf_ota_boot_plan(&boot, &layout, WF_OTA_BOOT_B, checked[1].bytes, vectors));
+        assert(boot.vector == layout.slot[0] && boot.alias.offset == layout.slot[1] - layout.slot[0]);
+    }
 #ifdef WF_OTA_BOOT_TRACE
     const char *prefix = "rrimmmmmmmmnnnnnnnnkw";
     collect = true;
@@ -182,7 +192,7 @@ static void check_ordinary_a(const char *path, uint32_t enrollment)
     puts("Traced original A: signed input accepted; manifest and body peripheral discrepancies and short read rejected");
 #endif
     fclose(f);
-    puts("Ordinary A authenticated, selected and admitted by its vector plan on host");
+    printf("Original A authenticated, stable %c selected and admitted by its vector plan on host\n", 'A' + stable);
 }
 
 static unsigned installs;
@@ -269,6 +279,7 @@ static void android_file(const char *path, wf_ota_physical_reader_t *reader, enu
             memcpy(begin + 12, file + 8, 4);
         }
         assert(wf_dfu_request(&r, begin, sizeof begin, reply) == 12 && reply[0] == 39 && !reply[4] && reply[6] == 1);
+        assert(wf_dfu_percent(&r) == 0);
         for (uint32_t index = 1; index <= count; ++index) {
             size_t offset = (index - 1) * WF_DFU_BLOCK;
             size_t n = (size_t)size - offset;
@@ -312,17 +323,21 @@ static void android_file(const char *path, wf_ota_physical_reader_t *reader, enu
             if (index == 1 && fixture == SIGNED_PRODUCT) {
                 put32(data + 4, 2);
                 assert(wf_dfu_request(&r, data, 16+n, reply) == 12 && reply[4] == 13 && reply[6] && !r.accepted);
+                assert(wf_dfu_percent(&r) == 0);
                 put32(data + 4, 1);
                 data[12] ^= 1;
                 assert(wf_dfu_request(&r, data, 16+n, reply) == 12 && reply[4] && reply[6] && !r.accepted);
+                assert(wf_dfu_percent(&r) == 0);
                 data[12] ^= 1;
             }
             assert(wf_dfu_request(&r, data, 16+n, reply) == 12 && !reply[4] && !reply[6] && r.accepted == index);
+            assert(wf_dfu_percent(&r) == (offset + n) * 100 / (size_t)size);
             uint8_t completed[4];
             put32(completed, index);
             assert(!memcmp(reply + 8, completed, sizeof completed));
             if (!pass && index == 1 && fixture == SIGNED_PRODUCT) {
                 wf_dfu_disconnect(&r);
+                assert(wf_dfu_percent(&r) == 0);
                 assert(wf_dfu_request(&r, end, sizeof end, reply) == 6 && reply[4] && !installs);
                 break;
             }
@@ -385,16 +400,16 @@ int main(int argc, char **argv)
         android_file(argv[3], NULL, WRONG_BODY);
         return 0;
     }
-    if ((argc==3 || argc==4) && !strcmp(argv[1],"--ordinary-a")) {
+    if ((argc == 3 || argc == 4) && (!strcmp(argv[1], "--ordinary-a") || !strcmp(argv[1], "--ordinary-b"))) {
         uint32_t enrollment = 0x1286c404;
         if (argc==4) {
             char *end;
             unsigned long address = strtoul(argv[3], &end, 0);
-            assert(!*end && address >= 0x12820000ul && address <= 0x12880000ul - sizeof original_enrollment &&
+            assert(!*end && address >= 0x12820000ul && address <= 0x128a0000ul - sizeof original_enrollment &&
                    !(address & 3));
             enrollment = (uint32_t)address;
         }
-        check_ordinary_a(argv[2], enrollment);
+        check_ordinary(argv[2], enrollment, !strcmp(argv[1], "--ordinary-b"));
         return 0;
     }
     wf_ota_ab_image_t image;
