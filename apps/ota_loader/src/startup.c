@@ -1,12 +1,14 @@
-/* Preserve the known board rail sequence, replacing its early charge-enable.
- * This probe has no automatic charging worker or LCD/audio lifecycle. */
+/* Preserve the known board rail sequence, replacing its early charge-enable. */
 #include "startup.h"
 #include "aw32001_inhibit.h"
 #include "bsp_board.h"
 #include <rtthread.h>
 
-#if defined(BSP_USING_CHARGER) || defined(CHARGE_USING_AW32001) || defined(BSP_USING_PM) || defined(RT_USING_PM) || defined(BSP_USING_LCD) || defined(BSP_USING_TOUCHD)
-#error "Loader probe requires charger, PM, LCD and touch drivers excluded"
+#if defined(BSP_USING_CHARGER) || defined(CHARGE_USING_AW32001) || defined(BSP_USING_PM) || defined(RT_USING_PM) || defined(BSP_USING_TOUCHD)
+#error "Loader requires charger, PM and touch drivers excluded"
+#endif
+#if defined(BSP_USING_LCD) && !defined(WF_OTA_ANDROID_RECEIVER)
+#error "The read-only loader probe does not enable LCD"
 #endif
 extern void BSP_GPIO_Set(int pin, int val, int is_porta);
 static wristflow_aw32001_result_t result;

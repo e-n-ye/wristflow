@@ -14,6 +14,7 @@
 #include "startup.h"
 #include "product_power.h"
 #include "offline_receiver.h"
+#include "ota_display.h"
 
 /* The extra two bytes align the signed header and main body after FCES. */
 static uint8_t package[2 + WF_DFU_ENVELOPE + WF_DFU_SLOT_BYTES]
@@ -69,7 +70,7 @@ static void serial_event(ble_serial_tran_event_t event, uint8_t *arg)
     ble_serial_tran_data_t *packet = (ble_serial_tran_data_t *)arg;
     if (packet->cate_id != BLE_DFU_CATEID || !packet->data ||
         packet->len < 4 || packet->len > 4 + 12 + WF_DFU_BLOCK) return;
-    if (packet->len == 6 && !memcmp(packet->data, "\x25\x00\x02\x00", 4)) ++connection_epoch;
+    if (wf_dfu_is_cancel(packet->data, packet->len)) ++connection_epoch;
     message_t *m = rt_malloc(sizeof *m + packet->len);
     if (!m) { ++connection_epoch; return; }
     m->epoch = connection_epoch; m->handle = handle; m->len = packet->len;
@@ -127,6 +128,7 @@ static bool confirm_address(void)
 static void address_failure(void)
 {
     rt_kprintf("[ota-radio] receiver address unconfirmed\n");
+    wf_ota_display_publish(WF_OTA_RADIO_FAILED, 0);
     rt_thread_mdelay(120000);
     if (wf_ota_loader_has_stable()) HAL_PMU_Reboot();
 }
@@ -170,25 +172,49 @@ static bool advertise(void)
     return ok;
 }
 
+static void verifying(void *context)
+{
+    (void)context;
+    wf_ota_display_publish(WF_OTA_VERIFYING, 100);
+}
+
 static void worker(void *unused)
 {
     (void)unused;
     if (rt_sem_take(&power, rt_tick_from_millisecond(15000)) != RT_EOK) {
-        rt_kprintf("[ota-radio] power-on timeout\n"); return;
+        rt_kprintf("[ota-radio] power-on timeout\n");
+        wf_ota_display_publish(WF_OTA_RADIO_FAILED, 0);
+        return;
     }
     if (!confirm_address()) { address_failure(); return; }
     ble_serial_tran_init();
-    if (!advertise()) { rt_kprintf("[ota-radio] advertising setup failed\n"); return; }
+    if (!advertise()) {
+        rt_kprintf("[ota-radio] advertising setup failed\n");
+        wf_ota_display_publish(WF_OTA_RADIO_FAILED, 0);
+        return;
+    }
     wf_dfu_receiver_t r = {.file=package + 2, .capacity=sizeof package - 2,
-                           .can_start=wf_ota_loader_accepting, .crc32_mpeg2=checksum, .install=wf_ota_loader_install};
+                           .can_start=wf_ota_loader_accepting, .crc32_mpeg2=checksum,
+                           .install=wf_ota_loader_install, .verifying=verifying};
     uint32_t epoch = connection_epoch;
+    bool connected = peer != 0xff;
+    if (connected) wf_ota_display_publish(WF_OTA_CONNECTED, 0);
     rt_tick_t last = rt_tick_get();
     for (;;) {
         message_t *m = NULL;
         rt_mq_recv(requests, &m, sizeof m, rt_tick_from_millisecond(500));
-        if (epoch != connection_epoch || (r.phase == WF_DFU_RECEIVING &&
-            rt_tick_get() - last > rt_tick_from_millisecond(60000))) {
-            wf_dfu_disconnect(&r); epoch = connection_epoch;
+        if (epoch != connection_epoch) {
+            bool now_connected = peer != 0xff;
+            if (r.phase == WF_DFU_RECEIVING) wf_ota_display_publish(WF_OTA_DISCONNECTED, 0);
+            else if (now_connected != connected)
+                wf_ota_display_publish(now_connected ? WF_OTA_CONNECTED : WF_OTA_WAITING, 0);
+            connected = now_connected;
+            wf_dfu_disconnect(&r);
+            epoch = connection_epoch;
+        }
+        if (r.phase == WF_DFU_RECEIVING && rt_tick_get() - last > rt_tick_from_millisecond(60000)) {
+            wf_dfu_disconnect(&r);
+            wf_ota_display_publish(WF_OTA_TIMEOUT, 0);
         }
         if (rt_tick_get() - last > rt_tick_from_millisecond(120000)) {
             last = rt_tick_get();
@@ -207,19 +233,31 @@ static void worker(void *unused)
                 ble_serial_tran_data_t packet = {.handle=m->handle,.cate_id=BLE_DFU_CATEID,.len=n,.data=reply};
                 int sent = ble_serial_tran_send_data(&packet);
                 receipt = sent == (int)n + 4;
-                if (m->data[0] != 40 || reply[4])
+                if (m->data[0] != WF_DFU_DATA || reply[4])
                     rt_kprintf("[ota-radio] request=%u result=%u accepted=%u sent=%d\n", m->data[0], reply[4], r.accepted, sent);
             }
             last = rt_tick_get();
-            if (!receipt && n) wf_dfu_disconnect(&r);
+            if (wf_dfu_is_cancel(m->data, m->len)) {
+                wf_ota_display_publish(WF_OTA_CANCELED, 0);
+            } else if (!receipt && n) {
+                wf_dfu_disconnect(&r);
+                wf_ota_display_publish(WF_OTA_DISCONNECTED, 0);
+            } else if (n && r.phase == WF_DFU_IDLE && reply[4]) {
+                wf_ota_display_publish(reply[4] == WF_DFU_NOT_READY ? WF_OTA_NOT_READY : WF_OTA_BAD_PACKAGE, 0);
+            } else if (n && !reply[4] && r.phase == WF_DFU_RECEIVING) {
+                wf_ota_display_publish(WF_OTA_RECEIVING, wf_dfu_percent(&r));
+            }
             if (receipt && r.phase == WF_DFU_VERIFIED) {
                 rt_kprintf("[ota-radio] complete signed file, starting local install\n");
+                wf_ota_display_publish(WF_OTA_INSTALLING, 100);
                 if (wf_dfu_install_received(&r)) {
                     rt_free(m);
                     rt_kprintf("[ota-ready] release=%u bytes=%u trial committed\n", r.image.release, r.image.bytes);
+                    wf_ota_display_publish(WF_OTA_REBOOTING, 100);
                     rt_thread_mdelay(1000); HAL_PMU_Reboot(); return;
                 }
                 rt_kprintf("[ota-radio] local install failed; inspect slots and journal\n");
+                wf_ota_display_publish(WF_OTA_INSTALL_FAILED, 0);
             }
         }
         rt_free(m);
@@ -229,18 +267,21 @@ static void worker(void *unused)
 void wf_ota_android_start(void)
 {
     if (!wf_ota_loader_inhibited()) { rt_kprintf("[ota-radio] charger inhibit unverified\n"); return; }
+    wf_ota_display_start();
     HAL_RCC_EnableModule(RCC_MOD_CRC1);
     if (HAL_CRC_Init(&crc) != HAL_OK || !wristflow_product_power_adc_init() ||
         checksum(NULL, (const uint8_t *)"123456789", 9) != 0x0376e6e7u) {
-        rt_kprintf("[ota-radio] startup guard rejected\n"); return;
+        rt_kprintf("[ota-radio] startup guard rejected\n");
+        wf_ota_display_publish(WF_OTA_NOT_READY, 0);
+        return;
     }
     if (!prepare_address()) { address_failure(); return; }
     rt_sem_init(&power, "ota_pwr", 0, RT_IPC_FLAG_FIFO);
     rt_sem_init(&address_ready, "ota_addr", 0, RT_IPC_FLAG_FIFO);
     requests = rt_mq_create("ota_wire", sizeof(message_t *), 4, RT_IPC_FLAG_FIFO);
-    if (!requests) return;
+    if (!requests) { wf_ota_display_publish(WF_OTA_RADIO_FAILED, 0); return; }
     rt_thread_t th = rt_thread_create("ota_rx", worker, NULL, 16384, 22, 10);
-    if (!th || rt_thread_startup(th) != RT_EOK) return;
+    if (!th || rt_thread_startup(th) != RT_EOK) { wf_ota_display_publish(WF_OTA_RADIO_FAILED, 0); return; }
     sifli_ble_enable();
 }
 #endif

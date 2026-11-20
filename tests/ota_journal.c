@@ -222,13 +222,13 @@ static void trial_resets(void)
     uint8_t back[WF_OTA_AB_BYTES];
     assert(wf_ota_ab_stage(&ready, &stable, &checked[1]));
     assert(wf_ota_journal_commit(&j, &stable, &ready, back) == 0);
-    uint32_t trial;
+    uint32_t trial, result;
     nor_t original = before;
     before.lie_program = true;
-    assert(wf_ota_trial_select(&j, &ready, checked, 0, &trial) == WF_OTA_AB_SLOT_A && !trial);
+    assert(wf_ota_trial_select(&j, &ready, checked, 0, &trial, &result) == WF_OTA_AB_SLOT_A && !trial && !result);
     before = original;
     j = port(&before);
-    assert(wf_ota_trial_select(&j, &ready, checked, 0, &trial) == WF_OTA_AB_SLOT_B);
+    assert(wf_ota_trial_select(&j, &ready, checked, 0, &trial, &result) == WF_OTA_AB_SLOT_B && !result);
     unsigned unit;
     wf_ota_ab_state_t tried;
     assert(wf_ota_journal_load(&j, &tried, &unit) == 0 && tried.phase == WF_OTA_AB_TRIED);
@@ -239,21 +239,26 @@ static void trial_resets(void)
         nor_t n = before;
         j = port(&n);
         wf_ota_ab_target_t want = words[i] == healthy ? WF_OTA_AB_SLOT_B : WF_OTA_AB_SLOT_A;
-        assert(wf_ota_trial_select(&j, &tried, checked, words[i], &trial) == want && !trial);
+        assert(wf_ota_trial_select(&j, &tried, checked, words[i], &trial, &result) == want && !trial);
         wf_ota_ab_state_t saved;
         assert(wf_ota_journal_load(&j, &saved, &unit) == 0 && saved.phase == WF_OTA_AB_STABLE);
         assert(saved.stable == (unsigned)want && saved.generation == tried.generation + 1);
+        uint32_t kind = want == WF_OTA_AB_SLOT_B ? WF_OTA_RESULT_SUCCESS : WF_OTA_RESULT_ROLLBACK;
+        assert(wf_ota_trial_result(result, &saved, &tried) == kind);
+        assert(!wf_ota_trial_result(result ^ 1u, &saved, &tried));
+        assert(!wf_ota_trial_result(result, &saved, &saved));
         unsigned erases = n.erases;
-        assert(wf_ota_trial_select(&j, &saved, checked, healthy, &trial) == want && !trial);
+        assert(wf_ota_trial_select(&j, &saved, checked, healthy, &trial, &result) == want && !trial && !result);
         assert(erases == n.erases);
         guards(&n);
         ++checks;
     }
     j = port(&before);
     checked[1].bytes = 0; /* Slot hash or application vector check failed. */
-    assert(wf_ota_trial_select(&j, &tried, checked, healthy, &trial) == WF_OTA_AB_SLOT_A && !trial);
+    assert(wf_ota_trial_select(&j, &tried, checked, healthy, &trial, &result) == WF_OTA_AB_SLOT_A && !trial);
+    assert((result & WF_OTA_TRIAL_KIND) == WF_OTA_RESULT_ROLLBACK);
     checked[0].bytes = 0;
-    assert(wf_ota_trial_select(&j, &tried, checked, healthy, &trial) == WF_OTA_AB_RECOVERY && !trial);
+    assert(wf_ota_trial_select(&j, &tried, checked, healthy, &trial, &result) == WF_OTA_AB_RECOVERY && !trial && !result);
 }
 /* Replay two archived erase units with an independently verified candidate.
  * This input is a test fixture, never an installation or authentication API. */
@@ -292,13 +297,14 @@ static void replay_health(const char *bank0, const char *bank1, const char *iden
     assert(wf_ota_journal_commit(&j, &state, &ready, back) == WF_OTA_JOURNAL_OK);
     assert(wf_ota_journal_load(&j, &state, &unit) == 0 && unit == 0 && state.generation == 5);
     assert(state.phase == WF_OTA_AB_READY && state.pending == 1);
-    uint32_t word;
-    assert(wf_ota_trial_select(&j, &state, checked, 0, &word) == WF_OTA_AB_SLOT_B);
+    uint32_t word, outcome;
+    assert(wf_ota_trial_select(&j, &state, checked, 0, &word, &outcome) == WF_OTA_AB_SLOT_B && !outcome);
     assert(wf_ota_journal_load(&j, &state, &unit) == 0 && unit == 1 && state.generation == 6);
     assert(state.phase == WF_OTA_AB_TRIED && state.stable == 0 && state.pending == 1);
     assert(word == (WF_OTA_TRIAL_PENDING | wf_ota_trial_cookie(&state)));
     uint32_t healthy = WF_OTA_TRIAL_HEALTHY | (word & WF_OTA_TRIAL_PAYLOAD);
-    assert(wf_ota_trial_select(&j, &state, checked, healthy, &word) == WF_OTA_AB_SLOT_B && word == 0);
+    assert(wf_ota_trial_select(&j, &state, checked, healthy, &word, &outcome) == WF_OTA_AB_SLOT_B && !word);
+    assert((outcome & WF_OTA_TRIAL_KIND) == WF_OTA_RESULT_SUCCESS);
 
     /* Fresh boot port, no RTC request, only the two persisted units survive. */
     nor_t restarted = {.cut = -1, .erase_cut = -1, .erase_bytes = n.erase_bytes};
@@ -306,7 +312,7 @@ static void replay_health(const char *bank0, const char *bank1, const char *iden
     j = port(&restarted);
     assert(wf_ota_journal_load(&j, &state, &unit) == 0 && unit == 0 && state.generation == 7);
     assert(state.phase == WF_OTA_AB_STABLE && state.stable == 1 && state.pending == WF_OTA_AB_NONE);
-    assert(wf_ota_trial_select(&j, &state, checked, 0, &word) == WF_OTA_AB_SLOT_B && word == 0);
+    assert(wf_ota_trial_select(&j, &state, checked, 0, &word, &outcome) == WF_OTA_AB_SLOT_B && !word && !outcome);
     assert(restarted.programs == 0 && restarted.erases == 0);
     printf("release %lu, healthy 0x%08lx, generation 7 STABLE B, ordinary restart B, zero writes\n",
            (unsigned long)checked[1].release, (unsigned long)healthy);

@@ -1,10 +1,12 @@
 import os
+import re
 from building import *
 from SCons.Script import VariantDir, Dir
 cwd = GetCurrentDir()
 root = os.path.normpath(os.path.join(cwd, '../../..'))
 product = os.path.join(root, 'apps/product/src')
 core = os.path.join(root, 'core')
+ui = os.path.join(root, 'ui/ota_receiver')
 sources = Glob('*.c')
 product_variant = os.path.join(Dir('.').abspath, 'shared_product')
 core_variant = os.path.join(Dir('.').abspath, 'shared_core')
@@ -13,7 +15,13 @@ VariantDir(core_variant, core, duplicate=0)
 sources += [File(os.path.join(product_variant, 'aw32001_inhibit.c'))]
 if GetDepend('WF_OTA_ANDROID_RECEIVER'):
     sources += [File(os.path.join(product_variant, 'product_power.c'))]
+    ui_variant = os.path.join(Dir('.').abspath, 'ota_ui')
+    VariantDir(ui_variant, ui, duplicate=0)
+    with open(os.path.join(ui, 'file_list_gen.cmake'), encoding='utf-8') as manifest:
+        for name in re.findall(r'\$\{CMAKE_CURRENT_LIST_DIR\}/([^\s)]+\.c)', manifest.read()):
+            sources.append(File(os.path.join(ui_variant, name)))
 sources += [File(os.path.join(core_variant, name)) for name in ('ota_ab.c', 'ota_journal.c')]
-group = DefineGroup('WristFlowOtaLoader', sources, depend=[''], CPPPATH=[cwd, product, core],
+group = DefineGroup('WristFlowOtaLoader', sources, depend=[''], CPPPATH=[cwd, product, core, ui],
+                    LOCAL_CPPDEFINES=['LV_LVGL_H_INCLUDE_SIMPLE'],
                     LOCAL_CCFLAGS=' -Wall -Wextra -Werror=implicit-function-declaration')
 Return('group')

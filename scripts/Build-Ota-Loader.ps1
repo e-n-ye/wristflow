@@ -4,6 +4,7 @@ param([ValidateRange(1,32)][int]$Jobs = 4, [switch]$AndroidReceiver)
 Enable-SdkEnvironment
 $candidateProject = Join-Path $ProjectRoot 'apps/ota_loader/project'
 $candidateBoard = $SdkLock.board
+$uiProject = Join-Path $ProjectRoot 'ui/ota_receiver'
 $candidateRun = Join-Path $ProjectRoot ("artifacts/ota_loader/{0}" -f (Get-Date -Format 'yyyyMMdd-HHmmss-fff'))
 New-Item -ItemType Directory -Path $candidateRun -Force | Out-Null
 $candidateExit = 1
@@ -29,8 +30,8 @@ if ($candidateExit -eq 0) {
             if (Test-Path -LiteralPath (Join-Path $candidateBuild $name)) { throw "Unexpected deploy manifest: $name" }
         }
         $map = Get-Content -LiteralPath (Join-Path $candidateBuild 'main.map') -Raw -Encoding utf8
-        if ($map -notmatch '(?m)^ROM\s+0x12820000\s+0x00060000\s') { throw 'Unexpected loader ROM geometry' }
-        if ((Get-Item -LiteralPath (Join-Path $candidateBuild 'main.bin')).Length -gt 0x60000) { throw 'Loader probe exceeds candidate region' }
+        if ($map -notmatch '(?m)^ROM\s+0x12820000\s+0x00080000\s') { throw 'Unexpected loader ROM geometry' }
+        if ((Get-Item -LiteralPath (Join-Path $candidateBuild 'main.bin')).Length -gt 0x80000) { throw 'Loader exceeds its partition' }
         $symbols = (& arm-none-eabi-nm (Join-Path $candidateBuild 'main.elf')) -join "`n"
         if ($LASTEXITCODE -ne 0) { throw 'nm failed' }
         $symbols | Set-Content -LiteralPath (Join-Path $candidateRun 'symbols.txt') -Encoding utf8
@@ -46,11 +47,14 @@ if ($candidateExit -eq 0) {
             $digest = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([byte[]]$bin[$offset..($offset+335)])).ToLowerInvariant()
             if ($digest -cne 'fdda8fed5e37c097a0a9fa7d9a8b590b7025d0451c81d35af4c78c93af7dad85') { throw 'Detached CycleLog enrollment changed' }
             $required += @('wf_ota_android_start','wf_dfu_request','wf_ota_loader_install','wf_ota_journal_commit','ble_serial_tran_init',
+                           'wf_ota_display_publish','screen_ota_receiver_create','lv_arc_set_value',
                            'sifli_nvds_flash_adaptor_init','sifli_nvds_flash_adaptor_read','sifli_nvds_flash_adaptor_write')
             # Bond removal can be garbage-collected in this profile. If linked,
             # it must resolve to the strong loader backend.
             if ($symbols -match '(?m)^[0-9a-f]+ [Ww] sifli_nvds_flash_adaptor_delete$') { throw 'Persistent NVDS delete hook linked' }
             if ($map -notmatch '(?s)\.bss\.l2_non_ret_bss_ota\s+0x60[0-7][0-9a-f]{5}\s+0x400014\b') { throw 'Missing bounded receiver storage in PSRAM' }
+            if ($map -notmatch '(?s)\.bss\.l1_non_ret_bss_frambuf\s+0x20[0-7][0-9a-f]{5}\s+0x4920\b') { throw 'Expected one 390x24 RGB565 buffer in SRAM' }
+            if ($symbols -match '(?m)\b(lv_draw_epic_init|lv_touchscreen_create)\s*$') { throw 'Unexpected GPU or touch input in OTA UI' }
         } else { $required += 'wf_ota_loader_read_probe' }
         foreach ($name in $required) {
             if ($symbols -notmatch "(?m)^[0-9a-f]+ T $name`$") { throw "Missing probe implementation: $name" }
@@ -61,10 +65,11 @@ if ($candidateExit -eq 0) {
         if (!$AndroidReceiver -and $symbols -match '(?m)\bwf_ota_journal_commit\s*$') { throw 'Writable probe' }
         if ($symbols -match '(?m)\b__fsym_\w+\s*$') { throw 'Unexpected interactive shell export' }
         $config = Get-Content -LiteralPath (Join-Path $candidateBuild 'rtconfig.h') -Raw -Encoding utf8
-        if ($config -match '(?m)^#define (BSP_USING_CHARGER|CHARGE_USING_AW32001|BSP_USING_LCD|BSP_USING_TOUCHD|BSP_USING_PM|RT_USING_PM|RT_USING_FINSH|USING_DFU_V2|BSP_USING_DFU)\b') {
-            throw 'Unexpected persistent/radio/display service configuration'
+        if ($config -match '(?m)^#define (BSP_USING_CHARGER|CHARGE_USING_AW32001|BSP_USING_TOUCHD|BSP_USING_PM|RT_USING_PM|RT_USING_FINSH|USING_DFU_V2|BSP_USING_DFU|BSP_USING_LCD_FRAMEBUFFER)\b') {
+            throw 'Unexpected charger, touch, power, shell, stock DFU or full framebuffer configuration'
         }
-        if (!$AndroidReceiver -and $config -match '(?m)^#define (BLUETOOTH|PKG_USING_FLASHDB|WF_OTA_ANDROID_RECEIVER)\b') { throw 'Radio in read-only probe' }
+        if (!$AndroidReceiver -and $config -match '(?m)^#define (BLUETOOTH|PKG_USING_FLASHDB|WF_OTA_ANDROID_RECEIVER|BSP_USING_LCD|PKG_USING_LITTLEVGL2RTT)\b') { throw 'Radio or display in read-only probe' }
+        if ($AndroidReceiver -and $config -notmatch '(?m)^#define LCD_USING_CO5300\b') { throw 'Receiver must use its CO5300 display' }
         if ($AndroidReceiver -and $config -notmatch '(?m)^#define BLE_CM_BOND_DISABLE\b') { throw 'Bonding must be disabled in the upgrade environment' }
         if ($config -notmatch '(?m)^#define CUSTOM_MEM_MAP\b') { throw 'Project memory map not selected' }
         if ($AndroidReceiver) { $frozen = New-Item -ItemType Directory -Path (Join-Path $candidateRun 'frozen') }
@@ -82,6 +87,11 @@ $candidateSources = @(Get-ChildItem -LiteralPath $candidateProject -File | Where
 $candidateSources += @(Get-ChildItem -LiteralPath (Join-Path $candidateProject "${candidateBoard}_hcpu") -File)
 $candidateSources += @(Get-ChildItem -LiteralPath (Join-Path $ProjectRoot 'apps/ota_loader/src') -File)
 if ($AndroidReceiver) {
+    $candidateSources += @(Get-ChildItem -LiteralPath $uiProject -File |
+        Where-Object { $_.Name -match '\.(xml|c|h|cmake)$' })
+    foreach ($dir in 'fonts','screens') {
+        $candidateSources += @(Get-ChildItem -LiteralPath (Join-Path $uiProject $dir) -File)
+    }
     foreach ($name in 'apps/product/src/product_power.c','apps/product/src/product_power.h','core/power_state.h') {
         $candidateSources += Get-Item -LiteralPath (Join-Path $ProjectRoot $name)
     }

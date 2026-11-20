@@ -1,0 +1,10 @@
+list(
+  APPEND
+  LV_EDITOR_PROJECT_SOURCES
+  ${CMAKE_CURRENT_LIST_DIR}/fonts/ota_bluetooth_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/fonts/ota_digits_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/fonts/ota_hint_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/fonts/ota_title_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/screen_ota_receiver_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/wristflow_ota_ui_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/wristflow_ota_ui.c)

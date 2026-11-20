@@ -12,6 +12,7 @@ pub const CHUNK: usize = 65536;
 pub const BOOT: Range<usize> = 0x10000..0x1f000;
 pub const RX: Range<usize> = 0x820000..0x878000;
 const IDENTITY_RX: Range<usize> = 0x820000..0x879000;
+pub const DISPLAY_RX: Range<usize> = 0x820000..0x8a0000;
 pub const INSTALLED_SHA: &str = "d862c6aab38f33490519c70be2583fc56cc5d2bc9c465543efe6aa41ab8d2258";
 pub const RESTORED_SHA: &str = "acad8c5aee3d81f1f9defed9923274a7b6982e12b688cf834313a27420f521ac";
 const FIXED_BOOT_SHA: &str = "4fd4f8a35a72aa05f4e3c498a0564aad13413812950eb683f47526843992e83e";
@@ -36,7 +37,7 @@ const BOOT_ORIGINAL_SHA: &str = "f59f948f987362f1270b1da541405e82bd887c1a16c3063
 pub enum Action { Install, VerifyOriginal, EnterReceiver, InspectReceiver, InstallIdentity, EnterIdentity, RestoreIdentity,
                   Restore, RestoreWithB, RestoreTrialB, EnterTrialB, InspectTrialB, TraceTrialB, RestoreHandoffB,
                   TraceOriginalA, RestoreTraceA, TraceJournalDma, RestoreJournalDma, TestFixedRollback, InspectFixedRollback,
-                  EnterHealthB, InspectHealthB, RestoreHealthB }
+                  EnterHealthB, InspectHealthB, RestoreHealthB, InstallDisplayPair, RestoreDisplayPair }
 impl Action {
     pub fn traced(self) -> bool { matches!(self, Self::TraceOriginalA | Self::RestoreTraceA) }
     pub fn identity(self) -> bool { matches!(self, Self::InstallIdentity | Self::EnterIdentity | Self::RestoreIdentity) }
@@ -45,6 +46,7 @@ impl Action {
     pub fn handoff(self) -> bool { matches!(self, Self::TraceTrialB | Self::RestoreHandoffB) }
     pub fn short_entry(self) -> bool { matches!(self, Self::TraceJournalDma | Self::TestFixedRollback) }
     pub fn journal_dma(self) -> bool { self.short_entry() || matches!(self, Self::RestoreJournalDma | Self::InspectFixedRollback) }
+    pub fn display_pair(self) -> bool { matches!(self, Self::InstallDisplayPair | Self::RestoreDisplayPair) }
     pub fn health_model(self) -> Option<&'static str> {
         match self {
             Self::EnterHealthB | Self::RestoreHealthB => Some(POST_05_MODEL),
@@ -63,6 +65,10 @@ pub struct Inputs {
 impl Inputs {
     pub fn verify(&self, action: Action) -> Result<()> {
         require((action.short_entry() || action == Action::TraceTrialB) == self.trace_boot.is_some(), "Unexpected or missing boot image")?;
+        if action.display_pair() {
+            return require(self.receiver.len() == DISPLAY_RX.len() && self.boot.len() == BOOT.len() &&
+                           self.journal.is_empty(), "Unexpected display-pair image extent");
+        }
         if let Some(bytes) = &self.trace_boot {
             let digest = match action {
                 Action::TestFixedRollback => FIXED_BOOT_SHA,
@@ -147,6 +153,8 @@ pub fn writable(action: Action, role: &str, offset: usize, n: usize) -> bool {
         (Action::InstallIdentity | Action::RestoreIdentity | Action::TraceTrialB | Action::RestoreHandoffB |
          Action::TraceJournalDma | Action::RestoreJournalDma | Action::TestFixedRollback, "boot") => BOOT,
         (Action::InstallIdentity | Action::RestoreIdentity, "receiver") => IDENTITY_RX,
+        (Action::InstallDisplayPair | Action::RestoreDisplayPair, "boot") => BOOT,
+        (Action::InstallDisplayPair | Action::RestoreDisplayPair, "receiver") => DISPLAY_RX,
         (Action::Install | Action::Restore | Action::RestoreWithB, "boot") => BOOT,
         (Action::Install | Action::Restore | Action::RestoreWithB, "receiver") => RX,
         (Action::Install, "journal") => META.start..META.start+PAGE,
@@ -179,6 +187,41 @@ fn replace(io: &mut impl Nor, action: Action, expected: &mut [u8], role: &str,
         dst.copy_from_slice(chunk);
     }
     Ok(())
+}
+
+fn display_pair_window(io: &mut impl Nor, action: Action, images: &Inputs, before: &[u8]) -> Result<()> {
+    require(before.len() == SIZE && hash(before) == STABLE_06_MODEL, "Wrong stable-B reference")?;
+    let mut live = before.to_vec();
+    let restore = action == Action::RestoreDisplayPair;
+    for (range, writable) in [(0..CHUNK, false), (BOOT, true), (DISPLAY_RX, true),
+                               (META, false), (B_TAIL..B.end, false)] {
+        for off in (range.start..range.end).step_by(CHUNK) {
+            let end = (off + CHUNK).min(range.end);
+            let data = io.read(&format!("key-{off:08x}"), off, end - off)?;
+            require(data.len() == end - off, "Short display-pair preflight read")?;
+            if !restore || !writable {
+                require(data == before[off..end], "Display-pair preflight differs from stable B")?;
+            }
+            live[off..end].copy_from_slice(&data);
+        }
+    }
+    io.checkpoint(json!({"display_pair_preflight":true}))?;
+    let regions = if restore {
+        [("boot", BOOT, &before[BOOT]), ("receiver", DISPLAY_RX, &before[DISPLAY_RX])]
+    } else {
+        [("receiver", DISPLAY_RX, images.receiver.as_slice()), ("boot", BOOT, images.boot.as_slice())]
+    };
+    for (role, range, data) in &regions {
+        replace(io, action, &mut live, role, range.start, data)?;
+    }
+    for (_, range, _) in regions {
+        for off in (range.start..range.end).step_by(CHUNK) {
+            let end = (off + CHUNK).min(range.end);
+            let data = io.read(&format!("pair-{off:08x}"), off, end - off)?;
+            require(data == live[off..end], "Final display-pair readback differs")?;
+        }
+    }
+    io.checkpoint(json!({"display_pair_verified":true}))
 }
 
 fn key_transaction(io: &mut impl Nor, action: Action, images: &Inputs, installed: &[u8]) -> Result<()> {
@@ -317,6 +360,9 @@ fn health_window(io: &mut impl Nor, action: Action, model: &[u8]) -> Result<()> 
 pub fn run(io: &mut impl Nor, action: Action, images: &Inputs, rescue: Option<&[u8]>) -> Result<()> {
     require(!action.traced(), "Use the bounded original-A transaction")?;
     images.verify(action)?;
+    if action.display_pair() {
+        return display_pair_window(io, action, images, rescue.ok_or("Missing stable-B reference")?);
+    }
     if action.health_model().is_some() {
         return health_window(io, action, rescue.ok_or("Missing 06 model")?);
     }
@@ -330,7 +376,7 @@ pub fn run(io: &mut impl Nor, action: Action, images: &Inputs, rescue: Option<&[
     same_board(&expected)?;
     let before_hash = hash(&expected);
     match action {
-        Action::EnterHealthB | Action::InspectHealthB | Action::RestoreHealthB |
+        Action::EnterHealthB | Action::InspectHealthB | Action::RestoreHealthB | Action::InstallDisplayPair | Action::RestoreDisplayPair |
         Action::TraceOriginalA | Action::RestoreTraceA | Action::InspectReceiver | Action::TraceJournalDma | Action::RestoreJournalDma |
         Action::TestFixedRollback | Action::InspectFixedRollback | Action::InstallIdentity | Action::EnterIdentity | Action::RestoreIdentity => return Err("Unexpected storage action".into()),
         Action::Install | Action::VerifyOriginal => {

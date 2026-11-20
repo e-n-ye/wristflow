@@ -53,12 +53,15 @@ struct Config {
     #[serde(default)]
     signature_then_body: bool,
     trace_boot: Option<PathBuf>,
+    display_pair_sha256: Option<[String; 2]>,
 }
 impl Config {
     fn validate(&self) -> Result<()> {
         let (max_window, max_listen) = if self.signature_then_body {
             require(self.action == Action::EnterIdentity, "Paired phone window requires read-only entry")?;
             (1740, 1620)
+        } else if self.action.display_pair() {
+            (180, 35)
         } else if self.action.identity() {
             (480, 320)
         } else {
@@ -73,7 +76,7 @@ impl Config {
         }
         require(self.trace_boot.is_some() == (self.action.short_entry() || self.action == Action::TraceTrialB), "Unexpected boot image argument")?;
         let health_model = self.action.health_model();
-        let has_reference = restore || self.action.key_regions() || self.action.trial_read() || self.action.handoff() || self.action.journal_dma() || health_model.is_some();
+        let has_reference = restore || self.action.key_regions() || self.action.trial_read() || self.action.handoff() || self.action.journal_dma() || health_model.is_some() || self.action.display_pair();
         require(self.before.is_some() == has_reference && self.before_sha256.is_some() == has_reference, "Missing or unexpected NOR reference")?;
         if self.action == Action::InspectReceiver {
             require(self.seconds <= 240 && self.listen_seconds <= 160, "Receiver discovery time limit exceeded")?;
@@ -88,6 +91,10 @@ impl Config {
         if health_model.is_some() {
             require(self.before_sha256.as_deref() == health_model && self.seconds <= 800 &&
                     self.listen_seconds <= 420, "Wrong 06 model or time limit")?;
+        }
+        require(self.display_pair_sha256.is_some() == self.action.display_pair(), "Display-pair digest binding missing or unexpected")?;
+        if self.action.display_pair() {
+            require(self.before_sha256.as_deref() == Some(media::STABLE_06_MODEL), "Wrong stable B reference")?;
         }
         let scope = match self.action {
             Action::Install => "first-install-receiver-journal-boot-and-enter",
@@ -111,6 +118,8 @@ impl Config {
             Action::EnterHealthB => "verify-post-05-keys-and-enter-for-manual-06",
             Action::InspectHealthB => "verify-confirmed-06-keys-and-ordinary-restart",
             Action::RestoreHealthB => "restore-post-05-journal-and-b-pages-restart-a",
+            Action::InstallDisplayPair => "install-512k-display-pair-restart-stable-b",
+            Action::RestoreDisplayPair => "restore-original-display-pair-restart-stable-b",
             Action::TraceOriginalA => "ordinary-a-three-range-trace",
             Action::RestoreTraceA => "restore-three-trace-ranges",
         };
@@ -161,13 +170,17 @@ fn apply(c: &Config) -> Result<()> {
         Some(bytes)
     } else { None };
     let images = Inputs { receiver: fs::read(c.bundle.join(receiver))?,
-        journal: fs::read(c.bundle.join("journal.bin"))?, boot: fs::read(c.bundle.join("boot.bin"))?, trace_boot };
+        journal: if c.action.display_pair() { Vec::new() } else { fs::read(c.bundle.join("journal.bin"))? },
+        boot: fs::read(c.bundle.join("boot.bin"))?, trace_boot };
+    if let Some(expected) = &c.display_pair_sha256 {
+        require(*expected == [hash(&images.boot), hash(&images.receiver)], "Display-pair digest mismatch")?;
+    }
     if c.action.traced() { trace_media::verify_inputs(&images)?; } else { images.verify(c.action)?; }
     let source = c.before.as_ref().map(fs::read).transpose()?;
     if let Some(d) = &source {
         require(Some(hash(d)) == c.before_sha256, "Previous window original changed")?;
         if c.action.traced() { require(hash(d)==trace_media::ORIGINALS_SHA,"Invalid compact originals")?; }
-        else if !c.action.key_regions() && !c.action.trial_read() && !c.action.handoff() && !c.action.journal_dma() && c.action.health_model().is_none() { media::original(d)?; }
+        else if !c.action.key_regions() && !c.action.trial_read() && !c.action.handoff() && !c.action.journal_dma() && c.action.health_model().is_none() && !c.action.display_pair() { media::original(d)?; }
     }
     let stub = fs::read(&c.stub)?;
     require(stub.len() == 132816 && hash(&stub) == "d4db9c27a0539da431fd253ee4b09c8d3ddb033bf0dc1ae4cc3bf322fa069e43",
@@ -176,7 +189,7 @@ fn apply(c: &Config) -> Result<()> {
     let result = if c.simulation {
         let mut mem = Memory {bytes:fs::read(c.fixture.as_ref().unwrap())?,out:&c.out,action:c.action};
         transact(&mut mem,c,&images,source.as_deref()).and_then(|()| {
-            if c.action.traced() || c.action.identity() || c.action == Action::TraceTrialB || c.action.journal_dma() { save(&c.out.join("simulated-nor.bin"),&mem.bytes)?; }
+            if c.action.traced() || c.action.identity() || c.action == Action::TraceTrialB || c.action.journal_dma() || c.action.display_pair() { save(&c.out.join("simulated-nor.bin"),&mem.bytes)?; }
             Ok(())
         })
     } else {

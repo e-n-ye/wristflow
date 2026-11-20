@@ -1,7 +1,7 @@
 #include "offline_receiver.h"
 #include <string.h>
 
-enum { START = 38, DATA = 40, END = 42, OK = 0, ERROR = 1, SIZE = 3, NOT_READY = 4,
+enum { START = 38, DATA = WF_DFU_DATA, END = 42, OK = 0, ERROR = 1, SIZE = 3, NOT_READY = WF_DFU_NOT_READY,
        INCOMPLETE = 8, INDEX = 13 };
 
 static uint32_t le32(const uint8_t *p)
@@ -17,6 +17,19 @@ void wf_dfu_disconnect(wf_dfu_receiver_t *r)
     r->phase = WF_DFU_IDLE;
     r->total = r->accepted = r->blocks = r->crc = 0;
     memset(&r->image, 0, sizeof r->image);
+}
+
+uint8_t wf_dfu_percent(const wf_dfu_receiver_t *r)
+{
+    if (!r->total) return 0;
+    if (r->accepted == r->blocks) return 100;
+    /* START bounds total to 4 MiB + envelope. Only stored blocks count. */
+    return (uint8_t)(r->accepted * WF_DFU_BLOCK * 100u / r->total);
+}
+
+bool wf_dfu_is_cancel(const uint8_t *wire, size_t size)
+{
+    return size == 6 && wire[0] == WF_DFU_CANCEL && wire[1] == 0 && wire[2] == 2 && wire[3] == 0;
 }
 
 static unsigned start(wf_dfu_receiver_t *r, const uint8_t *p, size_t n)
@@ -65,6 +78,7 @@ static unsigned finish(wf_dfu_receiver_t *r, const uint8_t *p, size_t n)
 {
     if (n != 2 || p[0] || p[1] || r->phase != WF_DFU_RECEIVING) return NOT_READY;
     if (r->accepted != r->blocks) return INCOMPLETE;
+    if (r->verifying) r->verifying(r->context);
     uint8_t *header = r->file + WF_DFU_ENVELOPE;
     if (r->crc32_mpeg2(r->context, header, r->total - WF_DFU_ENVELOPE) != r->crc ||
         !admit(r, r->file)) return ERROR;
@@ -98,7 +112,7 @@ size_t wf_dfu_request(wf_dfu_receiver_t *r, const uint8_t *wire, size_t n, uint8
     if (!r || !r->file || !r->crc32_mpeg2 || !r->can_start || !r->install || !wire || !response || n < 4) return 0;
     unsigned id = wire[0] | (unsigned)wire[1] << 8;
     unsigned size = wire[2] | (unsigned)wire[3] << 8;
-    if (id == 37 && n == 6 && size == 2 && r->phase != WF_DFU_INSTALLED) {
+    if (wf_dfu_is_cancel(wire, n) && r->phase != WF_DFU_INSTALLED) {
         wf_dfu_disconnect(r);
         return 0;
     }

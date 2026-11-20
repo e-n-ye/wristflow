@@ -202,6 +202,9 @@ void wf_ota_boot_select(void)
     wf_boot_trace('J', word);
     HAL_Set_backup(RTC_BAKCUP_OTA_FORCE_MODE, 0);
     if (HAL_Get_backup(RTC_BAKCUP_OTA_FORCE_MODE) != 0) boot_error('K');
+    /* This target uses NOR only. Keep the result outside the force-mode word
+     * so legacy Product builds can still start and request another OTA. */
+    HAL_Set_backup(RTC_BACKUP_NAND_OTA_DES, 0);
     wf_ota_ab_state_t s;
     unsigned unit;
     if (wf_ota_journal_load(&journal, &s, &unit) ||
@@ -225,8 +228,8 @@ void wf_ota_boot_select(void)
             checked[slot].bytes = 0;
         }
     }
-    uint32_t trial;
-    wf_ota_ab_target_t target = wf_ota_trial_select(&journal, &s, checked, word, &trial);
+    uint32_t trial, result;
+    wf_ota_ab_target_t target = wf_ota_trial_select(&journal, &s, checked, word, &trial, &result);
 #ifdef WF_OTA_BOOT_TRACE
     if (target == WF_OTA_AB_RECOVERY && s.phase == WF_OTA_AB_STABLE && checked[s.stable].bytes)
         wf_boot_trace('z', s.stable);
@@ -241,6 +244,7 @@ void wf_ota_boot_select(void)
         /* A reset consumes the just-persisted TRIED record and selects stable. */
         if (HAL_Get_backup(RTC_BAKCUP_OTA_FORCE_MODE) != trial || !trial_watchdog()) NVIC_SystemReset();
     }
+    if (result) HAL_Set_backup(RTC_BACKUP_NAND_OTA_DES, result);
     launch(&plans[target]);
 }
 #endif

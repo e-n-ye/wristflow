@@ -1,0 +1,17 @@
+<screen>
+    <styles>
+        <style name="progress_indicator" arc_color="0x0396fa" arc_width="8" arc_rounded="true" />
+        <style name="no_knob" bg_opa="0%" pad_all="0" />
+    </styles>
+    <view width="390" height="450" scrollable="false" clickable="false" style_bg_color="0x000000" style_bg_opa="100%" style_border_width="0" style_pad_all="0" style_radius="0" style_text_color="0xffffff">
+        <lv_label name="ota_state" x="24" y="50" width="342" text="等待手机连接" style_text_font="ota_title" style_text_align="center" />
+        <lv_arc name="ota_progress" x="107" y="121" width="176" height="176" clickable="false" value="0" bg_start_angle="0" bg_end_angle="360" rotation="270" style_bg_opa="0%" style_border_width="0" style_pad_all="0" style_arc_color="0x24262a" style_arc_width="8">
+            <style name="progress_indicator" selector="indicator" />
+            <style name="no_knob" selector="knob" />
+        </lv_arc>
+        <lv_label name="ota_value" x="24" y="189" width="342" text="0%" hidden="true" style_text_font="ota_digits" style_text_align="center" />
+        <lv_label name="ota_peer" x="24" y="325" width="342" text="WristFlow OTA" style_text_font="ota_title" style_text_align="center" />
+        <lv_label name="ota_icon" x="24" y="185" width="342" text="&#xf294;" style_text_font="ota_bluetooth" style_text_color="0x0396fa" style_text_align="center" />
+        <lv_label name="ota_instructions" x="24" y="369" width="342" text="在 SIFLI BLE 中选择此设备" style_text_font="ota_hint" style_text_color="0xa7adb5" style_text_align="center" />
+    </view>
+</screen>

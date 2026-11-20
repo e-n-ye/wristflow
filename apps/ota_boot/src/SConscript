@@ -28,6 +28,10 @@ if receiver:
         record=json.load(stream)
     with open(os.path.join(root, 'sdk.lock.json'), encoding='utf-8') as stream:
         lock = json.load(stream)
+    with open(os.path.join(cwd, '../project', lock['board'] + '_hcpu', 'ptab.json'), encoding='utf-8') as stream:
+        partitions = json.load(stream)
+    [receiver_region] = [r for m in partitions for r in m['regions'] if 'WF_OTA_LOADER' in r['tags']]
+    receiver_limit = int(receiver_region['max_size'], 16)
     if (record.get('kind') != 'standalone-ota-android-receiver' or record.get('artifact_validation_passed') is not True
             or record.get('board') != lock['board'] or record.get('sdk_commit') != lock['sdk']['commit']
             or record.get('sdk_changes') != []):
@@ -37,7 +41,7 @@ if receiver:
     with open(path if os.path.isfile(path) else item['path'], 'rb') as stream:
         image = stream.read()
     digest = hashlib.sha256(image).digest()
-    if len(image) != item['bytes'] or not 8 <= len(image) <= 0x60000 or digest.hex() != item['sha256']:
+    if len(image) != item['bytes'] or not 8 <= len(image) <= receiver_limit or digest.hex() != item['sha256']:
         raise ValueError('Receiver differs from bound build')
     with open(os.path.join(root, 'apps/ota_loader/src/original_a.inc'), encoding='ascii') as stream:
         enrollment = bytes(int(v, 16) for v in re.findall(r'0x([0-9a-f]{2}),', stream.read()))
