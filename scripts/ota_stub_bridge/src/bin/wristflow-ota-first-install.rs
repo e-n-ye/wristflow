@@ -120,8 +120,8 @@ impl Config {
             Action::RestoreHealthB => "restore-post-05-journal-and-b-pages-restart-a",
             Action::InstallDisplayPair => "install-512k-display-pair-restart-stable-b",
             Action::RestoreDisplayPair => "restore-original-display-pair-restart-stable-b",
-            Action::InstallDisplayPairA => "install-512k-display-pair-restart-stable-a",
-            Action::RestoreDisplayPairA => "restore-original-display-pair-restart-stable-a",
+            Action::InstallDisplayPair2026112001 => "install-512k-display-pair-restart-stable-b-2026112001",
+            Action::RestoreDisplayPair2026112001 => "restore-original-display-pair-restart-stable-b-2026112001",
             Action::TraceOriginalA => "ordinary-a-three-range-trace",
             Action::RestoreTraceA => "restore-three-trace-ranges",
         };

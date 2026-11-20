@@ -1220,8 +1220,21 @@ LVGL Pro Editor 2.0.1 以 LVGL 9.4.0 导出页面和增补字形。主机验证�
 <a id="ota-display-pair-a-20261120"></a>
 ### 2026-11-20 稳定 A 配套镜像交换
 
+这段记录的是首次试装前的软件准备。随后真机拒绝该前态，活动流程改用[第 13 代稳定 B](#ota-display-pair-b13-20261120)。
+
 以稳定 B 第 7 代模型和首次上板的镜像实读为基础，逐块对照 FTAB、旧 boot、旧接收区、启动记录和 B 槽签名页。再按已安装签名包 `WristFlow-2026112001.bin` 重建 A 槽正文与签名页，按原提交逻辑编码第 9 代 TRIED 及第 10 代 STABLE A。得到 16 MiB **主机模型** `f242e48a6df6215e215461ec36137fa82aa3a98c0b68f7a9e8ad4eceaa59003b`。此前断连窗口的普通启动串口记录独立证明稳定 A 2026112001。当前模型中的运行记录和设置字节是历史值，现场工具不以其作为恢复源。
 
 [有线适配](../scripts/ota_display_pair.py) 的 `install-display-pair-a` 和 `restore-display-pair-a` 将授权、前态摘要和回启版本绑定到稳定 A，保留原稳定 B 动作。重用连续 COM5 租约、原应用快照与禁充守卫，以及锁定 SDK 的官方 RAM stub。写入前逐字节核对 A/B 签名页、FTAB、启动记录和原镜像。写入范围只有 `0x12820000–0x1289ffff` 和 `0x12010000–0x1201efff`。安装先接收器后 boot，异常停止后仅按明确的恢复授权用同窗前态恢复 boot 和接收器，逐块读回再普通启动。
 
 软件证据在本机 `artifacts/ota-display-stable-a-{host-002,bundle-001,checks}`。用 `ota_first_install.py build` 离线重建原生工具，Rust 11 项通过，Python OTA 健康证据 5 项、首装回归 8 项通过，旧原 A 跟踪夹具缺失项跳过。用 `ota_display_pair.py prepare` 绑定上一节的冻结接收器和 boot。A 安装、破损配套镜像恢复各完成 9 次写入和 31 次读回的模拟，恢复保留另外修改的设置字节。改动 A 签名页、启动记录或原 boot 时均在第一次写入前拒绝，旧 B 动作模拟通过。使用固件同源验签、启动记录及向量检查验证安装后模型选中第 10 代稳定 A。第一次原生测试编译发现遗漏的新动作枚举分支，修正后重建通过。
+
+<a id="ota-display-pair-b13-20261120"></a>
+### 2026-11-20 实读第 13 代稳定 B 与无写入返回
+
+原电池和板载 USB 同接，操作者在旁确认允许安装和必要恢复。首次窗口保存运行快照，VBAT 回执为 4,169 mV，禁充、USB 输入和周期锁定均通过。FTAB、旧 boot、旧接收区与前态相同，工具在验证启动记录 `0x12da0000` 时中止。原始发送记录在降至 500 kbit/s 后只含 11 个固定区域的读取命令，没有擦写、计划重启或写入意图。
+
+两份记录 CRC 均有效，旧记录是第 12 代 TRIED B，新记录是第 13 代 STABLE B。A/B 都登记为 2026112001，正文摘要均为 `3716dc447d881c1fa5df186bf07caa6702c3b029cda5e1f9afc09380da24afbc`。用已经授权的单次 `burn_reset` 退出 RAM stub，不恢复 Flash 字节。串口确认设置恢复及 `slot=B release=2026112001 trial=0 services=1`，租约释放。本机记录为 `artifacts/ota-display-stable-a-device-001` 和 `artifacts/ota-display-stable-b13-return-001`。
+
+用本窗完整的 16 KiB 启动记录与两槽已登记的签名包重建第 13 代稳定 B 模型，SHA-256 `df93ea035e8ff9527caa98d1d320017e716cb46a468c703813089497d551685e`。新动作 `install-display-pair-2026112001` 和 `restore-display-pair-2026112001` 同时核对 A/B 签名页、启动记录和旧配套镜像，恢复锚定同窗实读。待上板镜像、可写地址与有线交换顺序和上一节相同，重启及恢复均以当前 B 2026112001 为准。
+
+第 13 代安装和破损配套镜像恢复模拟分别完成 9 次写入、31 次读回。恢复保留新增设置变化。变更任一签名页、启动记录或原 boot 均在首次写入前拒绝。用固件同源验签和向量检查确认模型中的两槽签名有效，普通启动选择第 13 代稳定 B。Rust 11 项、Python 健康证据 5 项通过。首轮模拟发现数字后缀在 Rust 默认序列化时缺少连字符，显式绑定动作名后重建并通过全套。最终产物在本机 `artifacts/ota-display-stable-b13-{host-002,bundle-001,checks/runs-002}`。
