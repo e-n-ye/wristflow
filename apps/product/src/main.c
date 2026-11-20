@@ -11,6 +11,7 @@
 #include "runtime_input.h"
 #include "product_ble.h"
 #include "product_pm.h"
+#include "product_awake.h"
 #include "product_steps.h"
 #include "product_wrist.h"
 #include "product_light.h"
@@ -521,6 +522,14 @@ static void run_panel_probe(rt_device_t lcd, lv_indev_t *pointer)
         panel_probe.phase, panel_probe.restore_pending, panel_probe.restored);
 }
 
+static bool lab_awake_eligible(void)
+{
+    rt_base_t level = rt_hw_interrupt_disable();
+    bool reserved = probe_reserved || wf_product_resource_busy_locked();
+    rt_hw_interrupt_enable(level);
+    return !reserved && !wf_product_ota_trial_pending() && !wf_product_cycle_sampling();
+}
+
 static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
 {
     wristflow_product_compass_active(false);
@@ -556,7 +565,7 @@ static void screen_off(rt_device_t lcd, rt_device_t touch, lv_indev_t *pointer)
     bool rendered_battery_unknown = true, rendered_estimate = false;
     uint8_t rendered_battery = 0;
     rt_uint32_t events;
-    bool preview = false, reminder = false, charging = false, wrist = false;
+    bool preview = false, reminder = false, charging = false, wrist = false, lab_wake = false;
     defer_brightness = true;
     for (;;) {
         bool cycle_lcd_off=false;
@@ -650,7 +659,9 @@ arbitrate_sleep_events:
         if ((events & WF_EVENT_WRIST) && wristflow_product_wrist_take_wake() &&
             !(events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE | WF_EVENT_KEY_STATE)))
             wrist = wristflow_ui_shell_wrist_wake(product_shell) || wrist;
-        if (reminder || preview || charging || wrist ||
+        if (events & WF_EVENT_LAB_AWAKE)
+            lab_wake = wf_product_awake_apply(product_shell, lab_awake_eligible(), true) || lab_wake;
+        if (reminder || preview || charging || wrist || lab_wake ||
             (endurance_before && !wristflow_ui_shell_endurance(product_shell)) ||
             (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE)) ||
             ((events & WF_EVENT_KEY_STATE) && key_down && wristflow_ui_shell_endurance(product_shell))) {
@@ -700,6 +711,7 @@ arbitrate_sleep_events:
     defer_brightness = false;
     set_brightness(wake_brightness, lcd);
     rt_kprintf("[product] screen on\n");
+    wf_product_awake_screen_on();
     wristflow_product_power_screen(true); /* Start device work only after the first lit frame. */
     wristflow_product_steps_screen(true);
     capture_battery();
@@ -872,5 +884,6 @@ int main(void)
         }
         if (events & (WF_EVENT_KEY | WF_EVENT_TEST_WAKE)) wristflow_ui_shell_key(shell);
         if (events & WF_EVENT_KEY_STATE) sync_endurance_key();
+        if (events & WF_EVENT_LAB_AWAKE) wf_product_awake_apply(shell, lab_awake_eligible(), false);
     }
 }

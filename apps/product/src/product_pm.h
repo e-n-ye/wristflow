@@ -16,7 +16,8 @@
 #define WF_EVENT_AOD_PROBE 1024u
 #define WF_EVENT_TIME      2048u
 #define WF_EVENT_POWER     4096u
-#define WF_EVENT_ALL       8191u
+#define WF_EVENT_LAB_AWAKE 8192u
+#define WF_EVENT_ALL       16383u
 
 void wristflow_product_pm_start(void);
 void wristflow_product_event_send(rt_uint32_t events);
