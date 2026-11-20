@@ -67,7 +67,7 @@ class FirstInstall(unittest.TestCase):
         for action, model in ((health.ENTER, before), (health.INSPECT, after)):
             out = self.invoke(action, action, model, source=model, bundle=bundle)
             reads, writes = health.transfers(out, action, model.read_bytes())
-            self.assertEqual((59, 3551232, []), (len(reads), sum(len(d) for _, _, d in reads), writes))
+            self.assertEqual((60, 3567616, []), (len(reads), sum(len(d) for _, _, d in reads), writes))
         changed = bytearray(before.read_bytes())
         changed[0x704fff] ^= 1
         fixture = self.directory/"unexpected-06-page.bin"

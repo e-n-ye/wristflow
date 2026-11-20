@@ -295,6 +295,10 @@ fn health_window(io: &mut impl Nor, action: Action, model: &[u8]) -> Result<()> 
         }
     }
     io.checkpoint(json!({"health_keys_archived":true,"model_sha256":digest}))?;
+    if !restore {
+        let settings = io.read("settings", 0xda8000, 16384)?;
+        require(settings.len() == 16384, "Incomplete settings snapshot")?;
+    }
     if restore {
         for (role, range) in &owned {
             replace(io, action, &mut current, role, range.start, &model[range.clone()])?;

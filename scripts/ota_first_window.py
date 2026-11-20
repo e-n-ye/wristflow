@@ -97,7 +97,11 @@ class AppSimulation(Simulation):
 def app_worker(cfg):
     out, phase = Path(cfg["root"]), cfg["phase"]
     require(phase in ("before","after"), "Unknown application phase")
-    journal = Journal(out / ("app-"+phase),binding=cfg,mode="original-cyclelog")
+    from ota_health_evidence import SCOPE as health_scope, boot_result
+    combined = cfg["action"] == "combined-06" and cfg["authorization"] == health_scope
+    boot_source = cfg.get("health_boot")
+    require(not boot_source or combined, "06 evidence belongs to the combined window")
+    journal = Journal(out / ("app-"+phase),binding=cfg,mode="06-product" if boot_source else "original-cyclelog")
     cancel = FileCancel(out/"cancel")
     deadline = time.monotonic()+65
     def check():
@@ -113,15 +117,31 @@ def app_worker(cfg):
     else:
         allowed = ((cfg["action"] == "return-original" and phase == "after" and
                     cfg["authorization"] == "return-original-after-incomplete-backup") or
-                   (cfg["action"] in SCOPE and cfg["authorization"]==SCOPE[cfg["action"]]) or
+                   combined or (cfg["action"] in SCOPE and cfg["authorization"]==SCOPE[cfg["action"]]) or
                    (cfg["action"]=="ordinary-a-window" and phase=="before" and
                     cfg["authorization"]=="trace-ordinary-a-68k-and-restore"))
         require(os.name=="nt" and allowed, "Explicit device window required")
-        f=read_json(APP_EVIDENCE)["firmware"]
-        _, identity=prepare_capture(ROOT/f["result"],ROOT/f["flash"],APP,"COM5","1-1.1",True,
-                                    build_archive=ROOT/f["archive"]["path"],recorded_root=ROOT)
+        if boot_source:
+            from lab_check import check_build
+            media = Path(boot_source)
+            raw = (media/"startup-uart.bin").read_bytes()
+            rollback.verify_passive_wire(media, raw)
+            boot_result(raw, "ordinary" if phase == "after" else "complete")
+            e = read_json(ROOT/"docs/evidence/2026-11-18/ota-product-health.json")
+            result, archive = ROOT/e["build"], ROOT/e["build_archive"]
+            require(digest(result) == e["build_result_sha256"] and digest(archive) == e["archive_sha256"], "06 build changed")
+            checked = check_build(result, build_archive=archive, recorded_root=ROOT)
+            require([i["sha256"] for i in checked["images"] if i["name"] == "main.bin"] == [e["main_sha256"]],
+                    "06 Product build identity mismatch")
+            endpoint = port_identity("COM5","1-1.1")
+            def identity():
+                require(port_identity("COM5","1-1.1") == endpoint, "06 endpoint changed before snapshot")
+        else:
+            f=read_json(APP_EVIDENCE)["firmware"]
+            _, identity=prepare_capture(ROOT/f["result"],ROOT/f["flash"],APP,"COM5","1-1.1",True,
+                                        build_archive=ROOT/f["archive"]["path"],recorded_root=ROOT)
         device=BoundedSerial("COM5",phase,journal,check,identity)
-    return application(phase,device,journal,SimpleNamespace(cancelled=cancel),identity,cycle=True,
+    return application(phase,device,journal,SimpleNamespace(cancelled=cancel),identity,cycle=not boot_source,
                        before_close=inhibit if phase=="before" or cfg["action"] in ("trace-trial-b",dma.ENTRY) else None)
 
 
@@ -169,6 +189,8 @@ def app_phase(root, phase, args, console, *, worker_seconds=95):
     directory=root/("job-"+phase);directory.mkdir()
     req=dict(root=str(root),phase=phase,action=args.action,simulation=args.mode=="simulate",
              authorization=args.authorize,fixture=str(getattr(args,phase+"_fixture","")))
+    if getattr(args, "health_boot", None):
+        req["health_boot"] = str(args.health_boot)
     cfg=directory/"request.json";write_json(cfg,req)
     code=run_owned([sys.executable,"-B",str(Path(__file__).resolve()),"app-worker",str(cfg),digest(cfg)],
                    directory,console,root/"cancel",worker_seconds)

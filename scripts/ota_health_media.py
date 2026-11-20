@@ -75,6 +75,10 @@ def transfers(directory, action, model):
     if action == RESTORE:
         reads.extend((f"{role}-{off:08x}", off, data) for role, off, data in writes)
         reads.extend((f"restored-{off:08x}", off, model[off:end]) for _, off, end in dma.chunks(OWNED))
+    else:
+        settings = (directory / "settings.bin").read_bytes()
+        require(len(settings) == 16384, "Incomplete settings snapshot")
+        reads.append(("settings", 0xda8000, settings))
     return reads, writes
 
 
