@@ -22,7 +22,7 @@ RECEIVER = (0x820000, 0x8A0000)
 CHUNK = 0x10000
 PROTECTED = ((0, 0x10000), (0xDA0000, 0xDA4000), (0x81F000, 0x820000))
 PHASES = [("preflight", "核对同一块表及稳定 B"), ("pair", "写入并读回配套镜像"),
-          ("normal", "确认稳定 B 表盘已返回")]
+          ("normal", "从串口核对稳定 B 启动")]
 
 
 def frozen_build(path, kind):
@@ -95,6 +95,7 @@ def run(args):
     live = args.operation == "capture"
     require(args.authorize == (SCOPE[args.action] if live else "simulation") and
             (not live or os.name == "nt" and not args.fixture) and
+            args.on_site_confirmed == live and
             bool(args.prior) == (args.action == RESTORE) and
             (live or args.action != RESTORE or bool(args.fixture)) and
             bool(args.stable_uart) == (live and args.action == INSTALL), "Unexpected device scope or input")
@@ -123,14 +124,11 @@ def run(args):
     journal = Journal(out, binding=dict(action=args.action, simulation=not live, pair=pair), mode="ota-display-pair")
     report = {"passed": False, "simulation": not live, "hardware_verified": False}
     with Console(journal, PHASES, mode="OTA 接收器和配套 boot") as console:
-        print(console.url, flush=True)
         try:
-            if live:
-                os.startfile(console.url)
             with owned_endpoint("COM5" if live else "SIMULATED-DISPLAY", report):
                 if live:
                     port_identity("COM5", "1-1.1")
-                    console.prompt("preflight", "确认原黄山派接原电池和板载 USB、接线固定、人员在旁。", 150)
+                    journal.event("operator_ready_in_chat", phase="preflight")
                     if args.action == INSTALL:
                         app_phase(out, "before", SimpleNamespace(action=args.action, mode="capture",
                                   authorize=args.authorize, health_boot=args.stable_uart.resolve()), console)
@@ -163,12 +161,10 @@ def run(args):
                 report["reads"], report["writes"] = len(reads), len(writes)
                 console.stage("pair", "complete")
                 if live:
-                    console.prompt("normal", "确认稳定 B 表盘、触摸和 KEY1。", 150)
-                else:
-                    journal.event("simulated_prompt", phase="normal")
+                    journal.event("operator_check_in_chat", phase="normal")
                 console.stage("normal", "complete")
             require(console.seal("passed") == "passed", "Workflow incomplete")
-            report.update(passed=True, hardware_verified=live)
+            report.update(passed=True, hardware_verified=live, operator_check_pending=live)
         except (Exception, KeyboardInterrupt) as exc:
             report["error"] = repr(exc)
         finally:
@@ -187,6 +183,8 @@ if __name__ == "__main__":
         window = modes.add_parser(mode)
         window.add_argument("--action", choices=(INSTALL, RESTORE), required=True)
         window.add_argument("--authorize", required=True)
+        window.add_argument("--on-site-confirmed", action="store_true",
+                            help="Record the operator's existing confirmation of board, power and presence in chat")
         for name in ("build", "bundle", "out", "stable-uart", "fixture", "prior"):
             window.add_argument("--" + name, type=Path, required=name in ("build", "bundle", "out"))
     args = parser.parse_args()
