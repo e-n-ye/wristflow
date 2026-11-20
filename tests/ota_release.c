@@ -211,6 +211,39 @@ static void put32(uint8_t *out, uint32_t value)
     for (unsigned i = 0; i < 4; ++i) out[i] = (uint8_t)(value >> (i * 8));
 }
 enum android_fixture { SIGNED_PRODUCT, WRONG_BOARD, WRONG_LINK_ADDRESS, WRONG_SIGNATURE, WRONG_BODY };
+
+/* Host-only pipe for the bounded interruption peer. Frames are hex lines so
+ * the Windows C runtime cannot translate binary DFU payloads in text mode.
+ * "expire" models the radio worker calling wf_dfu_disconnect on its deadline. */
+static void interruption_peer(void)
+{
+    wf_dfu_receiver_t r = {.file=staging, .capacity=sizeof staging, .can_start=ready, .crc32_mpeg2=mpeg, .install=install};
+    uint8_t message[16 + WF_DFU_BLOCK], reply[12];
+    char line[2 * sizeof message + 8];
+    while (fgets(line, sizeof line, stdin)) {
+        size_t chars = strcspn(line, "\r\n");
+        if (chars == 6 && !memcmp(line, "expire", 6)) {
+            assert(r.phase == WF_DFU_RECEIVING);
+            wf_dfu_disconnect(&r);
+            puts("expired");
+        } else {
+            assert(chars >= 8 && chars % 2 == 0 && chars / 2 <= sizeof message);
+            for (size_t i = 0; i < chars / 2; ++i) {
+                unsigned value;
+                assert(sscanf(line + 2*i, "%2x", &value) == 1);
+                message[i] = (uint8_t)value;
+            }
+            assert(message[1] == 0 && (message[0] == 37 || message[0] == 38 || message[0] == 40));
+            size_t n = wf_dfu_request(&r, message, chars / 2, reply);
+            assert(r.phase != WF_DFU_VERIFIED && r.phase != WF_DFU_INSTALLED && installs == 0);
+            for (size_t i = 0; i < n; ++i) printf("%02x", reply[i]);
+            putchar('\n');
+        }
+        fflush(stdout);
+    }
+    assert(!ferror(stdin) && r.phase == WF_DFU_IDLE && r.accepted == 0 && installs == 0);
+}
+
 static void android_file(const char *path, wf_ota_physical_reader_t *reader, enum android_fixture fixture)
 {
     FILE *f = fopen(path, "rb");
@@ -320,6 +353,10 @@ static void android_file(const char *path, wf_ota_physical_reader_t *reader, enu
 
 int main(int argc, char **argv)
 {
+    if (argc == 2 && !strcmp(argv[1], "--interruption-peer")) {
+        interruption_peer();
+        return 0;
+    }
     uint8_t uid[16], address[6];
     for (unsigned i = 0; i < sizeof uid; ++i) uid[i] = (uint8_t)(i + 1);
     assert(wf_ota_receiver_address(uid, address));
