@@ -205,7 +205,7 @@ static void worker(void *unused)
         rt_mq_recv(requests, &m, sizeof m, rt_tick_from_millisecond(500));
         if (epoch != connection_epoch) {
             bool now_connected = peer != 0xff;
-            if (r.phase == WF_DFU_RECEIVING) wf_ota_display_publish(WF_OTA_DISCONNECTED, 0);
+            if (r.phase == WF_DFU_RECEIVING) wf_ota_display_disconnected(last);
             else if (now_connected != connected)
                 wf_ota_display_publish(now_connected ? WF_OTA_CONNECTED : WF_OTA_WAITING, 0);
             connected = now_connected;
@@ -216,7 +216,7 @@ static void worker(void *unused)
             wf_dfu_disconnect(&r);
             wf_ota_display_publish(WF_OTA_TIMEOUT, 0);
         }
-        if (rt_tick_get() - last > rt_tick_from_millisecond(120000)) {
+        if (rt_tick_get() - last > rt_tick_from_millisecond(WF_OTA_IDLE_TIMEOUT_MS)) {
             last = rt_tick_get();
             if (wf_ota_loader_has_stable()) {
                 if (m) rt_free(m);
@@ -241,7 +241,7 @@ static void worker(void *unused)
                 wf_ota_display_publish(WF_OTA_CANCELED, 0);
             } else if (!receipt && n) {
                 wf_dfu_disconnect(&r);
-                wf_ota_display_publish(WF_OTA_DISCONNECTED, 0);
+                wf_ota_display_disconnected(last);
             } else if (n && r.phase == WF_DFU_IDLE && reply[4]) {
                 wf_ota_display_publish(reply[4] == WF_DFU_NOT_READY ? WF_OTA_NOT_READY : WF_OTA_BAD_PACKAGE, 0);
             } else if (n && !reply[4] && r.phase == WF_DFU_RECEIVING) {

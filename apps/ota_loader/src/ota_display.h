@@ -2,6 +2,8 @@
 #define WF_OTA_DISPLAY_H
 #include <stdint.h>
 
+#define WF_OTA_IDLE_TIMEOUT_MS 120000u
+
 typedef enum {
     WF_OTA_WAITING, WF_OTA_CONNECTED, WF_OTA_RECEIVING, WF_OTA_VERIFYING,
     WF_OTA_INSTALLING, WF_OTA_REBOOTING, WF_OTA_DISCONNECTED, WF_OTA_CANCELED,
@@ -11,5 +13,6 @@ typedef enum {
 
 void wf_ota_display_start(void);
 void wf_ota_display_publish(wf_ota_display_phase_t phase, uint8_t percent);
+void wf_ota_display_disconnected(uint32_t last_activity_tick);
 
 #endif
