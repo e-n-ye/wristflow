@@ -26,11 +26,28 @@ static const struct {
     [WF_OTA_RADIO_FAILED]   = {"蓝牙未就绪", "返回表盘后重试"},
 };
 static uint32_t display_state = WF_OTA_WAITING;
+#define PHASE_MASK 0xffu
+#define VALUE_SHIFT 8u
+#define VALUE_MASK (UINT32_MAX >> VALUE_SHIFT)
 
 /* A single-word mailbox. Producers never wait for the display worker or DMA. */
 void wf_ota_display_publish(wf_ota_display_phase_t phase, uint8_t percent)
 {
-    __atomic_store_n(&display_state, (uint32_t)phase | ((uint32_t)percent << 8), __ATOMIC_RELAXED);
+    __atomic_store_n(&display_state, (uint32_t)phase | ((uint32_t)percent << VALUE_SHIFT), __ATOMIC_RELAXED);
+}
+
+void wf_ota_display_disconnected(uint32_t last_activity_tick)
+{
+    __atomic_store_n(&display_state, WF_OTA_DISCONNECTED | (last_activity_tick << VALUE_SHIFT), __ATOMIC_RELAXED);
+}
+
+static unsigned seconds_to_return(uint32_t last_activity_tick)
+{
+    /* Use the same interval as the radio worker. Truncated ticks still span the full idle window. */
+    uint32_t elapsed = ((uint32_t)rt_tick_get() - last_activity_tick) & VALUE_MASK;
+    uint32_t timeout = rt_tick_from_millisecond(WF_OTA_IDLE_TIMEOUT_MS);
+    uint32_t remaining = elapsed < timeout ? timeout - elapsed : 0;
+    return (remaining + RT_TICK_PER_SECOND - 1u) / RT_TICK_PER_SECOND;
 }
 
 static uint32_t tick_ms(void)
@@ -46,7 +63,7 @@ static void show(void *context)
     lv_tick_set_cb(tick_ms);
     lv_lcd_init("lcd");
     rt_device_control(lcd, SF_GRAPHIC_CTRL_ASSERT_IF_DRAWTIMEOUT, (void *)2);
-    uint8_t brightness = 40;
+    uint8_t brightness = 80;
     rt_device_control(lcd, RTGRAPHIC_CTRL_SET_BRIGHTNESS, &brightness);
     wristflow_ota_ui_init(NULL);
     lv_obj_t *screen = screen_ota_receiver_create();
@@ -62,22 +79,28 @@ static void show(void *context)
     uint32_t shown = UINT32_MAX;
     lv_screen_load(screen);
     for (;;) {
-        uint32_t current = __atomic_load_n(&display_state, __ATOMIC_RELAXED);
+        uint32_t state = __atomic_load_n(&display_state, __ATOMIC_RELAXED);
+        wf_ota_display_phase_t phase = state & PHASE_MASK;
+        unsigned value_data = state >> VALUE_SHIFT;
+        if (phase == WF_OTA_DISCONNECTED) value_data = seconds_to_return(value_data);
+        uint32_t current = (value_data << VALUE_SHIFT) | phase;
         if (current != shown) {
-            wf_ota_display_phase_t phase = current & 0xff;
-            unsigned percent = current >> 8;
             bool receiving = phase == WF_OTA_RECEIVING;
             bool transfer_complete = phase == WF_OTA_VERIFYING || phase == WF_OTA_INSTALLING ||
                                      phase == WF_OTA_REBOOTING;
-            if ((shown & 0xff) != phase) {
+            if ((shown & PHASE_MASK) != phase) {
                 lv_label_set_text_static(title, copy[phase].title);
-                lv_label_set_text_static(hint, copy[phase].hint);
+                if (phase != WF_OTA_DISCONNECTED) lv_label_set_text_static(hint, copy[phase].hint);
                 lv_obj_set_flag(value, LV_OBJ_FLAG_HIDDEN, !receiving);
                 lv_obj_set_flag(peer, LV_OBJ_FLAG_HIDDEN, phase != WF_OTA_WAITING);
                 lv_obj_set_flag(icon, LV_OBJ_FLAG_HIDDEN,
                                 phase != WF_OTA_WAITING && phase != WF_OTA_CONNECTED && phase != WF_OTA_DISCONNECTED);
             }
+            unsigned percent = receiving ? value_data : 0;
             if (receiving) lv_label_set_text_fmt(value, "%u%%", percent);
+            if (phase == WF_OTA_DISCONNECTED)
+                lv_label_set_text_fmt(hint, "%s\n%02u:%02u 后返回表盘", copy[phase].hint,
+                                      value_data / 60u, value_data % 60u);
             lv_arc_set_value(ring, transfer_complete ? 100 : receiving ? percent : 0);
             lv_obj_set_style_arc_opa(ring, transfer_complete || (receiving && percent) ? LV_OPA_COVER : LV_OPA_TRANSP,
                                      LV_PART_INDICATOR);
