@@ -46,7 +46,7 @@ static void show(void *context)
     lv_tick_set_cb(tick_ms);
     lv_lcd_init("lcd");
     rt_device_control(lcd, SF_GRAPHIC_CTRL_ASSERT_IF_DRAWTIMEOUT, (void *)2);
-    uint8_t brightness = 12;
+    uint8_t brightness = 40;
     rt_device_control(lcd, RTGRAPHIC_CTRL_SET_BRIGHTNESS, &brightness);
     wristflow_ota_ui_init(NULL);
     lv_obj_t *screen = screen_ota_receiver_create();
