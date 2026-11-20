@@ -58,9 +58,11 @@ def receiver_service(sections):
     return False
 
 
-async def scan(path, seconds, *, gatt_address=None):
+async def scan(path, seconds, *, gatt_address=None, on_target=None):
     from bleak import BleakScanner
 
+    if on_target is not None and gatt_address is None:
+        raise ValueError("An attended GATT session requires the recorded receiver address")
     last_packet = {}
     seen = set()
     callbacks = 0
@@ -68,6 +70,7 @@ async def scan(path, seconds, *, gatt_address=None):
     name_addresses = set()
     service_addresses = set()
     target = None
+    target_ready = asyncio.Event()
     fresh = {}
     started = time.time()
     with path.open("x", encoding="utf-8", buffering=1) as stream:
@@ -116,6 +119,7 @@ async def scan(path, seconds, *, gatt_address=None):
                         fresh["name"] = packet.timestamp.timestamp()
                     if len(fresh) == 2:
                         target = device
+                        target_ready.set()
                 record("packet", packet_time=stamp, address=device.address, name=name,
                        kind=kind, rssi=int(packet.raw_signal_strength_in_dbm),
                        receiver_uuid=service, sections=sections)
@@ -125,14 +129,17 @@ async def scan(path, seconds, *, gatt_address=None):
 
         record("start", seconds=seconds)
         async with BleakScanner(detection_callback=received, scanning_mode="active"):
-            await asyncio.sleep(seconds)
+            if on_target is None:
+                await asyncio.sleep(seconds)
+            else:
+                await asyncio.wait_for(target_ready.wait(), seconds)
         record("end", callbacks=callbacks, packets=counts,
                receiver_addresses=sorted(name_addresses & service_addresses))
         if gatt_address is not None:
             try:
                 if target is None or time.time() - min(fresh.values()) > 5:
                     raise ValueError("No fresh OTA name and service UUID from the installed board")
-                await discover(target, record)
+                await (on_target or discover)(target, record)
             except Exception as exc:
                 record("gatt_error", error=repr(exc))
                 raise
