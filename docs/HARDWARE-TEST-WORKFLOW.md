@@ -53,7 +53,9 @@ python scripts/serial_awake.py stop --start-result <准备目录>/awake.json --o
 
 串口无回执、旧版固件不支持或显示已被其它诊断占用时，先看结果和原始 UART。板载 UART1 RX 是 PA18，锁定 SDK 的 SF32LB52 HPAON 唤醒脚从 PA24 开始。手表处于深睡且 UART 不可接收时，只有确实挡住后续工作才弹框请用户短按一次侧键，然后由程序开启常亮；不把串口静默当作已唤醒或卡死，不通过复位或调整 PM 规避。
 
-首版使用 `scripts/Build.ps1 -Example product -Jobs 10` 构建通过，记录在本机 `artifacts/product/20261120-202253-456/result.json`。Product main SHA-256 为 `8acd193e7770ca6b62754121997b9b5b88177cccea44c8c8ebb429957d89233a`。3 项串口协议和 6 项显示、AOD、长续航主机回归通过。固件命令同源主机模拟验证等待首帧才确认亮屏、到期、所有权、拒绝重叠及长续航冲突。板上 Product 2026112001 尚未包含此接口；同版串口实机验证随下一次已授权的 Product 更新进行。
+首版使用 `scripts/Build.ps1 -Example product -Jobs 10` 构建通过，记录在本机 `artifacts/product/20261120-202253-456/result.json`。Product main SHA-256 为 `8acd193e7770ca6b62754121997b9b5b88177cccea44c8c8ebb429957d89233a`。3 项串口协议和 6 项显示、AOD、长续航主机回归通过。固件命令同源主机模拟验证等待首帧才确认亮屏、到期、所有权、拒绝重叠及长续航冲突。
+
+2026-11-21 在原黄山派的 Product 2026112002 验证了两次从自然息屏经串口亮屏、提前释放和到期恢复。板端回执和操作者目视一致。覆盖的是板载 USB 串口可接收时的显示恢复，深睡下 UART 唤醒仍按上节处理。[同版真机证据](evidence/2026-11-21/serial-awake.md)
 
 <a id="core-evidence-first"></a>
 ### 核心证据优先与最小补验
