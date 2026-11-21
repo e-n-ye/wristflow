@@ -27,7 +27,7 @@ static uint32_t input_insertions, cached_input_insertions;
 static uint32_t detect_after_ms;
 static bool auto_preparing;
 static volatile bool handoff_hold;
-static uint32_t auto_cycle, presentation_cycle, cached_presentation_cycle;
+static uint32_t presentation_cycle, cached_presentation_cycle;
 static wristflow_charge_display_t published_charge;
 #define INPUT_SETTLE_MS 150u
 
@@ -145,8 +145,9 @@ static void publish(void)
     cached_input_epoch = input_epoch;
     cached_input_insertions = input_insertions;
     wristflow_charge_display_t charge = display_state(&cached, input_known, input_good, detect_pending);
+    /* Zero until the worker observes PG low then high in this boot. */
     if (charge == WF_POWER_CHARGE_ACTIVE && session.automatic && !presentation_cycle && !stop_pending)
-        presentation_cycle = auto_cycle;
+        presentation_cycle = input_insertions;
     bool notify = input_updated || charge != published_charge || cached_presentation_cycle != presentation_cycle;
     cached_presentation_cycle = presentation_cycle;
     published_charge = charge;
@@ -252,7 +253,6 @@ static void detect_input(uint32_t generation)
     }
     if (auto_blocked || handoff_hold) return;
     auto_blocked = true; /* One attempt per confirmed input cycle. */
-    if (!++auto_cycle) ++auto_cycle; /* Zero means no presentation. */
     session_input_epoch = generation;
     if (((status >> 3) & 3) == 3) {
         wristflow_power_snapshot_t voltage = wristflow_product_power_voltage();
