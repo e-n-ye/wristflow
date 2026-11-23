@@ -119,6 +119,8 @@ uv run --no-project --with-requirements scripts/requirements-memsic-preflight.tx
 
 输出目录必须是新路径；status只读取进度，不恢复进程或重启设备窗口。模拟不导入serial、不枚举COM、不打开端点；模拟逻辑时间与快速样本是替身输入，不是设备时序证据。设备适配函数将是否模拟、工具源码指纹、原始UART、启动意图／完整session-start-duration-mode身份、停止确认、端口关闭及人工末态确认分别保存；取消／超时只停止已确认所属窗口，冷启动、异窗口或不确定归属明确保留recovery_required。
 
+主机单元测试在`artifacts/`下建的临时目录统一由`tests/artifact_scratch.py`创建，测试或测试类结束即删除，含setUpClass失败。需要人工检查时设`WRISTFLOW_KEEP_TEST_ARTIFACTS=1`保留；要作为证据的输出复制进`docs/evidence`，不引用临时目录路径。2026-11-23之前遗留的`*-tests-*`等目录中，只有已被`docs/evidence`按路径／哈希引用的4个保留原样。
+
 `serial_lab capture --help`提供受绑定的真实端点入口，必须显式给mode／seconds、port／USB location、既有Build和Flash记录、完整预期BIN SHA及当前同板／同固件／安全供电接线且人在旁的`--confirm-same-board-and-firmware`。它先复用公共build核验，再在共享PortLease下、每次打开前复核所有绑定文件／工具、SDK及CH340端点／禁Modem握手设置；准备后有任何变化就拒绝开口。参数只是执行者当前确认的记录，不替代聊天中的设备授权，历史命令也不能复用为当前现场确认。没有固件证明协议，板上身份仍明确为未验证。
 
 light／compass最多30秒，passive最多600秒；Ctrl+C按取消保留数据并关闭主机资源，没有自动重连，不发送stop／PM／复位／校时／传感器控制。被动窗口仅收原始流，冷启动字节留作证据；缓存查询遇冷启动即失败。CLI的capture不恢复旧进程或设备窗口；多步动作仍用Console／Journal与专用适配。入口初次交付仅替身测试；2026-10-30[记录器同版补验](BATTERY-ESTIMATE.md#runtime-uart-wake-20261030)已完成30秒passive实机采集、commands为空及资源关闭，具体设备结论限于该窗。

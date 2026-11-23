@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 import subprocess
 import sys
-import tempfile
 import threading
 import time
 import unittest
@@ -13,6 +12,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
+from artifact_scratch import scratch_dir
 import ota_b_execute as execution
 import ota_rom_device as device
 from lab_evidence import digest, file_record, write_json
@@ -36,7 +36,7 @@ class ScopeGuards(unittest.TestCase):
 class ExecutionBinary(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.root = Path(tempfile.mkdtemp(prefix="ota-b-execute-tests-", dir=ROOT / "artifacts"))
+        cls.root = scratch_dir("ota-b-execute-tests-", cls.addClassCleanup)
         cls.options = dict(build=os.environ["WRISTFLOW_B_EXECUTE_BUILD"],
             first=ROOT / "artifacts/ota-rom-backup-20261108/device-001/nor-first.bin",
             second=ROOT / "artifacts/ota-rom-backup-20261108/device-001/nor-second.bin",

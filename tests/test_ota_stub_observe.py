@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 import subprocess
 import sys
-import tempfile
 import threading
 import time
 import unittest
@@ -14,6 +13,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
+from artifact_scratch import scratch_dir
 import ota_stub_observe as observer
 import ota_rom_device as device
 from lab_evidence import digest, write_json
@@ -93,7 +93,7 @@ class FtabStreamTests(unittest.TestCase):
 
 class FtabPlanGuards(unittest.TestCase):
     def test_ftab_faults_and_unrelated_plans_are_rejected_before_output_or_worker(self):
-        root = Path(tempfile.mkdtemp(prefix="ftab-plan-guard-", dir=ROOT / "artifacts"))
+        root = scratch_dir("ftab-plan-guard-", self.addCleanup)
         for index, (plan, scenario) in enumerate((("geometry", "ftab-short18"), ("dual-nor", "host-error-after"),
                                                 ("ftab", "short-read"), ("ftab", "pair-changed"))):
             with patch.object(observer, "prepare", return_value=({}, [])):
@@ -107,8 +107,8 @@ class FtabPlanGuards(unittest.TestCase):
 class OwnedObserverTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        # Retain simulation evidence under ignored artifacts; never use a device.
-        cls.root = Path(tempfile.mkdtemp(prefix="stub-observer-tests-", dir=ROOT / "artifacts"))
+        # Simulation output only; removed afterwards unless kept explicitly. Never uses a device.
+        cls.root = scratch_dir("stub-observer-tests-", cls.addClassCleanup)
         baseline = cls.root / "baseline"
         baseline.mkdir()
         SimulatedReader([], baseline)
