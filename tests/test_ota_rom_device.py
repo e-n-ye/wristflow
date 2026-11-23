@@ -11,6 +11,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
+from artifact_scratch import scratch_dir
 import ota_rom_device as device
 import ota_rom_rescue as engine
 from ota_rom_transport import BoundedSerial
@@ -21,7 +22,7 @@ from test_ota_rom_rescue import Journal
 
 class IpcReadTests(unittest.TestCase):
     def setUp(self):
-        self.path = Path(tempfile.mkdtemp(prefix="ota-ipc-read-", dir=ROOT / "artifacts")) / "request.json"
+        self.path = scratch_dir("ota-ipc-read-", self.addCleanup) / "request.json"
         self.path.write_text('{"schema":1}', encoding="utf-8")
 
     def test_sharing_denial_retries_same_completed_file_then_decodes(self):

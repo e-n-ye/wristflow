@@ -4,13 +4,13 @@ import json
 import os
 from pathlib import Path
 import sys
-import tempfile
 import unittest
 from unittest.mock import patch
 import zlib
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"scripts"))
+from artifact_scratch import scratch_dir
 import ota_stub_observe as observer
 import ota_rom_device as device
 from ota_rom_backup import SimulatedReader
@@ -28,7 +28,7 @@ class ReceiveBounds(unittest.TestCase):
         self.assertFalse(checked["passed"] or checked["crc_matches"])
 
     def test_rate_plan_and_faults_cannot_escape_the_diagnostic_before_output(self):
-        root=Path(tempfile.mkdtemp(prefix="boot-receive-plan-",dir=ROOT/"artifacts"))
+        root=scratch_dir("boot-receive-plan-",self.addCleanup)
         for i,(plan,scenario) in enumerate((("dual-nor","boot-short26"),("ftab","speed-fail"),("boot64k-1m","speed-fail"),("boot64k-500k","pair-changed"))):
             with patch.object(observer,"prepare",return_value=({},[])):
                 with self.assertRaises(ValueError):device.run(root/str(i),profile="stub-observe",observer={},observer_plan=plan,scenario=scenario)
@@ -39,7 +39,7 @@ class BootReceiveBinary(unittest.TestCase):
     exercise=existing_tests.OwnedObserverTests.exercise
     @classmethod
     def setUpClass(cls):
-        cls.root=Path(tempfile.mkdtemp(prefix="boot-receive-tests-",dir=ROOT/"artifacts"))
+        cls.root=scratch_dir("boot-receive-tests-",cls.addClassCleanup)
         baseline=cls.root/"baseline";baseline.mkdir();SimulatedReader([],baseline)
         cls.options=dict(build=os.environ["WRISTFLOW_STUB_OBSERVER_BUILD"],first=baseline/"nor-first.bin",second=baseline/"nor-second.bin")
         observer.prepare(cls.options)

@@ -5,7 +5,6 @@ import os
 from pathlib import Path
 import subprocess
 import sys
-import tempfile
 import threading
 import time
 import unittest
@@ -13,6 +12,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
+from artifact_scratch import scratch_dir
 import ota_b_sector as sector
 import ota_rom_device as device
 from lab_evidence import file_record, digest, write_json
@@ -38,7 +38,7 @@ class InputGuards(unittest.TestCase):
 class SectorBinary(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.root = Path(tempfile.mkdtemp(prefix="ota-b-sector-tests-", dir=ROOT / "artifacts"))
+        cls.root = scratch_dir("ota-b-sector-tests-", cls.addClassCleanup)
         baseline = cls.root / "baseline"
         baseline.mkdir()
         SimulatedReader([], baseline)

@@ -4,13 +4,13 @@ import os
 from pathlib import Path
 import subprocess
 import sys
-import tempfile
 import unittest
 import zlib
 from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
+from artifact_scratch import scratch_dir
 from ota_first_install import BASE_SHA, REGIONS, prepare, sha
 from lab_evidence import verify_files
 from ota_first_window import review_trial_commands, review_wire
@@ -39,7 +39,7 @@ class FirstInstall(unittest.TestCase):
         assert result["kind"] == "original-board-first-install"
         verify_files([*result["sources"], result["executable"], result["sdk_lock"]], ROOT)
         cls.exe=ROOT/result["executable"]["path"]
-        cls.directory=Path(tempfile.mkdtemp(prefix="first-install-model-",dir=ROOT/"artifacts"))
+        cls.directory=scratch_dir("first-install-model-",cls.addClassCleanup)
         cls.old=ROOT/"artifacts/ota-rom-backup-20261108/device-001/nor-first.bin"
         cls.bundle=cls.directory/"bundle"
         prepare(cls.bundle,cls.old,cls.old.with_name("nor-second.bin"))
