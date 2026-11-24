@@ -1,0 +1,388 @@
+{
+  "checks": {
+    "mounted ModuleParts": 87,
+    "mounted ModuleSubstrate": 87,
+    "mounted Antenna": 87,
+    "mounted CN1": 89,
+    "mounted Crossing": 89,
+    "mounted FrontRun": 89,
+    "mounted RearRun": 89,
+    "mounted Stiffener": 89,
+    "mounted FlexPlug": 89,
+    "mounted Motor": 89,
+    "mounted LidTower": 84,
+    "mounted LidFlex": 84,
+    "mounted ChargeLeads": 82,
+    "mounted SpeakerFlex": 84,
+    "lid release from mounted board and ribbon": 61,
+    "cell tray out before disconnecting display": 49,
+    "driver for main board screw 1": 46,
+    "driver for main board screw 2": 46,
+    "driver for main board screw 3": 46,
+    "driver for battery tray 1": 14,
+    "driver for battery tray 2": 14,
+    "remove PCB once screen tail is free and unthreaded": 9,
+    "closed cell + tray against all board parts": 41,
+    "installed dock through-path for battery tool": 24,
+    "3 mm battery plug removal": 68,
+    "battery connector tool access": 48,
+    "measure key removal": 53,
+    "serial jig with key": 4,
+    "bench jig insertion": 46,
+    "battery wire parked 0": 62,
+    "battery wire parked 1": 62,
+    "battery wire parked 2": 62,
+    "CN1 tool when battery and back are removed": 46,
+    "feed corridor clear of fitted board hardware with case open": 43,
+    "nominal tipped head inside aperture": 1,
+    "fully supported electrical pads": 21
+  },
+  "penetrations_mm3": {},
+  "threshold_mm3": 0.0005,
+  "board_mm2": 1243.2260109570182,
+  "board_thickness_mm": 0.7999999999999989,
+  "cn1_xy": [
+    10.545,
+    5.135
+  ],
+  "slot_center_xy": [
+    -0.455,
+    9.99
+  ],
+  "slot_size_radius_mm": [
+    14,
+    3,
+    0.5
+  ],
+  "module_center_xy": [
+    -3.3,
+    -8.3
+  ],
+  "lid_contacts_xy": [
+    [
+      -6.35,
+      13.6
+    ],
+    [
+      -4.75,
+      13.6
+    ],
+    [
+      -3.1499999999999995,
+      13.6
+    ],
+    [
+      -1.549999999999999,
+      13.6
+    ],
+    [
+      0.05000000000000071,
+      13.6
+    ],
+    [
+      -6.35,
+      14.76
+    ],
+    [
+      -4.75,
+      14.76
+    ],
+    [
+      -3.1499999999999995,
+      14.76
+    ],
+    [
+      -1.549999999999999,
+      14.76
+    ],
+    [
+      0.05000000000000071,
+      14.76
+    ]
+  ],
+  "support_holes": [
+    [
+      9,
+      -19.25
+    ],
+    [
+      -13.6,
+      4
+    ],
+    [
+      15.5,
+      8.4
+    ]
+  ],
+  "rf": {
+    "radiator_area_mm2": 109.8,
+    "battery_projected_overlap_mm2": 109.8,
+    "radiator_to_cell_mm": 2.78,
+    "host_pcb_under_radiator_mm2": 0,
+    "front_flex_projected_overlap_mm2": 70.34
+  },
+  "electronic_region_board_support_fraction": 0.9977,
+  "module_to_folded_tail_mm": 0.524,
+  "module_to_cell_mm": 0.5,
+  "head_projected_size_mm": [
+    7.800000000000001,
+    2.22228749563104
+  ],
+  "charge_contact_pitch_mm": 3.5,
+  "service_gap_study_mm": 5.0,
+  "space_audit": {
+    "photo_local_rectangles_xy": [
+      [
+        -18,
+        -14,
+        -8.5,
+        -1.5
+      ],
+      [
+        -11.5,
+        -12,
+        5,
+        0
+      ],
+      [
+        -18,
+        -4,
+        -8.5,
+        11
+      ],
+      [
+        -17,
+        9.5,
+        -7,
+        17
+      ],
+      [
+        -8,
+        -21,
+        10,
+        -9
+      ]
+    ],
+    "flat_review_extent_xy": [
+      -7.3,
+      -12.2,
+      15.7,
+      -3.9
+    ],
+    "narrow_return_held_xy": [
+      11,
+      -5.8,
+      20,
+      0
+    ],
+    "screen_back_reference_z": 13.03,
+    "flat_projection_mm2": 59.32585825873684,
+    "nominal_extra_stack_mm": 0.12,
+    "front": [
+      {
+        "height_mm": 0.4,
+        "extra_stack_limit_mm": 0.33,
+        "previous_area_mm2": 342.25,
+        "same_other_constraints_mm2": 395.375,
+        "photo_estimated_pending_mm2": 133.0,
+        "with_patch_held_mm2": 209.25,
+        "with_patch_clear_mm2": 262.375,
+        "added_mm2": 53.125,
+        "removed_mm2": 133.0
+      },
+      {
+        "height_mm": 0.6,
+        "extra_stack_limit_mm": 0.13,
+        "previous_area_mm2": 342.25,
+        "same_other_constraints_mm2": 395.375,
+        "photo_estimated_pending_mm2": 133.0,
+        "with_patch_held_mm2": 209.25,
+        "with_patch_clear_mm2": 262.375,
+        "added_mm2": 53.125,
+        "removed_mm2": 133.0
+      },
+      {
+        "height_mm": 0.7,
+        "extra_stack_limit_mm": 0.03,
+        "previous_area_mm2": 342.25,
+        "same_other_constraints_mm2": 342.25,
+        "photo_estimated_pending_mm2": 133.0,
+        "with_patch_held_mm2": 209.25,
+        "with_patch_clear_mm2": 262.375,
+        "added_mm2": 0.0,
+        "removed_mm2": 133.0
+      },
+      {
+        "height_mm": 0.8,
+        "extra_stack_limit_mm": -0.07,
+        "previous_area_mm2": 0.0,
+        "same_other_constraints_mm2": 0.0,
+        "photo_estimated_pending_mm2": 0.0,
+        "with_patch_held_mm2": 0.0,
+        "with_patch_clear_mm2": 0.0,
+        "added_mm2": 0.0,
+        "removed_mm2": 0.0
+      }
+    ],
+    "rear": [
+      {
+        "height_mm": 1.0,
+        "excluded_by_rf_only_mm2": 58.1875,
+        "usable_fully_under_cell_mm2": 251.6875
+      },
+      {
+        "height_mm": 2.0,
+        "excluded_by_rf_only_mm2": 58.1875,
+        "usable_fully_under_cell_mm2": 251.6875
+      },
+      {
+        "height_mm": 3.0,
+        "excluded_by_rf_only_mm2": 58.1875,
+        "usable_fully_under_cell_mm2": 251.6875
+      },
+      {
+        "height_mm": 4.0,
+        "excluded_by_rf_only_mm2": 2.625,
+        "usable_fully_under_cell_mm2": 0.0
+      },
+      {
+        "height_mm": 6.0,
+        "excluded_by_rf_only_mm2": 2.625,
+        "usable_fully_under_cell_mm2": 0.0
+      }
+    ],
+    "rf_host_material_mm2": 81.58788897588417,
+    "adapter_gap_observation_mm": [
+      0,
+      15
+    ],
+    "adapter_observation": "原屏与原转接板可贴合至沿板面法线分开约 15 mm。新表固定由屏周边胶与中框三点支承完成。"
+  },
+  "heights": {
+    "Front": [
+      {
+        "height_mm": 0.4,
+        "area_mm2": 262.375,
+        "largest_xywh": [
+          -8.25,
+          0.25,
+          18.75,
+          2.0
+        ]
+      },
+      {
+        "height_mm": 0.6,
+        "area_mm2": 262.375,
+        "largest_xywh": [
+          -8.25,
+          0.25,
+          18.75,
+          2.0
+        ]
+      },
+      {
+        "height_mm": 0.7,
+        "area_mm2": 209.25,
+        "largest_xywh": [
+          -8.25,
+          0.25,
+          18.75,
+          2.0
+        ]
+      },
+      {
+        "height_mm": 0.8,
+        "area_mm2": 0.0,
+        "largest_xywh": null
+      }
+    ],
+    "Rear": [
+      {
+        "height_mm": 1.0,
+        "area_mm2": 431.6875,
+        "largest_xywh": [
+          11.0,
+          -20.0,
+          5.75,
+          20.5
+        ]
+      },
+      {
+        "height_mm": 2.0,
+        "area_mm2": 411.375,
+        "largest_xywh": [
+          11.0,
+          -20.0,
+          5.75,
+          20.5
+        ]
+      },
+      {
+        "height_mm": 3.0,
+        "area_mm2": 407.25,
+        "largest_xywh": [
+          11.0,
+          -20.0,
+          5.75,
+          20.5
+        ]
+      },
+      {
+        "height_mm": 4.0,
+        "area_mm2": 135.625,
+        "largest_xywh": [
+          -7.25,
+          15.75,
+          8.75,
+          5.5
+        ]
+      },
+      {
+        "height_mm": 6.0,
+        "area_mm2": 80.875,
+        "largest_xywh": [
+          -7.25,
+          15.75,
+          8.25,
+          5.5
+        ]
+      }
+    ]
+  },
+  "box_fit": {
+    "8x6x2": [
+      11.25,
+      -13.0,
+      6,
+      8,
+      2.0
+    ]
+  },
+  "measure": "0.25mm complete grid cells; XY obstacle clearance 0.20 + 0.02 projection guard, board edge 0.30; Z 0.20 and cell extra 0.30",
+  "screen": "Wide sheet follows display. Photo-registered uniform patch uses local installed height; unmeasured islands and moving tail stay reserved.",
+  "rf_hold": "X <= -11.10 across host board reserved; keepout is a mechanical budget, not RF certification",
+  "freecad": [
+    "1",
+    "1",
+    "4"
+  ],
+  "separator_study": {
+    "status": "optional envelope, outside the 5 mm pack; current board layout does not close its worst-case budget",
+    "total_thickness_mm": 0.1,
+    "cell_to_bare_board_mm": 3.6,
+    "film_to_module_mm": 0.4,
+    "margin_after_existing_0p20_and_0p30_mm": -0.1,
+    "pack_max_with_extra_film_for_same_budget_mm": 4.9
+  },
+  "files": {
+    "WristFlow-B-Integrated.FCStd": {
+      "reopened_objects": 147,
+      "sha256": "4b052334b55317d283bbab90003cf6e7a0255e63fe94cdc63108eda04848338d"
+    },
+    "WristFlow-B-Placement.FCStd": {
+      "reopened_objects": 39,
+      "sha256": "89705366757fa0d5538018a226c20e42b2c1f56ef13296f3990593c4ffcaa504"
+    }
+  },
+  "step_sha256": "b183299b6dfbfb5d2aed103795bb9fa88ae6c1b1fd5932d10d147abce4b101dc"
+}

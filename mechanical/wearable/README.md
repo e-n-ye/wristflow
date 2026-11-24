@@ -2,6 +2,8 @@
 
 这是可打开、可改参数的结构评审草案，**禁止直接打印／试戴**。活动项与唯一下一步仍以 [STATUS](../../docs/STATUS.md#current) 为准；本阶段结果见[可佩戴专题](../../docs/WEARABLE-PREPARATION.md#cad-a0-20261107)。
 
+自研板配套的 B 版结构研究另见 [B 方案结构](../b-enclosure/README.md)。
+
 ## 源码与本机产物
 
 - `parameters.json`：毫米参数，每项保留数值、来源类别和说明；实际测量、厂家本体公差、V1.2参考和设计假设分开。
