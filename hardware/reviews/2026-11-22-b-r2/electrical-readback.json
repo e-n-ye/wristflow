@@ -1,0 +1,109 @@
+[
+  {
+    "file": "WristFlow-B-Crown-Contacts.epro",
+    "sha256": "aa3be4d2f30fc1304a2d5d53fe92cadb119c278405ee3e1618e3088cdb13da1a",
+    "pages": 1,
+    "footprints": 8,
+    "external_parts": [],
+    "nets": 4,
+    "physical_pin_net_pairs": 8,
+    "net_count_single_pin": 0,
+    "schematic_pad_mismatches": 0,
+    "native_solver_mismatches": [],
+    "native_erc_types": {
+      "lib_symbol_issues": 8
+    },
+    "kicad": "10.0.8",
+    "pcb_import_errors": [],
+    "pcb_import_warnings": 0,
+    "normalized_duplicate_kicad_uuids": 48,
+    "unrouted_items": 4,
+    "drc_types": {
+      "courtyards_overlap": 6,
+      "copper_edge_clearance": 8,
+      "lib_footprint_issues": 8
+    }
+  },
+  {
+    "file": "WristFlow-B-Crown.epro",
+    "sha256": "875f6d33963fba629bf102e498347f21cd52b92b93be8ef2bbfcaca7500b68f9",
+    "pages": 1,
+    "footprints": 5,
+    "external_parts": [],
+    "nets": 4,
+    "physical_pin_net_pairs": 9,
+    "net_count_single_pin": 0,
+    "schematic_pad_mismatches": 0,
+    "native_solver_mismatches": [],
+    "native_erc_types": {
+      "lib_symbol_issues": 5
+    },
+    "kicad": "10.0.8",
+    "pcb_import_errors": [],
+    "pcb_import_warnings": 0,
+    "normalized_duplicate_kicad_uuids": 24,
+    "unrouted_items": 5,
+    "drc_types": {
+      "courtyards_overlap": 3,
+      "copper_edge_clearance": 11,
+      "lib_footprint_issues": 5
+    }
+  },
+  {
+    "file": "WristFlow-B-R2.epro",
+    "sha256": "97890d3b3314a752551b2c1522fe76b97e86b0ec7d4bf8bbea81482af5282845",
+    "pages": 11,
+    "footprints": 132,
+    "external_parts": [
+      "BT1",
+      "TH1"
+    ],
+    "nets": 87,
+    "physical_pin_net_pairs": 400,
+    "net_count_single_pin": 0,
+    "schematic_pad_mismatches": 0,
+    "native_solver_mismatches": [],
+    "native_erc_types": {
+      "pin_not_driven": 64,
+      "pin_to_pin": 175,
+      "lib_symbol_issues": 135
+    },
+    "kicad": "10.0.8",
+    "pcb_import_errors": [],
+    "pcb_import_warnings": 0,
+    "normalized_duplicate_kicad_uuids": 921,
+    "unrouted_items": 313,
+    "drc_types": {
+      "clearance": 22,
+      "courtyards_overlap": 3,
+      "silk_edge_clearance": 3,
+      "lib_footprint_issues": 132
+    }
+  },
+  {
+    "file": "WristFlow-B-Rear-FPC.epro",
+    "sha256": "be91783d9d21f7baf10d597223e1583a33d50bb4cb1dfd44e6bbb5812436be02",
+    "pages": 1,
+    "footprints": 10,
+    "external_parts": [],
+    "nets": 10,
+    "physical_pin_net_pairs": 30,
+    "net_count_single_pin": 0,
+    "schematic_pad_mismatches": 0,
+    "native_solver_mismatches": [],
+    "native_erc_types": {
+      "lib_symbol_issues": 10,
+      "pin_to_pin": 2
+    },
+    "kicad": "10.0.8",
+    "pcb_import_errors": [],
+    "pcb_import_warnings": 0,
+    "normalized_duplicate_kicad_uuids": 38,
+    "unrouted_items": 20,
+    "drc_types": {
+      "courtyards_overlap": 1,
+      "copper_edge_clearance": 4,
+      "lib_footprint_issues": 10
+    }
+  }
+]

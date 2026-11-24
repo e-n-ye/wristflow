@@ -1,0 +1,93 @@
+{
+  "heights": {
+    "Front": [
+      {
+        "height_mm": 0.4,
+        "area_mm2": 342.25,
+        "largest_xywh": [
+          -7.75,
+          -2.25,
+          18.25,
+          4.5
+        ]
+      },
+      {
+        "height_mm": 0.6,
+        "area_mm2": 342.25,
+        "largest_xywh": [
+          -7.75,
+          -2.25,
+          18.25,
+          4.5
+        ]
+      },
+      {
+        "height_mm": 0.7,
+        "area_mm2": 342.25,
+        "largest_xywh": [
+          -7.75,
+          -2.25,
+          18.25,
+          4.5
+        ]
+      },
+      {
+        "height_mm": 0.8,
+        "area_mm2": 0.0,
+        "largest_xywh": null
+      }
+    ],
+    "Rear": [
+      {
+        "height_mm": 1.0,
+        "area_mm2": 431.6875,
+        "largest_xywh": [
+          11.0,
+          -20.0,
+          5.75,
+          20.5
+        ]
+      },
+      {
+        "height_mm": 2.0,
+        "area_mm2": 411.375,
+        "largest_xywh": [
+          11.0,
+          -20.0,
+          5.75,
+          20.5
+        ]
+      },
+      {
+        "height_mm": 3.0,
+        "area_mm2": 407.25,
+        "largest_xywh": [
+          11.0,
+          -20.0,
+          5.75,
+          20.5
+        ]
+      },
+      {
+        "height_mm": 4.0,
+        "area_mm2": 135.625,
+        "largest_xywh": [
+          -7.25,
+          15.75,
+          8.75,
+          5.5
+        ]
+      },
+      {
+        "height_mm": 6.0,
+        "area_mm2": 80.875,
+        "largest_xywh": [
+          -7.25,
+          15.75,
+          8.25,
+          5.5
+        ]
+      }
+    ]
+  }
+}

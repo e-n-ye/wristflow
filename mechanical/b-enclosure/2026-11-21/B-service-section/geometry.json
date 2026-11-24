@@ -1,0 +1,168 @@
+{
+  "base_sha256": "48045fc8f5404768d4121a554526ba8bb5656b794ab25808f477f63f601e329c",
+  "units": "mm",
+  "FreeCAD": [
+    "1",
+    "1",
+    "4"
+  ],
+  "cut_x": 9.0,
+  "board_z": [
+    11.3,
+    12.100000000000001
+  ],
+  "battery_mating": "Molex 781710003 / 781720003 candidate",
+  "coordinates_origin": "body centre XY, flat back outer Z=0, rear access -Z",
+  "checks": {
+    "battery tool through the installed UART and meter fixture": {},
+    "connector axial removal through the installed fixture": {},
+    "three-way cap extraction: unplugged battery / fixture absent": {},
+    "serial-only fixture with shorting cap retained": {},
+    "screw fixings and board / glass": {},
+    "coupon to pogo carrier seated": {},
+    "rear shell and outlet lift": {},
+    "lid parts vs shorting links closed": {},
+    "lead clearance sample 0.0": {},
+    "lead clearance sample 0.5": {},
+    "lead clearance sample 1.0": {},
+    "lead clearance sample 1.5": {},
+    "lead clearance sample 2.0": {},
+    "lead clearance sample 2.5": {},
+    "lead clearance sample 3.0": {},
+    "tool corridor cover off / jig absent": {},
+    "connector swept 3 mm": {},
+    "whole jig insert: upper positions swept from rear": {},
+    "lid removal: carrier / speaker / contacts / flex / PPG": {},
+    "cell removal: connector free / tray screws removed": {},
+    "driver access after battery removal 1": {},
+    "driver access after battery removal 2": {},
+    "driver access after battery removal 3": {},
+    "tray screw access 1": {},
+    "tray screw access 2": {},
+    "PCB / module rear removal: continuous axial sweep": {},
+    "mounted battery assembly vs board": {},
+    "mounted wire run vs lid structure + PCB + frame": {},
+    "speaker vs battery": {},
+    "trace LidTower": {},
+    "trace LidFlex": {},
+    "trace Speaker": {},
+    "trace SpeakerBed": {},
+    "trace Tray": {},
+    "trace Battery": {}
+  },
+  "notes": [
+    "Nominal CAD volumes, contacts and friction not simulated. Coordinate frame and intended usage are specified in the companion handoff."
+  ],
+  "screen_adhesive_contact_area_mm2": 136.77,
+  "battery_to_module_nominal_mm": 0.5,
+  "screen_to_board_nominal_mm": 0.93,
+  "plug_tool_xy_mm": [
+    6.4,
+    6.6
+  ],
+  "plug_travel_test_mm": 3,
+  "fixture_pads": [
+    [
+      3.0,
+      20.0,
+      "D0"
+    ],
+    [
+      5.0,
+      20.0,
+      "D1"
+    ],
+    [
+      7.0,
+      20.0,
+      "D2"
+    ],
+    [
+      9.0,
+      20.0,
+      "D3"
+    ],
+    [
+      11.0,
+      20.0,
+      "D4"
+    ],
+    [
+      14.1,
+      14.38,
+      "I00"
+    ],
+    [
+      15.9,
+      14.38,
+      "I01"
+    ],
+    [
+      14.1,
+      16.16,
+      "I10"
+    ],
+    [
+      15.9,
+      16.16,
+      "I11"
+    ],
+    [
+      14.1,
+      17.94,
+      "I20"
+    ],
+    [
+      15.9,
+      17.94,
+      "I21"
+    ]
+  ],
+  "board_supports_xy": [
+    [
+      9,
+      -18.5
+    ],
+    [
+      -13.6,
+      -10.8
+    ],
+    [
+      15.5,
+      8.4
+    ]
+  ],
+  "tray_supports_xy": [
+    [
+      -12.5,
+      -20.77
+    ],
+    [
+      17.5,
+      10.96
+    ]
+  ],
+  "antenna_bound_mm": [
+    -16.9,
+    1.1,
+    14.549999999999997,
+    20.65,
+    10.48,
+    10.5
+  ],
+  "area_correction": "Read back both published FCStd files and the STEP. The horizontal planar faces and volume / finished thickness agree. Earlier run05 statistics used an unrefined intermediate solid.",
+  "board_removed_area_vs_B_mm2": 166.25,
+  "board_old_new_area_mm2": [
+    1443.07,
+    1276.83
+  ],
+  "section_yz_bounds": [
+    -23.75,
+    23.75,
+    0.0,
+    16.0
+  ],
+  "reopened_shapes": 162,
+  "fcstd_sha256": "c5b14947f12bb99bd70d0623466e45c788dd18a570baa624abc266f869c2dc33",
+  "open_fcstd_sha256": "87a6b8396e8fe63cbe38d04e4ea14d087e8145fb68a99c231dd694cc650e63f9"
+}
