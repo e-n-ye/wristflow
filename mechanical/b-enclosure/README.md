@@ -1,6 +1,6 @@
 # B 方案结构研究
 
-这里维护 2026-11-21 和 2026-11-22 的参数化 FreeCAD 研究。板卡源与 19.20 mm 比较档的评审见 [B-R2 硬件设计](../../hardware/README.md)。这些几何用于研究尺寸、净空和装拆顺序。B-R2 尚无实物，不能据此放行加工、打印或试戴。
+这里维护 B 方案按日期组织的参数化 FreeCAD 研究。板卡源与 19.20 mm 比较档的评审见 [B-R2 硬件设计](../../hardware/README.md)。这些几何用于研究尺寸、净空和装拆顺序。B-R2 尚无实物，不能据此放行加工、打印或试戴。
 
 | 日期与子研究 | 用途与入口 |
 |---|---|
@@ -14,6 +14,7 @@
 | 2026-11-22 [B-bridge](2026-11-22/B-bridge) | 电机孔与槽之间的窄桥、声道与协同初排，入口 `compare.py`、`coordinated.py` |
 | 2026-11-22 [B-crown](2026-11-22/B-crown) | 居中表冠、排线和立板连接、末端支撑及 R2 减薄，顺序见下方 |
 | 2026-11-24 [B-thinning](2026-11-24/B-thinning/README.md) | 不换模组、电池、屏和光学芯片的减薄摸底与预算，入口 `thinning_budget.py`，只读 R2 装配 |
+| 2026-11-25 [B-thin-assembly](2026-11-25/B-thin-assembly/README.md) | 从 R2 构建已认可组合的闭盖减薄装配，输出 FCStd、STEP、几何回读和剖面图 |
 
 ## 本机工作目录
 
@@ -45,6 +46,7 @@ python -B mechanical/b-enclosure/run.py --freecad "$freecad" \
 | `2026-11-22/B-crown/lower_support.py` | `2026-11-22/B-crown/B-lower-support` |
 | `2026-11-22/B-crown/review_revision.py` | `2026-11-22/B-crown/B-review-R2` |
 | `2026-11-24/B-thinning/thinning_budget.py` | `2026-11-24/B-thinning`，读取上一行的 R2 装配 |
+| `2026-11-25/B-thin-assembly/build_thin.py` | `2026-11-25/B-thin-assembly`，直接读取第 12 步的 R2 装配 |
 
 每个构建输出 `builder.ok` 和自己的几何回读。失败目录保留，查看 `error.txt` 和 `freecad.log`。原版 `geometry.json` 保存评审时的尺寸、验证结果和部分原文件哈希，后续步骤读取的是本机新生成的对应报告。
 
