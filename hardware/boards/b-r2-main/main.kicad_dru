@@ -1,0 +1,11 @@
+(version 1)
+(rule "U3 ball escape"
+  (condition "A.memberOfFootprint('U3') || B.memberOfFootprint('U3')")
+  (constraint clearance (min 0.10mm)))
+(rule "U3 center ball fanout to neighboring traces"
+  (layer "F.Cu")
+  (condition "A.NetName == '/02 触点输入、充电与电芯/CHG_INT' && A.Type == 'Track' && B.Type == 'Track' && A.enclosedByArea('U3 center ball escape')")
+  (constraint clearance (min 0.10mm)))
+(rule "Inner layer through drill to unrelated copper"
+  (layer inner)
+  (constraint hole_clearance (min 0.30mm)))

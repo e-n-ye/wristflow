@@ -117,6 +117,7 @@ def read_board(path):
                     dnp=a.get('Add into BOM') == 'no' and device['attributes'].get('Convert to PCB') != 'no',
                     on_board=device['attributes'].get('Convert to PCB') != 'no',
                     device=device['title'],
+                    footprint_id=a.get('Footprint', ''),
                     footprint=proj['footprints'].get(a.get('Footprint', ''), {}).get('title', '')))
                 for pin in raw:
                     num = str(pinattr[pin[1]]['NUMBER'])
@@ -506,6 +507,46 @@ def text_width(s, size=1.27):
     return sum(size * (0.95 if ord(c) < 128 else 1.6) for c in s)
 
 
+def physical_wire_ends(items, pin_at, project, page):
+    """Give every tee a real endpoint and preserve it during editor wire cleanup."""
+    wires = find(items, 'wire')
+    endpoints = set(pin_at)
+    for k in ('label', 'global_label', 'junction', 'symbol'):
+        endpoints.update(tuple(first(item, 'at')[1:3]) for item in find(items, k))
+    for wire in wires:
+        endpoints.update(tuple(pt[1:]) for pt in find(first(wire, 'pts'), 'xy'))
+    edges = set()
+    for wire in wires:
+        a, b = [tuple(pt[1:]) for pt in find(first(wire, 'pts'), 'xy')]
+        stops = sorted(p for p in endpoints if on_segment(*p, (*a, *b)))
+        edges.update(zip(stops, stops[1:]))
+    branches = {tuple(first(j, 'at')[1:3]) for j in find(items, 'junction')}
+    # Break only a collinear pair. At a four-way crossing the horizontal
+    # pair enters below the tap and the vertical pair enters from its right.
+    outgoing = defaultdict(set)
+    for a, b in edges:
+        horizontal = a[1] == b[1]
+        outgoing[a].add(horizontal)
+    emitted = []
+    for a, b in sorted(edges):
+        dx, dy = b[0] - a[0], b[1] - a[1]
+        pts = [a]
+        # Some KiCad editor load paths merge two collinear segments at a tap
+        # before registering its symbol or third wire. Separate their axes
+        # locally, without moving the pin, label, or junction.
+        if b in branches and bool(dx) in outgoing.get(b, set()) and abs(dx) + abs(dy) > 1.27:
+            if dx:
+                pts.extend([(round(b[0]-1.27, 4), a[1]), (round(b[0]-1.27, 4), round(b[1]-1.27, 4))])
+            else:
+                pts.extend([(a[0], round(b[1]-1.27, 4)), (round(b[0]+1.27, 4), round(b[1]-1.27, 4))])
+        pts.append(b)
+        for start, end in zip(pts, pts[1:]):
+            emitted.append(S('wire', S('pts', S('xy', *start), S('xy', *end)),
+                             S('stroke', S('width', 0), S('type', Sym('default'))),
+                             S('uuid', uid(project, page, 'wire', *start, *end))))
+    return [item for item in items if item[0] != 'wire'] + emitted
+
+
 def compile_board(builder, project, outdir, date):
     parts = builder.parts
     missing = set(parts) - set(builder.where)
@@ -698,6 +739,7 @@ def compile_board(builder, project, outdir, date):
         for pt in sorted(junction_points):
             items.append(S('junction', S('at', *pt), S('diameter', 0), S('color', 0, 0, 0, 0),
                            S('uuid', uid(project, page.key, 'j', *pt))))
+        items = physical_wire_ends(items, pin_at, project, page.key)
         # Parts.
         for ref, (x, y, rot) in page.placed.items():
             p = parts[ref]
@@ -739,12 +781,15 @@ def compile_board(builder, project, outdir, date):
                 ref_at = (x + over[0][0], y + over[0][1], over[0][2])
                 val_at = (x + over[1][0], y + over[1][1], over[1][2])
             in_bom = p['on_board']
+            # Catalog titles can repeat across distinct land patterns in the EPRO.
+            land_name = re.sub(r'[^A-Za-z0-9_.+-]', '_', p['footprint'])
+            land_id = f"WF_B:{land_name}-{p['footprint_id'][:8]}" if p['on_board'] else ''
             props = [
                 S('property', 'Reference', ref, field_at(ref_at[0], ref_at[1], rot, ref_at[2])[0],
                   effects(1.27, field_at(ref_at[0], ref_at[1], rot, ref_at[2])[1])),
                 S('property', 'Value', value, field_at(val_at[0], val_at[1], rot, val_at[2])[0],
                   effects(1.1, field_at(val_at[0], val_at[1], rot, val_at[2])[1])),
-                S('property', 'Footprint', '', S('at', x, y, 0), effects(hide=True)),
+                S('property', 'Footprint', land_id, S('at', x, y, 0), effects(hide=True)),
                 S('property', 'Datasheet', '', S('at', x, y, 0), effects(hide=True)),
                 S('property', 'MPN', bom.get('mpn', p['device']), S('at', x, y, 0), effects(hide=True)),
                 S('property', 'LCSC', bom.get('lcsc', ''), S('at', x, y, 0), effects(hide=True)),
@@ -773,7 +818,7 @@ def compile_board(builder, project, outdir, date):
                                S('uuid', uid(project, page.key, 'txt', x, y))))
         title_block = S('title_block', S('title', f'{project}  {page.title}'), S('date', date), S('rev', 'B-R2 评审版'),
                         S('company', 'WristFlow'), S('comment', 1, '由 hardware/generator/kicad_schematic.py 生成；电路与 2026-11-22 评审版 EPRO 逐引脚一致'),
-                        S('comment', 2, '过渡期：原理图母版在 KiCad，PCB 仍在嘉立创 EPRO'))
+                        S('comment', 2, 'PCB 使用项目封装库 WF_B，与本工程同名'))
         doc = S('kicad_sch', S('version', 20250114), S('generator', 'wristflow_kicad_schematic'),
                 S('generator_version', '1'), S('uuid', sheet_uuid if hier else root), S('paper', page.paper), title_block,
                 S('lib_symbols', *sorted(libs.values(), key=lambda s: s[1])), *items)
@@ -833,7 +878,7 @@ def write_root(builder, project, outdir, root, sheet_files, date):
                        effects(1.6, 'left bottom', face=FACE), S('uuid', uid(project, 'note', j))))
     title_block = S('title_block', S('title', f'{project}  目录与说明'), S('date', date), S('rev', 'B-R2 评审版'),
                     S('company', 'WristFlow'), S('comment', 1, '由 hardware/generator/kicad_schematic.py 生成；电路与 2026-11-22 评审版 EPRO 逐引脚一致'),
-                    S('comment', 2, '过渡期：原理图母版在 KiCad，PCB 仍在嘉立创 EPRO'))
+                    S('comment', 2, 'PCB 使用项目封装库 WF_B，与本工程同名'))
     doc = S('kicad_sch', S('version', 20250114), S('generator', 'wristflow_kicad_schematic'), S('generator_version', '1'),
             S('uuid', root), S('paper', 'A4'), title_block, S('lib_symbols'), *items,
             S('sheet_instances', S('path', '/', S('page', '1'))))
