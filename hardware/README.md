@@ -2,7 +2,7 @@
 
 2026-11-22 评审版含四块板的电路和初排。主板尚未完成布线，四块板均无实物或上板验证。[设计评审](reviews/2026-11-22-b-r2/设计评审.md)保存同版 BOM、参考位号差异、净空和回读。唯一下一步见 [STATUS](../docs/STATUS.md#current)。
 
-**母版工具过渡期（2026-11-25 起）**　原理图母版改在 KiCad，由 [`kicad_schematic.py`](generator/kicad_schematic.py) 按[版式源](generator/schematic_layout.py)生成，网表与评审版逐引脚一致。PCB 初排仍在 EPRO（`placement.ndjson`、`members.sha256` 未改），正式迁到 KiCad 是另一项变更。EPRO 内的旧原理图页仍按评审版恢复，不再维护其排版。[重绘记录、等价证据与画板风险](reviews/2026-11-25-kicad-schematic/README.md) · [用户决定](../docs/BASELINE.md#kicad-master-20261125)
+**KiCad 母版**　四块板的原理图和 PCB 在同名 KiCad 工程中关联。主板按 0.8 mm 四层完成减薄布局与三处扇出试布，三块小板保留评审版的接口位置。EPRO、`placement.ndjson` 和成员哈希固定 11/22 电路、封装及初排，供恢复与对照。[四层布局、检查和余项](reviews/2026-11-25-kicad-pcb/README.md) · [原理图重绘与等价证据](reviews/2026-11-25-kicad-schematic/README.md)
 
 | 板卡 | 评审范围 |
 |---|---|
@@ -54,6 +54,24 @@ python -B hardware/generator/kicad_schematic.py \
 每块板输出一个 KiCad 工程目录，内含原理图、项目库 `WF.kicad_sym`、`sym-lib-table`、网表、ERC 和 PDF。总目录下另有四板合订的 `WristFlow-B-R2-schematics.pdf` 和 `equivalence.json`。脚本逐引脚比对 KiCad 网表与 EPRO 原理图引脚、PCB `PAD_NET`，并检查网络划分和器件属性。存在 `verify.py` 的 `native-qa/*/compiled.xml` 时，还会与这份独立求网逐脚比对。任何差异都以非零状态退出。输出目录须为新路径，`--force` 会替换已有目录。这些输出带有标准库符号和 EPRO 引脚名，留在本机，不入库。中文使用 Windows 自带的等线（DengXian）。
 
 2026-11-25 用 Python 3.12.9、Shapely 2.1.2、PyMuPDF 2.1 和 KiCad CLI 10.0.8 复现：四板差异为零，同一输入两次生成的 22 个 KiCad 文件逐字节相同。
+
+## KiCad PCB
+
+在前述恢复目录执行 `verify.py`，再用当前版本的原理图生成器生成带 `WF_B` 封装关联的工程。下面以 Git Bash 为例。设置 `WRISTFLOW_B_WORKSPACE` 指向含 `reference/` 及 11/25 默认减薄装配的绝对路径。三个工具变量各指向本机 KiCad 安装目录的 Python、kicad-cli 和 FreeCAD 安装目录的 Python；FreeCAD Python 需能导入 Shapely 和 Matplotlib。
+
+```bash
+eda=artifacts/wristflow-b/eda
+sch=artifacts/wristflow-b/kicad
+out=artifacts/wristflow-b/pcb
+main="$out/WristFlow-B-R2"
+"$KICAD_PYTHON" -B hardware/generator/kicad_pcb.py --projects "$eda" \
+  --schematics "$sch" --out "$out" --cli "$KICAD_CLI"
+"$KICAD_CLI" pcb export step --board-only --drill-origin -o "$main/board.step" "$main/WristFlow-B-R2.kicad_pcb"
+"$FREECAD_PYTHON" -B hardware/generator/kicad_fit.py "$main" \
+  "$WRISTFLOW_B_WORKSPACE/2026-11-25/B-thin-assembly" --cli "$KICAD_CLI"
+```
+
+PCB 生成器只接受新的输出目录。打开各板目录内的 `.kicad_pro` 即可进入关联的原理图和 PCB。每个工程带项目封装库、网表、`drc.json` 和 `erc.json`。主板另有 `fanout-readback.json`、`fit.json`、放置包络 STEP、`front.png`、`back.png` 和 KiCad 渲染的 `assembly-3d.png`。闭盖检查同时生成四板可在 KiCad 三维查看器使用的本机模型。完整工程、库、模型和图像均留在本机。仓库保存[布局增量](boards/b-r2-main/layout.csv)、[扇出路径](boards/b-r2-main/fanout.json)、[主板规则](boards/b-r2-main/board-rules.json)和[生成入口](generator/kicad_pcb.py)。后续编辑可在新目录复现母版后与编辑副本对照。
 
 ## 2026-11-24 复现记录
 

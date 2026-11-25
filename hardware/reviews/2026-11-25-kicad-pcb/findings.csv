@@ -1,0 +1,120 @@
+板,检查,级别,规则,页或位置 mm,涉及对象,处理或后续验收
+主板,DRC,error,courtyards_overlap,163.5000 / 109.0500,封装 K2、封装 K3,相邻固定接口库庭院交叠，保留实物装配及夹具验收。
+主板,DRC,error,courtyards_overlap,163.5000 / 109.0500,封装 K3、封装 K4,相邻固定接口库庭院交叠，保留实物装配及夹具验收。
+主板,DRC,error,courtyards_overlap,163.5000 / 110.9500,封装 K1、封装 K2,相邻固定接口库庭院交叠，保留实物装配及夹具验收。
+主板,DRC,warning,via_dangling,162.0950 / 105.0400,过孔 [GND] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,160.7550 / 106.0900,过孔 [GND] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,152.4500 / 94.9500,过孔 [GND] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,160.4850 / 104.5300,过孔 [GND] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,153.4550 / 117.4000,过孔 [PA_40_I2C1_SCL] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,153.4550 / 116.3000,过孔 [PA_39_I2C1_SDA] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,149.2500 / 95.2500,过孔 [PA_11_I2C0_SDA] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,track_dangling,132.8800 / 105.7350,"走线 [PA_11_I2C0_SDA] (Signals-Power), 长度: 0.9850 mm",L3 扇出开放端，后续接至其余器件。
+主板,DRC,warning,via_dangling,133.5450 / 107.5000,过孔 [PA_10_I2C0_SCL] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,151.0000 / 94.9500,过孔 [PA_10_I2C0_SCL] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,142.4000 / 101.9450,过孔 [PA_31] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,153.4550 / 121.8000,过孔 [PA_42] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,133.5450 / 108.6000,过孔 [DAC1P] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,133.5450 / 113.0000,过孔 [ADCIN] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,133.5450 / 109.7000,过孔 [DAC1N] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,133.5450 / 111.9000,过孔 [MIC_BIAS] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,153.4550 / 110.8000,过孔 [PA_34_PWRKEY] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,139.6500 / 103.3450,过孔 [PA_20_VIB_PWM] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,153.4550 / 107.5000,过孔 [VDD33_VOUT] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,149.5500 / 103.3450,过孔 [CROWN_B] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,153.4550 / 106.4000,过孔 [CROWN_A] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,147.3500 / 103.3450,过孔 [PPG_INT_N] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,153.4550 / 124.0000,过孔 [PA44_VBUS_DET] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,157.7150 / 107.0900,过孔 [PA_41_TP_INT] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,track_dangling,154.3000 / 117.6550,"走线 [PA_41_TP_INT] (Signals-Power), 长度: 1.2500 mm",L3 扇出开放端，后续接至其余器件。
+主板,DRC,warning,via_dangling,153.4550 / 115.2000,过孔 [PA_38] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,153.4550 / 114.1000,过孔 [PA_37_TP_SCL] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,157.0150 / 105.7400,过孔 [PA_37_TP_SCL] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,157.3650 / 104.6400,过孔 [PA_33_TP_SDA] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,153.4550 / 109.7000,过孔 [PA_33_TP_SDA] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,148.4500 / 103.3450,过孔 [PA_26] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,144.0500 / 103.3450,过孔 [PA_30] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,140.7500 / 103.3450,过孔 [MOD_VSYS] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,158.9950 / 106.7900,过孔 [PA_09_TP_RSTN] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,133.5450 / 114.1000,过孔 [PA_09_TP_RSTN] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,160.4850 / 103.8300,过孔 [PA_03_LCD_QSPI_CS] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,133.5450 / 120.7000,过孔 [PA_03_LCD_QSPI_CS] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,133.5450 / 121.8000,过孔 [PA_02_LCD_QSPI_TE] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,160.3350 / 102.9400,过孔 [PA_02_LCD_QSPI_TE] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,133.5450 / 124.0000,过孔 [PA_00_LCD_QSPI_RSTB] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,157.0150 / 103.6400,过孔 [PA_00_LCD_QSPI_RSTB] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,158.8450 / 104.8600,过孔 [OLED_3V3] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,149.2000 / 92.9000,过孔 [/02 触点输入、充电与电芯/CELL_TS] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,160.7550 / 106.7900,过孔 [/04 屏幕直连与触摸/OLED_PULL10K] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,162.0950 / 105.7400,过孔 [/04 屏幕直连与触摸/OLED_VCI] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,160.7550 / 105.2200,过孔 [/04 屏幕直连与触摸/OLED_PULL1M] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,track_dangling,162.2450 / 108.2000,"走线 [/04 屏幕直连与触摸/N_20N32248] (Signals-Power), 长度: 4.1450 mm",L3 扇出开放端，后续接至其余器件。
+主板,DRC,warning,track_dangling,162.5750 / 108.5100,"走线 [/04 屏幕直连与触摸/N_20N32291] (Signals-Power), 长度: 4.4750 mm",L3 扇出开放端，后续接至其余器件。
+主板,DRC,warning,track_dangling,162.9050 / 108.8200,"走线 [/04 屏幕直连与触摸/N_20N32377] (Signals-Power), 长度: 4.8050 mm",L3 扇出开放端，后续接至其余器件。
+主板,DRC,warning,track_dangling,163.2350 / 109.1300,"走线 [/04 屏幕直连与触摸/N_20N32162] (Signals-Power), 长度: 5.1350 mm",L3 扇出开放端，后续接至其余器件。
+主板,DRC,warning,track_dangling,163.5650 / 109.4400,"走线 [/04 屏幕直连与触摸/N_20N32208] (Signals-Power), 长度: 5.4650 mm",L3 扇出开放端，后续接至其余器件。
+主板,DRC,warning,track_dangling,148.1500 / 93.7500,"走线 [/02 触点输入、充电与电芯/CHG_INT] (Signals-Power), 长度: 1.2728 mm",L3 扇出开放端，后续接至其余器件。
+主板,DRC,warning,via_dangling,138.7500 / 102.5450,过孔 [/01 模组、供电循环与 UART/PA_19_UART_TXD] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,via_dangling,137.0500 / 103.3450,过孔 [/01 模组、供电循环与 UART/PA_18_UART_RXD] (Top Layer - Bottom Layer),通孔已接出线，后续接入平面或续接线路。
+主板,DRC,warning,silk_edge_clearance,135.8000 / 125.9250,"Multi-Layer 上的 线段、U1 的 线段, 位于 Top Silkscreen Layer",模组天线端丝印越边，制版前裁切或移至装配层。
+主板,DRC,warning,silk_edge_clearance,152.9500 / 125.9250,"Multi-Layer 上的 线段、U1 的 线段, 位于 Top Silkscreen Layer",模组天线端丝印越边，制版前裁切或移至装配层。
+主板,DRC,warning,silk_edge_clearance,153.4750 / 124.9500,"Multi-Layer 上的 线段、U1 的 圆形, 位于 Top Silkscreen Layer",模组天线端丝印越边，制版前裁切或移至装配层。
+主板,ERC,error,power_pin_not_driven,/01 模组、供电循环与 UART/,"Symbol #PWR001 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+主板,ERC,error,power_pin_not_driven,/01 模组、供电循环与 UART/,"Symbol #PWR002 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+主板,ERC,error,power_pin_not_driven,/01 模组、供电循环与 UART/,"Symbol #PWR007 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+主板,ERC,error,power_pin_not_driven,/02 触点输入、充电与电芯/,"Symbol #PWR008 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+主板,ERC,error,power_pin_not_driven,/02 触点输入、充电与电芯/,"Symbol #PWR032 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+主板,ERC,error,power_pin_not_driven,/02 触点输入、充电与电芯/,"Symbol #PWR024 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+主板,ERC,error,power_pin_not_driven,/02 触点输入、充电与电芯/,"Symbol #PWR015 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+主板,ERC,error,power_pin_not_driven,/02 触点输入、充电与电芯/,"Symbol #PWR016 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+主板,ERC,error,power_pin_not_driven,/02 触点输入、充电与电芯/,"Symbol #PWR017 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+主板,ERC,error,power_pin_not_driven,/02 触点输入、充电与电芯/,"Symbol #PWR018 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+主板,ERC,error,power_pin_not_driven,/03 受控电源与测流桥/,"Symbol #PWR063 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+主板,ERC,error,power_pin_not_driven,/03 受控电源与测流桥/,"Symbol #PWR065 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+主板,ERC,error,power_pin_not_driven,/03 受控电源与测流桥/,"Symbol #PWR051 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+主板,ERC,error,power_pin_not_driven,/03 受控电源与测流桥/,"Symbol #PWR068 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+主板,ERC,error,power_pin_not_driven,/03 受控电源与测流桥/,"Symbol #PWR059 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+主板,ERC,error,power_pin_not_driven,/03 受控电源与测流桥/,"Symbol #PWR071 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+主板,ERC,error,power_pin_not_driven,/05 功放与麦克风/,"Symbol #PWR113 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+主板,ERC,error,power_pin_not_driven,/05 功放与麦克风/,"Symbol #PWR101 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+主板,ERC,error,power_pin_not_driven,/06 传感器、表冠、电机与后盖接口/,"Symbol #PWR143 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+主板,ERC,error,power_pin_not_driven,/06 传感器、表冠、电机与后盖接口/,"Symbol #PWR150 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+后盖柔板,DRC,error,courtyards_overlap,148.5500 / 95.2000,封装 SP1、封装 SP2,相邻固定接口库庭院交叠，保留实物装配及夹具验收。
+后盖柔板,DRC,error,copper_edge_clearance,152.6000 / 114.2500,Multi-Layer 上的 线段、Top Layer 上 CH2 的焊盘 1 [DOCK_5V_IN],保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+后盖柔板,DRC,error,copper_edge_clearance,147.4000 / 126.1000,Multi-Layer 上的 线段、Top Layer 上 CH1 的焊盘 1 [/DOCK_RTN],保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+后盖柔板,DRC,error,copper_edge_clearance,150.4500 / 105.7500,Multi-Layer 上的 线段、Top Layer 上 JF1 的焊盘 1 [/SPK_OUTP],保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+后盖柔板,DRC,error,copper_edge_clearance,155.9500 / 77.7500,Multi-Layer 上的 线段、Top Layer 上 JF1 的焊盘 10 [DOCK_5V_IN],保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+后盖柔板,ERC,error,power_pin_not_driven,/,"Symbol #PWR003 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+后盖柔板,ERC,error,power_pin_not_driven,/,"Symbol #PWR001 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+后盖柔板,ERC,error,power_pin_not_driven,/,"Symbol #PWR002 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+后盖柔板,ERC,error,power_pin_not_driven,/,"Symbol #PWR012 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+表冠立板,DRC,error,courtyards_overlap,151.6500 / 105.4500,封装 JC3、封装 JC4,相邻固定接口库庭院交叠，保留实物装配及夹具验收。
+表冠立板,DRC,error,courtyards_overlap,150.5500 / 105.4500,封装 JC2、封装 JC3,相邻固定接口库庭院交叠，保留实物装配及夹具验收。
+表冠立板,DRC,error,courtyards_overlap,148.3500 / 105.4500,封装 JC1、封装 JC2,相邻固定接口库庭院交叠，保留实物装配及夹具验收。
+表冠立板,DRC,error,copper_edge_clearance,153.5000 / 104.8750,Multi-Layer 上的 线段、Top Layer 上 JC4 的焊盘 1 [/KEY_N],保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+表冠立板,DRC,error,copper_edge_clearance,153.5000 / 104.8750,Multi-Layer 上的 线段、Top Layer 上 JC3 的焊盘 1 [/CROWN_B],保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+表冠立板,DRC,error,copper_edge_clearance,153.5000 / 104.8750,Multi-Layer 上的 线段、Top Layer 上 JC1 的焊盘 1 [/CROWN_A],保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+表冠立板,DRC,error,copper_edge_clearance,146.5000 / 113.3700,Multi-Layer 上的 线段、Top Layer 上 ENC1 的焊盘 A [/CROWN_A],保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+表冠立板,DRC,error,copper_edge_clearance,146.5000 / 113.3700,Multi-Layer 上的 线段、Top Layer 上 ENC1 的焊盘 B [/CROWN_B],保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+表冠立板,DRC,error,copper_edge_clearance,146.5000 / 113.3700,Multi-Layer 上的 线段、Top Layer 上 ENC1 的焊盘 C [GND],保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+表冠立板,DRC,error,copper_edge_clearance,146.5000 / 104.8750,Multi-Layer 上的 线段、Top Layer 上 ENC1 的焊盘 MP [unconnected-(ENC1-PadMP)],保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+表冠立板,DRC,error,copper_edge_clearance,153.5000 / 113.3700,Multi-Layer 上的 线段、Top Layer 上 ENC1 的焊盘 MP [unconnected-(ENC1-PadMP)_1],保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+表冠立板,DRC,error,copper_edge_clearance,148.5000 / 111.3700,Multi-Layer 上的 圆形、Top Layer 上 ENC1 的焊盘 S1 [/KEY_N],保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+表冠立板,DRC,error,copper_edge_clearance,151.5000 / 111.3700,Multi-Layer 上的 圆形、Top Layer 上 ENC1 的焊盘 S2 [GND],保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+表冠立板,DRC,error,copper_edge_clearance,153.5000 / 104.8750,Multi-Layer 上的 线段、Top Layer 上 JC2 的焊盘 1 [GND],保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+表冠立板,ERC,error,power_pin_not_driven,/,"Symbol #PWR001 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
+水平触点板,DRC,error,courtyards_overlap,152.4500 / 108.3500,封装 JC13、封装 JC14,相邻固定接口库庭院交叠，保留实物装配及夹具验收。
+水平触点板,DRC,error,courtyards_overlap,150.0300 / 110.9500,封装 P2、封装 P3,相邻固定接口库庭院交叠，保留实物装配及夹具验收。
+水平触点板,DRC,error,courtyards_overlap,150.0300 / 110.9500,封装 P1、封装 P2,相邻固定接口库庭院交叠，保留实物装配及夹具验收。
+水平触点板,DRC,error,courtyards_overlap,152.4500 / 110.5500,封装 JC11、封装 JC12,相邻固定接口库庭院交叠，保留实物装配及夹具验收。
+水平触点板,DRC,error,courtyards_overlap,152.4500 / 110.5500,封装 JC12、封装 JC13,相邻固定接口库庭院交叠，保留实物装配及夹具验收。
+水平触点板,DRC,error,courtyards_overlap,150.0300 / 109.0500,封装 P3、封装 P4,相邻固定接口库庭院交叠，保留实物装配及夹具验收。
+水平触点板,DRC,error,copper_edge_clearance,152.9500 / 114.7500,Multi-Layer 上的 线段、Top Layer 上 JC14 的焊盘 1 [/KEY_N],保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+水平触点板,DRC,error,copper_edge_clearance,152.9500 / 114.7500,Multi-Layer 上的 线段、Top Layer 上 JC12 的焊盘 1 [GND],保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+水平触点板,DRC,error,copper_edge_clearance,152.9500 / 114.7500,Multi-Layer 上的 线段、Top Layer 上 JC11 的焊盘 1 [/CROWN_A],保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+水平触点板,DRC,error,copper_edge_clearance,152.9500 / 114.7500,Multi-Layer 上的 线段、Top Layer 上 JC13 的焊盘 1 [/CROWN_B],保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+水平触点板,DRC,error,copper_edge_clearance,148.2700 / 105.2500,Bottom Layer 上 P2 的焊盘 1 [GND]、Multi-Layer 上的 线段,保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+水平触点板,DRC,error,copper_edge_clearance,148.2700 / 105.2500,Bottom Layer 上 P3 的焊盘 1 [/CROWN_B]、Multi-Layer 上的 线段,保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+水平触点板,DRC,error,copper_edge_clearance,148.2700 / 105.2500,Bottom Layer 上 P4 的焊盘 1 [/KEY_N]、Multi-Layer 上的 线段,保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+水平触点板,DRC,error,copper_edge_clearance,148.2700 / 105.2500,Bottom Layer 上 P1 的焊盘 1 [/CROWN_A]、Multi-Layer 上的 线段,保留评审接口的板边或定位孔位置，制板前核对铣边及焊接工装。
+水平触点板,ERC,error,power_pin_not_driven,/,"Symbol #PWR001 引脚 1 [Power input, Line]",未设 PWR_FLAG，相关电源来源与时序按电路评审核对。
