@@ -2,6 +2,8 @@
 
 2026-11-22 评审版含四块板的电路和初排。主板尚未完成布线，四块板均无实物或上板验证。[设计评审](reviews/2026-11-22-b-r2/设计评审.md)保存同版 BOM、参考位号差异、净空和回读。唯一下一步见 [STATUS](../docs/STATUS.md#current)。
 
+**母版工具过渡期（2026-11-25 起）**　原理图母版改在 KiCad，由 [`kicad_schematic.py`](generator/kicad_schematic.py) 按[版式源](generator/schematic_layout.py)生成，网表与评审版逐引脚一致。PCB 初排仍在 EPRO（`placement.ndjson`、`members.sha256` 未改），正式迁到 KiCad 是另一项变更。EPRO 内的旧原理图页仍按评审版恢复，不再维护其排版。[重绘记录、等价证据与画板风险](reviews/2026-11-25-kicad-schematic/README.md) · [用户决定](../docs/BASELINE.md#kicad-master-20261125)
+
 | 板卡 | 评审范围 |
 |---|---|
 | [B-R2 主板](boards/b-r2-main/README.md) | 模组、充电、电源、屏触、音频、传感器、表冠和服务接口 |
@@ -34,5 +36,25 @@ python -B hardware/generator/verify.py \
 - `write_project.py --reviewed-placement` 使用已保存的初排。省略此参数时，从 `eda-inputs/constraints.json` 和 `eda-inputs/sweep.json` 重新求初排。这两个输入由 FreeCAD Python 运行 `mechanical.py` 和 `sweep.py` 生成，并读取工作目录下 `2026-11-22/B-crown/B-review-R2` 的模型和板框 STEP。
 - `schematic_view.py` 在 `eda/` 的本机 EPRO 上生成 `schematics.pdf`。`report.py` 使用机械投影和本机库重算布局，生成 BOM、空区、`both-sides.png` 和 `layout-1to1.pdf`。两者需要 Matplotlib 与 Windows 微软雅黑。FreeCAD Python 内可运行 `fit.py` 生成装配回读与本机 STEP。
 - `publish_design.py` 沿用历史归档方式生成本机 `restore-kit/`，其中 `design.zip` 仍包含第三方模板。只有处理旧本机恢复包时才使用 `restore_projects.py --design <本机 design.zip>`。
+
+## KiCad 原理图
+
+在已恢复的四份评审版 EPRO 上生成 KiCad 10 原生原理图。除恢复所需依赖外，需要本机 KiCad 自带的 `share/kicad/symbols` 标准库和 kicad-cli。如果装了 PyMuPDF，脚本还会对 PDF 字体做子集化、合并四板 PDF，并可选输出 PNG 预览。
+
+```bash
+python -m pip install pymupdf
+python -B hardware/generator/verify.py \
+  --projects artifacts/wristflow-b/eda --kicad-cli '<本机 kicad-cli 可执行文件>'
+python -B hardware/generator/kicad_schematic.py \
+  --projects artifacts/wristflow-b/eda --out artifacts/wristflow-b/kicad \
+  --kicad-symbols '<KiCad 安装目录>/share/kicad/symbols' \
+  --kicad-cli '<本机 kicad-cli 可执行文件>' --png
+```
+
+每块板输出一个 KiCad 工程目录，内含原理图、项目库 `WF.kicad_sym`、`sym-lib-table`、网表、ERC 和 PDF。总目录下另有四板合订的 `WristFlow-B-R2-schematics.pdf` 和 `equivalence.json`。脚本逐引脚比对 KiCad 网表与 EPRO 原理图引脚、PCB `PAD_NET`，并检查网络划分和器件属性。存在 `verify.py` 的 `native-qa/*/compiled.xml` 时，还会与这份独立求网逐脚比对。任何差异都以非零状态退出。输出目录须为新路径，`--force` 会替换已有目录。这些输出带有标准库符号和 EPRO 引脚名，留在本机，不入库。中文使用 Windows 自带的等线（DengXian）。
+
+2026-11-25 用 Python 3.12.9、Shapely 2.1.2、PyMuPDF 2.1 和 KiCad CLI 10.0.8 复现：四板差异为零，同一输入两次生成的 22 个 KiCad 文件逐字节相同。
+
+## 2026-11-24 复现记录
 
 2026-11-24 用 Python 3.13.15 和 Shapely 2.1.2 在新目录恢复四份工程，137 个成员与评审版全数一致。KiCad CLI 10.0.8 复查四块板，原理图与 PCB 的网络一致，独立求网差异为零。主板仍有 313 个待连项，以及评审列出的间距与 ERC 告警。固件编译和硬件验证未在本轮执行。
