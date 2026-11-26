@@ -2,7 +2,7 @@
 
 2026-11-22 评审版含四块板的电路和初排。主板尚未完成布线，四块板均无实物或上板验证。[设计评审](reviews/2026-11-22-b-r2/设计评审.md)保存同版 BOM、参考位号差异、净空和回读。唯一下一步见 [STATUS](../docs/STATUS.md#current)。
 
-**KiCad 母版**　四块板的原理图和 PCB 在同名 KiCad 工程中关联。主板按 0.8 mm 四层完成减薄布局与三处扇出试布，三块小板保留评审版的接口位置。EPRO、`placement.ndjson` 和成员哈希固定 11/22 电路、封装及初排，供恢复与对照。[四层布局、检查和余项](reviews/2026-11-25-kicad-pcb/README.md) · [原理图重绘与等价证据](reviews/2026-11-25-kicad-schematic/README.md)
+**KiCad 母版**　四块板的原理图和 PCB 在同名工程中关联。主板采用嘉立创 0.8 mm 六层，J201 与官方 CN1 对正，屏幕 QSPI 和麦克风通道已贯通。EPRO、`placement.ndjson` 和成员哈希固定 11/22 输入。原生 KiCad 电路在此基础上增加 C41。[六层评审与验证](reviews/2026-11-26-six-layer-layout/README.md) · [四层历史评审](reviews/2026-11-25-kicad-pcb/README.md)
 
 | 板卡 | 评审范围 |
 |---|---|
@@ -51,7 +51,7 @@ python -B hardware/generator/kicad_schematic.py \
   --kicad-cli '<本机 kicad-cli 可执行文件>' --png
 ```
 
-每块板输出一个 KiCad 工程目录，内含原理图、项目库 `WF.kicad_sym`、`sym-lib-table`、网表、ERC 和 PDF。总目录下另有四板合订的 `WristFlow-B-R2-schematics.pdf` 和 `equivalence.json`。脚本逐引脚比对 KiCad 网表与 EPRO 原理图引脚、PCB `PAD_NET`，并检查网络划分和器件属性。存在 `verify.py` 的 `native-qa/*/compiled.xml` 时，还会与这份独立求网逐脚比对。任何差异都以非零状态退出。输出目录须为新路径，`--force` 会替换已有目录。这些输出带有标准库符号和 EPRO 引脚名，留在本机，不入库。中文使用 Windows 自带的等线（DengXian）。
+每块板输出一个 KiCad 工程目录，内含原理图、项目库 `WF.kicad_sym`、`sym-lib-table`、网表、ERC 和 PDF。总目录下另有四板合订的 `WristFlow-B-R2-schematics.pdf` 和 `equivalence.json`。脚本逐引脚比对 KiCad 网表、EPRO 原理图引脚与 PCB `PAD_NET`，检查网络划分、器件属性及[批准的电路增量](boards/b-r2-main/circuit-delta.json)。存在 `verify.py` 的 `native-qa/*/compiled.xml` 时，还会与这份独立求网逐脚比对。任何差异都以非零状态退出。输出目录须为新路径，`--force` 会替换已有目录。这些输出带有标准库符号和 EPRO 引脚名，留在本机，不入库。中文使用 Windows 自带的等线（DengXian）。
 
 2026-11-25 用 Python 3.12.9、Shapely 2.1.2、PyMuPDF 2.1 和 KiCad CLI 10.0.8 复现：四板差异为零，同一输入两次生成的 22 个 KiCad 文件逐字节相同。
 
@@ -71,7 +71,7 @@ main="$out/WristFlow-B-R2"
   "$WRISTFLOW_B_WORKSPACE/2026-11-25/B-thin-assembly" --cli "$KICAD_CLI"
 ```
 
-PCB 生成器只接受新的输出目录。打开各板目录内的 `.kicad_pro` 即可进入关联的原理图和 PCB。每个工程带项目封装库、网表、`drc.json` 和 `erc.json`。主板另有 `fanout-readback.json`、`fit.json`、放置包络 STEP、`front.png`、`back.png` 和 KiCad 渲染的 `assembly-3d.png`。闭盖检查同时生成四板可在 KiCad 三维查看器使用的本机模型。完整工程、库、模型和图像均留在本机。仓库保存[布局增量](boards/b-r2-main/layout.csv)、[扇出路径](boards/b-r2-main/fanout.json)、[主板规则](boards/b-r2-main/board-rules.json)和[生成入口](generator/kicad_pcb.py)。后续编辑可在新目录复现母版后与编辑副本对照。
+使用 `--screen-reference <仅含官方屏板的导入 PCB>` 可按原屏尾窗配准全部 40 个盘。PCB 生成器只接受新的输出目录。打开各板目录内的 `.kicad_pro` 即可进入关联的原理图和 PCB。每个工程带项目封装库、网表、`drc.json` 和 `erc.json`。主板另有 `fanout-readback.json`、`fit.json`、放置包络 STEP、`front.png`、`back.png` 和 KiCad 渲染的 `assembly-3d.png`。闭盖检查同时生成四板可在 KiCad 三维查看器使用的本机模型。完整工程、库、模型和图像均留在本机。仓库保存[布局增量](boards/b-r2-main/layout.csv)、[扇出路径](boards/b-r2-main/fanout.json)、[主板规则](boards/b-r2-main/board-rules.json)和[生成入口](generator/kicad_pcb.py)。后续编辑可在新目录复现母版后与编辑副本对照。
 
 ## 2026-11-24 复现记录
 

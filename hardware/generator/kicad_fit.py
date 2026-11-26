@@ -11,7 +11,7 @@ from pathlib import Path
 
 import FreeCAD as App
 import Part
-from kicad_schematic import BOARDS
+from kicad_schematic import BOARDS, MAIN_ADDITIONS
 from library import parts, transform
 from shapely.geometry import Point, Polygon, box
 from shapely.ops import unary_union
@@ -47,7 +47,7 @@ def run(directory, assembly, cli):
     pcb_xy = Polygon(g["outline"], g["holes"])
     if not board.isValid() or len(board.Solids) != 1 or abs(board.Volume / thickness - pcb_xy.area) > 0.1:
         raise ValueError("PCB STEP and artwork disagree")
-    if g["copper_layers"] != 4 or abs(g["thickness"] - thickness) > 0.002:
+    if g["copper_layers"] != 6 or abs(g["thickness"] - thickness) > 0.002:
         raise ValueError("Wrong main board stack")
     fixed = {
         "U1": ["ModuleParts", "ModuleSubstrate"],
@@ -101,20 +101,22 @@ def run(directory, assembly, cli):
     projection = box(battery.XMin, battery.YMin, battery.XMax, battery.YMax)
     swollen_ntc = doc.OptionalNTC.Shape.translated(V(0, 0, 0.50))
     solids, envelopes, battery_items, near, ntc, clashes = {}, {}, {}, {}, {}, []
-    wire_contacts = {}
+    wire_contacts, lateral = {}, {}
     for r, f in g["footprints"].items():
         side, x, y, rot = f["side"], *f["xy"], f["degrees"]
-        env = transform(parts[r]["env"], x, y, rot, side).envelope
-        h = parts[r]["height"]
+        part = parts[MAIN_ADDITIONS[r]["copy_part"] if r in MAIN_ADDITIONS else r]
+        env = transform(part["env"], x, y, rot, side).envelope
+        h = part["height"]
         envelopes[r] = [side, *env.bounds, h]
-        poly = transform(parts[r]["body"], x, y, rot, side)
+        poly = transform(part["body"], x, y, rot, side)
         if r in fixed:
             old = reviewed[r]
+            angle = 270 if r == "J201" else float(old[14])
             if (
                 side != old[1]
                 or abs(x - float(old[12])) > 0.001
                 or abs(y - float(old[13])) > 0.001
-                or (rot - float(old[14])) % 360 > 0.001
+                or abs((rot - angle + 180) % 360 - 180) > 0.001
             ):
                 raise ValueError(f"{r}: fixed interface has moved")
             solid = Part.makeCompound([doc.getObject(n).Shape for n in fixed[r]])
@@ -169,6 +171,32 @@ def run(directory, assembly, cli):
             if name not in preferred_contacts.get(r, set()):
                 best = min(best, (solid.distToShape(body)[0], name))
         near[r] = [best[1], round(best[0], 5)]
+        # Offset horizontally by 0.30 mm across the entire component, including
+        # structures hidden by the nearest object. Rear flex also gets its 0.05 mm Z tolerance.
+        lateral[r] = {}
+        for name in ("Frame","Clamp1","Clamp2","Clamp3","RearRun","Crossing"):
+            if name in preferred_contacts.get(r, set()):
+                continue
+            obstacle = obstacles[name]
+            margin_z = 0.055 if name == "RearRun" else 0.001
+            bounds, other = solid.BoundBox, obstacle.BoundBox
+            if bounds.ZMax < other.ZMin-margin_z or bounds.ZMin > other.ZMax+margin_z:
+                continue
+            distance, pairs, _ = solid.distToShape(obstacle)
+            if distance <= 0.36:
+                if r not in fixed:
+                    # A whole-body XY sweep catches another wall even when the
+                    # closest pair returned by OCC is on a horizontal shelf.
+                    guard = extrusion(poly.buffer(0.3001, quad_segs=32),
+                                      bounds.ZMin-margin_z, bounds.ZLength+2*margin_z)
+                    if overlap(guard, obstacle) > 0.000001:
+                        clashes.append([r, name, "0.30 mm lateral envelope"])
+                dx = min(((a.x-b.x)**2+(a.y-b.y)**2)**0.5 for a,b in pairs)
+                dz = min(abs(a.z-b.z) for a,b in pairs)
+                if dz <= margin_z:
+                    lateral[r][name] = round(dx,5)
+                    if dx < 0.29999:
+                        clashes.append([r, name, "lateral clearance", round(dx,5)])
     refs = sorted(solids)
     for i, r in enumerate(refs):
         for other in refs[i + 1 :]:
@@ -178,9 +206,14 @@ def run(directory, assembly, cli):
     pad_shapes = unary_union(
         [Polygon(p) for f in g["footprints"].values() for pad in f["pads"] for p in pad["polygons"]]
     )
-    via_gap = min(Point(v["xy"]).distance(pad_shapes) - v["diameter"] / 2 for v in g["vias"])
-    if via_gap <= 0 or any(v["drill"] != 0.30 or v["diameter"] != 0.50 for v in g["vias"]):
-        raise ValueError("Via in SMD land, or nonstandard drill")
+    b2 = next(p for p in g["footprints"]["U3"]["pads"] if p["pin"] == "B2")
+    in_pad = [v for v in g["vias"] if v["xy"] == b2["xy"] and v["net"] == b2["net"]]
+    if len(in_pad) != 1 or (in_pad[0]["diameter"], in_pad[0]["drill"]) != (0.26,0.15):
+        raise ValueError("Missing capped U3.B2 through via")
+    ordinary = [v for v in g["vias"] if v not in in_pad]
+    via_gap = min(Point(v["xy"]).distance(pad_shapes) - v["diameter"] / 2 for v in ordinary)
+    if via_gap <= 0 or any((v["diameter"],v["drill"]) not in ((0.50,0.30),(0.40,0.20)) for v in ordinary):
+        raise ValueError("Unexpected via in SMD land or drill size")
     board_clash = {
         n: round(overlap(board, obstacles[n]), 6)
         for n in (
@@ -197,6 +230,9 @@ def run(directory, assembly, cli):
     }
     clashes.extend(["board", n, v] for n, v in board_clash.items() if v > 0.0001)
     antenna = box(-15.5, -22.2, 2.5, -16.1)
+    for ref, (_side, x0, y0, x1, y1, _height) in envelopes.items():
+        if ref != "U1" and antenna.intersects(box(x0, y0, x1, y1)):
+            clashes.append([ref, "module antenna footprint keepout"])
     copper = unary_union([pad_shapes, *[Point(v["xy"]).buffer(v["diameter"] / 2) for v in g["vias"]]])
     from shapely.geometry import LineString
 
@@ -216,6 +252,7 @@ def run(directory, assembly, cli):
         "enclosed_battery": battery_items,
         "swollen_ntc": ntc,
         "nearest": near,
+        "lateral_near_mm": lateral,
         "collisions": clashes,
         "envelopes": envelopes,
         "board_obstacles": board_clash,
