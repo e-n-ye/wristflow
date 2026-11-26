@@ -6,10 +6,13 @@
 ## 2026-11-26 B-R2 主板六层与布局修订
 
 1. 主板采用嘉立创国内 0.8 mm 六层，整机名义总厚保持 16.845 mm。本决定取代 11/25 的四层试布。六层包含树脂塞孔加电镀盖帽工艺，可保留 AW32001E 推荐球盘，并为屏幕、电源和参考地安排独立通道。小钻径的加工费用单计。
-2. 按思澈 DS5203 表 7-1 第 3 条，在 U1.61 VBATS 旁增加一颗 0.1 µF 对地电容。保留其余电路和选型。
+2. 第一轮按思澈 DS5203 表 7-1 第 3 条，在 U1.61 VBATS 旁增加 C41（0.1 µF 对地）。第二轮的电路增量见第 7 条。
 3. 天线与电池、屏幕的投影重叠属于既定结构取舍。闭盖样机实测蓝牙距离。
-4. 单端 ADCIN、MIC_BIAS 及其回流必须贯通，验收核对它们与 BTL、电机、QSPI 时钟和充电铜线的间距及平行长度。
+4. 11/26 第二轮扩大麦克风硬性隔离范围。ADCIN、MIC_BIAS、偏置电阻后段及专用回流须贯通。干扰源包含喇叭 BTL、电机回路、充电路径、屏幕 CLK、D0–D3、CS、TE、RSTB 及 OLED_VBAT、OLED_VCI、OLED_3V3 等屏供电。五只 22 Ω 串阻两侧分别取网。同层或中间无地层时，夹角 <20° 的同向段铜边距 ≥1.0 mm，交叉夹角 ≥70°。L3 与 L4 之间无地层，异网铜禁止同向叠走，交叉按正交排线。
 5. 采纳两份 11/26 审查的布线前修正。J201 原位转正，保留原屏尾位置。验收范围包括入口保护、电源与上拉摆位、模组接地、U3 九球扇出、闭盖净距、接触面钢网和关键网络试布。整板布线留到布局复查之后。
+6. 全主板通孔采用嘉立创六层默认的树脂塞孔＋电镀盖帽（IPC-4761 Type VII）。KiCad 板级与逐孔均设 filling、capping，生产说明逐孔列出距贴片铜 <0.10 mm 的普通孔。普通孔环距阻焊开窗 ≥0.05 mm，U3.B2 继续作为唯一登记的盘中孔。[嘉立创工艺能力](https://www.jlc.com/portal/vtechnology.html)
+7. 用户于 11/26 预先批准按准确型号手册补 U17 本地输出电容，并明确同意复用 C2 的三星 C52923。微源 LP5305AQVF 对应的《LP5305A》V0.3（2019-07）第 2 页图 1 在 VOUT 与 GND 间画出 COUT，第 6 页图 4 将其放在 8 脚旁。该页布局建议原文为 “The input and output capacitor should be located as closed as possible to the chip and ground plane.” 手册未指定 COUT 的容量、耐压或封装。项目选用 C42，CL05A105KA5NQNC，1 µF、±10%、25 V、X5R、0402，U17.8 到 C42 电源脚的铜路径 ≤3 mm。相对 `3813edb` 仅增加这一颗电容。[原厂规格书第 2 页](https://datasheet.lcsc.com/datasheet/pdf/1bd8d988cdacb2c4a892d873ad37bb8e.pdf?productCode=C517045#page=2) · [第 6 页](https://datasheet.lcsc.com/datasheet/pdf/1bd8d988cdacb2c4a892d873ad37bb8e.pdf?productCode=C517045#page=6) · [电容料号](https://www.lcsc.com/product-detail/C52923.html)
+8. C33.1 盘心距开窗最近边为 0.500 mm，最小普通孔环半径为 0.200 mm，计入 0.050 mm 开窗净距，盘心至孔心至少 0.750 mm。用户批准仅将 C33 地端限值定为 ≤0.80 mm。U15.1 到 C33 的供电铜路径仍须 ≤3 mm。
 
 <a id="b-four-layer-trial-20261125"></a>
 ## 2026-11-25 B-R2 主板先试四层（已由 11/26 六层决定取代）

@@ -2,7 +2,7 @@
 
 2026-11-22 评审版含四块板的电路和初排。主板尚未完成布线，四块板均无实物或上板验证。[设计评审](reviews/2026-11-22-b-r2/设计评审.md)保存同版 BOM、参考位号差异、净空和回读。唯一下一步见 [STATUS](../docs/STATUS.md#current)。
 
-**KiCad 母版**　四块板的原理图和 PCB 在同名工程中关联。主板采用嘉立创 0.8 mm 六层，J201 与官方 CN1 对正，屏幕 QSPI 和麦克风通道已贯通。EPRO、`placement.ndjson` 和成员哈希固定 11/22 输入。原生 KiCad 电路在此基础上增加 C41。[六层评审与验证](reviews/2026-11-26-six-layer-layout/README.md) · [四层历史评审](reviews/2026-11-25-kicad-pcb/README.md)
+**KiCad 母版**　四板原理图和 PCB 在同名工程中关联。主板采用嘉立创 0.8 mm 六层，J201 与官方 CN1 的 40 个焊盘对正。11/22 EPRO、`placement.ndjson` 和成员哈希固定历史输入。原生电路增加了模组 VBATS 的 C41 和 U17 输出的 C42。全板过孔树脂塞孔＋电镀盖帽。主板的输入保护、麦克风隔离、BTL 与局部去耦按保存铜验收。[第二轮评审、生产清单及复现](reviews/2026-11-26-six-layer-round2/README.md) · [第一轮六层记录](reviews/2026-11-26-six-layer-layout/README.md)
 
 | 板卡 | 评审范围 |
 |---|---|
@@ -72,6 +72,8 @@ main="$out/WristFlow-B-R2"
 ```
 
 使用 `--screen-reference <仅含官方屏板的导入 PCB>` 可按原屏尾窗配准全部 40 个盘。PCB 生成器只接受新的输出目录。打开各板目录内的 `.kicad_pro` 即可进入关联的原理图和 PCB。每个工程带项目封装库、网表、`drc.json` 和 `erc.json`。主板另有 `fanout-readback.json`、`fit.json`、放置包络 STEP、`front.png`、`back.png` 和 KiCad 渲染的 `assembly-3d.png`。闭盖检查同时生成四板可在 KiCad 三维查看器使用的本机模型。完整工程、库、模型和图像均留在本机。仓库保存[布局增量](boards/b-r2-main/layout.csv)、[扇出路径](boards/b-r2-main/fanout.json)、[主板规则](boards/b-r2-main/board-rules.json)和[生成入口](generator/kicad_pcb.py)。后续编辑可在新目录复现母版后与编辑副本对照。
+
+在编辑副本重灌并保存 PCB 后，用 KiCad Python 执行 `kicad_pcb.py --readback <主板.kicad_pcb>` 更新板上几何，再用带 Shapely 的 FreeCAD Python 执行 `kicad_layout_check.py <主板工程目录>`。闭盖检查也会执行这些断言，并核对几何导出对应的 PCB SHA-256。[逐项断言与实际操作顺序](reviews/2026-11-26-six-layer-round2/README.md#reproduce)
 
 ## 2026-11-24 复现记录
 

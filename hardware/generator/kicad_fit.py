@@ -12,6 +12,7 @@ from pathlib import Path
 import FreeCAD as App
 import Part
 from kicad_schematic import BOARDS, MAIN_ADDITIONS
+from kicad_layout_check import check_layout
 from library import parts, transform
 from shapely.geometry import Point, Polygon, box
 from shapely.ops import unary_union
@@ -32,6 +33,7 @@ def overlap(a, b):
 
 def run(directory, assembly, cli):
     g = json.loads((directory / "geometry.json").read_text(encoding="utf-8"))
+    check_layout(g, directory)
     thin = json.loads((assembly / "geometry.json").read_text(encoding="utf-8"))
     doc = App.openDocument(str(next(assembly.glob("*.FCStd")).resolve()))
     closed = Part.read(str(next(assembly.glob("*.step")).resolve()))
@@ -134,6 +136,7 @@ def run(directory, assembly, cli):
             battery_items[r] = [round(h, 4), round(gap, 4)]
             if h > 0.96001 or gap < 0.69999:
                 clashes.append([r, "battery height", h, gap])
+        if side == "B":
             ntc[r] = round(solid.distToShape(swollen_ntc)[0], 5)
             if ntc[r] < 0.19999:
                 clashes.append([r, "swollen optional NTC", ntc[r]])
