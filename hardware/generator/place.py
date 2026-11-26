@@ -29,7 +29,7 @@ boardshape=unary_union([boardshape,*tab_shapes])
 added=boardshape.difference(reference_outline)
 assert added.bounds[1]>-16.1
 position('U16','F',8.25,20.25,90,True)
-position('J201','B',10.545,5.135,90,True)
+position('J201','B',10.545,5.135,270)
 position('J1','B',-9,15.45,180)
 position('J2','B',3.2,16.55,180,True)
 for i,y in enumerate((-2.85,-.95,.95,2.85)):position('K'+str(i+1),'F',13.5,y,0)

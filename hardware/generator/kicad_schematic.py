@@ -30,6 +30,7 @@ BOARDS = {
 GRID = 1.27
 NS = uuid.UUID('6f1d0b52-6a55-4e0f-9b57-2b4f3f7d2a11')
 FACE = 'DengXian'
+MAIN_ADDITIONS = json.loads((HERE.parent / 'boards/b-r2-main/circuit-delta.json').read_text(encoding='utf-8'))
 
 
 def uid(*parts):
@@ -132,6 +133,11 @@ def read_board(path):
             for num, net in nets.items():
                 if net and parts[ref]['nets'].get(num) != net:
                     raise ValueError(f'PCB pad {ref}.{num}={net} differs from schematic')
+    if path.stem == BOARDS['main']:
+        for ref, addition in MAIN_ADDITIONS.items():
+            if ref in parts:
+                raise ValueError(f'{ref} already exists in the restoration input')
+            parts[ref] = dict(parts[addition['copy_part']], ref=ref, nets=addition['nets'])
     return parts
 
 
@@ -143,6 +149,8 @@ def read_bom():
     for r in rows[1:]:
         d = dict(zip(head, r))
         out[d['位号']] = dict(mpn=d['型号'], lcsc=d['LCSC'], footprint=d['封装'])
+    for ref, addition in MAIN_ADDITIONS.items():
+        out[ref] = out[addition['copy_part']].copy()
     return out
 
 
@@ -817,7 +825,7 @@ def compile_board(builder, project, outdir, date):
                                effects(size, just, face=FACE, bold=bold),
                                S('uuid', uid(project, page.key, 'txt', x, y))))
         title_block = S('title_block', S('title', f'{project}  {page.title}'), S('date', date), S('rev', 'B-R2 评审版'),
-                        S('company', 'WristFlow'), S('comment', 1, '由 hardware/generator/kicad_schematic.py 生成；电路与 2026-11-22 评审版 EPRO 逐引脚一致'),
+                        S('company', 'WristFlow'), S('comment', 1, '由评审版 EPRO 与受版本管理的 KiCad 电路修订生成'),
                         S('comment', 2, 'PCB 使用项目封装库 WF_B，与本工程同名'))
         doc = S('kicad_sch', S('version', 20250114), S('generator', 'wristflow_kicad_schematic'),
                 S('generator_version', '1'), S('uuid', sheet_uuid if hier else root), S('paper', page.paper), title_block,
@@ -877,7 +885,7 @@ def write_root(builder, project, outdir, root, sheet_files, date):
         items.append(S('text', line, S('exclude_from_sim', Sym('no')), S('at', 15, 152 + j * 5.5, 0),
                        effects(1.6, 'left bottom', face=FACE), S('uuid', uid(project, 'note', j))))
     title_block = S('title_block', S('title', f'{project}  目录与说明'), S('date', date), S('rev', 'B-R2 评审版'),
-                    S('company', 'WristFlow'), S('comment', 1, '由 hardware/generator/kicad_schematic.py 生成；电路与 2026-11-22 评审版 EPRO 逐引脚一致'),
+                    S('company', 'WristFlow'), S('comment', 1, '由评审版 EPRO 与受版本管理的 KiCad 电路修订生成'),
                     S('comment', 2, 'PCB 使用项目封装库 WF_B，与本工程同名'))
     doc = S('kicad_sch', S('version', 20250114), S('generator', 'wristflow_kicad_schematic'), S('generator_version', '1'),
             S('uuid', root), S('paper', 'A4'), title_block, S('lib_symbols'), *items,
@@ -971,9 +979,17 @@ def netlist_pins(path):
 def cross_check(ours, reference):
     """Compare our KiCad netlist with verify.py's independent KiCad solve of the reviewed EPRO."""
     a, b = netlist_pins(ours), netlist_pins(reference)
+    added = {}
+    if reference.parent.name == BOARDS['main']:
+        for ref, addition in MAIN_ADDITIONS.items():
+            if any(key[0] == ref for key in b):
+                raise ValueError(f'{ref} already present in the independent reference')
+            for pin, name in addition['nets'].items():
+                b[ref, pin] = name
+                added[f'{ref}.{pin}'] = name
     keys = {k for k, v in a.items() if v} | {k for k, v in b.items() if v}
     diff = sorted(f'{r}.{n}: ours={a.get((r, n))!r} verify={b.get((r, n))!r}' for r, n in keys if a.get((r, n)) != b.get((r, n)))
-    return dict(reference=str(reference), compared_pins=len(keys), differences=diff)
+    return dict(reference=str(reference), approved_added_pins=added, compared_pins=len(keys), differences=diff)
 
 
 def main():
@@ -982,7 +998,7 @@ def main():
     ap.add_argument('--out', type=Path, required=True, help='New output directory')
     ap.add_argument('--kicad-symbols', type=Path, required=True, help='KiCad share/kicad/symbols directory')
     ap.add_argument('--kicad-cli', help='kicad-cli executable: export PDF and netlist, run ERC and equivalence')
-    ap.add_argument('--date', default='2026-11-25')
+    ap.add_argument('--date', default='2026-11-26')
     ap.add_argument('--png', action='store_true', help='Also render PNG previews with PyMuPDF')
     ap.add_argument('--force', action='store_true', help='Replace an existing output directory')
     args = ap.parse_args()

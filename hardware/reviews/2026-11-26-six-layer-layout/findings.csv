@@ -1,0 +1,95 @@
+板,检查,级别,规则,坐标或页,对象,处置
+WristFlow-B-Crown,DRC,error,courtyards_overlap,"{'x': 150.55, 'y': 105.45}",封装 JC3; 封装 JC4,核查固定相邻接口本体、夹具与工序。名义庭院交叠保留。
+WristFlow-B-Crown,DRC,error,courtyards_overlap,"{'x': 150.55, 'y': 105.45}",封装 JC3; 封装 JC2,核查固定相邻接口本体、夹具与工序。名义庭院交叠保留。
+WristFlow-B-Crown,DRC,error,courtyards_overlap,"{'x': 148.35, 'y': 105.45}",封装 JC1; 封装 JC2,核查固定相邻接口本体、夹具与工序。名义庭院交叠保留。
+WristFlow-B-Crown,DRC,error,copper_edge_clearance,"{'x': 153.5, 'y': 104.875}",Multi-Layer 上的 线段; Top Layer 上 JC3 的焊盘 1 [/CROWN_B],直角焊端、压合金面或编码器焊盘，随表冠板边缘工艺核准。
+WristFlow-B-Crown,DRC,error,copper_edge_clearance,"{'x': 153.5, 'y': 104.875}",Multi-Layer 上的 线段; Top Layer 上 JC4 的焊盘 1 [/KEY_N],直角焊端、压合金面或编码器焊盘，随表冠板边缘工艺核准。
+WristFlow-B-Crown,DRC,error,copper_edge_clearance,"{'x': 146.5, 'y': 113.37}",Multi-Layer 上的 线段; Top Layer 上 ENC1 的焊盘 A [/CROWN_A],直角焊端、压合金面或编码器焊盘，随表冠板边缘工艺核准。
+WristFlow-B-Crown,DRC,error,copper_edge_clearance,"{'x': 146.5, 'y': 113.37}",Multi-Layer 上的 线段; Top Layer 上 ENC1 的焊盘 B [/CROWN_B],直角焊端、压合金面或编码器焊盘，随表冠板边缘工艺核准。
+WristFlow-B-Crown,DRC,error,copper_edge_clearance,"{'x': 146.5, 'y': 113.37}",Multi-Layer 上的 线段; Top Layer 上 ENC1 的焊盘 C [GND],直角焊端、压合金面或编码器焊盘，随表冠板边缘工艺核准。
+WristFlow-B-Crown,DRC,error,copper_edge_clearance,"{'x': 146.5, 'y': 104.875}",Multi-Layer 上的 线段; Top Layer 上 ENC1 的焊盘 MP [unconnected-(ENC1-PadMP)],直角焊端、压合金面或编码器焊盘，随表冠板边缘工艺核准。
+WristFlow-B-Crown,DRC,error,copper_edge_clearance,"{'x': 153.5, 'y': 113.37}",Multi-Layer 上的 线段; Top Layer 上 ENC1 的焊盘 MP [unconnected-(ENC1-PadMP)_1],直角焊端、压合金面或编码器焊盘，随表冠板边缘工艺核准。
+WristFlow-B-Crown,DRC,error,copper_edge_clearance,"{'x': 148.5, 'y': 111.37}",Multi-Layer 上的 圆形; Top Layer 上 ENC1 的焊盘 S1 [/KEY_N],直角焊端、压合金面或编码器焊盘，随表冠板边缘工艺核准。
+WristFlow-B-Crown,DRC,error,copper_edge_clearance,"{'x': 151.5, 'y': 111.37}",Multi-Layer 上的 圆形; Top Layer 上 ENC1 的焊盘 S2 [GND],直角焊端、压合金面或编码器焊盘，随表冠板边缘工艺核准。
+WristFlow-B-Crown,DRC,error,copper_edge_clearance,"{'x': 153.5, 'y': 104.875}",Multi-Layer 上的 线段; Top Layer 上 JC1 的焊盘 1 [/CROWN_A],直角焊端、压合金面或编码器焊盘，随表冠板边缘工艺核准。
+WristFlow-B-Crown,DRC,error,copper_edge_clearance,"{'x': 153.5, 'y': 104.875}",Multi-Layer 上的 线段; Top Layer 上 JC2 的焊盘 1 [GND],直角焊端、压合金面或编码器焊盘，随表冠板边缘工艺核准。
+WristFlow-B-Crown,ERC,error,power_pin_not_driven,/,"Symbol #PWR001 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-Crown-Contacts,DRC,error,courtyards_overlap,"{'x': 152.45, 'y': 109.45}",封装 JC13; 封装 JC14,核查固定相邻接口本体、夹具与工序。名义庭院交叠保留。
+WristFlow-B-Crown-Contacts,DRC,error,courtyards_overlap,"{'x': 152.45, 'y': 109.45}",封装 JC13; 封装 JC12,核查固定相邻接口本体、夹具与工序。名义庭院交叠保留。
+WristFlow-B-Crown-Contacts,DRC,error,courtyards_overlap,"{'x': 152.45, 'y': 110.55}",封装 JC12; 封装 JC11,核查固定相邻接口本体、夹具与工序。名义庭院交叠保留。
+WristFlow-B-Crown-Contacts,DRC,error,courtyards_overlap,"{'x': 150.03, 'y': 107.15}",封装 P4; 封装 P3,核查固定相邻接口本体、夹具与工序。名义庭院交叠保留。
+WristFlow-B-Crown-Contacts,DRC,error,courtyards_overlap,"{'x': 150.03, 'y': 112.85}",封装 P1; 封装 P2,核查固定相邻接口本体、夹具与工序。名义庭院交叠保留。
+WristFlow-B-Crown-Contacts,DRC,error,courtyards_overlap,"{'x': 150.03, 'y': 109.05}",封装 P3; 封装 P2,核查固定相邻接口本体、夹具与工序。名义庭院交叠保留。
+WristFlow-B-Crown-Contacts,DRC,error,copper_edge_clearance,"{'x': 152.95, 'y': 114.75}",Multi-Layer 上的 线段; Top Layer 上 JC13 的焊盘 1 [/CROWN_B],直角焊端、压合金面或编码器焊盘，随表冠板边缘工艺核准。
+WristFlow-B-Crown-Contacts,DRC,error,copper_edge_clearance,"{'x': 152.95, 'y': 114.75}",Multi-Layer 上的 线段; Top Layer 上 JC14 的焊盘 1 [/KEY_N],直角焊端、压合金面或编码器焊盘，随表冠板边缘工艺核准。
+WristFlow-B-Crown-Contacts,DRC,error,copper_edge_clearance,"{'x': 152.95, 'y': 114.75}",Multi-Layer 上的 线段; Top Layer 上 JC12 的焊盘 1 [GND],直角焊端、压合金面或编码器焊盘，随表冠板边缘工艺核准。
+WristFlow-B-Crown-Contacts,DRC,error,copper_edge_clearance,"{'x': 152.95, 'y': 114.75}",Multi-Layer 上的 线段; Top Layer 上 JC11 的焊盘 1 [/CROWN_A],直角焊端、压合金面或编码器焊盘，随表冠板边缘工艺核准。
+WristFlow-B-Crown-Contacts,DRC,error,copper_edge_clearance,"{'x': 148.27, 'y': 105.25}",Multi-Layer 上的 线段; Bottom Layer 上 P4 的焊盘 1 [/KEY_N],直角焊端、压合金面或编码器焊盘，随表冠板边缘工艺核准。
+WristFlow-B-Crown-Contacts,DRC,error,copper_edge_clearance,"{'x': 148.27, 'y': 105.25}",Multi-Layer 上的 线段; Bottom Layer 上 P1 的焊盘 1 [/CROWN_A],直角焊端、压合金面或编码器焊盘，随表冠板边缘工艺核准。
+WristFlow-B-Crown-Contacts,DRC,error,copper_edge_clearance,"{'x': 148.27, 'y': 105.25}",Multi-Layer 上的 线段; Bottom Layer 上 P3 的焊盘 1 [/CROWN_B],直角焊端、压合金面或编码器焊盘，随表冠板边缘工艺核准。
+WristFlow-B-Crown-Contacts,DRC,error,copper_edge_clearance,"{'x': 148.27, 'y': 105.25}",Multi-Layer 上的 线段; Bottom Layer 上 P2 的焊盘 1 [GND],直角焊端、压合金面或编码器焊盘，随表冠板边缘工艺核准。
+WristFlow-B-Crown-Contacts,ERC,error,power_pin_not_driven,/,"Symbol #PWR001 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-R2,DRC,error,courtyards_overlap,"{'x': 163.5, 'y': 110.95}",封装 K2; 封装 K1,核查固定相邻接口本体、夹具与工序。名义庭院交叠保留。
+WristFlow-B-R2,DRC,error,courtyards_overlap,"{'x': 163.5, 'y': 110.95}",封装 K2; 封装 K3,核查固定相邻接口本体、夹具与工序。名义庭院交叠保留。
+WristFlow-B-R2,DRC,error,courtyards_overlap,"{'x': 163.5, 'y': 107.15}",封装 K4; 封装 K3,核查固定相邻接口本体、夹具与工序。名义庭院交叠保留。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 142.4, 'y': 101.945}",过孔 [PA_31] (Top Layer - Bottom Layer),U1.25，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 153.455, 'y': 117.4}",过孔 [PA_40_I2C1_SCL] (Top Layer - Bottom Layer),U1.8，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 153.455, 'y': 116.3}",过孔 [PA_39_I2C1_SDA] (Top Layer - Bottom Layer),U1.9，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 133.545, 'y': 106.4}",过孔 [PA_11_I2C0_SDA] (Top Layer - Bottom Layer),U1.31，六层新位置。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 133.545, 'y': 107.5}",过孔 [PA_10_I2C0_SCL] (Top Layer - Bottom Layer),U1.32，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 146.25, 'y': 91.25}",过孔 [SPK_GND] (Top Layer - Bottom Layer),L3.2，六层新位置。BTL 钳位地已接磁珠，复核该单面接铜孔能否直接省去。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 140.125, 'y': 96.25}",过孔 [SPK_GND] (Top Layer - Bottom Layer),U6.7，六层新位置。功放地已通 SPK_GND 滤波回路，下一轮复核该孔的另一面铜。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 153.455, 'y': 121.8}",过孔 [PA_42] (Top Layer - Bottom Layer),U1.4，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 133.545, 'y': 108.6}",过孔 [DAC1P] (Top Layer - Bottom Layer),U1.33，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 133.545, 'y': 109.7}",过孔 [DAC1N] (Top Layer - Bottom Layer),U1.34，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 153.455, 'y': 107.5}",过孔 [VDD33_VOUT] (Top Layer - Bottom Layer),U1.17，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 153.455, 'y': 110.8}",过孔 [PA_34_PWRKEY] (Top Layer - Bottom Layer),U1.14，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 139.65, 'y': 103.345}",过孔 [PA_20_VIB_PWM] (Top Layer - Bottom Layer),U1.28，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 153.455, 'y': 106.4}",过孔 [CROWN_A] (Top Layer - Bottom Layer),U1.18，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 149.55, 'y': 103.345}",过孔 [CROWN_B] (Top Layer - Bottom Layer),U1.19，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 147.35, 'y': 103.345}",过孔 [PPG_INT_N] (Top Layer - Bottom Layer),U1.21，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 153.455, 'y': 118.5}",过孔 [PA_41_TP_INT] (Top Layer - Bottom Layer),U1.7，六层新位置。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 153.455, 'y': 115.2}",过孔 [PA_38] (Top Layer - Bottom Layer),U1.10，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 153.455, 'y': 114.1}",过孔 [PA_37_TP_SCL] (Top Layer - Bottom Layer),U1.11，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 153.455, 'y': 109.7}",过孔 [PA_33_TP_SDA] (Top Layer - Bottom Layer),U1.15，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 148.45, 'y': 103.345}",过孔 [PA_26] (Top Layer - Bottom Layer),U1.20，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 144.05, 'y': 103.345}",过孔 [PA_30] (Top Layer - Bottom Layer),U1.24，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 140.75, 'y': 103.345}",过孔 [MOD_VSYS] (Top Layer - Bottom Layer),U1.27，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 133.545, 'y': 114.1}",过孔 [PA_09_TP_RSTN] (Top Layer - Bottom Layer),U1.38，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 140.875, 'y': 96.25}",过孔 [/05 功放与麦克风/N_31N8386] (Top Layer - Bottom Layer),U6.6，六层新位置。功放电源脚已通 C19.2，整板时复核该支路孔。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 159.5, 'y': 110.875}",过孔 [/06 传感器、表冠、电机与后盖接口/PA_34_KEY1] (Top Layer - Bottom Layer),Q3.3，六层新位置。已接 D15 钳位点，下一轮复核按键网络此处换层需求。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 150.0, 'y': 93.375}",过孔 [/02 触点输入、充电与电芯/CELL_TS] (Top Layer - Bottom Layer),U3.B1，六层新位置。CELL_TS 已接 R60.2，下一轮确定测温支路是否沿此孔换层。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 159.125, 'y': 102.625}",过孔 [/04 屏幕直连与触摸/OLED_PULL10K] (Top Layer - Bottom Layer),J201.1，六层新位置。屏座窄脚已扇出，待续接相应屏端支路。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 160.375, 'y': 104.0}",过孔 [/04 屏幕直连与触摸/OLED_VCI] (Top Layer - Bottom Layer),J201.4，六层新位置。屏座窄脚已扇出，待续接相应屏端支路。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 160.5, 'y': 104.625}",过孔 [/04 屏幕直连与触摸/OLED_PULL1M] (Top Layer - Bottom Layer),J201.6，六层新位置。屏座窄脚已扇出，待续接相应屏端支路。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 138.75, 'y': 102.545}",过孔 [/01 模组、供电循环与 UART/PA_19_UART_TXD] (Top Layer - Bottom Layer),U1.29，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,DRC,warning,via_dangling,"{'x': 137.05, 'y': 103.345}",过孔 [/01 模组、供电循环与 UART/PA_18_UART_RXD] (Top Layer - Bottom Layer),U1.30，原位置已报。模组 GPIO/电源扇出，下一轮按整板通道连接。
+WristFlow-B-R2,ERC,error,power_pin_not_driven,/01 模组、供电循环与 UART/,"Symbol #PWR001 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-R2,ERC,error,power_pin_not_driven,/01 模组、供电循环与 UART/,"Symbol #PWR002 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-R2,ERC,error,power_pin_not_driven,/01 模组、供电循环与 UART/,"Symbol #PWR008 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-R2,ERC,error,power_pin_not_driven,/02 触点输入、充电与电芯/,"Symbol #PWR009 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-R2,ERC,error,power_pin_not_driven,/02 触点输入、充电与电芯/,"Symbol #PWR033 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-R2,ERC,error,power_pin_not_driven,/02 触点输入、充电与电芯/,"Symbol #PWR025 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-R2,ERC,error,power_pin_not_driven,/02 触点输入、充电与电芯/,"Symbol #PWR016 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-R2,ERC,error,power_pin_not_driven,/02 触点输入、充电与电芯/,"Symbol #PWR017 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-R2,ERC,error,power_pin_not_driven,/02 触点输入、充电与电芯/,"Symbol #PWR018 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-R2,ERC,error,power_pin_not_driven,/02 触点输入、充电与电芯/,"Symbol #PWR019 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-R2,ERC,error,power_pin_not_driven,/03 受控电源与测流桥/,"Symbol #PWR064 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-R2,ERC,error,power_pin_not_driven,/03 受控电源与测流桥/,"Symbol #PWR066 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-R2,ERC,error,power_pin_not_driven,/03 受控电源与测流桥/,"Symbol #PWR052 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-R2,ERC,error,power_pin_not_driven,/03 受控电源与测流桥/,"Symbol #PWR069 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-R2,ERC,error,power_pin_not_driven,/03 受控电源与测流桥/,"Symbol #PWR060 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-R2,ERC,error,power_pin_not_driven,/03 受控电源与测流桥/,"Symbol #PWR072 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-R2,ERC,error,power_pin_not_driven,/05 功放与麦克风/,"Symbol #PWR114 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-R2,ERC,error,power_pin_not_driven,/05 功放与麦克风/,"Symbol #PWR102 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-R2,ERC,error,power_pin_not_driven,/06 传感器、表冠、电机与后盖接口/,"Symbol #PWR144 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-R2,ERC,error,power_pin_not_driven,/06 传感器、表冠、电机与后盖接口/,"Symbol #PWR151 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-Rear-FPC,DRC,error,courtyards_overlap,"{'x': 148.55, 'y': 96.8}",封装 SP2; 封装 SP1,核查固定相邻接口本体、夹具与工序。名义庭院交叠保留。
+WristFlow-B-Rear-FPC,DRC,error,copper_edge_clearance,"{'x': 150.45, 'y': 105.75}",Multi-Layer 上的 线段; Top Layer 上 JF1 的焊盘 1 [/SPK_OUTP],后盖柔板端部铜，按尾指/端子外形在生产图确认。
+WristFlow-B-Rear-FPC,DRC,error,copper_edge_clearance,"{'x': 155.95, 'y': 77.75}",Multi-Layer 上的 线段; Top Layer 上 JF1 的焊盘 10 [DOCK_5V_IN],后盖柔板端部铜，按尾指/端子外形在生产图确认。
+WristFlow-B-Rear-FPC,DRC,error,copper_edge_clearance,"{'x': 152.6, 'y': 114.25}",Multi-Layer 上的 线段; Top Layer 上 CH2 的焊盘 1 [DOCK_5V_IN],后盖柔板端部铜，按尾指/端子外形在生产图确认。
+WristFlow-B-Rear-FPC,DRC,error,copper_edge_clearance,"{'x': 147.4, 'y': 126.1}",Multi-Layer 上的 线段; Top Layer 上 CH1 的焊盘 1 [/DOCK_RTN],后盖柔板端部铜，按尾指/端子外形在生产图确认。
+WristFlow-B-Rear-FPC,ERC,error,power_pin_not_driven,/,"Symbol #PWR003 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-Rear-FPC,ERC,error,power_pin_not_driven,/,"Symbol #PWR001 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-Rear-FPC,ERC,error,power_pin_not_driven,/,"Symbol #PWR002 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。
+WristFlow-B-Rear-FPC,ERC,error,power_pin_not_driven,/,"Symbol #PWR012 引脚 1 [Power input, Line]",既有 passive 源符号供电网未标驱动，保留原告警。

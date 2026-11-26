@@ -110,6 +110,9 @@ def main_module(b):
     pg.part('U1', 75, 102, 0)
     for n in ('VBAT', 'MOD_VSYS', 'VDD33_VOUT', 'GND'):
         pg.use(f'U1@{n}', 'global')
+    pg.part('C41', 26, 66, top='VBAT')
+    pg.use('C41@VBAT', 'global')
+    pg.text(16, 43, 'C41 靠近模组 VBATS（61 脚）。', 1.4)
     pg.text(16, 20, '模组内含 Flash、PSRAM、两颗晶振和 PCB 天线；', 1.4)
     pg.text(16, 24.5, '天线外伸区禁铺铜。未用 GPIO 标 ×。', 1.4)
 
