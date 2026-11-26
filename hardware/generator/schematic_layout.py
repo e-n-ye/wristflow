@@ -163,11 +163,14 @@ def main_charger(b):
     lead(pg, 'U17.5', (g1[0] - 3.81, g1[1]), (g1[0] - 3.81, g2[1]), (g1[0] - 3.81, g2[1] + 2.54), net='GND', d='D')
     pg.wire('U17.6', (g1[0] - 3.81, g2[1]))
     iset = at(pg, 'U17@N_32N38543')
-    pg.part('R4', iset[0] + 7.62, iset[1], top='N_32N38543', pin='N_32N38543')
-    pg.wire('U17@N_32N38543', 'R4@N_32N38543')
+    pg.part('R4', iset[0] + 5.08, iset[1] + 17.78, top='N_32N38543', pin='N_32N38543')
+    pg.wire('U17@N_32N38543', (iset[0] + 5.08, iset[1]), 'R4@N_32N38543')
+    pg.tag(*at(pg, 'R4@N_32N38543'), 'N_32N38543', 'R')
     vo = at(pg, 'U17@VBUS_5V')
+    pg.part('C42', vo[0] + 7.62, vo[1], top='VBUS_5V', pin='VBUS_5V')
     pg.part('C3', vo[0] + 17.78, vo[1], top='VBUS_5V', pin='VBUS_5V')
-    lead(pg, 'U17@VBUS_5V', at(pg, 'C3@VBUS_5V'), (vo[0] + 25.4, vo[1]), net='VBUS_5V', d='U')
+    lead(pg, 'U17@VBUS_5V', at(pg, 'C42@VBUS_5V'), at(pg, 'C3@VBUS_5V'),
+         (vo[0] + 25.4, vo[1]), net='VBUS_5V', d='U')
     pg.text(16, 20, 'DOCK_5V_IN 来自后盖 10P 尾指：单路 5 V、单路回流，每触点 0.5 A。', 1.4)
     pg.text(16, 24.5, 'D19 防反接，D17 TVS 钳位，R2 泄放；U17 过压保护后输出 VBUS_5V。', 1.4)
 

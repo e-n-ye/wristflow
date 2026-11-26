@@ -2,5 +2,9 @@
   "C41": {
     "copy_part": "C19",
     "nets": {"1": "GND", "2": "VBAT"}
+  },
+  "C42": {
+    "copy_part": "C2",
+    "nets": {"1": "GND", "2": "VBUS_5V"}
   }
 }
