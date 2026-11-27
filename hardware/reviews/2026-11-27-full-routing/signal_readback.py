@@ -74,6 +74,37 @@ def qspi_report(g, pins):
     return result
 
 
+def local_ground_vias(g, pins):
+    """Find a separate, directly connected ground via within each capacitor's local disk."""
+    ground = [via for via in g["vias"] if via["net"] == "GND"]
+    copper = {}
+    for side in ("F", "B"):
+        lands = [Polygon(ring) for pad in pins.values() if pad["net"] == "GND" and pad["side"] == side
+                 for ring in pad["polygons"]]
+        tracks = [LineString([t["start"], t["end"]]).buffer(t["width"]/2) for t in g["tracks"]
+                  if t["net"] == "GND" and t["side"] == side]
+        copper[side] = unary_union(lands + tracks + [Point(v["xy"]).buffer(v["diameter"]/2) for v in ground])
+    result = {}
+    owners = {}
+    for key, pad in sorted(pins.items()):
+        if not key.startswith("C") or pad["net"] != "GND":
+            continue
+        center = Point(pad["xy"])
+        # Circumscribe the disk by the CAD readback tolerance at its rim.
+        local = copper[pad["side"]].intersection(center.buffer(.800001, quad_segs=1024))
+        region = next(piece for piece in get_parts(local) if piece.covers(center))
+        candidates = [(center.distance(Point(v["xy"])), tuple(v["xy"])) for v in ground
+                      if center.distance(Point(v["xy"])) <= .800001 and region.covers(Point(v["xy"]))]
+        if not candidates:
+            raise ValueError(f"{key} has no directly connected local GND via within 0.80 mm")
+        distance, via = min(candidates)
+        if via in owners:
+            raise ValueError(f"{key} and {owners[via]} share their local GND via")
+        owners[via] = key
+        result[key] = {"ground_via_xy": via, "pad_to_via_mm": distance}
+    return result
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("project", type=Path)
@@ -83,6 +114,6 @@ if __name__ == "__main__":
     if hashlib.sha256(pcb.read_bytes()).hexdigest() != geometry["pcb_sha256"]:
         raise ValueError("Run kicad_pcb.py --readback on the current PCB")
     pins = read_pins(geometry)
-    report = {"pcb_sha256": geometry["pcb_sha256"], "btl": btl_report(geometry,pins),
-              "qspi": qspi_report(geometry,pins)}
+    report = {"pcb_sha256": geometry["pcb_sha256"], "btl": btl_report(geometry, pins),
+              "qspi": qspi_report(geometry, pins), "capacitor_ground": local_ground_vias(geometry, pins)}
     print(json.dumps(report, ensure_ascii=False, indent=2))
