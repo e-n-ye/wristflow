@@ -75,6 +75,8 @@ main="$out/WristFlow-B-R2"
 
 在编辑副本重灌并保存 PCB 后，用 KiCad Python 执行 `kicad_pcb.py --readback <主板.kicad_pcb>` 更新板上几何，再用带 Shapely 的 FreeCAD Python 执行 `kicad_layout_check.py <主板工程目录>`。闭盖检查也会执行这些断言，并核对几何导出对应的 PCB SHA-256。[逐项断言与实际操作顺序](reviews/2026-11-26-six-layer-round2/README.md#reproduce)
 
+从同一保存板导出正反钢网和 Gerber 作业文件后，使用 Gerbonara 1.5.0 与 Shapely 2.1.2 运行 `kicad_stencil_check.py <主板工程目录> <Gerber目录> <逐开口.csv>`。第三轮提供了故障副本、分支线宽 DRC 和 R66 屏侧维修通道的复验方法。[第三轮评审](reviews/2026-11-27-routing-preparation/README.md)
+
 ## 2026-11-24 复现记录
 
 2026-11-24 用 Python 3.13.15 和 Shapely 2.1.2 在新目录恢复四份工程，137 个成员与评审版全数一致。KiCad CLI 10.0.8 复查四块板，原理图与 PCB 的网络一致，独立求网差异为零。主板仍有 313 个待连项，以及评审列出的间距与 ERC 告警。固件编译和硬件验证未在本轮执行。

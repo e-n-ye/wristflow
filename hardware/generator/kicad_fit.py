@@ -244,7 +244,38 @@ def run(directory, assembly, cli):
     )
     if antenna.intersects(copper) or antenna.intersection(pcb_xy).area > 0.00001:
         raise ValueError("Antenna clearance")
+    bridge = g["footprints"]["R66"]
+    bridge_xy = transform(parts["R66"]["body"], *bridge["xy"], bridge["degrees"], bridge["side"])
+    bridge_solid = solids["R66"]
+    bounds = bridge_solid.BoundBox
+    above = extrusion(bridge_xy, bounds.ZMax, 20)
+    band = Part.makeBox(60, 60, bounds.ZLength, V(-30, -30, bounds.ZMin))
+    bridge_gaps = {}
+    for name in ("Screen", "FrontRun", "Frame"):
+        obstacle = obstacles[name]
+        over = above.common(obstacle)
+        beside = band.common(obstacle)
+        bridge_gaps[name] = {
+            "vertical_above_same_xy": round(over.BoundBox.ZMin-bounds.ZMax, 5) if over.Solids else None,
+            "lateral_at_body_height": round(bridge_solid.distToShape(beside)[0], 5) if beside.Solids else None,
+            "distance_3d": round(bridge_solid.distToShape(obstacle)[0], 5),
+        }
+    approach = {}
+    for pad in bridge["pads"]:
+        pad_xy = unary_union([Polygon(r) for r in pad["polygons"]])
+        x, y, _, top_y = pad_xy.bounds
+        access = box(x-1, y+.07, x, top_y-.07)
+        neighbours = [transform(parts[MAIN_ADDITIONS[r]["copy_part"] if r in MAIN_ADDITIONS else r]["body"],
+                                *f["xy"], f["degrees"], f["side"])
+                      for r, f in g["footprints"].items() if r != "R66" and f["side"] == "F"]
+        margin = min(access.distance(n) for n in neighbours)
+        if margin <= 0:
+            clashes.append(["R66."+pad["pin"], "obstructed soldering access"])
+        approach[pad["pin"]] = {"entry_width": round(top_y-y-.14, 5), "entry_depth": 1,
+                               "nearest_body_to_pad": round(min(pad_xy.distance(n) for n in neighbours), 5),
+                               "nearest_body_to_entry": round(margin, 5)}
     results = {
+        "R66_screen_side": {"gaps_mm": bridge_gaps, "rework_mm": approach},
         "step_solids": len(closed.Solids),
         "assembly_height": closed.BoundBox.ZLength,
         "board_area": top.Area,
