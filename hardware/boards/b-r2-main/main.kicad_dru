@@ -9,6 +9,25 @@
   (constraint via_diameter (min 0.26mm) (max 0.26mm))
   (constraint hole_size (min 0.15mm) (max 0.15mm))
   (constraint annular_width (min 0.055mm)))
-(rule "Inner layer through drill to unrelated copper"
+(rule "Inner via hole to copper"
   (layer inner)
+  (constraint hole_clearance (min 0.20mm)))
+(rule "Inner component hole to copper"
+  (layer inner)
+  (condition "A.Type == 'Pad' && A.Hole_Size_X > 0mm || B.Type == 'Pad' && B.Hole_Size_X > 0mm")
   (constraint hole_clearance (min 0.30mm)))
+(rule "Module supply and unfiltered amplifier outputs"
+  (condition "A.hasNetclass('Module supply') || A.hasNetclass('Amplifier outputs')")
+  (constraint track_width (min 0.30mm)))
+(rule "Motor current loop"
+  (condition "A.hasNetclass('Motor current')")
+  (constraint track_width (min 0.25mm)))
+(rule "VSYS_1 display feed"
+  (condition "A.NetName == 'VSYS_1'")
+  (constraint track_width (min 0.50mm)))
+(rule "VSYS_1 regulator branches"
+  (condition "A.NetName == 'VSYS_1' && A.memberOfGroup('VSYS_1 LDO branches')")
+  (constraint track_width (min 0.30mm)))
+(rule "VSYS_1 load path to R49"
+  (condition "A.NetName == 'VSYS_1' && A.fromTo('U2-A1','R49-1')")
+  (constraint track_width (min 0.50mm)))

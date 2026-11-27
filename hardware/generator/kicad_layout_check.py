@@ -27,6 +27,12 @@ def alignment(a, b):
     )
 
 
+POWER_RAILS = {
+    "VBAT", "VBAT_S", "VSYS", "VSYS_S", "VSYS_1", "VBUS_5V",
+    "OLED_3V3", "OLED_VBAT", "OLED_VCI", "VCC_3V3", "VCC_3V3_S",
+}
+
+
 def check_inner_crossings(g):
     """L3 and L4 have no intervening ground plane in JLC060811-3313."""
     layers = {
@@ -38,70 +44,64 @@ def check_inner_crossings(g):
         for s in ("L3", "L4")
     }
     crossings = []
+    minimum_gap = math.inf
     for ta, a in layers["L3"]:
         for tb, b in layers["L4"]:
-            if (
-                ta["net"] == tb["net"]
-                or a.distance(b) > (ta["width"] + tb["width"]) / 2
-            ):
+            if ta["net"] == tb["net"]:
                 continue
+            gap = a.distance(b) - (ta["width"] + tb["width"]) / 2
             angle, overlap = alignment(a, b)
             if angle < 20 and overlap > 1e-6:
-                raise ValueError(f"L3/L4 parallel copper overlap: {ta} vs {tb}")
+                power_pair = all(t["net"].split("/")[-1] in POWER_RAILS for t in (ta, tb))
+                # Power pairs retain the earlier prohibition on overlapping copper.
+                if not power_pair:
+                    minimum_gap = min(minimum_gap, gap)
+                if gap < (0 if power_pair else 0.20) - 1e-6:
+                    raise ValueError(f"L3/L4 parallel gap {gap:.4f} mm: {ta} vs {tb}")
             if a.intersects(b):
                 if angle < 70 - 1e-6:
                     raise ValueError(
                         f"L3/L4 crossing at {angle:.2f} degrees: {ta} vs {tb}"
                     )
                 crossings.append(angle)
-    return {"crossings": len(crossings), "minimum_angle": min(crossings, default=None)}
+    return {"crossings": len(crossings), "minimum_angle": min(crossings, default=None),
+            "minimum_parallel_signal_gap": minimum_gap if math.isfinite(minimum_gap) else None}
 
 
 def microphone_report(g, pins, output):
     groups = {
-        "BTL": ["L1.1", "L1.2", "L2.1", "L2.2"],
-        "电机": ["MT1.1", "MT2.1", "Q2.1", "Q2.3", "U1.17", "R36.1", "R36.2", "R37.1"],
-        "充电": [
-            "D19.1",
-            "D19.2",
-            "U17.8",
-            "U3.A2",
-            "U3.A3",
-            "JP1.1",
-            "R65.2",
-            "U15.1",
-        ],
-        **{
-            name: [res + ".1", res + ".2"]
-            for name, res in zip(
-                ("CLK", "D0", "D1", "D2", "D3"), ("R18", "R19", "R20", "R16", "R17")
-            )
-        },
-        "CS": ["J201.14"],
-        "TE": ["J201.13"],
-        "RSTB": ["J201.15"],
-        "屏供电": [
-            "J201.4",
-            "J201.5",
-            "J201.19",
-            "R206.1",
-            "R206.2",
-            "C201.1",
-            "R49.1",
-            "R49.2",
-            "R50.1",
-        ],
+        "BTL": "SPK_OUTP SPK_OUTN N_31N8678 N_31N8717",
+        "电机": "MOTOR_P MOTOR_N MOTOR_GATE VDD33_VOUT PA_20_VIB_PWM",
+        "充电": "DOCK_5V_IN DOCK_PROTECTED VBUS_5V VBAT VBAT_S VSYS VSYS_S VSYS_1 MOD_VSYS MOD_SW_OUT CHG_VDD",
+        "CLK": "PA_04_LCD_QSPI_CLK N_20N32248",
+        "D0": "PA_05_LCD_QSPI_D0 N_20N32291",
+        "D1": "PA_06_LCD_QSPI_D1 N_20N32377",
+        "D2": "PA_07_LCD_QSPI_D2 N_20N32162",
+        "D3": "PA_08_LCD_QSPI_D3 N_20N32208",
+        "CS": "PA_03_LCD_QSPI_CS", "TE": "PA_02_LCD_QSPI_TE", "RSTB": "PA_00_LCD_QSPI_RSTB",
+        "屏供电": "OLED_VBAT OLED_VCI OLED_3V3 VCC_3V3 VCC_3V3_S VSYS_1",
     }
+    nets_by_name = defaultdict(set)
+    for pad in pins.values():
+        nets_by_name[pad["net"].split("/")[-1]].add(pad["net"])
+    monitored = {}
+    for group, names in groups.items():
+        missing = set(names.split()) - nets_by_name.keys()
+        if missing:
+            raise ValueError(f"Missing microphone aggressor networks: {missing}")
+        monitored[group] = sorted(set.union(*(nets_by_name[n] for n in names.split())))
+    victims = {pins[key]["net"] for key in ("U1.37", "U1.36", "R30.2", "U9.2")}
+    other_nets = {p["net"] for p in pins.values()} - victims - {"GND", ""}
+    other_nets.difference_update(set.union(*(set(n) for n in monitored.values())))
     segments = defaultdict(list)
     for t in g["tracks"]:
         segments[t["net"]].append(
             (t["side"], LineString([t["start"], t["end"]]), t["width"])
         )
-    rows, errors = [], []
+    rows, errors, observations = [], [], []
     for source in ("U1.37", "U1.36", "R30.2", "U9.2"):
         net = pins[source]["net"]
-        for group, keys in groups.items():
-            nets = sorted({pins[key]["net"] for key in keys})
+        for group, nets in [*monitored.items(), ("清单外", sorted(other_nets))]:
             parallel = []
             near = []
             crossings = []
@@ -113,6 +113,12 @@ def microphone_report(g, pins, output):
                         if side != layer and {side, layer} != {"L3", "L4"}:
                             continue
                         gap = a.distance(b) - (wa + wb) / 2
+                        if group == "清单外":
+                            angle, overlap = alignment(a, b)
+                            if gap < 1 and ((angle < 20 and overlap > 1e-6) or gap < 0.30):
+                                observations.append([net, other, layer, side, "track", list(b.coords),
+                                                     round(gap, 5), round(overlap, 5), round(angle, 3)])
+                            continue
                         if side == layer:
                             same_layer_gaps.append(gap)
                         angle, overlap = alignment(a, b)
@@ -151,6 +157,8 @@ def microphone_report(g, pins, output):
                                     list(b.coords),
                                 )
                             )
+            if group == "清单外":
+                continue
             rows.append(
                 [
                     net,
@@ -180,6 +188,38 @@ def microphone_report(g, pins, output):
             ]
         )
         writer.writerows(rows)
+    # Through holes carry the barrel through all layers. Use the saved flash
+    # state on each layer for annulus versus barrel copper.
+    victim_copper = defaultdict(list)
+    features = []
+    for fp in g["footprints"].values():
+        for pad in fp["pads"]:
+            features.append((pad["net"], fp["side"], "pad", pad["xy"],
+                             unary_union([Polygon(r) for r in pad["polygons"]])))
+    for via in g["vias"]:
+        for layer, diameter in via["layer_diameters"].items():
+            features.append((via["net"], layer, "via", via["xy"], Point(via["xy"]).buffer(diameter/2)))
+    for n, side, _, _, shape in features:
+        if n in victims:
+            victim_copper[n, side].append(shape)
+    for n in victims:
+        for side, line, width in segments[n]:
+            victim_copper[n, side].append(line.buffer(width/2))
+    approved = set.union(*(set(n) for n in monitored.values()))
+    for (victim, side), shapes in victim_copper.items():
+        copper = unary_union(shapes)
+        for n, layer, kind, xy, shape in features:
+            if n in victims or n in ("GND", "") or side != layer:
+                continue
+            gap = copper.distance(shape)
+            if gap < 1:
+                observations.append([victim, n, side, layer, kind, xy, round(gap, 5), "", ""])
+            if n in approved and gap < 0.30 - 1e-6:
+                errors.append((victim, n, kind, xy, gap))
+    with output.with_name("microphone-proximity.csv").open("w", encoding="utf-8", newline="") as stream:
+        writer = csv.writer(stream, lineterminator="\n")
+        writer.writerow(["受检网","邻网","受检层","邻层","对象","坐标mm","铜边距mm","同向投影mm","夹角度"])
+        writer.writerows(sorted(observations, key=str))
     return errors
 
 
@@ -350,6 +390,61 @@ def check_vias(g, pins, output):
     }
 
 
+def check_ground_planes(g, fills):
+    cutouts = [Polygon(h) for h in g["holes"]]
+    # The older, more widely cleared saved plane is the budget datum. Charge
+    # 100 further non-ground vias at the largest ordinary land size, even when
+    # the unconnected inner ring is removed and only the drill clears copper.
+    min_area = 1084.168 - 100 * math.pi * (0.50 / 2 + 0.20) ** 2
+    nominal = Polygon(g["outline"], g["holes"]).buffer(-0.30)
+    nominal = nominal.difference(unary_union([Polygon(r) for r in g["plane_keepouts"]]))
+    device = Point(g["footprints"]["U3"]["xy"]).buffer(1, quad_segs=64)
+    foreign = [Point(v["xy"]) for v in g["vias"] if v["net"] != "GND"]
+    results = {}
+    for name in ("GND-L2", "GND-L5"):
+        plane = fills[name]
+        if plane.geom_type != "Polygon" or plane.area < min_area:
+            raise ValueError(f"{name}: insufficient continuous ground, {plane.area:.3f} mm²")
+        voids = [Polygon(r) for r in plane.interiors]
+        normal = []
+        extra = []
+        for void in voids:
+            matched = [cut for cut in cutouts if void.covers(cut.representative_point())]
+            if not matched:
+                normal.append(void)
+                continue
+            growth = void.difference(unary_union([cut.buffer(.30) for cut in matched])).area
+            if growth > .5 or any(void.covers(p) for p in foreign):
+                raise ValueError(f"{name}: mechanical cutout absorbed copper/via at {void.bounds}, {growth:.4f} mm²")
+            extra.append(growth)
+        exterior = Polygon(plane.exterior)
+        # Allow 20 µm for polygon discretization and pour rounding when
+        # splitting edge-connected losses into individual notches.
+        missing = nominal.buffer(-.02).difference(exterior)
+        pieces = getattr(missing, "geoms", [missing])
+        for piece in pieces:
+            if piece.is_empty:
+                continue
+            for cut in cutouts:
+                if piece.distance(cut) > .33:
+                    continue
+                if piece.area > .5 or any(piece.covers(p) for p in foreign):
+                    raise ValueError(f"{name}: edge-open mechanical cutout at {piece.bounds}")
+        # A 0.80 mm inward offset allows a single ordinary antipad at the
+        # outer edge. Any deeper notch, including one without a via, fails.
+        edge_core = nominal.buffer(-.80)
+        if edge_core.difference(exterior).area > 1e-6:
+            raise ValueError(f"{name}: board-edge notch exceeds 0.80 mm depth")
+        largest = max((max(h.bounds[2]-h.bounds[0], h.bounds[3]-h.bounds[1]) for h in normal), default=0)
+        holes = max((sum(h.covers(p) for p in foreign) for h in normal), default=0)
+        cover = device.intersection(plane).area / device.area
+        if holes > 5 or largest > 3.5 or (name == "GND-L2" and cover < 0.60):
+            raise ValueError(f"{name}: {holes} vias, {largest:.3f} mm void, U3 coverage {cover:.1%}")
+        results[name] = {"area": plane.area, "minimum_area": min_area, "max_vias": holes,
+                         "max_span": largest, "u3_coverage": cover, "cutout_growth": extra}
+    return results
+
+
 def check_planes(g, pins):
     fills = {
         name: unary_union(
@@ -357,54 +452,44 @@ def check_planes(g, pins):
         )
         for name, polygons in g["zone_fills"].items()
     }
-    cutouts = [Polygon(h).representative_point() for h in g["holes"]]
-    device = Point(g["footprints"]["U3"]["xy"]).buffer(1, quad_segs=64)
-    results = {}
-    for name in ("GND-L2", "GND-L5"):
-        plane = fills[name]
-        if plane.geom_type != "Polygon" or plane.area < 1080:
-            raise ValueError(f"{name}: insufficient continuous ground")
-        voids = [Polygon(h) for h in plane.interiors]
-        normal = [h for h in voids if not any(h.covers(center) for center in cutouts)]
-        largest = max(
-            max(x1 - x0, y1 - y0) for x0, y0, x1, y1 in (h.bounds for h in normal)
-        )
-        holes = max(sum(h.contains(Point(v["xy"])) for v in g["vias"]) for h in normal)
-        cover = device.intersection(plane).area / device.area
-        if holes > 5 or largest > 3.5 or (name == "GND-L2" and cover < 0.60):
-            raise ValueError(
-                f"{name}: {holes} vias, {largest:.3f} mm void, U3 coverage {cover:.1%}"
-            )
-        results[name] = {
-            "area": plane.area,
-            "max_vias": holes,
-            "max_span": largest,
-            "u3_coverage": cover,
-        }
-    thermal = fills["U3 thermal ground"]
+    results = check_ground_planes(g, fills)
+    top = defaultdict(list)
+    for name, (layer, net) in g["zone_layers"].items():
+        if layer == "F.Cu":
+            top[net].append(fills[name])
+    for fp in g["footprints"].values():
+        if fp["side"] == "F":
+            for pad in fp["pads"]:
+                if pad["circle_radius"] is not None:
+                    top[pad["net"]].append(Point(pad["xy"]).buffer(pad["circle_radius"], quad_segs=96))
+                else:
+                    top[pad["net"]].extend(Polygon(r) for r in pad["polygons"])
+    for t in g["tracks"]:
+        if t["side"] == "F":
+            top[t["net"]].append(LineString([t["start"], t["end"]]).buffer(t["width"]/2, quad_segs=32))
+    for v in g["vias"]:
+        top[v["net"]].append(Point(v["xy"]).buffer(v["diameter"]/2, quad_segs=64))
+    top = {net: unary_union(parts) for net, parts in top.items()}
     for key in ("C6.1", "C7.1", "C8.1", "R64.2"):
         if not pins[key]["thermal"]:
             raise ValueError(f"{key}: expected thermal spokes")
     for p in g["footprints"]["U3"]["pads"]:
         land = Point(p["xy"]).buffer(0.13, quad_segs=96)
         window = unary_union([Polygon(r) for r in p["mask"]])
-        copper = [land, thermal]
-        copper.extend(
-            LineString([t["start"], t["end"]]).buffer(t["width"] / 2, quad_segs=32)
-            for t in g["tracks"]
-            if t["side"] == "F" and t["net"] == p["net"]
-        )
-        copper.extend(
-            Point(v["xy"]).buffer(v["diameter"] / 2, quad_segs=64)
-            for v in g["vias"]
-            if v["net"] == p["net"]
-        )
-        ratio = window.intersection(unary_union(copper)).area / land.area
+        foreign_area = sum(window.intersection(cu).area for net, cu in top.items() if net != p["net"])
+        if foreign_area > 1e-9:
+            raise ValueError(f"U3.{p['pin']}: foreign copper in mask opening {foreign_area:.8f} mm²")
+        # KiCad's inscribed polygon approximation cuts corners off round pads.
+        # Use the saved radius for circular lands in the exposed-area ratio.
+        if p["circle_radius"] != .13:
+            raise ValueError(f"U3.{p['pin']}: unexpected ball land size")
+        ratio = window.intersection(top[p["net"]]).area / land.area
         if ratio > 1.15:
             raise ValueError(
                 f"U3.{p['pin']}: copper in mask opening {ratio:.3f} × land"
             )
         results["U3." + p["pin"]] = ratio
+    results["u3_foreign_copper_mm2"] = 0.0
     return results
 
 
@@ -422,7 +507,12 @@ def check_layout(g, directory):
     errors = microphone_report(g, pins, directory / "microphone.csv")
     if errors:
         raise ValueError(f"Unshielded microphone conflicts: {errors[:6]}")
+    dock_input_width = min(t["width"] for t in g["tracks"] if t["net"] == pins["J2.10"]["net"])
+    if dock_input_width < .40:
+        raise ValueError(f"DOCK_5V_IN minimum width {dock_input_width:.3f} mm")
+    result["dock_input_minimum_width"] = dock_input_width
     for start, end, width, limit in (
+        ("J2.10", "D19.2", 0.40, 15),
         ("U17.1", "C2.2", 0, 3),
         ("U17.1", "D17.3", 0.30, 3),
         ("U17.1", "D19.1", 0.40, 15),

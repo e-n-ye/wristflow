@@ -40,9 +40,11 @@ def revise_lands(board, which):
                 pad.SetNet(board.FindNet(spec["nets"][pad.GetNumber()]))
             board.Add(f)
         u3 = board.FindFootprintByReference("U3")
-        for item in list(u3.GraphicalItems()):
-            if item.GetLayer() == pcb.F_Paste:
-                u3.Delete(item)
+        for ref in ("U3", "U14", "U2", "U19"):
+            fp = board.FindFootprintByReference(ref)
+            for item in list(fp.GraphicalItems()):
+                if item.GetLayer() in (pcb.F_Paste, pcb.B_Paste):
+                    fp.Delete(item)
         for pad in u3.Pads():
             row, column = pad.GetNumber()
             pad.SetPosition(u3.GetPosition() + pcb.VECTOR2I(mm((int(column)-2)*0.5), mm(("ABC".index(row)-1)*0.5)))
@@ -165,6 +167,9 @@ def link_board(board, netlist, directory):
 
 def trial_tracks(board, fps):
     layers = {"F": pcb.F_Cu, "B": pcb.B_Cu, "L3": pcb.In2_Cu, "L4": pcb.In3_Cu}
+    ldo = pcb.PCB_GROUP(board)
+    ldo.SetName("VSYS_1 LDO branches")
+    board.Add(ldo)
     for route in json.loads((DATA / "fanout.json").read_text()):
         ref, pin = route["pad"].split(".")
         pad = fps[ref].FindPadByNumber(pin)
@@ -191,6 +196,8 @@ def trial_tracks(board, fps):
             track.SetWidth(mm(route["width"]))
             track.SetNet(pad.GetNet())
             board.Add(track)
+            if route["pad"] in ("U4.1", "U15.1", "C9.2", "C33.2"):
+                ldo.AddItem(track)
 
 
 def ground_plane(board, layer, name, corners, clearance):
@@ -277,6 +284,14 @@ def main_layout(board, fps):
         False,
     )
     surfaces = pcb.LSET().AddLayer(pcb.F_Cu).AddLayer(pcb.B_Cu)
+    # Reserve the west approach to both removable 3V3 bridge lands.
+    for pad in fps["R66"].Pads():
+        bounds = pad.GetBoundingBox()
+        x, y = assembly(bounds.GetOrigin())
+        bottom = y - pcb.ToMM(bounds.GetHeight())
+        reserve(board, f"R66.{pad.GetNumber()} soldering access",
+                [(x-1, bottom+.07), (x, bottom+.07), (x, y-.07), (x-1, y-.07)],
+                pcb.LSET().AddLayer(pcb.F_Cu), True)
     for i, (cx, cy) in enumerate([(5.15, -9.8), (14.55, 9.7), (-15.5, 8.4)], 1):
         corners = [
             (cx + 1.522 * math.cos(t * math.tau / 64), cy + 1.522 * math.sin(t * math.tau / 64))
@@ -285,7 +300,7 @@ def main_layout(board, fps):
         reserve(board, f"Clamp {i} / head and bearing surface", corners, surfaces, True)
     trial_tracks(board, fps)
     for layer in (pcb.In1_Cu, pcb.In4_Cu):
-        ground_plane(board, layer, board.GetLayerName(layer), [(-19,-22),(19,-22),(19,23),(-19,23)], 0.30)
+        ground_plane(board, layer, board.GetLayerName(layer), [(-19,-22),(19,-22),(19,23),(-19,23)], 0.20)
     x, y = assembly(fps["U3"].GetPosition())
     cx, cy = assembly(fps["U3"].FindPadByNumber("C3").GetPosition())
     keepout = pcb.ZONE(board)
@@ -352,13 +367,14 @@ def geometry(board):
                     "xy": assembly(t.GetPosition()),
                     "diameter": pcb.ToMM(t.GetWidth(pcb.F_Cu)),
                     "drill": pcb.ToMM(t.GetDrillValue()),
+                    "layer_diameters": {
+                        side: pcb.ToMM(t.GetWidth(layer) if t.FlashLayer(layer) else t.GetDrillValue())
+                        for side, layer in (("F", pcb.F_Cu), ("B", pcb.B_Cu),
+                                            ("L3", pcb.In2_Cu), ("L4", pcb.In3_Cu))
+                    },
                     "net": t.GetNetname(),
-                    "filling": (bool(board.GetDesignSettings().m_FillVias)
-                                if t.GetFillingMode() == pcb.FILLING_MODE_FROM_BOARD
-                                else t.GetFillingMode() == pcb.FILLING_MODE_FILLED),
-                    "capping": (bool(board.GetDesignSettings().m_CapVias)
-                                if t.GetCappingMode() == pcb.CAPPING_MODE_FROM_BOARD
-                                else t.GetCappingMode() == pcb.CAPPING_MODE_CAPPED),
+                    "filling": t.GetFillingMode() == pcb.FILLING_MODE_FILLED,
+                    "capping": t.GetCappingMode() == pcb.CAPPING_MODE_CAPPED,
                     "remove_unconnected": t.GetRemoveUnconnected(),
                     "keep_outer_rings": t.GetKeepStartEnd(),
                 }
@@ -380,11 +396,16 @@ def geometry(board):
     if module and board.GetCopperLayerCount() == 6:
         court = module.GetCourtyard(pcb.F_CrtYd)
         module_court = [ring(court.COutline(i)) for i in range(court.OutlineCount())]
-    fills = {}
+    fills, fill_layers, plane_keepouts = {}, {}, []
     for zone in board.Zones():
         if zone.GetIsRuleArea():
+            if (zone.GetZoneName() == "Module antenna / all copper layers"
+                    and zone.IsOnLayer(pcb.In1_Cu) and zone.GetDoNotAllowZoneFills()):
+                boundary = zone.Outline()
+                plane_keepouts.extend(ring(boundary.COutline(i)) for i in range(boundary.OutlineCount()))
             continue
         layer = zone.GetLayer()
+        fill_layers[zone.GetZoneName()] = [pcb.LayerName(layer), zone.GetNetname()]
         polys = zone.GetFilledPolysList(layer)
         fills[zone.GetZoneName()] = [
             {"outer": ring(polys.COutline(i)),
@@ -401,6 +422,8 @@ def geometry(board):
         "mask_graphics": mask_graphics,
         "module_court": module_court,
         "zone_fills": fills,
+        "zone_layers": fill_layers,
+        "plane_keepouts": plane_keepouts,
         "outline": ring(outline.COutline(0)),
         "holes": [ring(outline.CHole(0, i)) for i in range(outline.HoleCount(0))],
         "footprints": data,
@@ -436,7 +459,7 @@ def stackup():
                 f'(layer "dielectric {i + 1}" (type "{kind}") (thickness {thick}) '
                 f'(material "{material}") (epsilon_r {dk}))'
             )
-    return "(stackup\n" + "\n".join(layers) + ")"
+    return "(stackup\n" + "\n".join(layers) + '\n(copper_finish "ENIG"))'
 
 
 def check_screen(board, reference):
@@ -618,7 +641,10 @@ def build(args, which, project):
         active = {p.GetNetname() for f in fps.values() for p in f.Pads()}
         for name, width, nets in (
             ("Supply", 0.50, ("DOCK_5V_IN","DOCK_PROTECTED","VBUS_5V","VBAT","VBAT_S","VSYS","VSYS_S","VSYS_1")),
-            ("BTL", 0.35, ("SPK_OUTP","SPK_OUTN","SPK_GND","N_31N8678","N_31N8717")),
+            ("BTL", 0.35, ("SPK_OUTP","SPK_OUTN","SPK_GND")),
+            ("Amplifier outputs", 0.30, ("N_31N8678","N_31N8717")),
+            ("Motor current", 0.25, ("MOTOR_P","MOTOR_N","VDD33_VOUT")),
+            ("Module supply", 0.30, ("MOD_SW_OUT","MOD_VSYS")),
             ("Amplifier supply", 0.35, ("N_31N8386",)),
             ("Panel", 0.35, ("OLED_VBAT","OLED_VCI","OLED_3V3","VCC_3V3_S","VCC_3V3")),
         ):
@@ -666,6 +692,9 @@ def build(args, which, project):
 
 
 if __name__ == "__main__":
+    # Keep font substitutions in CLI logs on Windows rather than a wx dialog.
+    import wx
+    wx.Log.SetActiveTarget(wx.LogStderr())
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--readback", type=Path, help="Export geometry.json from a saved, refilled PCB")
     for arg in ("projects", "schematics", "out", "cli"):
