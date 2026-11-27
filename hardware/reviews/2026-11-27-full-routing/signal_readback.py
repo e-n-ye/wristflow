@@ -6,9 +6,10 @@ import math
 import sys
 from pathlib import Path
 
-from shapely import get_parts, hausdorff_distance, make_valid
+from shapely import STRtree, get_parts, hausdorff_distance, make_valid
 from shapely.geometry import LineString, Point, Polygon, box
 from shapely.ops import unary_union
+from qspi_antipads import CONTROL_PADS, QSPI_PADS
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "generator"))
 from kicad_layout_check import copper_path, read_pins
@@ -42,35 +43,68 @@ def btl_report(g, pins):
             "sections": sections}
 
 
-def qspi_report(g, pins):
-    planes = {name: unary_union([make_valid(Polygon(p["outer"], p["holes"])) for p in g["zone_fills"][name]])
-              for name in ("GND-L2", "GND-L5")}
+def ground_polygons(fills):
+    return {name: unary_union([make_valid(Polygon(p["outer"], p["holes"])) for p in fills[name]])
+            for name in ("GND-L2", "GND-L5")}
+
+
+def qspi_report(g, pins, comparison=None, signal_pads=QSPI_PADS):
+    planes = ground_polygons(g["zone_fills"])
+    signal_vias = [v for v in g["vias"] if v["net"] != "GND"]
+    via_tree = STRtree([Point(v["xy"]) for v in signal_vias])
+    probe_planes = {}
+    if comparison is not None:
+        if comparison["pcb_sha256"] != g["pcb_sha256"]:
+            raise ValueError("Regenerate antipad probe fills for the current PCB")
+        probe_planes = {label: ground_polygons(fills) for label, fills in comparison["planes"].items()}
     gnd = [v for v in g["vias"] if v["net"] == "GND"]
     result = {}
-    for name, resistor in zip(("CLK", "D0", "D1", "D2", "D3"), ("R18", "R19", "R20", "R16", "R17")):
-        nets = {pins[resistor+"."+pin]["net"] for pin in ("1", "2")}
-        changes = [v for v in g["vias"] if v["net"] in nets]
-        excluded = unary_union([Point(v["xy"]).buffer(.64, quad_segs=64) for v in changes])
-        missing = raw = length = 0
-        for t in g["tracks"]:
-            if t["net"] not in nets:
-                continue
-            line = LineString([t["start"], t["end"]])
-            plane = planes["GND-L2" if t["side"] in ("F", "L3") else "GND-L5"]
-            gap = line.difference(plane)
-            raw += gap.length
-            missing += gap.difference(excluded).length
-            length += line.length
+    for name, contacts in signal_pads.items():
+        nets = [pins[key]["net"] for key in contacts]
+        changes = [v for net in nets for v in g["vias"] if v["net"] == net]
+        excluded = unary_union([Point(v["xy"]).buffer(.64) for v in changes])
+        tracks = [(t["side"], LineString([t["start"], t["end"]])) for t in g["tracks"] if t["net"] in nets]
+        length = sum(line.length for _, line in tracks)
+        layers = {}
+        for side, reference in (("F", "GND-L2"), ("B", "GND-L5"), ("L3", "GND-L2"), ("L4", "GND-L5")):
+            centerline = unary_union([line for layer, line in tracks if layer == side])
+            plane = planes[reference]
+            gap = centerline.difference(plane)
+            shared = []
+            for ring in plane.interiors:
+                void = Polygon(ring)
+                inside = centerline.intersection(void).length
+                if inside <= 1e-8:
+                    continue
+                members = [signal_vias[i] for i in via_tree.query(void, predicate="covers")]
+                if any(v["net"] in nets for v in members) and any(v["net"] not in nets for v in members):
+                    shared.append({"centerline_mm": inside, "vias": [(v["net"], v["xy"]) for v in members]})
+            foreign = None
+            if probe_planes:
+                # Restrict attribution to missing copper on the real board. Both probes
+                # retain the original board edge, keepouts, and ground connections.
+                foreign = gap.intersection(probe_planes["no_signal_vias"][reference]).difference(
+                    probe_planes[name][reference]
+                ).length
+            layers[side] = {"reference": reference, "raw_gap_mm": gap.length,
+                            "gap_excluding_own_vias_mm": gap.difference(excluded).length,
+                            "foreign_antipad_mm": foreign, "shared_voids": shared}
         returns = []
-        for via in sorted(changes, key=lambda v: v["xy"]):
+        for via in changes:
             nearest = min(gnd, key=lambda v: math.dist(via["xy"], v["xy"]))
             used_layers = sorted({t["side"] for t in g["tracks"] if t["net"] == via["net"]
                                   and LineString([t["start"], t["end"]]).distance(Point(via["xy"])) <
                                   via["diameter"]/2 + t["width"]/2 + 1e-6})
             returns.append({"xy": via["xy"], "signal_layers": used_layers, "ground_xy": nearest["xy"],
                             "ground_distance_mm": math.dist(via["xy"], nearest["xy"])})
-        result[name] = {"copper_mm": length, "raw_plane_gap_mm": raw,
-                        "gap_excluding_own_vias_mm": missing, "transitions": returns}
+        result[name] = {"copper_mm": length, "through_vias": len(changes),
+                        "copper_plus_board_thickness_upper_mm": length + len(changes) * g["thickness"],
+                        "raw_plane_gap_mm": sum(v["raw_gap_mm"] for v in layers.values()),
+                        "gap_excluding_own_vias_mm": sum(v["gap_excluding_own_vias_mm"] for v in layers.values()),
+                        "foreign_antipad_mm": sum(v["foreign_antipad_mm"] for v in layers.values()) if probe_planes else None,
+                        "shared_void_centerline_mm": sum(void["centerline_mm"] for v in layers.values()
+                                                         for void in v["shared_voids"]),
+                        "layers": layers, "transitions": returns}
     return result
 
 
@@ -108,12 +142,18 @@ def local_ground_vias(g, pins):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("project", type=Path)
+    parser.add_argument("--antipad-planes", type=Path, help="planes.json from qspi_antipads.py")
     args = parser.parse_args()
     pcb = args.project / (args.project.name + ".kicad_pcb")
     geometry = json.loads((args.project / "geometry.json").read_text(encoding="utf-8"))
     if hashlib.sha256(pcb.read_bytes()).hexdigest() != geometry["pcb_sha256"]:
         raise ValueError("Run kicad_pcb.py --readback on the current PCB")
     pins = read_pins(geometry)
+    comparison = json.loads(args.antipad_planes.read_text(encoding="utf-8")) if args.antipad_planes else None
     report = {"pcb_sha256": geometry["pcb_sha256"], "btl": btl_report(geometry, pins),
-              "qspi": qspi_report(geometry, pins), "capacitor_ground": local_ground_vias(geometry, pins)}
+              "qspi": qspi_report(geometry, pins, comparison),
+              "display_control": qspi_report(geometry, pins, comparison, CONTROL_PADS),
+              "capacitor_ground": local_ground_vias(geometry, pins)}
+    lengths = [row["copper_mm"] for row in report["qspi"].values()]
+    report["qspi_maximum_length_difference_mm"] = max(lengths) - min(lengths)
     print(json.dumps(report, ensure_ascii=False, indent=2))
