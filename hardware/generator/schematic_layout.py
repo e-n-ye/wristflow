@@ -60,7 +60,7 @@ LABEL_AT['D17'] = ((-2.0, -0.6, 'right bottom'), (-2.0, 0.6, 'right top'))
 LABEL_AT['U6'] = ((1.5, -26.5, 'left bottom'), (1.5, -24.0, 'left bottom'))
 
 PAGE_SUMMARY = {
-    '01-module': ['SF32LB52 模组与全部 GPIO 去向', '模组供电循环开关 U19（夹具 RTS）', 'UART 串联电阻与夹具探针 TP11–TP15'],
+    '01-module': ['SF32LB52 模组与全部 GPIO 去向', '模组供电循环开关 U19', '四针治具与镊子复位焊盘'],
     '02-charger': ['后盖 5 V 触点输入、防反、TVS、过压保护', 'AW32001 充电与系统路径、I2C0', 'J1 电芯接口、TS 分压、线束器件'],
     '03-rails': ['VSYS_1 开关、显示 3V3、GS_3V3 LDO', '测流桥 JP1/R49/R50 与默认 0 Ω 通路'],
     '04-display': ['原屏 CN1 直连（J201）与 QSPI 端接', '屏供电去耦、触摸 ESD 与上拉'],
@@ -116,7 +116,7 @@ def main_module(b):
     pg.text(16, 20, '模组内含 Flash、PSRAM、两颗晶振和 PCB 天线；', 1.4)
     pg.text(16, 24.5, '天线外伸区禁铺铜。未用 GPIO 标 ×。', 1.4)
 
-    pg.box(155, 12, 287, 85, '模组供电循环（夹具 RTS 控制）')
+    pg.box(155, 12, 287, 85, '模组供电循环（镊子短接复位）')
     pg.part('U19', 218, 52, 0)
     en = at(pg, 'U19@RTS_N_OD')
     pg.part('R58', 200, en[1], top='VSYS', pin='RTS_N_OD')
@@ -129,7 +129,7 @@ def main_module(b):
     pg.part('C1', m[0] + 7.62, m[1], top='MOD_VSYS', pin='MOD_VSYS')
     pg.part('C38', m[0] + 17.78, m[1], top='MOD_VSYS', pin='MOD_VSYS')
     lead(pg, 'R1@MOD_VSYS', at(pg, 'C1@MOD_VSYS'), at(pg, 'C38@MOD_VSYS'), (m[0] + 25.4, m[1]), net='MOD_VSYS', d='U')
-    pg.text(159, 20, 'RTS_N_OD 由夹具开漏驱动：拉低时关断 U19，模组断电复位；', 1.4)
+    pg.text(159, 20, '用镊子将 RTS_N_OD 短接至地约 0.5 秒，关断 U19 后再释放。', 1.4)
     pg.text(159, 24.5, '平时 R58 上拉保持导通。R1 为 0 Ω 默认通路。', 1.4)
 
     pg.box(155, 90, 287, 160, 'UART 串联电阻与夹具探针')
@@ -141,10 +141,11 @@ def main_module(b):
         pg.wire(f'{tp}.1', f'{r}@{n}')
     pg.part('TP11', 168, 112, 0)
     pg.part('TP12', 168, 130, 270)
-    pg.part('TP15', 168, 145, 270)
+    pg.part('TP16', 168, 145, 270)
+    pg.part('TP17', 211, 145, 0)
     pg.use('TP12.1', 'global')
     pg.text(159, 98, 'TP11 GND · TP12 MOD_VSYS（仅测量）· TP13 MCU RX', 1.4)
-    pg.text(159, 102.5, 'TP14 MCU TX · TP15 开漏 RTS', 1.4)
+    pg.text(159, 102.5, 'TP14 MCU TX · TP16/TP17 镊子复位对', 1.4)
 
 
 def main_charger(b):
