@@ -12,6 +12,7 @@ from pathlib import Path
 
 import FreeCAD as App
 import Part
+from placement_precheck import TAIL_Z_ALLOWANCE
 from kicad_schematic import BOARDS, MAIN_ADDITIONS
 from module_pins import RESET_LANDS
 from kicad_layout_check import check_layout
@@ -200,7 +201,7 @@ def run(directory, assembly, cli, placement_only=False):
             if name in preferred_contacts.get(r, set()):
                 continue
             obstacle = obstacles[name]
-            margin_z = 0.055 if name == "RearRun" else 0.001
+            margin_z = TAIL_Z_ALLOWANCE if name == "RearRun" else 0.001
             bounds, other = solid.BoundBox, obstacle.BoundBox
             if bounds.ZMax < other.ZMin-margin_z or bounds.ZMin > other.ZMax+margin_z:
                 continue

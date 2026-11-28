@@ -13,6 +13,7 @@ from pathlib import Path
 from shapely import hausdorff_distance, make_valid
 from shapely.geometry import LineString, Point, Polygon
 from shapely.ops import linemerge, unary_union
+from copper_boundary import minimum_edge_gaps
 
 
 def alignment(a, b):
@@ -507,6 +508,9 @@ def check_layout(g, directory):
         )
     pins = read_pins(g)
     result = check_vias(g, pins, directory / "near-pad-vias.csv")
+    result["minimum_edge_gaps_mm"] = minimum_edge_gaps(g)
+    if any(d is not None and d < .30 - 1e-6 for d in result["minimum_edge_gaps_mm"].values()):
+        raise ValueError(f"Copper reaches board edge clearance: {result['minimum_edge_gaps_mm']}")
     result["pcb_sha256"] = g["pcb_sha256"]
     result.update(check_planes(g, pins))
     result["L3/L4"] = check_inner_crossings(g)
