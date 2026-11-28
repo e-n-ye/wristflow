@@ -13,6 +13,7 @@ from pathlib import Path
 from shapely import hausdorff_distance, make_valid
 from shapely.geometry import LineString, Point, Polygon
 from shapely.ops import linemerge, unary_union
+from copper_boundary import minimum_edge_gaps
 
 
 def alignment(a, b):
@@ -33,7 +34,7 @@ POWER_RAILS = {
 }
 
 
-def check_inner_crossings(g):
+def check_inner_crossings(g, touching_nets=None):
     """L3 and L4 have no intervening ground plane in JLC060811-3313."""
     layers = {
         s: [
@@ -48,6 +49,8 @@ def check_inner_crossings(g):
     for ta, a in layers["L3"]:
         for tb, b in layers["L4"]:
             if ta["net"] == tb["net"]:
+                continue
+            if touching_nets is not None and not ({ta["net"], tb["net"]} & touching_nets):
                 continue
             gap = a.distance(b) - (ta["width"] + tb["width"]) / 2
             angle, overlap = alignment(a, b)
@@ -231,7 +234,7 @@ def read_pins(g):
     }
 
 
-def copper_path(g, pins, start, end, minimum_width=0):
+def copper_path(g, pins, start, end, minimum_width=0, *, steps=None):
     """Conservative centreline path. Only a common via connects different layers."""
     src, dst = pins[start], pins[end]
     net = src["net"]
@@ -245,10 +248,10 @@ def copper_path(g, pins, start, end, minimum_width=0):
     graph = defaultdict(list)
     coordinates = {start: tuple(src["xy"]), end: tuple(dst["xy"])}
 
-    def connect(a, b):
+    def connect(a, b, layer, width=None):
         length = math.dist(coordinates[a], coordinates[b])
-        graph[a].append((length, b))
-        graph[b].append((length, a))
+        graph[a].append((length, b, layer, width))
+        graph[b].append((length, a, layer, width))
 
     def node(layer, xy):
         key = (layer, round(xy[0], 6), round(xy[1], 6))
@@ -282,10 +285,10 @@ def copper_path(g, pins, start, end, minimum_width=0):
         for name, xy in contacts:
             land = line.interpolate(line.project(Point(xy))).coords[0]
             cuts.add(land)
-            connect(name, node(layer, land))
+            connect(name, node(layer, land), layer)
         ordered = sorted(cuts, key=lambda xy: line.project(Point(xy)))
         for a, b in itertools.pairwise(ordered):
-            connect(node(layer, a), node(layer, b))
+            connect(node(layer, a), node(layer, b), layer, t["width"])
     distances, previous = {start: 0.0}, {}
     queue = [(0.0, 0, start)]
     serial = 0
@@ -294,14 +297,20 @@ def copper_path(g, pins, start, end, minimum_width=0):
         if a == end:
             nodes = [end]
             while nodes[-1] != start:
-                nodes.append(previous[nodes[-1]])
+                nodes.append(previous[nodes[-1]][0])
+            if steps is not None:
+                for target in reversed(nodes[:-1]):
+                    parent, layer, width = previous[target]
+                    steps.append({"layer": layer, "width_mm": width,
+                                  "start": coordinates[parent], "end": coordinates[target],
+                                  "length_mm": math.dist(coordinates[parent], coordinates[target])})
             return distance, [coordinates[n] for n in reversed(nodes)]
         if distance > distances[a]:
             continue
-        for weight, b in graph[a]:
+        for weight, b, layer, width in graph[a]:
             new = distance + weight
             if new < distances.get(b, math.inf):
-                distances[b], previous[b] = new, a
+                distances[b], previous[b] = new, (a, layer, width)
                 serial += 1
                 heapq.heappush(queue, (new, serial, b))
     raise ValueError(f"No {minimum_width:g} mm copper path from {start} to {end}")
@@ -501,6 +510,9 @@ def check_layout(g, directory):
         )
     pins = read_pins(g)
     result = check_vias(g, pins, directory / "near-pad-vias.csv")
+    result["minimum_edge_gaps_mm"] = minimum_edge_gaps(g)
+    if any(d is not None and d < .30 - 1e-6 for d in result["minimum_edge_gaps_mm"].values()):
+        raise ValueError(f"Copper reaches board edge clearance: {result['minimum_edge_gaps_mm']}")
     result["pcb_sha256"] = g["pcb_sha256"]
     result.update(check_planes(g, pins))
     result["L3/L4"] = check_inner_crossings(g)

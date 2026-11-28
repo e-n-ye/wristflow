@@ -22,6 +22,8 @@ from pathlib import Path
 from kicad_sexpr import Sym, dump, find, first, library_symbols
 import schematic_layout
 
+from module_pins import RESET_LANDS, interface_net, module_nets
+
 HERE = Path(__file__).resolve().parent
 BOM = HERE.parent / 'reviews/2026-11-22-b-r2/placement-BOM.csv'
 BOARDS = {
@@ -133,7 +135,15 @@ def read_board(path):
             for num, net in nets.items():
                 if net and parts[ref]['nets'].get(num) != net:
                     raise ValueError(f'PCB pad {ref}.{num}={net} differs from schematic')
-    if path.stem == BOARDS['main']:
+    which = next(key for key, value in BOARDS.items() if value == path.stem)
+    for ref, part in parts.items():
+        part['nets'] = {pin: interface_net(which, ref, pin, n) for pin, n in part['nets'].items()}
+    if which == 'main':
+        parts['U1']['nets'] = module_nets(parts['U1']['nets'])
+        testpoint = parts.pop('TP15')
+        for ref, net in RESET_LANDS.items():
+            parts[ref] = dict(testpoint, ref=ref, name='Tweezer land 0.70', device='Tweezer land 0.70',
+                              footprint='Tweezer_D0.70_NoPaste', nets={'1': net})
         for ref, addition in MAIN_ADDITIONS.items():
             if ref in parts:
                 raise ValueError(f'{ref} already exists in the restoration input')
@@ -151,6 +161,9 @@ def read_bom():
         out[d['位号']] = dict(mpn=d['型号'], lcsc=d['LCSC'], footprint=d['封装'])
     for ref, addition in MAIN_ADDITIONS.items():
         out[ref] = out[addition['copy_part']].copy()
+    for ref in RESET_LANDS:
+        out[ref] = dict(mpn='Tweezer land 0.70', lcsc='', footprint='Tweezer_D0.70_NoPaste')
+    del out['TP15']
     return out
 
 
@@ -980,7 +993,14 @@ def cross_check(ours, reference):
     """Compare our KiCad netlist with verify.py's independent KiCad solve of the reviewed EPRO."""
     a, b = netlist_pins(ours), netlist_pins(reference)
     added = {}
-    if reference.parent.name == BOARDS['main']:
+    which = next(key for key, value in BOARDS.items() if value == reference.parent.name)
+    b = {(r, p): interface_net(which, r, p, n) for (r, p), n in b.items()}
+    if which == 'main':
+        routed = module_nets({pin: name for (ref, pin), name in b.items() if ref == 'U1'})
+        b.update({('U1', pin): name for pin, name in routed.items()})
+        if b.pop(('TP15', '1')) != 'RTS_N_OD':
+            raise ValueError('Unexpected legacy reset land')
+        b.update({(ref, '1'): net for ref, net in RESET_LANDS.items()})
         for ref, addition in MAIN_ADDITIONS.items():
             if any(key[0] == ref for key in b):
                 raise ValueError(f'{ref} already present in the independent reference')

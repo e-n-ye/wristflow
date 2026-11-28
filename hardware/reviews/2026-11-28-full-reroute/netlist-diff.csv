@@ -1,0 +1,19 @@
+board,ref,pin,scheme_1,scheme_2
+WristFlow-B-R2,TP15,1,/01 模组、供电循环与 UART/RTS_N_OD,
+WristFlow-B-R2,TP16,1,,/01 模组、供电循环与 UART/RTS_N_OD
+WristFlow-B-R2,TP17,1,,GND
+WristFlow-B-R2,U1,4,PA_42,unconnected-(U1-PA42-Pad4)
+WristFlow-B-R2,U1,10,PA_38,PA_20_VIB_PWM
+WristFlow-B-R2,U1,12,unconnected-(U1-PA36-Pad12),PA_31
+WristFlow-B-R2,U1,13,unconnected-(U1-PA35-Pad13),CROWN_A
+WristFlow-B-R2,U1,16,unconnected-(U1-PA32-Pad16),CROWN_B
+WristFlow-B-R2,U1,18,CROWN_A,PA_09_TP_RSTN
+WristFlow-B-R2,U1,19,CROWN_B,PA_30
+WristFlow-B-R2,U1,22,unconnected-(U1-PA28-Pad22),PA_11_I2C0_SDA
+WristFlow-B-R2,U1,23,unconnected-(U1-PA29-Pad23),PA_10_I2C0_SCL
+WristFlow-B-R2,U1,24,PA_30,unconnected-(U1-PA30-Pad24)
+WristFlow-B-R2,U1,25,PA_31,unconnected-(U1-PA31-Pad25)
+WristFlow-B-R2,U1,28,PA_20_VIB_PWM,PA_38
+WristFlow-B-R2,U1,31,PA_11_I2C0_SDA,PA_42
+WristFlow-B-R2,U1,32,PA_10_I2C0_SCL,unconnected-(U1-PA10-Pad32)
+WristFlow-B-R2,U1,38,PA_09_TP_RSTN,unconnected-(U1-PA09-Pad38)

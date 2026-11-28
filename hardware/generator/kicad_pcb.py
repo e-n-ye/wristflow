@@ -16,8 +16,10 @@ from collections import Counter
 from pathlib import Path
 
 import pcbnew as pcb
+from module_pins import INTERFACE_PINS, RESET_LANDS, interface_net, module_nets
 from kicad_schematic import BOARDS, MAIN_ADDITIONS, cross_check, equivalence, read_board, read_bom, strip
 from kicad_sexpr import quote
+from qspi_routing import QSPI_PADS, check_scheme3_leg
 
 DATA = Path(__file__).resolve().parents[1] / "boards/b-r2-main"
 mm = pcb.FromMM
@@ -32,7 +34,28 @@ def assembly(pt):
 
 
 def revise_lands(board, which):
+    for ref in INTERFACE_PINS[which]:
+        for pad in board.FindFootprintByReference(ref).Pads():
+            name = interface_net(which, ref, pad.GetNumber(), pad.GetNetname())
+            if name != pad.GetNetname():
+                pad.SetNet(board.FindNet(name))
     if which == "main":
+        module = board.FindFootprintByReference("U1")
+        nets = module_nets({p.GetNumber(): p.GetNetname() for p in module.Pads()})
+        for pad in module.Pads():
+            name = nets[pad.GetNumber()]
+            pad.SetNetCode(board.FindNet(name).GetNetCode() if name else 0)
+        original = board.FindFootprintByReference("TP15")
+        for ref, name in RESET_LANDS.items():
+            land = pcb.Cast_to_FOOTPRINT(original.Duplicate(False))
+            land.SetReference(ref)
+            for graphic in list(land.GraphicalItems()):
+                land.Delete(graphic)
+            pad = land.FindPadByNumber("1")
+            pad.SetSize(pcb.VECTOR2I(mm(0.70), mm(0.70)))
+            pad.SetNet(board.FindNet(name))
+            board.Add(land)
+        board.Remove(original)
         for ref, spec in MAIN_ADDITIONS.items():
             f = pcb.Cast_to_FOOTPRINT(board.FindFootprintByReference(spec["copy_part"]).Duplicate(False))
             f.SetReference(ref)
@@ -55,7 +78,6 @@ def revise_lands(board, which):
         for ref, pin in (("C6","1"), ("C7","1"), ("C8","1"), ("R64","2")):
             pad = board.FindFootprintByReference(ref).FindPadByNumber(pin)
             pad.SetLocalZoneConnection(pcb.ZONE_CONNECTION_THERMAL)
-        module = board.FindFootprintByReference("U1")
         for item in module.GraphicalItems():
             if item.GetLayer() == pcb.F_SilkS and item.GetBoundingBox().GetBottom() >= point(0, -15).y:
                 item.SetLayer(pcb.F_Fab)
@@ -72,7 +94,7 @@ def revise_lands(board, which):
             shape.SetLayer(pcb.B_Mask)
             connector.Add(shape)
     no_paste = {"JF1","CH1","CH2","SP1","SP2","MT1","MT2", *(f"P{i}" for i in range(1,5)),
-                *(f"TP{i}" for i in range(11,16))}
+                "TP11", "TP12", "TP13", "TP14", *RESET_LANDS}
     for f in board.GetFootprints():
         if f.GetReference() in no_paste:
             for pad in f.Pads():
@@ -165,12 +187,13 @@ def link_board(board, netlist, directory):
     return fps
 
 
-def trial_tracks(board, fps):
+def trial_tracks(board, fps, routes_path, main):
     layers = {"F": pcb.F_Cu, "B": pcb.B_Cu, "L3": pcb.In2_Cu, "L4": pcb.In3_Cu}
-    ldo = pcb.PCB_GROUP(board)
-    ldo.SetName("VSYS_1 LDO branches")
-    board.Add(ldo)
-    for route in json.loads((DATA / "fanout.json").read_text()):
+    if main:
+        ldo = pcb.PCB_GROUP(board)
+        ldo.SetName("VSYS_1 LDO branches")
+        board.Add(ldo)
+    for route in json.loads(routes_path.read_text(encoding="utf-8")):
         ref, pin = route["pad"].split(".")
         pad = fps[ref].FindPadByNumber(pin)
         if "via" in route:
@@ -180,10 +203,12 @@ def trial_tracks(board, fps):
             via.SetWidth(mm(route["diameter"]))
             via.SetDrill(mm(route["drill"]))
             via.SetNet(pad.GetNet())
-            via.SetRemoveUnconnected(True)
-            via.SetKeepStartEnd(True)
-            via.SetFillingMode(pcb.FILLING_MODE_FILLED)
-            via.SetCappingMode(pcb.CAPPING_MODE_CAPPED)
+            via.SetLocked(route.get("locked", False))
+            if main:
+                via.SetRemoveUnconnected(True)
+                via.SetKeepStartEnd(True)
+                via.SetFillingMode(pcb.FILLING_MODE_FILLED)
+                via.SetCappingMode(pcb.CAPPING_MODE_CAPPED)
             if route["pad"] == "U3.B2":
                 via.SetFrontTentingMode(pcb.TENTING_MODE_NOT_TENTED)
             board.Add(via)
@@ -195,9 +220,35 @@ def trial_tracks(board, fps):
             track.SetLayer(layers[route["layer"]])
             track.SetWidth(mm(route["width"]))
             track.SetNet(pad.GetNet())
+            track.SetLocked(route.get("locked", False))
             board.Add(track)
-            if route["pad"] in ("U4.1", "U15.1", "C9.2", "C33.2"):
+            if main and route["pad"] in ("U4.1", "U15.1", "C9.2", "C33.2"):
                 ldo.AddItem(track)
+
+
+def enable_main_teardrops(board, fps):
+    # Spring contacts, test lands, fine-pitch packages and R66 service lands
+    # keep their qualified mask, soldering and contact geometry.
+    excluded = {"U2", "U3", "U6", "U13", "U14", "U16", "U17", "U19", "J2", "J201",
+                "Q1", "Q2", "R66", "JP1", "R49", "R50"}
+    for ref, footprint in fps.items():
+        if ref in excluded or ref.startswith(("TP", "MT", "K")):
+            continue
+        for pad in footprint.Pads():
+            if pad.GetNetCode() and pad.GetAttribute() in (pcb.PAD_ATTRIB_SMD, pcb.PAD_ATTRIB_PTH):
+                pad.SetTeardropsEnabled(True)
+                pad.SetTeardropPreferZoneConnections(True)
+    # A via's flare can reach a nearby solder-mask opening even when the
+    # pad's own teardrops are disabled. Protect the fine-pitch escape field.
+    fine_pads = [pad.GetPosition() for ref in ("U2", "U3", "U6", "U13", "U14", "U16",
+                                              "U17", "U19", "J2", "J201", "Q1", "Q2")
+                 for pad in fps[ref].Pads()]
+    for item in board.GetTracks():
+        if isinstance(item, pcb.PCB_VIA) and all(
+            (item.GetPosition() - center).EuclideanNorm() > mm(1.0) for center in fine_pads
+        ):
+            item.SetTeardropsEnabled(True)
+            item.SetTeardropPreferZoneConnections(True)
 
 
 def ground_plane(board, layer, name, corners, clearance):
@@ -266,7 +317,6 @@ def main_layout(board, fps):
         "TP12",
         "TP13",
         "TP14",
-        "TP15",
     ]:
         fps[ref].SetLocked(True)
     reserve(
@@ -298,7 +348,8 @@ def main_layout(board, fps):
             for t in range(64)
         ]
         reserve(board, f"Clamp {i} / head and bearing surface", corners, surfaces, True)
-    trial_tracks(board, fps)
+    trial_tracks(board, fps, DATA / "fanout.json", main=True)
+    enable_main_teardrops(board, fps)
     for layer in (pcb.In1_Cu, pcb.In4_Cu):
         ground_plane(board, layer, board.GetLayerName(layer), [(-19,-22),(19,-22),(19,23),(-19,23)], 0.20)
     x, y = assembly(fps["U3"].GetPosition())
@@ -397,6 +448,7 @@ def geometry(board):
         court = module.GetCourtyard(pcb.F_CrtYd)
         module_court = [ring(court.COutline(i)) for i in range(court.OutlineCount())]
     fills, fill_layers, plane_keepouts = {}, {}, []
+    teardrops = 0
     for zone in board.Zones():
         if zone.GetIsRuleArea():
             if (zone.GetZoneName() == "Module antenna / all copper layers"
@@ -405,9 +457,15 @@ def geometry(board):
                 plane_keepouts.extend(ring(boundary.COutline(i)) for i in range(boundary.OutlineCount()))
             continue
         layer = zone.GetLayer()
-        fill_layers[zone.GetZoneName()] = [pcb.LayerName(layer), zone.GetNetname()]
+        name = zone.GetZoneName()
+        if zone.IsTeardropArea():
+            if not zone.HasFilledPolysForLayer(layer) or zone.GetFilledPolysList(layer).Area() <= 0:
+                continue
+            teardrops += 1
+            name = f"Teardrop {teardrops}"
+        fill_layers[name] = [pcb.LayerName(layer), zone.GetNetname()]
         polys = zone.GetFilledPolysList(layer)
-        fills[zone.GetZoneName()] = [
+        fills[name] = [
             {"outer": ring(polys.COutline(i)),
              "holes": [ring(polys.CHole(i, j)) for j in range(polys.HoleCount(i))]}
             for i in range(polys.OutlineCount())
@@ -423,6 +481,7 @@ def geometry(board):
         "module_court": module_court,
         "zone_fills": fills,
         "zone_layers": fill_layers,
+        "filled_teardrops": teardrops,
         "plane_keepouts": plane_keepouts,
         "outline": ring(outline.COutline(0)),
         "holes": [ring(outline.CHole(0, i)) for i in range(outline.HoleCount(0))],
@@ -487,7 +546,36 @@ def check_screen(board, reference):
             raise ValueError(f"J201.{pad.GetNumber()}: expected {expected}, got {actual}")
 
 
-def check_fanout(board):
+def check_qspi_fanout(board, scheme):
+    """Check the two distinct physical nets on each side of each series resistor."""
+    if scheme not in (1, 2, 3):
+        raise ValueError(f"Unknown routing scheme {scheme}")
+    board.BuildConnectivity()
+    conn = board.GetConnectivity()
+    layers = {pcb.F_Cu: "F", pcb.B_Cu: "B", pcb.In2_Cu: "L3", pcb.In3_Cu: "L4"}
+    result = {}
+    for index, (name, contacts) in enumerate(QSPI_PADS.items()):
+        ref = contacts[0].split(".")[0]
+        for leg, remote_ref, remote_pin in ((1, "U1", str(43-index)), (2, "J201", str(8+index))):
+            pad = board.FindFootprintByReference(ref).FindPadByNumber(str(leg))
+            reached = conn.GetConnectedItems(pad)
+            pads = {pcb.Cast_to_PAD(obj).GetParentFootprint().GetReference() + "." + pcb.Cast_to_PAD(obj).GetNumber()
+                    for obj in reached if obj.Type() == pcb.PCB_PAD_T}
+            expected = {f"{ref}.{leg}", f"{remote_ref}.{remote_pin}"}
+            if pads != expected:
+                raise ValueError(f"{ref}.{leg}: expected {sorted(expected)}, reached {sorted(pads)}")
+            copper = [obj for obj in board.GetTracks() if obj.GetNetCode() == pad.GetNetCode()]
+            used = {layers.get(obj.GetLayer(), "other") for obj in copper if obj.Type() == pcb.PCB_TRACE_T}
+            holes = sum(isinstance(obj, pcb.PCB_VIA) for obj in copper)
+            if scheme in (1, 2) and leg == 2 and not any(obj.Type() == pcb.PCB_TRACE_T and obj.GetLayer() == pcb.In2_Cu for obj in reached):
+                raise ValueError(f"{remote_ref}.{remote_pin}: scheme {scheme} requires an L3 segment")
+            if scheme == 3:
+                check_scheme3_leg(name, leg == 1, used, holes)
+            result[f"{ref}.{leg}"] = {"pads": sorted(pads), "layers": sorted(used), "vias": holes}
+    return result
+
+
+def check_fanout(board, scheme=2):
     """Walk actual connected copper, including vias, after reloading the saved board."""
     board.BuildConnectivity()
     connectivity = board.GetConnectivity()
@@ -535,7 +623,7 @@ def check_fanout(board):
         targets[ref] = [pad.GetNumber() for pad in footprints[ref].Pads()]
     for pin in ("C26.1","C27.1","U9.2","U9.3"):
         companions[pin] = "L4.2"
-    inner = {f"J201.{i}" for i in range(8, 13)}
+    inner = {f"J201.{i}" for i in range(8, 13)} if scheme in (1, 2) else set()
     result = {}
     for ref, pins in targets.items():
         for number in pins:
@@ -564,6 +652,7 @@ def check_fanout(board):
                     f"{key}: incomplete fanout, reached {pads}, {vias} vias, {inner_count} L3 segments"
                 )
             result[key] = {"pads": sorted(pads), "vias": vias, "L3_segments": inner_count, "zones": sorted(set(planes))}
+    result["QSPI"] = check_qspi_fanout(board, scheme)
     return result
 
 
@@ -615,6 +704,9 @@ def build(args, which, project):
     board.GetDesignSettings().SetBoardThickness(mm(thickness))
     if which == "main":
         main_layout(board, fps)
+    else:
+        folders = {"rear": "b-rear-fpc", "crown": "b-crown", "bridge": "b-crown-contacts"}
+        trial_tracks(board, fps, DATA.parent / folders[which] / "fanout.json", main=False)
     pcb.SaveBoard(str(path), board)
     raw = add_units(path.read_text(encoding="utf-8"), net)
     if which == "main":
@@ -670,7 +762,12 @@ def build(args, which, project):
     board = read_saved_board(path)
     if which == "main":
         check_screen(board, args.screen_reference)
-        (out / "fanout-readback.json").write_text(json.dumps(check_fanout(board), indent=2), encoding="utf-8")
+        profile = DATA / "routing-scheme.json"
+        scheme = getattr(args, "routing_scheme", None) or (json.loads(profile.read_bytes())["scheme"] if profile.exists() else 2)
+        (out / "routing-scheme.json").write_text(json.dumps({"scheme": scheme}), encoding="utf-8")
+        qspi = check_qspi_fanout(board, scheme)
+        (out / "qspi-fanout.json").write_text(json.dumps(qspi, indent=2), encoding="utf-8")
+        (out / "fanout-readback.json").write_text(json.dumps(check_fanout(board, scheme), indent=2), encoding="utf-8")
     result = json.loads((out / "drc.json").read_text(encoding="utf-8"))
     if result["schematic_parity"]:
         raise ValueError(f"{project}: see schematic_parity in {out}/drc.json")
@@ -700,6 +797,8 @@ if __name__ == "__main__":
     for arg in ("projects", "schematics", "out", "cli"):
         parser.add_argument("--" + arg, type=Path)
     parser.add_argument("--screen-reference", type=Path, help="KiCad import of the official display PCB alone")
+    parser.add_argument("--board", choices=BOARDS, help="Build and check just this board in a new output directory")
+    parser.add_argument("--routing-scheme", type=int, choices=(1, 2, 3), help="Override the main-board routing profile")
     args = parser.parse_args()
     if args.readback:
         if args.readback.suffix != ".kicad_pcb" or not args.readback.is_file():
@@ -710,4 +809,5 @@ if __name__ == "__main__":
         parser.error("building requires --projects, --schematics, --out and --cli")
     args.out.mkdir(parents=True, exist_ok=False)
     for which, project in BOARDS.items():
-        build(args, which, project)
+        if args.board is None or which == args.board:
+            build(args, which, project)

@@ -1,7 +1,7 @@
 # 当前状态
 
 <a id="current"></a>
-## 当前阶段与接续（2026-11-27）
+## 当前阶段与接续（2026-11-28）
 
 本区是活动任务和下一步的唯一权威来源；历史命令和计划不构成执行授权。
 
@@ -31,7 +31,13 @@
 
 **四板 KiCad 母版**　第三轮布线准备已在保存板复验，主板 186 项待连，网表与第二轮相同。R66 已移至屏侧；名义闭盖碰撞 0，横向最小 0.31999 mm。地层各 1108.376 mm²，U3 覆盖 84.40%。两面钢网及 ENIG 作业文件已回读。[布线前评审与生产清单](../hardware/reviews/2026-11-27-routing-preparation/README.md) · [本轮决定](BASELINE.md#b-routing-20261127)
 
-**唯一下一步（已授权）**　从布线准备合并后的 main 开始整板布线，先接 U17/U15 功能地及 ISET。C1/C4 可同面微调，保留 0.80 mm 地孔限值。整板达标后将 PR 标为 ready，交完整双审查。
+**方案一（对照）**　PR 2 以 draft 保留。`1128-review-copper` 余 6 网、7 项待连，一致性差异 0，布局断言全过。DRC 余 3 个单端孔和三对既有 K 庭院。闭盖碰撞 0，横向最小 0.31999 mm。短段 250 段，锐角 58 对，泪滴 806 个。177 个跨参考面非地孔中有 46 个距地孔超过 1.5 mm。换脚与镊子复位焊盘对均停在副本。[最终数据与过程记录](../hardware/reviews/2026-11-27-full-routing/README.md#comparison-1128)
+
+**方案二（对照）**　保留 `55fc9dc` 的 `sixfix`，主板 6 网各缺 1 项，一致性差异 0、闭盖碰撞 0、最小横向 0.31999 mm。西、北、东三区各重排三版，最少待连分别为 15、29、26。草稿保留。原表 PA31 的专用 AON7 物理断开，正常 DEEP 可经 WSR_GPIO1 唤醒，实机待验。[方案二评审与逐版证据](../hardware/reviews/2026-11-28-full-reroute/README.md#zone-results)
+
+**方案三 R3 重布已停在 MIC 检查点。** 布线提交 `5c4a08cd05a5ceb1169db782bc3e2a9c7bc43bc0`，保存板 `D:\MY_Desk\project\wristflow.worktrees\codex-b-r2-scheme3\artifacts\s3-night\mic-r0\WristFlow-B-R2\WristFlow-B-R2.kicad_pcb`。PCB SHA-256 为 `5d5532d43e58086cc9389c67e6d308a316f6e04fb9d7e169128618382ccf521b`。主板 **42 网、165 项待连**，一致性 0，DRC 违规栏仅三对既有 K 庭院。R3 先行铜、五路 QSPI、35 条供电/扬声器主干及 MIC 四网已锁定；重新打开 PCB 读到全部 724 段走线和 111 个通孔锁定。五路长差 1.900 mm，MIC 隔离违规 0。闭盖横向最小 0.34130 mm、违规 0。两块表冠板各 0 待连，正式后盖 FPC 余 4 项。用户已取消 08:00 截止安排，草稿 PR #277 明天接续。[本轮检查点和同版证据](../hardware/reviews/2026-11-28-scheme3-routing/night.md) · [历史 release 对照（38 项）](../hardware/reviews/2026-11-28-scheme3-routing/repairs.md)
+
+**明天第一步**　在保存板副本先预留 U3.B2 的 Ø0.26/钻 0.15 mm 填孔盖帽，缩短 U3.A1 开窗内的粗铜，再共同安排 U3.C1/C2 的充电 SDA/SCL、槽西回流，随后接 U6 输入。按同版 DRC、供电、QSPI、MIC 和地层复验。三处去耦支路仍超过 3 mm：U17.1→C2.2 为 6.111 mm，U17.8→C42.2 为 11.956 mm，U15.1→C33.2 为 4.353 mm。全板另有 28/47 个跨参考组孔超距、75 个短段、13 处锐角；需整理一般信号布线后复量。局部试板及后盖光学岛移位试板仅供定位。[逐网预算与余项](../hardware/reviews/2026-11-28-scheme3-routing/r3-layers.csv) · [决策与局部解锁权限](BASELINE.md#b-scheme3-build-20261128)
 
 ## 本轮 OTA 验收历程（2026-11-18 至 2026-11-20）
 

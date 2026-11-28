@@ -1,0 +1,239 @@
+<?xml version='1.0' encoding='utf-8'?>
+<export version="E">
+  <design>
+    <source>WristFlow-B-Crown.kicad_sch</source>
+    <date>2026-11-28T20:33:03</date>
+    <tool>Eeschema 10.0.8</tool>
+    <sheet number="1" name="/" tstamps="/">
+      <title_block>
+        <title>WristFlow-B-Crown  表冠立板：编码器与直角焊端</title>
+        <company>WristFlow</company>
+        <rev>B-R2 评审版</rev>
+        <date>2026-11-28</date>
+        <source>WristFlow-B-Crown.kicad_sch</source>
+        <comment number="1" value="由评审版 EPRO 与受版本管理的 KiCad 电路修订生成" />
+        <comment number="2" value="PCB 使用项目封装库 WF_B，与本工程同名" />
+        <comment number="3" value="" />
+        <comment number="4" value="" />
+        <comment number="5" value="" />
+        <comment number="6" value="" />
+        <comment number="7" value="" />
+        <comment number="8" value="" />
+        <comment number="9" value="" />
+      </title_block>
+    </sheet>
+  </design>
+  <components>
+    <comp ref="ENC1">
+      <value>BMQ22-N1A1-2012-A</value>
+      <footprint>WF_B:encoder-8071b2fc</footprint>
+      <fields>
+        <field name="MPN">BMQ22-N1A1-2012-A</field>
+        <field name="LCSC" />
+        <field name="EPRO_Footprint">encoder</field>
+        <field name="Footprint">WF_B:encoder-8071b2fc</field>
+        <field name="Datasheet" />
+        <field name="Description" />
+      </fields>
+      <libsource lib="WF" part="BMQ22-N1A1-2012-A_ENC1" description="" />
+      <property name="MPN" value="BMQ22-N1A1-2012-A" />
+      <property name="LCSC" value="" />
+      <property name="EPRO_Footprint" value="encoder" />
+      <property name="Sheetname" value="WristFlow-B-Crown" />
+      <property name="Sheetfile" value="WristFlow-B-Crown.kicad_sch" />
+      <sheetpath names="/" tstamps="/" />
+      <tstamps>45daaa92-a2a1-5e1e-95b1-db468754edc8</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="A" />
+            <pin num="C" />
+            <pin num="B" />
+            <pin num="S1" />
+            <pin num="S2" />
+            <pin num="MP" />
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="JC1">
+      <value>Daughter joint</value>
+      <footprint>WF_B:joint-a69fbe2a</footprint>
+      <fields>
+        <field name="MPN">Daughter joint</field>
+        <field name="LCSC" />
+        <field name="EPRO_Footprint">joint</field>
+        <field name="Footprint">WF_B:joint-a69fbe2a</field>
+        <field name="Datasheet" />
+        <field name="Description" />
+      </fields>
+      <libsource lib="WF" part="Land" description="test point" />
+      <property name="MPN" value="Daughter joint" />
+      <property name="LCSC" value="" />
+      <property name="EPRO_Footprint" value="joint" />
+      <property name="Sheetname" value="WristFlow-B-Crown" />
+      <property name="Sheetfile" value="WristFlow-B-Crown.kicad_sch" />
+      <property name="ki_keywords" value="test point tp" />
+      <property name="ki_fp_filters" value="Pin* Test*" />
+      <sheetpath names="/" tstamps="/" />
+      <tstamps>6520c30c-c32d-58dd-b6d9-1a3072340c9f</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1" />
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="JC2">
+      <value>Daughter joint</value>
+      <footprint>WF_B:joint-a69fbe2a</footprint>
+      <fields>
+        <field name="MPN">Daughter joint</field>
+        <field name="LCSC" />
+        <field name="EPRO_Footprint">joint</field>
+        <field name="Footprint">WF_B:joint-a69fbe2a</field>
+        <field name="Datasheet" />
+        <field name="Description" />
+      </fields>
+      <libsource lib="WF" part="Land" description="test point" />
+      <property name="MPN" value="Daughter joint" />
+      <property name="LCSC" value="" />
+      <property name="EPRO_Footprint" value="joint" />
+      <property name="Sheetname" value="WristFlow-B-Crown" />
+      <property name="Sheetfile" value="WristFlow-B-Crown.kicad_sch" />
+      <property name="ki_keywords" value="test point tp" />
+      <property name="ki_fp_filters" value="Pin* Test*" />
+      <sheetpath names="/" tstamps="/" />
+      <tstamps>179c49f3-6585-557f-acd3-4658a391b405</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1" />
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="JC3">
+      <value>Daughter joint</value>
+      <footprint>WF_B:joint-a69fbe2a</footprint>
+      <fields>
+        <field name="MPN">Daughter joint</field>
+        <field name="LCSC" />
+        <field name="EPRO_Footprint">joint</field>
+        <field name="Footprint">WF_B:joint-a69fbe2a</field>
+        <field name="Datasheet" />
+        <field name="Description" />
+      </fields>
+      <libsource lib="WF" part="Land" description="test point" />
+      <property name="MPN" value="Daughter joint" />
+      <property name="LCSC" value="" />
+      <property name="EPRO_Footprint" value="joint" />
+      <property name="Sheetname" value="WristFlow-B-Crown" />
+      <property name="Sheetfile" value="WristFlow-B-Crown.kicad_sch" />
+      <property name="ki_keywords" value="test point tp" />
+      <property name="ki_fp_filters" value="Pin* Test*" />
+      <sheetpath names="/" tstamps="/" />
+      <tstamps>9b44c655-5ce6-5a14-801e-7f23db0da254</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1" />
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="JC4">
+      <value>Daughter joint</value>
+      <footprint>WF_B:joint-a69fbe2a</footprint>
+      <fields>
+        <field name="MPN">Daughter joint</field>
+        <field name="LCSC" />
+        <field name="EPRO_Footprint">joint</field>
+        <field name="Footprint">WF_B:joint-a69fbe2a</field>
+        <field name="Datasheet" />
+        <field name="Description" />
+      </fields>
+      <libsource lib="WF" part="Land" description="test point" />
+      <property name="MPN" value="Daughter joint" />
+      <property name="LCSC" value="" />
+      <property name="EPRO_Footprint" value="joint" />
+      <property name="Sheetname" value="WristFlow-B-Crown" />
+      <property name="Sheetfile" value="WristFlow-B-Crown.kicad_sch" />
+      <property name="ki_keywords" value="test point tp" />
+      <property name="ki_fp_filters" value="Pin* Test*" />
+      <sheetpath names="/" tstamps="/" />
+      <tstamps>ec3f4068-e58e-5030-a603-749194152b6d</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1" />
+          </pins>
+        </unit>
+      </units>
+    </comp>
+  </components>
+  <libparts>
+    <libpart lib="WF" part="BMQ22-N1A1-2012-A_ENC1">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">BMQ22-N1A1-2012-A</field>
+        <field name="Footprint" />
+        <field name="Datasheet" />
+        <field name="Description" />
+      </fields>
+      <pins>
+        <pin num="A" name="" type="passive" />
+        <pin num="B" name="" type="passive" />
+        <pin num="C" name="" type="passive" />
+        <pin num="MP" name="" type="passive" />
+        <pin num="S1" name="" type="passive" />
+        <pin num="S2" name="" type="passive" />
+      </pins>
+    </libpart>
+    <libpart lib="WF" part="Land">
+      <description>test point</description>
+      <footprints>
+        <fp>Pin*</fp>
+        <fp>Test*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">TP</field>
+        <field name="Value">TestPoint</field>
+        <field name="Footprint" />
+        <field name="Datasheet" />
+        <field name="Description">test point</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="passive" />
+      </pins>
+    </libpart>
+  </libparts>
+  <libraries>
+    <library logical="WF">
+      <uri>${KIPRJMOD}/WF.kicad_sym</uri>
+    </library>
+  </libraries>
+  <nets>
+    <net code="1" name="/CROWN_A" class="Default">
+      <node ref="ENC1" pin="A" pintype="passive" />
+      <node ref="JC1" pin="1" pinfunction="1_1" pintype="passive" />
+    </net>
+    <net code="2" name="/CROWN_B" class="Default">
+      <node ref="ENC1" pin="B" pintype="passive" />
+      <node ref="JC3" pin="1" pinfunction="1_1" pintype="passive" />
+    </net>
+    <net code="3" name="/KEY_N" class="Default">
+      <node ref="ENC1" pin="S1" pintype="passive" />
+      <node ref="JC2" pin="1" pinfunction="1_1" pintype="passive" />
+    </net>
+    <net code="4" name="GND" class="Default">
+      <node ref="ENC1" pin="C" pintype="passive" />
+      <node ref="ENC1" pin="S2" pintype="passive" />
+      <node ref="JC4" pin="1" pinfunction="1_1" pintype="passive" />
+    </net>
+    <net code="5" name="unconnected-(ENC1-PadMP)" class="Default">
+      <node ref="ENC1" pin="MP" pintype="passive+no_connect" />
+    </net>
+  </nets>
+</export>

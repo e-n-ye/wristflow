@@ -1,0 +1,159 @@
+{
+  "p1": {
+    "sha": "deadf39db46e53efcbf6d369f2443806541b19779170357956b865b1e19cd7a4",
+    "unc": 296,
+    "parity": 0,
+    "drc": {
+      "clearance": 5,
+      "shorting_items": 7,
+      "courtyards_overlap": 94,
+      "starved_thermal": 1,
+      "solder_mask_bridge": 7,
+      "via_dangling": 4,
+      "isolated_copper": 2,
+      "silk_edge_clearance": 1,
+      "silk_overlap": 21,
+      "silk_over_copper": 8
+    },
+    "mm": 188.222658,
+    "holes": 14,
+    "gnd": 0,
+    "signal_vias": 13,
+    "effective": 10,
+    "hist": [
+      50,
+      7,
+      0,
+      2,
+      2
+    ],
+    "short": 8,
+    "acute": 4,
+    "tears": 42,
+    "east": 4,
+    "pre_area": 2.933812,
+    "pre_hd": 1.849534,
+    "post_area": 2.4029,
+    "post_hd": 0.613514
+  },
+  "p2": {
+    "sha": "143f2cc0de3db8610149c79231d9ca2f648a0e089f87dee9518fd6af7a30ca0c",
+    "unc": 268,
+    "parity": 0,
+    "drc": {
+      "courtyards_overlap": 3,
+      "via_dangling": 1,
+      "track_dangling": 2,
+      "silk_edge_clearance": 1
+    },
+    "mm": 216.271326,
+    "holes": 57,
+    "gnd": 39,
+    "signal_vias": 18,
+    "effective": 17,
+    "hist": [
+      50,
+      3,
+      1,
+      7,
+      0
+    ],
+    "short": 10,
+    "acute": 3,
+    "tears": 90,
+    "east": 6,
+    "pre_area": 4.76065,
+    "pre_hd": 1.95,
+    "post_area": 2.402236,
+    "post_hd": 0.615162,
+    "returns": [
+      9,
+      1,
+      1.698243
+    ]
+  },
+  "p3": {
+    "sha": "9321708e30807cb04dde1478e575b498469db009df48bff394bf8d90ae7641f9",
+    "unc": 267,
+    "parity": 0,
+    "drc": {
+      "clearance": 3,
+      "courtyards_overlap": 3,
+      "copper_edge_clearance": 2,
+      "via_dangling": 2
+    },
+    "mm": 290.512273,
+    "holes": 60,
+    "gnd": 38,
+    "signal_vias": 19,
+    "effective": 17,
+    "hist": [
+      50,
+      3,
+      2,
+      5,
+      1
+    ],
+    "short": 16,
+    "acute": 3,
+    "tears": 102,
+    "east": 7,
+    "pre_area": 3.7076,
+    "pre_hd": 1.95,
+    "post_area": 2.402236,
+    "post_hd": 0.615162,
+    "returns": [
+      12,
+      4,
+      2.558173
+    ],
+    "layout": {
+      "failed": "Via [-11.623751, 9.77463] mask clearance 0.049705 mm"
+    },
+    "ground_area": {
+      "GND-L2": 1137.991639,
+      "GND-L5": 1137.991639
+    },
+    "plane_checks": {
+      "GND-L2": {
+        "area": 1137.9916388436452,
+        "minimum_area": 1020.5507487648066,
+        "max_vias": 5,
+        "max_span": 2.4210000000000003,
+        "u3_coverage": 0.9999999999999999,
+        "cutout_growth": [
+          0.026327980249315684,
+          0.017826343615531925,
+          0.02634785905018413
+        ]
+      },
+      "GND-L5": {
+        "area": 1137.9916388436452,
+        "minimum_area": 1020.5507487648066,
+        "max_vias": 5,
+        "max_span": 2.4210000000000003,
+        "u3_coverage": 0.9999999999999999,
+        "cutout_growth": [
+          0.026327980249315684,
+          0.017826343615531925,
+          0.02634785905018413
+        ]
+      }
+    },
+    "inner": {
+      "crossings": 13,
+      "minimum_angle": 90.0,
+      "minimum_parallel_signal_gap": 0.21169047558312082
+    },
+    "mic_conflicts": 0,
+    "mic_islands": {
+      "ADCIN": 3,
+      "MIC_BIAS": 2,
+      "MIC_GND": 5,
+      "N_31N10127": 3
+    },
+    "qs_complete": 0,
+    "power_done": 5,
+    "unconnected_nets": 78
+  }
+}

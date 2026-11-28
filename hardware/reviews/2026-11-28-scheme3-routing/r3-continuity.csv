@@ -1,0 +1,61 @@
+板,网络,焊盘分量数,分量与端点
+WristFlow-B-R2,/01 模组、供电循环与 UART/PA_18_UART_RXD,2,U1.30 | R12.2
+WristFlow-B-R2,/01 模组、供电循环与 UART/PA_19_UART_TXD,2,U1.29 | R11.2
+WristFlow-B-R2,/01 模组、供电循环与 UART/RTS_N_OD,3,TP16.1 | U19.B2 | R58.1
+WristFlow-B-R2,/01 模组、供电循环与 UART/UART_RXD,2,R12.1 | TP13.1
+WristFlow-B-R2,/01 模组、供电循环与 UART/UART_TXD,2,TP14.1 | R11.1
+WristFlow-B-R2,/02 触点输入、充电与电芯/CELL_TS,4,U3.B1 | R60.2 | R64.1 | J1.2
+WristFlow-B-R2,/02 触点输入、充电与电芯/CHG_INT,3,U3.B2 | R5.1 | Q1.3
+WristFlow-B-R2,/02 触点输入、充电与电芯/N_32N38543,2,U17.7 | R4.2
+WristFlow-B-R2,/03 受控电源与测流桥/PA_30_1,3,U15.3 | R54.2 | R41.2
+WristFlow-B-R2,/04 屏幕直连与触摸/OLED_PULL10K,2,R202.2 | J201.1
+WristFlow-B-R2,/04 屏幕直连与触摸/OLED_PULL1M,2,R201.2 | J201.6
+WristFlow-B-R2,/05 功放与麦克风/N_31N9056,2,R27.2 | U6.4
+WristFlow-B-R2,/05 功放与麦克风/N_31N9060,2,R28.2 | U6.3
+WristFlow-B-R2,/05 功放与麦克风/N_31N9143,2,C20.1 | R27.1
+WristFlow-B-R2,/05 功放与麦克风/N_31N9147,2,R28.1 | C21.1
+WristFlow-B-R2,/05 功放与麦克风/N_31N9186,2,C24.2 | U6.2
+WristFlow-B-R2,/06 传感器、表冠、电机与后盖接口/KEY_N,4,R61.2 | K2.1 | K2.2 | Q3.1
+WristFlow-B-R2,/06 传感器、表冠、电机与后盖接口/MOTOR_GATE,3,R37.2 | Q2.1 | R38.2
+WristFlow-B-R2,/06 传感器、表冠、电机与后盖接口/PA_34_KEY1,3,R34.2 | D15.2 | Q3.3
+WristFlow-B-R2,CHG_VDD,4,U3.B3 | R60.1 | C7.2 | R5.2
+WristFlow-B-R2,CROWN_A,4,R62.2 | K1.1 | K1.2 | U1.13
+WristFlow-B-R2,CROWN_B,4,R63.2 | U1.16 | K3.1 | K3.2
+WristFlow-B-R2,DAC1N,2,U1.34 | C20.2
+WristFlow-B-R2,DAC1P,2,U1.33 | C21.2
+WristFlow-B-R2,GND,85,U21.2 | C30.1 | C1.1 C10.1 C13.2 C14.1 C202.1 C203.1 C28.1 C29.1 C3.1 C31.1 C33.1 C34.1 C35.1 C38.1 C39.2 C4.1 C40.2 C41.1 C5.1 C6.1 C7.1 C8.1 C9.1 J201.17 J201.18 U1.26 U1.35 | U13.1 | U13.2 | U13.3 | U13.6 | U13.7 | C2.1 | U3.C3 | L4.1 | R35.1 | U15.2 | U14.A1 | R7.1 | C42.1 | D15.1 | Q2.2 | U16.3 | U4.2 | R38.1 | K4.1 | K4.2 | U17.2 | U17.5 | U17.6 | U17.9 | R41.1 | U1.1 | U1.48 | U1.49 | U1.50 | U1.51 | U1.52 | U1.53 | U1.54 | U1.55 | U1.56 | U1.57 | U1.58 | U1.59 | U1.60 | R64.2 | R2.1 | D7.1 | TP11.1 | D18.2 | R4.1 | C201.2 | D17.1 | D17.2 | D6.1 | C15.1 | R3.1 | D8.1 | J1.1 | Q1.2 | U19.B1 | R67.1 | TP17.1 | U2.B1 | D5.1 | R15.1 | J2.9 | L3.1 | J201.2 | J201.3 | J201.7 | J201.16 | J201.25 | J201.26 | J201.27 | J201.28 | J201.29 | J201.30 | J201.31 | J201.32 | J201.33 | J201.34 | J201.35 | J201.36 | J201.37 | J201.38 | J201.39 | J201.40
+WristFlow-B-R2,PA44_VBUS_DET,3,U1.2 | R14.1 | R15.2
+WristFlow-B-R2,PA_10_I2C0_SCL,3,R42.1 | U3.C2 | U1.23
+WristFlow-B-R2,PA_11_I2C0_SDA,3,U3.C1 | R43.1 | U1.22
+WristFlow-B-R2,PA_20_VIB_PWM,2,R37.1 | U1.10
+WristFlow-B-R2,PA_26,3,R7.2 | U4.3 | U1.20
+WristFlow-B-R2,PA_30,2,R54.1 | U1.19
+WristFlow-B-R2,PA_31,2,U13.4 | U1.12
+WristFlow-B-R2,PA_34_PWRKEY,4,R35.2 | R34.1 | U1.14 | Q1.1
+WristFlow-B-R2,PA_38,3,U1.28 | R3.2 | U2.B2
+WristFlow-B-R2,PA_39_I2C1_SDA,6,U13.14 | U14.B2 | U16.6 | R44.1 | U1.25 | J2.8
+WristFlow-B-R2,PA_40_I2C1_SCL,6,U13.13 | U14.A2 | R45.1 | U16.4 | U1.24 | J2.7
+WristFlow-B-R2,PA_42,3,U1.31 | U6.1 | R29.2
+WristFlow-B-R2,PPG_GND,2,R67.2 | J2.3
+WristFlow-B-R2,PPG_INT_N,3,U1.21 | R68.2 | J2.6
+WristFlow-B-R2,SPK_GND,10,C24.1 | D2.1 | C19.1 | C18.2 | C25.2 | D1.1 | U6.7 | R29.1 | L3.2 | C22.1
+WristFlow-B-R2,SPK_OUTP,2,C25.1 D2.2 J2.1 L2.2 | C23.1
+WristFlow-B-R2,VCC_3V3,2,R42.2 | R43.2 R46.2 R47.2 R48.2 R50.1 R66.2
+WristFlow-B-Rear-FPC,/DOCK_RTN,1,CH1.1 JF1.9
+WristFlow-B-Rear-FPC,/PA_39_I2C1_SDA,2,U301.3 | JF1.8
+WristFlow-B-Rear-FPC,/PA_40_I2C1_SCL,2,U301.2 | JF1.7
+WristFlow-B-Rear-FPC,/PPG_INT_N,2,U301.13 | JF1.6
+WristFlow-B-Rear-FPC,/SPK_OUTN,1,JF1.2 SP2.1
+WristFlow-B-Rear-FPC,/SPK_OUTP,1,JF1.1 SP1.1
+WristFlow-B-Rear-FPC,DOCK_5V_IN,1,CH2.1 JF1.10
+WristFlow-B-Rear-FPC,GS_3V3,1,C301.1 C302.1 JF1.4 U301.10 U301.9
+WristFlow-B-Rear-FPC,PPG_1V8,2,C303.1 | C304.1 JF1.5 U301.11
+WristFlow-B-Rear-FPC,PPG_GND,1,C301.2 C302.2 C303.2 C304.2 JF1.3 U301.12 U301.4
+WristFlow-B-Crown,/CROWN_A,1,ENC1.A JC1.1
+WristFlow-B-Crown,/CROWN_B,1,ENC1.B JC3.1
+WristFlow-B-Crown,/KEY_N,1,ENC1.S1 JC2.1
+WristFlow-B-Crown,GND,1,ENC1.C ENC1.S2 JC4.1
+WristFlow-B-Crown-Contacts,/CROWN_A,1,JC11.1 P1.1
+WristFlow-B-Crown-Contacts,/CROWN_B,1,JC13.1 P3.1
+WristFlow-B-Crown-Contacts,/KEY_N,1,JC12.1 P2.1
+WristFlow-B-Crown-Contacts,GND,1,JC14.1 P4.1
