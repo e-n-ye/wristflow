@@ -1,0 +1,21 @@
+board,pad,scheme2_full_net,scheme3_full_net
+WristFlow-B-R2,J2.6,PA_40_I2C1_SCL,PPG_INT_N
+WristFlow-B-R2,J2.7,PA_39_I2C1_SDA,PA_40_I2C1_SCL
+WristFlow-B-R2,J2.8,PPG_INT_N,PA_39_I2C1_SDA
+WristFlow-B-R2,K2.1,GND,/06 传感器、表冠、电机与后盖接口/KEY_N
+WristFlow-B-R2,K2.2,GND,/06 传感器、表冠、电机与后盖接口/KEY_N
+WristFlow-B-R2,K4.1,/06 传感器、表冠、电机与后盖接口/KEY_N,GND
+WristFlow-B-R2,K4.2,/06 传感器、表冠、电机与后盖接口/KEY_N,GND
+WristFlow-B-R2,U1.24,unconnected-(U1-PA30-Pad24),PA_40_I2C1_SCL
+WristFlow-B-R2,U1.25,unconnected-(U1-PA31-Pad25),PA_39_I2C1_SDA
+WristFlow-B-R2,U1.8,PA_40_I2C1_SCL,unconnected-(U1-PA40-Pad8)
+WristFlow-B-R2,U1.9,PA_39_I2C1_SDA,unconnected-(U1-PA39-Pad9)
+WristFlow-B-Crown,JC2.1,GND,/KEY_N
+WristFlow-B-Crown,JC4.1,/KEY_N,GND
+WristFlow-B-Crown-Contacts,JC12.1,GND,/KEY_N
+WristFlow-B-Crown-Contacts,JC14.1,/KEY_N,GND
+WristFlow-B-Crown-Contacts,P2.1,GND,/KEY_N
+WristFlow-B-Crown-Contacts,P4.1,/KEY_N,GND
+WristFlow-B-Rear-FPC,JF1.6,/PA_40_I2C1_SCL,/PPG_INT_N
+WristFlow-B-Rear-FPC,JF1.7,/PA_39_I2C1_SDA,/PA_40_I2C1_SCL
+WristFlow-B-Rear-FPC,JF1.8,/PPG_INT_N,/PA_39_I2C1_SDA

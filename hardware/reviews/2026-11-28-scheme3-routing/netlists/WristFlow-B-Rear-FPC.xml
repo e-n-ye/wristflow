@@ -1,0 +1,497 @@
+<?xml version='1.0' encoding='utf-8'?>
+<export version="E">
+  <design>
+    <source>WristFlow-B-Rear-FPC.kicad_sch</source>
+    <date>2026-11-28T20:32:58</date>
+    <tool>Eeschema 10.0.8</tool>
+    <sheet number="1" name="/" tstamps="/">
+      <title_block>
+        <title>WristFlow-B-Rear-FPC  后盖柔板：尾指、光学岛与端子</title>
+        <company>WristFlow</company>
+        <rev>B-R2 评审版</rev>
+        <date>2026-11-28</date>
+        <source>WristFlow-B-Rear-FPC.kicad_sch</source>
+        <comment number="1" value="由评审版 EPRO 与受版本管理的 KiCad 电路修订生成" />
+        <comment number="2" value="PCB 使用项目封装库 WF_B，与本工程同名" />
+        <comment number="3" value="" />
+        <comment number="4" value="" />
+        <comment number="5" value="" />
+        <comment number="6" value="" />
+        <comment number="7" value="" />
+        <comment number="8" value="" />
+        <comment number="9" value="" />
+      </title_block>
+    </sheet>
+  </design>
+  <components>
+    <comp ref="C301">
+      <value>10uF</value>
+      <footprint>WF_B:C0603-fc774dd3</footprint>
+      <fields>
+        <field name="MPN">CL10A106KP8NNNC</field>
+        <field name="LCSC">C19702</field>
+        <field name="EPRO_Footprint">C0603</field>
+        <field name="Footprint">WF_B:C0603-fc774dd3</field>
+        <field name="Datasheet" />
+        <field name="Description" />
+      </fields>
+      <libsource lib="WF" part="C" description="Unpolarized capacitor" />
+      <property name="MPN" value="CL10A106KP8NNNC" />
+      <property name="LCSC" value="C19702" />
+      <property name="EPRO_Footprint" value="C0603" />
+      <property name="Sheetname" value="WristFlow-B-Rear-FPC" />
+      <property name="Sheetfile" value="WristFlow-B-Rear-FPC.kicad_sch" />
+      <property name="ki_keywords" value="cap capacitor" />
+      <property name="ki_fp_filters" value="C_*" />
+      <sheetpath names="/" tstamps="/" />
+      <tstamps>859a5bdf-7bd5-5179-8a8a-0c04fa7bd223</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1" />
+            <pin num="2" />
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C302">
+      <value>100nF</value>
+      <footprint>WF_B:0402-14516ba8</footprint>
+      <fields>
+        <field name="MPN">CL05B104KB54PNC</field>
+        <field name="LCSC">C307331</field>
+        <field name="EPRO_Footprint">0402</field>
+        <field name="Footprint">WF_B:0402-14516ba8</field>
+        <field name="Datasheet" />
+        <field name="Description" />
+      </fields>
+      <libsource lib="WF" part="C" description="Unpolarized capacitor" />
+      <property name="MPN" value="CL05B104KB54PNC" />
+      <property name="LCSC" value="C307331" />
+      <property name="EPRO_Footprint" value="0402" />
+      <property name="Sheetname" value="WristFlow-B-Rear-FPC" />
+      <property name="Sheetfile" value="WristFlow-B-Rear-FPC.kicad_sch" />
+      <property name="ki_keywords" value="cap capacitor" />
+      <property name="ki_fp_filters" value="C_*" />
+      <sheetpath names="/" tstamps="/" />
+      <tstamps>ca33a35f-d603-5218-a937-6d1e0e444d09</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1" />
+            <pin num="2" />
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C303">
+      <value>4.7uF</value>
+      <footprint>WF_B:0402-14516ba8</footprint>
+      <fields>
+        <field name="MPN">CL05A475MP5NRNC</field>
+        <field name="LCSC">C23733</field>
+        <field name="EPRO_Footprint">0402</field>
+        <field name="Footprint">WF_B:0402-14516ba8</field>
+        <field name="Datasheet" />
+        <field name="Description" />
+      </fields>
+      <libsource lib="WF" part="C" description="Unpolarized capacitor" />
+      <property name="MPN" value="CL05A475MP5NRNC" />
+      <property name="LCSC" value="C23733" />
+      <property name="EPRO_Footprint" value="0402" />
+      <property name="Sheetname" value="WristFlow-B-Rear-FPC" />
+      <property name="Sheetfile" value="WristFlow-B-Rear-FPC.kicad_sch" />
+      <property name="ki_keywords" value="cap capacitor" />
+      <property name="ki_fp_filters" value="C_*" />
+      <sheetpath names="/" tstamps="/" />
+      <tstamps>945c66e7-aeae-5965-9c27-0b73485daeee</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1" />
+            <pin num="2" />
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="C304">
+      <value>100nF</value>
+      <footprint>WF_B:0402-14516ba8</footprint>
+      <fields>
+        <field name="MPN">CL05B104KB54PNC</field>
+        <field name="LCSC">C307331</field>
+        <field name="EPRO_Footprint">0402</field>
+        <field name="Footprint">WF_B:0402-14516ba8</field>
+        <field name="Datasheet" />
+        <field name="Description" />
+      </fields>
+      <libsource lib="WF" part="C" description="Unpolarized capacitor" />
+      <property name="MPN" value="CL05B104KB54PNC" />
+      <property name="LCSC" value="C307331" />
+      <property name="EPRO_Footprint" value="0402" />
+      <property name="Sheetname" value="WristFlow-B-Rear-FPC" />
+      <property name="Sheetfile" value="WristFlow-B-Rear-FPC.kicad_sch" />
+      <property name="ki_keywords" value="cap capacitor" />
+      <property name="ki_fp_filters" value="C_*" />
+      <sheetpath names="/" tstamps="/" />
+      <tstamps>a9676c9d-7929-5f46-92e0-24da19513e10</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1" />
+            <pin num="2" />
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="CH1">
+      <value>Termination CH1</value>
+      <footprint>WF_B:flexland-e7104ad1</footprint>
+      <fields>
+        <field name="MPN">Termination CH1</field>
+        <field name="LCSC" />
+        <field name="EPRO_Footprint">flexland</field>
+        <field name="Footprint">WF_B:flexland-e7104ad1</field>
+        <field name="Datasheet" />
+        <field name="Description" />
+      </fields>
+      <libsource lib="WF" part="Land" description="test point" />
+      <property name="MPN" value="Termination CH1" />
+      <property name="LCSC" value="" />
+      <property name="EPRO_Footprint" value="flexland" />
+      <property name="Sheetname" value="WristFlow-B-Rear-FPC" />
+      <property name="Sheetfile" value="WristFlow-B-Rear-FPC.kicad_sch" />
+      <property name="ki_keywords" value="test point tp" />
+      <property name="ki_fp_filters" value="Pin* Test*" />
+      <sheetpath names="/" tstamps="/" />
+      <tstamps>16959f0b-df9c-5bf0-a132-67f7eb8f054d</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1" />
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="CH2">
+      <value>Termination CH2</value>
+      <footprint>WF_B:flexland-e7104ad1</footprint>
+      <fields>
+        <field name="MPN">Termination CH2</field>
+        <field name="LCSC" />
+        <field name="EPRO_Footprint">flexland</field>
+        <field name="Footprint">WF_B:flexland-e7104ad1</field>
+        <field name="Datasheet" />
+        <field name="Description" />
+      </fields>
+      <libsource lib="WF" part="Land" description="test point" />
+      <property name="MPN" value="Termination CH2" />
+      <property name="LCSC" value="" />
+      <property name="EPRO_Footprint" value="flexland" />
+      <property name="Sheetname" value="WristFlow-B-Rear-FPC" />
+      <property name="Sheetfile" value="WristFlow-B-Rear-FPC.kicad_sch" />
+      <property name="ki_keywords" value="test point tp" />
+      <property name="ki_fp_filters" value="Pin* Test*" />
+      <sheetpath names="/" tstamps="/" />
+      <tstamps>571912f8-dfe8-5a11-89b8-3a49203c5558</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1" />
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="JF1">
+      <value>10P FPC fingers</value>
+      <footprint>WF_B:fingers-e2536564</footprint>
+      <fields>
+        <field name="MPN">10P FPC fingers</field>
+        <field name="LCSC" />
+        <field name="EPRO_Footprint">fingers</field>
+        <field name="Footprint">WF_B:fingers-e2536564</field>
+        <field name="Datasheet" />
+        <field name="Description" />
+      </fields>
+      <libsource lib="WF" part="10P_FPC_fingers_JF1" description="" />
+      <property name="MPN" value="10P FPC fingers" />
+      <property name="LCSC" value="" />
+      <property name="EPRO_Footprint" value="fingers" />
+      <property name="Sheetname" value="WristFlow-B-Rear-FPC" />
+      <property name="Sheetfile" value="WristFlow-B-Rear-FPC.kicad_sch" />
+      <sheetpath names="/" tstamps="/" />
+      <tstamps>f4c9cead-5dbe-5834-a6c9-1b3686f52ee0</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1" />
+            <pin num="2" />
+            <pin num="3" />
+            <pin num="4" />
+            <pin num="5" />
+            <pin num="6" />
+            <pin num="7" />
+            <pin num="8" />
+            <pin num="9" />
+            <pin num="10" />
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="SP1">
+      <value>Termination SP1</value>
+      <footprint>WF_B:flexland-e7104ad1</footprint>
+      <fields>
+        <field name="MPN">Termination SP1</field>
+        <field name="LCSC" />
+        <field name="EPRO_Footprint">flexland</field>
+        <field name="Footprint">WF_B:flexland-e7104ad1</field>
+        <field name="Datasheet" />
+        <field name="Description" />
+      </fields>
+      <libsource lib="WF" part="Land" description="test point" />
+      <property name="MPN" value="Termination SP1" />
+      <property name="LCSC" value="" />
+      <property name="EPRO_Footprint" value="flexland" />
+      <property name="Sheetname" value="WristFlow-B-Rear-FPC" />
+      <property name="Sheetfile" value="WristFlow-B-Rear-FPC.kicad_sch" />
+      <property name="ki_keywords" value="test point tp" />
+      <property name="ki_fp_filters" value="Pin* Test*" />
+      <sheetpath names="/" tstamps="/" />
+      <tstamps>095ee0f3-6fcc-5255-89ab-5d22272b47ec</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1" />
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="SP2">
+      <value>Termination SP2</value>
+      <footprint>WF_B:flexland-e7104ad1</footprint>
+      <fields>
+        <field name="MPN">Termination SP2</field>
+        <field name="LCSC" />
+        <field name="EPRO_Footprint">flexland</field>
+        <field name="Footprint">WF_B:flexland-e7104ad1</field>
+        <field name="Datasheet" />
+        <field name="Description" />
+      </fields>
+      <libsource lib="WF" part="Land" description="test point" />
+      <property name="MPN" value="Termination SP2" />
+      <property name="LCSC" value="" />
+      <property name="EPRO_Footprint" value="flexland" />
+      <property name="Sheetname" value="WristFlow-B-Rear-FPC" />
+      <property name="Sheetfile" value="WristFlow-B-Rear-FPC.kicad_sch" />
+      <property name="ki_keywords" value="test point tp" />
+      <property name="ki_fp_filters" value="Pin* Test*" />
+      <sheetpath names="/" tstamps="/" />
+      <tstamps>4a76a33e-a5a3-5888-a1d0-c24b40966440</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="1" />
+          </pins>
+        </unit>
+      </units>
+    </comp>
+    <comp ref="U301">
+      <value>MAX30102EFD+T</value>
+      <footprint>WF_B:ppg-b1d36936</footprint>
+      <fields>
+        <field name="MPN">MAX30102EFD+T</field>
+        <field name="LCSC" />
+        <field name="EPRO_Footprint">ppg</field>
+        <field name="Footprint">WF_B:ppg-b1d36936</field>
+        <field name="Datasheet" />
+        <field name="Description" />
+      </fields>
+      <libsource lib="WF" part="MAX30102EFD+T_U301" description="" />
+      <property name="MPN" value="MAX30102EFD+T" />
+      <property name="LCSC" value="" />
+      <property name="EPRO_Footprint" value="ppg" />
+      <property name="Sheetname" value="WristFlow-B-Rear-FPC" />
+      <property name="Sheetfile" value="WristFlow-B-Rear-FPC.kicad_sch" />
+      <sheetpath names="/" tstamps="/" />
+      <tstamps>78d9ab5d-e419-5c3f-858b-0060a835d9ef</tstamps>
+      <units>
+        <unit name="A">
+          <pins>
+            <pin num="2" />
+            <pin num="3" />
+            <pin num="13" />
+            <pin num="4" />
+            <pin num="12" />
+            <pin num="9" />
+            <pin num="10" />
+            <pin num="11" />
+            <pin num="1" />
+            <pin num="5" />
+            <pin num="6" />
+            <pin num="7" />
+            <pin num="8" />
+            <pin num="14" />
+          </pins>
+        </unit>
+      </units>
+    </comp>
+  </components>
+  <libparts>
+    <libpart lib="WF" part="10P_FPC_fingers_JF1">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">10P FPC fingers</field>
+        <field name="Footprint" />
+        <field name="Datasheet" />
+        <field name="Description" />
+      </fields>
+      <pins>
+        <pin num="1" name="" type="passive" />
+        <pin num="2" name="" type="passive" />
+        <pin num="3" name="" type="passive" />
+        <pin num="4" name="" type="passive" />
+        <pin num="5" name="" type="passive" />
+        <pin num="6" name="" type="passive" />
+        <pin num="7" name="" type="passive" />
+        <pin num="8" name="" type="passive" />
+        <pin num="9" name="" type="passive" />
+        <pin num="10" name="" type="passive" />
+      </pins>
+    </libpart>
+    <libpart lib="WF" part="C">
+      <description>Unpolarized capacitor</description>
+      <footprints>
+        <fp>C_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">C</field>
+        <field name="Value">C</field>
+        <field name="Footprint" />
+        <field name="Datasheet" />
+        <field name="Description">Unpolarized capacitor</field>
+      </fields>
+      <pins>
+        <pin num="1" name="" type="passive" />
+        <pin num="2" name="" type="passive" />
+      </pins>
+    </libpart>
+    <libpart lib="WF" part="Land">
+      <description>test point</description>
+      <footprints>
+        <fp>Pin*</fp>
+        <fp>Test*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">TP</field>
+        <field name="Value">TestPoint</field>
+        <field name="Footprint" />
+        <field name="Datasheet" />
+        <field name="Description">test point</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="passive" />
+      </pins>
+    </libpart>
+    <libpart lib="WF" part="MAX30102EFD+T_U301">
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">MAX30102EFD+T</field>
+        <field name="Footprint" />
+        <field name="Datasheet" />
+        <field name="Description" />
+      </fields>
+      <pins>
+        <pin num="1" name="NC" type="passive" />
+        <pin num="2" name="SCL" type="passive" />
+        <pin num="3" name="SDA" type="passive" />
+        <pin num="4" name="PGND_×2" type="passive" />
+        <pin num="5" name="NC" type="passive" />
+        <pin num="6" name="NC" type="passive" />
+        <pin num="7" name="NC" type="passive" />
+        <pin num="8" name="NC" type="passive" />
+        <pin num="9" name="VLED+_×2" type="passive" />
+        <pin num="10" name="VLED+" type="passive" />
+        <pin num="11" name="VDD" type="passive" />
+        <pin num="12" name="GND" type="passive" />
+        <pin num="13" name="INT#" type="passive" />
+        <pin num="14" name="NC" type="passive" />
+      </pins>
+    </libpart>
+  </libparts>
+  <libraries>
+    <library logical="WF">
+      <uri>${KIPRJMOD}/WF.kicad_sym</uri>
+    </library>
+  </libraries>
+  <nets>
+    <net code="1" name="/DOCK_RTN" class="Default">
+      <node ref="CH1" pin="1" pinfunction="1_1" pintype="passive" />
+      <node ref="JF1" pin="9" pintype="passive" />
+    </net>
+    <net code="2" name="/PA_39_I2C1_SDA" class="Default">
+      <node ref="JF1" pin="8" pintype="passive" />
+      <node ref="U301" pin="3" pinfunction="SDA_3" pintype="passive" />
+    </net>
+    <net code="3" name="/PA_40_I2C1_SCL" class="Default">
+      <node ref="JF1" pin="7" pintype="passive" />
+      <node ref="U301" pin="2" pinfunction="SCL_2" pintype="passive" />
+    </net>
+    <net code="4" name="/PPG_INT_N" class="Default">
+      <node ref="JF1" pin="6" pintype="passive" />
+      <node ref="U301" pin="13" pinfunction="INT#_13" pintype="passive" />
+    </net>
+    <net code="5" name="/SPK_OUTN" class="Default">
+      <node ref="JF1" pin="2" pintype="passive" />
+      <node ref="SP2" pin="1" pinfunction="1_1" pintype="passive" />
+    </net>
+    <net code="6" name="/SPK_OUTP" class="Default">
+      <node ref="JF1" pin="1" pintype="passive" />
+      <node ref="SP1" pin="1" pinfunction="1_1" pintype="passive" />
+    </net>
+    <net code="7" name="DOCK_5V_IN" class="Default">
+      <node ref="CH2" pin="1" pinfunction="1_1" pintype="passive" />
+      <node ref="JF1" pin="10" pintype="passive" />
+    </net>
+    <net code="8" name="GS_3V3" class="Default">
+      <node ref="C301" pin="1" pintype="passive" />
+      <node ref="C302" pin="1" pintype="passive" />
+      <node ref="JF1" pin="4" pintype="passive" />
+      <node ref="U301" pin="10" pinfunction="VLED+_10" pintype="passive" />
+      <node ref="U301" pin="9" pinfunction="VLED+_×2_9" pintype="passive" />
+    </net>
+    <net code="9" name="PPG_1V8" class="Default">
+      <node ref="C303" pin="1" pintype="passive" />
+      <node ref="C304" pin="1" pintype="passive" />
+      <node ref="JF1" pin="5" pintype="passive" />
+      <node ref="U301" pin="11" pinfunction="VDD_11" pintype="passive" />
+    </net>
+    <net code="10" name="PPG_GND" class="Default">
+      <node ref="C301" pin="2" pintype="passive" />
+      <node ref="C302" pin="2" pintype="passive" />
+      <node ref="C303" pin="2" pintype="passive" />
+      <node ref="C304" pin="2" pintype="passive" />
+      <node ref="JF1" pin="3" pintype="passive" />
+      <node ref="U301" pin="12" pinfunction="GND_12" pintype="passive" />
+      <node ref="U301" pin="4" pinfunction="PGND_×2_4" pintype="passive" />
+    </net>
+    <net code="11" name="unconnected-(U301-NC-Pad1)" class="Default">
+      <node ref="U301" pin="1" pinfunction="NC_1" pintype="passive+no_connect" />
+    </net>
+    <net code="12" name="unconnected-(U301-NC-Pad5)" class="Default">
+      <node ref="U301" pin="5" pinfunction="NC_5" pintype="passive+no_connect" />
+    </net>
+    <net code="13" name="unconnected-(U301-NC-Pad6)" class="Default">
+      <node ref="U301" pin="6" pinfunction="NC_6" pintype="passive+no_connect" />
+    </net>
+    <net code="14" name="unconnected-(U301-NC-Pad7)" class="Default">
+      <node ref="U301" pin="7" pinfunction="NC_7" pintype="passive+no_connect" />
+    </net>
+    <net code="15" name="unconnected-(U301-NC-Pad8)" class="Default">
+      <node ref="U301" pin="8" pinfunction="NC_8" pintype="passive+no_connect" />
+    </net>
+    <net code="16" name="unconnected-(U301-NC-Pad14)" class="Default">
+      <node ref="U301" pin="14" pinfunction="NC_14" pintype="passive+no_connect" />
+    </net>
+  </nets>
+</export>

@@ -22,7 +22,7 @@ from pathlib import Path
 from kicad_sexpr import Sym, dump, find, first, library_symbols
 import schematic_layout
 
-from module_pins import RESET_LANDS, module_nets
+from module_pins import RESET_LANDS, interface_net, module_nets
 
 HERE = Path(__file__).resolve().parent
 BOM = HERE.parent / 'reviews/2026-11-22-b-r2/placement-BOM.csv'
@@ -135,7 +135,10 @@ def read_board(path):
             for num, net in nets.items():
                 if net and parts[ref]['nets'].get(num) != net:
                     raise ValueError(f'PCB pad {ref}.{num}={net} differs from schematic')
-    if path.stem == BOARDS['main']:
+    which = next(key for key, value in BOARDS.items() if value == path.stem)
+    for ref, part in parts.items():
+        part['nets'] = {pin: interface_net(which, ref, pin, n) for pin, n in part['nets'].items()}
+    if which == 'main':
         parts['U1']['nets'] = module_nets(parts['U1']['nets'])
         testpoint = parts.pop('TP15')
         for ref, net in RESET_LANDS.items():
@@ -990,7 +993,9 @@ def cross_check(ours, reference):
     """Compare our KiCad netlist with verify.py's independent KiCad solve of the reviewed EPRO."""
     a, b = netlist_pins(ours), netlist_pins(reference)
     added = {}
-    if reference.parent.name == BOARDS['main']:
+    which = next(key for key, value in BOARDS.items() if value == reference.parent.name)
+    b = {(r, p): interface_net(which, r, p, n) for (r, p), n in b.items()}
+    if which == 'main':
         routed = module_nets({pin: name for (ref, pin), name in b.items() if ref == 'U1'})
         b.update({('U1', pin): name for pin, name in routed.items()})
         if b.pop(('TP15', '1')) != 'RTS_N_OD':

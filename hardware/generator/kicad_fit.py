@@ -5,6 +5,7 @@ Use FreeCAD's Python with the same WRISTFLOW_B_WORKSPACE as the EPRO restoration
 
 import argparse
 import csv
+import hashlib
 import json
 import subprocess
 from pathlib import Path
@@ -32,9 +33,12 @@ def overlap(a, b):
     return a.common(b).Volume if a.BoundBox.intersect(b.BoundBox) else 0
 
 
-def run(directory, assembly, cli):
+def run(directory, assembly, cli, placement_only=False):
     g = json.loads((directory / "geometry.json").read_text(encoding="utf-8"))
-    check_layout(g, directory)
+    if hashlib.sha256((directory / (directory.name + ".kicad_pcb")).read_bytes()).hexdigest() != g["pcb_sha256"]:
+        raise ValueError("Refresh geometry.json from the current saved board")
+    if not placement_only:
+        check_layout(g, directory)
     thin = json.loads((assembly / "geometry.json").read_text(encoding="utf-8"))
     doc = App.openDocument(str(next(assembly.glob("*.FCStd")).resolve()))
     closed = Part.read(str(next(assembly.glob("*.step")).resolve()))
@@ -87,6 +91,15 @@ def run(directory, assembly, cli):
         if o.Name not in ("Board", "Antenna", "ActiveArea")
     }
     obstacles["MotorSeat"] = doc.MotorSeat.Shape
+    # Move the four service lands from their original assembly datum to the
+    # approved rear-side fixture. DBG4 was the retired single reset contact.
+    obstacles.pop("DBG4", None)
+    service_xy = {f"TP{11 + i}": (-6.0 - 2 * i, 1.0) for i in range(4)}
+    for i, (ref, (x, y)) in enumerate(service_xy.items()):
+        name = f"DBG{i}"
+        original = reviewed[ref]
+        offset = V(x - float(original[12]), y - float(original[13]), 0)
+        obstacles[name] = obstacles[name].translated(offset)
     preferred_contacts = {
         "U1": {"ShieldPET"},
         "J1": {"Lead0", "Lead2"},
@@ -119,14 +132,15 @@ def run(directory, assembly, cli):
         if r in fixed:
             old = reviewed[r]
             angle = 270 if r == "J201" else float(old[14])
+            expected_xy = service_xy.get(r, (float(old[12]), float(old[13])))
             if (
                 side != old[1]
-                or abs(x - float(old[12])) > 0.001
-                or abs(y - float(old[13])) > 0.001
+                or abs(x - expected_xy[0]) > 0.001
+                or abs(y - expected_xy[1]) > 0.001
                 or abs((rot - angle + 180) % 360 - 180) > 0.001
             ):
                 raise ValueError(f"{r}: fixed interface has moved")
-            solid = Part.makeCompound([doc.getObject(n).Shape for n in fixed[r]])
+            solid = Part.makeCompound([obstacles[n] for n in fixed[r]])
             if r == "U16":
                 solid = extrusion(poly, rear + thickness, h)
         else:
@@ -216,11 +230,11 @@ def run(directory, assembly, cli):
     )
     b2 = next(p for p in g["footprints"]["U3"]["pads"] if p["pin"] == "B2")
     in_pad = [v for v in g["vias"] if v["xy"] == b2["xy"] and v["net"] == b2["net"]]
-    if len(in_pad) != 1 or (in_pad[0]["diameter"], in_pad[0]["drill"]) != (0.26,0.15):
+    if not placement_only and (len(in_pad) != 1 or (in_pad[0]["diameter"], in_pad[0]["drill"]) != (0.26,0.15)):
         raise ValueError("Missing capped U3.B2 through via")
     ordinary = [v for v in g["vias"] if v not in in_pad]
-    via_gap = min(Point(v["xy"]).distance(pad_shapes) - v["diameter"] / 2 for v in ordinary)
-    if via_gap <= 0 or any((v["diameter"],v["drill"]) not in ((0.50,0.30),(0.40,0.20)) for v in ordinary):
+    via_gap = min((Point(v["xy"]).distance(pad_shapes) - v["diameter"] / 2 for v in ordinary), default=None)
+    if (via_gap is not None and via_gap <= 0) or any((v["diameter"],v["drill"]) not in ((0.50,0.30),(0.40,0.20)) for v in ordinary):
         raise ValueError("Unexpected via in SMD land or drill size")
     board_clash = {
         n: round(overlap(board, obstacles[n]), 6)
@@ -280,13 +294,14 @@ def run(directory, assembly, cli):
                                "nearest_body_to_pad": round(min(pad_xy.distance(n) for n in neighbours), 5),
                                "nearest_body_to_entry": round(margin, 5)}
     results = {
+        "pcb_sha256": g["pcb_sha256"],
         "R66_screen_side": {"gaps_mm": bridge_gaps, "rework_mm": approach},
         "step_solids": len(closed.Solids),
         "assembly_height": closed.BoundBox.ZLength,
         "board_area": top.Area,
         "exported_body_thickness": dielectric.BoundBox.ZLength,
         "board_z": [rear, rear + thickness],
-        "pad_to_via_land_min": round(via_gap, 5),
+        "pad_to_via_land_min": round(via_gap, 5) if via_gap is not None else None,
         "antenna_to_copper": round(antenna.distance(copper), 5),
         "enclosed_battery": battery_items,
         "swollen_ntc": ntc,
@@ -298,6 +313,11 @@ def run(directory, assembly, cli):
         "j1_wire_to_plug_mm3": wire_contacts,
         "als_to_lightguide": round(solids["U16"].distToShape(doc.ALSPipe.Shape)[0], 5),
     }
+    if placement_only:
+        (directory / "placement-fit.json").write_text(json.dumps(results, indent=2), encoding="utf-8")
+        if clashes:
+            raise ValueError("See placement-fit.json for assembly collisions")
+        return
     # Preserve the checked assembly orientation in the local review STEP.
     Part.makeCompound([board, *solids.values()]).exportStep(
         str((directory / "placed-envelopes.step").resolve())
@@ -362,5 +382,6 @@ if __name__ == "__main__":
     ap.add_argument("project", type=Path)
     ap.add_argument("assembly", type=Path)
     ap.add_argument("--cli", default="kicad-cli")
+    ap.add_argument("--placement-only", action="store_true", help="Measure closed assembly independently of electrical completion")
     a = ap.parse_args()
-    run(a.project, a.assembly, a.cli)
+    run(a.project, a.assembly, a.cli, a.placement_only)

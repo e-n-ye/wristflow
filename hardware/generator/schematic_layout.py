@@ -65,7 +65,7 @@ PAGE_SUMMARY = {
     '03-rails': ['VSYS_1 开关、显示 3V3、GS_3V3 LDO', '测流桥 JP1/R49/R50 与默认 0 Ω 通路'],
     '04-display': ['原屏 CN1 直连（J201）与 QSPI 端接', '屏供电去耦、触摸 ESD 与上拉'],
     '05-audio': ['NS4150B 差分功放、输出磁珠与 ESD', '上进音麦克风 LMA2718'],
-    '06-io': ['IMU / 地磁 / 光感（I2C1）', '表冠编码器与按键、振动电机', '后盖 10P 接口与 1.8 V 光学电源'],
+    '06-io': ['IMU / 地磁 / 光感（I2C3）', '表冠编码器与按键、振动电机', '后盖 10P 接口与 1.8 V 光学电源'],
 }
 OVERVIEW = {'main': [
     '读图约定：电源与地用电源符号；跨页信号和连接器上的电源脚用带框的全局标签，本页信号用普通标签；× 为不连接。',
@@ -433,7 +433,7 @@ def main_io(b):
     k2 = at(pg, 'R34@PA_34_PWRKEY')
     pg.part('R35', k2[0] + 5.08, yk, top='PA_34_PWRKEY', pin='PA_34_PWRKEY')
     lead(pg, 'R34@PA_34_PWRKEY', at(pg, 'R35@PA_34_PWRKEY'), (k2[0] + 10.16, yk), net='PA_34_PWRKEY', d='R')
-    pg.text(16, 117, 'K1–K4 为表冠弹片：A/B 接 PA24/PA25，上拉取自 GS_3V3。', 1.4)
+    pg.text(16, 117, 'K1–K4 为 A、KEY、B、GND。A/B 接 PA35/PA32，上拉取自 GS_3V3。', 1.4)
     pg.text(16, 121.5, 'KEY_N 拉低 Q3 栅极，输出 KEY1 正脉冲，经 R34/R35 送 PA34。', 1.4)
 
     y = 125
@@ -492,11 +492,11 @@ def crown(b):
     pg = b.page('crown', '表冠立板：编码器与直角焊端', 'A4')
     pg.box(15, 15, 282, 150, '表冠立板（局部 Y/Z 立放）')
     pg.part('ENC1', 90, 85, 0)
-    for j, n in (('JC1', 'CROWN_A'), ('JC3', 'CROWN_B'), ('JC4', 'KEY_N')):
+    for j, n in (('JC1', 'CROWN_A'), ('JC3', 'CROWN_B'), ('JC2', 'KEY_N')):
         p = at(pg, f'ENC1@{n}')
         pg.part(j, p[0] + 40.64, p[1], 270, pin='1')
         pg.wire(f'ENC1@{n}', f'{j}.1')
-    pg.part('JC2', 190, 120, 0)
+    pg.part('JC4', 190, 120, 0)
     pg.text(22, 26, 'BMQ22 管脚和定位孔须按 A 后缀承认图核对；四个直角焊端连到水平触点板。', 1.5)
 
 

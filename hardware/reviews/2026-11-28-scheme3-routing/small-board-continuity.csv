@@ -1,0 +1,19 @@
+板,完整网名,实铜焊盘分量数,各分量焊盘
+WristFlow-B-Rear-FPC,/DOCK_RTN,2,JF1.9 | CH1.1
+WristFlow-B-Rear-FPC,/PA_39_I2C1_SDA,2,U301.3 | JF1.8
+WristFlow-B-Rear-FPC,/PA_40_I2C1_SCL,2,U301.2 | JF1.7
+WristFlow-B-Rear-FPC,/PPG_INT_N,2,U301.13 | JF1.6
+WristFlow-B-Rear-FPC,/SPK_OUTN,2,SP2.1 | JF1.2
+WristFlow-B-Rear-FPC,/SPK_OUTP,2,JF1.1 | SP1.1
+WristFlow-B-Rear-FPC,DOCK_5V_IN,2,JF1.10 | CH2.1
+WristFlow-B-Rear-FPC,GS_3V3,5,U301.9 | U301.10 | JF1.4 | C302.1 | C301.1
+WristFlow-B-Rear-FPC,PPG_1V8,4,C303.1 | U301.11 | JF1.5 | C304.1
+WristFlow-B-Rear-FPC,PPG_GND,7,C303.2 | U301.4 | U301.12 | JF1.3 | C304.2 | C302.2 | C301.2
+WristFlow-B-Crown,/CROWN_A,2,ENC1.A | JC1.1
+WristFlow-B-Crown,/CROWN_B,2,JC3.1 | ENC1.B
+WristFlow-B-Crown,/KEY_N,2,ENC1.S1 | JC2.1
+WristFlow-B-Crown,GND,3,JC4.1 | ENC1.C | ENC1.S2
+WristFlow-B-Crown-Contacts,/CROWN_A,2,JC11.1 | P1.1
+WristFlow-B-Crown-Contacts,/CROWN_B,2,JC13.1 | P3.1
+WristFlow-B-Crown-Contacts,/KEY_N,2,JC12.1 | P2.1
+WristFlow-B-Crown-Contacts,GND,2,JC14.1 | P4.1

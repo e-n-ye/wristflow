@@ -1,0 +1,153 @@
+{
+  "pcb_sha256": "9321708e30807cb04dde1478e575b498469db009df48bff394bf8d90ae7641f9",
+  "step_solids": 169,
+  "assembly_height": 16.845000000000002,
+  "board_z": [
+    8.41,
+    9.21
+  ],
+  "collisions": [
+    [
+      "C38",
+      "RearRun",
+      "0.30 mm lateral envelope"
+    ],
+    [
+      "C38",
+      "RearRun",
+      "lateral clearance",
+      0.04572
+    ],
+    [
+      "C13",
+      "RearRun",
+      "0.30 mm lateral envelope"
+    ],
+    [
+      "C13",
+      "RearRun",
+      "lateral clearance",
+      0.0
+    ],
+    [
+      "C1",
+      "RearRun",
+      "0.30 mm lateral envelope"
+    ],
+    [
+      "C1",
+      "RearRun",
+      "lateral clearance",
+      0.0
+    ],
+    [
+      "R201",
+      "RearRun",
+      "0.30 mm lateral envelope"
+    ],
+    [
+      "R201",
+      "RearRun",
+      "lateral clearance",
+      0.17605
+    ],
+    [
+      "C41",
+      "RearRun",
+      "0.30 mm lateral envelope"
+    ],
+    [
+      "C41",
+      "RearRun",
+      "lateral clearance",
+      0.0
+    ],
+    [
+      "Q1",
+      "RearRun",
+      "0.30 mm lateral envelope"
+    ],
+    [
+      "Q1",
+      "RearRun",
+      "lateral clearance",
+      0.0
+    ],
+    [
+      "C202",
+      "RearRun",
+      "0.30 mm lateral envelope"
+    ],
+    [
+      "C202",
+      "RearRun",
+      "lateral clearance",
+      0.0
+    ],
+    [
+      "R206",
+      "RearRun",
+      "0.30 mm lateral envelope"
+    ],
+    [
+      "R206",
+      "RearRun",
+      "lateral clearance",
+      0.0
+    ]
+  ],
+  "j1_wire_to_plug_mm3": {
+    "Lead0": 0.003974,
+    "Lead2": 0.003974
+  },
+  "als_to_lightguide": 0.04,
+  "R66_screen_side": {
+    "gaps_mm": {
+      "Screen": {
+        "vertical_above_same_xy": 2.72,
+        "lateral_at_body_height": null,
+        "distance_3d": 2.72
+      },
+      "FrontRun": {
+        "vertical_above_same_xy": null,
+        "lateral_at_body_height": null,
+        "distance_3d": 6.31305
+      },
+      "Frame": {
+        "vertical_above_same_xy": null,
+        "lateral_at_body_height": 0.55098,
+        "distance_3d": 0.55098
+      }
+    },
+    "rework_mm": {
+      "1": {
+        "entry_width": 0.6665,
+        "entry_depth": 1,
+        "nearest_body_to_pad": 0.91074,
+        "nearest_body_to_entry": 1.71469
+      },
+      "2": {
+        "entry_width": 0.6665,
+        "entry_depth": 1,
+        "nearest_body_to_pad": 0.7441,
+        "nearest_body_to_entry": 1.6081
+      }
+    }
+  },
+  "antenna_to_copper": 0.7,
+  "board_obstacles": {
+    "Frame": 0.0,
+    "MotorSeat": 0.0,
+    "Daughter": 0.0,
+    "CrownBridge": 0,
+    "Motor": 0.0,
+    "Speaker": 0,
+    "Clamp1": 0.0,
+    "Clamp2": 0.0,
+    "Clamp3": 0.0
+  },
+  "minimum_lateral_mm": 0.0,
+  "battery_max_height_mm": 0.96,
+  "battery_min_separator_mm": 0.7,
+  "swollen_ntc_min_mm": 0.34392
+}

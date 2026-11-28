@@ -16,7 +16,7 @@ from collections import Counter
 from pathlib import Path
 
 import pcbnew as pcb
-from module_pins import RESET_LANDS, module_nets
+from module_pins import INTERFACE_PINS, RESET_LANDS, interface_net, module_nets
 from kicad_schematic import BOARDS, MAIN_ADDITIONS, cross_check, equivalence, read_board, read_bom, strip
 from kicad_sexpr import quote
 
@@ -33,6 +33,11 @@ def assembly(pt):
 
 
 def revise_lands(board, which):
+    for ref in INTERFACE_PINS[which]:
+        for pad in board.FindFootprintByReference(ref).Pads():
+            name = interface_net(which, ref, pad.GetNumber(), pad.GetNetname())
+            if name != pad.GetNetname():
+                pad.SetNet(board.FindNet(name))
     if which == "main":
         module = board.FindFootprintByReference("U1")
         nets = module_nets({p.GetNumber(): p.GetNetname() for p in module.Pads()})
@@ -749,6 +754,7 @@ if __name__ == "__main__":
     for arg in ("projects", "schematics", "out", "cli"):
         parser.add_argument("--" + arg, type=Path)
     parser.add_argument("--screen-reference", type=Path, help="KiCad import of the official display PCB alone")
+    parser.add_argument("--board", choices=BOARDS, help="Build and check just this board in a new output directory")
     args = parser.parse_args()
     if args.readback:
         if args.readback.suffix != ".kicad_pcb" or not args.readback.is_file():
@@ -759,4 +765,5 @@ if __name__ == "__main__":
         parser.error("building requires --projects, --schematics, --out and --cli")
     args.out.mkdir(parents=True, exist_ok=False)
     for which, project in BOARDS.items():
-        build(args, which, project)
+        if args.board is None or which == args.board:
+            build(args, which, project)
