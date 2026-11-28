@@ -9,7 +9,7 @@ from pathlib import Path
 from shapely.geometry import LineString, Point, Polygon
 
 
-def layer_rows(project, budget):
+def layer_rows(project, budget, revisions=None):
     geometry = json.loads((project / "geometry.json").read_bytes())
     board = project / (project.name + ".kicad_pcb")
     if hashlib.sha256(board.read_bytes()).hexdigest() != geometry["pcb_sha256"]:
@@ -38,17 +38,23 @@ def layer_rows(project, budget):
         crossings[net] += bool(net != "GND" and contacts & {"F", "L3"} and contacts & {"B", "L4"})
     with budget.open(encoding="utf-8") as stream:
         planned = list(csv.DictReader(stream))
+    revised = {}
+    if revisions is not None:
+        with revisions.open(encoding="utf-8") as stream:
+            revised = {r["网名"]: r for r in csv.DictReader(stream)}
     if {r["网名"] for r in planned} != set(components):
         raise ValueError("Plan and PCB must contain the same functional nets")
     for row in planned:
         net = row["网名"]
-        allowed = set(row["三_预计用层"].split("/"))
+        revision = revised.get(net, {})
+        layers = revision.get("R3允许层", row["三_预计用层"])
+        allowed = set(layers.split("/"))
         used = track_layers[net]
-        limit = int(row["三_单网孔预算上限"])
+        limit = int(revision.get("R3孔上限", row["三_单网孔预算上限"]))
         yield {
             "网名": net, "统计类": row["统计类"], "实盘面": "/".join(sorted(endpoints[net])),
-            "规划层": row["三_预计用层"], "实铜层": "/".join(sorted(used)), "用层数": len(used),
-            "名义孔数": row["三_名义实体孔"], "孔上限": limit, "实体孔": physical[net],
+            "原规划层": row["三_预计用层"], "现行规划层": layers, "实铜层": "/".join(sorted(used)), "用层数": len(used),
+            "名义孔数": revision.get("R3名义孔", row["三_名义实体孔"]), "孔上限": limit, "实体孔": physical[net],
             "有效换层孔": effective[net], "跨参考组孔": crossings[net],
             "规划外层": "/".join(sorted(used - allowed)), "超预算孔": max(0, physical[net] - limit),
             "焊盘分量数": len(components[net]),
@@ -61,8 +67,9 @@ if __name__ == "__main__":
     parser.add_argument("output", type=Path)
     parser.add_argument("--budget", type=Path, default=Path(__file__).resolve().parents[1]
                         / "2026-11-28-scheme3-plan/layer-budget.csv")
+    parser.add_argument("--revisions", type=Path, default=Path(__file__).with_name("r3-layer-revisions.csv"))
     args = parser.parse_args()
-    rows = list(layer_rows(args.project, args.budget))
+    rows = list(layer_rows(args.project, args.budget, args.revisions))
     with args.output.open("w", newline="", encoding="utf-8") as stream:
         writer = csv.DictWriter(stream, rows[0], lineterminator="\n")
         writer.writeheader()

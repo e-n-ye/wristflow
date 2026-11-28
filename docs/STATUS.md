@@ -35,9 +35,9 @@
 
 **方案二（对照）**　保留 `55fc9dc` 的 `sixfix`，主板 6 网各缺 1 项，一致性差异 0、闭盖碰撞 0、最小横向 0.31999 mm。西、北、东三区各重排三版，最少待连分别为 15、29、26。草稿保留。原表 PA31 的专用 AON7 物理断开，正常 DEEP 可经 WSR_GPIO1 唤醒，实机待验。[方案二评审与逐版证据](../hardware/reviews/2026-11-28-full-reroute/README.md#zone-results)
 
-**方案三（整板草稿）**　三处修正同版通过后已完成本轮整板试布。主板 28 网余 38 项、一致性 0，DRC 仅三对既有 K 庭院；闭盖违规 0、横向最小 0.34999 mm。87 个信号换层孔，33/61 个信号用 1–2 层。两块表冠板均全通，后盖余 3 项。PR #277 保持 draft。下一有界实验为复核 U3 扇出、CLK 与槽旁地回流的联合摆位及铜走廊，见[三方表、分量与专项](../hardware/reviews/2026-11-28-scheme3-routing/repairs.md)。
+**方案三 R3 重布已停在 MIC 检查点。** 布线提交 `5c4a08cd05a5ceb1169db782bc3e2a9c7bc43bc0`，保存板 `D:\MY_Desk\project\wristflow.worktrees\codex-b-r2-scheme3\artifacts\s3-night\mic-r0\WristFlow-B-R2\WristFlow-B-R2.kicad_pcb`。PCB SHA-256 为 `5d5532d43e58086cc9389c67e6d308a316f6e04fb9d7e169128618382ccf521b`。主板 **42 网、165 项待连**，一致性 0，DRC 违规栏仅三对既有 K 庭院。R3 先行铜、五路 QSPI、35 条供电/扬声器主干及 MIC 四网已锁定；重新打开 PCB 读到全部 724 段走线和 111 个通孔锁定。五路长差 1.900 mm，MIC 隔离违规 0。闭盖横向最小 0.34130 mm、违规 0。两块表冠板各 0 待连，正式后盖 FPC 余 4 项。用户已取消 08:00 截止安排，草稿 PR #277 明天接续。[本轮检查点和同版证据](../hardware/reviews/2026-11-28-scheme3-routing/night.md) · [历史 release 对照（38 项）](../hardware/reviews/2026-11-28-scheme3-routing/repairs.md)
 
-22:10 用户批准夜间迭代，随后指定回到 R3 的 137 条先行铜记录（`889c3cf`），撤下整板协商铜。R3 重布 265→263→255 项。五路屏线已定向接通并锁定，最大长差 1.900 mm，异网反焊盘穿越 0，接续布 BTL 支路、充电入口和主要供电。截止 11/29 08:00（上海），全程禁用全网自动布线。[授权与停止条件](BASELINE.md#b-scheme3-build-20261128) · [方案三 R3 重布记录](../hardware/reviews/2026-11-28-scheme3-routing/night.md)
+**明天第一步**　在保存板副本先预留 U3.B2 的 Ø0.26/钻 0.15 mm 填孔盖帽，缩短 U3.A1 开窗内的粗铜，再共同安排 U3.C1/C2 的充电 SDA/SCL、槽西回流，随后接 U6 输入。按同版 DRC、供电、QSPI、MIC 和地层复验。三处去耦支路仍超过 3 mm：U17.1→C2.2 为 6.111 mm，U17.8→C42.2 为 11.956 mm，U15.1→C33.2 为 4.353 mm。全板另有 28/47 个跨参考组孔超距、75 个短段、13 处锐角；需整理一般信号布线后复量。局部试板及后盖光学岛移位试板仅供定位。[逐网预算与余项](../hardware/reviews/2026-11-28-scheme3-routing/r3-layers.csv) · [决策与局部解锁权限](BASELINE.md#b-scheme3-build-20261128)
 
 ## 本轮 OTA 验收历程（2026-11-18 至 2026-11-20）
 
