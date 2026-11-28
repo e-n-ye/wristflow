@@ -1,0 +1,212 @@
+版本,专项,实测数值或失败对象
+west1,full_layout,"GND-L2: mechanical cutout absorbed copper/via at (-8.1728, 8.187002, 2.847998, 11.792998), 0.2339 mm²"
+west1,via_rules,孔径、开窗等检查通过
+west1,planes,"GND-L2: mechanical cutout absorbed copper/via at (-8.1728, 8.187002, 2.847998, 11.792998), 0.2339 mm²"
+west1,cross,"L3/L4 parallel gap -0.0950 mm: {'start': [-5.65, -11.1], 'end': [-15.805, -11.1], 'net': 'PA_03_LCD_QSPI_CS', 'side': 'L3', 'width': 0.12} vs {'start': [-13.15, -11.125], 'end': [-11.4306, -11.125], 'net': 'PA_00_LCD_QSPI_RSTB', 'side': 'L4', 'width': 0.12}"
+west1,mic,3
+west1,local_caps,C38.1 has no directly connected local GND via within 0.80 mm
+west1,power,No 0 mm copper path from R65.2 to U2.A2
+west1,btl_pre,No 0.3 mm copper path from U6.8 to L2.1
+west1,J2.10-D19.2,6.2289
+west1,D19.1-U17.1,4.1008
+west1,U17.1-D17.3,1.8384
+west1,U17.8-C42.2,1.1485
+west1,J201.21-D6.2,3.931
+west1,J201.20-D7.2,2.4391
+west1,J201.19-C14.2,2.4973
+west1,J201.19-C15.2,5.9974
+west1,J2.1-L2.2,2.5629
+west1,J2.2-L1.2,3.5019
+west1,GND-L2 实铺面积 mm2,1074.1323
+west1,GND-L5 实铺面积 mm2,1074.1323
+west1,钢网与表面处理,428 openings; ENIG
+west2,full_layout,"L3/L4 crossing at 45.00 degrees: {'start': [-9.4788, 1.2198], 'end': [-12.5986, -1.9], 'net': 'MIC_BIAS', 'side': 'L3', 'width': 0.16} vs {'start': [-10.35, 3.1914], 'end': [-10.35, -0.7012], 'net': 'PA_38', 'side': 'L4', 'width': 0.16}"
+west2,via_rules,孔径、开窗等检查通过
+west2,planes,地层及球盘断言通过
+west2,cross,"L3/L4 crossing at 45.00 degrees: {'start': [-9.4788, 1.2198], 'end': [-12.5986, -1.9], 'net': 'MIC_BIAS', 'side': 'L3', 'width': 0.16} vs {'start': [-10.35, 3.1914], 'end': [-10.35, -0.7012], 'net': 'PA_38', 'side': 'L4', 'width': 0.16}"
+west2,mic,16
+west2,local_caps,28
+west2,power,No 0 mm copper path from R65.2 to U2.A2
+west2,btl_pre,No 0.3 mm copper path from U6.8 to L2.1
+west2,J2.10-D19.2,6.2289
+west2,D19.1-U17.1,4.1008
+west2,U17.1-D17.3,1.8384
+west2,U17.8-C42.2,1.1485
+west2,J201.21-D6.2,3.931
+west2,J201.20-D7.2,2.4391
+west2,J201.19-C14.2,2.4973
+west2,J201.19-C15.2,5.9974
+west2,J2.1-L2.2,2.5629
+west2,J2.2-L1.2,3.5019
+west2,GND-L2 实铺面积 mm2,1072.3258
+west2,GND-L5 实铺面积 mm2,1072.3258
+west2,钢网与表面处理,428 openings; ENIG
+west3,full_layout,"L3/L4 parallel gap 0.1580 mm: {'start': [-4.175, 11.9], 'end': [-5.65, 11.9], 'net': 'PA_40_I2C1_SCL', 'side': 'L3', 'width': 0.16} vs {'start': [-5.534, 12.198001], 'end': [-6.2177, 12.198001], 'net': 'PPG_GND', 'side': 'L4', 'width': 0.12}"
+west3,via_rules,孔径、开窗等检查通过
+west3,planes,地层及球盘断言通过
+west3,cross,"L3/L4 parallel gap 0.1580 mm: {'start': [-4.175, 11.9], 'end': [-5.65, 11.9], 'net': 'PA_40_I2C1_SCL', 'side': 'L3', 'width': 0.16} vs {'start': [-5.534, 12.198001], 'end': [-6.2177, 12.198001], 'net': 'PPG_GND', 'side': 'L4', 'width': 0.12}"
+west3,mic,5
+west3,local_caps,28
+west3,power,No 0 mm copper path from R65.2 to U2.A2
+west3,btl_pre,分瓣面积 9.2085 mm2；最大中心距 2.3320 mm
+west3,J2.10-D19.2,6.2289
+west3,D19.1-U17.1,4.1008
+west3,U17.1-D17.3,1.8384
+west3,U17.8-C42.2,1.1485
+west3,J201.21-D6.2,3.931
+west3,J201.20-D7.2,2.4391
+west3,J201.19-C14.2,2.4973
+west3,J201.19-C15.2,5.9974
+west3,J2.1-L2.2,2.5629
+west3,J2.2-L1.2,3.5019
+west3,GND-L2 实铺面积 mm2,1073.7997
+west3,GND-L5 实铺面积 mm2,1073.7997
+west3,钢网与表面处理,428 openings; ENIG
+north1,full_layout,"L3/L4 crossing at 45.01 degrees: {'start': [-0.5593, 13.99], 'end': [1.11647, 15.66533], 'net': 'PA_10_I2C0_SCL', 'side': 'L3', 'width': 0.12} vs {'start': [0.5318, 16.1318], 'end': [0.5318, 14.2444], 'net': '/02 触点输入、充电与电芯/CHG_INT', 'side': 'L4', 'width': 0.12}"
+north1,via_rules,孔径、开窗等检查通过
+north1,planes,地层及球盘断言通过
+north1,cross,"L3/L4 crossing at 45.01 degrees: {'start': [-0.5593, 13.99], 'end': [1.11647, 15.66533], 'net': 'PA_10_I2C0_SCL', 'side': 'L3', 'width': 0.12} vs {'start': [0.5318, 16.1318], 'end': [0.5318, 14.2444], 'net': '/02 触点输入、充电与电芯/CHG_INT', 'side': 'L4', 'width': 0.12}"
+north1,mic,3
+north1,local_caps,C201.2 has no directly connected local GND via within 0.80 mm
+north1,power,No 0 mm copper path from J2.10 to D19.2
+north1,btl_pre,No 0.3 mm copper path from U6.5 to L1.1
+north1,J2.10-D19.2,No 0.4 mm copper path from J2.10 to D19.2
+north1,D19.1-U17.1,No 0.4 mm copper path from D19.1 to U17.1
+north1,U17.1-D17.3,No 0.3 mm copper path from U17.1 to D17.3
+north1,U17.8-C42.2,3.9782
+north1,J201.21-D6.2,3.931
+north1,J201.20-D7.2,2.4391
+north1,J201.19-C14.2,2.4973
+north1,J201.19-C15.2,5.9974
+north1,J2.1-L2.2,2.7773
+north1,J2.2-L1.2,No 0.35 mm copper path from J2.2 to L1.2
+north1,闭盖检查记录,"[""R42"", ""Frame"", 0.422191]"
+north1,闭盖检查记录,"[""R42"", ""Frame"", ""0.30 mm lateral envelope""]"
+north1,闭盖检查记录,"[""R42"", ""Frame"", ""lateral clearance"", 0.0]"
+north1,闭盖检查记录,"[""R43"", ""Frame"", ""0.30 mm lateral envelope""]"
+north1,闭盖检查记录,"[""R43"", ""Frame"", ""lateral clearance"", 0.05488]"
+north1,闭盖检查记录,"[""R60"", ""Frame"", 0.0294]"
+north1,闭盖检查记录,"[""R60"", ""Frame"", ""0.30 mm lateral envelope""]"
+north1,闭盖检查记录,"[""R60"", ""Frame"", ""lateral clearance"", 0.0]"
+north1,闭盖检查记录,"[""C8"", ""LidFlexNew"", 0.11353]"
+north1,闭盖检查记录,"[""C8"", ""LidEnd"", 0.0066]"
+north1,闭盖检查记录,"[""C7"", ""LidFlexNew"", 0.092836]"
+north1,闭盖检查记录,"[""C7"", ""LidEnd"", 0.005397]"
+north1,GND-L2 实铺面积 mm2,1076.4923
+north1,GND-L5 实铺面积 mm2,1076.4923
+north1,钢网与表面处理,428 openings; ENIG
+north2,full_layout,"GND-L2: mechanical cutout absorbed copper/via at (-7.757998, 7.5124, 2.9722, 12.5239), 1.1830 mm²"
+north2,via_rules,孔径、开窗等检查通过
+north2,planes,"GND-L2: mechanical cutout absorbed copper/via at (-7.757998, 7.5124, 2.9722, 12.5239), 1.1830 mm²"
+north2,cross,"L3/L4 crossing at 45.00 degrees: {'start': [13.54, 18.38], 'end': [12.76, 19.16], 'net': 'PPG_1V8', 'side': 'L3', 'width': 0.12} vs {'start': [13.0125, 20.3525], 'end': [13.0125, 17.1325], 'net': 'GS_3V3', 'side': 'L4', 'width': 0.2}"
+north2,mic,0
+north2,local_caps,28
+north2,power,No 0 mm copper path from J2.10 to D19.2
+north2,btl_pre,No 0.3 mm copper path from U6.8 to L2.1
+north2,J2.10-D19.2,No 0.4 mm copper path from J2.10 to D19.2
+north2,D19.1-U17.1,No 0.4 mm copper path from D19.1 to U17.1
+north2,U17.1-D17.3,No 0.3 mm copper path from U17.1 to D17.3
+north2,U17.8-C42.2,1.8482
+north2,J201.21-D6.2,3.931
+north2,J201.20-D7.2,2.4391
+north2,J201.19-C14.2,2.4973
+north2,J201.19-C15.2,5.9974
+north2,J2.1-L2.2,No 0.35 mm copper path from J2.1 to L2.2
+north2,J2.2-L1.2,No 0.35 mm copper path from J2.2 to L1.2
+north2,闭盖检查记录,"[""R42"", ""LidFlexNew"", 0.078124]"
+north2,闭盖检查记录,"[""R35"", ""swollen optional NTC"", 0.0]"
+north2,闭盖检查记录,"[""C8"", ""LidFlexNew"", 0.048068]"
+north2,闭盖检查记录,"[""C202"", ""swollen optional NTC"", 0.0]"
+north2,GND-L2 实铺面积 mm2,1072.4421
+north2,GND-L5 实铺面积 mm2,1072.4421
+north2,钢网与表面处理,428 openings; ENIG
+north3,full_layout,"GND-L2: mechanical cutout absorbed copper/via at (-7.757998, 8.187002, 2.847998, 12.5239), 0.6060 mm²"
+north3,via_rules,孔径、开窗等检查通过
+north3,planes,"GND-L2: mechanical cutout absorbed copper/via at (-7.757998, 8.187002, 2.847998, 12.5239), 0.6060 mm²"
+north3,cross,"L3/L4 parallel gap -0.2945 mm: {'start': [-5.65, 13.99], 'end': [-8.49, 13.99], 'net': 'PA_10_I2C0_SCL', 'side': 'L3', 'width': 0.12} vs {'start': [-5.654, 14.0055], 'end': [-4.6164, 14.0055], 'net': 'VSYS', 'side': 'L4', 'width': 0.5}"
+north3,mic,0
+north3,local_caps,28
+north3,power,No 0 mm copper path from J2.10 to D19.2
+north3,btl_pre,分瓣面积 5.7025 mm2；最大中心距 2.4152 mm
+north3,J2.10-D19.2,No 0.4 mm copper path from J2.10 to D19.2
+north3,D19.1-U17.1,3.3767
+north3,U17.1-D17.3,No 0.3 mm copper path from U17.1 to D17.3
+north3,U17.8-C42.2,1.4713
+north3,J201.21-D6.2,3.931
+north3,J201.20-D7.2,2.4391
+north3,J201.19-C14.2,2.4973
+north3,J201.19-C15.2,5.9974
+north3,J2.1-L2.2,2.5429
+north3,J2.2-L1.2,No 0.35 mm copper path from J2.2 to L1.2
+north3,闭盖检查记录,"[""C25"", ""LidFlexNew"", 0.000265]"
+north3,闭盖检查记录,"[""R7"", ""swollen optional NTC"", 0.1461]"
+north3,闭盖检查记录,"[""R60"", ""LidFlexNew"", 0.016802]"
+north3,闭盖检查记录,"[""C7"", ""LidFlexNew"", 0.039484]"
+north3,闭盖检查记录,"[""R5"", ""LidFlexNew"", 0.098496]"
+north3,闭盖检查记录,"[""C33"", ""swollen optional NTC"", 0.0]"
+north3,GND-L2 实铺面积 mm2,1072.7163
+north3,GND-L5 实铺面积 mm2,1072.7163
+north3,钢网与表面处理,428 openings; ENIG
+east1,full_layout,"L3/L4 parallel gap 0.1817 mm: {'start': [5.1832, 0.9549], 'end': [5.1832, 1.2592], 'net': 'PA_33_TP_SDA', 'side': 'L3', 'width': 0.12} vs {'start': [4.7665, 0.8108], 'end': [4.7665, 1.1276], 'net': 'OLED_VBAT', 'side': 'L4', 'width': 0.35}"
+east1,via_rules,孔径、开窗等检查通过
+east1,planes,地层及球盘断言通过
+east1,cross,"L3/L4 parallel gap 0.1817 mm: {'start': [5.1832, 0.9549], 'end': [5.1832, 1.2592], 'net': 'PA_33_TP_SDA', 'side': 'L3', 'width': 0.12} vs {'start': [4.7665, 0.8108], 'end': [4.7665, 1.1276], 'net': 'OLED_VBAT', 'side': 'L4', 'width': 0.35}"
+east1,mic,0
+east1,local_caps,28
+east1,power,No 0 mm copper path from U2.A1 to U4.1
+east1,btl_pre,分瓣面积 4.6279 mm2；最大中心距 2.4152 mm
+east1,J2.10-D19.2,6.2289
+east1,D19.1-U17.1,4.1008
+east1,U17.1-D17.3,1.8384
+east1,U17.8-C42.2,1.1485
+east1,J201.21-D6.2,No 0 mm copper path from J201.21 to D6.2
+east1,J201.20-D7.2,No 0 mm copper path from J201.20 to D7.2
+east1,J201.19-C14.2,No 0 mm copper path from J201.19 to C14.2
+east1,J201.19-C15.2,No 0 mm copper path from J201.19 to C15.2
+east1,J2.1-L2.2,2.5629
+east1,J2.2-L1.2,3.5019
+east1,GND-L2 实铺面积 mm2,1079.5831
+east1,GND-L5 实铺面积 mm2,1079.5831
+east1,钢网与表面处理,428 openings; ENIG
+east2,full_layout,GND-L2: board-edge notch exceeds 0.80 mm depth
+east2,via_rules,孔径、开窗等检查通过
+east2,planes,GND-L2: board-edge notch exceeds 0.80 mm depth
+east2,cross,"L3/L4 crossing at 45.00 degrees: {'start': [9.88, 8.16], 'end': [3.17, 8.16], 'net': '/03 受控电源与测流桥/PA_30_1', 'side': 'L3', 'width': 0.12} vs {'start': [6.3, 8.2717], 'end': [5.8029, 7.7746], 'net': 'VCC_3V3', 'side': 'L4', 'width': 0.35}"
+east2,mic,0
+east2,local_caps,C31.1 has no directly connected local GND via within 0.80 mm
+east2,power,No 0 mm copper path from U4.5 to R66.1
+east2,btl_pre,分瓣面积 4.6279 mm2；最大中心距 2.4152 mm
+east2,J2.10-D19.2,6.2289
+east2,D19.1-U17.1,4.1008
+east2,U17.1-D17.3,1.8384
+east2,U17.8-C42.2,1.1485
+east2,J201.21-D6.2,4.9046
+east2,J201.20-D7.2,2.3691
+east2,J201.19-C14.2,No 0 mm copper path from J201.19 to C14.2
+east2,J201.19-C15.2,No 0 mm copper path from J201.19 to C15.2
+east2,J2.1-L2.2,2.5629
+east2,J2.2-L1.2,3.5019
+east2,GND-L2 实铺面积 mm2,1073.5896
+east2,GND-L5 实铺面积 mm2,1073.5896
+east2,钢网与表面处理,428 openings; ENIG
+east3,full_layout,GND-L2: board-edge notch exceeds 0.80 mm depth
+east3,via_rules,孔径、开窗等检查通过
+east3,planes,GND-L2: board-edge notch exceeds 0.80 mm depth
+east3,cross,"L3/L4 crossing at 45.00 degrees: {'start': [1.25, -2.426], 'end': [3.5617, -2.426], 'net': 'PA_40_I2C1_SCL', 'side': 'L3', 'width': 0.12} vs {'start': [1.1025, -2.2], 'end': [2.4057, -3.5032], 'net': 'PA_39_I2C1_SDA', 'side': 'L4', 'width': 0.12}"
+east3,mic,0
+east3,local_caps,28
+east3,power,No 0 mm copper path from U2.A1 to U4.1
+east3,btl_pre,分瓣面积 4.6279 mm2；最大中心距 2.4152 mm
+east3,J2.10-D19.2,6.2289
+east3,D19.1-U17.1,4.1008
+east3,U17.1-D17.3,1.8384
+east3,U17.8-C42.2,1.1485
+east3,J201.21-D6.2,4.2073
+east3,J201.20-D7.2,6.9264
+east3,J201.19-C14.2,1.6513
+east3,J201.19-C15.2,9.558
+east3,J2.1-L2.2,2.5629
+east3,J2.2-L1.2,3.5019
+east3,GND-L2 实铺面积 mm2,1073.5816
+east3,GND-L5 实铺面积 mm2,1073.5816
+east3,钢网与表面处理,428 openings; ENIG
