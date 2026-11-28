@@ -7,8 +7,9 @@ from pathlib import Path
 
 from gerbonara import GerberFile
 from gerbonara.graphic_objects import Flash
-from gerbonara.graphic_primitives import Circle, Line
-from shapely.geometry import LineString, Point, Polygon
+from gerbonara.graphic_primitives import Circle, Line, Rectangle
+from shapely.affinity import rotate
+from shapely.geometry import LineString, Point, Polygon, box
 from shapely.ops import unary_union
 
 
@@ -19,6 +20,12 @@ def polygon(primitive):
         return LineString([(primitive.x1, primitive.y1), (primitive.x2, primitive.y2)]).buffer(
             primitive.width / 2, quad_segs=256
         )
+    if isinstance(primitive, Rectangle):
+        # Preserve the four corners of rotated stencil flashes before union.
+        x, y = primitive.x, primitive.y
+        half_w, half_h = primitive.w / 2, primitive.h / 2
+        aperture = box(x - half_w, y - half_h, x + half_w, y + half_h)
+        return rotate(aperture, primitive.rotation, origin=(x, y), use_radians=True)
     outline = primitive.to_arc_poly()
     if any(outline.arc_centers):
         outline = outline.approximate_arcs(0.000001)
