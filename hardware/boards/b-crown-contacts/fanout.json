@@ -1,1 +1,14 @@
-[]
+[
+  {"pad":"P1.1","layer":"B","width":0.2,"path":[[1.134,-2.186],[1.704,-2.186],[1.83,-2.06]],"locked":true},
+  {"pad":"P1.1","via":[1.83,-2.06],"diameter":0.6,"drill":0.3,"locked":true},
+  {"pad":"P1.1","layer":"F","width":0.2,"path":[[1.83,-2.06],[1.94,-1.95],[2.05,-1.95]],"locked":true},
+  {"pad":"P2.1","layer":"B","width":0.2,"path":[[1.134,-0.286],[1.168,-0.32],[1.83,-0.32]],"locked":true},
+  {"pad":"P2.1","via":[1.83,-0.32],"diameter":0.6,"drill":0.3,"locked":true},
+  {"pad":"P2.1","layer":"F","width":0.2,"path":[[1.83,-0.32],[1.9,-0.25],[2.05,-0.25]],"locked":true},
+  {"pad":"JC13.1","layer":"F","width":0.2,"path":[[2.05,0.85],[2.002,0.898],[1.569,0.898]],"locked":true},
+  {"pad":"JC13.1","via":[1.569,0.898],"diameter":0.6,"drill":0.3,"locked":true},
+  {"pad":"JC13.1","layer":"B","width":0.2,"path":[[1.569,0.898],[1.517,0.95],[1.134,0.95]],"locked":true},
+  {"pad":"P4.1","layer":"B","width":0.2,"path":[[1.134,2.186],[1.204,2.116],[1.83,2.116]],"locked":true},
+  {"pad":"P4.1","via":[1.83,2.116],"diameter":0.6,"drill":0.3,"locked":true},
+  {"pad":"P4.1","layer":"F","width":0.2,"path":[[1.83,2.116],[1.996,1.95],[2.05,1.95]],"locked":true}
+]
