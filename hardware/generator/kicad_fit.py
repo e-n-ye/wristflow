@@ -12,6 +12,7 @@ from pathlib import Path
 import FreeCAD as App
 import Part
 from kicad_schematic import BOARDS, MAIN_ADDITIONS
+from module_pins import RESET_LANDS
 from kicad_layout_check import check_layout
 from library import parts, transform
 from shapely.geometry import Point, Polygon, box
@@ -60,7 +61,7 @@ def run(directory, assembly, cli):
     }
     for i in range(4):
         fixed["K" + str(i + 1)] = ["CrownLeaf" + str(i)]
-    for i in range(5):
+    for i in range(4):
         fixed["TP" + str(11 + i)] = ["DBG" + str(i)]
     for i in range(2):
         fixed["MT" + str(i + 1)] = ["MotorLand" + str(i)]
@@ -106,11 +107,15 @@ def run(directory, assembly, cli):
     wire_contacts, lateral = {}, {}
     for r, f in g["footprints"].items():
         side, x, y, rot = f["side"], *f["xy"], f["degrees"]
-        part = parts[MAIN_ADDITIONS[r]["copy_part"] if r in MAIN_ADDITIONS else r]
-        env = transform(part["env"], x, y, rot, side).envelope
-        h = part["height"]
+        if r in RESET_LANDS:
+            poly = Point(x, y).buffer(.35, quad_segs=32)
+            env, h = poly.envelope, .035
+        else:
+            part = parts[MAIN_ADDITIONS[r]["copy_part"] if r in MAIN_ADDITIONS else r]
+            poly = transform(part["body"], x, y, rot, side)
+            env = transform(part["env"], x, y, rot, side).envelope
+            h = part["height"]
         envelopes[r] = [side, *env.bounds, h]
-        poly = transform(part["body"], x, y, rot, side)
         if r in fixed:
             old = reviewed[r]
             angle = 270 if r == "J201" else float(old[14])

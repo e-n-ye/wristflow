@@ -16,6 +16,7 @@ from collections import Counter
 from pathlib import Path
 
 import pcbnew as pcb
+from module_pins import RESET_LANDS, module_nets
 from kicad_schematic import BOARDS, MAIN_ADDITIONS, cross_check, equivalence, read_board, read_bom, strip
 from kicad_sexpr import quote
 
@@ -33,6 +34,22 @@ def assembly(pt):
 
 def revise_lands(board, which):
     if which == "main":
+        module = board.FindFootprintByReference("U1")
+        nets = module_nets({p.GetNumber(): p.GetNetname() for p in module.Pads()})
+        for pad in module.Pads():
+            name = nets[pad.GetNumber()]
+            pad.SetNetCode(board.FindNet(name).GetNetCode() if name else 0)
+        original = board.FindFootprintByReference("TP15")
+        for ref, name in RESET_LANDS.items():
+            land = pcb.Cast_to_FOOTPRINT(original.Duplicate(False))
+            land.SetReference(ref)
+            for graphic in list(land.GraphicalItems()):
+                land.Delete(graphic)
+            pad = land.FindPadByNumber("1")
+            pad.SetSize(pcb.VECTOR2I(mm(0.70), mm(0.70)))
+            pad.SetNet(board.FindNet(name))
+            board.Add(land)
+        board.Remove(original)
         for ref, spec in MAIN_ADDITIONS.items():
             f = pcb.Cast_to_FOOTPRINT(board.FindFootprintByReference(spec["copy_part"]).Duplicate(False))
             f.SetReference(ref)
@@ -55,7 +72,6 @@ def revise_lands(board, which):
         for ref, pin in (("C6","1"), ("C7","1"), ("C8","1"), ("R64","2")):
             pad = board.FindFootprintByReference(ref).FindPadByNumber(pin)
             pad.SetLocalZoneConnection(pcb.ZONE_CONNECTION_THERMAL)
-        module = board.FindFootprintByReference("U1")
         for item in module.GraphicalItems():
             if item.GetLayer() == pcb.F_SilkS and item.GetBoundingBox().GetBottom() >= point(0, -15).y:
                 item.SetLayer(pcb.F_Fab)
@@ -72,7 +88,7 @@ def revise_lands(board, which):
             shape.SetLayer(pcb.B_Mask)
             connector.Add(shape)
     no_paste = {"JF1","CH1","CH2","SP1","SP2","MT1","MT2", *(f"P{i}" for i in range(1,5)),
-                *(f"TP{i}" for i in range(11,16))}
+                "TP11", "TP12", "TP13", "TP14", *RESET_LANDS}
     for f in board.GetFootprints():
         if f.GetReference() in no_paste:
             for pad in f.Pads():
@@ -291,7 +307,6 @@ def main_layout(board, fps):
         "TP12",
         "TP13",
         "TP14",
-        "TP15",
     ]:
         fps[ref].SetLocked(True)
     reserve(
