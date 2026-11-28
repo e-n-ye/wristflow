@@ -2,6 +2,15 @@
 
 更新日期：2026-11-28。本文件记录已确认边界；当前进度见 STATUS，不替代原始需求细节。
 
+<a id="b-routing-full-pins-20261128"></a>
+## 2026-11-28 B-R2 方案二整板重布
+
+用户批准[完整档](../hardware/reviews/2026-11-28-pin-assignment/README.md)，PA35/36 分给表冠 A 和 IMU INT1，放弃原生 USB。使用 TP11–14 四针和 R58 旁无钢网的 RTS_N_OD/GND 镊子复位对。固定器件、模拟及供电电路、叠层和工艺沿用下节；可整体重排铜线。成品候选须待连和一致性差异均为 0、锐角为 0、清除无意义短段、复验泪滴及换参考面孔 1.5 mm 回流距离（例外逐孔说明），并通过既有专项与机械门限。阶段交付可保留草稿。方案二 PR 交审，不合并。
+
+PA24–27、PA34–44 的专用 AON 接到实体盘。PA28–33 的专用输入物理断开。原黄山派 `product_wrist_irq` 给 PA31 登记 AON7，但 52 系列正常 DEEP 支持所有 GPIO 中断经 WSR_GPIO1 唤醒。PA31 无 Hibernate 引脚唤醒能力，DEEP 实机待验证。原表已测抬腕亮屏窗的 PM DEEP 计数为 0。此前据 AON7 断开推断 DEEP 失效的结论撤回。SDK v2.5.1 `drivers/hal/bf0_hal_pinmux.c:1077`、`docs/source/zh_CN/app_note/low_power.md:127,1092,1167–1170`。[醒态实测](evidence/2026-10-21/native-wrist-wake-hardware.json)
+
+用户仅要求 PA34 按键和 PA44 VBUS/充电插入接可用 Hibernate 的 AON 脚。DEEP 的触摸、IMU、表冠、充电中断和 PPG 可用任何能产生 GPIO 中断的外接 PA，具体启用组合留给固件阶段。BLE 消息提醒走核间通信，不占引脚。电路中 U3 的 CHG_INT 经 Q1 与按键电路相关，未独立接 U1 GPIO；该中断能否形成独立唤醒事件须按电路与波形判断。此决定不新增连接。
+
 <a id="b-routing-20261127"></a>
 ## 2026-11-27 B-R2 整板布线
 

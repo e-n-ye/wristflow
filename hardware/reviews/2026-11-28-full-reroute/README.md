@@ -1,0 +1,22 @@
+# 方案二 · B-R2 主板重布
+
+## 四板电路与管脚
+
+从方案一 `28dd807` 的保存铜起步，第一步报告在 `a620b6f`。本轮从 11/28 17:14（上海时间）开始。采用完整档、四针治具和镊子复位对，原生 USB 的两脚释放。主板仍使用原网名作为跨板、跨工具的网络标识，其中的 PA 文字代表历史名称；实际模组脚由本表与 XML 决定。[用户决定](../../../docs/BASELINE.md#b-routing-full-pins-20261128) · [原始几何估算](../2026-11-28-pin-assignment/README.md)
+
+| 信号 | 方案一 PA | 完整档复核后 PA | 固件要点 |
+|---|---:|---:|---|
+| 触摸复位 | 09 | 24 | 高释放复位输出，撤出 TF SPI 和 PBR0 唤醒/输出占用，配套改 FT6146 的睡醒/复位钩子。 |
+| 表冠 A / B | 24 / 25 | 35 / 32 | 双沿 GPIO 或同一个 ATIM1 的 CH1 / CH2，醒态支持硬件解码。DEEP 前按需切 GPIO 中断，恢复时同步相位。 |
+| IMU INT1 | 31 | 36 | 到 U13 的端点树由 16.84 降至 4.28 mm；保留实际 GPIO 上升沿、锁存清源和 DEEP 复验。 |
+| 马达、功放 CTRL | 20 / 42 | 38 / 11 | 马达保留 GPTIM2_CH1，功放按 NS4150B 电平控制，对旧 BSP 的启动、屏幕和 OTA 写脚逐项迁移。 |
+| AW32001 SCL / SDA | 10 / 11 | 29 / 28 | 保留 I2C2、总线租约和断电上拉顺序。 |
+| U15 GS_3V3 / U2 VSYS_1 使能 | 30 / 38 | 25 / 20 | 移除原 TF 上拉、旧马达 GPIO 控制；U4 的 PA26、VBUS 的 PA44 和按键 PA34 继续沿用。 |
+
+放宽 DEEP 引脚后，表冠 B 可用 PA32。与第一步比，B 从 PA24→32、触摸复位从 PA32→24 两项各省 0.911 mm，累计 10 根信号的无障碍 45° 端点树收益从 102.352 升至 **104.174 mm**。将 PPG 从 PA27 移至 PA31 会增加 1.823 mm；保留 PA27。PA32 的实际出线以本轮保存铜为准。
+
+52 系列 DEEP 可由所有 GPIO IRQ 经 WSR_GPIO1 唤醒，也支持核间通信；BLE 消息无额外引脚。PA31 的 AON7 物理断开，旧固件虽登记该索引，同时也注册 GPIO IRQ。已测抬腕窗 PM DEEP 计数为 0，PA31 的实际 DEEP 唤醒仍待验。本步未改固件。仅 PA34/44 必须满足 Hibernate 的专用唤醒。SDK v2.5.1 `docs/source/zh_CN/app_note/low_power.md:127,1092,1167–1170`、`drivers/hal/bf0_hal_pinmux.c:1077`。[现有 IRQ 注册](../../../apps/product/src/product_wrist_irq.c#L63)
+
+**表冠定时器。** 初案 PA35/24 和本版 PA35/32 均有 TIM 复用。GPTIM1 和 ATIM1 均可把两根脚分别连到同一实例 CH1/CH2，TI3 正交模式支持双相计数。推荐预留 ATIM1，避开 GPTIM2 的马达 PWM 及 GPTIM1 的背光资源。SDK `customer/boards/include/config/sf32lb52x/encoder_config.h:16–70`、`drivers/cmsis/sf32lb52x/bf0_pin_const.c:992–1003`、`hpsys_cfg.h:397–402,455–460`、`drivers/hal/bf0_hal_pinmux.c:677–739,800–859`。DEEP 期间普通定时器停止，首边沿、方向、机械抖动及供电域恢复需样板验收。BSP 可保留双沿软件解码作为备选。
+
+**逐脚核验。** KiCad 10.0.8 导出四板 XML，并与对照 `1128-comparison-source` 按（位号、引脚、完整网名）独立比较。主板 438→439 行，15 个 U1 焊盘改网，移除 TP15.1，新增 TP16.1（RTS_N_OD）和 TP17.1（GND），合计 18 行。后盖 36、表冠 10、触点板 8 行均零差异。每个旧信号的目标脚完整网名与原网逐字相同。原始 EPRO 保留为对照输入；原生 KiCad 生成器应用批准的增量。[完整 XML 差分](netlist-diff.csv) · [物理脚变更源](../../generator/module_pins.py)
