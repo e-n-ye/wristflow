@@ -19,6 +19,7 @@ import pcbnew as pcb
 from module_pins import INTERFACE_PINS, RESET_LANDS, interface_net, module_nets
 from kicad_schematic import BOARDS, MAIN_ADDITIONS, cross_check, equivalence, read_board, read_bom, strip
 from kicad_sexpr import quote
+from qspi_routing import QSPI_PADS, check_scheme3_leg
 
 DATA = Path(__file__).resolve().parents[1] / "boards/b-r2-main"
 mm = pcb.FromMM
@@ -545,7 +546,36 @@ def check_screen(board, reference):
             raise ValueError(f"J201.{pad.GetNumber()}: expected {expected}, got {actual}")
 
 
-def check_fanout(board):
+def check_qspi_fanout(board, scheme):
+    """Check the two distinct physical nets on each side of each series resistor."""
+    if scheme not in (1, 2, 3):
+        raise ValueError(f"Unknown routing scheme {scheme}")
+    board.BuildConnectivity()
+    conn = board.GetConnectivity()
+    layers = {pcb.F_Cu: "F", pcb.B_Cu: "B", pcb.In2_Cu: "L3", pcb.In3_Cu: "L4"}
+    result = {}
+    for index, (name, contacts) in enumerate(QSPI_PADS.items()):
+        ref = contacts[0].split(".")[0]
+        for leg, remote_ref, remote_pin in ((1, "U1", str(43-index)), (2, "J201", str(8+index))):
+            pad = board.FindFootprintByReference(ref).FindPadByNumber(str(leg))
+            reached = conn.GetConnectedItems(pad)
+            pads = {pcb.Cast_to_PAD(obj).GetParentFootprint().GetReference() + "." + pcb.Cast_to_PAD(obj).GetNumber()
+                    for obj in reached if obj.Type() == pcb.PCB_PAD_T}
+            expected = {f"{ref}.{leg}", f"{remote_ref}.{remote_pin}"}
+            if pads != expected:
+                raise ValueError(f"{ref}.{leg}: expected {sorted(expected)}, reached {sorted(pads)}")
+            copper = [obj for obj in board.GetTracks() if obj.GetNetCode() == pad.GetNetCode()]
+            used = {layers.get(obj.GetLayer(), "other") for obj in copper if obj.Type() == pcb.PCB_TRACE_T}
+            holes = sum(isinstance(obj, pcb.PCB_VIA) for obj in copper)
+            if scheme in (1, 2) and leg == 2 and not any(obj.Type() == pcb.PCB_TRACE_T and obj.GetLayer() == pcb.In2_Cu for obj in reached):
+                raise ValueError(f"{remote_ref}.{remote_pin}: scheme {scheme} requires an L3 segment")
+            if scheme == 3:
+                check_scheme3_leg(name, leg == 1, used, holes)
+            result[f"{ref}.{leg}"] = {"pads": sorted(pads), "layers": sorted(used), "vias": holes}
+    return result
+
+
+def check_fanout(board, scheme=2):
     """Walk actual connected copper, including vias, after reloading the saved board."""
     board.BuildConnectivity()
     connectivity = board.GetConnectivity()
@@ -593,7 +623,7 @@ def check_fanout(board):
         targets[ref] = [pad.GetNumber() for pad in footprints[ref].Pads()]
     for pin in ("C26.1","C27.1","U9.2","U9.3"):
         companions[pin] = "L4.2"
-    inner = {f"J201.{i}" for i in range(8, 13)}
+    inner = {f"J201.{i}" for i in range(8, 13)} if scheme in (1, 2) else set()
     result = {}
     for ref, pins in targets.items():
         for number in pins:
@@ -622,6 +652,7 @@ def check_fanout(board):
                     f"{key}: incomplete fanout, reached {pads}, {vias} vias, {inner_count} L3 segments"
                 )
             result[key] = {"pads": sorted(pads), "vias": vias, "L3_segments": inner_count, "zones": sorted(set(planes))}
+    result["QSPI"] = check_qspi_fanout(board, scheme)
     return result
 
 
@@ -731,7 +762,12 @@ def build(args, which, project):
     board = read_saved_board(path)
     if which == "main":
         check_screen(board, args.screen_reference)
-        (out / "fanout-readback.json").write_text(json.dumps(check_fanout(board), indent=2), encoding="utf-8")
+        profile = DATA / "routing-scheme.json"
+        scheme = getattr(args, "routing_scheme", None) or (json.loads(profile.read_bytes())["scheme"] if profile.exists() else 2)
+        (out / "routing-scheme.json").write_text(json.dumps({"scheme": scheme}), encoding="utf-8")
+        qspi = check_qspi_fanout(board, scheme)
+        (out / "qspi-fanout.json").write_text(json.dumps(qspi, indent=2), encoding="utf-8")
+        (out / "fanout-readback.json").write_text(json.dumps(check_fanout(board, scheme), indent=2), encoding="utf-8")
     result = json.loads((out / "drc.json").read_text(encoding="utf-8"))
     if result["schematic_parity"]:
         raise ValueError(f"{project}: see schematic_parity in {out}/drc.json")
@@ -762,6 +798,7 @@ if __name__ == "__main__":
         parser.add_argument("--" + arg, type=Path)
     parser.add_argument("--screen-reference", type=Path, help="KiCad import of the official display PCB alone")
     parser.add_argument("--board", choices=BOARDS, help="Build and check just this board in a new output directory")
+    parser.add_argument("--routing-scheme", type=int, choices=(1, 2, 3), help="Override the main-board routing profile")
     args = parser.parse_args()
     if args.readback:
         if args.readback.suffix != ".kicad_pcb" or not args.readback.is_file():

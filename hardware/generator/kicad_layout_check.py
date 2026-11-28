@@ -34,7 +34,7 @@ POWER_RAILS = {
 }
 
 
-def check_inner_crossings(g):
+def check_inner_crossings(g, touching_nets=None):
     """L3 and L4 have no intervening ground plane in JLC060811-3313."""
     layers = {
         s: [
@@ -49,6 +49,8 @@ def check_inner_crossings(g):
     for ta, a in layers["L3"]:
         for tb, b in layers["L4"]:
             if ta["net"] == tb["net"]:
+                continue
+            if touching_nets is not None and not ({ta["net"], tb["net"]} & touching_nets):
                 continue
             gap = a.distance(b) - (ta["width"] + tb["width"]) / 2
             angle, overlap = alignment(a, b)

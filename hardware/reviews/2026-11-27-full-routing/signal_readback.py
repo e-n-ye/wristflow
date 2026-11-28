@@ -13,7 +13,8 @@ from shapely.ops import unary_union
 from qspi_antipads import CONTROL_PADS, QSPI_PADS
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "generator"))
-from kicad_layout_check import copper_path, read_pins
+from kicad_layout_check import alignment, check_inner_crossings, copper_path, read_pins
+from qspi_routing import check_scheme3_leg
 
 
 def btl_report(g, pins):
@@ -173,10 +174,54 @@ def write_transition_returns(g, output):
         writer.writerows(sorted(rows, key=lambda row: (-row[6], row[0], row[1], row[2])))
 
 
+def check_scheme3_qspi(g, pins, comparison):
+    if comparison is None:
+        raise ValueError("Scheme 3 QSPI acceptance requires same-board foreign-antipad refill probes")
+    signals = qspi_report(g, pins, comparison)
+    screen_nets = set()
+    for i, (name, contacts) in enumerate(QSPI_PADS.items()):
+        for leg, (start, end) in enumerate(((f"U1.{43-i}", contacts[0]), (contacts[1], f"J201.{8+i}"))):
+            copper_path(g, pins, start, end)
+            net = pins[start]["net"]
+            screen_nets.add(net)
+            layers = {t["side"] for t in g["tracks"] if t["net"] == net}
+            holes = sum(v["net"] == net for v in g["vias"])
+            check_scheme3_leg(name, leg == 0, layers, holes)
+        row = signals[name]
+        if row["gap_excluding_own_vias_mm"] > 1e-6 or row["foreign_antipad_mm"] > 1e-6:
+            raise ValueError(f"{name}: reference-plane gap or foreign antipad crossing")
+        if any(t["ground_distance_mm"] > 1.5 + 1e-6 for t in row["transitions"]):
+            raise ValueError(f"{name}: return via outside 1.5 mm")
+    lengths = [row["copper_mm"] for row in signals.values()]
+    spread = max(lengths) - min(lengths)
+    if spread > 1.900 + 1e-6:
+        raise ValueError(f"Five-line skew {spread:.6f} mm exceeds the locked 1.900 mm")
+    mic_nets = {pins[k]["net"] for k in ("U1.37", "U1.36", "R30.2", "U9.2")}
+    mic_tracks = [t for t in g["tracks"] if t["net"] in mic_nets and t["side"] in ("L3", "L4")]
+    checked_gap = math.inf
+    for track in g["tracks"]:
+        if track["net"] not in screen_nets or track["side"] != "L4":
+            continue
+        a = LineString([track["start"], track["end"]])
+        for mic in mic_tracks:
+            b = LineString([mic["start"], mic["end"]])
+            angle, overlap = alignment(a, b)
+            if angle < 20 and overlap > 1e-6:
+                gap = a.distance(b) - (track["width"] + mic["width"]) / 2
+                checked_gap = min(checked_gap, gap)
+                if gap < 1.0 - 1e-6:
+                    raise ValueError(f"{track['net']} L4 and {mic['net']} {mic['side']} parallel gap {gap:.6f} mm")
+    return {"qspi": signals, "length_difference_mm": spread,
+            "inner_crossings": check_inner_crossings(g, touching_nets=screen_nets),
+            "l4_mic_min_parallel_gap_mm": checked_gap if math.isfinite(checked_gap) else None}
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("project", type=Path)
     parser.add_argument("--antipad-planes", type=Path, help="planes.json from qspi_antipads.py")
+    parser.add_argument("--routing-scheme", type=int, choices=(1, 2, 3))
+    parser.add_argument("--qspi-only", action="store_true", help="Run the scheme 3 QSPI acceptance on an intermediate board")
     parser.add_argument("--return-vias", type=Path, help="CSV of all non-ground reference changes")
     args = parser.parse_args()
     pcb = args.project / (args.project.name + ".kicad_pcb")
@@ -187,10 +232,20 @@ if __name__ == "__main__":
     if args.return_vias:
         write_transition_returns(geometry, args.return_vias)
     comparison = json.loads(args.antipad_planes.read_text(encoding="utf-8")) if args.antipad_planes else None
+    profile = args.project / "routing-scheme.json"
+    scheme = args.routing_scheme or (json.loads(profile.read_bytes())["scheme"] if profile.exists() else 2)
+    scheme3 = check_scheme3_qspi(geometry, pins, comparison) if scheme == 3 else None
+    if args.qspi_only:
+        if scheme3 is None:
+            parser.error("--qspi-only requires scheme 3")
+        print(json.dumps({"pcb_sha256": geometry["pcb_sha256"], **scheme3}, indent=2))
+        sys.exit(0)
     report = {"pcb_sha256": geometry["pcb_sha256"], "btl": btl_report(geometry, pins),
               "qspi": qspi_report(geometry, pins, comparison),
               "display_control": qspi_report(geometry, pins, comparison, CONTROL_PADS),
               "capacitor_ground": local_ground_vias(geometry, pins)}
     lengths = [row["copper_mm"] for row in report["qspi"].values()]
     report["qspi_maximum_length_difference_mm"] = max(lengths) - min(lengths)
+    if scheme3 is not None:
+        report["scheme3_qspi"] = scheme3
     print(json.dumps(report, ensure_ascii=False, indent=2))

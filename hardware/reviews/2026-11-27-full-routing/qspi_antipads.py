@@ -9,8 +9,8 @@ from collections import Counter
 from pathlib import Path
 
 READBACK = Path(__file__).resolve().parents[2] / "generator" / "kicad_pcb.py"
-QSPI_PADS = {name: (ref + ".1", ref + ".2") for name, ref in
-             zip(("CLK", "D0", "D1", "D2", "D3"), ("R18", "R19", "R20", "R16", "R17"))}
+sys.path.insert(0, str(READBACK.parent))
+from qspi_routing import QSPI_PADS
 CONTROL_PADS = {"CS": ("J201.14",), "TE": ("J201.13",), "RSTB": ("J201.15",)}
 
 
