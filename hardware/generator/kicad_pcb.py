@@ -200,6 +200,31 @@ def trial_tracks(board, fps):
                 ldo.AddItem(track)
 
 
+def enable_main_teardrops(board, fps):
+    # Spring contacts, test lands, fine-pitch packages and R66 service lands
+    # keep their qualified mask, soldering and contact geometry.
+    excluded = {"U2", "U3", "U6", "U13", "U14", "U16", "U17", "U19", "J2", "J201",
+                "Q1", "Q2", "R66", "JP1", "R49", "R50"}
+    for ref, footprint in fps.items():
+        if ref in excluded or ref.startswith(("TP", "MT", "K")):
+            continue
+        for pad in footprint.Pads():
+            if pad.GetNetCode() and pad.GetAttribute() in (pcb.PAD_ATTRIB_SMD, pcb.PAD_ATTRIB_PTH):
+                pad.SetTeardropsEnabled(True)
+                pad.SetTeardropPreferZoneConnections(True)
+    # A via's flare can reach a nearby solder-mask opening even when the
+    # pad's own teardrops are disabled. Protect the fine-pitch escape field.
+    fine_pads = [pad.GetPosition() for ref in ("U2", "U3", "U6", "U13", "U14", "U16",
+                                              "U17", "U19", "J2", "J201", "Q1", "Q2")
+                 for pad in fps[ref].Pads()]
+    for item in board.GetTracks():
+        if isinstance(item, pcb.PCB_VIA) and all(
+            (item.GetPosition() - center).EuclideanNorm() > mm(1.0) for center in fine_pads
+        ):
+            item.SetTeardropsEnabled(True)
+            item.SetTeardropPreferZoneConnections(True)
+
+
 def ground_plane(board, layer, name, corners, clearance):
     zone = pcb.ZONE(board)
     zone.SetZoneName(name)
@@ -299,6 +324,7 @@ def main_layout(board, fps):
         ]
         reserve(board, f"Clamp {i} / head and bearing surface", corners, surfaces, True)
     trial_tracks(board, fps)
+    enable_main_teardrops(board, fps)
     for layer in (pcb.In1_Cu, pcb.In4_Cu):
         ground_plane(board, layer, board.GetLayerName(layer), [(-19,-22),(19,-22),(19,23),(-19,23)], 0.20)
     x, y = assembly(fps["U3"].GetPosition())
@@ -397,6 +423,7 @@ def geometry(board):
         court = module.GetCourtyard(pcb.F_CrtYd)
         module_court = [ring(court.COutline(i)) for i in range(court.OutlineCount())]
     fills, fill_layers, plane_keepouts = {}, {}, []
+    teardrops = 0
     for zone in board.Zones():
         if zone.GetIsRuleArea():
             if (zone.GetZoneName() == "Module antenna / all copper layers"
@@ -405,9 +432,15 @@ def geometry(board):
                 plane_keepouts.extend(ring(boundary.COutline(i)) for i in range(boundary.OutlineCount()))
             continue
         layer = zone.GetLayer()
-        fill_layers[zone.GetZoneName()] = [pcb.LayerName(layer), zone.GetNetname()]
+        name = zone.GetZoneName()
+        if zone.IsTeardropArea():
+            if not zone.HasFilledPolysForLayer(layer) or zone.GetFilledPolysList(layer).Area() <= 0:
+                continue
+            teardrops += 1
+            name = f"Teardrop {teardrops}"
+        fill_layers[name] = [pcb.LayerName(layer), zone.GetNetname()]
         polys = zone.GetFilledPolysList(layer)
-        fills[zone.GetZoneName()] = [
+        fills[name] = [
             {"outer": ring(polys.COutline(i)),
              "holes": [ring(polys.CHole(i, j)) for j in range(polys.HoleCount(i))]}
             for i in range(polys.OutlineCount())
@@ -423,6 +456,7 @@ def geometry(board):
         "module_court": module_court,
         "zone_fills": fills,
         "zone_layers": fill_layers,
+        "filled_teardrops": teardrops,
         "plane_keepouts": plane_keepouts,
         "outline": ring(outline.COutline(0)),
         "holes": [ring(outline.CHole(0, i)) for i in range(outline.HoleCount(0))],

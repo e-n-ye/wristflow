@@ -1,5 +1,6 @@
 """Read saved copper for the pre-filter BTL pair and both sides of each QSPI resistor."""
 import argparse
+import csv
 import hashlib
 import json
 import math
@@ -139,16 +140,52 @@ def local_ground_vias(g, pins):
     return result
 
 
+def write_transition_returns(g, output):
+    """Count a via once if attached copper uses both L2- and L5-referenced layers."""
+    from collections import defaultdict
+
+    copper = defaultdict(list)
+    for track in g["tracks"]:
+        shape = LineString([track["start"], track["end"]])
+        copper[track["net"]].append((track["side"], shape, track["width"] / 2))
+    for fp in g["footprints"].values():
+        for pad in fp["pads"]:
+            copper[pad["net"]].extend((fp["side"], Polygon(ring), 0) for ring in pad["polygons"])
+
+    ground = [v["xy"] for v in g["vias"] if v["net"] == "GND"]
+    rows = []
+    for via in g["vias"]:
+        if via["net"] == "GND":
+            continue
+        center = Point(via["xy"])
+        layers = {layer for layer, shape, radius in copper[via["net"]]
+                  if center.distance(shape) < radius + via["layer_diameters"][layer] / 2 + 1e-6}
+        if not layers.intersection(("F", "L3")) or not layers.intersection(("L4", "B")):
+            continue
+        nearest = min(ground, key=lambda xy: math.dist(xy, via["xy"]))
+        distance = math.dist(nearest, via["xy"])
+        rows.append((via["net"], *via["xy"], "/".join(sorted(layers)), *nearest,
+                     round(distance, 6), "是" if distance > 1.5 else "否"))
+    with output.open("w", newline="", encoding="utf-8") as stream:
+        writer = csv.writer(stream, lineterminator="\n")
+        writer.writerow(["网络", "孔 X mm", "孔 Y mm", "实际接铜层", "地孔 X mm", "地孔 Y mm",
+                         "中心距 mm", "超过 1.5 mm"])
+        writer.writerows(sorted(rows, key=lambda row: (-row[6], row[0], row[1], row[2])))
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("project", type=Path)
     parser.add_argument("--antipad-planes", type=Path, help="planes.json from qspi_antipads.py")
+    parser.add_argument("--return-vias", type=Path, help="CSV of all non-ground reference changes")
     args = parser.parse_args()
     pcb = args.project / (args.project.name + ".kicad_pcb")
     geometry = json.loads((args.project / "geometry.json").read_text(encoding="utf-8"))
     if hashlib.sha256(pcb.read_bytes()).hexdigest() != geometry["pcb_sha256"]:
         raise ValueError("Run kicad_pcb.py --readback on the current PCB")
     pins = read_pins(geometry)
+    if args.return_vias:
+        write_transition_returns(geometry, args.return_vias)
     comparison = json.loads(args.antipad_planes.read_text(encoding="utf-8")) if args.antipad_planes else None
     report = {"pcb_sha256": geometry["pcb_sha256"], "btl": btl_report(geometry, pins),
               "qspi": qspi_report(geometry, pins, comparison),
