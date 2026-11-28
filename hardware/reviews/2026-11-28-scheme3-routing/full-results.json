@@ -1,0 +1,193 @@
+{
+  "boards": {
+    "WristFlow-B-R2": {
+      "sha": "4b3036a7e35f1b54d6a44dae29f2943a95ac91383c5549e2741acd701027d37b",
+      "unc": 38,
+      "open_nets": 28,
+      "parity": 0,
+      "drc": {
+        "courtyards_overlap": 3
+      }
+    },
+    "WristFlow-B-Rear-FPC": {
+      "sha": "3b932c3ffe4eb7dc7f6da896ae675fee89516180ce05aa3cc092c4987caf1046",
+      "unc": 3,
+      "open_nets": 3,
+      "parity": 0,
+      "drc": {
+        "courtyards_overlap": 1,
+        "copper_edge_clearance": 47,
+        "via_dangling": 2
+      }
+    },
+    "WristFlow-B-Crown": {
+      "sha": "5034d23761b226a13c116fc25accabde7f7e00ea8bea91a4669711113cfe94e1",
+      "unc": 0,
+      "open_nets": 0,
+      "parity": 0,
+      "drc": {
+        "courtyards_overlap": 3,
+        "copper_edge_clearance": 11
+      }
+    },
+    "WristFlow-B-Crown-Contacts": {
+      "sha": "edecd8b6ae6f25db32dc513f59a0ed02e5f54837a81bb2b8eb59d08e313f0461",
+      "unc": 0,
+      "open_nets": 0,
+      "parity": 0,
+      "drc": {
+        "courtyards_overlap": 6,
+        "copper_edge_clearance": 8
+      }
+    }
+  },
+  "copper_mm": 1480.977034,
+  "vias": 223,
+  "sig_vias": 87,
+  "effective": 87,
+  "signal_hist_0_to_4": [
+    7,
+    15,
+    18,
+    17,
+    4
+  ],
+  "short": 194,
+  "acute": 20,
+  "tears": 557,
+  "returns": [
+    89,
+    14,
+    3.143907
+  ],
+  "layout": {
+    "failed": "GND-L2: edge-open mechanical cutout at (-14.681300160614914, 6.4934, -14.073, 7.182714211581518)"
+  },
+  "planes": {
+    "failed": "GND-L2: edge-open mechanical cutout at (-14.681300160614914, 6.4934, -14.073, 7.182714211581518)"
+  },
+  "areas": {
+    "GND-L2": 1106.670941,
+    "GND-L5": 1106.670941
+  },
+  "edge": {
+    "tracks": 0.30459999999999954,
+    "vias": 0.3019404662746364
+  },
+  "inner": {
+    "failed": "L3/L4 crossing at 45.00 degrees: {'start': [-1.936825, 14.779425], 'end': [-1.2549, 14.0975], 'net': 'VCC_3V3', 'side': 'L3', 'width': 0.35} vs {'start': [2.58, 14.65], 'end': [-11.35, 14.65], 'net': 'OLED_3V3', 'side': 'L4', 'width': 0.35}"
+  },
+  "mic": [
+    [
+      "MIC_BIAS",
+      "VBUS_5V",
+      "L3",
+      "L3",
+      "parallel",
+      0.43540000000000034,
+      [
+        [
+          2.502737,
+          8.2214
+        ],
+        [
+          6.7464,
+          8.2214
+        ]
+      ],
+      [
+        [
+          4.0757,
+          8.9118
+        ],
+        [
+          4.1238,
+          8.9118
+        ]
+      ]
+    ],
+    [
+      "MIC_BIAS",
+      "VBUS_5V",
+      "L3",
+      "L3",
+      "parallel",
+      0.42020000000000013,
+      [
+        [
+          2.502737,
+          8.2214
+        ],
+        [
+          6.7464,
+          8.2214
+        ]
+      ],
+      [
+        [
+          4.0589,
+          8.8966
+        ],
+        [
+          4.0108,
+          8.8966
+        ]
+      ]
+    ]
+  ],
+  "mic_groups": {
+    "MIC_GND": 1,
+    "ADCIN": 1,
+    "/05 功放与麦克风/N_31N10127": 1,
+    "MIC_BIAS": 1
+  },
+  "power": 23,
+  "caps": {
+    "C30.1": null,
+    "C38.1": 0.572184,
+    "C3.1": 0.549751,
+    "C2.1": null,
+    "C6.1": 0.661076,
+    "C39.2": 0.549751,
+    "C8.1": 0.549751,
+    "C29.1": 0.684189,
+    "C10.1": 0.549751,
+    "C42.1": null,
+    "C7.1": 0.635445,
+    "C40.2": 0.549751,
+    "C202.1": 0.527,
+    "C33.1": 0.750001,
+    "C31.1": 0.549751,
+    "C34.1": 0.750001,
+    "C9.1": 0.549751,
+    "C203.1": 0.520001,
+    "C13.2": 0.55675,
+    "C1.1": 0.6765,
+    "C201.2": null,
+    "C4.1": 0.562251,
+    "C15.1": null,
+    "C28.1": 0.549751,
+    "C35.1": 0.549751,
+    "C5.1": 0.549751,
+    "C41.1": 0.623798,
+    "C14.1": 0.549751
+  },
+  "charging": [
+    null,
+    12.544546,
+    8.30694
+  ],
+  "east": 8,
+  "btl_pre_area": 3.7076,
+  "btl_post_area": 2.280948,
+  "btl_post_spacing": 0.579999,
+  "stencil": 428,
+  "fit": {
+    "sha": "4b3036a7e35f1b54d6a44dae29f2943a95ac91383c5549e2741acd701027d37b",
+    "collisions": [],
+    "lateral": 0.34999,
+    "max_battery_height": 0.96,
+    "battery_separator": 0.7,
+    "ntc": 0.27488
+  }
+}
