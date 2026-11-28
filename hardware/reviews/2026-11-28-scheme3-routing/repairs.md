@@ -9,3 +9,7 @@
 [八个截面的剩余通道](repair-cuts.csv) 对比 P3 和 R3 的实盘、实铜及通孔，采用 0.16/0.15 mm，顺序 F/L3/L4/B。M 的 B 面余量 5→19 道，J 东侧 B 面仍为 1 道；槽西四层不变，槽东两内层分别 38→35、35→31。计数用于比较局部余宽。
 
 本机保存板在 `artifacts/s3-next/r3/WristFlow-B-R2`，同目录含 `geometry.json`、`drc.json`、`components.json`、同版 `board.step` 和 `placement-fit.json`。后续每次改摆位先运行 `placement_precheck.py <薄装配目录> <候选布局CSV>`，再按同版 STEP 终验；`copper_boundary.py` 统一按完整中心线/孔和带内孔板域检查。 R3 PCB SHA-256 `6a4730e12274b258f368e1dc26b9adff4ff9c96f42b212a6b7d8d496f1df5616`。
+
+## 整板第一轮
+
+从 R3 锁定两处先行铜，第一份整板会话 A 余 86 项。补模组及分散去耦地后为 62 项，再做全网协商与定向寻路分别为 43、38 项。38 项版本 BC 的 DRC 仍有 49 项板边、7 个单端孔、1 项短接及其钻孔净距、1 项铜间距、1 项线宽和三对既有 K 庭院。已独立生成两个表冠板的零待连版本，后盖保留 3 项版本；后续详见本页最终表。

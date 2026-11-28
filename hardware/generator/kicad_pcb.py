@@ -186,12 +186,13 @@ def link_board(board, netlist, directory):
     return fps
 
 
-def trial_tracks(board, fps):
+def trial_tracks(board, fps, routes_path, main):
     layers = {"F": pcb.F_Cu, "B": pcb.B_Cu, "L3": pcb.In2_Cu, "L4": pcb.In3_Cu}
-    ldo = pcb.PCB_GROUP(board)
-    ldo.SetName("VSYS_1 LDO branches")
-    board.Add(ldo)
-    for route in json.loads((DATA / "fanout.json").read_text()):
+    if main:
+        ldo = pcb.PCB_GROUP(board)
+        ldo.SetName("VSYS_1 LDO branches")
+        board.Add(ldo)
+    for route in json.loads(routes_path.read_text(encoding="utf-8")):
         ref, pin = route["pad"].split(".")
         pad = fps[ref].FindPadByNumber(pin)
         if "via" in route:
@@ -201,10 +202,11 @@ def trial_tracks(board, fps):
             via.SetWidth(mm(route["diameter"]))
             via.SetDrill(mm(route["drill"]))
             via.SetNet(pad.GetNet())
-            via.SetRemoveUnconnected(True)
-            via.SetKeepStartEnd(True)
-            via.SetFillingMode(pcb.FILLING_MODE_FILLED)
-            via.SetCappingMode(pcb.CAPPING_MODE_CAPPED)
+            if main:
+                via.SetRemoveUnconnected(True)
+                via.SetKeepStartEnd(True)
+                via.SetFillingMode(pcb.FILLING_MODE_FILLED)
+                via.SetCappingMode(pcb.CAPPING_MODE_CAPPED)
             if route["pad"] == "U3.B2":
                 via.SetFrontTentingMode(pcb.TENTING_MODE_NOT_TENTED)
             board.Add(via)
@@ -217,7 +219,7 @@ def trial_tracks(board, fps):
             track.SetWidth(mm(route["width"]))
             track.SetNet(pad.GetNet())
             board.Add(track)
-            if route["pad"] in ("U4.1", "U15.1", "C9.2", "C33.2"):
+            if main and route["pad"] in ("U4.1", "U15.1", "C9.2", "C33.2"):
                 ldo.AddItem(track)
 
 
@@ -343,7 +345,7 @@ def main_layout(board, fps):
             for t in range(64)
         ]
         reserve(board, f"Clamp {i} / head and bearing surface", corners, surfaces, True)
-    trial_tracks(board, fps)
+    trial_tracks(board, fps, DATA / "fanout.json", main=True)
     enable_main_teardrops(board, fps)
     for layer in (pcb.In1_Cu, pcb.In4_Cu):
         ground_plane(board, layer, board.GetLayerName(layer), [(-19,-22),(19,-22),(19,23),(-19,23)], 0.20)
@@ -669,6 +671,9 @@ def build(args, which, project):
     board.GetDesignSettings().SetBoardThickness(mm(thickness))
     if which == "main":
         main_layout(board, fps)
+    else:
+        folders = {"rear": "b-rear-fpc", "crown": "b-crown", "bridge": "b-crown-contacts"}
+        trial_tracks(board, fps, DATA.parent / folders[which] / "fanout.json", main=False)
     pcb.SaveBoard(str(path), board)
     raw = add_units(path.read_text(encoding="utf-8"), net)
     if which == "main":
