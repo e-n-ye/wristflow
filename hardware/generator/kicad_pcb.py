@@ -202,6 +202,7 @@ def trial_tracks(board, fps, routes_path, main):
             via.SetWidth(mm(route["diameter"]))
             via.SetDrill(mm(route["drill"]))
             via.SetNet(pad.GetNet())
+            via.SetLocked(route.get("locked", False))
             if main:
                 via.SetRemoveUnconnected(True)
                 via.SetKeepStartEnd(True)
@@ -218,6 +219,7 @@ def trial_tracks(board, fps, routes_path, main):
             track.SetLayer(layers[route["layer"]])
             track.SetWidth(mm(route["width"]))
             track.SetNet(pad.GetNet())
+            track.SetLocked(route.get("locked", False))
             board.Add(track)
             if main and route["pad"] in ("U4.1", "U15.1", "C9.2", "C33.2"):
                 ldo.AddItem(track)
